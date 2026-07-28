@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Departamento - NJ Cabuçu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root {
+            --primary: #0D47A1;
+            --primary-light: #1565C0;
+            --bg: #f0f4f8;
+            --card-bg: #ffffff;
+            --shadow: 0 2px 20px rgba(0,0,0,0.06);
+            --radius: 16px;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: #1a1a1a;
+        }
+
+        .header {
+            background: var(--card-bg);
+            padding: 0.8rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--primary);
+            flex-wrap: wrap;
+        }
+        .logo { display: flex; align-items: center; gap: 0.8rem; }
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: white;
+        }
+        .logo h1 { font-size: 1.3rem; color: var(--primary); }
+
+        .btn {
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-light); transform: translateY(-2px); }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #218838; }
+        .btn-sm { padding: 0.3rem 0.8rem; font-size: 0.8rem; }
+
+        .container { max-width: 1200px; margin: 1.5rem auto; padding: 0 1.5rem; }
+
+        .dept-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            margin-bottom: 1.5rem;
+        }
+        .dept-header h1 { font-size: 2rem; }
+        .dept-header .subtitle { opacity: 0.9; margin-top: 0.3rem; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            border: 1px solid #e8e8e8;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .card h3 {
+            color: var(--primary);
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .scale-item {
+            background: #f8f9fa;
+            padding: 0.8rem;
+            border-radius: 10px;
+            margin-bottom: 0.6rem;
+            border-left: 4px solid var(--primary);
+        }
+        .scale-item .date {
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .scale-item .songs {
+            margin: 0.3rem 0;
+        }
+        .music-tag {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 0.15rem 0.6rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            display: inline-block;
+            margin: 0.15rem;
+        }
+        .scale-item .palette {
+            display: flex;
+            gap: 0.3rem;
+            margin-top: 0.3rem;
+        }
+        .scale-item .palette .color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+        }
+        .scale-item .rehearsal {
+            color: #28a745;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-top: 0.3rem;
+        }
+        .scale-item .actions {
+            margin-top: 0.5rem;
+        }
+
+        .form-group { margin: 0.8rem 0; }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.7rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+        }
+        .form-group input:focus { border-color: var(--primary); outline: none; }
+
+        .member-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .member-item .name { font-weight: 600; }
+        .member-item .email { color: #888; font-size: 0.85rem; }
+
+        .hidden { display: none !important; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .flex-center { display: flex; align-items: center; gap: 0.5rem; }
+        .gap-1 { gap: 0.5rem; }
+        .mt-1 { margin-top: 0.8rem; }
+        .mb-1 { margin-bottom: 0.8rem; }
+        .text-center { text-align: center; }
+        .w-full { width: 100%; }
+
+        .notification {
+            padding: 0.8rem 1.2rem;
+            border-radius: 10px;
+            margin: 0.8rem 0;
+            font-weight: 500;
+        }
+        .notification.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .notification.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .header { flex-direction: column; gap: 0.5rem; padding: 0.8rem 1rem; }
+            .grid { grid-template-columns: 1fr; }
+            .card { max-height: none; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">NJ</div>
+            <h1>NJ Cabuçu</h1>
+        </div>
+        <div>
+            <span style="margin-right:0.8rem;color:#666;font-weight:600;" id="userName">Líder</span>
+            <button onclick="logout()" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Sair</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="dept-header">
+            <h1><i class="fas fa-users"></i> <span id="deptName">Meu Departamento</span></h1>
+            <div class="subtitle" id="deptRole">Membro</div>
+        </div>
+
+        <div class="grid">
+            <!-- ESCALAS -->
+            <div class="card">
+                <h3><i class="fas fa-calendar-alt"></i> Escalas</h3>
+                <div id="scalesList">
+                    <p style="color:#888;">Carregando...</p>
+                </div>
+                <button onclick="showCreateScale()" class="btn btn-primary w-full" style="margin-top:0.8rem;justify-content:center;">
+                    <i class="fas fa-plus"></i> Nova Escala
+                </button>
+
+                <!-- FORMULÁRIO DE CRIAÇÃO -->
+                <div id="createScaleForm" class="hidden" style="margin-top:0.8rem;border-top:1px solid #eee;padding-top:0.8rem;">
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar"></i> Data e Hora *</label>
+                        <input type="datetime-local" id="scaleDate">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-music"></i> Músicas (separadas por vírgula)</label>
+                        <input type="text" id="musicInput" placeholder="Ex: Aleluia, Santo, Deus de Promessas">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-palette"></i> Paleta de Cores</label>
+                        <input type="text" id="scalePalette" placeholder="Ex: Azul, Prata, Branco, Dourado">
+                        <small style="color:#888;">Cores para iluminação do culto</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="flex-center">
+                            <input type="checkbox" id="hasRehearsal">
+                            <span style="margin-left:0.5rem;"><i class="fas fa-microphone"></i> Com Ensaio</span>
+                        </label>
+                    </div>
+                    <div class="flex-between gap-1">
+                        <button onclick="saveScale()" class="btn btn-success"><i class="fas fa-save"></i> Salvar</button>
+                        <button onclick="hideCreateScale()" class="btn" style="background:#6c757d;color:white;">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MEMBROS -->
+            <div class="card">
+                <h3><i class="fas fa-user-friends"></i> Membros</h3>
+                <div id="membersList">
+                    <p style="color:#888;">Carregando...</p>
+                </div>
+                <div style="margin-top:0.8rem;">
+                    <div style="display:flex;gap:0.5rem;">
+                        <input type="email" id="memberEmail" placeholder="E-mail do membro" style="flex:1;padding:0.5rem;border:2px solid #e0e0e0;border-radius:8px;">
+                        <button onclick="addMember()" class="btn btn-primary btn-sm"><i class="fas fa-user-plus"></i> Adicionar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ESTATÍSTICAS -->
+            <div class="card">
+                <h3><i class="fas fa-chart-bar"></i> Estatísticas</h3>
+                <div id="stats">
+                    <p><strong>Total de Escalas:</strong> <span id="totalScales">0</span></p>
+                    <p><strong>Membros:</strong> <span id="totalMembers">0</span></p>
+                    <p><strong>Músicas Cadastradas:</strong> <span id="totalSongs">0</span></p>
+                    <p><strong>Próximos Cultos:</strong> <span id="nextCults">0</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ============================================
+    // ===== CONFIGURAÇÕES =====
+    // ============================================
+    const token = localStorage.getItem('token');
+    if (!token) { window.location.href = '/login'; }
+
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    let scales = [];
+
+    function getHeaders() {
+        return { 'Authorization': 'Bearer ' + token };
+    }
+
+    // ============================================
+    // ===== INICIALIZAÇÃO =====
+    // ============================================
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('userName').textContent = user.name || 'Usuário';
+        document.getElementById('deptName').textContent = user.department_name || 'Meu Departamento';
+        document.getElementById('deptRole').textContent = user.role === 'lider' ? '👑 Líder do Ministério' : '🙋 Membro';
+
+        if (!user.department_id) {
+            document.getElementById('membersList').innerHTML = '<p style="color:#888;">Você não está em um departamento. Peça ao pastor para te adicionar.</p>';
+        } else {
+            loadScales();
+            loadMembers();
+        }
+    });
+
+    // ============================================
+    // ===== ESCALAS =====
+    // ============================================
+
+    function showCreateScale() {
+        document.getElementById('createScaleForm').classList.remove('hidden');
+        document.getElementById('createScaleForm').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function hideCreateScale() {
+        document.getElementById('createScaleForm').classList.add('hidden');
+        document.getElementById('scaleDate').value = '';
+        document.getElementById('musicInput').value = '';
+        document.getElementById('scalePalette').value = '';
+        document.getElementById('hasRehearsal').checked = false;
+    }
+
+    async function saveScale() {
+        const date = document.getElementById('scaleDate').value;
+        const musicInput = document.getElementById('musicInput').value;
+        const palette = document.getElementById('scalePalette').value;
+        const rehearsal = document.getElementById('hasRehearsal').checked;
+
+        if (!date) {
+            showNotification('Selecione a data do culto!', 'error');
+            return;
+        }
+        if (!musicInput.trim()) {
+            showNotification('Adicione pelo menos uma música!', 'error');
+            return;
+        }
+
+        const songs = musicInput.split(',').map(s => s.trim()).filter(s => s);
+
+        try {
+            await fetch('/api/worship-scales', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                body: JSON.stringify({
+                    department_id: user.department_id,
+                    event_date: date,
+                    leader_id: user.id,
+                    songs: songs,
+                    palette: palette || 'Azul, Prata, Branco, Dourado',
+                    rehearsal: rehearsal
+                })
+            });
+            showNotification('✅ Escala criada com sucesso!', 'success');
+            hideCreateScale();
+            loadScales();
+        } catch (e) {
+            showNotification('❌ Erro ao criar escala: ' + e.message, 'error');
+        }
+    }
+
+    async function loadScales() {
+        try {
+            const res = await fetch('/api/worship-scales', { headers: getHeaders() });
+            const data = await res.json();
+            scales = data.filter(s => s.department_id === user.department_id);
+            const container = document.getElementById('scalesList');
+
+            if (!scales.length) {
+                container.innerHTML = '<p style="color:#888;">Nenhuma escala cadastrada.</p>';
+                updateStats();
+                return;
+            }
+
+            let totalSongs = 0;
+            let nextCults = 0;
+            const now = new Date();
+
+            container.innerHTML = scales.map(s => {
+                if (s.songs) totalSongs += s.songs.length;
+                const eventDate = new Date(s.event_date);
+                if (eventDate > now) nextCults++;
+
+                const paletteColors = s.palette ? s.palette.split(',').map(c => c.trim()) : [];
+
+                return `
+                    <div class="scale-item">
+                        <div class="date">
+                            <i class="fas fa-calendar-alt"></i>
+                            ${eventDate.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' })}
+                            às ${eventDate.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' })}
+                        </div>
+                        ${s.leader_name ? `<div><strong>Líder:</strong> ${s.leader_name}</div>` : ''}
+                        <div class="songs">
+                            <strong>Músicas:</strong>
+                            ${s.songs ? s.songs.map(m => `<span class="music-tag">${m}</span>`).join('') : '-'}
+                        </div>
+                        ${paletteColors.length ? `
+                            <div class="palette">
+                                <strong>Paleta:</strong>
+                                ${paletteColors.map(c => `<span class="color" style="background:${c};"></span>`).join('')}
+                                <span style="font-size:0.8rem;color:#888;margin-left:0.3rem;">${s.palette}</span>
+                            </div>
+                        ` : ''}
+                        ${s.rehearsal ? `<div class="rehearsal"><i class="fas fa-microphone"></i> Com Ensaio</div>` : ''}
+                        ${user.role === 'lider' ? `
+                            <div class="actions">
+                                <button onclick="deleteScale(${s.id})" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i> Remover
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('totalScales').textContent = scales.length;
+            document.getElementById('totalSongs').textContent = totalSongs;
+            document.getElementById('nextCults').textContent = nextCults;
+
+        } catch (e) {
+            console.error('Erro:', e);
+            document.getElementById('scalesList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar escalas</p>';
+        }
+    }
+
+    async function deleteScale(id) {
+        if (!confirm('Remover esta escala?')) return;
+        try {
+            await fetch('/api/worship-scales/' + id, {
+                method: 'DELETE',
+                headers: getHeaders()
+            });
+            showNotification('✅ Escala removida!', 'success');
+            loadScales();
+        } catch (e) {
+            showNotification('❌ Erro ao remover: ' + e.message, 'error');
+        }
+    }
+
+    // ============================================
+    // ===== MEMBROS =====
+    // ============================================
+
+    async function loadMembers() {
+        try {
+            if (!user.department_id) {
+                document.getElementById('membersList').innerHTML = '<p style="color:#888;">Você não está em um departamento.</p>';
+                return;
+            }
+
+            const res = await fetch(`/api/departments/${user.department_id}/members`, { headers: getHeaders() });
+            const data = await res.json();
+            const container = document.getElementById('membersList');
+
+            if (!data.length) {
+                container.innerHTML = '<p style="color:#888;">Nenhum membro neste departamento.</p>';
+                document.getElementById('totalMembers').textContent = 0;
+                return;
+            }
+
+            container.innerHTML = data.map(m => `
+                <div class="member-item">
+                    <div>
+                        <span class="name">${m.name}</span>
+                        <span class="email">${m.email}</span>
+                        ${m.member_role === 'lider' ? ' <span style="color:#28a745;font-size:0.8rem;font-weight:600;">👑 Líder</span>' : ''}
+                    </div>
+                    ${user.role === 'lider' && m.id !== user.id ? `
+                        <button onclick="removeMember(${m.id})" class="btn btn-danger btn-sm" title="Remover membro">
+                            <i class="fas fa-user-minus"></i>
+                        </button>
+                    ` : ''}
+                </div>
+            `).join('');
+
+            document.getElementById('totalMembers').textContent = data.length;
+
+        } catch (e) {
+            console.error('Erro:', e);
+            document.getElementById('membersList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar membros</p>';
+        }
+    }
+
+    async function addMember() {
+        const email = document.getElementById('memberEmail').value.trim();
+        if (!email) {
+            showNotification('Digite o e-mail do membro!', 'error');
+            return;
+        }
+        if (!user.department_id) {
+            showNotification('Você não está em um departamento.', 'error');
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/users', { headers: getHeaders() });
+            const users = await res.json();
+            const found = users.find(u => u.email === email);
+
+            if (!found) {
+                showNotification('Usuário não encontrado! Verifique o e-mail.', 'error');
+                return;
+            }
+
+            await fetch(`/api/departments/${user.department_id}/members`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                body: JSON.stringify({ user_id: found.id, role: 'membro' })
+            });
+
+            document.getElementById('memberEmail').value = '';
+            showNotification(`✅ ${found.name} adicionado ao departamento!`, 'success');
+            loadMembers();
+        } catch (e) {
+            showNotification('❌ Erro ao adicionar: ' + e.message, 'error');
+        }
+    }
+
+    async function removeMember(userId) {
+        if (!confirm('Remover este membro do departamento?')) return;
+        try {
+            await fetch(`/api/departments/${user.department_id}/members/${userId}`, {
+                method: 'DELETE',
+                headers: getHeaders()
+            });
+            showNotification('✅ Membro removido!', 'success');
+            loadMembers();
+        } catch (e) {
+            showNotification('❌ Erro ao remover: ' + e.message, 'error');
+        }
+    }
+
+    // ============================================
+    // ===== ESTATÍSTICAS =====
+    // ============================================
+
+    function updateStats() {
+        const total = scales.length;
+        let nextCults = 0;
+        const now = new Date();
+
+        scales.forEach(s => {
+            if (new Date(s.event_date) > now) nextCults++;
+        });
+
+        document.getElementById('totalScales').textContent = total;
+        document.getElementById('nextCults').textContent = nextCults;
+    }
+
+    // ============================================
+    // ===== NOTIFICAÇÕES =====
+    // ============================================
+
+    function showNotification(message, type = 'info') {
+        const div = document.createElement('div');
+        div.className = 'notification ' + type;
+        div.textContent = message;
+        div.style.position = 'fixed';
+        div.style.top = '20px';
+        div.style.right = '20px';
+        div.style.maxWidth = '400px';
+        div.style.zIndex = '99999';
+        div.style.boxShadow = '0 10px 40px rgba(0,0,0,0.1)';
+        document.body.appendChild(div);
+        setTimeout(() => {
+            div.style.opacity = '0';
+            div.style.transition = 'opacity 0.5s';
+            setTimeout(() => div.remove(), 500);
+        }, 4000);
+    }
+
+    // ============================================
+    // ===== LOGOUT =====
+    // ============================================
+
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+    }
+
+    // ============================================
+    // ===== ENTER KEY SUPPORT =====
+    // ============================================
+
+    document.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            if (document.activeElement && document.activeElement.id === 'memberEmail') {
+                addMember();
+            }
+            if (document.activeElement && document.activeElement.id === 'musicInput') {
+                // Não faz nada, o usuário pode clicar em Salvar
+            }
+        }
+    });
+    </script>
+</body>
+</html>

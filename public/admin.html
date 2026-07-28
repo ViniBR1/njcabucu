@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - NJ Cabuçu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root {
+            --primary: #0D47A1;
+            --primary-light: #1565C0;
+            --bg: #f0f4f8;
+            --card-bg: #ffffff;
+            --shadow: 0 2px 20px rgba(0,0,0,0.06);
+            --radius: 16px;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: #1a1a1a;
+        }
+        .header {
+            background: var(--card-bg);
+            padding: 0.8rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--primary);
+            flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo { display: flex; align-items: center; gap: 0.8rem; }
+        .logo-icon {
+            width: 45px; height: 45px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: white;
+        }
+        .logo h1 { font-size: 1.3rem; color: var(--primary); }
+
+        .btn {
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-light); transform: translateY(-2px); }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #218838; }
+        .btn-warning { background: #ffc107; color: #1a1a1a; }
+        .btn-warning:hover { background: #e0a800; }
+        .btn-sm { padding: 0.3rem 0.8rem; font-size: 0.8rem; }
+
+        .container { max-width: 1400px; margin: 1.5rem auto; padding: 0 1.5rem; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            padding: 1.2rem;
+            border-radius: var(--radius);
+            text-align: center;
+            border: 1px solid #e8e8e8;
+        }
+        .stat-card .number { font-size: 2rem; font-weight: 700; color: var(--primary); }
+        .stat-card .label { color: #888; font-size: 0.85rem; }
+        .stat-card .icon { font-size: 1.5rem; color: var(--primary); margin-bottom: 0.3rem; }
+
+        /* Vendas Stats */
+        .sales-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1rem 0;
+        }
+        .sales-card {
+            background: #f8f9fa;
+            padding: 1.2rem;
+            border-radius: var(--radius);
+            border: 1px solid #e8e8e8;
+        }
+        .sales-card .value { font-size: 1.8rem; font-weight: 700; color: var(--primary); }
+        .sales-card .label { color: #666; font-size: 0.9rem; }
+        .sales-card .sub { color: #888; font-size: 0.8rem; }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            background: var(--card-bg);
+            padding: 0.8rem;
+            border-radius: 12px;
+            border: 1px solid #e8e8e8;
+        }
+        .tab-btn {
+            padding: 0.4rem 1.2rem;
+            border: 2px solid transparent;
+            border-radius: 50px;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+        }
+        .tab-btn:hover { border-color: var(--primary); }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .tab-content {
+            display: none;
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            border: 1px solid #e8e8e8;
+        }
+        .tab-content.active { display: block; }
+
+        .table-wrapper { overflow-x: auto; }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        .table th {
+            text-align: left;
+            padding: 0.5rem;
+            border-bottom: 2px solid #e8e8e8;
+            color: #666;
+        }
+        .table td { padding: 0.5rem; border-bottom: 1px solid #f0f0f0; }
+        .table tr:hover { background: #f8f9fa; }
+
+        .status {
+            padding: 0.15rem 0.6rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-approved { background: #d4edda; color: #155724; }
+        .status-completed { background: #d4edda; color: #155724; }
+        .status-rejected { background: #f8d7da; color: #721c24; }
+
+        .badge {
+            padding: 0.15rem 0.6rem;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .badge-pastor { background: var(--primary); color: white; }
+        .badge-lider { background: #28a745; color: white; }
+        .badge-fiel { background: #6c757d; color: white; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalIn 0.3s ease;
+        }
+        @keyframes modalIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-close {
+            float: right;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #888;
+            background: none;
+            border: none;
+        }
+        .modal-close:hover { color: #333; }
+
+        .form-group { margin: 0.8rem 0; }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+            font-size: 0.9rem;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 0.7rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        .form-row { display: flex; gap: 1rem; }
+        .form-row > * { flex: 1; }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .flex-center { display: flex; align-items: center; gap: 0.5rem; }
+        .text-center { text-align: center; }
+        .mt-1 { margin-top: 1rem; }
+        .mb-1 { margin-bottom: 1rem; }
+        .hidden { display: none !important; }
+        .w-full { width: 100%; }
+
+        /* Charts */
+        .chart-container {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin: 0.5rem 0;
+        }
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.5rem;
+            height: 150px;
+            padding: 0.5rem 0;
+        }
+        .bar-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .bar {
+            width: 100%;
+            max-width: 40px;
+            background: var(--primary);
+            border-radius: 4px 4px 0 0;
+            min-height: 5px;
+            transition: height 0.5s ease;
+        }
+        .bar-label {
+            font-size: 0.7rem;
+            color: #666;
+            text-align: center;
+        }
+        .bar-value {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .header { flex-direction: column; gap: 0.5rem; padding: 0.8rem 1rem; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .sales-grid { grid-template-columns: 1fr; }
+            .tabs { gap: 0.3rem; padding: 0.5rem; }
+            .tab-btn { padding: 0.3rem 0.8rem; font-size: 0.75rem; }
+            .form-row { flex-direction: column; }
+            .bar-chart { height: 100px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="logo">
+        <div class="logo-icon">NJ</div>
+        <h1>Painel do Pastor</h1>
+    </div>
+    <div>
+        <span style="margin-right:0.8rem;color:#666;font-weight:600;">👑 Pastor</span>
+        <button onclick="logout()" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Sair</button>
+    </div>
+</header>
+
+<div class="container">
+    <!-- STATS -->
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+            <div class="icon"><i class="fas fa-users"></i></div>
+            <div class="number" id="totalUsers">0</div>
+            <div class="label">Membros</div>
+        </div>
+        <div class="stat-card">
+            <div class="icon"><i class="fas fa-pray"></i></div>
+            <div class="number" id="totalPrayers">0</div>
+            <div class="label">Orações</div>
+        </div>
+        <div class="stat-card">
+            <div class="icon"><i class="fas fa-shopping-cart"></i></div>
+            <div class="number" id="totalOrders">0</div>
+            <div class="label">Vendas</div>
+        </div>
+        <div class="stat-card">
+            <div class="icon"><i class="fas fa-hand-holding-heart"></i></div>
+            <div class="number" id="totalDonations">R$ 0</div>
+            <div class="label">Doações</div>
+        </div>
+        <div class="stat-card">
+            <div class="icon"><i class="fas fa-book"></i></div>
+            <div class="number" id="totalStudies">0</div>
+            <div class="label">Estudos</div>
+        </div>
+        <div class="stat-card">
+            <div class="icon"><i class="fas fa-calendar"></i></div>
+            <div class="number" id="totalEvents">0</div>
+            <div class="label">Eventos</div>
+        </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('dashboard')"><i class="fas fa-chart-pie"></i> Dashboard</button>
+        <button class="tab-btn" onclick="showTab('vendas')"><i class="fas fa-shopping-cart"></i> Vendas</button>
+        <button class="tab-btn" onclick="showTab('usuarios')"><i class="fas fa-users"></i> Usuários</button>
+        <button class="tab-btn" onclick="showTab('oracoes')"><i class="fas fa-pray"></i> Orações</button>
+        <button class="tab-btn" onclick="showTab('estudos')"><i class="fas fa-book"></i> Estudos</button>
+        <button class="tab-btn" onclick="showTab('eventos')"><i class="fas fa-calendar"></i> Eventos</button>
+        <button class="tab-btn" onclick="showTab('produtos')"><i class="fas fa-box"></i> Produtos</button>
+        <button class="tab-btn" onclick="showTab('carousel')"><i class="fas fa-images"></i> Carrossel</button>
+        <button class="tab-btn" onclick="showTab('doacoes')"><i class="fas fa-hand-holding-heart"></i> Doações</button>
+        <button class="tab-btn" onclick="showTab('inscricoes')"><i class="fas fa-clipboard-list"></i> Inscrições</button>
+        <button class="tab-btn" onclick="showTab('departamentos')"><i class="fas fa-building"></i> Departamentos</button>
+        <button class="tab-btn" onclick="showTab('config')"><i class="fas fa-cog"></i> Config</button>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="tab-dashboard" class="tab-content active">
+        <h3>📊 Resumo de Vendas</h3>
+        <div class="sales-grid" id="salesSummary">
+            <div class="sales-card">
+                <div class="label">💰 Total em Vendas</div>
+                <div class="value" id="totalSalesValue">R$ 0,00</div>
+                <div class="sub" id="totalSalesCount">0 vendas</div>
+            </div>
+            <div class="sales-card">
+                <div class="label">📈 Média por Venda</div>
+                <div class="value" id="avgSalesValue">R$ 0,00</div>
+                <div class="sub">Ticket médio</div>
+            </div>
+            <div class="sales-card">
+                <div class="label">💳 Método mais usado</div>
+                <div class="value" id="topPaymentMethod">-</div>
+                <div class="sub" id="topPaymentCount">0 vendas</div>
+            </div>
+            <div class="sales-card">
+                <div class="label">🏆 Produto mais vendido</div>
+                <div class="value" id="topProduct">-</div>
+                <div class="sub" id="topProductSales">0 vendas</div>
+            </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-top:1.5rem;">
+            <div>
+                <h4>📅 Vendas por Dia (Últimos 7 dias)</h4>
+                <div class="chart-container" id="salesChart">
+                    <div class="bar-chart" id="barChart"></div>
+                </div>
+            </div>
+            <div>
+                <h4>📊 Produtos Mais Vendidos</h4>
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead><tr><th>Produto</th><th>Vendas</th><th>Receita</th></tr></thead>
+                        <tbody id="topProductsList"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top:1.5rem;">
+            <h4>📋 Últimas Vendas</h4>
+            <div class="table-wrapper">
+                <table class="table">
+                    <thead><tr><th>Cliente</th><th>Produto</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
+                    <tbody id="recentOrdersList"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- VENDAS -->
+    <div id="tab-vendas" class="tab-content">
+        <h3>🛒 Histórico de Vendas</h3>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Cliente</th><th>E-mail</th><th>Produto</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
+                <tbody id="ordersList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- USUÁRIOS -->
+    <div id="tab-usuarios" class="tab-content">
+        <div class="flex-between mb-1">
+            <h3>👥 Usuários</h3>
+            <button onclick="openUserModal()" class="btn btn-success"><i class="fas fa-plus"></i> Novo</button>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Nome</th><th>Email</th><th>Cargo</th><th>Depto</th><th>Ações</th></tr></thead>
+                <tbody id="usersList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ORAÇÕES -->
+    <div id="tab-oracoes" class="tab-content">
+        <h3>🙏 Pedidos de Oração</h3>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Nome</th><th>Pedido</th><th>Data</th><th>Status</th><th>Ações</th></tr></thead>
+                <tbody id="prayersList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ESTUDOS -->
+    <div id="tab-estudos" class="tab-content">
+        <div class="flex-between mb-1">
+            <h3>📖 Estudos</h3>
+            <button onclick="openStudyModal()" class="btn btn-success"><i class="fas fa-plus"></i> Novo</button>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Título</th><th>Descrição</th><th>Imagem</th><th>Ações</th></tr></thead>
+                <tbody id="studiesList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- EVENTOS -->
+    <div id="tab-eventos" class="tab-content">
+        <div class="flex-between mb-1">
+            <h3>📅 Eventos</h3>
+            <button onclick="openEventModal()" class="btn btn-success"><i class="fas fa-plus"></i> Novo</button>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Título</th><th>Data</th><th>Valor</th><th>Ações</th></tr></thead>
+                <tbody id="eventsList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- PRODUTOS -->
+    <div id="tab-produtos" class="tab-content">
+        <div class="flex-between mb-1">
+            <h3>📦 Produtos</h3>
+            <button onclick="openProductModal()" class="btn btn-success"><i class="fas fa-plus"></i> Novo</button>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Nome</th><th>Preço</th><th>Estoque</th><th>Categoria</th><th>Ações</th></tr></thead>
+                <tbody id="productsList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- CARROSSEL -->
+    <div id="tab-carousel" class="tab-content">
+        <div class="flex-between mb-1">
+            <h3>🖼️ Carrossel</h3>
+            <button onclick="openCarouselModal()" class="btn btn-success"><i class="fas fa-plus"></i> Nova Imagem</button>
+        </div>
+        <div class="carousel-preview" id="carouselList"></div>
+    </div>
+
+    <!-- DOAÇÕES -->
+    <div id="tab-doacoes" class="tab-content">
+        <h3>💝 Doações</h3>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Doador</th><th>Tipo</th><th>Valor</th><th>Data</th></tr></thead>
+                <tbody id="donationsList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- INSCRIÇÕES -->
+    <div id="tab-inscricoes" class="tab-content">
+        <h3>📋 Inscrições</h3>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Nome</th><th>Tipo</th><th>Depto/Evento</th><th>Status</th><th>Data</th></tr></thead>
+                <tbody id="registrationsList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- DEPARTAMENTOS -->
+    <div id="tab-departamentos" class="tab-content">
+        <div class="flex-between mb-1">
+            <h3>🏢 Departamentos</h3>
+            <button onclick="openDeptModal()" class="btn btn-success"><i class="fas fa-plus"></i> Novo</button>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Nome</th><th>Líder</th><th>Ações</th></tr></thead>
+                <tbody id="departmentsList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- CONFIG -->
+    <div id="tab-config" class="tab-content">
+        <h3>⚙️ Configurações do Site</h3>
+        <div class="form-group">
+            <label>Cor Primária</label>
+            <input type="color" id="configPrimary" value="#0D47A1" onchange="saveConfig('primary_color', this.value)">
+        </div>
+        <div class="form-group">
+            <label>Título do Site</label>
+            <input type="text" id="configTitle" value="NJ Cabuçu" onchange="saveConfig('site_title', this.value)">
+        </div>
+        <div class="form-group">
+            <label>WhatsApp (com DDD)</label>
+            <input type="text" id="configWhatsapp" value="5521985345627" onchange="saveConfig('whatsapp', this.value)">
+        </div>
+        <div class="form-group">
+            <label>Instagram</label>
+            <input type="text" id="configInstagram" value="novajerusalemcabucu" onchange="saveConfig('instagram', this.value)">
+        </div>
+        <button onclick="loadConfig()" class="btn btn-primary"><i class="fas fa-sync"></i> Recarregar</button>
+    </div>
+</div>
+
+<!-- ===== MODAIS ===== -->
+<!-- USUÁRIO -->
+<div class="modal" id="userModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('userModal')">&times;</button>
+        <h3>👤 Novo Usuário</h3>
+        <div class="form-group"><label>Nome *</label><input type="text" id="userName"></div>
+        <div class="form-group"><label>E-mail *</label><input type="email" id="userEmail"></div>
+        <div class="form-group"><label>Senha *</label><input type="password" id="userPassword" minlength="6"></div>
+        <div class="form-row">
+            <div class="form-group"><label>Cargo</label>
+                <select id="userRole"><option value="fiel">Fiel</option><option value="lider">Líder</option><option value="colaborador">Colaborador</option></select>
+            </div>
+            <div class="form-group"><label>Departamento</label><input type="text" id="userDepartment"></div>
+        </div>
+        <div class="form-group"><label><input type="checkbox" id="userIsLeader"> É Líder?</label></div>
+        <button onclick="saveUser()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+    </div>
+</div>
+
+<!-- ESTUDO -->
+<div class="modal" id="studyModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('studyModal')">&times;</button>
+        <h3>📖 Novo Estudo</h3>
+        <form id="studyForm" enctype="multipart/form-data">
+            <div class="form-group"><label>Título *</label><input type="text" name="title" required></div>
+            <div class="form-group"><label>Descrição</label><textarea name="description" rows="3"></textarea></div>
+            <div class="form-group"><label>Imagem</label><input type="file" name="image" accept="image/*"></div>
+            <div class="form-group"><label>Link do Arquivo</label><input type="url" name="file_url" placeholder="https://..."></div>
+            <button type="submit" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+        </form>
+    </div>
+</div>
+
+<!-- EVENTO -->
+<div class="modal" id="eventModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('eventModal')">&times;</button>
+        <h3>📅 Novo Evento</h3>
+        <form id="eventForm" enctype="multipart/form-data">
+            <div class="form-group"><label>Título *</label><input type="text" name="title" required></div>
+            <div class="form-group"><label>Descrição</label><textarea name="description" rows="3"></textarea></div>
+            <div class="form-group"><label>Data e Hora *</label><input type="datetime-local" name="date" required></div>
+            <div class="form-group"><label>Imagem</label><input type="file" name="image" accept="image/*"></div>
+            <div class="form-row">
+                <div class="form-group"><label>Preço</label><input type="number" name="price" step="0.01" value="0"></div>
+                <div class="form-group"><label>Pago?</label>
+                    <select name="is_paid"><option value="false">Grátis</option><option value="true">Pago</option></select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+        </form>
+    </div>
+</div>
+
+<!-- PRODUTO -->
+<div class="modal" id="productModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('productModal')">&times;</button>
+        <h3>📦 Novo Produto</h3>
+        <form id="productForm" enctype="multipart/form-data">
+            <div class="form-group"><label>Nome *</label><input type="text" name="name" required></div>
+            <div class="form-group"><label>Descrição</label><textarea name="description" rows="2"></textarea></div>
+            <div class="form-row">
+                <div class="form-group"><label>Preço *</label><input type="number" name="price" step="0.01" required></div>
+                <div class="form-group"><label>Estoque</label><input type="number" name="stock" value="10"></div>
+            </div>
+            <div class="form-group"><label>Categoria</label><input type="text" name="category" placeholder="Ex: Livros, Camisas"></div>
+            <div class="form-group"><label>Imagem</label><input type="file" name="image" accept="image/*"></div>
+            <button type="submit" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+        </form>
+    </div>
+</div>
+
+<!-- CARROSSEL -->
+<div class="modal" id="carouselModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('carouselModal')">&times;</button>
+        <h3>🖼️ Nova Imagem</h3>
+        <form id="carouselForm" enctype="multipart/form-data">
+            <div class="form-group"><label>Título</label><input type="text" name="title"></div>
+            <div class="form-group"><label>Subtítulo</label><input type="text" name="subtitle"></div>
+            <div class="form-group"><label>Imagem *</label><input type="file" name="image" accept="image/*" required></div>
+            <div class="form-group"><label>Link</label><input type="url" name="link" placeholder="https://..."></div>
+            <button type="submit" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+        </form>
+    </div>
+</div>
+
+<!-- DEPARTAMENTO -->
+<div class="modal" id="deptModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('deptModal')">&times;</button>
+        <h3>🏢 Novo Departamento</h3>
+        <div class="form-group"><label>Nome *</label><input type="text" id="deptName"></div>
+        <div class="form-group"><label>E-mail do Líder</label><input type="email" id="deptLeader"></div>
+        <div class="form-group"><label>Descrição</label><textarea id="deptDesc" rows="3"></textarea></div>
+        <button onclick="saveDepartment()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+    </div>
+</div>
+
+<script>
+// ============================================
+// ===== CONFIGURAÇÕES =====
+// ============================================
+const token = localStorage.getItem('token');
+if (!token) { window.location.href = '/login'; }
+
+const user = JSON.parse(localStorage.getItem('user') || '{}');
+if (user.role !== 'pastor') {
+    alert('Apenas o pastor tem acesso a este painel.');
+    window.location.href = '/departamento';
+}
+
+function getHeaders() {
+    return { 'Authorization': 'Bearer ' + token };
+}
+
+// ============================================
+// ===== TABS =====
+// ============================================
+function showTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => {
+        const map = {
+            'dashboard': 'Dashboard',
+            'vendas': 'Vendas',
+            'usuarios': 'Usuários',
+            'oracoes': 'Orações',
+            'estudos': 'Estudos',
+            'eventos': 'Eventos',
+            'produtos': 'Produtos',
+            'carousel': 'Carrossel',
+            'doacoes': 'Doações',
+            'inscricoes': 'Inscrições',
+            'departamentos': 'Departamentos',
+            'config': 'Config'
+        };
+        if (b.textContent.includes(map[tab])) b.classList.add('active');
+    });
+    document.getElementById('tab-' + tab).classList.add('active');
+    if (tab === 'carousel') loadCarouselAdmin();
+    if (tab === 'departamentos') loadDepartments();
+    if (tab === 'config') loadConfig();
+}
+
+// ============================================
+// ===== LOAD DASHBOARD =====
+// ============================================
+async function loadDashboard() {
+    try {
+        const [users, prayers, orders, donations, studies, events, registrations, salesStats] = await Promise.all([
+            fetch('/api/users', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
+            fetch('/api/prayers', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
+            fetch('/api/orders', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
+            fetch('/api/donations', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
+            fetch('/api/studies', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
+            fetch('/api/events', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
+            fetch('/api/registrations', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
+            fetch('/api/sales-stats', { headers: getHeaders() }).then(r => r.json()).catch(() => ({}))
+        ]);
+
+        const unreadPrayers = prayers.filter(p => !p.is_read).length;
+        const totalDonations = donations.reduce((s, d) => s + parseFloat(d.amount || 0), 0);
+
+        document.getElementById('totalUsers').textContent = users.length;
+        document.getElementById('totalPrayers').textContent = unreadPrayers;
+        document.getElementById('totalOrders').textContent = orders.length;
+        document.getElementById('totalDonations').textContent = 'R$ ' + totalDonations.toFixed(2);
+        document.getElementById('totalStudies').textContent = studies.length;
+        document.getElementById('totalEvents').textContent = events.length;
+
+        // Carregar listas
+        loadUsers(users);
+        loadPrayers(prayers);
+        loadOrders(orders);
+        loadDonations(donations);
+        loadStudies(studies);
+        loadEvents(events);
+        loadRegistrations(registrations);
+        loadProducts();
+
+        // Carregar estatísticas de vendas
+        loadSalesStats(salesStats, orders);
+
+    } catch (e) { console.error('Erro:', e); }
+}
+
+// ============================================
+// ===== ESTATÍSTICAS DE VENDAS =====
+// ============================================
+function loadSalesStats(stats, orders) {
+    // Total de vendas
+    const totalSales = stats.total || { count: 0, total: 0 };
+    document.getElementById('totalSalesValue').textContent = 'R$ ' + parseFloat(totalSales.total || 0).toFixed(2);
+    document.getElementById('totalSalesCount').textContent = totalSales.count + ' vendas';
+
+    // Média por venda
+    const avg = totalSales.count > 0 ? totalSales.total / totalSales.count : 0;
+    document.getElementById('avgSalesValue').textContent = 'R$ ' + avg.toFixed(2);
+
+    // Método mais usado
+    if (stats.byMethod && stats.byMethod.length > 0) {
+        const topMethod = stats.byMethod.reduce((a, b) => a.count > b.count ? a : b);
+        document.getElementById('topPaymentMethod').textContent = topMethod.payment_method || 'PIX';
+        document.getElementById('topPaymentCount').textContent = topMethod.count + ' vendas';
+    }
+
+    // Produto mais vendido
+    if (stats.topProducts && stats.topProducts.length > 0) {
+        const topProduct = stats.topProducts[0];
+        document.getElementById('topProduct').textContent = topProduct.product_name || '-';
+        document.getElementById('topProductSales').textContent = topProduct.total_sales + ' vendas';
+    }
+
+    // Gráfico de barras (vendas por dia)
+    const barChart = document.getElementById('barChart');
+    if (stats.byDay && stats.byDay.length > 0) {
+        const maxTotal = Math.max(...stats.byDay.map(d => parseFloat(d.total || 0)), 1);
+        barChart.innerHTML = stats.byDay.slice(0, 7).map(d => {
+            const height = (parseFloat(d.total || 0) / maxTotal) * 100;
+            const date = new Date(d.date);
+            const label = date.toLocaleDateString('pt-BR', { weekday: 'short' });
+            return `
+                <div class="bar-item">
+                    <div class="bar" style="height: ${Math.max(height, 5)}%;"></div>
+                    <div class="bar-value">R$ ${parseFloat(d.total || 0).toFixed(0)}</div>
+                    <div class="bar-label">${label}</div>
+                    <div class="bar-label" style="font-size:0.6rem;">${d.count} vendas</div>
+                </div>
+            `;
+        }).join('');
+    } else {
+        barChart.innerHTML = '<p style="color:#888;text-align:center;width:100%;">Nenhuma venda nos últimos 7 dias</p>';
+    }
+
+    // Produtos mais vendidos (lista)
+    const topProductsList = document.getElementById('topProductsList');
+    if (stats.topProducts && stats.topProducts.length > 0) {
+        topProductsList.innerHTML = stats.topProducts.slice(0, 5).map(p => `
+            <tr>
+                <td>${p.product_name || '-'}</td>
+                <td>${p.total_sales || 0}</td>
+                <td>R$ ${parseFloat(p.total_revenue || 0).toFixed(2)}</td>
+            </tr>
+        `).join('');
+    } else {
+        topProductsList.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum produto vendido</td></tr>';
+    }
+
+    // Últimas vendas (Dashboard)
+    const recentOrders = document.getElementById('recentOrdersList');
+    if (orders && orders.length > 0) {
+        recentOrders.innerHTML = orders.slice(0, 5).map(o => {
+            let items = '';
+            try { items = JSON.parse(o.items || '[]'); } catch { items = []; }
+            const productName = items.length > 0 ? items[0].name : o.product_name || '-';
+            return `
+                <tr>
+                    <td>${o.user_name || 'Anônimo'}</td>
+                    <td>${productName}</td>
+                    <td>R$ ${parseFloat(o.total || 0).toFixed(2)}</td>
+                    <td><span class="status status-${o.status || 'pending'}">${o.status || 'Pendente'}</span></td>
+                    <td>${new Date(o.created_at).toLocaleDateString('pt-BR')}</td>
+                </tr>
+            `;
+        }).join('');
+    } else {
+        recentOrders.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhuma venda</td></tr>';
+    }
+}
+
+// ============================================
+// ===== CARREGAR LISTAS =====
+// ============================================
+
+function loadUsers(users) {
+    const tbody = document.getElementById('usersList');
+    if (!users?.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhum usuário</td></tr>';
+        return;
+    }
+    const roleMap = { pastor: 'Pastor', lider: 'Líder', colaborador: 'Colaborador', fiel: 'Fiel' };
+    const badgeMap = { pastor: 'badge-pastor', lider: 'badge-lider', fiel: 'badge-fiel' };
+    tbody.innerHTML = users.map(u => `
+        <tr>
+            <td>${u.name}</td>
+            <td>${u.email}</td>
+            <td><span class="badge ${badgeMap[u.role] || 'badge-fiel'}">${roleMap[u.role] || u.role}</span></td>
+            <td>${u.department_name || '-'}</td>
+            <td>
+                <button onclick="resetPassword('${u.email}')" class="btn btn-warning btn-sm" title="Resetar senha"><i class="fas fa-key"></i></button>
+                <button onclick="deleteUser(${u.id})" class="btn btn-danger btn-sm" title="Remover"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function loadPrayers(prayers) {
+    const tbody = document.getElementById('prayersList');
+    if (!prayers?.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhum pedido</td></tr>';
+        return;
+    }
+    tbody.innerHTML = prayers.slice(0, 30).map(p => `
+        <tr>
+            <td>${p.name || 'Anônimo'}</td>
+            <td>${p.request.substring(0, 60)}${p.request.length > 60 ? '...' : ''}</td>
+            <td>${new Date(p.created_at).toLocaleDateString('pt-BR')}</td>
+            <td>${p.is_read ? '✅ Lido' : '📩 Não lido'}</td>
+            <td>${!p.is_read ? '<button onclick="markPrayerRead(' + p.id + ')" class="btn btn-success btn-sm"><i class="fas fa-check"></i> Marcar Lido</button>' : ''}</td>
+        </tr>
+    `).join('');
+}
+
+function loadOrders(orders) {
+    const tbody = document.getElementById('ordersList');
+    if (!orders?.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="color:#888;">Nenhuma venda</td></tr>';
+        return;
+    }
+    tbody.innerHTML = orders.slice(0, 30).map(o => {
+        let items = '';
+        try { items = JSON.parse(o.items || '[]'); } catch { items = []; }
+        const productName = items.length > 0 ? items.map(i => i.name).join(', ') : o.product_name || '-';
+        return `
+            <tr>
+                <td>${o.user_name || 'Anônimo'}</td>
+                <td>${o.user_email || '-'}</td>
+                <td>${productName}</td>
+                <td>R$ ${parseFloat(o.total || 0).toFixed(2)}</td>
+                <td><span class="status status-${o.status || 'pending'}">${o.status || 'Pendente'}</span></td>
+                <td>${new Date(o.created_at).toLocaleDateString('pt-BR')}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function loadDonations(donations) {
+    const tbody = document.getElementById('donationsList');
+    if (!donations?.length) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma doação</td></tr>';
+        return;
+    }
+    tbody.innerHTML = donations.slice(0, 30).map(d => `
+        <tr>
+            <td>${d.user_name || 'Anônimo'}</td>
+            <td>${d.type || '-'}</td>
+            <td>R$ ${parseFloat(d.amount || 0).toFixed(2)}</td>
+            <td>${new Date(d.created_at).toLocaleDateString('pt-BR')}</td>
+        </tr>
+    `).join('');
+}
+
+function loadStudies(studies) {
+    const tbody = document.getElementById('studiesList');
+    if (!studies?.length) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum estudo</td></tr>';
+        return;
+    }
+    tbody.innerHTML = studies.map(s => `
+        <tr>
+            <td>${s.title}</td>
+            <td>${s.description ? s.description.substring(0, 40) + (s.description.length > 40 ? '...' : '') : '-'}</td>
+            <td>${s.image_url ? '✅' : '-'}</td>
+            <td><button onclick="deleteStudy(${s.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td>
+        </tr>
+    `).join('');
+}
+
+function loadEvents(events) {
+    const tbody = document.getElementById('eventsList');
+    if (!events?.length) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum evento</td></tr>';
+        return;
+    }
+    tbody.innerHTML = events.map(e => `
+        <tr>
+            <td>${e.title}</td>
+            <td>${new Date(e.date).toLocaleDateString('pt-BR')}</td>
+            <td>${parseFloat(e.price || 0) > 0 ? 'R$ ' + parseFloat(e.price).toFixed(2) : 'Grátis'}</td>
+            <td><button onclick="deleteEvent(${e.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td>
+        </tr>
+    `).join('');
+}
+
+async function loadProducts() {
+    try {
+        const res = await fetch('/api/products', { headers: getHeaders() });
+        const products = await res.json();
+        const tbody = document.getElementById('productsList');
+        if (!products?.length) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhum produto</td></tr>';
+            return;
+        }
+        tbody.innerHTML = products.map(p => `
+            <tr>
+                <td>${p.name}</td>
+                <td>R$ ${parseFloat(p.price).toFixed(2)}</td>
+                <td>${p.stock}</td>
+                <td>${p.category || '-'}</td>
+                <td><button onclick="deleteProduct(${p.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td>
+            </tr>
+        `).join('');
+    } catch (e) { console.error('Erro:', e); }
+}
+
+async function loadRegistrations(registrations) {
+    const tbody = document.getElementById('registrationsList');
+    if (!registrations?.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhuma inscrição</td></tr>';
+        return;
+    }
+    const typeMap = { baptism: 'Batismo', volunteer: 'Voluntário', event: 'Evento', department: 'Depto' };
+    tbody.innerHTML = registrations.slice(0, 30).map(r => `
+        <tr>
+            <td>${r.name}</td>
+            <td>${typeMap[r.type] || r.type}</td>
+            <td>${r.department_name || r.event_name || '-'}</td>
+            <td><span class="status status-${r.status || 'pending'}">${r.status || 'Pendente'}</span></td>
+            <td>${new Date(r.created_at).toLocaleDateString('pt-BR')}</td>
+        </tr>
+    `).join('');
+}
+
+async function loadCarouselAdmin() {
+    try {
+        const res = await fetch('/api/carousel', { headers: getHeaders() });
+        const data = await res.json();
+        const container = document.getElementById('carouselList');
+        if (!data?.length) {
+            container.innerHTML = '<p class="text-center" style="color:#888;">Nenhuma imagem no carrossel</p>';
+            return;
+        }
+        container.innerHTML = data.map(img => `
+            <div class="carousel-item" style="display:inline-block;width:200px;margin:0.5rem;text-align:center;border:1px solid #e8e8e8;border-radius:8px;padding:0.5rem;">
+                <img src="${img.image_url}" style="width:100%;height:120px;object-fit:cover;border-radius:8px;">
+                <div style="margin-top:0.3rem;font-weight:600;font-size:0.8rem;">${img.title || 'Sem título'}</div>
+                <button onclick="deleteCarousel(${img.id})" class="btn btn-danger btn-sm" style="margin-top:0.3rem;"><i class="fas fa-trash"></i> Remover</button>
+            </div>
+        `).join('');
+    } catch (e) { console.error('Erro:', e); }
+}
+
+async function loadDepartments() {
+    try {
+        const res = await fetch('/api/departments', { headers: getHeaders() });
+        const data = await res.json();
+        const tbody = document.getElementById('departmentsList');
+        if (!data?.length) {
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum departamento</td></tr>';
+            return;
+        }
+        tbody.innerHTML = data.map(d => `
+            <tr>
+                <td>${d.name}</td>
+                <td>${d.leader_name || 'Sem líder'}</td>
+                <td><button onclick="deleteDepartment(${d.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td>
+            </tr>
+        `).join('');
+    } catch (e) { console.error('Erro:', e); }
+}
+
+// ============================================
+// ===== AÇÕES =====
+// ============================================
+
+async function markPrayerRead(id) {
+    try {
+        await fetch('/api/prayers/' + id + '/read', { method: 'PUT', headers: getHeaders() });
+        loadDashboard();
+        showNotification('✅ Oração marcada como lida!', 'success');
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+async function deleteUser(id) {
+    if (!confirm('Remover este usuário?')) return;
+    try {
+        await fetch('/api/users/' + id, { method: 'DELETE', headers: getHeaders() });
+        loadDashboard();
+        showNotification('✅ Usuário removido!', 'success');
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+async function resetPassword(email) {
+    if (!confirm('Resetar senha de ' + email + ' para 123456?')) return;
+    try {
+        await fetch('/api/reset-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...getHeaders() },
+            body: JSON.stringify({ email, newPassword: '123456' })
+        });
+        showNotification('✅ Senha resetada para 123456', 'success');
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+async function deleteStudy(id) {
+    if (!confirm('Remover este estudo?')) return;
+    try {
+        await fetch('/api/studies/' + id, { method: 'DELETE', headers: getHeaders() });
+        loadDashboard();
+        showNotification('✅ Estudo removido!', 'success');
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+async function deleteEvent(id) {
+    if (!confirm('Remover este evento?')) return;
+    try {
+        await fetch('/api/events/' + id, { method: 'DELETE', headers: getHeaders() });
+        loadDashboard();
+        showNotification('✅ Evento removido!', 'success');
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+async function deleteProduct(id) {
+    if (!confirm('Remover este produto?')) return;
+    try {
+        await fetch('/api/products/' + id, { method: 'DELETE', headers: getHeaders() });
+        loadDashboard();
+        showNotification('✅ Produto removido!', 'success');
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+async function deleteCarousel(id) {
+    if (!confirm('Remover esta imagem do carrossel?')) return;
+    try {
+        await fetch('/api/carousel/' + id, { method: 'DELETE', headers: getHeaders() });
+        loadCarouselAdmin();
+        loadDashboard();
+        showNotification('✅ Imagem removida!', 'success');
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+async function deleteDepartment(id) {
+    if (!confirm('Remover este departamento?')) return;
+    try {
+        await fetch('/api/departments/' + id, { method: 'DELETE', headers: getHeaders() });
+        loadDepartments();
+        loadDashboard();
+        showNotification('✅ Departamento removido!', 'success');
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+// ============================================
+// ===== MODAIS =====
+// ============================================
+
+function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+document.querySelectorAll('.modal').forEach(m => {
+    m.addEventListener('click', (e) => { if (e.target === m) closeModal(m.id); });
+});
+
+// ===== USUÁRIO =====
+function openUserModal() {
+    document.getElementById('userName').value = '';
+    document.getElementById('userEmail').value = '';
+    document.getElementById('userPassword').value = '';
+    document.getElementById('userRole').value = 'fiel';
+    document.getElementById('userDepartment').value = '';
+    document.getElementById('userIsLeader').checked = false;
+    openModal('userModal');
+}
+
+async function saveUser() {
+    const name = document.getElementById('userName').value.trim();
+    const email = document.getElementById('userEmail').value.trim();
+    const password = document.getElementById('userPassword').value;
+    const role = document.getElementById('userRole').value;
+    const department = document.getElementById('userDepartment').value.trim();
+    const isLeader = document.getElementById('userIsLeader').checked;
+
+    if (!name || !email || !password) {
+        showNotification('Preencha todos os campos obrigatórios!', 'error');
+        return;
+    }
+    if (password.length < 6) {
+        showNotification('Senha mínima 6 caracteres', 'error');
+        return;
+    }
+
+    try {
+        await fetch('/api/users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...getHeaders() },
+            body: JSON.stringify({ name, email, password, role, department_name: department, is_leader: isLeader })
+        });
+        closeModal('userModal');
+        loadDashboard();
+        showNotification('✅ Usuário criado!', 'success');
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+// ===== DEPARTAMENTO =====
+function openDeptModal() {
+    document.getElementById('deptName').value = '';
+    document.getElementById('deptLeader').value = '';
+    document.getElementById('deptDesc').value = '';
+    openModal('deptModal');
+}
+
+async function saveDepartment() {
+    const name = document.getElementById('deptName').value.trim();
+    const leader = document.getElementById('deptLeader').value.trim();
+    const desc = document.getElementById('deptDesc').value.trim();
+
+    if (!name) { showNotification('Digite o nome do departamento!', 'error'); return; }
+
+    try {
+        await fetch('/api/departments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...getHeaders() },
+            body: JSON.stringify({ name, leader_email: leader, description: desc })
+        });
+        closeModal('deptModal');
+        loadDepartments();
+        loadDashboard();
+        showNotification('✅ Departamento criado!', 'success');
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+// ===== FORMULÁRIOS COM UPLOAD =====
+function openStudyModal() { openModal('studyModal'); }
+function openEventModal() { openModal('eventModal'); }
+function openProductModal() { openModal('productModal'); }
+function openCarouselModal() { openModal('carouselModal'); }
+
+document.getElementById('studyForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    try {
+        await fetch('/api/studies', { method: 'POST', headers: getHeaders(), body: formData });
+        closeModal('studyModal');
+        loadDashboard();
+        showNotification('✅ Estudo criado!', 'success');
+        this.reset();
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+});
+
+document.getElementById('eventForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    try {
+        await fetch('/api/events', { method: 'POST', headers: getHeaders(), body: formData });
+        closeModal('eventModal');
+        loadDashboard();
+        showNotification('✅ Evento criado!', 'success');
+        this.reset();
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+});
+
+document.getElementById('productForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    try {
+        await fetch('/api/products', { method: 'POST', headers: getHeaders(), body: formData });
+        closeModal('productModal');
+        loadDashboard();
+        showNotification('✅ Produto criado!', 'success');
+        this.reset();
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+});
+
+document.getElementById('carouselForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    try {
+        await fetch('/api/carousel', { method: 'POST', headers: getHeaders(), body: formData });
+        closeModal('carouselModal');
+        loadCarouselAdmin();
+        loadDashboard();
+        showNotification('✅ Imagem adicionada ao carrossel!', 'success');
+        this.reset();
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+});
+
+// ============================================
+// ===== CONFIGURAÇÕES =====
+// ============================================
+
+async function loadConfig() {
+    try {
+        const res = await fetch('/api/settings');
+        const data = await res.json();
+        if (data.primary_color) document.getElementById('configPrimary').value = data.primary_color;
+        if (data.site_title) document.getElementById('configTitle').value = data.site_title;
+        if (data.whatsapp) document.getElementById('configWhatsapp').value = data.whatsapp;
+        if (data.instagram) document.getElementById('configInstagram').value = data.instagram;
+    } catch (e) { console.error('Erro:', e); }
+}
+
+async function saveConfig(key, value) {
+    try {
+        await fetch('/api/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...getHeaders() },
+            body: JSON.stringify({ key, value })
+        });
+        if (key === 'primary_color') {
+            document.documentElement.style.setProperty('--primary', value);
+        }
+        showNotification('✅ Configuração salva!', 'success');
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+// ============================================
+// ===== NOTIFICAÇÕES =====
+// ============================================
+
+function showNotification(message, type = 'info') {
+    const div = document.createElement('div');
+    div.className = 'notification ' + type;
+    div.textContent = message;
+    div.style.position = 'fixed';
+    div.style.top = '20px';
+    div.style.right = '20px';
+    div.style.maxWidth = '400px';
+    div.style.zIndex = '99999';
+    div.style.padding = '0.8rem 1.2rem';
+    div.style.borderRadius = '10px';
+    div.style.fontWeight = '500';
+    div.style.boxShadow = '0 10px 40px rgba(0,0,0,0.1)';
+    div.style.animation = 'modalIn 0.3s ease';
+    if (type === 'success') {
+        div.style.background = '#d4edda';
+        div.style.color = '#155724';
+        div.style.border = '1px solid #c3e6cb';
+    } else if (type === 'error') {
+        div.style.background = '#f8d7da';
+        div.style.color = '#721c24';
+        div.style.border = '1px solid #f5c6cb';
+    } else {
+        div.style.background = '#d1ecf1';
+        div.style.color = '#0c5460';
+        div.style.border = '1px solid #bee5eb';
+    }
+    document.body.appendChild(div);
+    setTimeout(() => {
+        div.style.opacity = '0';
+        div.style.transition = 'opacity 0.5s';
+        setTimeout(() => div.remove(), 500);
+    }, 4000);
+}
+
+// ============================================
+// ===== LOGOUT =====
+// ============================================
+
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+}
+
+// ============================================
+// ===== INICIALIZAÇÃO =====
+// ============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadDashboard();
+    loadConfig();
+});
+</script>
+</body>
+</html>

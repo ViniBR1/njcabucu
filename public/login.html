@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - NJ Cabuçu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f4f8;
+            padding: 2rem;
+        }
+        .login-box {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        }
+        .logo {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: #0D47A1;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 auto 1rem;
+        }
+        .login-box h2 {
+            text-align: center;
+            color: #0D47A1;
+            margin-bottom: 1.5rem;
+        }
+        .login-box .form-group {
+            margin: 0.8rem 0;
+        }
+        .login-box .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            font-size: 0.95rem;
+        }
+        .login-box input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        .login-box input:focus {
+            border-color: #0D47A1;
+            outline: none;
+        }
+        .login-box .btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: #0D47A1;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .login-box .btn:hover {
+            background: #1565C0;
+            transform: translateY(-2px);
+        }
+        .login-box .error {
+            color: #dc3545;
+            text-align: center;
+            margin-top: 0.8rem;
+            font-size: 0.95rem;
+        }
+        .login-box .info-box {
+            background: #e3f2fd;
+            padding: 0.8rem;
+            border-radius: 10px;
+            margin: 0.8rem 0;
+            font-size: 0.9rem;
+            color: #0d47a1;
+            text-align: center;
+        }
+        .login-box .hidden {
+            display: none !important;
+        }
+        .login-box .toggle-link {
+            color: #0D47A1;
+            cursor: pointer;
+            text-decoration: underline;
+            font-weight: 500;
+        }
+        .login-box .toggle-link:hover {
+            color: #1565C0;
+        }
+        .login-box .text-center {
+            text-align: center;
+            margin-top: 0.8rem;
+        }
+        .login-box .mt-1 {
+            margin-top: 0.8rem;
+        }
+        .login-box .success {
+            color: #28a745;
+            text-align: center;
+            margin-top: 0.8rem;
+        }
+        .login-box .back-link {
+            display: inline-block;
+            margin-top: 0.8rem;
+            color: #6c757d;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .login-box .back-link:hover {
+            color: #0D47A1;
+        }
+        @media (max-width: 480px) {
+            .login-box { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <div class="logo">NJ</div>
+        <h2>Área Interna</h2>
+
+        <!-- LOGIN FORM -->
+        <div id="loginForm">
+            <div class="info-box">
+                <strong>👑 Credenciais do Pastor:</strong><br>
+                Email: pastor@njcabucu.com<br>
+                Senha: admin123
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-envelope"></i> E-mail</label>
+                <input type="email" id="loginEmail" value="pastor@njcabucu.com" placeholder="Seu e-mail">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-lock"></i> Senha</label>
+                <input type="password" id="loginPassword" value="admin123" placeholder="Sua senha">
+            </div>
+            <button onclick="login()" class="btn">
+                <i class="fas fa-sign-in-alt"></i> Entrar
+            </button>
+            <div id="loginError" class="error"></div>
+            <div class="text-center mt-1">
+                <span class="toggle-link" onclick="showChangePassword()">
+                    <i class="fas fa-key"></i> Esqueceu a senha?
+                </span>
+                <span style="margin:0 0.5rem;color:#ccc;">|</span>
+                <a href="/" class="toggle-link">
+                    <i class="fas fa-home"></i> Voltar ao site
+                </a>
+            </div>
+        </div>
+
+        <!-- CHANGE PASSWORD FORM -->
+        <div id="changePasswordForm" class="hidden">
+            <h3 style="text-align:center;font-size:1.2rem;color:#0D47A1;">
+                <i class="fas fa-key"></i> Alterar Senha
+            </h3>
+            <div class="form-group">
+                <label><i class="fas fa-envelope"></i> E-mail</label>
+                <input type="email" id="changeEmail" value="pastor@njcabucu.com" placeholder="Seu e-mail">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-lock"></i> Senha Atual</label>
+                <input type="password" id="changeCurrentPassword" placeholder="Deixe em branco se for primeiro acesso">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-lock"></i> Nova Senha</label>
+                <input type="password" id="changeNewPassword" placeholder="Mínimo 6 caracteres">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-check-circle"></i> Confirmar</label>
+                <input type="password" id="changeConfirmPassword" placeholder="Digite novamente">
+            </div>
+            <button onclick="changePassword()" class="btn">
+                <i class="fas fa-save"></i> Alterar Senha
+            </button>
+            <div id="changeMessage" class="success"></div>
+            <div id="changeError" class="error"></div>
+            <div class="text-center mt-1">
+                <span class="toggle-link" onclick="showLogin()">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function showLogin() {
+        document.getElementById('loginForm').classList.remove('hidden');
+        document.getElementById('changePasswordForm').classList.add('hidden');
+        document.getElementById('loginError').textContent = '';
+    }
+
+    function showChangePassword() {
+        document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('changePasswordForm').classList.remove('hidden');
+        document.getElementById('changeError').textContent = '';
+        document.getElementById('changeMessage').textContent = '';
+    }
+
+    async function login() {
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const errorDiv = document.getElementById('loginError');
+        errorDiv.textContent = '⏳ Aguarde...';
+
+        try {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await response.json();
+
+            if (!response.ok) throw new Error(data.error || 'Erro no login');
+
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+
+            if (data.user.first_login) {
+                alert('🔐 Primeiro acesso! Altere sua senha.');
+                document.getElementById('changeEmail').value = email;
+                showChangePassword();
+                return;
+            }
+
+            const redirect = data.user.role === 'pastor' ? '/admin' : '/departamento';
+            window.location.href = redirect;
+        } catch (error) {
+            errorDiv.textContent = '❌ ' + error.message;
+        }
+    }
+
+    async function changePassword() {
+        const email = document.getElementById('changeEmail').value.trim();
+        const currentPassword = document.getElementById('changeCurrentPassword').value;
+        const newPassword = document.getElementById('changeNewPassword').value;
+        const confirmPassword = document.getElementById('changeConfirmPassword').value;
+        const errorDiv = document.getElementById('changeError');
+        const messageDiv = document.getElementById('changeMessage');
+
+        errorDiv.textContent = '';
+        messageDiv.textContent = '';
+
+        if (newPassword !== confirmPassword) {
+            errorDiv.textContent = '❌ As senhas não coincidem';
+            return;
+        }
+        if (newPassword.length < 6) {
+            errorDiv.textContent = '❌ Mínimo 6 caracteres';
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/change-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, currentPassword, newPassword })
+            });
+            const data = await response.json();
+
+            if (!response.ok) throw new Error(data.error || 'Erro ao alterar senha');
+
+            messageDiv.textContent = '✅ ' + data.message;
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 2000);
+        } catch (error) {
+            errorDiv.textContent = '❌ ' + error.message;
+        }
+    }
+
+    // Enter key support
+    document.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            if (!document.getElementById('loginForm').classList.contains('hidden')) {
+                login();
+            } else if (!document.getElementById('changePasswordForm').classList.contains('hidden')) {
+                changePassword();
+            }
+        }
+    });
+    </script>
+</body>
+</html>

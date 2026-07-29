@@ -17,6 +17,6 @@
     "JWT_SECRET": "nj-cabucu-secret-key-2026-producao",
     "MP_ACCESS_TOKEN": "APP_USR-6195213178388265-061411-3cfef8f6e8eb20cd2a3d6e29d8b3380c-2969207414",
     "MP_PUBLIC_KEY": "APP_USR-9cbd3a18-e58d-4091-920b-ab3cd0faa588",
-    "PORT": "3000"
+    "PUBLIC_URL": "https://igrejanjcabucurj.vercel.app"
   }
 }

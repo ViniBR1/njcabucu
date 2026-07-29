@@ -685,16 +685,13 @@ app.get('/api/orders', auth, async (req, res) => {
     }
 });
 
-// ----- ESTATÍSTICAS DE VENDAS (CORRIGIDO) -----
+// ----- ESTATÍSTICAS DE VENDAS -----
 app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
     try {
         console.log('📊 Buscando estatísticas de vendas...');
         
-        // Total de vendas
         const totalSales = await sql`SELECT COUNT(*) as count, COALESCE(SUM(total), 0) as total FROM orders`;
-        console.log('Total vendas:', totalSales);
         
-        // Vendas por dia (últimos 7 dias)
         const salesByDay = await sql`
             SELECT 
                 DATE(created_at) as date, 
@@ -705,9 +702,7 @@ app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
             GROUP BY DATE(created_at)
             ORDER BY date DESC
         `;
-        console.log('Vendas por dia:', salesByDay);
         
-        // Produtos mais vendidos
         const topProducts = await sql`
             SELECT 
                 items::json->0->>'name' as product_name,
@@ -719,9 +714,7 @@ app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
             ORDER BY total_sales DESC
             LIMIT 10
         `;
-        console.log('Top produtos:', topProducts);
         
-        // Vendas por método de pagamento
         const salesByMethod = await sql`
             SELECT 
                 COALESCE(payment_method, 'PIX') as payment_method,
@@ -730,16 +723,13 @@ app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
             FROM orders 
             GROUP BY payment_method
         `;
-        console.log('Vendas por método:', salesByMethod);
         
-        // Últimas 10 vendas com detalhes
         const recentOrders = await sql`
             SELECT id, user_name, user_email, items, total, status, payment_method, created_at
             FROM orders 
             ORDER BY created_at DESC 
             LIMIT 10
         `;
-        console.log('Últimas vendas:', recentOrders);
 
         const result = {
             total: totalSales[0] || { count: 0, total: 0 },
@@ -877,7 +867,6 @@ app.get('/api/carousel', async (req, res) => {
     }
 });
 
-// ===== ATUALIZAR CARROSSEL =====
 app.put('/api/carousel/:id', auth, pastorOnly, upload.single('image'), async (req, res) => {
     try {
         const { id } = req.params;
@@ -953,7 +942,7 @@ app.post('/api/settings', auth, pastorOnly, async (req, res) => {
 });
 
 // ============================================
-// ===== MERCADO PAGO COM REDIRECIONAMENTO =====
+// ===== MERCADO PAGO (CORRIGIDO - SEM back_urls) =====
 // ============================================
 
 app.post('/api/create-pix-payment', async (req, res) => {
@@ -973,9 +962,6 @@ app.post('/api/create-pix-payment', async (req, res) => {
 
         const externalReference = `NJ-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
 
-        // URL BASE DO SITE
-        const baseUrl = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
-
         const paymentData = {
             body: {
                 transaction_amount: valor,
@@ -987,19 +973,15 @@ app.post('/api/create-pix-payment', async (req, res) => {
                     phone: { number: phone || '' },
                     identification: { type: 'CPF', number: cpf || '12345678909' }
                 },
-                external_reference: externalReference,
-                back_urls: {
-                    success: `${baseUrl}/payment-return?status=success&payment_id=${externalReference}`,
-                    failure: `${baseUrl}/payment-return?status=failure&payment_id=${externalReference}`,
-                    pending: `${baseUrl}/payment-return?status=pending&payment_id=${externalReference}`
-                },
-                auto_return: 'approved'
+                external_reference: externalReference
+                // REMOVIDO: back_urls e auto_return (não funcionam para PIX)
             }
         };
 
         console.log('📝 Criando pagamento PIX...');
         const payment = await PaymentService.create(paymentData);
         console.log('✅ Pagamento criado:', payment.id);
+        console.log('📊 Status:', payment.status);
 
         const paymentLink = payment.point_of_interaction?.transaction_data?.ticket_url || 
                            `https://www.mercadopago.com.br/payments/${payment.id}`;
@@ -1008,8 +990,9 @@ app.post('/api/create-pix-payment', async (req, res) => {
             payment_id: payment.id,
             status: payment.status,
             payment_link: paymentLink,
-            external_reference: externalReference,
-            return_url: `${baseUrl}/payment-return?payment_id=${payment.id}`
+            qr_code: payment.point_of_interaction?.transaction_data?.qr_code || '',
+            qr_code_base64: payment.point_of_interaction?.transaction_data?.qr_code_base64 || '',
+            external_reference: externalReference
         });
     } catch (error) {
         console.error('❌ Erro MP:', error);
@@ -1162,11 +1145,11 @@ app.get('/payment-return', async (req, res) => {
         ` : ''}
         
         <div style="display:flex;gap:0.8rem;flex-wrap:wrap;justify-content:center;">
-            <a href="${process.env.PUBLIC_URL || '/'}" class="btn">
+            <a href="${BASE_URL}" class="btn">
                 <i class="fas fa-home"></i> Voltar ao Site
             </a>
             ${statusDisplay === 'approved' ? `
-            <a href="${process.env.PUBLIC_URL || '/'}" class="btn btn-success">
+            <a href="${BASE_URL}" class="btn btn-success">
                 <i class="fas fa-check"></i> Continuar
             </a>
             ` : statusDisplay === 'rejected' ? `
@@ -1337,7 +1320,7 @@ app.get('/departamento', (req, res) => {
 app.listen(PORT, () => {
     console.log('');
     console.log('🔥 NJ Cabuçu rodando na porta ' + PORT);
-    console.log('🌐 ' + (process.env.PUBLIC_URL || `http://localhost:${PORT}`));
+    console.log('🌐 ' + BASE_URL);
     console.log('');
     console.log('📋 Credenciais:');
     console.log('   Email: pastor@njcabucu.com');

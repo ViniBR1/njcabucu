@@ -942,7 +942,7 @@ app.post('/api/settings', auth, pastorOnly, async (req, res) => {
 });
 
 // ============================================
-// ===== MERCADO PAGO (CORRIGIDO - SEM back_urls) =====
+// ===== MERCADO PAGO (COM REDIRECIONAMENTO) =====
 // ============================================
 
 app.post('/api/create-pix-payment', async (req, res) => {
@@ -973,8 +973,14 @@ app.post('/api/create-pix-payment', async (req, res) => {
                     phone: { number: phone || '' },
                     identification: { type: 'CPF', number: cpf || '12345678909' }
                 },
-                external_reference: externalReference
-                // REMOVIDO: back_urls e auto_return (não funcionam para PIX)
+                external_reference: externalReference,
+                // REDIRECIONAMENTO APÓS O PAGAMENTO
+                back_urls: {
+                    success: `${BASE_URL}/?status=approved&payment_id=${externalReference}`,
+                    failure: `${BASE_URL}/?status=rejected&payment_id=${externalReference}`,
+                    pending: `${BASE_URL}/?status=pending&payment_id=${externalReference}`
+                },
+                auto_return: 'approved'
             }
         };
 
@@ -990,185 +996,15 @@ app.post('/api/create-pix-payment', async (req, res) => {
             payment_id: payment.id,
             status: payment.status,
             payment_link: paymentLink,
+            external_reference: externalReference,
             qr_code: payment.point_of_interaction?.transaction_data?.qr_code || '',
-            qr_code_base64: payment.point_of_interaction?.transaction_data?.qr_code_base64 || '',
-            external_reference: externalReference
+            qr_code_base64: payment.point_of_interaction?.transaction_data?.qr_code_base64 || ''
         });
     } catch (error) {
         console.error('❌ Erro MP:', error);
         res.status(500).json({ 
             error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') 
         });
-    }
-});
-
-// ============================================
-// ===== PÁGINA DE RETORNO =====
-// ============================================
-
-app.get('/payment-return', async (req, res) => {
-    try {
-        const { payment_id, status, external_reference } = req.query;
-        
-        let statusDisplay = 'pending';
-        let message = 'Aguardando confirmação do pagamento...';
-        let icon = '⏳';
-        let bgColor = '#ffc107';
-
-        if (status === 'success' || status === 'approved') {
-            statusDisplay = 'approved';
-            message = '✅ Pagamento aprovado! Obrigado pela sua contribuição! 🙏';
-            icon = '✅';
-            bgColor = '#28a745';
-        } else if (status === 'failure' || status === 'rejected') {
-            statusDisplay = 'rejected';
-            message = '❌ Pagamento recusado. Tente novamente.';
-            icon = '❌';
-            bgColor = '#dc3545';
-        } else if (status === 'pending') {
-            statusDisplay = 'pending';
-            message = '⏳ Pagamento pendente. Aguarde a confirmação.';
-            icon = '⏳';
-            bgColor = '#ffc107';
-        }
-
-        if (payment_id && PaymentService) {
-            try {
-                const payment = await PaymentService.get({ id: payment_id });
-                statusDisplay = payment.status;
-                
-                if (payment.status === 'approved') {
-                    message = '✅ Pagamento aprovado! Obrigado pela sua contribuição! 🙏';
-                    icon = '✅';
-                    bgColor = '#28a745';
-                } else if (payment.status === 'pending') {
-                    message = '⏳ Pagamento pendente. Aguarde a confirmação.';
-                    icon = '⏳';
-                    bgColor = '#ffc107';
-                } else if (payment.status === 'rejected') {
-                    message = '❌ Pagamento recusado. Tente novamente.';
-                    icon = '❌';
-                    bgColor = '#dc3545';
-                }
-            } catch (error) {
-                console.error('❌ Erro ao buscar pagamento:', error);
-            }
-        }
-
-        res.send(`
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retorno - NJ Cabuçu</title>
-    <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f0f4f8;
-            padding: 2rem;
-        }
-        .container {
-            background: white;
-            padding: 3rem;
-            border-radius: 20px;
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-        }
-        .icon { font-size: 4rem; margin-bottom: 1rem; }
-        h1 { font-size: 1.8rem; color: #0D47A1; margin-bottom: 1rem; }
-        p { color: #666; margin-bottom: 1rem; line-height: 1.6; }
-        .btn {
-            display: inline-block;
-            padding: 0.8rem 2rem;
-            background: #0D47A1;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s;
-            cursor: pointer;
-            margin: 0.3rem;
-        }
-        .btn:hover { background: #1565C0; transform: translateY(-2px); }
-        .btn-success { background: #28a745; }
-        .btn-success:hover { background: #218838; }
-        .btn-danger { background: #dc3545; }
-        .btn-danger:hover { background: #c82333; }
-        .details { 
-            background: #f8f9fa; 
-            padding: 1rem; 
-            border-radius: 10px; 
-            margin: 1rem 0;
-            font-size: 0.9rem;
-            text-align: left;
-        }
-        .details span { font-weight: 600; }
-        .message-box {
-            padding: 1rem;
-            border-radius: 10px;
-            margin: 1rem 0;
-            font-weight: 500;
-        }
-        .message-box.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .message-box.pending { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
-        .message-box.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        @media (max-width: 480px) {
-            .container { padding: 1.5rem; }
-            .icon { font-size: 3rem; }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="icon" style="color: ${bgColor}">${icon}</div>
-        <h1>${statusDisplay === 'approved' ? 'Pagamento Confirmado!' : statusDisplay === 'rejected' ? 'Pagamento Recusado' : 'Aguardando Confirmação'}</h1>
-        
-        <div class="message-box ${statusDisplay === 'approved' ? 'success' : statusDisplay === 'rejected' ? 'error' : 'pending'}">
-            ${message}
-        </div>
-        
-        ${payment_id ? `
-        <div class="details">
-            <p><span>ID do Pagamento:</span> ${payment_id}</p>
-            <p><span>Referência:</span> ${external_reference || '-'}</p>
-            <p><span>Status:</span> ${statusDisplay}</p>
-        </div>
-        ` : ''}
-        
-        <div style="display:flex;gap:0.8rem;flex-wrap:wrap;justify-content:center;">
-            <a href="${BASE_URL}" class="btn">
-                <i class="fas fa-home"></i> Voltar ao Site
-            </a>
-            ${statusDisplay === 'approved' ? `
-            <a href="${BASE_URL}" class="btn btn-success">
-                <i class="fas fa-check"></i> Continuar
-            </a>
-            ` : statusDisplay === 'rejected' ? `
-            <a href="javascript:history.back()" class="btn btn-danger">
-                <i class="fas fa-arrow-left"></i> Tentar Novamente
-            </a>
-            ` : ''}
-        </div>
-        
-        <p style="margin-top:1rem;font-size:0.8rem;color:#888;">
-            NJ Cabuçu - "E conhecereis a verdade, e a verdade vos libertará."
-        </p>
-    </div>
-</body>
-</html>
-        `);
-    } catch (error) {
-        console.error('❌ Erro na página de retorno:', error);
-        res.status(500).send('Erro ao processar retorno');
     }
 });
 
@@ -1263,32 +1099,6 @@ app.get('/api/registration-pdf/:id', async (req, res) => {
         
     } catch (error) {
         console.error('❌ Erro ao gerar PDF:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== VERIFICAR STATUS DO PAGAMENTO =====
-// ============================================
-
-app.get('/api/payment-status/:paymentId', async (req, res) => {
-    try {
-        const { paymentId } = req.params;
-        
-        if (!PaymentService) {
-            return res.json({ status: 'unknown', message: 'Mercado Pago não configurado' });
-        }
-        
-        const payment = await PaymentService.get({ id: paymentId });
-        res.json({
-            id: payment.id,
-            status: payment.status,
-            status_detail: payment.status_detail,
-            amount: payment.transaction_amount,
-            description: payment.description
-        });
-    } catch (error) {
-        console.error('❌ Erro ao verificar status:', error);
         res.status(500).json({ error: error.message });
     }
 });

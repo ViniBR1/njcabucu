@@ -87,11 +87,10 @@
         .stat-card .label { color: #888; font-size: 0.85rem; }
         .stat-card .icon { font-size: 1.5rem; color: var(--primary); margin-bottom: 0.3rem; }
 
-        /* Vendas Stats */
         .sales-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
             margin: 1rem 0;
         }
         .sales-card {
@@ -100,29 +99,29 @@
             border-radius: var(--radius);
             border: 1px solid #e8e8e8;
         }
-        .sales-card .value { font-size: 1.8rem; font-weight: 700; color: var(--primary); }
-        .sales-card .label { color: #666; font-size: 0.9rem; }
+        .sales-card .value { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+        .sales-card .label { color: #666; font-size: 0.85rem; }
         .sales-card .sub { color: #888; font-size: 0.8rem; }
 
         .tabs {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.3rem;
             margin-bottom: 1rem;
             flex-wrap: wrap;
             background: var(--card-bg);
-            padding: 0.8rem;
+            padding: 0.6rem;
             border-radius: 12px;
             border: 1px solid #e8e8e8;
         }
         .tab-btn {
-            padding: 0.4rem 1.2rem;
+            padding: 0.4rem 1rem;
             border: 2px solid transparent;
             border-radius: 50px;
             background: transparent;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
         .tab-btn:hover { border-color: var(--primary); }
         .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
@@ -140,21 +139,21 @@
         .table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
         .table th {
             text-align: left;
-            padding: 0.5rem;
+            padding: 0.4rem 0.5rem;
             border-bottom: 2px solid #e8e8e8;
             color: #666;
         }
-        .table td { padding: 0.5rem; border-bottom: 1px solid #f0f0f0; }
+        .table td { padding: 0.4rem 0.5rem; border-bottom: 1px solid #f0f0f0; }
         .table tr:hover { background: #f8f9fa; }
 
         .status {
-            padding: 0.15rem 0.6rem;
+            padding: 0.1rem 0.5rem;
             border-radius: 50px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 600;
             display: inline-block;
         }
@@ -164,9 +163,9 @@
         .status-rejected { background: #f8d7da; color: #721c24; }
 
         .badge {
-            padding: 0.15rem 0.6rem;
+            padding: 0.1rem 0.5rem;
             border-radius: 50px;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 600;
         }
         .badge-pastor { background: var(--primary); color: white; }
@@ -238,20 +237,12 @@
             align-items: center;
             flex-wrap: wrap;
         }
-        .flex-center { display: flex; align-items: center; gap: 0.5rem; }
         .text-center { text-align: center; }
         .mt-1 { margin-top: 1rem; }
         .mb-1 { margin-bottom: 1rem; }
         .hidden { display: none !important; }
         .w-full { width: 100%; }
 
-        /* Charts */
-        .chart-container {
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: var(--radius);
-            margin: 0.5rem 0;
-        }
         .bar-chart {
             display: flex;
             align-items: flex-end;
@@ -264,35 +255,53 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.3rem;
+            gap: 0.2rem;
         }
         .bar {
             width: 100%;
-            max-width: 40px;
+            max-width: 35px;
             background: var(--primary);
             border-radius: 4px 4px 0 0;
             min-height: 5px;
             transition: height 0.5s ease;
         }
         .bar-label {
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             color: #666;
             text-align: center;
         }
         .bar-value {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 600;
             color: var(--primary);
+        }
+
+        .carousel-item {
+            display: inline-block;
+            width: 200px;
+            margin: 0.5rem;
+            text-align: center;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 0.5rem;
+            background: #f8f9fa;
+        }
+        .carousel-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
         }
 
         @media (max-width: 768px) {
             .header { flex-direction: column; gap: 0.5rem; padding: 0.8rem 1rem; }
             .stats-grid { grid-template-columns: 1fr 1fr; }
             .sales-grid { grid-template-columns: 1fr; }
-            .tabs { gap: 0.3rem; padding: 0.5rem; }
-            .tab-btn { padding: 0.3rem 0.8rem; font-size: 0.75rem; }
+            .tabs { gap: 0.2rem; padding: 0.4rem; }
+            .tab-btn { padding: 0.2rem 0.6rem; font-size: 0.7rem; }
             .form-row { flex-direction: column; }
             .bar-chart { height: 100px; }
+            .carousel-item { width: 150px; }
         }
     </style>
 </head>
@@ -408,7 +417,7 @@
             <h4>📋 Últimas Vendas</h4>
             <div class="table-wrapper">
                 <table class="table">
-                    <thead><tr><th>Cliente</th><th>Produto</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
+                    <thead><tr><th>Cliente</th><th>E-mail</th><th>Produto</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
                     <tbody id="recentOrdersList"></tbody>
                 </table>
             </div>
@@ -498,8 +507,9 @@
         <div class="flex-between mb-1">
             <h3>🖼️ Carrossel</h3>
             <button onclick="openCarouselModal()" class="btn btn-success"><i class="fas fa-plus"></i> Nova Imagem</button>
+            <button onclick="openCarouselEditModal()" class="btn btn-warning"><i class="fas fa-edit"></i> Editar</button>
         </div>
-        <div class="carousel-preview" id="carouselList"></div>
+        <div id="carouselList" style="display:flex;flex-wrap:wrap;gap:0.5rem;"></div>
     </div>
 
     <!-- DOAÇÕES -->
@@ -636,7 +646,7 @@
     </div>
 </div>
 
-<!-- CARROSSEL -->
+<!-- CARROSSEL - NOVO -->
 <div class="modal" id="carouselModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('carouselModal')">&times;</button>
@@ -647,6 +657,22 @@
             <div class="form-group"><label>Imagem *</label><input type="file" name="image" accept="image/*" required></div>
             <div class="form-group"><label>Link</label><input type="url" name="link" placeholder="https://..."></div>
             <button type="submit" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+        </form>
+    </div>
+</div>
+
+<!-- CARROSSEL - EDITAR -->
+<div class="modal" id="carouselEditModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('carouselEditModal')">&times;</button>
+        <h3>✏️ Editar Imagem</h3>
+        <form id="carouselEditForm" enctype="multipart/form-data">
+            <input type="hidden" id="editCarouselId">
+            <div class="form-group"><label>Título</label><input type="text" id="editCarouselTitle"></div>
+            <div class="form-group"><label>Subtítulo</label><input type="text" id="editCarouselSubtitle"></div>
+            <div class="form-group"><label>Nova Imagem (opcional)</label><input type="file" name="image" accept="image/*"></div>
+            <div class="form-group"><label>Link</label><input type="url" id="editCarouselLink" placeholder="https://..."></div>
+            <button type="submit" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Atualizar</button>
         </form>
     </div>
 </div>
@@ -735,7 +761,6 @@ async function loadDashboard() {
         document.getElementById('totalStudies').textContent = studies.length;
         document.getElementById('totalEvents').textContent = events.length;
 
-        // Carregar listas
         loadUsers(users);
         loadPrayers(prayers);
         loadOrders(orders);
@@ -744,8 +769,6 @@ async function loadDashboard() {
         loadEvents(events);
         loadRegistrations(registrations);
         loadProducts();
-
-        // Carregar estatísticas de vendas
         loadSalesStats(salesStats, orders);
 
     } catch (e) { console.error('Erro:', e); }
@@ -778,7 +801,7 @@ function loadSalesStats(stats, orders) {
         document.getElementById('topProductSales').textContent = topProduct.total_sales + ' vendas';
     }
 
-    // Gráfico de barras (vendas por dia)
+    // Gráfico de barras
     const barChart = document.getElementById('barChart');
     if (stats.byDay && stats.byDay.length > 0) {
         const maxTotal = Math.max(...stats.byDay.map(d => parseFloat(d.total || 0)), 1);
@@ -796,10 +819,10 @@ function loadSalesStats(stats, orders) {
             `;
         }).join('');
     } else {
-        barChart.innerHTML = '<p style="color:#888;text-align:center;width:100%;">Nenhuma venda nos últimos 7 dias</p>';
+        barChart.innerHTML = '<p style="color:#888;text-align:center;width:100%;font-size:0.9rem;">Nenhuma venda nos últimos 7 dias</p>';
     }
 
-    // Produtos mais vendidos (lista)
+    // Produtos mais vendidos
     const topProductsList = document.getElementById('topProductsList');
     if (stats.topProducts && stats.topProducts.length > 0) {
         topProductsList.innerHTML = stats.topProducts.slice(0, 5).map(p => `
@@ -813,16 +836,18 @@ function loadSalesStats(stats, orders) {
         topProductsList.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum produto vendido</td></tr>';
     }
 
-    // Últimas vendas (Dashboard)
+    // Últimas vendas
     const recentOrders = document.getElementById('recentOrdersList');
-    if (orders && orders.length > 0) {
-        recentOrders.innerHTML = orders.slice(0, 5).map(o => {
-            let items = '';
+    const recent = stats.recent || orders || [];
+    if (recent.length > 0) {
+        recentOrders.innerHTML = recent.slice(0, 5).map(o => {
+            let items = [];
             try { items = JSON.parse(o.items || '[]'); } catch { items = []; }
-            const productName = items.length > 0 ? items[0].name : o.product_name || '-';
+            const productName = items.length > 0 ? items.map(i => i.name).join(', ') : o.product_name || '-';
             return `
                 <tr>
                     <td>${o.user_name || 'Anônimo'}</td>
+                    <td>${o.user_email || '-'}</td>
                     <td>${productName}</td>
                     <td>R$ ${parseFloat(o.total || 0).toFixed(2)}</td>
                     <td><span class="status status-${o.status || 'pending'}">${o.status || 'Pendente'}</span></td>
@@ -831,7 +856,7 @@ function loadSalesStats(stats, orders) {
             `;
         }).join('');
     } else {
-        recentOrders.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhuma venda</td></tr>';
+        recentOrders.innerHTML = '<tr><td colspan="6" class="text-center" style="color:#888;">Nenhuma venda</td></tr>';
     }
 }
 
@@ -885,7 +910,7 @@ function loadOrders(orders) {
         return;
     }
     tbody.innerHTML = orders.slice(0, 30).map(o => {
-        let items = '';
+        let items = [];
         try { items = JSON.parse(o.items || '[]'); } catch { items = []; }
         const productName = items.length > 0 ? items.map(i => i.name).join(', ') : o.product_name || '-';
         return `
@@ -998,10 +1023,14 @@ async function loadCarouselAdmin() {
             return;
         }
         container.innerHTML = data.map(img => `
-            <div class="carousel-item" style="display:inline-block;width:200px;margin:0.5rem;text-align:center;border:1px solid #e8e8e8;border-radius:8px;padding:0.5rem;">
-                <img src="${img.image_url}" style="width:100%;height:120px;object-fit:cover;border-radius:8px;">
+            <div class="carousel-item">
+                <img src="${img.image_url}" alt="${img.title || 'Slide'}">
                 <div style="margin-top:0.3rem;font-weight:600;font-size:0.8rem;">${img.title || 'Sem título'}</div>
-                <button onclick="deleteCarousel(${img.id})" class="btn btn-danger btn-sm" style="margin-top:0.3rem;"><i class="fas fa-trash"></i> Remover</button>
+                <div style="font-size:0.7rem;color:#888;">${img.subtitle || ''}</div>
+                <div style="margin-top:0.3rem;">
+                    <button onclick="editCarousel(${img.id})" class="btn btn-warning btn-sm" style="margin:0.1rem;"><i class="fas fa-edit"></i></button>
+                    <button onclick="deleteCarousel(${img.id})" class="btn btn-danger btn-sm" style="margin:0.1rem;"><i class="fas fa-trash"></i></button>
+                </div>
             </div>
         `).join('');
     } catch (e) { console.error('Erro:', e); }
@@ -1117,7 +1146,7 @@ document.querySelectorAll('.modal').forEach(m => {
     m.addEventListener('click', (e) => { if (e.target === m) closeModal(m.id); });
 });
 
-// ===== USUÁRIO =====
+// ----- USUÁRIO -----
 function openUserModal() {
     document.getElementById('userName').value = '';
     document.getElementById('userEmail').value = '';
@@ -1157,7 +1186,7 @@ async function saveUser() {
     } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
 }
 
-// ===== DEPARTAMENTO =====
+// ----- DEPARTAMENTO -----
 function openDeptModal() {
     document.getElementById('deptName').value = '';
     document.getElementById('deptLeader').value = '';
@@ -1185,7 +1214,49 @@ async function saveDepartment() {
     } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
 }
 
-// ===== FORMULÁRIOS COM UPLOAD =====
+// ----- CARROSSEL - EDITAR -----
+function openCarouselEditModal() {
+    showNotification('Clique no botão "Editar" em uma imagem para modificá-la', 'info');
+}
+
+function editCarousel(id) {
+    // Buscar dados da imagem
+    fetch('/api/carousel', { headers: getHeaders() })
+        .then(r => r.json())
+        .then(data => {
+            const img = data.find(i => i.id === id);
+            if (img) {
+                document.getElementById('editCarouselId').value = id;
+                document.getElementById('editCarouselTitle').value = img.title || '';
+                document.getElementById('editCarouselSubtitle').value = img.subtitle || '';
+                document.getElementById('editCarouselLink').value = img.link || '';
+                openModal('carouselEditModal');
+            }
+        })
+        .catch(e => showNotification('❌ Erro ao carregar imagem', 'error'));
+}
+
+document.getElementById('carouselEditForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const id = document.getElementById('editCarouselId').value;
+    const formData = new FormData(this);
+    
+    try {
+        const response = await fetch('/api/carousel/' + id, {
+            method: 'PUT',
+            headers: getHeaders(),
+            body: formData
+        });
+        if (!response.ok) throw new Error('Erro ao atualizar');
+        closeModal('carouselEditModal');
+        loadCarouselAdmin();
+        showNotification('✅ Imagem atualizada!', 'success');
+    } catch (e) {
+        showNotification('❌ Erro: ' + e.message, 'error');
+    }
+});
+
+// ----- FORMULÁRIOS COM UPLOAD -----
 function openStudyModal() { openModal('studyModal'); }
 function openEventModal() { openModal('eventModal'); }
 function openProductModal() { openModal('productModal'); }

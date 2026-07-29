@@ -67,12 +67,6 @@
         .btn-danger { background: #dc3545; color: white; }
         .btn-danger:hover { background: #c82333; }
         .btn-sm { padding: 0.3rem 0.8rem; font-size: 0.8rem; }
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-        }
-        .btn-outline:hover { background: var(--primary); color: white; }
 
         .main-nav {
             display: flex;
@@ -393,6 +387,38 @@
         .qr-container { text-align: center; padding: 1rem; }
         .qr-container img { max-width: 200px; margin: 0 auto; display: block; }
 
+        /* PÁGINA DE RETORNO */
+        #paymentReturnPage {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        }
+        #paymentReturnPage .icon { font-size: 4rem; margin-bottom: 1rem; }
+        #paymentReturnPage h2 { font-size: 1.8rem; color: #0D47A1; margin-bottom: 1rem; }
+        #paymentReturnPage p { color: #666; margin-bottom: 1rem; line-height: 1.6; }
+        #paymentReturnPage .details {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+        #paymentReturnPage .details span { font-weight: 600; }
+        #paymentReturnPage .message-box {
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-weight: 500;
+        }
+        #paymentReturnPage .message-box.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        #paymentReturnPage .message-box.pending { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
+        #paymentReturnPage .message-box.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
         @media (max-width: 768px) {
             .header { flex-direction: column; gap: 0.5rem; padding: 0.8rem 1rem; }
             .main-nav { top: 110px; gap: 0.2rem; padding: 0.4rem 0.5rem; }
@@ -405,13 +431,15 @@
             .modal-content .form-row { flex-direction: column; }
             .tithe-options { gap: 0.8rem; }
             .btn-donation { padding: 0.8rem 1.5rem; font-size: 1rem; }
+            #paymentReturnPage { margin: 1rem; padding: 1.5rem; }
+            #paymentReturnPage .icon { font-size: 3rem; }
         }
     </style>
 </head>
 <body>
 
 <!-- HEADER -->
-<header class="header">
+<header class="header" id="mainHeader">
     <div class="logo">
         <div class="logo-icon">NJ</div>
         <h1 id="siteTitle">NJ Cabuçu</h1>
@@ -425,7 +453,7 @@
 </header>
 
 <!-- NAVEGAÇÃO -->
-<nav class="main-nav">
+<nav class="main-nav" id="mainNav">
     <button onclick="scrollToSection('home')" class="nav-btn active"><i class="fas fa-home"></i> Início</button>
     <button onclick="scrollToSection('biblia')" class="nav-btn"><i class="fas fa-bible"></i> Bíblia</button>
     <button onclick="scrollToSection('eventos')" class="nav-btn"><i class="fas fa-calendar"></i> Eventos</button>
@@ -590,7 +618,7 @@
 </section>
 
 <!-- FOOTER -->
-<footer class="footer">
+<footer class="footer" id="mainFooter">
     <div>
         <p style="font-size:1.2rem;font-weight:700;">NJ Cabuçu</p>
         <p style="opacity:0.7;margin-top:0.3rem;">
@@ -607,6 +635,30 @@
         © 2026 NJ Cabuçu - Todos os direitos reservados
     </p>
 </footer>
+
+<!-- PÁGINA DE RETORNO -->
+<div id="paymentReturnPage" style="display:none;">
+    <div class="icon" id="returnIcon" style="color: #ffc107;">⏳</div>
+    <h2 id="returnTitle">Aguardando Confirmação</h2>
+    <div class="message-box pending" id="returnMessageBox">
+        <span id="returnMessage">Seu pagamento está sendo processado. Aguarde a confirmação.</span>
+    </div>
+    <div class="details" id="returnDetails">
+        <p><span>Status:</span> <span id="returnStatusText">Pendente</span></p>
+        <p><span>ID do Pagamento:</span> <span id="returnPaymentId">-</span></p>
+    </div>
+    <div style="display:flex; gap:0.8rem; flex-wrap:wrap; justify-content:center;">
+        <a href="/" class="btn btn-primary" id="returnHomeBtn">
+            <i class="fas fa-home"></i> Voltar ao Site
+        </a>
+        <a href="/" class="btn btn-success" id="returnContinueBtn">
+            <i class="fas fa-check"></i> Continuar
+        </a>
+    </div>
+    <p style="margin-top:1rem; font-size:0.8rem; color:#888;">
+        NJ Cabuçu - "E conhecereis a verdade, e a verdade vos libertará."
+    </p>
+</div>
 
 <!-- MODAL DÍZIMO -->
 <div class="modal" id="donationModal">
@@ -743,30 +795,6 @@ async function searchBible() {
         let data = await response.json();
 
         if (data.error) {
-            // TENTAR API ALTERNATIVA
-            try {
-                const altUrl = `https://www.abibliadigital.com.br/api/verses/${book}/${chapter}`;
-                const altResponse = await fetch(altUrl);
-                if (altResponse.ok) {
-                    const altData = await altResponse.json();
-                    if (altData && altData.verses && altData.verses.length > 0) {
-                        let html = '';
-                        let verses = altData.verses;
-                        if (verse) {
-                            verses = verses.filter(v => v.number == verse);
-                        }
-                        verses.forEach(v => {
-                            html += `<p class="verse"><strong>${v.number}</strong> ${v.text}</p>`;
-                        });
-                        html += `<p class="reference">📖 ${altData.book.name} ${altData.chapter}</p>`;
-                        resultDiv.innerHTML = html;
-                        return;
-                    }
-                }
-            } catch (e) {
-                console.log('API alternativa falhou');
-            }
-
             // FALLBACK: VERSÍCULOS CONHECIDOS
             const key = `${book}_${chapter}`;
             if (famousVerses[key]) {
@@ -1141,7 +1169,7 @@ async function submitDonation() {
 }
 
 // ============================================
-// ===== PAGAMENTOS (CORRIGIDO) =====
+// ===== PAGAMENTOS (COM REDIRECIONAMENTO) =====
 // ============================================
 
 async function processPayment() {
@@ -1223,35 +1251,10 @@ async function processPayment() {
         // FECHAR MODAL
         closeModal('paymentModal');
 
-        // MOSTRAR QR CODE
-        if (payment.qr_code_base64) {
-            const resultDiv = document.getElementById('paymentResult');
-            resultDiv.style.display = 'block';
-            resultDiv.innerHTML = `
-                <h3>✅ Pagamento via PIX</h3>
-                <div class="qr-container">
-                    <img src="data:image/png;base64,${payment.qr_code_base64}" alt="QR Code PIX">
-                    <p style="margin:0.5rem 0;">Escaneie o QR Code ou copie o código:</p>
-                    <div style="background:#f0f0f0;padding:0.8rem;border-radius:8px;word-break:break-all;font-size:0.8rem;border:1px solid #e0e0e0;">${payment.qr_code || payment.qr_code_text}</div>
-                    <div style="display:flex;gap:0.5rem;justify-content:center;margin-top:0.5rem;flex-wrap:wrap;">
-                        <button onclick="navigator.clipboard.writeText('${payment.qr_code || payment.qr_code_text}')" class="btn btn-primary btn-sm">
-                            <i class="fas fa-copy"></i> Copiar
-                        </button>
-                        ${payment.payment_link ? `<a href="${payment.payment_link}" target="_blank" class="btn btn-success btn-sm"><i class="fas fa-external-link-alt"></i> Abrir no Banco</a>` : ''}
-                    </div>
-                    <p style="margin-top:0.8rem;color:#888;">Status: ${payment.status}</p>
-                    <button onclick="closeModal('paymentModal')" class="btn btn-primary" style="margin-top:0.8rem;">
-                        <i class="fas fa-check"></i> Concluir
-                    </button>
-                </div>
-            `;
-            document.getElementById('paymentForm').style.display = 'none';
-            openModal('paymentModal');
-        } else if (payment.payment_link) {
+        // REDIRECIONAR PARA O MERCADO PAGO
+        if (payment.payment_link) {
             showNotification('🔗 Redirecionando para o Mercado Pago...', 'info');
-            setTimeout(() => {
-                window.open(payment.payment_link, '_blank');
-            }, 1000);
+            window.location.href = payment.payment_link;
         } else {
             showNotification('✅ ' + (paymentType === 'sale' ? 'Compra' : donationType) + ' realizada com sucesso!', 'success');
         }
@@ -1259,6 +1262,57 @@ async function processPayment() {
     } catch (error) {
         showNotification('❌ Erro: ' + error.message, 'error');
         console.error('Erro no pagamento:', error);
+    }
+}
+
+// ============================================
+// ===== PÁGINA DE RETORNO =====
+// ============================================
+
+function showReturnPage() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const status = urlParams.get('status');
+    const paymentId = urlParams.get('payment_id');
+
+    if (status || paymentId) {
+        // Esconder conteúdo principal
+        document.getElementById('mainHeader').style.display = 'none';
+        document.getElementById('mainNav').style.display = 'none';
+        document.querySelector('.carousel-container').style.display = 'none';
+        document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+        document.getElementById('mainFooter').style.display = 'none';
+        
+        // Mostrar página de retorno
+        const returnPage = document.getElementById('paymentReturnPage');
+        returnPage.style.display = 'block';
+
+        let icon = '⏳';
+        let title = 'Aguardando Confirmação';
+        let message = 'Seu pagamento está sendo processado. Aguarde a confirmação.';
+        let msgClass = 'pending';
+        let statusText = 'Pendente';
+
+        if (status === 'approved') {
+            icon = '✅';
+            title = 'Pagamento Confirmado!';
+            message = 'Obrigado pela sua contribuição! Deus abençoe! 🙏';
+            msgClass = 'success';
+            statusText = 'Aprovado';
+        } else if (status === 'rejected') {
+            icon = '❌';
+            title = 'Pagamento Recusado';
+            message = 'Infelizmente seu pagamento não foi aprovado. Tente novamente.';
+            msgClass = 'error';
+            statusText = 'Recusado';
+        }
+
+        document.getElementById('returnIcon').textContent = icon;
+        document.getElementById('returnIcon').style.color = msgClass === 'success' ? '#28a745' : msgClass === 'error' ? '#dc3545' : '#ffc107';
+        document.getElementById('returnTitle').textContent = title;
+        document.getElementById('returnMessage').textContent = message;
+        document.getElementById('returnMessageBox').className = 'message-box ' + msgClass;
+        document.getElementById('returnStatusText').textContent = statusText;
+        document.getElementById('returnPaymentId').textContent = paymentId || '-';
     }
 }
 
@@ -1459,13 +1513,19 @@ async function loadSettings() {
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadSettings();
-    loadCarousel();
-    loadStudies();
-    loadEvents();
-    loadProducts();
-    document.getElementById('cartCount').textContent = cart.length;
-    setTimeout(() => searchBible(), 500);
+    // Verificar se é página de retorno
+    showReturnPage();
+    
+    // Se não for página de retorno, carregar o site normalmente
+    if (document.getElementById('paymentReturnPage').style.display !== 'block') {
+        loadSettings();
+        loadCarousel();
+        loadStudies();
+        loadEvents();
+        loadProducts();
+        document.getElementById('cartCount').textContent = cart.length;
+        setTimeout(() => searchBible(), 500);
+    }
 });
 
 // Enter key para Bíblia

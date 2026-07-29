@@ -390,6 +390,8 @@
         .mt-2 { margin-top: 1.5rem; }
         .hidden { display: none !important; }
         .w-full { width: 100%; }
+        .qr-container { text-align: center; padding: 1rem; }
+        .qr-container img { max-width: 200px; margin: 0 auto; display: block; }
 
         @media (max-width: 768px) {
             .header { flex-direction: column; gap: 0.5rem; padding: 0.8rem 1rem; }
@@ -684,7 +686,7 @@ let paymentType = 'sale';
 let donationType = '';
 
 // ============================================
-// ===== BÍBLIA (COM FALLBACK) =====
+// ===== BÍBLIA (CORRIGIDA) =====
 // ============================================
 
 async function searchBible() {
@@ -694,46 +696,101 @@ async function searchBible() {
     const resultDiv = document.getElementById('bibleResult');
     resultDiv.innerHTML = '<p>⏳ Carregando...</p>';
 
+    const bookNames = {
+        'gn': 'Gênesis', 'ex': 'Êxodo', 'lv': 'Levítico', 'nm': 'Números',
+        'dt': 'Deuteronômio', 'js': 'Josué', 'jz': 'Juízes', 'rt': 'Rute',
+        '1sm': '1 Samuel', '2sm': '2 Samuel', '1rs': '1 Reis', '2rs': '2 Reis',
+        '1cr': '1 Crônicas', '2cr': '2 Crônicas', 'ed': 'Esdras', 'ne': 'Neemias',
+        'et': 'Ester', 'jó': 'Jó', 'sl': 'Salmos', 'pv': 'Provérbios',
+        'ec': 'Eclesiastes', 'ct': 'Cânticos', 'is': 'Isaías', 'jr': 'Jeremias',
+        'lm': 'Lamentações', 'ez': 'Ezequiel', 'dn': 'Daniel', 'os': 'Oseias',
+        'jl': 'Joel', 'am': 'Amós', 'ob': 'Obadias', 'jn': 'Jonas',
+        'mq': 'Miqueias', 'na': 'Naum', 'hc': 'Habacuque', 'sf': 'Sofonias',
+        'ag': 'Ageu', 'zc': 'Zacarias', 'ml': 'Malaquias',
+        'mt': 'Mateus', 'mc': 'Marcos', 'lc': 'Lucas', 'jo': 'João',
+        'at': 'Atos', 'rm': 'Romanos', '1co': '1 Coríntios', '2co': '2 Coríntios',
+        'gl': 'Gálatas', 'ef': 'Efésios', 'fp': 'Filipenses', 'cl': 'Colossenses',
+        '1ts': '1 Tessalonicenses', '2ts': '2 Tessalonicenses',
+        '1tm': '1 Timóteo', '2tm': '2 Timóteo', 'tt': 'Tito', 'fm': 'Filemom',
+        'hb': 'Hebreus', 'tg': 'Tiago', '1pe': '1 Pedro', '2pe': '2 Pedro',
+        '1jo': '1 João', '2jo': '2 João', '3jo': '3 João', 'jd': 'Judas',
+        'ap': 'Apocalipse'
+    };
+
+    const famousVerses = {
+        'sl_23': [
+            "O SENHOR é o meu pastor; nada me faltará.",
+            "Deitar-me faz em verdes pastos, guia-me mansamente a águas tranquilas.",
+            "Refrigera a minha alma; guia-me pelas veredas da justiça, por amor do seu nome.",
+            "Ainda que eu ande pelo vale da sombra da morte, não temerei mal algum, porque tu estás comigo; a tua vara e o teu cajado me consolam.",
+            "Preparas uma mesa perante mim na presença dos meus inimigos; unges a minha cabeça com óleo, o meu cálice transborda.",
+            "Certamente que a bondade e a misericórdia me seguirão todos os dias da minha vida; e habitarei na casa do SENHOR para sempre."
+        ],
+        'jo_3_16': "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.",
+        'rm_8_28': "E sabemos que todas as coisas contribuem juntamente para o bem daqueles que amam a Deus, daqueles que são chamados segundo o seu propósito.",
+        'fp_4_13': "Posso todas as coisas naquele que me fortalece.",
+        'js_1_9': "Não te mandei eu? Esforça-te, e tem bom ânimo; não temas, nem te espantes; porque o SENHOR teu Deus é contigo, por onde quer que andares.",
+        'mt_11_28': "Vinde a mim, todos os que estais cansados e oprimidos, e eu vos aliviarei.",
+        'sl_1_1': "Bem-aventurado o homem que não anda segundo o conselho dos ímpios, nem se detém no caminho dos pecadores, nem se assenta na roda dos escarnecedores."
+    };
+
     try {
         let url = `https://bible-api.com/${book}+${chapter}`;
         if (verse) url += `:${verse}`;
         url += '?translation=almeida';
 
-        const response = await fetch(url);
-        const data = await response.json();
+        let response = await fetch(url);
+        let data = await response.json();
 
         if (data.error) {
-            // FALLBACK: SALMOS 23
-            if (book === 'sl' && chapter == 23) {
-                const psalm23 = [
-                    "O SENHOR é o meu pastor; nada me faltará.",
-                    "Deitar-me faz em verdes pastos, guia-me mansamente a águas tranquilas.",
-                    "Refrigera a minha alma; guia-me pelas veredas da justiça, por amor do seu nome.",
-                    "Ainda que eu ande pelo vale da sombra da morte, não temerei mal algum, porque tu estás comigo; a tua vara e o teu cajado me consolam.",
-                    "Preparas uma mesa perante mim na presença dos meus inimigos; unges a minha cabeça com óleo, o meu cálice transborda.",
-                    "Certamente que a bondade e a misericórdia me seguirão todos os dias da minha vida; e habitarei na casa do SENHOR para sempre."
-                ];
-                let html = '';
-                const start = verse ? parseInt(verse) - 1 : 0;
-                const end = verse ? parseInt(verse) : psalm23.length;
-                for (let i = start; i < end && i < psalm23.length; i++) {
-                    html += `<p class="verse"><strong>${i+1}</strong> ${psalm23[i]}</p>`;
+            // TENTAR API ALTERNATIVA
+            try {
+                const altUrl = `https://www.abibliadigital.com.br/api/verses/${book}/${chapter}`;
+                const altResponse = await fetch(altUrl);
+                if (altResponse.ok) {
+                    const altData = await altResponse.json();
+                    if (altData && altData.verses && altData.verses.length > 0) {
+                        let html = '';
+                        let verses = altData.verses;
+                        if (verse) {
+                            verses = verses.filter(v => v.number == verse);
+                        }
+                        verses.forEach(v => {
+                            html += `<p class="verse"><strong>${v.number}</strong> ${v.text}</p>`;
+                        });
+                        html += `<p class="reference">📖 ${altData.book.name} ${altData.chapter}</p>`;
+                        resultDiv.innerHTML = html;
+                        return;
+                    }
                 }
-                html += `<p class="reference">📖 Salmos 23</p>`;
+            } catch (e) {
+                console.log('API alternativa falhou');
+            }
+
+            // FALLBACK: VERSÍCULOS CONHECIDOS
+            const key = `${book}_${chapter}`;
+            if (famousVerses[key]) {
+                let html = '';
+                if (Array.isArray(famousVerses[key])) {
+                    const start = verse ? parseInt(verse) - 1 : 0;
+                    const end = verse ? parseInt(verse) : famousVerses[key].length;
+                    for (let i = start; i < end && i < famousVerses[key].length; i++) {
+                        html += `<p class="verse"><strong>${i+1}</strong> ${famousVerses[key][i]}</p>`;
+                    }
+                } else {
+                    html = `<p class="verse">${famousVerses[key]}</p>`;
+                }
+                const bookName = bookNames[book] || book;
+                html += `<p class="reference">📖 ${bookName} ${chapter}${verse ? ':'+verse : ''}</p>`;
                 resultDiv.innerHTML = html;
                 return;
             }
 
-            // FALLBACK: JOÃO 3:16
-            if (book === 'jo' && chapter == 3) {
-                const joao3_16 = "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.";
-                let html = `<p class="verse"><strong>16</strong> ${joao3_16}</p>`;
-                html += `<p class="reference">📖 João 3:16</p>`;
-                resultDiv.innerHTML = html;
-                return;
-            }
-
-            resultDiv.innerHTML = `<p style="color:#dc3545;">❌ Capítulo não encontrado. Tente: Salmos 23 ou João 3</p>`;
+            resultDiv.innerHTML = `
+                <p style="color:#dc3545;">❌ Não foi possível carregar ${bookNames[book] || book} ${chapter}${verse ? ':'+verse : ''}.</p>
+                <p style="color:#888;margin-top:0.5rem;">Tente um capítulo conhecido como Salmos 23 ou João 3.</p>
+                <p style="color:#888;">Dica: Selecione um livro, digite um capítulo e clique em Buscar.</p>
+            `;
             return;
         }
 
@@ -745,20 +802,21 @@ async function searchBible() {
         } else if (data.text) {
             html = `<p class="verse">${data.text}</p>`;
         }
-        html += `<p class="reference">📖 ${data.reference || data.book + ' ' + data.chapter}</p>`;
+        html += `<p class="reference">📖 ${data.reference || bookNames[book] + ' ' + chapter}</p>`;
         resultDiv.innerHTML = html;
     } catch (error) {
-        // FALLBACK FINAL
         resultDiv.innerHTML = `
-            <p style="color:#dc3545;">❌ Erro ao buscar. Tente um capítulo conhecido como Salmos 23.</p>
-            <p style="color:#888;margin-top:0.5rem;">Salmos 23:1-6</p>
-            <p class="verse"><strong>1</strong> O SENHOR é o meu pastor; nada me faltará.</p>
-            <p class="verse"><strong>2</strong> Deitar-me faz em verdes pastos, guia-me mansamente a águas tranquilas.</p>
-            <p class="verse"><strong>3</strong> Refrigera a minha alma; guia-me pelas veredas da justiça, por amor do seu nome.</p>
-            <p class="verse"><strong>4</strong> Ainda que eu ande pelo vale da sombra da morte, não temerei mal algum, porque tu estás comigo; a tua vara e o teu cajado me consolam.</p>
-            <p class="verse"><strong>5</strong> Preparas uma mesa perante mim na presença dos meus inimigos; unges a minha cabeça com óleo, o meu cálice transborda.</p>
-            <p class="verse"><strong>6</strong> Certamente que a bondade e a misericórdia me seguirão todos os dias da minha vida; e habitarei na casa do SENHOR para sempre.</p>
-            <p class="reference">📖 Salmos 23</p>
+            <p style="color:#dc3545;">❌ Erro ao buscar: ${error.message}</p>
+            <p style="color:#888;margin-top:0.5rem;">Tente Salmos 23 ou João 3:16</p>
+            <div style="margin-top:1rem;padding:1rem;background:#f8f9fa;border-radius:8px;">
+                <p><strong>Salmos 23:1-6</strong></p>
+                <p>O SENHOR é o meu pastor; nada me faltará.</p>
+                <p>Deitar-me faz em verdes pastos, guia-me mansamente a águas tranquilas.</p>
+                <p>Refrigera a minha alma; guia-me pelas veredas da justiça, por amor do seu nome.</p>
+                <p>Ainda que eu ande pelo vale da sombra da morte, não temerei mal algum, porque tu estás comigo; a tua vara e o teu cajado me consolam.</p>
+                <p>Preparas uma mesa perante mim na presença dos meus inimigos; unges a minha cabeça com óleo, o meu cálice transborda.</p>
+                <p>Certamente que a bondade e a misericórdia me seguirão todos os dias da minha vida; e habitarei na casa do SENHOR para sempre.</p>
+            </div>
         `;
     }
 }
@@ -1083,7 +1141,7 @@ async function submitDonation() {
 }
 
 // ============================================
-// ===== PAGAMENTOS =====
+// ===== PAGAMENTOS (CORRIGIDO) =====
 // ============================================
 
 async function processPayment() {
@@ -1129,6 +1187,7 @@ async function processPayment() {
         const payment = await response.json();
         if (payment.error) throw new Error(payment.error);
 
+        // Registrar pedido ou doação
         if (paymentType === 'sale') {
             await fetch('/api/orders', {
                 method: 'POST',
@@ -1161,9 +1220,34 @@ async function processPayment() {
             });
         }
 
+        // FECHAR MODAL
         closeModal('paymentModal');
 
-        if (payment.payment_link) {
+        // MOSTRAR QR CODE
+        if (payment.qr_code_base64) {
+            const resultDiv = document.getElementById('paymentResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <h3>✅ Pagamento via PIX</h3>
+                <div class="qr-container">
+                    <img src="data:image/png;base64,${payment.qr_code_base64}" alt="QR Code PIX">
+                    <p style="margin:0.5rem 0;">Escaneie o QR Code ou copie o código:</p>
+                    <div style="background:#f0f0f0;padding:0.8rem;border-radius:8px;word-break:break-all;font-size:0.8rem;border:1px solid #e0e0e0;">${payment.qr_code || payment.qr_code_text}</div>
+                    <div style="display:flex;gap:0.5rem;justify-content:center;margin-top:0.5rem;flex-wrap:wrap;">
+                        <button onclick="navigator.clipboard.writeText('${payment.qr_code || payment.qr_code_text}')" class="btn btn-primary btn-sm">
+                            <i class="fas fa-copy"></i> Copiar
+                        </button>
+                        ${payment.payment_link ? `<a href="${payment.payment_link}" target="_blank" class="btn btn-success btn-sm"><i class="fas fa-external-link-alt"></i> Abrir no Banco</a>` : ''}
+                    </div>
+                    <p style="margin-top:0.8rem;color:#888;">Status: ${payment.status}</p>
+                    <button onclick="closeModal('paymentModal')" class="btn btn-primary" style="margin-top:0.8rem;">
+                        <i class="fas fa-check"></i> Concluir
+                    </button>
+                </div>
+            `;
+            document.getElementById('paymentForm').style.display = 'none';
+            openModal('paymentModal');
+        } else if (payment.payment_link) {
             showNotification('🔗 Redirecionando para o Mercado Pago...', 'info');
             setTimeout(() => {
                 window.open(payment.payment_link, '_blank');
@@ -1174,6 +1258,7 @@ async function processPayment() {
 
     } catch (error) {
         showNotification('❌ Erro: ' + error.message, 'error');
+        console.error('Erro no pagamento:', error);
     }
 }
 

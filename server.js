@@ -41,6 +41,7 @@ try {
 // ===== APP =====
 const app = express();
 const PORT = process.env.PORT || 3000;
+const BASE_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
 
 app.use(cors());
 app.use(express.json());
@@ -412,6 +413,27 @@ app.get('/api/departments', auth, async (req, res) => {
     }
 });
 
+app.put('/api/departments/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, leader_email, description } = req.body;
+        let leader_id = null;
+        if (leader_email) {
+            const leader = await sql`SELECT id FROM users WHERE email = ${leader_email}`;
+            if (leader.length > 0) leader_id = leader[0].id;
+        }
+        const result = await sql`
+            UPDATE departments 
+            SET name = ${name}, leader_id = ${leader_id}, description = ${description || ''}
+            WHERE id = ${id}
+            RETURNING *
+        `;
+        res.json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
     try {
         await sql`DELETE FROM departments WHERE id = ${req.params.id}`;
@@ -528,6 +550,22 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
+app.put('/api/products/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, description, price, stock, category } = req.body;
+        const result = await sql`
+            UPDATE products SET name = ${name}, description = ${description}, price = ${parseFloat(price)}, 
+                stock = ${parseInt(stock) || 0}, category = ${category || ''}
+            WHERE id = ${id}
+            RETURNING *
+        `;
+        res.json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.delete('/api/products/:id', auth, pastorOnly, async (req, res) => {
     try {
         await sql`DELETE FROM products WHERE id = ${req.params.id}`;
@@ -558,6 +596,22 @@ app.get('/api/events', async (req, res) => {
     try {
         const events = await sql`SELECT * FROM events ORDER BY date DESC`;
         res.json(events);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/events/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, description, date, price } = req.body;
+        const result = await sql`
+            UPDATE events SET title = ${title}, description = ${description}, 
+                date = ${date}, price = ${parseFloat(price) || 0}
+            WHERE id = ${id}
+            RETURNING *
+        `;
+        res.json(result[0]);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -623,62 +677,83 @@ app.post('/api/orders', async (req, res) => {
 app.get('/api/orders', auth, async (req, res) => {
     try {
         const orders = await sql`SELECT * FROM orders ORDER BY created_at DESC`;
+        console.log('📦 Vendas carregadas:', orders.length);
         res.json(orders);
     } catch (error) {
+        console.error('❌ Erro ao buscar vendas:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// ----- ESTATÍSTICAS DE VENDAS -----
+// ----- ESTATÍSTICAS DE VENDAS (CORRIGIDO) -----
 app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
     try {
+        console.log('📊 Buscando estatísticas de vendas...');
+        
         // Total de vendas
-        const totalSales = await sql`SELECT COUNT(*) as count, SUM(total) as total FROM orders WHERE status = 'approved' OR status = 'pending'`;
+        const totalSales = await sql`SELECT COUNT(*) as count, COALESCE(SUM(total), 0) as total FROM orders`;
+        console.log('Total vendas:', totalSales);
         
         // Vendas por dia (últimos 7 dias)
         const salesByDay = await sql`
             SELECT 
                 DATE(created_at) as date, 
                 COUNT(*) as count, 
-                SUM(total) as total 
+                COALESCE(SUM(total), 0) as total 
             FROM orders 
             WHERE created_at >= NOW() - INTERVAL '7 days'
             GROUP BY DATE(created_at)
             ORDER BY date DESC
         `;
+        console.log('Vendas por dia:', salesByDay);
         
         // Produtos mais vendidos
         const topProducts = await sql`
             SELECT 
                 items::json->0->>'name' as product_name,
                 COUNT(*) as total_sales,
-                SUM(total) as total_revenue
+                COALESCE(SUM(total), 0) as total_revenue
             FROM orders 
-            WHERE items IS NOT NULL AND items != ''
+            WHERE items IS NOT NULL AND items != '' AND items != 'null' AND items != '[]'
             GROUP BY items::json->0->>'name'
             ORDER BY total_sales DESC
             LIMIT 10
         `;
+        console.log('Top produtos:', topProducts);
         
         // Vendas por método de pagamento
         const salesByMethod = await sql`
             SELECT 
-                payment_method,
+                COALESCE(payment_method, 'PIX') as payment_method,
                 COUNT(*) as count,
-                SUM(total) as total
+                COALESCE(SUM(total), 0) as total
             FROM orders 
             GROUP BY payment_method
         `;
+        console.log('Vendas por método:', salesByMethod);
         
-        res.json({
+        // Últimas 10 vendas com detalhes
+        const recentOrders = await sql`
+            SELECT id, user_name, user_email, items, total, status, payment_method, created_at
+            FROM orders 
+            ORDER BY created_at DESC 
+            LIMIT 10
+        `;
+        console.log('Últimas vendas:', recentOrders);
+
+        const result = {
             total: totalSales[0] || { count: 0, total: 0 },
             byDay: salesByDay || [],
             topProducts: topProducts || [],
-            byMethod: salesByMethod || []
-        });
+            byMethod: salesByMethod || [],
+            recent: recentOrders || []
+        };
+        
+        console.log('📊 Estatísticas completas:', result);
+        res.json(result);
     } catch (error) {
         console.error('❌ Erro nas estatísticas:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: error.message, stack: error.stack });
     }
 });
 
@@ -794,15 +869,58 @@ app.get('/api/carousel', async (req, res) => {
         const images = await sql`
             SELECT * FROM carousel_images WHERE active = true ORDER BY order_position, created_at
         `;
+        console.log('🖼️ Carrossel imagens:', images.length);
         res.json(images);
     } catch (error) {
+        console.error('❌ Erro carrossel:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ===== ATUALIZAR CARROSSEL =====
+app.put('/api/carousel/:id', auth, pastorOnly, upload.single('image'), async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, subtitle, link, active } = req.body;
+        
+        const current = await sql`SELECT * FROM carousel_images WHERE id = ${id}`;
+        if (current.length === 0) {
+            return res.status(404).json({ error: 'Imagem não encontrada' });
+        }
+        
+        let image_url = current[0].image_url;
+        
+        if (req.file) {
+            const oldPath = path.join(__dirname, 'public', current[0].image_url);
+            if (fs.existsSync(oldPath)) {
+                try { fs.unlinkSync(oldPath); } catch (e) {}
+            }
+            image_url = '/uploads/carousel/' + req.file.filename;
+        }
+
+        const result = await sql`
+            UPDATE carousel_images 
+            SET 
+                title = ${title || current[0].title},
+                subtitle = ${subtitle || current[0].subtitle},
+                link = ${link || current[0].link},
+                image_url = ${image_url},
+                active = ${active !== undefined ? active : current[0].active}
+            WHERE id = ${id}
+            RETURNING *
+        `;
+        
+        res.json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao atualizar carrossel:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
 app.delete('/api/carousel/:id', auth, pastorOnly, async (req, res) => {
     try {
-        await sql`DELETE FROM carousel_images WHERE id = ${req.params.id}`;
+        const { id } = req.params;
+        await sql`DELETE FROM carousel_images WHERE id = ${id}`;
         res.json({ message: 'Imagem removida' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -835,7 +953,7 @@ app.post('/api/settings', auth, pastorOnly, async (req, res) => {
 });
 
 // ============================================
-// ===== MERCADO PAGO =====
+// ===== MERCADO PAGO COM REDIRECIONAMENTO =====
 // ============================================
 
 app.post('/api/create-pix-payment', async (req, res) => {
@@ -855,6 +973,9 @@ app.post('/api/create-pix-payment', async (req, res) => {
 
         const externalReference = `NJ-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
 
+        // URL BASE DO SITE
+        const baseUrl = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
+
         const paymentData = {
             body: {
                 transaction_amount: valor,
@@ -866,7 +987,13 @@ app.post('/api/create-pix-payment', async (req, res) => {
                     phone: { number: phone || '' },
                     identification: { type: 'CPF', number: cpf || '12345678909' }
                 },
-                external_reference: externalReference
+                external_reference: externalReference,
+                back_urls: {
+                    success: `${baseUrl}/payment-return?status=success&payment_id=${externalReference}`,
+                    failure: `${baseUrl}/payment-return?status=failure&payment_id=${externalReference}`,
+                    pending: `${baseUrl}/payment-return?status=pending&payment_id=${externalReference}`
+                },
+                auto_return: 'approved'
             }
         };
 
@@ -877,16 +1004,12 @@ app.post('/api/create-pix-payment', async (req, res) => {
         const paymentLink = payment.point_of_interaction?.transaction_data?.ticket_url || 
                            `https://www.mercadopago.com.br/payments/${payment.id}`;
 
-        const returnUrl = `http://localhost:${PORT}/payment-return?payment_id=${payment.id}&external_reference=${externalReference}`;
-
         res.json({
             payment_id: payment.id,
             status: payment.status,
             payment_link: paymentLink,
-            return_url: returnUrl,
-            qr_code: payment.point_of_interaction?.transaction_data?.qr_code || '',
-            qr_code_base64: payment.point_of_interaction?.transaction_data?.qr_code_base64 || '',
-            external_reference: externalReference
+            external_reference: externalReference,
+            return_url: `${baseUrl}/payment-return?payment_id=${payment.id}`
         });
     } catch (error) {
         console.error('❌ Erro MP:', error);
@@ -902,31 +1025,53 @@ app.post('/api/create-pix-payment', async (req, res) => {
 
 app.get('/payment-return', async (req, res) => {
     try {
-        const { payment_id, external_reference } = req.query;
+        const { payment_id, status, external_reference } = req.query;
         
-        let status = 'pending';
+        let statusDisplay = 'pending';
         let message = 'Aguardando confirmação do pagamento...';
-        
-        if (PaymentService && payment_id) {
+        let icon = '⏳';
+        let bgColor = '#ffc107';
+
+        if (status === 'success' || status === 'approved') {
+            statusDisplay = 'approved';
+            message = '✅ Pagamento aprovado! Obrigado pela sua contribuição! 🙏';
+            icon = '✅';
+            bgColor = '#28a745';
+        } else if (status === 'failure' || status === 'rejected') {
+            statusDisplay = 'rejected';
+            message = '❌ Pagamento recusado. Tente novamente.';
+            icon = '❌';
+            bgColor = '#dc3545';
+        } else if (status === 'pending') {
+            statusDisplay = 'pending';
+            message = '⏳ Pagamento pendente. Aguarde a confirmação.';
+            icon = '⏳';
+            bgColor = '#ffc107';
+        }
+
+        if (payment_id && PaymentService) {
             try {
                 const payment = await PaymentService.get({ id: payment_id });
-                status = payment.status;
+                statusDisplay = payment.status;
                 
-                if (status === 'approved') {
+                if (payment.status === 'approved') {
                     message = '✅ Pagamento aprovado! Obrigado pela sua contribuição! 🙏';
-                } else if (status === 'pending') {
+                    icon = '✅';
+                    bgColor = '#28a745';
+                } else if (payment.status === 'pending') {
                     message = '⏳ Pagamento pendente. Aguarde a confirmação.';
-                } else if (status === 'rejected') {
+                    icon = '⏳';
+                    bgColor = '#ffc107';
+                } else if (payment.status === 'rejected') {
                     message = '❌ Pagamento recusado. Tente novamente.';
-                } else {
-                    message = `Status: ${status}`;
+                    icon = '❌';
+                    bgColor = '#dc3545';
                 }
             } catch (error) {
                 console.error('❌ Erro ao buscar pagamento:', error);
-                message = '⚠️ Não foi possível verificar o status do pagamento.';
             }
         }
-        
+
         res.send(`
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -955,9 +1100,6 @@ app.get('/payment-return', async (req, res) => {
             box-shadow: 0 10px 40px rgba(0,0,0,0.08);
         }
         .icon { font-size: 4rem; margin-bottom: 1rem; }
-        .icon.success { color: #28a745; }
-        .icon.pending { color: #ffc107; }
-        .icon.error { color: #dc3545; }
         h1 { font-size: 1.8rem; color: #0D47A1; margin-bottom: 1rem; }
         p { color: #666; margin-bottom: 1rem; line-height: 1.6; }
         .btn {
@@ -971,10 +1113,13 @@ app.get('/payment-return', async (req, res) => {
             font-weight: 600;
             transition: all 0.3s;
             cursor: pointer;
+            margin: 0.3rem;
         }
         .btn:hover { background: #1565C0; transform: translateY(-2px); }
         .btn-success { background: #28a745; }
         .btn-success:hover { background: #218838; }
+        .btn-danger { background: #dc3545; }
+        .btn-danger:hover { background: #c82333; }
         .details { 
             background: #f8f9fa; 
             padding: 1rem; 
@@ -984,6 +1129,15 @@ app.get('/payment-return', async (req, res) => {
             text-align: left;
         }
         .details span { font-weight: 600; }
+        .message-box {
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-weight: 500;
+        }
+        .message-box.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .message-box.pending { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
+        .message-box.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         @media (max-width: 480px) {
             .container { padding: 1.5rem; }
             .icon { font-size: 3rem; }
@@ -992,24 +1146,34 @@ app.get('/payment-return', async (req, res) => {
 </head>
 <body>
     <div class="container">
-        <div class="icon ${status === 'approved' ? 'success' : status === 'pending' ? 'pending' : 'error'}">
-            ${status === 'approved' ? '✅' : status === 'pending' ? '⏳' : '❌'}
+        <div class="icon" style="color: ${bgColor}">${icon}</div>
+        <h1>${statusDisplay === 'approved' ? 'Pagamento Confirmado!' : statusDisplay === 'rejected' ? 'Pagamento Recusado' : 'Aguardando Confirmação'}</h1>
+        
+        <div class="message-box ${statusDisplay === 'approved' ? 'success' : statusDisplay === 'rejected' ? 'error' : 'pending'}">
+            ${message}
         </div>
-        <h1>${status === 'approved' ? 'Pagamento Confirmado!' : status === 'pending' ? 'Aguardando Confirmação' : 'Pagamento Não Confirmado'}</h1>
-        <p>${message}</p>
         
         ${payment_id ? `
         <div class="details">
             <p><span>ID do Pagamento:</span> ${payment_id}</p>
             <p><span>Referência:</span> ${external_reference || '-'}</p>
-            <p><span>Status:</span> ${status}</p>
+            <p><span>Status:</span> ${statusDisplay}</p>
         </div>
         ` : ''}
         
         <div style="display:flex;gap:0.8rem;flex-wrap:wrap;justify-content:center;">
-            <a href="/" class="btn btn-primary">
+            <a href="${process.env.PUBLIC_URL || '/'}" class="btn">
                 <i class="fas fa-home"></i> Voltar ao Site
             </a>
+            ${statusDisplay === 'approved' ? `
+            <a href="${process.env.PUBLIC_URL || '/'}" class="btn btn-success">
+                <i class="fas fa-check"></i> Continuar
+            </a>
+            ` : statusDisplay === 'rejected' ? `
+            <a href="javascript:history.back()" class="btn btn-danger">
+                <i class="fas fa-arrow-left"></i> Tentar Novamente
+            </a>
+            ` : ''}
         </div>
         
         <p style="margin-top:1rem;font-size:0.8rem;color:#888;">
@@ -1173,7 +1337,7 @@ app.get('/departamento', (req, res) => {
 app.listen(PORT, () => {
     console.log('');
     console.log('🔥 NJ Cabuçu rodando na porta ' + PORT);
-    console.log('🌐 http://localhost:' + PORT);
+    console.log('🌐 ' + (process.env.PUBLIC_URL || `http://localhost:${PORT}`));
     console.log('');
     console.log('📋 Credenciais:');
     console.log('   Email: pastor@njcabucu.com');

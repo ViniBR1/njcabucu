@@ -942,7 +942,7 @@ app.post('/api/settings', auth, pastorOnly, async (req, res) => {
 });
 
 // ============================================
-// ===== MERCADO PAGO (COM REDIRECIONAMENTO) =====
+// ===== MERCADO PAGO (CORRIGIDO) =====
 // ============================================
 
 app.post('/api/create-pix-payment', async (req, res) => {
@@ -973,14 +973,8 @@ app.post('/api/create-pix-payment', async (req, res) => {
                     phone: { number: phone || '' },
                     identification: { type: 'CPF', number: cpf || '12345678909' }
                 },
-                external_reference: externalReference,
-                // REDIRECIONAMENTO APÓS O PAGAMENTO
-                back_urls: {
-                    success: `${BASE_URL}/?status=approved&payment_id=${externalReference}`,
-                    failure: `${BASE_URL}/?status=rejected&payment_id=${externalReference}`,
-                    pending: `${BASE_URL}/?status=pending&payment_id=${externalReference}`
-                },
-                auto_return: 'approved'
+                external_reference: externalReference
+                // REMOVIDO: back_urls e auto_return (NÃO FUNCIONAM PARA PIX)
             }
         };
 
@@ -992,13 +986,16 @@ app.post('/api/create-pix-payment', async (req, res) => {
         const paymentLink = payment.point_of_interaction?.transaction_data?.ticket_url || 
                            `https://www.mercadopago.com.br/payments/${payment.id}`;
 
+        const qrCode = payment.point_of_interaction?.transaction_data?.qr_code || '';
+        const qrCodeBase64 = payment.point_of_interaction?.transaction_data?.qr_code_base64 || '';
+
         res.json({
             payment_id: payment.id,
             status: payment.status,
             payment_link: paymentLink,
             external_reference: externalReference,
-            qr_code: payment.point_of_interaction?.transaction_data?.qr_code || '',
-            qr_code_base64: payment.point_of_interaction?.transaction_data?.qr_code_base64 || ''
+            qr_code: qrCode,
+            qr_code_base64: qrCodeBase64
         });
     } catch (error) {
         console.error('❌ Erro MP:', error);

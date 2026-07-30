@@ -1,5 +1,5 @@
 // ============================================
-// ===== NJ CABUÇU - SERVIDOR (BASE64) =====
+// ===== NJ CABUÇU - SERVER (CORRIGIDO) =====
 // ============================================
 
 require('dotenv').config();
@@ -676,7 +676,7 @@ app.put('/api/prayers/:id/read', auth, async (req, res) => {
     }
 });
 
-// ----- PEDIDOS -----
+// ----- PEDIDOS (VENDAS) -----
 app.post('/api/orders', async (req, res) => {
     try {
         const { user_name, user_email, user_phone, items, total, payment_id, payment_method } = req.body;
@@ -685,8 +685,10 @@ app.post('/api/orders', async (req, res) => {
             VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(items)}, ${total}, ${payment_id}, ${payment_method})
             RETURNING *
         `;
+        console.log('✅ Pedido criado:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
+        console.error('❌ Erro ao criar pedido:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -694,8 +696,10 @@ app.post('/api/orders', async (req, res) => {
 app.get('/api/orders', auth, async (req, res) => {
     try {
         const orders = await sql`SELECT * FROM orders ORDER BY created_at DESC`;
+        console.log('📦 Total de vendas:', orders.length);
         res.json(orders);
     } catch (error) {
+        console.error('❌ Erro ao buscar vendas:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -711,40 +715,66 @@ app.put('/api/orders/:id/status', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- ESTATÍSTICAS DE VENDAS -----
+// ----- ESTATÍSTICAS DE VENDAS (CORRIGIDO) -----
 app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
     try {
-        const totalSales = await sql`SELECT COUNT(*) as count, COALESCE(SUM(total), 0) as total FROM orders`;
+        // Pegar TODAS as vendas (não só approved)
+        const totalSales = await sql`
+            SELECT COUNT(*) as count, COALESCE(SUM(total), 0) as total FROM orders
+        `;
+        
         const salesByDay = await sql`
-            SELECT DATE(created_at) as date, COUNT(*) as count, COALESCE(SUM(total), 0) as total 
-            FROM orders WHERE created_at >= NOW() - INTERVAL '7 days'
-            GROUP BY DATE(created_at) ORDER BY date DESC
+            SELECT 
+                DATE(created_at) as date, 
+                COUNT(*) as count, 
+                COALESCE(SUM(total), 0) as total 
+            FROM orders 
+            WHERE created_at >= NOW() - INTERVAL '7 days'
+            GROUP BY DATE(created_at)
+            ORDER BY date DESC
         `;
+        
         const topProducts = await sql`
-            SELECT items::json->0->>'name' as product_name, COUNT(*) as total_sales,
-            COALESCE(SUM(total), 0) as total_revenue FROM orders 
+            SELECT 
+                items::json->0->>'name' as product_name,
+                COUNT(*) as total_sales,
+                COALESCE(SUM(total), 0) as total_revenue
+            FROM orders 
             WHERE items IS NOT NULL AND items != '' AND items != 'null' AND items != '[]'
-            GROUP BY items::json->0->>'name' ORDER BY total_sales DESC LIMIT 10
+            GROUP BY items::json->0->>'name'
+            ORDER BY total_sales DESC
+            LIMIT 10
         `;
+        
         const salesByMethod = await sql`
-            SELECT COALESCE(payment_method, 'PIX') as payment_method,
-            COUNT(*) as count, COALESCE(SUM(total), 0) as total FROM orders GROUP BY payment_method
+            SELECT 
+                COALESCE(payment_method, 'PIX') as payment_method,
+                COUNT(*) as count,
+                COALESCE(SUM(total), 0) as total
+            FROM orders 
+            GROUP BY payment_method
         `;
+        
         const recentOrders = await sql`
             SELECT id, user_name, user_email, items, total, status, payment_method, created_at
-            FROM orders ORDER BY created_at DESC LIMIT 10
+            FROM orders 
+            ORDER BY created_at DESC 
+            LIMIT 10
         `;
 
-        res.json({
+        const result = {
             total: totalSales[0] || { count: 0, total: 0 },
             byDay: salesByDay || [],
             topProducts: topProducts || [],
             byMethod: salesByMethod || [],
             recent: recentOrders || []
-        });
+        };
+        
+        console.log('📊 Estatísticas completas:', result);
+        res.json(result);
     } catch (error) {
         console.error('❌ Erro nas estatísticas:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: error.message, stack: error.stack });
     }
 });
 
@@ -844,7 +874,7 @@ app.delete('/api/worship-scales/:id', auth, async (req, res) => {
     }
 });
 
-// ----- CARROSSEL -----
+// ----- CARROSSEL (CORRIGIDO) -----
 app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, res) => {
     try {
         const { title, subtitle, link } = req.body;
@@ -874,6 +904,7 @@ app.get('/api/carousel', async (req, res) => {
         const images = await sql`
             SELECT * FROM carousel_images WHERE active = true ORDER BY order_position, created_at
         `;
+        console.log('🖼️ Carrossel imagens:', images.length);
         res.json(images);
     } catch (error) {
         console.error('❌ Erro carrossel:', error);

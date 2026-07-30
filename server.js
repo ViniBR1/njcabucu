@@ -271,6 +271,7 @@ async function initDB() {
             birth_date DATE,
             marital_status VARCHAR(20) DEFAULT 'solteiro',
             spouse_name VARCHAR(100),
+            wedding_date DATE,
             children TEXT,
             baptism_date DATE,
             baptism_place VARCHAR(100),
@@ -324,6 +325,7 @@ async function initDB() {
 
         console.log('✅ Tabelas criadas');
 
+        // Cria usuário pastor padrão
         const existing = await sql`SELECT * FROM users WHERE email = 'pastor@njcabucu.com'`;
         if (existing.length === 0) {
             const hash = await hashPassword('admin123');
@@ -829,7 +831,7 @@ app.put('/api/orders/:id/status', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- ESTATÍSTICAS DE VENDAS (CORRIGIDO) -----
+// ----- ESTATÍSTICAS DE VENDAS -----
 app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
     try {
         const totalSales = await sql`
@@ -1099,7 +1101,7 @@ app.post('/api/members', auth, async (req, res) => {
     try {
         const { 
             name, email, phone, birth_date, marital_status, spouse_name, 
-            children, baptism_date, baptism_place, address, 
+            wedding_date, children, baptism_date, baptism_place, address, 
             department_id, department_name, notes 
         } = req.body;
 
@@ -1110,11 +1112,11 @@ app.post('/api/members', auth, async (req, res) => {
         const result = await sql`
             INSERT INTO members (
                 name, email, phone, birth_date, marital_status, spouse_name,
-                children, baptism_date, baptism_place, address,
+                wedding_date, children, baptism_date, baptism_place, address,
                 department_id, department_name, notes, created_by
             ) VALUES (
                 ${name}, ${email}, ${phone}, ${birth_date}, ${marital_status}, ${spouse_name},
-                ${children}, ${baptism_date}, ${baptism_place}, ${address},
+                ${wedding_date}, ${children}, ${baptism_date}, ${baptism_place}, ${address},
                 ${department_id}, ${department_name}, ${notes}, ${req.user.id}
             ) RETURNING *
         `;
@@ -1170,7 +1172,7 @@ app.get('/api/members/:id', auth, async (req, res) => {
 
         res.json({
             ...result[0],
-            attendance: attendance.rows
+            attendance: attendance
         });
     } catch (error) {
         console.error('❌ Erro ao buscar membro:', error);
@@ -1183,7 +1185,7 @@ app.put('/api/members/:id', auth, async (req, res) => {
         const { id } = req.params;
         const { 
             name, email, phone, birth_date, marital_status, spouse_name,
-            children, baptism_date, baptism_place, address,
+            wedding_date, children, baptism_date, baptism_place, address,
             department_id, department_name, notes, is_active
         } = req.body;
 
@@ -1195,6 +1197,7 @@ app.put('/api/members/:id', auth, async (req, res) => {
                 birth_date = COALESCE(${birth_date}, birth_date),
                 marital_status = COALESCE(${marital_status}, marital_status),
                 spouse_name = COALESCE(${spouse_name}, spouse_name),
+                wedding_date = COALESCE(${wedding_date}, wedding_date),
                 children = COALESCE(${children}, children),
                 baptism_date = COALESCE(${baptism_date}, baptism_date),
                 baptism_place = COALESCE(${baptism_place}, baptism_place),
@@ -1268,7 +1271,7 @@ app.get('/api/attendance/:member_id', auth, async (req, res) => {
             LIMIT ${limit}
         `;
 
-        res.json(result.rows);
+        res.json(result);
     } catch (error) {
         console.error('❌ Erro ao buscar frequência:', error);
         res.status(500).json({ error: error.message });
@@ -1513,10 +1516,166 @@ app.get('/api/bills/summary', auth, async (req, res) => {
 
         res.json({
             summary: result[0],
-            by_category: categories.rows
+            by_category: categories
         });
     } catch (error) {
         console.error('❌ Erro ao buscar resumo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ANIVERSARIANTES DA SEMANA =====
+// ============================================
+
+app.get('/api/birthdays', async (req, res) => {
+    try {
+        const members = await sql`
+            SELECT id, name, birth_date, email, phone 
+            FROM members 
+            WHERE birth_date IS NOT NULL 
+            AND is_active = true
+        `;
+
+        const hoje = new Date();
+        const diaAtual = hoje.getDate();
+        const mesAtual = hoje.getMonth() + 1;
+        
+        const aniversariantes = members.filter(m => {
+            const birth = new Date(m.birth_date);
+            const diaNiver = birth.getDate();
+            const mesNiver = birth.getMonth() + 1;
+            
+            let diff = 0;
+            if (mesNiver > mesAtual) {
+                const diasRestantesMes = new Date(hoje.getFullYear(), mesAtual - 1, diaAtual).getDate() - diaAtual;
+                diff = diasRestantesMes + diaNiver;
+                for (let m = mesAtual + 1; m < mesNiver; m++) {
+                    diff += new Date(hoje.getFullYear(), m - 1, 1).getDate();
+                }
+            } else if (mesNiver === mesAtual) {
+                diff = diaNiver - diaAtual;
+                if (diff < 0) {
+                    const diasRestantes = new Date(hoje.getFullYear(), mesAtual - 1, diaAtual).getDate() - diaAtual;
+                    const diasProximoMes = diaNiver;
+                    diff = diasRestantes + diasProximoMes;
+                    for (let m = mesAtual + 1; m <= 12; m++) {
+                        diff += new Date(hoje.getFullYear(), m - 1, 1).getDate();
+                    }
+                    for (let m = 1; m < mesNiver; m++) {
+                        diff += new Date(hoje.getFullYear() + 1, m - 1, 1).getDate();
+                    }
+                }
+            } else {
+                const diasRestantesAno = new Date(hoje.getFullYear(), 11, 31).getDate() - diaAtual;
+                let diffTemp = diasRestantesAno + diaNiver;
+                for (let m = mesAtual + 1; m <= 12; m++) {
+                    diffTemp += new Date(hoje.getFullYear(), m - 1, 1).getDate();
+                }
+                for (let m = 1; m < mesNiver; m++) {
+                    diffTemp += new Date(hoje.getFullYear() + 1, m - 1, 1).getDate();
+                }
+                diff = diffTemp;
+            }
+
+            return diff >= 0 && diff <= 6;
+        });
+
+        aniversariantes.sort((a, b) => {
+            const aDate = new Date(a.birth_date);
+            const bDate = new Date(b.birth_date);
+            const aMonth = aDate.getMonth();
+            const bMonth = bDate.getMonth();
+            const aDay = aDate.getDate();
+            const bDay = bDate.getDate();
+            
+            const hojeMonth = new Date().getMonth();
+            const hojeDay = new Date().getDate();
+            
+            let aDiff = (aMonth - hojeMonth) * 30 + (aDay - hojeDay);
+            if (aDiff < 0) aDiff += 365;
+            
+            let bDiff = (bMonth - hojeMonth) * 30 + (bDay - hojeDay);
+            if (bDiff < 0) bDiff += 365;
+            
+            return aDiff - bDiff;
+        });
+
+        res.json(aniversariantes);
+    } catch (error) {
+        console.error('❌ Erro ao buscar aniversariantes:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== CASAMENTOS DA SEMANA =====
+// ============================================
+
+app.get('/api/weddings', async (req, res) => {
+    try {
+        const members = await sql`
+            SELECT id, name, spouse_name, wedding_date 
+            FROM members 
+            WHERE wedding_date IS NOT NULL 
+            AND is_active = true
+            AND spouse_name IS NOT NULL
+            AND spouse_name != ''
+        `;
+
+        const hoje = new Date();
+        const diaAtual = hoje.getDate();
+        const mesAtual = hoje.getMonth() + 1;
+        
+        const casamentos = members.filter(m => {
+            const wedding = new Date(m.wedding_date);
+            const diaCasamento = wedding.getDate();
+            const mesCasamento = wedding.getMonth() + 1;
+            
+            let diff = 0;
+            if (mesCasamento > mesAtual) {
+                const diasRestantesMes = new Date(hoje.getFullYear(), mesAtual - 1, diaAtual).getDate() - diaAtual;
+                diff = diasRestantesMes + diaCasamento;
+                for (let m = mesAtual + 1; m < mesCasamento; m++) {
+                    diff += new Date(hoje.getFullYear(), m - 1, 1).getDate();
+                }
+            } else if (mesCasamento === mesAtual) {
+                diff = diaCasamento - diaAtual;
+                if (diff < 0) {
+                    const diasRestantes = new Date(hoje.getFullYear(), mesAtual - 1, diaAtual).getDate() - diaAtual;
+                    const diasProximoMes = diaCasamento;
+                    diff = diasRestantes + diasProximoMes;
+                    for (let m = mesAtual + 1; m <= 12; m++) {
+                        diff += new Date(hoje.getFullYear(), m - 1, 1).getDate();
+                    }
+                    for (let m = 1; m < mesCasamento; m++) {
+                        diff += new Date(hoje.getFullYear() + 1, m - 1, 1).getDate();
+                    }
+                }
+            } else {
+                const diasRestantesAno = new Date(hoje.getFullYear(), 11, 31).getDate() - diaAtual;
+                let diffTemp = diasRestantesAno + diaCasamento;
+                for (let m = mesAtual + 1; m <= 12; m++) {
+                    diffTemp += new Date(hoje.getFullYear(), m - 1, 1).getDate();
+                }
+                for (let m = 1; m < mesCasamento; m++) {
+                    diffTemp += new Date(hoje.getFullYear() + 1, m - 1, 1).getDate();
+                }
+                diff = diffTemp;
+            }
+
+            return diff >= 0 && diff <= 6;
+        });
+
+        casamentos.sort((a, b) => {
+            const aDate = new Date(a.wedding_date);
+            const bDate = new Date(b.wedding_date);
+            return aDate - bDate;
+        });
+
+        res.json(casamentos);
+    } catch (error) {
+        console.error('❌ Erro ao buscar casamentos:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1779,6 +1938,10 @@ app.get('/departamento', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'departamento.html'));
 });
 
+app.get('/secretaria', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'secretaria.html'));
+});
+
 // ============================================
 // ===== INICIAR =====
 // ============================================
@@ -1794,6 +1957,7 @@ app.listen(PORT, () => {
     console.log('');
     console.log('💰 Mercado Pago: ' + (process.env.MP_ACCESS_TOKEN ? '✅ Configurado' : '⚠️ Não configurado'));
     console.log('');
-    console.log('📸 Imagens salvas como Base64 no banco de dados!');
+    console.log('🎂 Aniversariantes: /api/birthdays');
+    console.log('💍 Casamentos: /api/weddings');
     console.log('');
 });

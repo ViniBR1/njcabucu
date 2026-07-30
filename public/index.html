@@ -703,6 +703,7 @@
             <div class="form-group"><label>E-mail *</label><input type="email" id="payEmail" required></div>
             <div class="form-group"><label>Telefone *</label><input type="tel" id="payPhone" required></div>
             <div class="form-group"><label>CPF *</label><input type="text" id="payCpf" required></div>
+            
             <div class="form-group">
                 <label>Forma de Pagamento</label>
                 <select id="payMethod" onchange="togglePaymentMethod()">
@@ -710,6 +711,7 @@
                     <option value="card">Cartão de Crédito</option>
                 </select>
             </div>
+            
             <div id="cardFields" class="hidden">
                 <div class="form-group"><label>Número do Cartão</label><input type="text" id="cardNumber" placeholder="1234 5678 9012 3456"></div>
                 <div class="form-row">
@@ -724,6 +726,7 @@
                     </select>
                 </div>
             </div>
+            
             <div id="paymentTotal" style="text-align:center;font-size:1.5rem;font-weight:700;color:var(--primary);margin:1rem 0;"></div>
             <button onclick="processPayment()" class="btn btn-primary w-full" style="justify-content:center;">
                 <i class="fas fa-credit-card"></i> Pagar
@@ -1224,13 +1227,23 @@ async function submitDonation() {
 }
 
 // ============================================
-// ===== PAGAMENTO (PIX E CARTÃO) =====
+// ===== TOGGLE MÉTODO DE PAGAMENTO =====
 // ============================================
 
 function togglePaymentMethod() {
     const method = document.getElementById('payMethod').value;
-    document.getElementById('cardFields').style.display = method === 'card' ? 'block' : 'none';
+    const cardFields = document.getElementById('cardFields');
+    if (method === 'card') {
+        cardFields.style.display = 'block';
+        cardFields.style.animation = 'modalIn 0.3s ease';
+    } else {
+        cardFields.style.display = 'none';
+    }
 }
+
+// ============================================
+// ===== PAGAMENTO (PIX E CARTÃO) =====
+// ============================================
 
 async function processPayment() {
     const name = document.getElementById('payName').value.trim();
@@ -1277,6 +1290,19 @@ async function processPayment() {
 
             if (!cardNumber || !cardExpiry || !cardCvv) {
                 showNotification('Preencha os dados do cartão!', 'error');
+                return;
+            }
+
+            if (cardNumber.length < 16) {
+                showNotification('Número do cartão inválido (16 dígitos)', 'error');
+                return;
+            }
+            if (!cardExpiry.includes('/') || cardExpiry.length < 5) {
+                showNotification('Validade inválida (MM/AA)', 'error');
+                return;
+            }
+            if (cardCvv.length < 3) {
+                showNotification('CVV inválido (3 dígitos)', 'error');
                 return;
             }
 
@@ -1329,16 +1355,13 @@ async function processPayment() {
             });
         }
 
-        // FECHAR MODAL
         closeModal('paymentModal');
 
-        // REDIRECIONAR PARA O MERCADO PAGO
         if (method === 'pix') {
             if (payment.payment_link) {
                 showNotification('🔗 Redirecionando para o Mercado Pago...', 'info');
                 window.location.href = payment.payment_link;
             } else if (payment.qr_code_base64) {
-                // Fallback: mostrar QR Code
                 const resultDiv = document.getElementById('paymentResult');
                 resultDiv.style.display = 'block';
                 resultDiv.innerHTML = `
@@ -1347,14 +1370,12 @@ async function processPayment() {
                         <img src="data:image/png;base64,${payment.qr_code_base64}" alt="QR Code PIX">
                         <p style="margin:0.5rem 0;">Escaneie o QR Code ou copie o código:</p>
                         <div style="background:#f0f0f0;padding:0.8rem;border-radius:8px;word-break:break-all;font-size:0.8rem;border:1px solid #e0e0e0;">${payment.qr_code}</div>
-                        <div style="display:flex;gap:0.5rem;justify-content:center;margin-top:0.5rem;flex-wrap:wrap;">
-                            <button onclick="navigator.clipboard.writeText('${payment.qr_code}')" class="btn btn-primary btn-sm">
-                                <i class="fas fa-copy"></i> Copiar
-                            </button>
-                            <a href="${payment.payment_link}" target="_blank" class="btn btn-success btn-sm">
-                                <i class="fas fa-external-link-alt"></i> Abrir no Banco
-                            </a>
-                        </div>
+                        <button onclick="navigator.clipboard.writeText('${payment.qr_code}')" class="btn btn-primary btn-sm">
+                            <i class="fas fa-copy"></i> Copiar
+                        </button>
+                        <a href="${payment.payment_link}" target="_blank" class="btn btn-success btn-sm">
+                            <i class="fas fa-external-link-alt"></i> Abrir no Banco
+                        </a>
                         <p style="margin-top:0.8rem;color:#888;">Status: ${payment.status}</p>
                         <div style="display:flex;gap:0.5rem;justify-content:center;margin-top:0.5rem;flex-wrap:wrap;">
                             <button onclick="closeModal('paymentModal')" class="btn btn-primary">

@@ -170,6 +170,7 @@
         }
         .badge-pastor { background: var(--primary); color: white; }
         .badge-lider { background: #28a745; color: white; }
+        .badge-colaborador { background: #17a2b8; color: white; }
         .badge-fiel { background: #6c757d; color: white; }
 
         .modal {
@@ -189,7 +190,7 @@
             background: white;
             padding: 2rem;
             border-radius: var(--radius);
-            max-width: 500px;
+            max-width: 550px;
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
@@ -293,6 +294,22 @@
             border-radius: 8px;
         }
 
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 0.8rem 1.2rem;
+            border-radius: 10px;
+            font-weight: 500;
+            z-index: 99999;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            animation: modalIn 0.3s ease;
+        }
+        .notification.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .notification.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .notification.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+
         @media (max-width: 768px) {
             .header { flex-direction: column; gap: 0.5rem; padding: 0.8rem 1rem; }
             .stats-grid { grid-template-columns: 1fr 1fr; }
@@ -366,6 +383,10 @@
         <button class="tab-btn" onclick="showTab('doacoes')"><i class="fas fa-hand-holding-heart"></i> Doações</button>
         <button class="tab-btn" onclick="showTab('inscricoes')"><i class="fas fa-clipboard-list"></i> Inscrições</button>
         <button class="tab-btn" onclick="showTab('departamentos')"><i class="fas fa-building"></i> Departamentos</button>
+        <button class="tab-btn" onclick="showTab('membros')"><i class="fas fa-users"></i> Membros</button>
+        <button class="tab-btn" onclick="showTab('frequencia')"><i class="fas fa-calendar-check"></i> Frequência</button>
+        <button class="tab-btn" onclick="showTab('tesouraria')"><i class="fas fa-hand-holding-heart"></i> Tesouraria</button>
+        <button class="tab-btn" onclick="showTab('contas')"><i class="fas fa-receipt"></i> Contas</button>
         <button class="tab-btn" onclick="showTab('config')"><i class="fas fa-cog"></i> Config</button>
     </div>
 
@@ -547,6 +568,76 @@
         </div>
     </div>
 
+    <!-- MEMBROS -->
+    <div id="tab-membros" class="tab-content">
+        <div class="flex-between mb-1">
+            <h3>👥 Membros</h3>
+            <button onclick="openMemberModal()" class="btn btn-success"><i class="fas fa-plus"></i> Novo Membro</button>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Nome</th><th>Email</th><th>Telefone</th><th>Departamento</th><th>Ações</th></tr></thead>
+                <tbody id="membersList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- FREQUÊNCIA -->
+    <div id="tab-frequencia" class="tab-content">
+        <h3>📅 Frequência</h3>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Membro</label>
+                <select id="attendanceMember"></select>
+            </div>
+            <div class="form-group">
+                <label>Data</label>
+                <input type="date" id="attendanceDate">
+            </div>
+            <div class="form-group">
+                <label>Culto</label>
+                <select id="attendanceService">
+                    <option value="domingo">Domingo</option>
+                    <option value="quarta">Quarta</option>
+                    <option value="sabado">Sábado</option>
+                    <option value="especial">Especial</option>
+                </select>
+            </div>
+        </div>
+        <button onclick="registerAttendance()" class="btn btn-primary"><i class="fas fa-check"></i> Registrar Presença</button>
+        <div id="attendanceList" class="mt-1"></div>
+    </div>
+
+    <!-- TESOURARIA -->
+    <div id="tab-tesouraria" class="tab-content">
+        <div class="flex-between mb-1">
+            <h3>💝 Dízimos e Ofertas</h3>
+            <button onclick="openTitheModal()" class="btn btn-success"><i class="fas fa-plus"></i> Registrar</button>
+            <div id="titheSummary"></div>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Membro</th><th>Tipo</th><th>Valor</th><th>Data</th><th>Método</th></tr></thead>
+                <tbody id="tithesList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- CONTAS -->
+    <div id="tab-contas" class="tab-content">
+        <div class="flex-between mb-1">
+            <h3>📋 Contas a Pagar</h3>
+            <button onclick="openBillModal()" class="btn btn-success"><i class="fas fa-plus"></i> Nova Conta</button>
+            <div id="billSummary"></div>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Descrição</th><th>Categoria</th><th>Valor</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr></thead>
+                <tbody id="billsList"></tbody>
+            </table>
+        </div>
+    </div>
+
     <!-- CONFIG -->
     <div id="tab-config" class="tab-content">
         <h3>⚙️ Configurações do Site</h3>
@@ -587,6 +678,100 @@
         </div>
         <div class="form-group"><label><input type="checkbox" id="userIsLeader"> É Líder?</label></div>
         <button onclick="saveUser()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+    </div>
+</div>
+
+<!-- MEMBRO -->
+<div class="modal" id="memberModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('memberModal')">&times;</button>
+        <h3>👤 Novo Membro</h3>
+        <div class="form-group"><label>Nome *</label><input type="text" id="memberName"></div>
+        <div class="form-group"><label>E-mail</label><input type="email" id="memberEmail"></div>
+        <div class="form-group"><label>Telefone</label><input type="tel" id="memberPhone"></div>
+        <div class="form-row">
+            <div class="form-group"><label>Data de Nascimento</label><input type="date" id="memberBirth"></div>
+            <div class="form-group"><label>Estado Civil</label>
+                <select id="memberMarital">
+                    <option value="solteiro">Solteiro</option>
+                    <option value="casado">Casado</option>
+                    <option value="divorciado">Divorciado</option>
+                    <option value="viuvo">Viúvo</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group"><label>Nome do Cônjuge</label><input type="text" id="memberSpouse"></div>
+        <div class="form-group"><label>Filhos (separados por vírgula)</label><input type="text" id="memberChildren" placeholder="Ex: João, Maria"></div>
+        <div class="form-row">
+            <div class="form-group"><label>Data de Batismo</label><input type="date" id="memberBaptism"></div>
+            <div class="form-group"><label>Local do Batismo</label><input type="text" id="memberBaptismPlace"></div>
+        </div>
+        <div class="form-group"><label>Endereço</label><input type="text" id="memberAddress"></div>
+        <div class="form-group"><label>Departamento</label>
+            <select id="memberDepartment"><option value="">Selecione</option></select>
+        </div>
+        <div class="form-group"><label>Observações</label><textarea id="memberNotes" rows="3"></textarea></div>
+        <button onclick="saveMember()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+    </div>
+</div>
+
+<!-- DÍZIMO -->
+<div class="modal" id="titheModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('titheModal')">&times;</button>
+        <h3>💝 Registrar Dízimo/Oferta</h3>
+        <div class="form-group"><label>Membro</label>
+            <select id="titheMember"><option value="">Visitante</option></select>
+        </div>
+        <div class="form-group"><label>Nome (se visitante)</label><input type="text" id="titheName"></div>
+        <div class="form-row">
+            <div class="form-group"><label>Tipo *</label>
+                <select id="titheType">
+                    <option value="dizimo">Dízimo</option>
+                    <option value="oferta">Oferta</option>
+                    <option value="missoes">Missões</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Valor *</label><input type="number" id="titheAmount" step="0.01" min="0.01"></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>Data</label><input type="date" id="titheDate"></div>
+            <div class="form-group"><label>Método</label>
+                <select id="titheMethod">
+                    <option value="dinheiro">Dinheiro</option>
+                    <option value="pix">PIX</option>
+                    <option value="cartao">Cartão</option>
+                    <option value="transferencia">Transferência</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group"><label>Descrição</label><input type="text" id="titheDescription"></div>
+        <button onclick="saveTithe()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+    </div>
+</div>
+
+<!-- CONTA -->
+<div class="modal" id="billModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('billModal')">&times;</button>
+        <h3>📋 Nova Conta</h3>
+        <div class="form-group"><label>Descrição *</label><input type="text" id="billDescription"></div>
+        <div class="form-row">
+            <div class="form-group"><label>Categoria *</label>
+                <select id="billCategory">
+                    <option value="agua">Água</option>
+                    <option value="luz">Luz</option>
+                    <option value="internet">Internet</option>
+                    <option value="aluguel">Aluguel</option>
+                    <option value="material">Material</option>
+                    <option value="outros">Outros</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Valor *</label><input type="number" id="billAmount" step="0.01" min="0.01"></div>
+        </div>
+        <div class="form-group"><label>Data de Vencimento *</label><input type="date" id="billDueDate"></div>
+        <div class="form-group"><label>Observações</label><textarea id="billNotes" rows="3"></textarea></div>
+        <button onclick="saveBill()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
     </div>
 </div>
 
@@ -666,7 +851,6 @@
         <button class="modal-close" onclick="closeModal('deptModal')">&times;</button>
         <h3>🏢 Novo Departamento</h3>
         <div class="form-group"><label>Nome *</label><input type="text" id="deptName"></div>
-        <div class="form-group"><label>E-mail do Líder</label><input type="email" id="deptLeader"></div>
         <div class="form-group"><label>Descrição</label><textarea id="deptDesc" rows="3"></textarea></div>
         <button onclick="saveDepartment()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
     </div>
@@ -689,6 +873,31 @@ function getHeaders() {
     return { 'Authorization': 'Bearer ' + token };
 }
 
+function showNotification(message, type = 'info') {
+    const div = document.createElement('div');
+    div.className = 'notification ' + type;
+    div.textContent = message;
+    document.body.appendChild(div);
+    setTimeout(() => {
+        div.style.opacity = '0';
+        div.style.transition = 'opacity 0.5s';
+        setTimeout(() => div.remove(), 500);
+    }, 4000);
+}
+
+function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+document.querySelectorAll('.modal').forEach(m => {
+    m.addEventListener('click', (e) => { if (e.target === m) closeModal(m.id); });
+});
+
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+}
+
 // ============================================
 // ===== TABS =====
 // ============================================
@@ -708,6 +917,10 @@ function showTab(tab) {
             'doacoes': 'Doações',
             'inscricoes': 'Inscrições',
             'departamentos': 'Departamentos',
+            'membros': 'Membros',
+            'frequencia': 'Frequência',
+            'tesouraria': 'Tesouraria',
+            'contas': 'Contas',
             'config': 'Config'
         };
         if (b.textContent.includes(map[tab])) b.classList.add('active');
@@ -715,22 +928,25 @@ function showTab(tab) {
     document.getElementById('tab-' + tab).classList.add('active');
     if (tab === 'carousel') loadCarouselAdmin();
     if (tab === 'departamentos') loadDepartments();
+    if (tab === 'membros') loadMembers();
+    if (tab === 'frequencia') { loadAttendanceMembers(); loadAttendance(); }
+    if (tab === 'tesouraria') { loadTithes(); loadTitheSummary(); }
+    if (tab === 'contas') { loadBills(); loadBillSummary(); }
     if (tab === 'config') loadConfig();
 }
 
 // ============================================
-// ===== LOAD DASHBOARD =====
+// ===== DASHBOARD E VENDAS =====
 // ============================================
 async function loadDashboard() {
     try {
-        const [users, prayers, orders, donations, studies, events, registrations] = await Promise.all([
+        const [users, prayers, orders, donations, studies, events] = await Promise.all([
             fetch('/api/users', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
             fetch('/api/prayers', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
             fetch('/api/orders', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
             fetch('/api/donations', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
             fetch('/api/studies', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
-            fetch('/api/events', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
-            fetch('/api/registrations', { headers: getHeaders() }).then(r => r.json()).catch(() => [])
+            fetch('/api/events', { headers: getHeaders() }).then(r => r.json()).catch(() => [])
         ]);
 
         const unreadPrayers = prayers.filter(p => !p.is_read).length;
@@ -749,16 +965,13 @@ async function loadDashboard() {
         loadDonations(donations);
         loadStudies(studies);
         loadEvents(events);
-        loadRegistrations(registrations);
         loadProducts();
+        loadRegistrations();
         loadSalesStats();
-
+        loadMembers();
     } catch (e) { console.error('Erro:', e); }
 }
 
-// ============================================
-// ===== ESTATÍSTICAS DE VENDAS (CORRIGIDO) =====
-// ============================================
 async function loadSalesStats() {
     try {
         const response = await fetch('/api/sales-stats', { headers: getHeaders() });
@@ -769,29 +982,24 @@ async function loadSalesStats() {
             return;
         }
         
-        // Total de vendas
         document.getElementById('totalSalesValue').textContent = 'R$ ' + parseFloat(data.total?.total || 0).toFixed(2);
         document.getElementById('totalSalesCount').textContent = (data.total?.count || 0) + ' vendas';
         
-        // Média
         const avg = data.total?.count > 0 ? data.total.total / data.total.count : 0;
         document.getElementById('avgSalesValue').textContent = 'R$ ' + avg.toFixed(2);
         
-        // Produto mais vendido
         if (data.topProducts && data.topProducts.length > 0) {
             const top = data.topProducts[0];
             document.getElementById('topProduct').textContent = top.product_name || '-';
             document.getElementById('topProductSales').textContent = top.total_sales + ' vendas';
         }
         
-        // Método mais usado
         if (data.byMethod && data.byMethod.length > 0) {
             const topMethod = data.byMethod.reduce((a, b) => (a.count > b.count) ? a : b);
             document.getElementById('topPaymentMethod').textContent = topMethod.payment_method || 'PIX';
             document.getElementById('topPaymentCount').textContent = topMethod.count + ' vendas';
         }
         
-        // Gráfico
         const barChart = document.getElementById('barChart');
         if (data.byDay && data.byDay.length > 0) {
             const maxTotal = Math.max(...data.byDay.map(d => parseFloat(d.total || 0)), 1);
@@ -812,7 +1020,6 @@ async function loadSalesStats() {
             barChart.innerHTML = '<p style="color:#888;text-align:center;width:100%;font-size:0.9rem;">Nenhuma venda nos últimos 7 dias</p>';
         }
         
-        // Produtos mais vendidos (lista)
         const topProductsList = document.getElementById('topProductsList');
         if (data.topProducts && data.topProducts.length > 0) {
             topProductsList.innerHTML = data.topProducts.slice(0, 5).map(p => `
@@ -826,7 +1033,6 @@ async function loadSalesStats() {
             topProductsList.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum produto vendido</td></tr>';
         }
         
-        // Últimas vendas
         const recentOrders = document.getElementById('recentOrdersList');
         if (data.recent && data.recent.length > 0) {
             recentOrders.innerHTML = data.recent.map(o => {
@@ -864,7 +1070,7 @@ function loadUsers(users) {
         return;
     }
     const roleMap = { pastor: 'Pastor', lider: 'Líder', colaborador: 'Colaborador', fiel: 'Fiel' };
-    const badgeMap = { pastor: 'badge-pastor', lider: 'badge-lider', fiel: 'badge-fiel' };
+    const badgeMap = { pastor: 'badge-pastor', lider: 'badge-lider', colaborador: 'badge-colaborador', fiel: 'badge-fiel' };
     tbody.innerHTML = users.map(u => `
         <tr>
             <td>${u.name}</td>
@@ -988,22 +1194,26 @@ async function loadProducts() {
     } catch (e) { console.error('Erro:', e); }
 }
 
-async function loadRegistrations(registrations) {
-    const tbody = document.getElementById('registrationsList');
-    if (!registrations?.length) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhuma inscrição</td></tr>';
-        return;
-    }
-    const typeMap = { baptism: 'Batismo', volunteer: 'Voluntário', event: 'Evento', department: 'Depto' };
-    tbody.innerHTML = registrations.slice(0, 30).map(r => `
-        <tr>
-            <td>${r.name}</td>
-            <td>${typeMap[r.type] || r.type}</td>
-            <td>${r.department_name || r.event_name || '-'}</td>
-            <td><span class="status status-${r.status || 'pending'}">${r.status || 'Pendente'}</span></td>
-            <td>${new Date(r.created_at).toLocaleDateString('pt-BR')}</td>
-        </tr>
-    `).join('');
+async function loadRegistrations() {
+    try {
+        const res = await fetch('/api/registrations', { headers: getHeaders() });
+        const data = await res.json();
+        const tbody = document.getElementById('registrationsList');
+        if (!data?.length) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhuma inscrição</td></tr>';
+            return;
+        }
+        const typeMap = { baptism: 'Batismo', volunteer: 'Voluntário', event: 'Evento', department: 'Depto' };
+        tbody.innerHTML = data.slice(0, 30).map(r => `
+            <tr>
+                <td>${r.name}</td>
+                <td>${typeMap[r.type] || r.type}</td>
+                <td>${r.department_name || r.event_name || '-'}</td>
+                <td><span class="status status-${r.status || 'pending'}">${r.status || 'Pendente'}</span></td>
+                <td>${new Date(r.created_at).toLocaleDateString('pt-BR')}</td>
+            </tr>
+        `).join('');
+    } catch (e) { console.error('Erro:', e); }
 }
 
 async function loadCarouselAdmin() {
@@ -1131,17 +1341,9 @@ async function deleteDepartment(id) {
 }
 
 // ============================================
-// ===== MODAIS =====
+// ===== USUÁRIOS =====
 // ============================================
 
-function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-document.querySelectorAll('.modal').forEach(m => {
-    m.addEventListener('click', (e) => { if (e.target === m) closeModal(m.id); });
-});
-
-// ----- USUÁRIO -----
 function openUserModal() {
     document.getElementById('userName').value = '';
     document.getElementById('userEmail').value = '';
@@ -1181,17 +1383,18 @@ async function saveUser() {
     } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
 }
 
-// ----- DEPARTAMENTO -----
+// ============================================
+// ===== DEPARTAMENTOS =====
+// ============================================
+
 function openDeptModal() {
     document.getElementById('deptName').value = '';
-    document.getElementById('deptLeader').value = '';
     document.getElementById('deptDesc').value = '';
     openModal('deptModal');
 }
 
 async function saveDepartment() {
     const name = document.getElementById('deptName').value.trim();
-    const leader = document.getElementById('deptLeader').value.trim();
     const desc = document.getElementById('deptDesc').value.trim();
 
     if (!name) { showNotification('Digite o nome do departamento!', 'error'); return; }
@@ -1200,7 +1403,7 @@ async function saveDepartment() {
         await fetch('/api/departments', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', ...getHeaders() },
-            body: JSON.stringify({ name, leader_email: leader, description: desc })
+            body: JSON.stringify({ name, description: desc })
         });
         closeModal('deptModal');
         loadDepartments();
@@ -1209,13 +1412,405 @@ async function saveDepartment() {
     } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
 }
 
-// ----- FORMULÁRIOS COM UPLOAD -----
+// ============================================
+// ===== MEMBROS =====
+// ============================================
+
+async function loadMembers() {
+    try {
+        const res = await fetch('/api/members', { headers: getHeaders() });
+        const data = await res.json();
+        const tbody = document.getElementById('membersList');
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhum membro cadastrado</td></tr>';
+            return;
+        }
+        tbody.innerHTML = data.map(m => `
+            <tr>
+                <td>${m.name}</td>
+                <td>${m.email || '-'}</td>
+                <td>${m.phone || '-'}</td>
+                <td>${m.department_name || '-'}</td>
+                <td>
+                    <button onclick="viewMember(${m.id})" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i></button>
+                    <button onclick="deleteMember(${m.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (e) { console.error('Erro:', e); }
+}
+
+async function openMemberModal() {
+    try {
+        const depts = await fetch('/api/departments', { headers: getHeaders() }).then(r => r.json());
+        const select = document.getElementById('memberDepartment');
+        select.innerHTML = '<option value="">Selecione</option>' + 
+            depts.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+        
+        document.getElementById('memberName').value = '';
+        document.getElementById('memberEmail').value = '';
+        document.getElementById('memberPhone').value = '';
+        document.getElementById('memberBirth').value = '';
+        document.getElementById('memberMarital').value = 'solteiro';
+        document.getElementById('memberSpouse').value = '';
+        document.getElementById('memberChildren').value = '';
+        document.getElementById('memberBaptism').value = '';
+        document.getElementById('memberBaptismPlace').value = '';
+        document.getElementById('memberAddress').value = '';
+        document.getElementById('memberNotes').value = '';
+        openModal('memberModal');
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+async function saveMember() {
+    const data = {
+        name: document.getElementById('memberName').value.trim(),
+        email: document.getElementById('memberEmail').value.trim(),
+        phone: document.getElementById('memberPhone').value.trim(),
+        birth_date: document.getElementById('memberBirth').value || null,
+        marital_status: document.getElementById('memberMarital').value,
+        spouse_name: document.getElementById('memberSpouse').value.trim(),
+        children: document.getElementById('memberChildren').value.trim(),
+        baptism_date: document.getElementById('memberBaptism').value || null,
+        baptism_place: document.getElementById('memberBaptismPlace').value.trim(),
+        address: document.getElementById('memberAddress').value.trim(),
+        department_id: document.getElementById('memberDepartment').value || null,
+        department_name: document.getElementById('memberDepartment').selectedOptions[0]?.text || '',
+        notes: document.getElementById('memberNotes').value.trim()
+    };
+
+    if (!data.name) {
+        showNotification('Nome é obrigatório!', 'error');
+        return;
+    }
+
+    try {
+        await fetch('/api/members', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...getHeaders() },
+            body: JSON.stringify(data)
+        });
+        closeModal('memberModal');
+        loadMembers();
+        showNotification('✅ Membro cadastrado!', 'success');
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+async function viewMember(id) {
+    try {
+        const res = await fetch('/api/members/' + id, { headers: getHeaders() });
+        const data = await res.json();
+        
+        let msg = `👤 ${data.name}\n`;
+        msg += `📧 ${data.email || 'Não informado'}\n`;
+        msg += `📱 ${data.phone || 'Não informado'}\n`;
+        msg += `🎂 ${data.birth_date ? new Date(data.birth_date).toLocaleDateString('pt-BR') : 'Não informado'}\n`;
+        msg += `💑 ${data.marital_status || 'Não informado'}\n`;
+        if (data.spouse_name) msg += `👰 ${data.spouse_name}\n`;
+        if (data.children) msg += `👶 Filhos: ${data.children}\n`;
+        if (data.baptism_date) msg += `✝️ Batismo: ${new Date(data.baptism_date).toLocaleDateString('pt-BR')}\n`;
+        msg += `🏛️ ${data.department_name || 'Sem departamento'}\n`;
+        if (data.attendance && data.attendance.length > 0) {
+            msg += `\n📅 Frequência (últimos 5):\n`;
+            data.attendance.slice(0, 5).forEach(a => {
+                msg += `  ${new Date(a.event_date).toLocaleDateString('pt-BR')}: ${a.present ? '✅ Presente' : '❌ Falta'}\n`;
+            });
+        }
+        alert(msg);
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+async function deleteMember(id) {
+    if (!confirm('Remover este membro?')) return;
+    try {
+        await fetch('/api/members/' + id, { method: 'DELETE', headers: getHeaders() });
+        loadMembers();
+        showNotification('✅ Membro removido!', 'success');
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+// ============================================
+// ===== FREQUÊNCIA =====
+// ============================================
+
+async function loadAttendanceMembers() {
+    try {
+        const res = await fetch('/api/members', { headers: getHeaders() });
+        const data = await res.json();
+        const select = document.getElementById('attendanceMember');
+        select.innerHTML = '<option value="">Selecione</option>' + 
+            data.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+    } catch (e) { console.error('Erro:', e); }
+}
+
+async function registerAttendance() {
+    const member_id = document.getElementById('attendanceMember').value;
+    const event_date = document.getElementById('attendanceDate').value;
+    const service_type = document.getElementById('attendanceService').value;
+
+    if (!member_id || !event_date) {
+        showNotification('Selecione membro e data!', 'error');
+        return;
+    }
+
+    try {
+        await fetch('/api/attendance', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...getHeaders() },
+            body: JSON.stringify({ member_id, event_date, service_type, present: true })
+        });
+        showNotification('✅ Presença registrada!', 'success');
+        loadAttendance();
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+async function loadAttendance() {
+    try {
+        const member_id = document.getElementById('attendanceMember').value;
+        if (!member_id) {
+            document.getElementById('attendanceList').innerHTML = '<p style="color:#888;">Selecione um membro para ver a frequência.</p>';
+            return;
+        }
+        const res = await fetch('/api/attendance/' + member_id + '?limit=10', { headers: getHeaders() });
+        const data = await res.json();
+        
+        const stats = await fetch('/api/attendance/stats/' + member_id, { headers: getHeaders() }).then(r => r.json());
+        
+        let html = `<div style="background:#f8f9fa;padding:0.8rem;border-radius:8px;margin-bottom:0.8rem;">
+            <strong>📊 Estatísticas:</strong>
+            Total: ${stats.total || 0} | 
+            ✅ Presente: ${stats.present || 0} | 
+            ❌ Falta: ${stats.absent || 0} | 
+            🎯 ${stats.percentage || 0}%
+        </div>`;
+        
+        if (data.length === 0) {
+            html += '<p style="color:#888;">Nenhum registro de frequência.</p>';
+        } else {
+            html += '<div class="table-wrapper"><table class="table"><thead><tr><th>Data</th><th>Culto</th><th>Status</th></tr></thead><tbody>';
+            data.forEach(a => {
+                html += `<tr>
+                    <td>${new Date(a.event_date).toLocaleDateString('pt-BR')}</td>
+                    <td>${a.service_type}</td>
+                    <td>${a.present ? '✅ Presente' : '❌ Falta'}</td>
+                </tr>`;
+            });
+            html += '</tbody></table></div>';
+        }
+        document.getElementById('attendanceList').innerHTML = html;
+    } catch (e) { console.error('Erro:', e); }
+}
+
+document.getElementById('attendanceMember')?.addEventListener('change', loadAttendance);
+
+// ============================================
+// ===== DÍZIMOS =====
+// ============================================
+
+async function openTitheModal() {
+    try {
+        const members = await fetch('/api/members', { headers: getHeaders() }).then(r => r.json());
+        const select = document.getElementById('titheMember');
+        select.innerHTML = '<option value="">Visitante</option>' + 
+            members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+        
+        document.getElementById('titheName').value = '';
+        document.getElementById('titheAmount').value = '';
+        document.getElementById('titheDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('titheType').value = 'dizimo';
+        document.getElementById('titheMethod').value = 'dinheiro';
+        document.getElementById('titheDescription').value = '';
+        openModal('titheModal');
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+async function saveTithe() {
+    const member_id = document.getElementById('titheMember').value;
+    const member_name = document.getElementById('titheName').value.trim();
+    const type = document.getElementById('titheType').value;
+    const amount = parseFloat(document.getElementById('titheAmount').value);
+    const payment_date = document.getElementById('titheDate').value;
+    const payment_method = document.getElementById('titheMethod').value;
+    const description = document.getElementById('titheDescription').value.trim();
+
+    if (!amount || amount <= 0) {
+        showNotification('Digite um valor válido!', 'error');
+        return;
+    }
+
+    try {
+        await fetch('/api/tithes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...getHeaders() },
+            body: JSON.stringify({ 
+                member_id: member_id || null, 
+                member_name: member_name || null,
+                type, amount, payment_date, payment_method, description 
+            })
+        });
+        closeModal('titheModal');
+        loadTithes();
+        loadTitheSummary();
+        showNotification('✅ Registrado com sucesso!', 'success');
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+async function loadTithes() {
+    try {
+        const res = await fetch('/api/tithes', { headers: getHeaders() });
+        const data = await res.json();
+        const tbody = document.getElementById('tithesList');
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhum registro</td></tr>';
+            return;
+        }
+        tbody.innerHTML = data.slice(0, 30).map(t => `
+            <tr>
+                <td>${t.member_name || 'Visitante'}</td>
+                <td>${t.type}</td>
+                <td>R$ ${parseFloat(t.amount).toFixed(2)}</td>
+                <td>${new Date(t.payment_date).toLocaleDateString('pt-BR')}</td>
+                <td>${t.payment_method}</td>
+            </tr>
+        `).join('');
+    } catch (e) { console.error('Erro:', e); }
+}
+
+async function loadTitheSummary() {
+    try {
+        const res = await fetch('/api/tithes/summary', { headers: getHeaders() });
+        const data = await res.json();
+        const div = document.getElementById('titheSummary');
+        if (!data.by_type || data.by_type.length === 0) {
+            div.innerHTML = '<p style="color:#888;font-size:0.9rem;">Nenhum registro</p>';
+            return;
+        }
+        let html = '<div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:0.9rem;">';
+        data.by_type.forEach(t => {
+            html += `<span><strong>${t.type}:</strong> R$ ${parseFloat(t.total).toFixed(2)} (${t.count})</span>`;
+        });
+        html += `<span><strong>Total:</strong> R$ ${parseFloat(data.total).toFixed(2)}</span>`;
+        html += '</div>';
+        div.innerHTML = html;
+    } catch (e) { console.error('Erro:', e); }
+}
+
+// ============================================
+// ===== CONTAS =====
+// ============================================
+
+function openBillModal() {
+    document.getElementById('billDescription').value = '';
+    document.getElementById('billCategory').value = 'agua';
+    document.getElementById('billAmount').value = '';
+    document.getElementById('billDueDate').value = '';
+    document.getElementById('billNotes').value = '';
+    openModal('billModal');
+}
+
+async function saveBill() {
+    const description = document.getElementById('billDescription').value.trim();
+    const category = document.getElementById('billCategory').value;
+    const amount = parseFloat(document.getElementById('billAmount').value);
+    const due_date = document.getElementById('billDueDate').value;
+    const notes = document.getElementById('billNotes').value.trim();
+
+    if (!description || !amount || !due_date) {
+        showNotification('Preencha todos os campos obrigatórios!', 'error');
+        return;
+    }
+
+    try {
+        await fetch('/api/bills', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...getHeaders() },
+            body: JSON.stringify({ description, category, amount, due_date, notes })
+        });
+        closeModal('billModal');
+        loadBills();
+        loadBillSummary();
+        showNotification('✅ Conta criada!', 'success');
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+async function loadBills() {
+    try {
+        const res = await fetch('/api/bills', { headers: getHeaders() });
+        const data = await res.json();
+        const tbody = document.getElementById('billsList');
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="color:#888;">Nenhuma conta</td></tr>';
+            return;
+        }
+        tbody.innerHTML = data.map(b => `
+            <tr>
+                <td>${b.description}</td>
+                <td>${b.category}</td>
+                <td>R$ ${parseFloat(b.amount).toFixed(2)}</td>
+                <td>${new Date(b.due_date).toLocaleDateString('pt-BR')}</td>
+                <td><span class="status ${b.paid ? 'status-approved' : 'status-pending'}">${b.paid ? '✅ Pago' : '⏳ Pendente'}</span></td>
+                <td>
+                    ${!b.paid ? `<button onclick="payBill(${b.id})" class="btn btn-success btn-sm"><i class="fas fa-check"></i> Pagar</button>` : ''}
+                    <button onclick="deleteBill(${b.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (e) { console.error('Erro:', e); }
+}
+
+async function payBill(id) {
+    if (!confirm('Marcar esta conta como paga?')) return;
+    try {
+        await fetch('/api/bills/' + id + '/pay', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', ...getHeaders() },
+            body: JSON.stringify({ payment_date: new Date().toISOString().split('T')[0], payment_method: 'dinheiro' })
+        });
+        loadBills();
+        loadBillSummary();
+        showNotification('✅ Conta paga!', 'success');
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+async function deleteBill(id) {
+    if (!confirm('Remover esta conta?')) return;
+    try {
+        await fetch('/api/bills/' + id, { method: 'DELETE', headers: getHeaders() });
+        loadBills();
+        loadBillSummary();
+        showNotification('✅ Conta removida!', 'success');
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+async function loadBillSummary() {
+    try {
+        const res = await fetch('/api/bills/summary', { headers: getHeaders() });
+        const data = await res.json();
+        const div = document.getElementById('billSummary');
+        if (!data.summary) {
+            div.innerHTML = '<p style="color:#888;font-size:0.9rem;">Nenhuma conta</p>';
+            return;
+        }
+        div.innerHTML = `
+            <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:0.9rem;">
+                <span><strong>Total:</strong> ${data.summary.total || 0}</span>
+                <span style="color:#dc3545;"><strong>⏳ Pendentes:</strong> R$ ${parseFloat(data.summary.pending || 0).toFixed(2)}</span>
+                <span style="color:#28a745;"><strong>✅ Pagas:</strong> R$ ${parseFloat(data.summary.paid_total || 0).toFixed(2)}</span>
+            </div>
+        `;
+    } catch (e) { console.error('Erro:', e); }
+}
+
+// ============================================
+// ===== FORMULÁRIOS COM UPLOAD =====
+// ============================================
+
 function openStudyModal() { openModal('studyModal'); }
 function openEventModal() { openModal('eventModal'); }
 function openProductModal() { openModal('productModal'); }
 function openCarouselModal() { openModal('carouselModal'); }
 
-document.getElementById('studyForm').addEventListener('submit', async function(e) {
+document.getElementById('studyForm')?.addEventListener('submit', async function(e) {
     e.preventDefault();
     const formData = new FormData(this);
     try {
@@ -1227,7 +1822,7 @@ document.getElementById('studyForm').addEventListener('submit', async function(e
     } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
 });
 
-document.getElementById('eventForm').addEventListener('submit', async function(e) {
+document.getElementById('eventForm')?.addEventListener('submit', async function(e) {
     e.preventDefault();
     const formData = new FormData(this);
     try {
@@ -1239,7 +1834,7 @@ document.getElementById('eventForm').addEventListener('submit', async function(e
     } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
 });
 
-document.getElementById('productForm').addEventListener('submit', async function(e) {
+document.getElementById('productForm')?.addEventListener('submit', async function(e) {
     e.preventDefault();
     const formData = new FormData(this);
     try {
@@ -1251,7 +1846,7 @@ document.getElementById('productForm').addEventListener('submit', async function
     } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
 });
 
-document.getElementById('carouselForm').addEventListener('submit', async function(e) {
+document.getElementById('carouselForm')?.addEventListener('submit', async function(e) {
     e.preventDefault();
     const formData = new FormData(this);
     try {
@@ -1291,55 +1886,6 @@ async function saveConfig(key, value) {
         }
         showNotification('✅ Configuração salva!', 'success');
     } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
-}
-
-// ============================================
-// ===== NOTIFICAÇÕES =====
-// ============================================
-
-function showNotification(message, type = 'info') {
-    const div = document.createElement('div');
-    div.className = 'notification ' + type;
-    div.textContent = message;
-    div.style.position = 'fixed';
-    div.style.top = '20px';
-    div.style.right = '20px';
-    div.style.maxWidth = '400px';
-    div.style.zIndex = '99999';
-    div.style.padding = '0.8rem 1.2rem';
-    div.style.borderRadius = '10px';
-    div.style.fontWeight = '500';
-    div.style.boxShadow = '0 10px 40px rgba(0,0,0,0.1)';
-    div.style.animation = 'modalIn 0.3s ease';
-    if (type === 'success') {
-        div.style.background = '#d4edda';
-        div.style.color = '#155724';
-        div.style.border = '1px solid #c3e6cb';
-    } else if (type === 'error') {
-        div.style.background = '#f8d7da';
-        div.style.color = '#721c24';
-        div.style.border = '1px solid #f5c6cb';
-    } else {
-        div.style.background = '#d1ecf1';
-        div.style.color = '#0c5460';
-        div.style.border = '1px solid #bee5eb';
-    }
-    document.body.appendChild(div);
-    setTimeout(() => {
-        div.style.opacity = '0';
-        div.style.transition = 'opacity 0.5s';
-        setTimeout(() => div.remove(), 500);
-    }, 4000);
-}
-
-// ============================================
-// ===== LOGOUT =====
-// ============================================
-
-function logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '/login';
 }
 
 // ============================================

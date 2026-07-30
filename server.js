@@ -1,5 +1,5 @@
 // ============================================
-// ===== NJ CABUÇU - SERVIDOR COMPLETO =====
+// ===== NJ CABUÇU - SERVIDOR SIMPLIFICADO =====
 // ============================================
 
 require('dotenv').config();
@@ -15,7 +15,6 @@ const path = require('path');
 const fs = require('fs');
 const { MercadoPagoConfig, Payment } = require('mercadopago');
 const { createClient } = require('@supabase/supabase-js');
-const sharp = require('sharp');
 
 // ============================================
 // ===== CONEXÃO NEON =====
@@ -32,18 +31,8 @@ console.log('✅ Conectado ao Neon Database');
 // ============================================
 const supabaseUrl = 'https://uygdcrrkagxyaahygrug.supabase.co';
 const supabaseKey = 'sb_publishable_WjXVAWz3jHE7AGi5UjdBvg_CNTeT574';
-
 const supabase = createClient(supabaseUrl, supabaseKey);
 console.log('✅ Supabase configurado com sucesso!');
-
-// Buckets
-const BUCKETS = {
-    estudos: 'estudos',
-    produtos: 'produtos',
-    eventos: 'eventos',
-    carrossel: 'carrossel'
-};
-console.log('📦 Buckets:', BUCKETS);
 
 // ============================================
 // ===== MERCADO PAGO =====
@@ -101,40 +90,28 @@ async function uploadToSupabase(file, folder) {
     try {
         if (!file) return null;
 
-        // Comprimir imagem
-        const compressedBuffer = await sharp(file.buffer)
-            .resize(1200, 800, { 
-                fit: 'inside', 
-                withoutEnlargement: true 
-            })
-            .jpeg({ quality: 75, progressive: true })
-            .toBuffer();
-
         const fileExt = path.extname(file.originalname) || '.jpg';
         const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(2)}${fileExt}`;
 
-        const bucketName = BUCKETS[folder] || folder;
-
         const { data, error } = await supabase.storage
-            .from(bucketName)
-            .upload(fileName, compressedBuffer, {
-                contentType: 'image/jpeg',
+            .from(folder)
+            .upload(fileName, file.buffer, {
+                contentType: file.mimetype || 'image/jpeg',
                 cacheControl: '3600'
             });
 
         if (error) {
-            console.error('❌ Erro no upload Supabase:', error);
+            console.error('❌ Erro no upload Supabase:', error.message);
             return null;
         }
 
-        // Buscar URL pública
         const { data: publicUrl } = supabase.storage
-            .from(bucketName)
+            .from(folder)
             .getPublicUrl(fileName);
 
         return publicUrl.publicUrl;
     } catch (error) {
-        console.error('❌ Erro ao fazer upload:', error);
+        console.error('❌ Erro ao fazer upload:', error.message);
         return null;
     }
 }
@@ -632,7 +609,7 @@ app.delete('/api/departments/:department_id/members/:user_id', auth, async (req,
     }
 });
 
-// ----- ESTUDOS -----
+// ----- ESTUDOS (COM SUPABASE) -----
 app.post('/api/studies', auth, upload.single('image'), async (req, res) => {
     try {
         const { title, description, file_url } = req.body;
@@ -673,7 +650,7 @@ app.delete('/api/studies/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- PRODUTOS -----
+// ----- PRODUTOS (COM SUPABASE) -----
 app.post('/api/products', auth, upload.single('image'), async (req, res) => {
     try {
         const { name, description, price, stock, category } = req.body;
@@ -730,7 +707,7 @@ app.delete('/api/products/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- EVENTOS -----
+// ----- EVENTOS (COM SUPABASE) -----
 app.post('/api/events', auth, upload.single('image'), async (req, res) => {
     try {
         const { title, description, date, price } = req.body;
@@ -988,7 +965,7 @@ app.delete('/api/worship-scales/:id', auth, async (req, res) => {
     }
 });
 
-// ----- CARROSSEL -----
+// ----- CARROSSEL (COM SUPABASE) -----
 app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, res) => {
     try {
         const { title, subtitle, link } = req.body;
@@ -997,8 +974,7 @@ app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, 
             return res.status(400).json({ error: 'Imagem é obrigatória' });
         }
 
-        let image_url = null;
-        image_url = await uploadToSupabase(req.file, 'carrossel');
+        let image_url = await uploadToSupabase(req.file, 'carrossel');
 
         const result = await sql`
             INSERT INTO carousel_images (title, subtitle, image_url, link, order_position)
@@ -1093,7 +1069,7 @@ app.post('/api/settings', auth, pastorOnly, async (req, res) => {
 });
 
 // ============================================
-// ===== MERCADO PAGO =====
+// ===== MERCADO PAGO - PIX =====
 // ============================================
 
 app.post('/api/create-pix-payment', async (req, res) => {
@@ -1147,6 +1123,10 @@ app.post('/api/create-pix-payment', async (req, res) => {
     }
 });
 
+// ============================================
+// ===== MERCADO PAGO - CARTÃO =====
+// ============================================
+
 app.post('/api/create-card-payment', async (req, res) => {
     try {
         const { amount, description, email, name, phone, cpf, card_number, card_expiry, card_cvv, installments } = req.body;
@@ -1160,7 +1140,6 @@ app.post('/api/create-card-payment', async (req, res) => {
             return res.status(400).json({ error: 'Valor inválido' });
         }
 
-        const [month, year] = card_expiry.split('/');
         const testToken = 'test_token';
 
         const paymentData = {

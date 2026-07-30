@@ -322,6 +322,25 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        await sql`CREATE TABLE IF NOT EXISTS birthdays (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            birth_date DATE NOT NULL,
+            phone VARCHAR(20),
+            is_active BOOLEAN DEFAULT true,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS weddings (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            spouse_name VARCHAR(100) NOT NULL,
+            wedding_date DATE NOT NULL,
+            phone VARCHAR(20),
+            is_active BOOLEAN DEFAULT true,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
         console.log('✅ Tabelas criadas');
 
         const existing = await sql`SELECT * FROM users WHERE email = 'pastor@njcabucu.com'`;
@@ -530,73 +549,6 @@ app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
     try {
         await sql`UPDATE departments SET is_active = false WHERE id = ${req.params.id}`;
         res.json({ message: 'Departamento removido' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/departments/:id/members', auth, async (req, res) => {
-    try {
-        const members = await sql`
-            SELECT u.id, u.name, u.email, u.role, u.is_leader, dm.role as member_role
-            FROM users u
-            INNER JOIN department_members dm ON u.id = dm.user_id
-            WHERE dm.department_id = ${req.params.id}
-            ORDER BY dm.role DESC, u.name
-        `;
-        res.json(members);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/departments/:id/members', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { user_id, role } = req.body;
-        
-        const user = await sql`SELECT * FROM users WHERE id = ${user_id}`;
-        if (user.length === 0) {
-            return res.status(404).json({ error: 'Usuário não encontrado' });
-        }
-        
-        await sql`
-            INSERT INTO department_members (department_id, user_id, role)
-            VALUES (${id}, ${user_id}, ${role || 'membro'})
-            ON CONFLICT (department_id, user_id) DO UPDATE SET role = ${role || 'membro'}
-        `;
-        
-        await sql`
-            UPDATE users SET department_id = ${id}, is_leader = ${role === 'lider' ? true : false}
-            WHERE id = ${user_id}
-        `;
-        
-        if (role === 'lider') {
-            await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${id}`;
-        }
-        
-        res.json({ message: 'Membro adicionado com sucesso' });
-    } catch (error) {
-        console.error('❌ Erro ao adicionar membro:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/departments/:department_id/members/:user_id', auth, async (req, res) => {
-    try {
-        const { department_id, user_id } = req.params;
-        
-        await sql`
-            DELETE FROM department_members WHERE department_id = ${department_id} AND user_id = ${user_id}
-        `;
-        
-        await sql`
-            UPDATE users SET department_id = NULL, is_leader = false WHERE id = ${user_id}
-        `;
-        
-        await sql`UPDATE departments SET leader_id = NULL WHERE id = ${department_id} AND leader_id = ${user_id}`;
-        
-        res.json({ message: 'Membro removido com sucesso' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -894,10 +846,22 @@ app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
 // ----- INSCRIÇÕES -----
 app.post('/api/registrations', async (req, res) => {
     try {
-        const { type, name, email, phone, department_name, event_name, details, amount, is_paid } = req.body;
+        const { type, name, email, phone, department_name, event_name, details, amount, is_paid, birth_date, baptism_date, department_id } = req.body;
+        
+        let finalDetails = details || '';
+        
+        // Adiciona informações extras para batismo
+        if (type === 'baptism' && birth_date) {
+            finalDetails = `Data de Nascimento: ${new Date(birth_date).toLocaleDateString('pt-BR')}\n`;
+            if (baptism_date) {
+                finalDetails += `Data desejada para Batismo: ${new Date(baptism_date).toLocaleDateString('pt-BR')}\n`;
+            }
+            finalDetails += details || '';
+        }
+
         const result = await sql`
             INSERT INTO registrations (type, name, email, phone, department_name, event_name, details, amount, is_paid)
-            VALUES (${type}, ${name}, ${email}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${details || ''}, ${parseFloat(amount) || 0}, ${is_paid || false})
+            VALUES (${type}, ${name}, ${email || ''}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${finalDetails || ''}, ${parseFloat(amount) || 0}, ${is_paid || false})
             RETURNING *
         `;
         console.log('✅ Inscrição criada:', result[0]);
@@ -937,6 +901,87 @@ app.get('/api/donations', auth, async (req, res) => {
         const donations = await sql`SELECT * FROM donations ORDER BY created_at DESC`;
         res.json(donations);
     } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- ANIVERSARIANTES -----
+app.get('/api/birthdays', async (req, res) => {
+    try {
+        const today = new Date();
+        const birthdays = await sql`
+            SELECT * FROM birthdays 
+            WHERE is_active = true 
+            ORDER BY 
+                EXTRACT(MONTH FROM birth_date) = ${today.getMonth() + 1} DESC,
+                EXTRACT(DAY FROM birth_date) = ${today.getDate()} DESC,
+                EXTRACT(MONTH FROM birth_date),
+                EXTRACT(DAY FROM birth_date)
+            LIMIT 50
+        `;
+        res.json(birthdays);
+    } catch (error) {
+        console.error('❌ Erro ao buscar aniversariantes:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/birthdays', auth, pastorOnly, async (req, res) => {
+    try {
+        const { name, birth_date, phone } = req.body;
+        const result = await sql`
+            INSERT INTO birthdays (name, birth_date, phone)
+            VALUES (${name}, ${birth_date}, ${phone || ''})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar aniversariante:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/birthdays/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM birthdays WHERE id = ${req.params.id}`;
+        res.json({ message: 'Aniversariante removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- CASAMENTOS -----
+app.get('/api/weddings', async (req, res) => {
+    try {
+        const today = new Date();
+        const weddings = await sql`
+            SELECT * FROM weddings 
+            WHERE is_active = true 
+            ORDER BY 
+                EXTRACT(MONTH FROM wedding_date) = ${today.getMonth() + 1} DESC,
+                EXTRACT(DAY FROM wedding_date) = ${today.getDate()} DESC,
+                EXTRACT(MONTH FROM wedding_date),
+                EXTRACT(DAY FROM wedding_date)
+            LIMIT 50
+        `;
+        res.json(weddings);
+    } catch (error) {
+        console.error('❌ Erro ao buscar casamentos:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/weddings', auth, pastorOnly, async (req, res) => {
+    try {
+        const { name, spouse_name, wedding_date, phone } = req.body;
+        const result = await sql`
+            INSERT INTO weddings (name, spouse_name, wedding_date, phone)
+            VALUES (${name}, ${spouse_name}, ${wedding_date}, ${phone || ''})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar casamento:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1313,7 +1358,6 @@ app.get('/api/attendance/stats/:member_id', auth, async (req, res) => {
     }
 });
 
-// ===== FREQUÊNCIA - CONSULTA POR DATA (NOVA ROTA) =====
 app.get('/api/attendance/date/:date', auth, async (req, res) => {
     try {
         const { date } = req.params;

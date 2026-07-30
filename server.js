@@ -1092,7 +1092,7 @@ app.post('/api/settings', auth, pastorOnly, async (req, res) => {
 });
 
 // ============================================
-// ===== MEMBROS (CORRIGIDO) =====
+// ===== MEMBROS =====
 // ============================================
 
 app.post('/api/members', auth, async (req, res) => {
@@ -1309,6 +1309,26 @@ app.get('/api/attendance/stats/:member_id', auth, async (req, res) => {
         res.json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao buscar estatísticas:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ===== FREQUÊNCIA - CONSULTA POR DATA (NOVA ROTA) =====
+app.get('/api/attendance/date/:date', auth, async (req, res) => {
+    try {
+        const { date } = req.params;
+        
+        const records = await sql`
+            SELECT a.*, m.name as member_name
+            FROM attendance a
+            LEFT JOIN members m ON a.member_id = m.id
+            WHERE a.event_date = ${date}
+            ORDER BY a.created_at DESC
+        `;
+        
+        res.json(records);
+    } catch (error) {
+        console.error('❌ Erro ao buscar frequência por data:', error);
         res.status(500).json({ error: error.message });
     }
 });

@@ -1,5 +1,5 @@
 // ============================================
-// ===== NJ CABUÇU - SERVIDOR SIMPLIFICADO =====
+// ===== NJ CABUÇU - SERVIDOR SEM SUPABASE =====
 // ============================================
 
 require('dotenv').config();
@@ -14,7 +14,6 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { MercadoPagoConfig, Payment } = require('mercadopago');
-const { createClient } = require('@supabase/supabase-js');
 
 // ============================================
 // ===== CONEXÃO NEON =====
@@ -25,14 +24,6 @@ if (!process.env.DATABASE_URL) {
 }
 const sql = neon(process.env.DATABASE_URL);
 console.log('✅ Conectado ao Neon Database');
-
-// ============================================
-// ===== SUPABASE CONFIG =====
-// ============================================
-const supabaseUrl = 'https://uygdcrrkagxyaahygrug.supabase.co';
-const supabaseKey = 'sb_publishable_WjXVAWz3jHE7AGi5UjdBvg_CNTeT574';
-const supabase = createClient(supabaseUrl, supabaseKey);
-console.log('✅ Supabase configurado com sucesso!');
 
 // ============================================
 // ===== MERCADO PAGO =====
@@ -64,9 +55,27 @@ app.use(express.static('public'));
 app.use('/uploads', express.static('public/uploads'));
 
 // ============================================
-// ===== MULTER (MEMÓRIA) =====
+// ===== MULTER (DISCO) =====
 // ============================================
-const storage = multer.memoryStorage();
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        let dir = './public/uploads/';
+        if (req.path.includes('studies')) dir = './public/uploads/estudos/';
+        else if (req.path.includes('products')) dir = './public/uploads/produtos/';
+        else if (req.path.includes('events')) dir = './public/uploads/eventos/';
+        else if (req.path.includes('carousel')) dir = './public/uploads/carousel/';
+        
+        // Criar pasta se não existir
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        cb(null, dir);
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname));
+    }
+});
 
 const upload = multer({
     storage: storage,
@@ -82,39 +91,6 @@ const upload = multer({
         }
     }
 });
-
-// ============================================
-// ===== FUNÇÃO DE UPLOAD SUPABASE =====
-// ============================================
-async function uploadToSupabase(file, folder) {
-    try {
-        if (!file) return null;
-
-        const fileExt = path.extname(file.originalname) || '.jpg';
-        const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(2)}${fileExt}`;
-
-        const { data, error } = await supabase.storage
-            .from(folder)
-            .upload(fileName, file.buffer, {
-                contentType: file.mimetype || 'image/jpeg',
-                cacheControl: '3600'
-            });
-
-        if (error) {
-            console.error('❌ Erro no upload Supabase:', error.message);
-            return null;
-        }
-
-        const { data: publicUrl } = supabase.storage
-            .from(folder)
-            .getPublicUrl(fileName);
-
-        return publicUrl.publicUrl;
-    } catch (error) {
-        console.error('❌ Erro ao fazer upload:', error.message);
-        return null;
-    }
-}
 
 // ============================================
 // ===== FUNÇÕES DE AUTENTICAÇÃO =====
@@ -375,53 +351,21 @@ app.post('/api/change-password', async (req, res) => {
     }
 });
 
-// ----- USUÁRIOS E COLABORADORES -----
+// ----- USUÁRIOS -----
 app.post('/api/users', auth, pastorOnly, async (req, res) => {
     try {
-        const { name, email, password, role, department_name, phone, is_leader, department_id } = req.body;
+        const { name, email, password, role, department_name, phone, is_leader } = req.body;
         const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
         if (existing.length > 0) return res.status(400).json({ error: 'Usuário já existe' });
 
         const hash = await hashPassword(password || '123456');
-        
-        let deptId = department_id || null;
-        let deptName = department_name || '';
-        
-        if (!deptId && deptName) {
-            const newDept = await sql`
-                INSERT INTO departments (name, description)
-                VALUES (${deptName}, 'Departamento de ${deptName}')
-                RETURNING id
-            `;
-            deptId = newDept[0].id;
-        }
-        
         const result = await sql`
-            INSERT INTO users (name, email, password_hash, role, department_id, department_name, phone, first_login, is_leader)
-            VALUES (${name}, ${email}, ${hash}, ${role || 'colaborador'}, ${deptId}, ${deptName}, ${phone || ''}, true, ${is_leader || false})
-            RETURNING id, name, email, role, department_id, department_name, is_leader
+            INSERT INTO users (name, email, password_hash, role, department_name, phone, first_login, is_leader)
+            VALUES (${name}, ${email}, ${hash}, ${role || 'colaborador'}, ${department_name || ''}, ${phone || ''}, true, ${is_leader || false})
+            RETURNING id, name, email, role, department_name, is_leader
         `;
-        
-        if (is_leader && deptId) {
-            await sql`
-                INSERT INTO department_members (department_id, user_id, role)
-                VALUES (${deptId}, ${result[0].id}, 'lider')
-                ON CONFLICT (department_id, user_id) DO UPDATE SET role = 'lider'
-            `;
-            await sql`
-                UPDATE departments SET leader_id = ${result[0].id} WHERE id = ${deptId}
-            `;
-        } else if (deptId) {
-            await sql`
-                INSERT INTO department_members (department_id, user_id, role)
-                VALUES (${deptId}, ${result[0].id}, 'membro')
-                ON CONFLICT (department_id, user_id) DO NOTHING
-            `;
-        }
-        
         res.status(201).json(result[0]);
     } catch (error) {
-        console.error('❌ Erro ao criar usuário:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -436,9 +380,7 @@ app.get('/api/users', auth, async (req, res) => {
             `;
         } else {
             const deptId = req.user.department_id;
-            if (!deptId) {
-                return res.json([]);
-            }
+            if (!deptId) return res.json([]);
             users = await sql`
                 SELECT id, name, email, role, department_id, department_name, phone, first_login, is_leader, created_at
                 FROM users WHERE department_id = ${deptId}
@@ -446,22 +388,6 @@ app.get('/api/users', auth, async (req, res) => {
             `;
         }
         res.json(users);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.put('/api/users/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { name, email, phone, role, department_name, is_leader } = req.body;
-        const result = await sql`
-            UPDATE users SET name = ${name}, email = ${email}, phone = ${phone}, role = ${role}, 
-                department_name = ${department_name}, is_leader = ${is_leader || false}
-            WHERE id = ${id}
-            RETURNING id, name, email, role, department_name, is_leader
-        `;
-        res.json(result[0]);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -490,10 +416,10 @@ app.post('/api/reset-password', auth, pastorOnly, async (req, res) => {
 // ----- DEPARTAMENTOS -----
 app.post('/api/departments', auth, pastorOnly, async (req, res) => {
     try {
-        const { name, description, leader_id } = req.body;
+        const { name, description } = req.body;
         const result = await sql`
-            INSERT INTO departments (name, description, leader_id)
-            VALUES (${name}, ${description || ''}, ${leader_id || null})
+            INSERT INTO departments (name, description)
+            VALUES (${name}, ${description || ''})
             RETURNING *
         `;
         res.status(201).json(result[0]);
@@ -516,22 +442,6 @@ app.get('/api/departments', auth, async (req, res) => {
     }
 });
 
-app.put('/api/departments/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { name, description, leader_id } = req.body;
-        const result = await sql`
-            UPDATE departments 
-            SET name = ${name}, description = ${description || ''}, leader_id = ${leader_id || null}
-            WHERE id = ${id}
-            RETURNING *
-        `;
-        res.json(result[0]);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
 app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
     try {
         await sql`DELETE FROM departments WHERE id = ${req.params.id}`;
@@ -541,7 +451,6 @@ app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- MEMBROS DO DEPARTAMENTO -----
 app.get('/api/departments/:id/members', auth, async (req, res) => {
     try {
         const members = await sql`
@@ -578,10 +487,6 @@ app.post('/api/departments/:id/members', auth, async (req, res) => {
             WHERE id = ${user_id}
         `;
         
-        if (role === 'lider') {
-            await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${id}`;
-        }
-        
         res.json({ message: 'Membro adicionado com sucesso' });
     } catch (error) {
         console.error('❌ Erro ao adicionar membro:', error);
@@ -601,24 +506,18 @@ app.delete('/api/departments/:department_id/members/:user_id', auth, async (req,
             UPDATE users SET department_id = NULL, is_leader = false WHERE id = ${user_id}
         `;
         
-        await sql`UPDATE departments SET leader_id = NULL WHERE id = ${department_id} AND leader_id = ${user_id}`;
-        
         res.json({ message: 'Membro removido com sucesso' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// ----- ESTUDOS (COM SUPABASE) -----
+// ----- ESTUDOS (COM UPLOAD LOCAL) -----
 app.post('/api/studies', auth, upload.single('image'), async (req, res) => {
     try {
         const { title, description, file_url } = req.body;
-        let image_url = null;
-
-        if (req.file) {
-            image_url = await uploadToSupabase(req.file, 'estudos');
-        }
-
+        const image_url = req.file ? '/uploads/estudos/' + req.file.filename : null;
+        
         const result = await sql`
             INSERT INTO studies (title, description, file_url, image_url)
             VALUES (${title}, ${description}, ${file_url}, ${image_url})
@@ -650,16 +549,12 @@ app.delete('/api/studies/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- PRODUTOS (COM SUPABASE) -----
+// ----- PRODUTOS (COM UPLOAD LOCAL) -----
 app.post('/api/products', auth, upload.single('image'), async (req, res) => {
     try {
         const { name, description, price, stock, category } = req.body;
-        let image_url = null;
-
-        if (req.file) {
-            image_url = await uploadToSupabase(req.file, 'produtos');
-        }
-
+        const image_url = req.file ? '/uploads/produtos/' + req.file.filename : null;
+        
         const result = await sql`
             INSERT INTO products (name, description, price, image_url, stock, category)
             VALUES (${name}, ${description}, ${parseFloat(price)}, ${image_url}, ${parseInt(stock) || 0}, ${category || ''})
@@ -707,16 +602,12 @@ app.delete('/api/products/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- EVENTOS (COM SUPABASE) -----
+// ----- EVENTOS (COM UPLOAD LOCAL) -----
 app.post('/api/events', auth, upload.single('image'), async (req, res) => {
     try {
         const { title, description, date, price } = req.body;
-        let image_url = null;
-
-        if (req.file) {
-            image_url = await uploadToSupabase(req.file, 'eventos');
-        }
-
+        const image_url = req.file ? '/uploads/eventos/' + req.file.filename : null;
+        
         const result = await sql`
             INSERT INTO events (title, description, date, image_url, price)
             VALUES (${title}, ${description}, ${date || new Date()}, ${image_url}, ${parseFloat(price) || 0})
@@ -965,7 +856,7 @@ app.delete('/api/worship-scales/:id', auth, async (req, res) => {
     }
 });
 
-// ----- CARROSSEL (COM SUPABASE) -----
+// ----- CARROSSEL (COM UPLOAD LOCAL) -----
 app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, res) => {
     try {
         const { title, subtitle, link } = req.body;
@@ -974,7 +865,7 @@ app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, 
             return res.status(400).json({ error: 'Imagem é obrigatória' });
         }
 
-        let image_url = await uploadToSupabase(req.file, 'carrossel');
+        const image_url = '/uploads/carousel/' + req.file.filename;
 
         const result = await sql`
             INSERT INTO carousel_images (title, subtitle, image_url, link, order_position)
@@ -1014,7 +905,12 @@ app.put('/api/carousel/:id', auth, pastorOnly, upload.single('image'), async (re
         
         let image_url = current[0].image_url;
         if (req.file) {
-            image_url = await uploadToSupabase(req.file, 'carrossel');
+            // Remover imagem antiga
+            const oldPath = path.join(__dirname, 'public', current[0].image_url);
+            if (fs.existsSync(oldPath)) {
+                try { fs.unlinkSync(oldPath); } catch (e) {}
+            }
+            image_url = '/uploads/carousel/' + req.file.filename;
         }
 
         const result = await sql`
@@ -1036,7 +932,18 @@ app.put('/api/carousel/:id', auth, pastorOnly, upload.single('image'), async (re
 
 app.delete('/api/carousel/:id', auth, pastorOnly, async (req, res) => {
     try {
-        await sql`DELETE FROM carousel_images WHERE id = ${req.params.id}`;
+        const { id } = req.params;
+        
+        // Remover arquivo físico
+        const current = await sql`SELECT * FROM carousel_images WHERE id = ${id}`;
+        if (current.length > 0 && current[0].image_url) {
+            const oldPath = path.join(__dirname, 'public', current[0].image_url);
+            if (fs.existsSync(oldPath)) {
+                try { fs.unlinkSync(oldPath); } catch (e) {}
+            }
+        }
+        
+        await sql`DELETE FROM carousel_images WHERE id = ${id}`;
         res.json({ message: 'Imagem removida' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -1345,8 +1252,10 @@ app.listen(PORT, () => {
     console.log('');
     console.log('💰 Mercado Pago: ' + (process.env.MP_ACCESS_TOKEN ? '✅ Configurado' : '⚠️ Não configurado'));
     console.log('');
-    console.log('📦 Supabase: ✅ Configurado');
-    console.log('   URL: ' + supabaseUrl);
-    console.log('   Buckets: estudos, produtos, eventos, carrossel');
+    console.log('📂 Uploads: /public/uploads/');
+    console.log('   - estudos/');
+    console.log('   - produtos/');
+    console.log('   - eventos/');
+    console.log('   - carrossel/');
     console.log('');
 });

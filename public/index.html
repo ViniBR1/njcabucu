@@ -1327,7 +1327,7 @@ function togglePaymentMethod() {
 }
 
 // ============================================
-// ===== PAGAMENTO =====
+// ===== PAGAMENTO - CORRIGIDO =====
 // ============================================
 
 async function processPayment() {
@@ -1407,24 +1407,42 @@ async function processPayment() {
         const payment = await response.json();
         if (payment.error) throw new Error(payment.error);
 
+        // ===== CORREÇÃO: SALVAR PEDIDO =====
         if (paymentType === 'sale') {
-            await fetch('/api/orders', {
+            // Formata os itens para salvar no banco
+            const itemsForOrder = cart.map(item => ({
+                id: item.id,
+                name: item.name,
+                price: parseFloat(item.price),
+                quantity: 1
+            }));
+
+            const orderResponse = await fetch('/api/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     user_name: name,
                     user_email: email,
                     user_phone: phone,
-                    items: cart,
+                    items: itemsForOrder,
                     total: amount,
                     payment_id: payment.payment_id,
                     payment_method: method
                 })
             });
+
+            const orderData = await orderResponse.json();
+            if (!orderResponse.ok) {
+                console.error('❌ Erro ao salvar pedido:', orderData);
+                throw new Error(orderData.error || 'Erro ao salvar pedido');
+            }
+            console.log('✅ Pedido salvo:', orderData);
+            
+            // Limpa o carrinho
             cart = [];
             document.getElementById('cartCount').textContent = 0;
         } else if (paymentType === 'donation') {
-            await fetch('/api/donations', {
+            const donationResponse = await fetch('/api/donations', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1437,6 +1455,13 @@ async function processPayment() {
                     payment_method: method
                 })
             });
+            
+            const donationData = await donationResponse.json();
+            if (!donationResponse.ok) {
+                console.error('❌ Erro ao salvar doação:', donationData);
+                throw new Error(donationData.error || 'Erro ao salvar doação');
+            }
+            console.log('✅ Doação salva:', donationData);
         }
 
         closeModal('paymentModal');

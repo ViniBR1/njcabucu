@@ -1,1748 +1,1255 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NJ Cabuçu - Igreja</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        :root {
-            --primary: #0D47A1;
-            --primary-light: #1565C0;
-            --bg: #f0f4f8;
-            --card-bg: #ffffff;
-            --shadow: 0 2px 20px rgba(0,0,0,0.06);
-            --radius: 16px;
-        }
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg);
-            color: #1a1a1a;
-        }
-        .header {
-            background: var(--card-bg);
-            padding: 0.8rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            border-bottom: 3px solid var(--primary);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .logo { display: flex; align-items: center; gap: 1rem; }
-        .logo-icon {
-            width: 50px; height: 50px;
-            border-radius: 50%;
-            background: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 1.4rem;
-            color: white;
-        }
-        .logo h1 { font-size: 1.5rem; color: var(--primary); }
-        .btn {
-            padding: 0.6rem 1.5rem;
-            border-radius: 50px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.95rem;
-        }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-light); transform: translateY(-2px); }
-        .btn-whatsapp { background: #25D366; color: white; }
-        .btn-whatsapp:hover { transform: translateY(-2px); }
-        .btn-success { background: #28a745; color: white; }
-        .btn-success:hover { background: #218838; transform: translateY(-2px); }
-        .btn-danger { background: #dc3545; color: white; }
-        .btn-danger:hover { background: #c82333; }
-        .btn-sm { padding: 0.3rem 0.8rem; font-size: 0.8rem; }
-
-        .main-nav {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 0.3rem;
-            background: var(--card-bg);
-            padding: 0.6rem 1rem;
-            border-bottom: 1px solid #e8e8e8;
-            position: sticky;
-            top: 75px;
-            z-index: 99;
-        }
-        .nav-btn {
-            background: transparent;
-            border: 2px solid transparent;
-            padding: 0.4rem 1.2rem;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.85rem;
-            color: #1a1a1a;
-        }
-        .nav-btn:hover { background: var(--primary); color: white; transform: translateY(-2px); }
-        .nav-btn.active { background: var(--primary); color: white; }
-
-        .carousel-container {
-            position: relative;
-            max-width: 1400px;
-            margin: 1.5rem auto;
-            overflow: hidden;
-            border-radius: var(--radius);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-        }
-        .carousel-wrapper {
-            display: flex;
-            transition: transform 0.6s ease;
-        }
-        .carousel-slide {
-            min-width: 100%;
-            position: relative;
-            height: 420px;
-        }
-        .carousel-slide img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .carousel-slide::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 60%;
-            background: linear-gradient(transparent, rgba(0,0,0,0.7));
-        }
-        .carousel-caption {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            color: white;
-            padding: 2.5rem;
-            z-index: 1;
-        }
-        .carousel-caption h3 { font-size: 2.2rem; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
-        .carousel-caption p { font-size: 1.1rem; opacity: 0.9; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
-        .carousel-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.9);
-            border: none;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            z-index: 2;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .carousel-btn:hover { background: var(--primary); color: white; }
-        .carousel-btn.prev { left: 15px; }
-        .carousel-btn.next { right: 15px; }
-        .carousel-dots {
-            position: absolute;
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 0.8rem;
-            z-index: 2;
-        }
-        .dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.4);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .dot.active { background: var(--primary); transform: scale(1.2); }
-
-        .section {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            scroll-margin-top: 130px;
-        }
-        .section-title {
-            font-size: 1.8rem;
-            color: var(--primary);
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-        .section-title::after {
-            content: '';
-            display: block;
-            width: 50px;
-            height: 3px;
-            background: var(--primary);
-            margin: 0.5rem auto 0;
-            border-radius: 10px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-        .card {
-            background: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: var(--radius);
-            border: 1px solid #e8e8e8;
-            transition: all 0.3s;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        }
-        .card img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-            border-radius: 10px;
-            margin-bottom: 0.8rem;
-        }
-        .card h3 { color: var(--primary); margin-bottom: 0.5rem; }
-        .card .price { font-size: 1.3rem; font-weight: 700; color: var(--primary); margin: 0.5rem 0; }
-        .card .btn { width: 100%; justify-content: center; }
-
-        .bible-container {
-            display: flex;
-            gap: 2rem;
-            flex-wrap: wrap;
-        }
-        .bible-input { flex: 1; min-width: 250px; }
-        .bible-input select, .bible-input input {
-            width: 100%;
-            padding: 0.8rem;
-            margin: 0.3rem 0;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1rem;
-        }
-        .bible-result {
-            flex: 2;
-            min-width: 300px;
-            background: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: var(--radius);
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        .bible-result .verse { font-size: 1.05rem; line-height: 1.8; padding: 0.3rem 0; border-bottom: 1px solid #eee; }
-        .bible-result .reference { font-weight: 700; color: var(--primary); margin-top: 0.5rem; }
-
-        .form-group { margin: 0.8rem 0; }
-        .form-group label { display: block; font-weight: 600; margin-bottom: 0.3rem; font-size: 0.95rem; }
-        .form-group input, .form-group textarea, .form-group select {
-            width: 100%;
-            padding: 0.8rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-family: inherit;
-            transition: all 0.3s;
-            background: #f8f9fa;
-        }
-        .form-group input:focus, .form-group textarea:focus {
-            border-color: var(--primary);
-            outline: none;
-            background: white;
-        }
-        .prayer-form { max-width: 600px; margin: 0 auto; }
-        .prayer-form textarea { min-height: 120px; resize: vertical; }
-
-        .tithe-options {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            flex-wrap: wrap;
-        }
-        .btn-donation {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 1.2rem 2.5rem;
-            font-size: 1.2rem;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 700;
-        }
-        .btn-donation:hover { background: var(--primary-light); transform: translateY(-3px) scale(1.03); }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(4px);
-        }
-        .modal-content {
-            background: white;
-            padding: 2rem;
-            border-radius: var(--radius);
-            max-width: 520px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: modalIn 0.3s ease;
-        }
-        @keyframes modalIn {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        .modal-close {
-            float: right;
-            cursor: pointer;
-            font-size: 1.5rem;
-            color: #888;
-            background: none;
-            border: none;
-        }
-        .modal-close:hover { color: #333; transform: rotate(90deg); }
-        .modal-content .btn { width: 100%; justify-content: center; }
-        .modal-content .form-row { display: flex; gap: 1rem; }
-        .modal-content .form-row > * { flex: 1; }
-
-        .footer {
-            background: #1a1a2e;
-            color: white;
-            padding: 2.5rem 2rem;
-            text-align: center;
-            margin-top: 2.5rem;
-            border-top: 4px solid var(--primary);
-        }
-        .footer .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 1.2rem;
-            margin-top: 1rem;
-        }
-        .footer .social-links a {
-            color: white;
-            font-size: 1.6rem;
-            transition: all 0.3s;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255,255,255,0.05);
-            text-decoration: none;
-        }
-        .footer .social-links a:hover { background: var(--primary); transform: translateY(-5px); }
-
-        .notification {
-            padding: 0.8rem 1.2rem;
-            border-radius: 10px;
-            margin: 0.8rem 0;
-            font-weight: 500;
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            max-width: 400px;
-            z-index: 99999;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            animation: modalIn 0.3s ease;
-        }
-        .notification.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .notification.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .notification.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
-
-        .text-center { text-align: center; }
-        .mt-1 { margin-top: 0.8rem; }
-        .mt-2 { margin-top: 1.5rem; }
-        .hidden { display: none !important; }
-        .w-full { width: 100%; }
-        .qr-container { text-align: center; padding: 1rem; }
-        .qr-container img { max-width: 200px; margin: 0 auto; display: block; }
-
-        #paymentReturnPage {
-            max-width: 600px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background: white;
-            border-radius: 16px;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-        }
-        #paymentReturnPage .icon { font-size: 4rem; margin-bottom: 1rem; }
-        #paymentReturnPage h2 { font-size: 1.8rem; color: #0D47A1; margin-bottom: 1rem; }
-        #paymentReturnPage p { color: #666; margin-bottom: 1rem; line-height: 1.6; }
-        #paymentReturnPage .details {
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 10px;
-            margin: 1rem 0;
-            font-size: 0.9rem;
-            text-align: left;
-        }
-        #paymentReturnPage .details span { font-weight: 600; }
-        #paymentReturnPage .message-box {
-            padding: 1rem;
-            border-radius: 10px;
-            margin: 1rem 0;
-            font-weight: 500;
-        }
-        #paymentReturnPage .message-box.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        #paymentReturnPage .message-box.pending { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
-        #paymentReturnPage .message-box.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-
-        @media (max-width: 768px) {
-            .header { flex-direction: column; gap: 0.5rem; padding: 0.8rem 1rem; }
-            .main-nav { top: 110px; gap: 0.2rem; padding: 0.4rem 0.5rem; }
-            .main-nav .nav-btn { padding: 0.3rem 0.8rem; font-size: 0.75rem; }
-            .carousel-slide { height: 220px; }
-            .carousel-caption { padding: 1.5rem; }
-            .carousel-caption h3 { font-size: 1.3rem; }
-            .section { padding: 1rem; margin: 1rem; }
-            .bible-container { flex-direction: column; }
-            .modal-content .form-row { flex-direction: column; }
-            .tithe-options { gap: 0.8rem; }
-            .btn-donation { padding: 0.8rem 1.5rem; font-size: 1rem; }
-            #paymentReturnPage { margin: 1rem; padding: 1.5rem; }
-            #paymentReturnPage .icon { font-size: 3rem; }
-        }
-    </style>
-</head>
-<body>
-
-<!-- HEADER -->
-<header class="header" id="mainHeader">
-    <div class="logo">
-        <div class="logo-icon">NJ</div>
-        <h1 id="siteTitle">NJ Cabuçu</h1>
-    </div>
-    <div style="display:flex;gap:0.8rem;flex-wrap:wrap;align-items:center;">
-        <a href="https://wa.me/5521985345627" target="_blank" class="btn btn-whatsapp" id="whatsappBtn">
-            <i class="fab fa-whatsapp"></i> (21) 98534-5627
-        </a>
-        <a href="/login" class="btn btn-primary"><i class="fas fa-user"></i> Área Interna</a>
-    </div>
-</header>
-
-<!-- NAVEGAÇÃO -->
-<nav class="main-nav" id="mainNav">
-    <button onclick="scrollToSection('home')" class="nav-btn active"><i class="fas fa-home"></i> Início</button>
-    <button onclick="scrollToSection('biblia')" class="nav-btn"><i class="fas fa-bible"></i> Bíblia</button>
-    <button onclick="scrollToSection('eventos')" class="nav-btn"><i class="fas fa-calendar"></i> Eventos</button>
-    <button onclick="scrollToSection('estudos')" class="nav-btn"><i class="fas fa-book"></i> Estudos</button>
-    <button onclick="scrollToSection('loja')" class="nav-btn"><i class="fas fa-store"></i> NJ Store</button>
-    <button onclick="scrollToSection('dizimos')" class="nav-btn"><i class="fas fa-hand-holding-heart"></i> Dízimos</button>
-    <button onclick="scrollToSection('oracao')" class="nav-btn"><i class="fas fa-pray"></i> Oração</button>
-    <button onclick="scrollToSection('inscricoes')" class="nav-btn"><i class="fas fa-clipboard-list"></i> Inscrições</button>
-</nav>
-
-<!-- CARROSSEL -->
-<section id="home" class="carousel-container">
-    <div class="carousel-wrapper" id="carouselWrapper">
-        <div class="carousel-slide">
-            <img src="https://via.placeholder.com/1400x450/0D47A1/ffffff?text=NJ+Cabu%C3%A7u" alt="NJ Cabuçu">
-            <div class="carousel-caption">
-                <h3>🙏 Seja Bem-Vindo!</h3>
-                <p>NJ Cabuçu - Uma igreja que ama a Deus e ao próximo</p>
-            </div>
-        </div>
-    </div>
-    <button class="carousel-btn prev" onclick="changeSlide(-1)">❮</button>
-    <button class="carousel-btn next" onclick="changeSlide(1)">❯</button>
-    <div class="carousel-dots" id="carouselDots"></div>
-</section>
-
-<!-- BÍBLIA -->
-<section id="biblia" class="section">
-    <h2 class="section-title"><i class="fas fa-bible"></i> Bíblia Online</h2>
-    <div class="bible-container">
-        <div class="bible-input">
-            <div class="form-group">
-                <label>Livro</label>
-                <select id="bibleBook">
-                    <option value="gn">Gênesis</option><option value="ex">Êxodo</option>
-                    <option value="lv">Levítico</option><option value="nm">Números</option>
-                    <option value="dt">Deuteronômio</option><option value="js">Josué</option>
-                    <option value="jz">Juízes</option><option value="rt">Rute</option>
-                    <option value="1sm">1 Samuel</option><option value="2sm">2 Samuel</option>
-                    <option value="1rs">1 Reis</option><option value="2rs">2 Reis</option>
-                    <option value="1cr">1 Crônicas</option><option value="2cr">2 Crônicas</option>
-                    <option value="ed">Esdras</option><option value="ne">Neemias</option>
-                    <option value="et">Ester</option><option value="jó">Jó</option>
-                    <option value="sl">Salmos</option><option value="pv">Provérbios</option>
-                    <option value="ec">Eclesiastes</option><option value="ct">Cânticos</option>
-                    <option value="is">Isaías</option><option value="jr">Jeremias</option>
-                    <option value="lm">Lamentações</option><option value="ez">Ezequiel</option>
-                    <option value="dn">Daniel</option><option value="os">Oseias</option>
-                    <option value="jl">Joel</option><option value="am">Amós</option>
-                    <option value="ob">Obadias</option><option value="jn">Jonas</option>
-                    <option value="mq">Miqueias</option><option value="na">Naum</option>
-                    <option value="hc">Habacuque</option><option value="sf">Sofonias</option>
-                    <option value="ag">Ageu</option><option value="zc">Zacarias</option>
-                    <option value="ml">Malaquias</option>
-                    <option value="mt">Mateus</option><option value="mc">Marcos</option>
-                    <option value="lc">Lucas</option><option value="jo">João</option>
-                    <option value="at">Atos</option><option value="rm">Romanos</option>
-                    <option value="1co">1 Coríntios</option><option value="2co">2 Coríntios</option>
-                    <option value="gl">Gálatas</option><option value="ef">Efésios</option>
-                    <option value="fp">Filipenses</option><option value="cl">Colossenses</option>
-                    <option value="1ts">1 Tessalonicenses</option><option value="2ts">2 Tessalonicenses</option>
-                    <option value="1tm">1 Timóteo</option><option value="2tm">2 Timóteo</option>
-                    <option value="tt">Tito</option><option value="fm">Filemom</option>
-                    <option value="hb">Hebreus</option><option value="tg">Tiago</option>
-                    <option value="1pe">1 Pedro</option><option value="2pe">2 Pedro</option>
-                    <option value="1jo">1 João</option><option value="2jo">2 João</option>
-                    <option value="3jo">3 João</option><option value="jd">Judas</option>
-                    <option value="ap">Apocalipse</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Capítulo</label>
-                <input type="number" id="bibleChapter" value="1" min="1">
-            </div>
-            <div class="form-group">
-                <label>Versículo (opcional)</label>
-                <input type="number" id="bibleVerse" placeholder="Ex: 1" min="1">
-            </div>
-            <button onclick="searchBible()" class="btn btn-primary w-full" style="justify-content:center;margin-top:0.5rem;">
-                <i class="fas fa-search"></i> Buscar
-            </button>
-        </div>
-        <div class="bible-result" id="bibleResult">
-            <p style="color:#888;">Selecione um livro e capítulo para buscar</p>
-        </div>
-    </div>
-</section>
-
-<!-- EVENTOS -->
-<section id="eventos" class="section">
-    <h2 class="section-title"><i class="fas fa-calendar"></i> Eventos</h2>
-    <div class="grid" id="eventsList"></div>
-</section>
-
-<!-- ESTUDOS -->
-<section id="estudos" class="section">
-    <h2 class="section-title"><i class="fas fa-book"></i> Estudos Bíblicos</h2>
-    <div class="grid" id="studiesList"></div>
-</section>
-
-<!-- NJ STORE -->
-<section id="loja" class="section">
-    <h2 class="section-title"><i class="fas fa-store"></i> NJ Store</h2>
-    <div class="grid" id="productsList"></div>
-    <div class="text-center mt-2">
-        <button onclick="openCart()" class="btn btn-primary">
-            <i class="fas fa-shopping-cart"></i> Ver Carrinho (<span id="cartCount">0</span>)
-        </button>
-    </div>
-</section>
-
-<!-- DÍZIMOS E OFERTAS -->
-<section id="dizimos" class="section">
-    <h2 class="section-title"><i class="fas fa-hand-holding-heart"></i> Dízimos e Ofertas</h2>
-    <p class="text-center" style="color:#666;margin-bottom:1.5rem;">
-        "Honra ao Senhor com os teus bens" - Provérbios 3:9
-    </p>
-    <div class="tithe-options">
-        <button onclick="openDonationForm('Dízimo')" class="btn-donation" style="background:#28a745;">
-            <i class="fas fa-percent"></i> Dízimo
-        </button>
-        <button onclick="openDonationForm('Oferta')" class="btn-donation" style="background:#17a2b8;">
-            <i class="fas fa-hand-holding-heart"></i> Oferta
-        </button>
-        <button onclick="openDonationForm('Missões')" class="btn-donation" style="background:#fd7e14;">
-            <i class="fas fa-globe-americas"></i> Missões
-        </button>
-    </div>
-    <div id="donationResult" class="text-center mt-2 hidden"></div>
-</section>
-
-<!-- ORAÇÃO -->
-<section id="oracao" class="section">
-    <h2 class="section-title"><i class="fas fa-pray"></i> Pedidos de Oração</h2>
-    <div class="prayer-form">
-        <div class="form-group">
-            <label>Seu nome (opcional)</label>
-            <input type="text" id="prayerName" placeholder="Ex: João">
-        </div>
-        <div class="form-group">
-            <label>Seu pedido de oração *</label>
-            <textarea id="prayerRequest" placeholder="Digite seu pedido aqui..."></textarea>
-        </div>
-        <button onclick="submitPrayer()" class="btn btn-primary w-full" style="justify-content:center;">
-            <i class="fas fa-paper-plane"></i> Enviar Pedido
-        </button>
-        <div id="prayerMessage" class="hidden"></div>
-    </div>
-</section>
-
-<!-- INSCRIÇÕES -->
-<section id="inscricoes" class="section">
-    <h2 class="section-title"><i class="fas fa-clipboard-list"></i> Inscrições</h2>
-    <div style="display:flex;gap:0.8rem;flex-wrap:wrap;justify-content:center;margin-bottom:1.5rem;">
-        <button onclick="showRegistration('baptism')" class="btn btn-primary"><i class="fas fa-water"></i> Batismo</button>
-        <button onclick="showRegistration('volunteer')" class="btn btn-primary"><i class="fas fa-hands-helping"></i> Voluntário</button>
-        <button onclick="showRegistration('event')" class="btn btn-primary"><i class="fas fa-calendar-plus"></i> Evento</button>
-        <button onclick="showRegistration('department')" class="btn btn-primary"><i class="fas fa-users"></i> Departamento</button>
-    </div>
-    <div id="registrationForm" class="hidden"></div>
-    <div id="registrationResult" class="hidden text-center mt-1"></div>
-</section>
-
-<!-- FOOTER -->
-<footer class="footer" id="mainFooter">
-    <div>
-        <p style="font-size:1.2rem;font-weight:700;">NJ Cabuçu</p>
-        <p style="opacity:0.7;margin-top:0.3rem;">
-            "E conhecereis a verdade, e a verdade vos libertará." - João 8:32
-        </p>
-    </div>
-    <div class="social-links">
-        <a href="https://www.instagram.com/novajerusalemcabucu/" target="_blank"><i class="fab fa-instagram"></i></a>
-        <a href="https://wa.me/5521985345627" target="_blank"><i class="fab fa-whatsapp"></i></a>
-        <a href="#" target="_blank"><i class="fab fa-youtube"></i></a>
-        <a href="#" target="_blank"><i class="fab fa-facebook"></i></a>
-    </div>
-    <p style="margin-top:1.5rem;opacity:0.5;font-size:0.9rem;">
-        © 2026 NJ Cabuçu - Todos os direitos reservados
-    </p>
-</footer>
-
-<!-- PÁGINA DE RETORNO -->
-<div id="paymentReturnPage" style="display:none;">
-    <div class="icon" id="returnIcon" style="color: #ffc107;">⏳</div>
-    <h2 id="returnTitle">Aguardando Confirmação</h2>
-    <div class="message-box pending" id="returnMessageBox">
-        <span id="returnMessage">Seu pagamento está sendo processado. Aguarde a confirmação.</span>
-    </div>
-    <div class="details" id="returnDetails">
-        <p><span>Status:</span> <span id="returnStatusText">Pendente</span></p>
-        <p><span>ID do Pagamento:</span> <span id="returnPaymentId">-</span></p>
-    </div>
-    <div style="display:flex; gap:0.8rem; flex-wrap:wrap; justify-content:center;">
-        <a href="/" class="btn btn-primary" id="returnHomeBtn">
-            <i class="fas fa-home"></i> Voltar ao Site
-        </a>
-        <a href="/" class="btn btn-success" id="returnContinueBtn">
-            <i class="fas fa-check"></i> Continuar
-        </a>
-    </div>
-    <p style="margin-top:1rem; font-size:0.8rem; color:#888;">
-        NJ Cabuçu - "E conhecereis a verdade, e a verdade vos libertará."
-    </p>
-</div>
-
-<!-- MODAL DÍZIMO -->
-<div class="modal" id="donationModal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('donationModal')">&times;</button>
-        <h3 id="donationTypeLabel">💳 Dízimo</h3>
-        <div class="form-group">
-            <label>Nome Completo *</label>
-            <input type="text" id="donationName" required>
-        </div>
-        <div class="form-group">
-            <label>E-mail *</label>
-            <input type="email" id="donationEmail" required>
-        </div>
-        <div class="form-group">
-            <label>Telefone *</label>
-            <input type="tel" id="donationPhone" required>
-        </div>
-        <div class="form-group">
-            <label>Valor (R$) *</label>
-            <input type="number" id="donationAmount" step="0.01" min="0.01" placeholder="10.00" required>
-        </div>
-        <input type="hidden" id="donationType">
-        <button onclick="submitDonation()" class="btn btn-primary w-full" style="justify-content:center;">
-            <i class="fas fa-credit-card"></i> Continuar para Pagamento
-        </button>
-    </div>
-</div>
-
-<!-- MODAL PAGAMENTO -->
-<div class="modal" id="paymentModal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('paymentModal')">&times;</button>
-        <h3 id="paymentTitle">💳 Pagamento</h3>
-        <div id="paymentForm">
-            <div class="form-group"><label>Nome Completo *</label><input type="text" id="payName" required></div>
-            <div class="form-group"><label>E-mail *</label><input type="email" id="payEmail" required></div>
-            <div class="form-group"><label>Telefone *</label><input type="tel" id="payPhone" required></div>
-            <div class="form-group"><label>CPF *</label><input type="text" id="payCpf" required></div>
-            
-            <div class="form-group">
-                <label>Forma de Pagamento</label>
-                <select id="payMethod" onchange="togglePaymentMethod()">
-                    <option value="pix">PIX</option>
-                    <option value="card">Cartão de Crédito</option>
-                </select>
-            </div>
-            
-            <div id="cardFields" class="hidden">
-                <div class="form-group"><label>Número do Cartão</label><input type="text" id="cardNumber" placeholder="1234 5678 9012 3456"></div>
-                <div class="form-row">
-                    <div class="form-group"><label>Validade</label><input type="text" id="cardExpiry" placeholder="MM/AA"></div>
-                    <div class="form-group"><label>CVV</label><input type="text" id="cardCvv" placeholder="123"></div>
-                </div>
-                <div class="form-group"><label>Parcelas</label>
-                    <select id="cardInstallments">
-                        <option value="1">1x</option><option value="2">2x</option>
-                        <option value="3">3x</option><option value="4">4x</option>
-                        <option value="5">5x</option><option value="6">6x</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div id="paymentTotal" style="text-align:center;font-size:1.5rem;font-weight:700;color:var(--primary);margin:1rem 0;"></div>
-            <button onclick="processPayment()" class="btn btn-primary w-full" style="justify-content:center;">
-                <i class="fas fa-credit-card"></i> Pagar
-            </button>
-        </div>
-        <div id="paymentResult" class="hidden text-center"></div>
-    </div>
-</div>
-
-<!-- MODAL CARRINHO -->
-<div class="modal" id="cartModal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('cartModal')">&times;</button>
-        <h3><i class="fas fa-shopping-cart"></i> Carrinho</h3>
-        <div id="cartItems"><p class="text-center" style="color:#888;">Carrinho vazio</p></div>
-        <div id="cartTotal" class="text-center" style="font-size:1.3rem;font-weight:700;color:var(--primary);margin:1rem 0;"></div>
-        <button onclick="checkout()" class="btn btn-primary w-full" style="justify-content:center;">
-            <i class="fas fa-credit-card"></i> Finalizar Compra
-        </button>
-    </div>
-</div>
-
-<script>
 // ============================================
-// ===== VARIÁVEIS =====
-// ============================================
-let cart = [];
-let carouselImages = [];
-let currentSlide = 0;
-let slideInterval;
-let paymentType = 'sale';
-let donationType = '';
-
-// ============================================
-// ===== BÍBLIA COMPLETA COM FALLBACK OFFLINE =====
+// ===== NJ CABUÇU - SERVER (BASE64) =====
 // ============================================
 
-async function searchBible() {
-    const book = document.getElementById('bibleBook').value;
-    const chapter = document.getElementById('bibleChapter').value;
-    const verse = document.getElementById('bibleVerse').value;
-    const resultDiv = document.getElementById('bibleResult');
-    resultDiv.innerHTML = '<p>⏳ Carregando...</p>';
+require('dotenv').config();
+console.log('🚀 Iniciando NJ Cabuçu...');
 
-    const bookNames = {
-        'gn': 'Gênesis', 'ex': 'Êxodo', 'lv': 'Levítico', 'nm': 'Números',
-        'dt': 'Deuteronômio', 'js': 'Josué', 'jz': 'Juízes', 'rt': 'Rute',
-        '1sm': '1 Samuel', '2sm': '2 Samuel', '1rs': '1 Reis', '2rs': '2 Reis',
-        '1cr': '1 Crônicas', '2cr': '2 Crônicas', 'ed': 'Esdras', 'ne': 'Neemias',
-        'et': 'Ester', 'jó': 'Jó', 'sl': 'Salmos', 'pv': 'Provérbios',
-        'ec': 'Eclesiastes', 'ct': 'Cânticos', 'is': 'Isaías', 'jr': 'Jeremias',
-        'lm': 'Lamentações', 'ez': 'Ezequiel', 'dn': 'Daniel', 'os': 'Oseias',
-        'jl': 'Joel', 'am': 'Amós', 'ob': 'Obadias', 'jn': 'Jonas',
-        'mq': 'Miqueias', 'na': 'Naum', 'hc': 'Habacuque', 'sf': 'Sofonias',
-        'ag': 'Ageu', 'zc': 'Zacarias', 'ml': 'Malaquias',
-        'mt': 'Mateus', 'mc': 'Marcos', 'lc': 'Lucas', 'jo': 'João',
-        'at': 'Atos', 'rm': 'Romanos', '1co': '1 Coríntios', '2co': '2 Coríntios',
-        'gl': 'Gálatas', 'ef': 'Efésios', 'fp': 'Filipenses', 'cl': 'Colossenses',
-        '1ts': '1 Tessalonicenses', '2ts': '2 Tessalonicenses',
-        '1tm': '1 Timóteo', '2tm': '2 Timóteo', 'tt': 'Tito', 'fm': 'Filemom',
-        'hb': 'Hebreus', 'tg': 'Tiago', '1pe': '1 Pedro', '2pe': '2 Pedro',
-        '1jo': '1 João', '2jo': '2 João', '3jo': '3 João', 'jd': 'Judas',
-        'ap': 'Apocalipse'
-    };
+const express = require('express');
+const cors = require('cors');
+const { neon } = require('@neondatabase/serverless');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const { MercadoPagoConfig, Payment } = require('mercadopago');
 
-    // BASE DE VERSÍCULOS OFFLINE (FALLBACK)
-    const offlineBible = {
-        'gn_1': [
-            "No princípio criou Deus os céus e a terra.",
-            "E a terra era sem forma e vazia; e havia trevas sobre a face do abismo; e o Espírito de Deus se movia sobre a face das águas.",
-            "E disse Deus: Haja luz; e houve luz.",
-            "E viu Deus que era boa a luz; e fez Deus separação entre a luz e as trevas.",
-            "E Deus chamou à luz Dia; e às trevas chamou Noite. E foi a tarde e a manhã, o dia primeiro."
-        ],
-        'jo_3': [
-            "Havia um homem dos fariseus, chamado Nicodemos, príncipe dos judeus.",
-            "Este foi de noite ter com Jesus, e disse-lhe: Rabi, bem sabemos que és Mestre, vindo de Deus; porque ninguém pode fazer estes sinais que tu fazes, se Deus não for com ele.",
-            "Jesus respondeu, e disse-lhe: Na verdade, na verdade te digo que aquele que não nascer de novo, não pode ver o reino de Deus.",
-            "Disse-lhe Nicodemos: Como pode um homem nascer, sendo velho? Pode, porventura, tornar a entrar no ventre de sua mãe, e nascer?",
-            "Jesus respondeu: Na verdade, na verdade te digo que aquele que não nascer da água e do Espírito, não pode entrar no reino de Deus.",
-            "O que é nascido da carne é carne, e o que é nascido do Espírito é espírito.",
-            "Não te maravilhes de te ter dito: Necessário vos é nascer de novo.",
-            "O vento assopra onde quer, e ouves a sua voz, mas não sabes de onde vem, nem para onde vai; assim é todo aquele que é nascido do Espírito.",
-            "Nicodemos respondeu, e disse-lhe: Como pode ser isto?",
-            "Jesus respondeu, e disse-lhe: Tu és mestre de Israel, e não sabes isto?",
-            "Na verdade, na verdade te digo que nós dizemos o que sabemos, e testificamos o que vimos; e não aceitais o nosso testemunho.",
-            "Se vos disse coisas terrestres, e não credes, como crereis, se vos disser as celestiais?",
-            "Ora, ninguém subiu ao céu, senão o que desceu do céu, o Filho do homem, que está no céu.",
-            "E como Moisés levantou a serpente no deserto, assim importa que o Filho do homem seja levantado;",
-            "Para que todo aquele que nele crê não pereça, mas tenha a vida eterna.",
-            "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.",
-            "Porque Deus enviou o seu Filho ao mundo, não para que condenasse o mundo, mas para que o mundo fosse salvo por ele.",
-            "Quem crê nele não é condenado; mas quem não crê já está condenado, porquanto não crê no nome do unigênito Filho de Deus."
-        ],
-        'sl_23': [
-            "O SENHOR é o meu pastor; nada me faltará.",
-            "Deitar-me faz em verdes pastos, guia-me mansamente a águas tranquilas.",
-            "Refrigera a minha alma; guia-me pelas veredas da justiça, por amor do seu nome.",
-            "Ainda que eu ande pelo vale da sombra da morte, não temerei mal algum, porque tu estás comigo; a tua vara e o teu cajado me consolam.",
-            "Preparas uma mesa perante mim na presença dos meus inimigos; unges a minha cabeça com óleo, o meu cálice transborda.",
-            "Certamente que a bondade e a misericórdia me seguirão todos os dias da minha vida; e habitarei na casa do SENHOR para sempre."
-        ],
-        'rm_8': [
-            "Portanto, agora nenhuma condenação há para os que estão em Cristo Jesus, que não andam segundo a carne, mas segundo o Espírito.",
-            "Porque a lei do Espírito de vida, em Cristo Jesus, me livrou da lei do pecado e da morte.",
-            "Porquanto o que era impossível à lei, visto como estava enferma pela carne, Deus, enviando o seu Filho em semelhança da carne do pecado, e por causa do pecado, condenou o pecado na carne;",
-            "Para que a justiça da lei se cumprisse em nós, que não andamos segundo a carne, mas segundo o Espírito."
-        ],
-        'fp_4': [
-            "Portanto, meus amados e mui queridos irmãos, minha alegria e coroa, estai assim firmes no Senhor, amados.",
-            "Rogo a Evódia, e rogo a Síntique, que sintam o mesmo no Senhor.",
-            "E rogo também a ti, meu verdadeiro companheiro, que ajudes estas mulheres que trabalharam comigo no evangelho, e com Clemente, e com os outros meus cooperadores, cujos nomes estão no livro da vida.",
-            "Regozijai-vos sempre no Senhor; outra vez digo, regozijai-vos.",
-            "Seja a vossa moderação conhecida de todos os homens. Perto está o Senhor.",
-            "Não estejais ansiosos por coisa alguma; antes, as vossas petições sejam em tudo conhecidas diante de Deus, pela oração e súplica, com ação de graças.",
-            "E a paz de Deus, que excede todo o entendimento, guardará os vossos corações e os vossos pensamentos em Cristo Jesus.",
-            "Quanto ao mais, irmãos, tudo o que é verdadeiro, tudo o que é honesto, tudo o que é justo, tudo o que é puro, tudo o que é amável, tudo o que é de boa fama, se há alguma virtude, e se há algum louvor, nisso pensai.",
-            "O que também aprendestes, e recebestes, e ouvistes, e vistes em mim, isso fazei; e o Deus de paz será convosco.",
-            "Ora, muito me regozijei no Senhor por finalmente reviver a vossa lembrança de mim; pois já vos tínheis lembrado, mas não tínheis oportunidade.",
-            "Não digo isto por causa de necessidade, porque já aprendi a contentar-me com o que tenho.",
-            "Sei estar abatido, e sei também ter abundância; em toda a maneira, e em todas as coisas, estou instruído, tanto a ter fartura, como a ter fome; tanto a ter abundância, como a padecer necessidade.",
-            "Posso todas as coisas naquele que me fortalece."
-        ],
-        'js_1': [
-            "E sucedeu depois da morte de Moisés, servo do SENHOR, que o SENHOR falou a Josué, filho de Num, servo de Moisés, dizendo:",
-            "Moisés, meu servo, é morto; levanta-te, pois, agora, passa este Jordão, tu e todo este povo, à terra que eu dou aos filhos de Israel.",
-            "Todo o lugar que pisar a planta do vosso pé, vo-lo dei, como eu disse a Moisés.",
-            "Desde o deserto e do Líbano, até ao grande rio, o rio Eufrates, toda a terra dos heteus, e até ao grande mar para o poente do sol, será o vosso termo.",
-            "Ninguém te poderá resistir, todos os dias da tua vida; como fui com Moisés, assim serei contigo; não te deixarei, nem te desampararei.",
-            "Esforça-te, e tem bom ânimo; porque tu farás a este povo herdar a terra que jurei a seus pais lhes daria.",
-            "Tão-somente esforça-te e tem mui bom ânimo, para teres o cuidado de fazer conforme toda a lei que meu servo Moisés te ordenou; não te desvies dela, nem para a direita nem para a esquerda, para que te saias bem por onde quer que andares.",
-            "Não se aparte da tua boca o livro desta lei; antes medita nele dia e noite, para que tenhas cuidado de fazer conforme tudo quanto nele está escrito; porque então farás prosperar o teu caminho, e serás bem-sucedido.",
-            "Não to mandei eu? Esforça-te, e tem bom ânimo; não temas, nem te espantes; porque o SENHOR teu Deus é contigo, por onde quer que andares."
-        ],
-        'mt_6': [
-            "Guardai-vos de fazer a vossa esmola diante dos homens, para serdes vistos por eles; aliás, não tereis galardão junto de vosso Pai, que está nos céus.",
-            "Quando, pois, deres esmola, não faças tocar trombeta diante de ti, como fazem os hipócritas nas sinagogas e nas ruas, para serem glorificados pelos homens. Em verdade vos digo que já receberam o seu galardão.",
-            "Mas, quando tu deres esmola, não saiba a tua mão esquerda o que faz a tua direita;",
-            "Para que a tua esmola seja em secreto; e teu Pai, que vê em secreto, te recompensará publicamente.",
-            "E, quando orares, não sejas como os hipócritas; pois se comprazem em orar em pé nas sinagogas, e às esquinas das ruas, para serem vistos pelos homens. Em verdade vos digo que já receberam o seu galardão.",
-            "Mas tu, quando orares, entra no teu aposento, e, fechada a porta, ora a teu Pai que está em secreto; e teu Pai, que vê em secreto, te recompensará publicamente.",
-            "E, orando, não useis de vãs repetições, como os gentios, que pensam que por muito falarem serão ouvidos.",
-            "Não vos assemelheis, pois, a eles; porque vosso Pai sabe o que vos é necessário, antes de vós lho pedirdes.",
-            "Portanto, vós orareis assim: Pai nosso, que estás nos céus, santificado seja o teu nome;",
-            "Venha o teu reino, seja feita a tua vontade, assim na terra como no céu;",
-            "O pão nosso de cada dia nos dá hoje;",
-            "E perdoa-nos as nossas dívidas, assim como nós perdoamos aos nossos devedores;",
-            "E não nos induzas à tentação; mas livra-nos do mal; porque teu é o reino, e o poder, e a glória, para sempre. Amém.",
-            "Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós;",
-            "Se, porém, não perdoardes aos homens as suas ofensas, também vosso Pai vos não perdoará as vossas ofensas.",
-            "Quando jejuardes, não vos mostreis aos homens com o rosto triste, como os hipócritas; porque desfiguram os seus rostos, para que aos homens pareça que jejuam. Em verdade vos digo que já receberam o seu galardão.",
-            "Porém tu, quando jejuares, unge a tua cabeça, e lava o teu rosto,",
-            "Para não pareceres aos homens que jejuas, mas a teu Pai, que está em secreto; e teu Pai, que vê em secreto, te recompensará publicamente.",
-            "Não ajunteis tesouros na terra, onde a traça e a ferrugem consomem, e onde os ladrões minam e roubam;",
-            "Mas ajuntai tesouros no céu, onde nem a traça nem a ferrugem consomem, e onde os ladrões não minam nem roubam.",
-            "Porque onde estiver o teu tesouro, aí estará também o teu coração.",
-            "A candeia do corpo são os olhos; se, pois, os teus olhos forem singelos, todo o teu corpo será luminoso.",
-            "Se, porém, os teus olhos forem maus, todo o teu corpo será tenebroso. Se, pois, a luz que em ti há são trevas, quão grandes serão tais trevas!",
-            "Ninguém pode servir a dois senhores; porque ou há de odiar um e amar o outro, ou se dedicará a um e desprezará o outro. Não podeis servir a Deus e a Mamom.",
-            "Por isso vos digo: Não andeis cuidadosos quanto à vossa vida, pelo que haveis de comer ou beber; nem quanto ao vosso corpo, pelo que haveis de vestir. Não é a vida mais do que o mantimento, e o corpo mais do que o vestuário?",
-            "Observai as aves do céu, que não semeiam, nem segam, nem ajuntam em celeiros; e vosso Pai celestial as alimenta. Não tendes vós muito mais valor do que elas?",
-            "E qual de vós, por mais que pense, pode acrescentar um côvado à sua estatura?",
-            "E, quanto ao vestuário, por que andais solícitos? Olhai para os lírios do campo, como crescem; não trabalham nem fiam;",
-            "E eu vos digo que nem mesmo Salomão, em toda a sua glória, se vestiu como qualquer deles.",
-            "Pois, se Deus assim veste a erva do campo, que hoje existe e amanhã é lançada no forno, não vos vestirá muito mais a vós, homens de pouca fé?",
-            "Não andeis, pois, inquietos, dizendo: Que comeremos, ou que beberemos, ou com que nos vestiremos?",
-            "Porque todas estas coisas os gentios procuram. Certamente vosso Pai celestial sabe que precisais de todas estas coisas;",
-            "Mas buscai primeiro o reino de Deus e a sua justiça, e todas estas coisas vos serão acrescentadas.",
-            "Não vos inquieteis, pois, pelo dia de amanhã, porque o dia de amanhã cuidará de si mesmo. Basta a cada dia o seu mal."
-        ]
-    };
+// ============================================
+// ===== CONEXÃO NEON =====
+// ============================================
+if (!process.env.DATABASE_URL) {
+    console.error('❌ DATABASE_URL não encontrada!');
+    process.exit(1);
+}
+const sql = neon(process.env.DATABASE_URL);
+console.log('✅ Conectado ao Neon Database');
 
-    try {
-        // TENTAR API PRINCIPAL
-        let url = `https://bible-api.com/${book}+${chapter}`;
-        if (verse) url += `:${verse}`;
-        url += '?translation=almeida';
-
-        let response = await fetch(url);
-        let data = await response.json();
-
-        if (data.error) {
-            // USAR FALLBACK OFFLINE
-            const key = `${book}_${chapter}`;
-            if (offlineBible[key]) {
-                let html = '';
-                const verses = offlineBible[key];
-                const start = verse ? parseInt(verse) - 1 : 0;
-                const end = verse ? parseInt(verse) : verses.length;
-                for (let i = start; i < end && i < verses.length; i++) {
-                    html += `<p class="verse"><strong>${i+1}</strong> ${verses[i]}</p>`;
-                }
-                const bookName = bookNames[book] || book;
-                html += `<p class="reference">📖 ${bookName} ${chapter}${verse ? ':'+verse : ''}</p>`;
-                resultDiv.innerHTML = html;
-                return;
-            }
-
-            resultDiv.innerHTML = `
-                <p style="color:#dc3545;">❌ Não foi possível carregar ${bookNames[book] || book} ${chapter}.</p>
-                <p style="color:#888;margin-top:0.5rem;">Tente: Salmos 23, João 3, Romanos 8, Filipenses 4, Josué 1 ou Mateus 6</p>
-            `;
-            return;
-        }
-
-        // EXIBIR RESULTADO DA API
-        let html = '';
-        if (data.verses) {
-            data.verses.forEach(v => {
-                html += `<p class="verse"><strong>${v.verse}</strong> ${v.text}</p>`;
-            });
-        } else if (data.text) {
-            html = `<p class="verse">${data.text}</p>`;
-        }
-        html += `<p class="reference">📖 ${data.reference || bookNames[book] + ' ' + chapter}</p>`;
-        resultDiv.innerHTML = html;
-    } catch (error) {
-        // FALLBACK FINAL
-        const key = `${book}_${chapter}`;
-        if (offlineBible[key]) {
-            let html = '';
-            const verses = offlineBible[key];
-            const start = verse ? parseInt(verse) - 1 : 0;
-            const end = verse ? parseInt(verse) : verses.length;
-            for (let i = start; i < end && i < verses.length; i++) {
-                html += `<p class="verse"><strong>${i+1}</strong> ${verses[i]}</p>`;
-            }
-            const bookName = bookNames[book] || book;
-            html += `<p class="reference">📖 ${bookName} ${chapter}${verse ? ':'+verse : ''}</p>`;
-            resultDiv.innerHTML = html;
-            return;
-        }
-
-        resultDiv.innerHTML = `
-            <p style="color:#dc3545;">❌ Erro ao buscar: ${error.message}</p>
-            <p style="color:#888;margin-top:0.5rem;">Tente Salmos 23, João 3, Romanos 8, Filipenses 4, Josué 1 ou Mateus 6</p>
-            <div style="margin-top:1rem;padding:1rem;background:#f8f9fa;border-radius:8px;">
-                <p><strong>Salmos 23:1-6</strong></p>
-                <p>O SENHOR é o meu pastor; nada me faltará.</p>
-                <p>Deitar-me faz em verdes pastos, guia-me mansamente a águas tranquilas.</p>
-                <p>Refrigera a minha alma; guia-me pelas veredas da justiça, por amor do seu nome.</p>
-                <p>Ainda que eu ande pelo vale da sombra da morte, não temerei mal algum, porque tu estás comigo; a tua vara e o teu cajado me consolam.</p>
-                <p>Preparas uma mesa perante mim na presença dos meus inimigos; unges a minha cabeça com óleo, o meu cálice transborda.</p>
-                <p>Certamente que a bondade e a misericórdia me seguirão todos os dias da minha vida; e habitarei na casa do SENHOR para sempre.</p>
-            </div>
-        `;
+// ============================================
+// ===== MERCADO PAGO =====
+// ============================================
+let PaymentService = null;
+try {
+    if (process.env.MP_ACCESS_TOKEN) {
+        const client = new MercadoPagoConfig({
+            accessToken: process.env.MP_ACCESS_TOKEN,
+            options: { timeout: 10000 }
+        });
+        PaymentService = new Payment(client);
+        console.log('✅ Mercado Pago configurado');
     }
+} catch (error) {
+    console.log('⚠️ Erro MP:', error.message);
 }
 
 // ============================================
-// ===== CARREGAR CARROSSEL =====
+// ===== APP =====
 // ============================================
+const app = express();
+const PORT = process.env.PORT || 3000;
+const BASE_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
 
-async function loadCarousel() {
-    try {
-        const res = await fetch('/api/carousel');
-        const data = await res.json();
-        carouselImages = data;
-        const wrapper = document.getElementById('carouselWrapper');
-        const dots = document.getElementById('carouselDots');
-
-        wrapper.innerHTML = '';
-        dots.innerHTML = '';
-
-        if (data.length === 0) {
-            wrapper.innerHTML = `
-                <div class="carousel-slide">
-                    <img src="https://via.placeholder.com/1400x450/0D47A1/ffffff?text=NJ+Cabu%C3%A7u" alt="NJ Cabuçu">
-                    <div class="carousel-caption">
-                        <h3>🙏 Seja Bem-Vindo!</h3>
-                        <p>NJ Cabuçu - Uma igreja que ama a Deus e ao próximo</p>
-                    </div>
-                </div>
-            `;
-            dots.innerHTML = '<span class="dot active" onclick="goToSlide(0)"></span>';
-            currentSlide = 0;
-            return;
-        }
-
-        data.forEach((img, index) => {
-            const slide = document.createElement('div');
-            slide.className = 'carousel-slide' + (index === 0 ? ' active' : '');
-            let imgSrc = img.image_url || (img.image_base64 ? `data:image/jpeg;base64,${img.image_base64}` : 'https://via.placeholder.com/1400x450/0D47A1/ffffff?text=NJ+Cabu%C3%A7u');
-            
-            slide.innerHTML = `
-                <img src="${imgSrc}" alt="${img.title || 'Slide'}">
-                <div class="carousel-caption">
-                    <h3>${img.title || ''}</h3>
-                    <p>${img.subtitle || ''}</p>
-                </div>
-            `;
-            wrapper.appendChild(slide);
-
-            const dot = document.createElement('span');
-            dot.className = 'dot' + (index === 0 ? ' active' : '');
-            dot.onclick = () => goToSlide(index);
-            dots.appendChild(dot);
-        });
-
-        currentSlide = 0;
-        startCarousel();
-    } catch (e) { console.error('Erro carrossel:', e); }
-}
-
-function startCarousel() {
-    if (slideInterval) clearInterval(slideInterval);
-    slideInterval = setInterval(() => changeSlide(1), 5000);
-}
-
-function changeSlide(direction) {
-    const slides = document.querySelectorAll('.carousel-slide');
-    const dots = document.querySelectorAll('.dot');
-    if (!slides.length) return;
-
-    slides[currentSlide].classList.remove('active');
-    dots[currentSlide].classList.remove('active');
-
-    currentSlide = (currentSlide + direction + slides.length) % slides.length;
-
-    slides[currentSlide].classList.add('active');
-    dots[currentSlide].classList.add('active');
-
-    const wrapper = document.getElementById('carouselWrapper');
-    wrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
-}
-
-function goToSlide(index) {
-    const slides = document.querySelectorAll('.carousel-slide');
-    const dots = document.querySelectorAll('.dot');
-    if (!slides.length) return;
-
-    slides[currentSlide].classList.remove('active');
-    dots[currentSlide].classList.remove('active');
-
-    currentSlide = index;
-    slides[currentSlide].classList.add('active');
-    dots[currentSlide].classList.add('active');
-
-    const wrapper = document.getElementById('carouselWrapper');
-    wrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
-    startCarousel();
-}
+app.use(cors());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.static('public'));
+app.use('/uploads', express.static('public/uploads'));
 
 // ============================================
-// ===== CARREGAR DADOS =====
+// ===== MULTER =====
 // ============================================
+const storage = multer.memoryStorage();
 
-async function loadStudies() {
-    try {
-        const res = await fetch('/api/studies');
-        const data = await res.json();
-        const container = document.getElementById('studiesList');
-        if (data.length === 0) {
-            container.innerHTML = '<p class="text-center" style="color:#888;">Nenhum estudo disponível.</p>';
-            return;
-        }
-        container.innerHTML = data.map(s => `
-            <div class="card">
-                ${s.image_base64 ? `<img src="data:image/jpeg;base64,${s.image_base64}" alt="${s.title}">` : ''}
-                ${s.image_url ? `<img src="${s.image_url}" alt="${s.title}">` : ''}
-                <h3>${s.title}</h3>
-                <p>${s.description || ''}</p>
-                ${s.file_url ? '<a href="' + s.file_url + '" target="_blank" class="btn btn-primary btn-sm" style="margin-top:0.5rem;width:auto;"><i class="fas fa-download"></i> Baixar</a>' : ''}
-            </div>
-        `).join('');
-    } catch (e) { console.error('Erro:', e); }
-}
-
-async function loadEvents() {
-    try {
-        const res = await fetch('/api/events');
-        const data = await res.json();
-        const container = document.getElementById('eventsList');
-        if (data.length === 0) {
-            container.innerHTML = '<p class="text-center" style="color:#888;">Nenhum evento disponível.</p>';
-            return;
-        }
-        container.innerHTML = data.map(e => `
-            <div class="card">
-                ${e.image_base64 ? `<img src="data:image/jpeg;base64,${e.image_base64}" alt="${e.title}">` : ''}
-                ${e.image_url ? `<img src="${e.image_url}" alt="${e.title}">` : ''}
-                <h3>${e.title}</h3>
-                <p>${e.description || ''}</p>
-                <p><strong>Data:</strong> ${new Date(e.date).toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' })}</p>
-                <p><strong>Valor:</strong> ${parseFloat(e.price || 0) > 0 ? 'R$ ' + parseFloat(e.price).toFixed(2) : 'Grátis'}</p>
-                <button onclick="registerForEvent(${e.id}, '${e.title}', ${e.price})" class="btn btn-success" style="margin-top:0.5rem;">
-                    <i class="fas fa-ticket-alt"></i> Inscrever-se
-                </button>
-            </div>
-        `).join('');
-    } catch (e) { console.error('Erro:', e); }
-}
-
-async function loadProducts() {
-    try {
-        const res = await fetch('/api/products');
-        const data = await res.json();
-        const container = document.getElementById('productsList');
-        if (data.length === 0) {
-            container.innerHTML = '<p class="text-center" style="color:#888;">Nenhum produto disponível.</p>';
-            return;
-        }
-        container.innerHTML = data.map(p => `
-            <div class="card">
-                ${p.image_base64 ? `<img src="data:image/jpeg;base64,${p.image_base64}" alt="${p.name}">` : ''}
-                ${p.image_url ? `<img src="${p.image_url}" alt="${p.name}">` : ''}
-                <h3>${p.name}</h3>
-                <p>${p.description || ''}</p>
-                <div class="price">R$ ${parseFloat(p.price).toFixed(2)}</div>
-                <button onclick="addToCart(${p.id})" class="btn btn-primary"><i class="fas fa-cart-plus"></i> Comprar</button>
-            </div>
-        `).join('');
-    } catch (e) { console.error('Erro:', e); }
-}
-
-// ============================================
-// ===== INSCRIÇÃO EM EVENTOS =====
-// ============================================
-
-async function registerForEvent(eventId, eventName, price) {
-    const name = prompt('Seu nome completo:');
-    if (!name) return;
-    const email = prompt('Seu e-mail:');
-    if (!email) return;
-    const phone = prompt('Seu telefone (WhatsApp):');
-    if (!phone) return;
-
-    try {
-        const res = await fetch('/api/registrations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                type: 'event',
-                name: name,
-                email: email,
-                phone: phone,
-                event_name: eventName,
-                details: 'Inscrição para evento: ' + eventName,
-                amount: parseFloat(price) || 0,
-                is_paid: parseFloat(price) > 0 ? false : true
-            })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Erro ao inscrever');
-
-        if (parseFloat(price) > 0) {
-            alert('✅ Inscrição realizada! O evento é pago. Por favor, faça o pagamento para confirmar.');
-            paymentType = 'donation';
-            donationType = 'Inscrição Evento - ' + eventName;
-            document.getElementById('paymentTitle').textContent = '💳 Inscrição - ' + eventName;
-            document.getElementById('paymentTotal').textContent = 'Valor: R$ ' + parseFloat(price).toFixed(2);
-            document.getElementById('paymentForm').style.display = 'block';
-            document.getElementById('paymentResult').style.display = 'none';
-            window._donationAmount = parseFloat(price);
-            document.getElementById('payName').value = name;
-            document.getElementById('payEmail').value = email;
-            document.getElementById('payPhone').value = phone;
-            openModal('paymentModal');
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: function (req, file, cb) {
+        const allowedTypes = /jpeg|jpg|png|gif|webp/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype);
+        if (mimetype && extname) {
+            return cb(null, true);
         } else {
-            const pdfUrl = `/api/registration-pdf/${data.id}`;
-            if (confirm('✅ Inscrição realizada com sucesso! Deseja baixar o comprovante em PDF?')) {
-                window.open(pdfUrl, '_blank');
-            }
+            cb(new Error('Apenas imagens são permitidas!'));
         }
-    } catch (e) {
-        alert('❌ Erro: ' + e.message);
     }
-}
+});
 
 // ============================================
-// ===== CARRINHO =====
+// ===== FUNÇÕES =====
 // ============================================
+const hashPassword = async (pwd) => await bcrypt.hash(pwd, 10);
+const verifyPassword = async (pwd, hash) => await bcrypt.compare(pwd, hash);
 
-async function addToCart(productId) {
+const auth = (req, res, next) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'Não autorizado' });
     try {
-        const res = await fetch('/api/products');
-        const products = await res.json();
-        const product = products.find(p => p.id === productId);
-        if (product) {
-            cart.push(product);
-            document.getElementById('cartCount').textContent = cart.length;
-            showNotification('✅ ' + product.name + ' adicionado ao carrinho!', 'success');
-        }
-    } catch (e) { console.error('Erro:', e); }
-}
-
-function openCart() {
-    const container = document.getElementById('cartItems');
-    const totalDiv = document.getElementById('cartTotal');
-    if (cart.length === 0) {
-        container.innerHTML = '<p class="text-center" style="color:#888;">Carrinho vazio</p>';
-        totalDiv.textContent = '';
-    } else {
-        let total = 0;
-        container.innerHTML = cart.map((p, i) => `
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem;border-bottom:1px solid #eee;">
-                <span>${p.name} - R$ ${parseFloat(p.price).toFixed(2)}</span>
-                <button onclick="removeFromCart(${i})" class="btn btn-danger btn-sm"><i class="fas fa-times"></i></button>
-            </div>
-        `).join('');
-        total = cart.reduce((sum, p) => sum + parseFloat(p.price), 0);
-        totalDiv.textContent = 'Total: R$ ' + total.toFixed(2);
+        req.user = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+        next();
+    } catch {
+        res.status(401).json({ error: 'Token inválido' });
     }
-    openModal('cartModal');
-}
+};
 
-function removeFromCart(index) {
-    cart.splice(index, 1);
-    document.getElementById('cartCount').textContent = cart.length;
-    openCart();
-}
-
-function checkout() {
-    if (cart.length === 0) { showNotification('Carrinho vazio!', 'error'); return; }
-    closeModal('cartModal');
-    paymentType = 'sale';
-    const total = cart.reduce((sum, p) => sum + parseFloat(p.price), 0);
-    document.getElementById('paymentTitle').textContent = '💳 NJ Store - Pagamento';
-    document.getElementById('paymentTotal').textContent = 'Total: R$ ' + total.toFixed(2);
-    document.getElementById('paymentForm').style.display = 'block';
-    document.getElementById('paymentResult').style.display = 'none';
-    openModal('paymentModal');
-}
+const pastorOnly = (req, res, next) => {
+    if (req.user?.role !== 'pastor') {
+        return res.status(403).json({ error: 'Apenas o pastor' });
+    }
+    next();
+};
 
 // ============================================
-// ===== FORMULÁRIO DE DÍZIMO =====
+// ===== INICIALIZAR BANCO =====
 // ============================================
-
-function openDonationForm(type) {
-    document.getElementById('donationModal').style.display = 'flex';
-    document.getElementById('donationType').value = type;
-    document.getElementById('donationTypeLabel').textContent = '💳 ' + type;
-    document.getElementById('donationName').value = '';
-    document.getElementById('donationEmail').value = '';
-    document.getElementById('donationPhone').value = '';
-    document.getElementById('donationAmount').value = '';
-}
-
-async function submitDonation() {
-    const type = document.getElementById('donationType').value;
-    const name = document.getElementById('donationName').value.trim();
-    const email = document.getElementById('donationEmail').value.trim();
-    const phone = document.getElementById('donationPhone').value.trim();
-    const amount = document.getElementById('donationAmount').value.trim();
-
-    if (!name || !email || !phone || !amount) {
-        showNotification('Preencha todos os campos!', 'error');
-        return;
-    }
-
-    if (parseFloat(amount) <= 0) {
-        showNotification('Valor inválido!', 'error');
-        return;
-    }
-
-    donationType = type;
-    paymentType = 'donation';
-    window._donationAmount = parseFloat(amount);
-
-    closeModal('donationModal');
-
-    document.getElementById('paymentTitle').textContent = '💳 ' + type;
-    document.getElementById('paymentTotal').textContent = 'Valor: R$ ' + parseFloat(amount).toFixed(2);
-    document.getElementById('paymentForm').style.display = 'block';
-    document.getElementById('paymentResult').style.display = 'none';
+async function initDB() {
+    console.log('📝 Criando tabelas...');
     
-    document.getElementById('payName').value = name;
-    document.getElementById('payEmail').value = email;
-    document.getElementById('payPhone').value = phone;
-    
-    openModal('paymentModal');
-}
-
-// ============================================
-// ===== TOGGLE MÉTODO DE PAGAMENTO =====
-// ============================================
-
-function togglePaymentMethod() {
-    const method = document.getElementById('payMethod').value;
-    const cardFields = document.getElementById('cardFields');
-    if (method === 'card') {
-        cardFields.style.display = 'block';
-        cardFields.style.animation = 'modalIn 0.3s ease';
-    } else {
-        cardFields.style.display = 'none';
-    }
-}
-
-// ============================================
-// ===== PAGAMENTO (PIX E CARTÃO) =====
-// ============================================
-
-async function processPayment() {
-    const name = document.getElementById('payName').value.trim();
-    const email = document.getElementById('payEmail').value.trim();
-    const phone = document.getElementById('payPhone').value.trim();
-    const cpf = document.getElementById('payCpf').value.trim();
-    const method = document.getElementById('payMethod').value;
-
-    if (!name || !email || !phone || !cpf) {
-        showNotification('Preencha todos os dados!', 'error');
-        return;
-    }
-
-    let amount = 0;
-    let description = '';
-
-    if (paymentType === 'sale') {
-        amount = cart.reduce((sum, p) => sum + parseFloat(p.price), 0);
-        description = 'Compra NJ Store';
-    } else if (paymentType === 'donation') {
-        amount = window._donationAmount || 0;
-        description = donationType + ' - NJ Cabuçu';
-    }
-
-    if (amount <= 0) { showNotification('Valor inválido!', 'error'); return; }
-
     try {
-        const paymentData = {
-            amount: amount,
-            description: description,
-            email: email,
-            name: name,
-            phone: phone,
-            cpf: cpf
-        };
+        await sql`CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            email VARCHAR(100) UNIQUE NOT NULL,
+            password_hash VARCHAR(255) NOT NULL,
+            role VARCHAR(50) DEFAULT 'colaborador',
+            department_id INTEGER,
+            department_name VARCHAR(100),
+            first_login BOOLEAN DEFAULT true,
+            phone VARCHAR(20),
+            is_leader BOOLEAN DEFAULT false,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
 
-        let endpoint = '/api/create-pix-payment';
+        await sql`CREATE TABLE IF NOT EXISTS departments (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            leader_id INTEGER,
+            description TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
 
-        if (method === 'card') {
-            const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
-            const cardExpiry = document.getElementById('cardExpiry').value;
-            const cardCvv = document.getElementById('cardCvv').value;
-            const installments = document.getElementById('cardInstallments').value;
+        await sql`CREATE TABLE IF NOT EXISTS department_members (
+            department_id INTEGER,
+            user_id INTEGER,
+            role VARCHAR(50) DEFAULT 'membro',
+            joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (department_id, user_id)
+        )`;
 
-            if (!cardNumber || !cardExpiry || !cardCvv) {
-                showNotification('Preencha os dados do cartão!', 'error');
-                return;
-            }
+        await sql`CREATE TABLE IF NOT EXISTS studies (
+            id SERIAL PRIMARY KEY,
+            title VARCHAR(200) NOT NULL,
+            description TEXT,
+            file_url VARCHAR(500),
+            image_url VARCHAR(500),
+            image_base64 TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
 
-            if (cardNumber.length < 16) {
-                showNotification('Número do cartão inválido (16 dígitos)', 'error');
-                return;
-            }
-            if (!cardExpiry.includes('/') || cardExpiry.length < 5) {
-                showNotification('Validade inválida (MM/AA)', 'error');
-                return;
-            }
-            if (cardCvv.length < 3) {
-                showNotification('CVV inválido (3 dígitos)', 'error');
-                return;
-            }
+        await sql`CREATE TABLE IF NOT EXISTS products (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(200) NOT NULL,
+            description TEXT,
+            price DECIMAL(10,2) NOT NULL,
+            image_url VARCHAR(500),
+            image_base64 TEXT,
+            stock INTEGER DEFAULT 0,
+            category VARCHAR(100),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
 
-            paymentData.card_number = cardNumber;
-            paymentData.card_expiry = cardExpiry;
-            paymentData.card_cvv = cardCvv;
-            paymentData.installments = installments;
-            endpoint = '/api/create-card-payment';
+        await sql`CREATE TABLE IF NOT EXISTS events (
+            id SERIAL PRIMARY KEY,
+            title VARCHAR(200) NOT NULL,
+            description TEXT,
+            date TIMESTAMP NOT NULL,
+            image_url VARCHAR(500),
+            image_base64 TEXT,
+            price DECIMAL(10,2) DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS prayers (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100),
+            request TEXT NOT NULL,
+            is_read BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS orders (
+            id SERIAL PRIMARY KEY,
+            user_name VARCHAR(100),
+            user_email VARCHAR(100),
+            user_phone VARCHAR(20),
+            items TEXT,
+            total DECIMAL(10,2) NOT NULL,
+            status VARCHAR(50) DEFAULT 'pending',
+            payment_id VARCHAR(100),
+            payment_method VARCHAR(50),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS registrations (
+            id SERIAL PRIMARY KEY,
+            type VARCHAR(50) NOT NULL,
+            name VARCHAR(100) NOT NULL,
+            email VARCHAR(100),
+            phone VARCHAR(20),
+            department_name VARCHAR(100),
+            event_name VARCHAR(200),
+            details TEXT,
+            status VARCHAR(50) DEFAULT 'pending',
+            amount DECIMAL(10,2) DEFAULT 0,
+            is_paid BOOLEAN DEFAULT false,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS worship_scales (
+            id SERIAL PRIMARY KEY,
+            department_id INTEGER,
+            event_date TIMESTAMP NOT NULL,
+            leader_id INTEGER,
+            songs TEXT[],
+            palette TEXT,
+            rehearsal BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS donations (
+            id SERIAL PRIMARY KEY,
+            user_name VARCHAR(100),
+            user_email VARCHAR(100),
+            user_phone VARCHAR(20),
+            type VARCHAR(50) NOT NULL,
+            amount DECIMAL(10,2) NOT NULL,
+            payment_id VARCHAR(100),
+            payment_method VARCHAR(50),
+            status VARCHAR(50) DEFAULT 'pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS carousel_images (
+            id SERIAL PRIMARY KEY,
+            title VARCHAR(200),
+            subtitle VARCHAR(200),
+            image_url VARCHAR(500),
+            image_base64 TEXT,
+            link VARCHAR(500),
+            order_position INTEGER DEFAULT 0,
+            active BOOLEAN DEFAULT true,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS site_settings (
+            id SERIAL PRIMARY KEY,
+            key VARCHAR(100) UNIQUE NOT NULL,
+            value TEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        console.log('✅ Tabelas criadas');
+
+        const existing = await sql`SELECT * FROM users WHERE email = 'pastor@njcabucu.com'`;
+        if (existing.length === 0) {
+            const hash = await hashPassword('admin123');
+            await sql`
+                INSERT INTO users (name, email, password_hash, role, department_name, first_login, is_leader)
+                VALUES ('Pastor', 'pastor@njcabucu.com', ${hash}, 'pastor', 'Administração', false, true)
+            `;
+            console.log('✅ Pastor criado: pastor@njcabucu.com / admin123');
         }
 
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(paymentData)
-        });
-
-        const payment = await response.json();
-        if (payment.error) throw new Error(payment.error);
-
-        // Registrar pedido ou doação
-        if (paymentType === 'sale') {
-            await fetch('/api/orders', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    user_name: name,
-                    user_email: email,
-                    user_phone: phone,
-                    items: cart,
-                    total: amount,
-                    payment_id: payment.payment_id,
-                    payment_method: method
-                })
-            });
-            cart = [];
-            document.getElementById('cartCount').textContent = 0;
-        } else if (paymentType === 'donation') {
-            await fetch('/api/donations', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    user_name: name,
-                    user_email: email,
-                    user_phone: phone,
-                    type: donationType,
-                    amount: amount,
-                    payment_id: payment.payment_id,
-                    payment_method: method
-                })
-            });
-        }
-
-        closeModal('paymentModal');
-
-        if (method === 'pix') {
-            if (payment.payment_link) {
-                showNotification('🔗 Redirecionando para o Mercado Pago...', 'info');
-                window.location.href = payment.payment_link;
-            } else if (payment.qr_code_base64) {
-                const resultDiv = document.getElementById('paymentResult');
-                resultDiv.style.display = 'block';
-                resultDiv.innerHTML = `
-                    <h3>✅ Pagamento via PIX</h3>
-                    <div class="qr-container">
-                        <img src="data:image/png;base64,${payment.qr_code_base64}" alt="QR Code PIX">
-                        <p style="margin:0.5rem 0;">Escaneie o QR Code ou copie o código:</p>
-                        <div style="background:#f0f0f0;padding:0.8rem;border-radius:8px;word-break:break-all;font-size:0.8rem;border:1px solid #e0e0e0;">${payment.qr_code}</div>
-                        <button onclick="navigator.clipboard.writeText('${payment.qr_code}')" class="btn btn-primary btn-sm">
-                            <i class="fas fa-copy"></i> Copiar
-                        </button>
-                        <a href="${payment.payment_link}" target="_blank" class="btn btn-success btn-sm">
-                            <i class="fas fa-external-link-alt"></i> Abrir no Banco
-                        </a>
-                        <p style="margin-top:0.8rem;color:#888;">Status: ${payment.status}</p>
-                        <div style="display:flex;gap:0.5rem;justify-content:center;margin-top:0.5rem;flex-wrap:wrap;">
-                            <button onclick="closeModal('paymentModal')" class="btn btn-primary">
-                                <i class="fas fa-check"></i> Concluir
-                            </button>
-                            <a href="/" class="btn btn-success" style="text-decoration:none;display:inline-block;padding:0.8rem 2rem;border-radius:50px;background:#28a745;color:white;font-weight:600;">
-                                <i class="fas fa-home"></i> Voltar ao Site
-                            </a>
-                        </div>
-                    </div>
-                `;
-                document.getElementById('paymentForm').style.display = 'none';
-                openModal('paymentModal');
-            } else {
-                showNotification('✅ ' + (paymentType === 'sale' ? 'Compra' : donationType) + ' realizada com sucesso!', 'success');
-            }
-        } else {
-            // CARTÃO
-            if (payment.status === 'approved') {
-                showNotification('✅ Pagamento aprovado! Obrigado! 🙏', 'success');
-            } else {
-                showNotification(`⏳ Pagamento ${payment.status}. Aguarde a confirmação.`, 'info');
-            }
-        }
-
+        console.log('🎉 Sistema pronto!');
     } catch (error) {
-        showNotification('❌ Erro: ' + error.message, 'error');
-        console.error('Erro no pagamento:', error);
+        console.error('❌ Erro:', error.message);
     }
 }
 
+initDB();
+
 // ============================================
-// ===== ORAÇÃO =====
+// ===== ROTAS =====
 // ============================================
 
-async function submitPrayer() {
-    const name = document.getElementById('prayerName').value || 'Anônimo';
-    const request = document.getElementById('prayerRequest').value.trim();
-    const messageDiv = document.getElementById('prayerMessage');
-
-    if (!request) {
-        showNotification('Digite seu pedido de oração!', 'error');
-        return;
-    }
-
+// ----- LOGIN -----
+app.post('/api/login', async (req, res) => {
     try {
-        const response = await fetch('/api/prayers', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, request })
-        });
-
-        if (!response.ok) throw new Error('Erro ao enviar');
-
-        messageDiv.className = 'notification success';
-        messageDiv.textContent = '✅ Pedido de oração enviado com sucesso! Deus te abençoe! 🙏';
-        messageDiv.style.display = 'block';
-        document.getElementById('prayerRequest').value = '';
-
-        setTimeout(() => { messageDiv.style.display = 'none'; }, 5000);
-    } catch (error) {
-        showNotification('❌ Erro: ' + error.message, 'error');
-    }
-}
-
-// ============================================
-// ===== INSCRIÇÕES =====
-// ============================================
-
-function showRegistration(type) {
-    const container = document.getElementById('registrationForm');
-    const resultDiv = document.getElementById('registrationResult');
-    resultDiv.style.display = 'none';
-    container.style.display = 'block';
-
-    const types = {
-        baptism: { title: '✝️ Inscrição para Batismo' },
-        volunteer: { title: '🙋 Cadastro de Voluntário' },
-        event: { title: '🎯 Inscrição para Evento' },
-        department: { title: '📋 Entrar em um Departamento' }
-    };
-
-    const t = types[type] || types.baptism;
-    let html = `<h3 style="text-align:center;color:#0D47A1;">${t.title}</h3><div class="prayer-form">`;
-    html += `<div class="form-group"><label>Nome Completo *</label><input type="text" id="regName" required></div>`;
-    html += `<div class="form-group"><label>E-mail *</label><input type="email" id="regEmail" required></div>`;
-    html += `<div class="form-group"><label>Telefone *</label><input type="tel" id="regPhone" required></div>`;
-    html += `<div class="form-group"><label>Departamento (opcional)</label><input type="text" id="regDepartment" placeholder="Ex: Louvor, Oração..."></div>`;
-    html += `<div class="form-group"><label>Detalhes (opcional)</label><textarea id="regDetails" placeholder="Informações adicionais..."></textarea></div>`;
-    html += `<button onclick="submitRegistration('${type}')" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-paper-plane"></i> Inscrever-se</button>`;
-    html += `</div>`;
-    container.innerHTML = html;
-    container.scrollIntoView({ behavior: 'smooth' });
-}
-
-async function submitRegistration(type) {
-    const name = document.getElementById('regName').value.trim();
-    const email = document.getElementById('regEmail').value.trim();
-    const phone = document.getElementById('regPhone').value.trim();
-    const department = document.getElementById('regDepartment').value.trim();
-    const details = document.getElementById('regDetails').value.trim();
-    const resultDiv = document.getElementById('registrationResult');
-
-    if (!name || !email || !phone) {
-        showNotification('Preencha os campos obrigatórios!', 'error');
-        return;
-    }
-
-    try {
-        const response = await fetch('/api/registrations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                type: type,
-                name: name,
-                email: email,
-                phone: phone,
-                department_name: department || '',
-                details: details || ''
-            })
-        });
-
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Erro ao inscrever');
-
-        resultDiv.className = 'notification success';
-        resultDiv.textContent = '✅ Inscrição realizada com sucesso!';
-        resultDiv.style.display = 'block';
-        document.getElementById('registrationForm').style.display = 'none';
-
-        if (confirm('✅ Inscrição realizada! Deseja baixar o comprovante em PDF?')) {
-            window.open(`/api/registration-pdf/${data.id}`, '_blank');
-        }
-
-        setTimeout(() => { resultDiv.style.display = 'none'; }, 5000);
-    } catch (error) {
-        showNotification('❌ Erro: ' + error.message, 'error');
-    }
-}
-
-// ============================================
-// ===== NAVEGAÇÃO =====
-// ============================================
-
-function scrollToSection(id) {
-    const el = document.getElementById(id);
-    if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        const map = {
-            'home': 'Início',
-            'biblia': 'Bíblia',
-            'eventos': 'Eventos',
-            'estudos': 'Estudos',
-            'loja': 'NJ Store',
-            'dizimos': 'Dízimos',
-            'oracao': 'Oração',
-            'inscricoes': 'Inscrições'
-        };
-        document.querySelectorAll('.nav-btn').forEach(b => {
-            if (b.textContent.includes(map[id])) b.classList.add('active');
-        });
-    }
-}
-
-// ============================================
-// ===== PÁGINA DE RETORNO =====
-// ============================================
-
-function showReturnPage() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const status = urlParams.get('status');
-    const paymentId = urlParams.get('payment_id');
-
-    if (status || paymentId) {
-        document.getElementById('mainHeader').style.display = 'none';
-        document.getElementById('mainNav').style.display = 'none';
-        document.querySelector('.carousel-container').style.display = 'none';
-        document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-        document.getElementById('mainFooter').style.display = 'none';
+        const { email, password } = req.body;
+        const users = await sql`SELECT * FROM users WHERE email = ${email}`;
+        if (users.length === 0) return res.status(401).json({ error: 'Usuário não encontrado' });
         
-        const returnPage = document.getElementById('paymentReturnPage');
-        returnPage.style.display = 'block';
+        const user = users[0];
+        const valid = await verifyPassword(password, user.password_hash);
+        if (!valid) return res.status(401).json({ error: 'Senha incorreta' });
 
-        let icon = '⏳';
-        let title = 'Aguardando Confirmação';
-        let message = 'Seu pagamento está sendo processado. Aguarde a confirmação.';
-        let msgClass = 'pending';
-        let statusText = 'Pendente';
+        const token = jwt.sign(
+            { id: user.id, email: user.email, role: user.role },
+            process.env.JWT_SECRET || 'secret',
+            { expiresIn: '7d' }
+        );
 
-        if (status === 'approved') {
-            icon = '✅';
-            title = 'Pagamento Confirmado!';
-            message = 'Obrigado pela sua contribuição! Deus abençoe! 🙏';
-            msgClass = 'success';
-            statusText = 'Aprovado';
-        } else if (status === 'rejected') {
-            icon = '❌';
-            title = 'Pagamento Recusado';
-            message = 'Infelizmente seu pagamento não foi aprovado. Tente novamente.';
-            msgClass = 'error';
-            statusText = 'Recusado';
-        }
-
-        document.getElementById('returnIcon').textContent = icon;
-        document.getElementById('returnIcon').style.color = msgClass === 'success' ? '#28a745' : msgClass === 'error' ? '#dc3545' : '#ffc107';
-        document.getElementById('returnTitle').textContent = title;
-        document.getElementById('returnMessage').textContent = message;
-        document.getElementById('returnMessageBox').className = 'message-box ' + msgClass;
-        document.getElementById('returnStatusText').textContent = statusText;
-        document.getElementById('returnPaymentId').textContent = paymentId || '-';
+        res.json({
+            token,
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                department_id: user.department_id,
+                department_name: user.department_name,
+                first_login: user.first_login || false,
+                phone: user.phone || '',
+                is_leader: user.is_leader || false
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
-}
-
-// ============================================
-// ===== MODAIS =====
-// ============================================
-
-function openModal(id) {
-    document.getElementById(id).style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
-
-function closeModal(id) {
-    document.getElementById(id).style.display = 'none';
-    document.body.style.overflow = 'auto';
-}
-
-document.querySelectorAll('.modal').forEach(m => {
-    m.addEventListener('click', (e) => {
-        if (e.target === m) closeModal(m.id);
-    });
 });
 
-// ============================================
-// ===== NOTIFICAÇÕES =====
-// ============================================
-
-function showNotification(message, type = 'info') {
-    const div = document.createElement('div');
-    div.className = 'notification ' + type;
-    div.textContent = message;
-    document.body.appendChild(div);
-    setTimeout(() => {
-        div.style.opacity = '0';
-        div.style.transition = 'opacity 0.5s';
-        setTimeout(() => div.remove(), 500);
-    }, 4000);
-}
-
-// ============================================
-// ===== CARREGAR CONFIGURAÇÕES =====
-// ============================================
-
-async function loadSettings() {
+app.post('/api/change-password', async (req, res) => {
     try {
-        const res = await fetch('/api/settings');
-        const settings = await res.json();
-        if (settings.primary_color) {
-            document.documentElement.style.setProperty('--primary', settings.primary_color);
-        }
-        if (settings.site_title) {
-            document.getElementById('siteTitle').textContent = settings.site_title;
-            document.title = settings.site_title;
-        }
-        if (settings.whatsapp) {
-            const btn = document.getElementById('whatsappBtn');
-            btn.href = 'https://wa.me/55' + settings.whatsapp;
-        }
-    } catch (e) { console.error('Erro ao carregar configurações:', e); }
-}
+        const { email, currentPassword, newPassword } = req.body;
+        const users = await sql`SELECT * FROM users WHERE email = ${email}`;
+        if (users.length === 0) return res.status(404).json({ error: 'Usuário não encontrado' });
 
-// ============================================
-// ===== INICIALIZAÇÃO =====
-// ============================================
+        const user = users[0];
+        if (!user.first_login && currentPassword) {
+            const valid = await verifyPassword(currentPassword, user.password_hash);
+            if (!valid) return res.status(401).json({ error: 'Senha atual incorreta' });
+        }
 
-document.addEventListener('DOMContentLoaded', () => {
-    showReturnPage();
-    
-    if (document.getElementById('paymentReturnPage').style.display !== 'block') {
-        loadSettings();
-        loadCarousel();
-        loadStudies();
-        loadEvents();
-        loadProducts();
-        document.getElementById('cartCount').textContent = cart.length;
-        setTimeout(() => searchBible(), 500);
+        const hash = await hashPassword(newPassword);
+        await sql`UPDATE users SET password_hash = ${hash}, first_login = false WHERE id = ${user.id}`;
+        res.json({ message: 'Senha alterada com sucesso!' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 
-// Enter key para Bíblia
-document.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        const active = document.activeElement;
-        if (active && (active.id === 'bibleChapter' || active.id === 'bibleVerse' || active.id === 'bibleBook')) {
-            searchBible();
-        }
+// ----- USUÁRIOS -----
+app.post('/api/users', auth, pastorOnly, async (req, res) => {
+    try {
+        const { name, email, password, role, department_name, phone, is_leader } = req.body;
+        const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
+        if (existing.length > 0) return res.status(400).json({ error: 'Usuário já existe' });
+
+        const hash = await hashPassword(password || '123456');
+        const result = await sql`
+            INSERT INTO users (name, email, password_hash, role, department_name, phone, first_login, is_leader)
+            VALUES (${name}, ${email}, ${hash}, ${role || 'colaborador'}, ${department_name || ''}, ${phone || ''}, true, ${is_leader || false})
+            RETURNING id, name, email, role, department_name, is_leader
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
-</script>
-</body>
-</html>
+
+app.get('/api/users', auth, async (req, res) => {
+    try {
+        let users;
+        if (req.user.role === 'pastor') {
+            users = await sql`
+                SELECT id, name, email, role, department_id, department_name, phone, first_login, is_leader, created_at
+                FROM users ORDER BY name
+            `;
+        } else {
+            const deptId = req.user.department_id;
+            if (!deptId) return res.json([]);
+            users = await sql`
+                SELECT id, name, email, role, department_id, department_name, phone, first_login, is_leader, created_at
+                FROM users WHERE department_id = ${deptId}
+                ORDER BY name
+            `;
+        }
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/users/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM users WHERE id = ${req.params.id}`;
+        res.json({ message: 'Usuário removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/reset-password', auth, pastorOnly, async (req, res) => {
+    try {
+        const { email } = req.body;
+        const hash = await hashPassword('123456');
+        await sql`UPDATE users SET password_hash = ${hash}, first_login = true WHERE email = ${email}`;
+        res.json({ message: 'Senha resetada para 123456' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- DEPARTAMENTOS -----
+app.post('/api/departments', auth, pastorOnly, async (req, res) => {
+    try {
+        const { name, description } = req.body;
+        const result = await sql`
+            INSERT INTO departments (name, description)
+            VALUES (${name}, ${description || ''})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/departments', auth, async (req, res) => {
+    try {
+        const depts = await sql`
+            SELECT d.*, u.name as leader_name
+            FROM departments d
+            LEFT JOIN users u ON d.leader_id = u.id
+            ORDER BY d.name
+        `;
+        res.json(depts);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM departments WHERE id = ${req.params.id}`;
+        res.json({ message: 'Departamento removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/departments/:id/members', auth, async (req, res) => {
+    try {
+        const members = await sql`
+            SELECT u.id, u.name, u.email, u.role, u.is_leader, dm.role as member_role
+            FROM users u
+            INNER JOIN department_members dm ON u.id = dm.user_id
+            WHERE dm.department_id = ${req.params.id}
+            ORDER BY dm.role DESC, u.name
+        `;
+        res.json(members);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/departments/:id/members', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { user_id, role } = req.body;
+        
+        const user = await sql`SELECT * FROM users WHERE id = ${user_id}`;
+        if (user.length === 0) {
+            return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+        
+        await sql`
+            INSERT INTO department_members (department_id, user_id, role)
+            VALUES (${id}, ${user_id}, ${role || 'membro'})
+            ON CONFLICT (department_id, user_id) DO UPDATE SET role = ${role || 'membro'}
+        `;
+        
+        await sql`
+            UPDATE users SET department_id = ${id}, is_leader = ${role === 'lider' ? true : false}
+            WHERE id = ${user_id}
+        `;
+        
+        res.json({ message: 'Membro adicionado com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao adicionar membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/departments/:department_id/members/:user_id', auth, async (req, res) => {
+    try {
+        const { department_id, user_id } = req.params;
+        
+        await sql`
+            DELETE FROM department_members WHERE department_id = ${department_id} AND user_id = ${user_id}
+        `;
+        
+        await sql`
+            UPDATE users SET department_id = NULL, is_leader = false WHERE id = ${user_id}
+        `;
+        
+        res.json({ message: 'Membro removido com sucesso' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- ESTUDOS -----
+app.post('/api/studies', auth, upload.single('image'), async (req, res) => {
+    try {
+        const { title, description, file_url } = req.body;
+        let image_base64 = null;
+
+        if (req.file) {
+            image_base64 = req.file.buffer.toString('base64');
+        }
+
+        const result = await sql`
+            INSERT INTO studies (title, description, file_url, image_base64)
+            VALUES (${title}, ${description}, ${file_url}, ${image_base64})
+            RETURNING *
+        `;
+        console.log('✅ Estudo criado:', result[0]);
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar estudo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/studies', async (req, res) => {
+    try {
+        const studies = await sql`SELECT * FROM studies ORDER BY created_at DESC`;
+        res.json(studies);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/studies/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM studies WHERE id = ${req.params.id}`;
+        res.json({ message: 'Estudo removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- PRODUTOS -----
+app.post('/api/products', auth, upload.single('image'), async (req, res) => {
+    try {
+        const { name, description, price, stock, category } = req.body;
+        let image_base64 = null;
+
+        if (req.file) {
+            image_base64 = req.file.buffer.toString('base64');
+        }
+
+        const result = await sql`
+            INSERT INTO products (name, description, price, image_base64, stock, category)
+            VALUES (${name}, ${description}, ${parseFloat(price)}, ${image_base64}, ${parseInt(stock) || 0}, ${category || ''})
+            RETURNING *
+        `;
+        console.log('✅ Produto criado:', result[0]);
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar produto:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/products', async (req, res) => {
+    try {
+        const products = await sql`SELECT * FROM products ORDER BY name`;
+        res.json(products);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/products/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, description, price, stock, category } = req.body;
+        const result = await sql`
+            UPDATE products SET name = ${name}, description = ${description}, price = ${parseFloat(price)}, 
+                stock = ${parseInt(stock) || 0}, category = ${category || ''}
+            WHERE id = ${id}
+            RETURNING *
+        `;
+        res.json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/products/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM products WHERE id = ${req.params.id}`;
+        res.json({ message: 'Produto removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- EVENTOS -----
+app.post('/api/events', auth, upload.single('image'), async (req, res) => {
+    try {
+        const { title, description, date, price } = req.body;
+        let image_base64 = null;
+
+        if (req.file) {
+            image_base64 = req.file.buffer.toString('base64');
+        }
+
+        const result = await sql`
+            INSERT INTO events (title, description, date, image_base64, price)
+            VALUES (${title}, ${description}, ${date || new Date()}, ${image_base64}, ${parseFloat(price) || 0})
+            RETURNING *
+        `;
+        console.log('✅ Evento criado:', result[0]);
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar evento:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/events', async (req, res) => {
+    try {
+        const events = await sql`SELECT * FROM events ORDER BY date DESC`;
+        res.json(events);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/events/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, description, date, price } = req.body;
+        const result = await sql`
+            UPDATE events SET title = ${title}, description = ${description}, 
+                date = ${date}, price = ${parseFloat(price) || 0}
+            WHERE id = ${id}
+            RETURNING *
+        `;
+        res.json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/events/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM events WHERE id = ${req.params.id}`;
+        res.json({ message: 'Evento removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- ORAÇÕES -----
+app.post('/api/prayers', async (req, res) => {
+    try {
+        const { name, request } = req.body;
+        const result = await sql`
+            INSERT INTO prayers (name, request)
+            VALUES (${name || 'Anônimo'}, ${request})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/prayers', auth, async (req, res) => {
+    try {
+        const prayers = await sql`SELECT * FROM prayers ORDER BY created_at DESC`;
+        res.json(prayers);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/prayers/:id/read', auth, async (req, res) => {
+    try {
+        await sql`UPDATE prayers SET is_read = TRUE WHERE id = ${req.params.id}`;
+        res.json({ message: 'Marcado como lido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- PEDIDOS (VENDAS) -----
+app.post('/api/orders', async (req, res) => {
+    try {
+        const { user_name, user_email, user_phone, items, total, payment_id, payment_method } = req.body;
+        const result = await sql`
+            INSERT INTO orders (user_name, user_email, user_phone, items, total, payment_id, payment_method)
+            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(items)}, ${total}, ${payment_id}, ${payment_method})
+            RETURNING *
+        `;
+        console.log('✅ Pedido criado:', result[0]);
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar pedido:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/orders', auth, async (req, res) => {
+    try {
+        const orders = await sql`SELECT * FROM orders ORDER BY created_at DESC`;
+        console.log('📦 Total de vendas:', orders.length);
+        res.json(orders);
+    } catch (error) {
+        console.error('❌ Erro ao buscar vendas:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/orders/:id/status', auth, pastorOnly, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        await sql`UPDATE orders SET status = ${status} WHERE id = ${id}`;
+        res.json({ message: 'Status atualizado' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- ESTATÍSTICAS DE VENDAS -----
+app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
+    try {
+        const totalSales = await sql`
+            SELECT COUNT(*) as count, COALESCE(SUM(total), 0) as total FROM orders
+        `;
+        
+        const salesByDay = await sql`
+            SELECT 
+                DATE(created_at) as date, 
+                COUNT(*) as count, 
+                COALESCE(SUM(total), 0) as total 
+            FROM orders 
+            WHERE created_at >= NOW() - INTERVAL '7 days'
+            GROUP BY DATE(created_at)
+            ORDER BY date DESC
+        `;
+        
+        const topProducts = await sql`
+            SELECT 
+                items::json->0->>'name' as product_name,
+                COUNT(*) as total_sales,
+                COALESCE(SUM(total), 0) as total_revenue
+            FROM orders 
+            WHERE items IS NOT NULL AND items != '' AND items != 'null' AND items != '[]'
+            GROUP BY items::json->0->>'name'
+            ORDER BY total_sales DESC
+            LIMIT 10
+        `;
+        
+        const salesByMethod = await sql`
+            SELECT 
+                COALESCE(payment_method, 'PIX') as payment_method,
+                COUNT(*) as count,
+                COALESCE(SUM(total), 0) as total
+            FROM orders 
+            GROUP BY payment_method
+        `;
+        
+        const recentOrders = await sql`
+            SELECT id, user_name, user_email, items, total, status, payment_method, created_at
+            FROM orders 
+            ORDER BY created_at DESC 
+            LIMIT 10
+        `;
+
+        const result = {
+            total: totalSales[0] || { count: 0, total: 0 },
+            byDay: salesByDay || [],
+            topProducts: topProducts || [],
+            byMethod: salesByMethod || [],
+            recent: recentOrders || []
+        };
+        
+        console.log('📊 Estatísticas completas:', result);
+        res.json(result);
+    } catch (error) {
+        console.error('❌ Erro nas estatísticas:', error);
+        res.status(500).json({ error: error.message, stack: error.stack });
+    }
+});
+
+// ----- INSCRIÇÕES -----
+app.post('/api/registrations', async (req, res) => {
+    try {
+        const { type, name, email, phone, department_name, event_name, details, amount, is_paid } = req.body;
+        const result = await sql`
+            INSERT INTO registrations (type, name, email, phone, department_name, event_name, details, amount, is_paid)
+            VALUES (${type}, ${name}, ${email}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${details || ''}, ${parseFloat(amount) || 0}, ${is_paid || false})
+            RETURNING *
+        `;
+        console.log('✅ Inscrição criada:', result[0]);
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro inscrição:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/registrations', auth, async (req, res) => {
+    try {
+        const registrations = await sql`SELECT * FROM registrations ORDER BY created_at DESC`;
+        res.json(registrations);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- DOAÇÕES -----
+app.post('/api/donations', async (req, res) => {
+    try {
+        const { user_name, user_email, user_phone, type, amount, payment_id, payment_method } = req.body;
+        const result = await sql`
+            INSERT INTO donations (user_name, user_email, user_phone, type, amount, payment_id, payment_method)
+            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${type}, ${amount}, ${payment_id}, ${payment_method})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/donations', auth, async (req, res) => {
+    try {
+        const donations = await sql`SELECT * FROM donations ORDER BY created_at DESC`;
+        res.json(donations);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- ESCALAS -----
+app.post('/api/worship-scales', auth, async (req, res) => {
+    try {
+        const { department_id, event_date, leader_id, songs, palette, rehearsal } = req.body;
+        
+        const user = await sql`SELECT * FROM users WHERE id = ${req.user.id} AND is_leader = true`;
+        if (user.length === 0 && req.user.role !== 'pastor') {
+            return res.status(403).json({ error: 'Apenas líderes podem criar escalas' });
+        }
+        
+        const result = await sql`
+            INSERT INTO worship_scales (department_id, event_date, leader_id, songs, palette, rehearsal)
+            VALUES (${department_id}, ${event_date}, ${leader_id}, ${songs}, ${palette}, ${rehearsal || false})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar escala:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/worship-scales', auth, async (req, res) => {
+    try {
+        const scales = await sql`
+            SELECT ws.*, d.name as department_name, u.name as leader_name
+            FROM worship_scales ws
+            LEFT JOIN departments d ON ws.department_id = d.id
+            LEFT JOIN users u ON ws.leader_id = u.id
+            ORDER BY ws.event_date DESC
+        `;
+        res.json(scales);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/worship-scales/:id', auth, async (req, res) => {
+    try {
+        await sql`DELETE FROM worship_scales WHERE id = ${req.params.id}`;
+        res.json({ message: 'Escala removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- CARROSSEL (BASE64) -----
+app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, res) => {
+    try {
+        const { title, subtitle, link } = req.body;
+        
+        if (!req.file) {
+            return res.status(400).json({ error: 'Imagem é obrigatória' });
+        }
+
+        const image_base64 = req.file.buffer.toString('base64');
+
+        const result = await sql`
+            INSERT INTO carousel_images (title, subtitle, image_base64, link, order_position)
+            VALUES (${title || ''}, ${subtitle || ''}, ${image_base64}, ${link || ''}, 
+                (SELECT COALESCE(MAX(order_position), 0) + 1 FROM carousel_images))
+            RETURNING *
+        `;
+        console.log('✅ Carrossel criado:', result[0]);
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar carrossel:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/carousel', async (req, res) => {
+    try {
+        const images = await sql`
+            SELECT * FROM carousel_images WHERE active = true ORDER BY order_position, created_at
+        `;
+        console.log('🖼️ Carrossel imagens:', images.length);
+        res.json(images);
+    } catch (error) {
+        console.error('❌ Erro carrossel:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/carousel/:id', auth, pastorOnly, upload.single('image'), async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, subtitle, link, active } = req.body;
+        
+        const current = await sql`SELECT * FROM carousel_images WHERE id = ${id}`;
+        if (current.length === 0) {
+            return res.status(404).json({ error: 'Imagem não encontrada' });
+        }
+        
+        let image_base64 = current[0].image_base64;
+        if (req.file) {
+            image_base64 = req.file.buffer.toString('base64');
+        }
+
+        const result = await sql`
+            UPDATE carousel_images 
+            SET title = ${title || current[0].title},
+                subtitle = ${subtitle || current[0].subtitle},
+                link = ${link || current[0].link},
+                image_base64 = ${image_base64},
+                active = ${active !== undefined ? active : current[0].active}
+            WHERE id = ${id}
+            RETURNING *
+        `;
+        res.json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao atualizar carrossel:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/carousel/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM carousel_images WHERE id = ${req.params.id}`;
+        res.json({ message: 'Imagem removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- CONFIGURAÇÕES -----
+app.get('/api/settings', async (req, res) => {
+    try {
+        const settings = await sql`SELECT * FROM site_settings`;
+        const obj = {};
+        settings.forEach(s => obj[s.key] = s.value);
+        res.json(obj);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/settings', auth, pastorOnly, async (req, res) => {
+    try {
+        const { key, value } = req.body;
+        await sql`
+            INSERT INTO site_settings (key, value) VALUES (${key}, ${value})
+            ON CONFLICT (key) DO UPDATE SET value = ${value}
+        `;
+        res.json({ message: 'Configuração atualizada' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== MERCADO PAGO =====
+// ============================================
+
+app.post('/api/create-pix-payment', async (req, res) => {
+    try {
+        const { amount, description, email, name, phone, cpf } = req.body;
+
+        if (!process.env.MP_ACCESS_TOKEN || !PaymentService) {
+            return res.status(500).json({ error: 'Mercado Pago não configurado' });
+        }
+
+        const valor = parseFloat(amount);
+        if (isNaN(valor) || valor <= 0) {
+            return res.status(400).json({ error: 'Valor inválido' });
+        }
+
+        const externalReference = `NJ-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+
+        const paymentData = {
+            body: {
+                transaction_amount: valor,
+                description: description || 'Pagamento NJ Cabuçu',
+                payment_method_id: 'pix',
+                payer: {
+                    email: email || 'cliente@email.com',
+                    first_name: name || 'Cliente',
+                    phone: { number: phone || '' },
+                    identification: { type: 'CPF', number: cpf || '12345678909' }
+                },
+                external_reference: externalReference
+            }
+        };
+
+        console.log('📝 Criando pagamento PIX...');
+        const payment = await PaymentService.create(paymentData);
+        console.log('✅ Pagamento criado:', payment.id);
+
+        const paymentLink = payment.point_of_interaction?.transaction_data?.ticket_url || 
+                           `https://www.mercadopago.com.br/payments/${payment.id}`;
+
+        res.json({
+            payment_id: payment.id,
+            status: payment.status,
+            payment_link: paymentLink,
+            external_reference: externalReference,
+            qr_code: payment.point_of_interaction?.transaction_data?.qr_code || '',
+            qr_code_base64: payment.point_of_interaction?.transaction_data?.qr_code_base64 || ''
+        });
+    } catch (error) {
+        console.error('❌ Erro MP:', error);
+        res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
+    }
+});
+
+app.post('/api/create-card-payment', async (req, res) => {
+    try {
+        const { amount, description, email, name, phone, cpf, card_number, card_expiry, card_cvv, installments } = req.body;
+
+        if (!process.env.MP_ACCESS_TOKEN || !PaymentService) {
+            return res.status(500).json({ error: 'Mercado Pago não configurado' });
+        }
+
+        const valor = parseFloat(amount);
+        if (isNaN(valor) || valor <= 0) {
+            return res.status(400).json({ error: 'Valor inválido' });
+        }
+
+        const testToken = 'test_token';
+
+        const paymentData = {
+            body: {
+                transaction_amount: valor,
+                description: description || 'Pagamento NJ Cabuçu',
+                payment_method_id: 'credit_card',
+                installments: parseInt(installments) || 1,
+                token: testToken,
+                payer: {
+                    email: email || 'cliente@email.com',
+                    first_name: name || 'Cliente',
+                    phone: { number: phone || '' },
+                    identification: { type: 'CPF', number: cpf || '12345678909' }
+                },
+                external_reference: `NJ-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`
+            }
+        };
+
+        console.log('📝 Criando pagamento com cartão...');
+        const payment = await PaymentService.create(paymentData);
+        console.log('✅ Pagamento criado:', payment.id);
+
+        res.json({
+            payment_id: payment.id,
+            status: payment.status,
+            status_detail: payment.status_detail,
+            external_reference: payment.external_reference
+        });
+    } catch (error) {
+        console.error('❌ Erro MP:', error);
+        res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
+    }
+});
+
+// ============================================
+// ===== WEBHOOK =====
+// ============================================
+
+app.post('/api/webhook', async (req, res) => {
+    try {
+        console.log('📝 Webhook recebido:', req.body);
+        
+        const { data, type } = req.body;
+        
+        if (type === 'payment' && data && data.id) {
+            const paymentId = data.id;
+            console.log(`✅ Pagamento ${paymentId} confirmado!`);
+            
+            if (PaymentService) {
+                try {
+                    const payment = await PaymentService.get({ id: paymentId });
+                    console.log('📊 Status do pagamento:', payment.status);
+                    
+                    if (payment.status === 'approved') {
+                        await sql`
+                            UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}
+                        `;
+                        await sql`
+                            UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}
+                        `;
+                        console.log('✅ Pagamento aprovado e registrado!');
+                    }
+                } catch (error) {
+                    console.error('❌ Erro ao buscar pagamento:', error);
+                }
+            }
+        }
+        
+        res.json({ received: true });
+    } catch (error) {
+        console.error('❌ Erro webhook:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== PDF DE CONFIRMAÇÃO =====
+// ============================================
+
+app.get('/api/registration-pdf/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const registrations = await sql`SELECT * FROM registrations WHERE id = ${id}`;
+        
+        if (registrations.length === 0) {
+            return res.status(404).json({ error: 'Inscrição não encontrada' });
+        }
+        
+        const reg = registrations[0];
+        
+        const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Comprovante de Inscrição</title>
+            <style>
+                body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 2rem; }
+                .header { text-align: center; border-bottom: 3px solid #0D47A1; padding-bottom: 1rem; margin-bottom: 1.5rem; }
+                .header h1 { color: #0D47A1; margin: 0; }
+                .header p { color: #666; margin: 0; }
+                .info { margin: 1rem 0; }
+                .info-item { display: flex; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
+                .info-item .label { font-weight: bold; width: 120px; }
+                .info-item .value { flex: 1; }
+                .status { display: inline-block; padding: 0.3rem 1rem; border-radius: 20px; font-weight: bold; }
+                .status.pending { background: #fff3cd; color: #856404; }
+                .status.confirmed { background: #d4edda; color: #155724; }
+                .footer { text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; color: #888; font-size: 0.9rem; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>🙏 NJ Cabuçu</h1>
+                <p>Comprovante de Inscrição</p>
+            </div>
+            
+            <div class="info">
+                <div class="info-item">
+                    <span class="label">Protocolo:</span>
+                    <span class="value">#${String(reg.id).padStart(6, '0')}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Data:</span>
+                    <span class="value">${new Date(reg.created_at).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Tipo:</span>
+                    <span class="value">${reg.type === 'baptism' ? 'Batismo' : reg.type === 'volunteer' ? 'Voluntário' : reg.type === 'event' ? 'Evento' : 'Departamento'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Nome:</span>
+                    <span class="value">${reg.name}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">E-mail:</span>
+                    <span class="value">${reg.email || '-'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Telefone:</span>
+                    <span class="value">${reg.phone || '-'}</span>
+                </div>
+                ${reg.event_name ? `<div class="info-item"><span class="label">Evento:</span><span class="value">${reg.event_name}</span></div>` : ''}
+                ${reg.department_name ? `<div class="info-item"><span class="label">Departamento:</span><span class="value">${reg.department_name}</span></div>` : ''}
+                ${reg.details ? `<div class="info-item"><span class="label">Detalhes:</span><span class="value">${reg.details}</span></div>` : ''}
+                <div class="info-item">
+                    <span class="label">Status:</span>
+                    <span class="value"><span class="status ${reg.status === 'approved' ? 'confirmed' : 'pending'}">${reg.status === 'approved' ? '✅ Confirmado' : '⏳ Pendente'}</span></span>
+                </div>
+                ${reg.amount > 0 ? `<div class="info-item"><span class="label">Valor:</span><span class="value">R$ ${parseFloat(reg.amount).toFixed(2)}</span></div>` : ''}
+                ${reg.is_paid ? `<div class="info-item"><span class="label">Pagamento:</span><span class="value">✅ Pago</span></div>` : ''}
+            </div>
+            
+            <div class="footer">
+                <p>NJ Cabuçu - "E conhecereis a verdade, e a verdade vos libertará." João 8:32</p>
+                <p>© ${new Date().getFullYear()} NJ Cabuçu - Todos os direitos reservados</p>
+            </div>
+        </body>
+        </html>
+        `;
+        
+        res.setHeader('Content-Type', 'text/html');
+        res.send(html);
+    } catch (error) {
+        console.error('❌ Erro ao gerar PDF:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== SERVE HTML =====
+// ============================================
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+app.get('/departamento', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'departamento.html'));
+});
+
+// ============================================
+// ===== INICIAR =====
+// ============================================
+
+app.listen(PORT, () => {
+    console.log('');
+    console.log('🔥 NJ Cabuçu rodando na porta ' + PORT);
+    console.log('🌐 ' + BASE_URL);
+    console.log('');
+    console.log('📋 Credenciais:');
+    console.log('   Email: pastor@njcabucu.com');
+    console.log('   Senha: admin123');
+    console.log('');
+    console.log('💰 Mercado Pago: ' + (process.env.MP_ACCESS_TOKEN ? '✅ Configurado' : '⚠️ Não configurado'));
+    console.log('');
+    console.log('📸 Imagens salvas como Base64 no banco de dados!');
+    console.log('');
+});

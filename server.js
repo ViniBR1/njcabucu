@@ -48,7 +48,7 @@ app.use(express.json());
 app.use(express.static('public'));
 app.use('/uploads', express.static('public/uploads'));
 
-// ===== MULTER CONFIGURADO =====
+// ===== MULTER =====
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         let dir = './public/uploads/';
@@ -57,7 +57,6 @@ const storage = multer.diskStorage({
         else if (req.path.includes('events')) dir = './public/uploads/eventos/';
         else if (req.path.includes('carousel')) dir = './public/uploads/carousel/';
         
-        // Criar pasta se não existir
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
         }
@@ -351,11 +350,9 @@ app.post('/api/users', auth, pastorOnly, async (req, res) => {
 
         const hash = await hashPassword(password || '123456');
         
-        // Se department_id for fornecido, usar, senão criar novo departamento
         let deptId = department_id || null;
         let deptName = department_name || '';
         
-        // Se não tiver department_id, criar um novo departamento
         if (!deptId && deptName) {
             const newDept = await sql`
                 INSERT INTO departments (name, description)
@@ -371,14 +368,12 @@ app.post('/api/users', auth, pastorOnly, async (req, res) => {
             RETURNING id, name, email, role, department_id, department_name, is_leader
         `;
         
-        // Se for líder, adicionar como membro com role 'lider'
         if (is_leader && deptId) {
             await sql`
                 INSERT INTO department_members (department_id, user_id, role)
                 VALUES (${deptId}, ${result[0].id}, 'lider')
                 ON CONFLICT (department_id, user_id) DO UPDATE SET role = 'lider'
             `;
-            // Atualizar leader_id no departamento
             await sql`
                 UPDATE departments SET leader_id = ${result[0].id} WHERE id = ${deptId}
             `;
@@ -406,7 +401,6 @@ app.get('/api/users', auth, async (req, res) => {
                 FROM users ORDER BY name
             `;
         } else {
-            // Líder vê apenas usuários do seu departamento
             const deptId = req.user.department_id;
             if (!deptId) {
                 return res.json([]);
@@ -534,7 +528,6 @@ app.post('/api/departments/:id/members', auth, async (req, res) => {
         const { id } = req.params;
         const { user_id, role } = req.body;
         
-        // Verificar se o usuário existe
         const user = await sql`SELECT * FROM users WHERE id = ${user_id}`;
         if (user.length === 0) {
             return res.status(404).json({ error: 'Usuário não encontrado' });
@@ -551,7 +544,6 @@ app.post('/api/departments/:id/members', auth, async (req, res) => {
             WHERE id = ${user_id}
         `;
         
-        // Se for líder, atualizar leader_id do departamento
         if (role === 'lider') {
             await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${id}`;
         }
@@ -575,7 +567,6 @@ app.delete('/api/departments/:department_id/members/:user_id', auth, async (req,
             UPDATE users SET department_id = NULL, is_leader = false WHERE id = ${user_id}
         `;
         
-        // Se era líder, remover leader_id do departamento
         await sql`UPDATE departments SET leader_id = NULL WHERE id = ${department_id} AND leader_id = ${user_id}`;
         
         res.json({ message: 'Membro removido com sucesso' });
@@ -584,12 +575,9 @@ app.delete('/api/departments/:department_id/members/:user_id', auth, async (req,
     }
 });
 
-// ----- ESTUDOS (COM UPLOAD) -----
+// ----- ESTUDOS -----
 app.post('/api/studies', auth, upload.single('image'), async (req, res) => {
     try {
-        console.log('📝 Criando estudo...', req.body);
-        console.log('📸 Arquivo:', req.file);
-        
         const { title, description, file_url } = req.body;
         const image_url = req.file ? '/uploads/estudos/' + req.file.filename : null;
         
@@ -598,7 +586,6 @@ app.post('/api/studies', auth, upload.single('image'), async (req, res) => {
             VALUES (${title}, ${description}, ${file_url}, ${image_url})
             RETURNING *
         `;
-        console.log('✅ Estudo criado:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar estudo:', error);
@@ -624,12 +611,9 @@ app.delete('/api/studies/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- PRODUTOS (COM UPLOAD) -----
+// ----- PRODUTOS -----
 app.post('/api/products', auth, upload.single('image'), async (req, res) => {
     try {
-        console.log('📝 Criando produto...', req.body);
-        console.log('📸 Arquivo:', req.file);
-        
         const { name, description, price, stock, category } = req.body;
         const image_url = req.file ? '/uploads/produtos/' + req.file.filename : null;
         
@@ -638,7 +622,6 @@ app.post('/api/products', auth, upload.single('image'), async (req, res) => {
             VALUES (${name}, ${description}, ${parseFloat(price)}, ${image_url}, ${parseInt(stock) || 0}, ${category || ''})
             RETURNING *
         `;
-        console.log('✅ Produto criado:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar produto:', error);
@@ -680,12 +663,9 @@ app.delete('/api/products/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- EVENTOS (COM UPLOAD) -----
+// ----- EVENTOS -----
 app.post('/api/events', auth, upload.single('image'), async (req, res) => {
     try {
-        console.log('📝 Criando evento...', req.body);
-        console.log('📸 Arquivo:', req.file);
-        
         const { title, description, date, price } = req.body;
         const image_url = req.file ? '/uploads/eventos/' + req.file.filename : null;
         
@@ -694,7 +674,6 @@ app.post('/api/events', auth, upload.single('image'), async (req, res) => {
             VALUES (${title}, ${description}, ${date || new Date()}, ${image_url}, ${parseFloat(price) || 0})
             RETURNING *
         `;
-        console.log('✅ Evento criado:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar evento:', error);
@@ -793,6 +772,54 @@ app.get('/api/orders', auth, async (req, res) => {
     }
 });
 
+app.put('/api/orders/:id/status', auth, pastorOnly, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        await sql`UPDATE orders SET status = ${status} WHERE id = ${id}`;
+        res.json({ message: 'Status atualizado' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- ESTATÍSTICAS DE VENDAS -----
+app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
+    try {
+        const totalSales = await sql`SELECT COUNT(*) as count, COALESCE(SUM(total), 0) as total FROM orders`;
+        const salesByDay = await sql`
+            SELECT DATE(created_at) as date, COUNT(*) as count, COALESCE(SUM(total), 0) as total 
+            FROM orders WHERE created_at >= NOW() - INTERVAL '7 days'
+            GROUP BY DATE(created_at) ORDER BY date DESC
+        `;
+        const topProducts = await sql`
+            SELECT items::json->0->>'name' as product_name, COUNT(*) as total_sales,
+            COALESCE(SUM(total), 0) as total_revenue FROM orders 
+            WHERE items IS NOT NULL AND items != '' AND items != 'null' AND items != '[]'
+            GROUP BY items::json->0->>'name' ORDER BY total_sales DESC LIMIT 10
+        `;
+        const salesByMethod = await sql`
+            SELECT COALESCE(payment_method, 'PIX') as payment_method,
+            COUNT(*) as count, COALESCE(SUM(total), 0) as total FROM orders GROUP BY payment_method
+        `;
+        const recentOrders = await sql`
+            SELECT id, user_name, user_email, items, total, status, payment_method, created_at
+            FROM orders ORDER BY created_at DESC LIMIT 10
+        `;
+
+        res.json({
+            total: totalSales[0] || { count: 0, total: 0 },
+            byDay: salesByDay || [],
+            topProducts: topProducts || [],
+            byMethod: salesByMethod || [],
+            recent: recentOrders || []
+        });
+    } catch (error) {
+        console.error('❌ Erro nas estatísticas:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // ----- INSCRIÇÕES -----
 app.post('/api/registrations', async (req, res) => {
     try {
@@ -848,7 +875,6 @@ app.post('/api/worship-scales', auth, async (req, res) => {
     try {
         const { department_id, event_date, leader_id, songs, palette, rehearsal } = req.body;
         
-        // Verificar se o usuário é líder do departamento
         const user = await sql`SELECT * FROM users WHERE id = ${req.user.id} AND is_leader = true`;
         if (user.length === 0 && req.user.role !== 'pastor') {
             return res.status(403).json({ error: 'Apenas líderes podem criar escalas' });
@@ -890,18 +916,12 @@ app.delete('/api/worship-scales/:id', auth, async (req, res) => {
     }
 });
 
-// ----- CARROSSEL (COM UPLOAD) -----
+// ----- CARROSSEL -----
 app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, res) => {
     try {
-        console.log('📝 Criando carrossel...', req.body);
-        console.log('📸 Arquivo:', req.file);
-        
         const { title, subtitle, link } = req.body;
         const image_url = req.file ? '/uploads/carousel/' + req.file.filename : null;
-        
-        if (!image_url) {
-            return res.status(400).json({ error: 'Imagem é obrigatória' });
-        }
+        if (!image_url) return res.status(400).json({ error: 'Imagem obrigatória' });
 
         const result = await sql`
             INSERT INTO carousel_images (title, subtitle, image_url, link, order_position)
@@ -909,7 +929,6 @@ app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, 
                 (SELECT COALESCE(MAX(order_position), 0) + 1 FROM carousel_images))
             RETURNING *
         `;
-        console.log('✅ Carrossel criado:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar carrossel:', error);
@@ -941,7 +960,6 @@ app.put('/api/carousel/:id', auth, pastorOnly, upload.single('image'), async (re
         
         let image_url = current[0].image_url;
         if (req.file) {
-            // Remover imagem antiga
             const oldPath = path.join(__dirname, 'public', current[0].image_url);
             if (fs.existsSync(oldPath)) {
                 try { fs.unlinkSync(oldPath); } catch (e) {}
@@ -970,7 +988,6 @@ app.delete('/api/carousel/:id', auth, pastorOnly, async (req, res) => {
     try {
         const { id } = req.params;
         
-        // Remover arquivo físico
         const current = await sql`SELECT * FROM carousel_images WHERE id = ${id}`;
         if (current.length > 0 && current[0].image_url) {
             const oldPath = path.join(__dirname, 'public', current[0].image_url);
@@ -1049,7 +1066,6 @@ app.post('/api/create-pix-payment', async (req, res) => {
         const payment = await PaymentService.create(paymentData);
         console.log('✅ Pagamento criado:', payment.id);
 
-        // GERAR LINK DE PAGAMENTO E QR CODE
         const paymentLink = payment.point_of_interaction?.transaction_data?.ticket_url || 
                            `https://www.mercadopago.com.br/payments/${payment.id}`;
 
@@ -1084,11 +1100,7 @@ app.post('/api/create-card-payment', async (req, res) => {
             return res.status(400).json({ error: 'Valor inválido' });
         }
 
-        // Extrair mês e ano do cartão
         const [month, year] = card_expiry.split('/');
-
-        // IMPORTANTE: Em produção, use o token gerado pelo SDK do Mercado Pago no frontend
-        // Para este exemplo, estamos usando um token de teste
         const testToken = 'test_token';
 
         const paymentData = {
@@ -1145,11 +1157,9 @@ app.post('/api/webhook', async (req, res) => {
                     console.log('📊 Status do pagamento:', payment.status);
                     
                     if (payment.status === 'approved') {
-                        // Atualizar ordem
                         await sql`
                             UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}
                         `;
-                        // Atualizar doação
                         await sql`
                             UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}
                         `;
@@ -1296,7 +1306,5 @@ app.listen(PORT, () => {
     console.log('   Senha: admin123');
     console.log('');
     console.log('💰 Mercado Pago: ' + (process.env.MP_ACCESS_TOKEN ? '✅ Configurado' : '⚠️ Não configurado'));
-    console.log('');
-    console.log('📂 Pastas de upload: ./public/uploads/*');
     console.log('');
 });

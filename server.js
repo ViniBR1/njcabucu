@@ -1,5 +1,5 @@
 // ============================================
-// ===== NJ CABUÇU - SERVER (BASE64) =====
+// ===== NJ CABUÇU - SERVIDOR COMPLETO =====
 // ============================================
 
 require('dotenv').config();
@@ -105,6 +105,7 @@ async function initDB() {
     console.log('📝 Criando tabelas...');
     
     try {
+        // USERS
         await sql`CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -119,14 +120,18 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // DEPARTMENTS
         await sql`CREATE TABLE IF NOT EXISTS departments (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
             leader_id INTEGER,
             description TEXT,
+            is_active BOOLEAN DEFAULT true,
+            created_by INTEGER,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // DEPARTMENT MEMBERS
         await sql`CREATE TABLE IF NOT EXISTS department_members (
             department_id INTEGER,
             user_id INTEGER,
@@ -135,6 +140,7 @@ async function initDB() {
             PRIMARY KEY (department_id, user_id)
         )`;
 
+        // STUDIES
         await sql`CREATE TABLE IF NOT EXISTS studies (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -145,6 +151,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // PRODUCTS
         await sql`CREATE TABLE IF NOT EXISTS products (
             id SERIAL PRIMARY KEY,
             name VARCHAR(200) NOT NULL,
@@ -157,6 +164,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // EVENTS
         await sql`CREATE TABLE IF NOT EXISTS events (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -168,6 +176,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // PRAYERS
         await sql`CREATE TABLE IF NOT EXISTS prayers (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100),
@@ -176,6 +185,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // ORDERS (VENDAS)
         await sql`CREATE TABLE IF NOT EXISTS orders (
             id SERIAL PRIMARY KEY,
             user_name VARCHAR(100),
@@ -189,6 +199,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // REGISTRATIONS
         await sql`CREATE TABLE IF NOT EXISTS registrations (
             id SERIAL PRIMARY KEY,
             type VARCHAR(50) NOT NULL,
@@ -204,6 +215,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // WORSHIP SCALES
         await sql`CREATE TABLE IF NOT EXISTS worship_scales (
             id SERIAL PRIMARY KEY,
             department_id INTEGER,
@@ -215,6 +227,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // DONATIONS
         await sql`CREATE TABLE IF NOT EXISTS donations (
             id SERIAL PRIMARY KEY,
             user_name VARCHAR(100),
@@ -228,6 +241,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // CAROUSEL
         await sql`CREATE TABLE IF NOT EXISTS carousel_images (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200),
@@ -240,11 +254,72 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // SITE SETTINGS
         await sql`CREATE TABLE IF NOT EXISTS site_settings (
             id SERIAL PRIMARY KEY,
             key VARCHAR(100) UNIQUE NOT NULL,
             value TEXT,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // ===== TABELAS DE MEMBROS E SECRETARIA =====
+        await sql`CREATE TABLE IF NOT EXISTS members (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            email VARCHAR(100),
+            phone VARCHAR(20),
+            birth_date DATE,
+            marital_status VARCHAR(20) DEFAULT 'solteiro',
+            spouse_name VARCHAR(100),
+            children TEXT,
+            baptism_date DATE,
+            baptism_place VARCHAR(100),
+            address TEXT,
+            department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
+            department_name VARCHAR(100),
+            is_active BOOLEAN DEFAULT true,
+            joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            notes TEXT,
+            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS attendance (
+            id SERIAL PRIMARY KEY,
+            member_id INTEGER REFERENCES members(id) ON DELETE CASCADE,
+            event_date DATE NOT NULL,
+            service_type VARCHAR(50) DEFAULT 'domingo',
+            present BOOLEAN DEFAULT false,
+            check_in_time TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(member_id, event_date, service_type)
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS tithes (
+            id SERIAL PRIMARY KEY,
+            member_id INTEGER REFERENCES members(id) ON DELETE SET NULL,
+            member_name VARCHAR(100),
+            type VARCHAR(20) NOT NULL,
+            amount DECIMAL(10,2) NOT NULL,
+            payment_method VARCHAR(20) DEFAULT 'dinheiro',
+            payment_date DATE DEFAULT CURRENT_DATE,
+            description TEXT,
+            received_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS bills (
+            id SERIAL PRIMARY KEY,
+            description VARCHAR(200) NOT NULL,
+            category VARCHAR(50) NOT NULL,
+            amount DECIMAL(10,2) NOT NULL,
+            due_date DATE NOT NULL,
+            paid BOOLEAN DEFAULT false,
+            payment_date DATE,
+            payment_method VARCHAR(20),
+            notes TEXT,
+            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
         console.log('✅ Tabelas criadas');
@@ -327,21 +402,53 @@ app.post('/api/change-password', async (req, res) => {
     }
 });
 
-// ----- USUÁRIOS -----
+// ----- USUÁRIOS E COLABORADORES -----
 app.post('/api/users', auth, pastorOnly, async (req, res) => {
     try {
-        const { name, email, password, role, department_name, phone, is_leader } = req.body;
+        const { name, email, password, role, department_name, phone, is_leader, department_id } = req.body;
         const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
         if (existing.length > 0) return res.status(400).json({ error: 'Usuário já existe' });
 
         const hash = await hashPassword(password || '123456');
+        
+        let deptId = department_id || null;
+        let deptName = department_name || '';
+        
+        if (!deptId && deptName) {
+            const newDept = await sql`
+                INSERT INTO departments (name, description)
+                VALUES (${deptName}, 'Departamento de ${deptName}')
+                RETURNING id
+            `;
+            deptId = newDept[0].id;
+        }
+        
         const result = await sql`
-            INSERT INTO users (name, email, password_hash, role, department_name, phone, first_login, is_leader)
-            VALUES (${name}, ${email}, ${hash}, ${role || 'colaborador'}, ${department_name || ''}, ${phone || ''}, true, ${is_leader || false})
-            RETURNING id, name, email, role, department_name, is_leader
+            INSERT INTO users (name, email, password_hash, role, department_id, department_name, phone, first_login, is_leader)
+            VALUES (${name}, ${email}, ${hash}, ${role || 'colaborador'}, ${deptId}, ${deptName}, ${phone || ''}, true, ${is_leader || false})
+            RETURNING id, name, email, role, department_id, department_name, is_leader
         `;
+        
+        if (is_leader && deptId) {
+            await sql`
+                INSERT INTO department_members (department_id, user_id, role)
+                VALUES (${deptId}, ${result[0].id}, 'lider')
+                ON CONFLICT (department_id, user_id) DO UPDATE SET role = 'lider'
+            `;
+            await sql`
+                UPDATE departments SET leader_id = ${result[0].id} WHERE id = ${deptId}
+            `;
+        } else if (deptId) {
+            await sql`
+                INSERT INTO department_members (department_id, user_id, role)
+                VALUES (${deptId}, ${result[0].id}, 'membro')
+                ON CONFLICT (department_id, user_id) DO NOTHING
+            `;
+        }
+        
         res.status(201).json(result[0]);
     } catch (error) {
+        console.error('❌ Erro ao criar usuário:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -394,8 +501,8 @@ app.post('/api/departments', auth, pastorOnly, async (req, res) => {
     try {
         const { name, description } = req.body;
         const result = await sql`
-            INSERT INTO departments (name, description)
-            VALUES (${name}, ${description || ''})
+            INSERT INTO departments (name, description, created_by)
+            VALUES (${name}, ${description || ''}, ${req.user.id})
             RETURNING *
         `;
         res.status(201).json(result[0]);
@@ -410,6 +517,7 @@ app.get('/api/departments', auth, async (req, res) => {
             SELECT d.*, u.name as leader_name
             FROM departments d
             LEFT JOIN users u ON d.leader_id = u.id
+            WHERE d.is_active = true
             ORDER BY d.name
         `;
         res.json(depts);
@@ -420,7 +528,7 @@ app.get('/api/departments', auth, async (req, res) => {
 
 app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
     try {
-        await sql`DELETE FROM departments WHERE id = ${req.params.id}`;
+        await sql`UPDATE departments SET is_active = false WHERE id = ${req.params.id}`;
         res.json({ message: 'Departamento removido' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -463,6 +571,10 @@ app.post('/api/departments/:id/members', auth, async (req, res) => {
             WHERE id = ${user_id}
         `;
         
+        if (role === 'lider') {
+            await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${id}`;
+        }
+        
         res.json({ message: 'Membro adicionado com sucesso' });
     } catch (error) {
         console.error('❌ Erro ao adicionar membro:', error);
@@ -481,6 +593,8 @@ app.delete('/api/departments/:department_id/members/:user_id', auth, async (req,
         await sql`
             UPDATE users SET department_id = NULL, is_leader = false WHERE id = ${user_id}
         `;
+        
+        await sql`UPDATE departments SET leader_id = NULL WHERE id = ${department_id} AND leader_id = ${user_id}`;
         
         res.json({ message: 'Membro removido com sucesso' });
     } catch (error) {
@@ -715,7 +829,7 @@ app.put('/api/orders/:id/status', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- ESTATÍSTICAS DE VENDAS -----
+// ----- ESTATÍSTICAS DE VENDAS (CORRIGIDO) -----
 app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
     try {
         const totalSales = await sql`
@@ -873,7 +987,7 @@ app.delete('/api/worship-scales/:id', auth, async (req, res) => {
     }
 });
 
-// ----- CARROSSEL (BASE64) -----
+// ----- CARROSSEL -----
 app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, res) => {
     try {
         const { title, subtitle, link } = req.body;
@@ -973,6 +1087,436 @@ app.post('/api/settings', auth, pastorOnly, async (req, res) => {
         `;
         res.json({ message: 'Configuração atualizada' });
     } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== MEMBROS =====
+// ============================================
+
+app.post('/api/members', auth, async (req, res) => {
+    try {
+        const { 
+            name, email, phone, birth_date, marital_status, spouse_name, 
+            children, baptism_date, baptism_place, address, 
+            department_id, department_name, notes 
+        } = req.body;
+
+        if (!name) {
+            return res.status(400).json({ error: 'Nome é obrigatório' });
+        }
+
+        const result = await sql`
+            INSERT INTO members (
+                name, email, phone, birth_date, marital_status, spouse_name,
+                children, baptism_date, baptism_place, address,
+                department_id, department_name, notes, created_by
+            ) VALUES (
+                ${name}, ${email}, ${phone}, ${birth_date}, ${marital_status}, ${spouse_name},
+                ${children}, ${baptism_date}, ${baptism_place}, ${address},
+                ${department_id}, ${department_name}, ${notes}, ${req.user.id}
+            ) RETURNING *
+        `;
+
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/members', auth, async (req, res) => {
+    try {
+        const { department_id, search } = req.query;
+        let query = `SELECT * FROM members WHERE is_active = true`;
+        let params = [];
+
+        if (department_id) {
+            query += ` AND department_id = $${params.length + 1}`;
+            params.push(department_id);
+        }
+
+        if (search) {
+            query += ` AND (name ILIKE $${params.length + 1} OR email ILIKE $${params.length + 1} OR phone ILIKE $${params.length + 1})`;
+            params.push(`%${search}%`);
+        }
+
+        query += ` ORDER BY name`;
+
+        const members = await sql.query(query, params);
+        res.json(members.rows);
+    } catch (error) {
+        console.error('❌ Erro ao listar membros:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/members/:id', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await sql`SELECT * FROM members WHERE id = ${id}`;
+        
+        if (result.length === 0) {
+            return res.status(404).json({ error: 'Membro não encontrado' });
+        }
+
+        const attendance = await sql`
+            SELECT * FROM attendance 
+            WHERE member_id = ${id} 
+            ORDER BY event_date DESC 
+            LIMIT 10
+        `;
+
+        res.json({
+            ...result[0],
+            attendance: attendance.rows
+        });
+    } catch (error) {
+        console.error('❌ Erro ao buscar membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/members/:id', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { 
+            name, email, phone, birth_date, marital_status, spouse_name,
+            children, baptism_date, baptism_place, address,
+            department_id, department_name, notes, is_active
+        } = req.body;
+
+        const result = await sql`
+            UPDATE members SET 
+                name = COALESCE(${name}, name),
+                email = COALESCE(${email}, email),
+                phone = COALESCE(${phone}, phone),
+                birth_date = COALESCE(${birth_date}, birth_date),
+                marital_status = COALESCE(${marital_status}, marital_status),
+                spouse_name = COALESCE(${spouse_name}, spouse_name),
+                children = COALESCE(${children}, children),
+                baptism_date = COALESCE(${baptism_date}, baptism_date),
+                baptism_place = COALESCE(${baptism_place}, baptism_place),
+                address = COALESCE(${address}, address),
+                department_id = COALESCE(${department_id}, department_id),
+                department_name = COALESCE(${department_name}, department_name),
+                notes = COALESCE(${notes}, notes),
+                is_active = COALESCE(${is_active}, is_active)
+            WHERE id = ${id}
+            RETURNING *
+        `;
+
+        if (result.length === 0) {
+            return res.status(404).json({ error: 'Membro não encontrado' });
+        }
+
+        res.json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao atualizar membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/members/:id', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        await sql`UPDATE members SET is_active = false WHERE id = ${id}`;
+        res.json({ message: 'Membro removido com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao remover membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== FREQUÊNCIA =====
+// ============================================
+
+app.post('/api/attendance', auth, async (req, res) => {
+    try {
+        const { member_id, event_date, service_type, present } = req.body;
+
+        if (!member_id || !event_date) {
+            return res.status(400).json({ error: 'Membro e data são obrigatórios' });
+        }
+
+        const result = await sql`
+            INSERT INTO attendance (member_id, event_date, service_type, present, check_in_time)
+            VALUES (${member_id}, ${event_date}, ${service_type || 'domingo'}, ${present || false}, ${present ? new Date() : null})
+            ON CONFLICT (member_id, event_date, service_type) 
+            DO UPDATE SET present = ${present || false}, check_in_time = ${present ? new Date() : null}
+            RETURNING *
+        `;
+
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao registrar frequência:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/attendance/:member_id', auth, async (req, res) => {
+    try {
+        const { member_id } = req.params;
+        const { limit = 10 } = req.query;
+
+        const result = await sql`
+            SELECT * FROM attendance 
+            WHERE member_id = ${member_id} 
+            ORDER BY event_date DESC 
+            LIMIT ${limit}
+        `;
+
+        res.json(result.rows);
+    } catch (error) {
+        console.error('❌ Erro ao buscar frequência:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/attendance/stats/:member_id', auth, async (req, res) => {
+    try {
+        const { member_id } = req.params;
+
+        const result = await sql`
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN present = true THEN 1 ELSE 0 END) as present,
+                SUM(CASE WHEN present = false THEN 1 ELSE 0 END) as absent,
+                ROUND((SUM(CASE WHEN present = true THEN 1 ELSE 0 END)::DECIMAL / COUNT(*) * 100), 2) as percentage
+            FROM attendance 
+            WHERE member_id = ${member_id}
+        `;
+
+        res.json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao buscar estatísticas:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== DÍZIMOS E OFERTAS =====
+// ============================================
+
+app.post('/api/tithes', auth, async (req, res) => {
+    try {
+        const { member_id, member_name, type, amount, payment_method, payment_date, description } = req.body;
+
+        if (!type || !amount) {
+            return res.status(400).json({ error: 'Tipo e valor são obrigatórios' });
+        }
+
+        const result = await sql`
+            INSERT INTO tithes (member_id, member_name, type, amount, payment_method, payment_date, description, received_by)
+            VALUES (${member_id || null}, ${member_name || ''}, ${type}, ${amount}, ${payment_method || 'dinheiro'}, ${payment_date || new Date()}, ${description || ''}, ${req.user.id})
+            RETURNING *
+        `;
+
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao registrar dízimo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/tithes', auth, async (req, res) => {
+    try {
+        const { type, start_date, end_date, member_id } = req.query;
+        let query = `SELECT * FROM tithes WHERE 1=1`;
+        let params = [];
+
+        if (type) {
+            query += ` AND type = $${params.length + 1}`;
+            params.push(type);
+        }
+
+        if (member_id) {
+            query += ` AND member_id = $${params.length + 1}`;
+            params.push(member_id);
+        }
+
+        if (start_date) {
+            query += ` AND payment_date >= $${params.length + 1}`;
+            params.push(start_date);
+        }
+
+        if (end_date) {
+            query += ` AND payment_date <= $${params.length + 1}`;
+            params.push(end_date);
+        }
+
+        query += ` ORDER BY payment_date DESC`;
+
+        const result = await sql.query(query, params);
+        res.json(result.rows);
+    } catch (error) {
+        console.error('❌ Erro ao listar dízimos:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/tithes/summary', auth, async (req, res) => {
+    try {
+        const { start_date, end_date } = req.query;
+        let dateFilter = '';
+        let params = [];
+
+        if (start_date && end_date) {
+            dateFilter = `WHERE payment_date >= $1 AND payment_date <= $2`;
+            params = [start_date, end_date];
+        }
+
+        const result = await sql.query(`
+            SELECT 
+                type,
+                COUNT(*) as count,
+                SUM(amount) as total
+            FROM tithes
+            ${dateFilter}
+            GROUP BY type
+            ORDER BY type
+        `, params);
+
+        const total = result.rows.reduce((sum, r) => sum + parseFloat(r.total), 0);
+
+        res.json({
+            by_type: result.rows,
+            total: total
+        });
+    } catch (error) {
+        console.error('❌ Erro ao buscar resumo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== CONTAS A PAGAR =====
+// ============================================
+
+app.post('/api/bills', auth, async (req, res) => {
+    try {
+        const { description, category, amount, due_date, notes } = req.body;
+
+        if (!description || !category || !amount || !due_date) {
+            return res.status(400).json({ error: 'Preencha todos os campos obrigatórios' });
+        }
+
+        const result = await sql`
+            INSERT INTO bills (description, category, amount, due_date, notes, created_by)
+            VALUES (${description}, ${category}, ${amount}, ${due_date}, ${notes || ''}, ${req.user.id})
+            RETURNING *
+        `;
+
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar conta:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/bills', auth, async (req, res) => {
+    try {
+        const { paid, category, start_date, end_date } = req.query;
+        let query = `SELECT * FROM bills WHERE 1=1`;
+        let params = [];
+
+        if (paid !== undefined) {
+            query += ` AND paid = $${params.length + 1}`;
+            params.push(paid === 'true');
+        }
+
+        if (category) {
+            query += ` AND category = $${params.length + 1}`;
+            params.push(category);
+        }
+
+        if (start_date) {
+            query += ` AND due_date >= $${params.length + 1}`;
+            params.push(start_date);
+        }
+
+        if (end_date) {
+            query += ` AND due_date <= $${params.length + 1}`;
+            params.push(end_date);
+        }
+
+        query += ` ORDER BY due_date ASC, paid ASC`;
+
+        const result = await sql.query(query, params);
+        res.json(result.rows);
+    } catch (error) {
+        console.error('❌ Erro ao listar contas:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/bills/:id/pay', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { payment_date, payment_method } = req.body;
+
+        const result = await sql`
+            UPDATE bills SET 
+                paid = true,
+                payment_date = ${payment_date || new Date()},
+                payment_method = ${payment_method || 'dinheiro'}
+            WHERE id = ${id}
+            RETURNING *
+        `;
+
+        if (result.length === 0) {
+            return res.status(404).json({ error: 'Conta não encontrada' });
+        }
+
+        res.json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao pagar conta:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/bills/:id', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        await sql`DELETE FROM bills WHERE id = ${id}`;
+        res.json({ message: 'Conta removida com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao remover conta:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/bills/summary', auth, async (req, res) => {
+    try {
+        const result = await sql`
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN paid = false THEN amount ELSE 0 END) as pending,
+                SUM(CASE WHEN paid = true THEN amount ELSE 0 END) as paid_total,
+                COUNT(CASE WHEN paid = false THEN 1 ELSE 0 END) as pending_count,
+                COUNT(CASE WHEN paid = true THEN 1 ELSE 0 END) as paid_count
+            FROM bills
+        `;
+
+        const categories = await sql`
+            SELECT 
+                category,
+                COUNT(*) as count,
+                SUM(CASE WHEN paid = false THEN amount ELSE 0 END) as pending,
+                SUM(CASE WHEN paid = true THEN amount ELSE 0 END) as paid_total
+            FROM bills
+            GROUP BY category
+            ORDER BY category
+        `;
+
+        res.json({
+            summary: result[0],
+            by_category: categories.rows
+        });
+    } catch (error) {
+        console.error('❌ Erro ao buscar resumo:', error);
         res.status(500).json({ error: error.message });
     }
 });

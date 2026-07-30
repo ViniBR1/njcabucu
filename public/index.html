@@ -227,7 +227,7 @@
         /* ===== IMAGENS DOS CARDS (PROPORÇÃO CORRETA) ===== */
         .card-image-wrapper {
             width: 100%;
-            padding-bottom: 65%; /* Proporção 16:10 */
+            padding-bottom: 65%;
             position: relative;
             overflow: hidden;
             border-radius: 10px;
@@ -796,76 +796,120 @@
 
 <script>
 // ============================================
-// ===== VARIÁVEIS =====
+// ===== BÍBLIA COMPLETA OFFLINE =====
 // ============================================
-let cart = [];
-let carouselImages = [];
-let currentSlide = 0;
-let slideInterval;
-let paymentType = 'sale';
-let donationType = '';
-
-// ============================================
-// ===== BÍBLIA COMPLETA COM FALLBACK OFFLINE =====
-// ============================================
-
-async function searchBible() {
-    const book = document.getElementById('bibleBook').value;
-    const chapter = document.getElementById('bibleChapter').value;
-    const verse = document.getElementById('bibleVerse').value;
-    const resultDiv = document.getElementById('bibleResult');
-    resultDiv.innerHTML = '<p>⏳ Carregando...</p>';
-
-    const bookNames = {
-        'gn': 'Gênesis', 'ex': 'Êxodo', 'lv': 'Levítico', 'nm': 'Números',
-        'dt': 'Deuteronômio', 'js': 'Josué', 'jz': 'Juízes', 'rt': 'Rute',
-        '1sm': '1 Samuel', '2sm': '2 Samuel', '1rs': '1 Reis', '2rs': '2 Reis',
-        '1cr': '1 Crônicas', '2cr': '2 Crônicas', 'ed': 'Esdras', 'ne': 'Neemias',
-        'et': 'Ester', 'jó': 'Jó', 'sl': 'Salmos', 'pv': 'Provérbios',
-        'ec': 'Eclesiastes', 'ct': 'Cânticos', 'is': 'Isaías', 'jr': 'Jeremias',
-        'lm': 'Lamentações', 'ez': 'Ezequiel', 'dn': 'Daniel', 'os': 'Oseias',
-        'jl': 'Joel', 'am': 'Amós', 'ob': 'Obadias', 'jn': 'Jonas',
-        'mq': 'Miqueias', 'na': 'Naum', 'hc': 'Habacuque', 'sf': 'Sofonias',
-        'ag': 'Ageu', 'zc': 'Zacarias', 'ml': 'Malaquias',
-        'mt': 'Mateus', 'mc': 'Marcos', 'lc': 'Lucas', 'jo': 'João',
-        'at': 'Atos', 'rm': 'Romanos', '1co': '1 Coríntios', '2co': '2 Coríntios',
-        'gl': 'Gálatas', 'ef': 'Efésios', 'fp': 'Filipenses', 'cl': 'Colossenses',
-        '1ts': '1 Tessalonicenses', '2ts': '2 Tessalonicenses',
-        '1tm': '1 Timóteo', '2tm': '2 Timóteo', 'tt': 'Tito', 'fm': 'Filemom',
-        'hb': 'Hebreus', 'tg': 'Tiago', '1pe': '1 Pedro', '2pe': '2 Pedro',
-        '1jo': '1 João', '2jo': '2 João', '3jo': '3 João', 'jd': 'Judas',
-        'ap': 'Apocalipse'
-    };
-
-    const offlineBible = {
-        'gn_1': [
+const bibliaOffline = {
+    "gn": {
+        1: [
             "No princípio criou Deus os céus e a terra.",
             "E a terra era sem forma e vazia; e havia trevas sobre a face do abismo; e o Espírito de Deus se movia sobre a face das águas.",
             "E disse Deus: Haja luz; e houve luz.",
             "E viu Deus que era boa a luz; e fez Deus separação entre a luz e as trevas.",
-            "E Deus chamou à luz Dia; e às trevas chamou Noite. E foi a tarde e a manhã, o dia primeiro."
+            "E Deus chamou à luz Dia; e às trevas chamou Noite. E foi a tarde e a manhã, o dia primeiro.",
+            "E disse Deus: Haja firmamento no meio das águas, e haja separação entre águas e águas.",
+            "E fez Deus o firmamento, e separou as águas que estavam debaixo do firmamento das que estavam por cima do firmamento; e assim foi.",
+            "E chamou Deus ao firmamento Céus; e foi a tarde e a manhã, o dia segundo.",
+            "E disse Deus: Ajuntem-se as águas debaixo dos céus num lugar, e apareça a porção seca; e assim foi.",
+            "E chamou Deus à porção seca Terra; e ao ajuntamento das águas chamou Mares; e viu Deus que era bom.",
+            "E disse Deus: Produza a terra erva verde, erva que dê semente, árvore frutífera que dê fruto segundo a sua espécie, cuja semente está nela sobre a terra; e assim foi.",
+            "E a terra produziu erva, erva dando semente segundo a sua espécie, e árvore frutífera, cuja semente está nela segundo a sua espécie; e viu Deus que era bom.",
+            "E foi a tarde e a manhã, o dia terceiro.",
+            "E disse Deus: Haja luminares no firmamento dos céus, para fazerem separação entre o dia e a noite; e sejam eles para sinais e para tempos determinados e para dias e anos.",
+            "E sejam para luminares no firmamento dos céus, para iluminar a terra; e assim foi.",
+            "E fez Deus os dois grandes luminares: o luminar maior para governar o dia, e o luminar menor para governar a noite; e fez as estrelas.",
+            "E os pôs Deus no firmamento dos céus para iluminar a terra,",
+            "E para governar o dia e a noite, e para fazer separação entre a luz e as trevas; e viu Deus que era bom.",
+            "E foi a tarde e a manhã, o dia quarto.",
+            "E disse Deus: Produzam as águas abundantemente répteis de alma vivente; e voem as aves sobre a face do firmamento dos céus.",
+            "E Deus criou as grandes baleias, e todo o réptil de alma vivente que as águas abundantemente produziram conforme as suas espécies; e toda a ave de asas conforme a sua espécie; e viu Deus que era bom.",
+            "E Deus os abençoou, dizendo: Frutificai e multiplicai-vos, e enchei as águas nos mares; e as aves se multipliquem na terra.",
+            "E foi a tarde e a manhã, o dia quinto.",
+            "E disse Deus: Produza a terra alma vivente conforme a sua espécie; gado, e répteis, e feras da terra conforme a sua espécie; e assim foi.",
+            "E fez Deus as feras da terra conforme a sua espécie, e o gado conforme a sua espécie, e todo o réptil da terra conforme a sua espécie; e viu Deus que era bom.",
+            "E disse Deus: Façamos o homem à nossa imagem, conforme a nossa semelhança; e domine sobre os peixes do mar, e sobre as aves dos céus, e sobre o gado, e sobre toda a terra, e sobre todo o réptil que se move sobre a terra.",
+            "E criou Deus o homem à sua imagem; à imagem de Deus o criou; macho e fêmea os criou.",
+            "E Deus os abençoou, e Deus lhes disse: Frutificai e multiplicai-vos, e enchei a terra, e sujeitai-a; e dominai sobre os peixes do mar, e sobre as aves dos céus, e sobre todo o animal que se move sobre a terra.",
+            "E disse Deus: Eis que vos tenho dado toda a erva que dá semente, que está sobre a face de toda a terra; e toda a árvore, em que há fruto que dá semente, servir-vos-á para mantimento.",
+            "E a todo o animal da terra, e a toda a ave dos céus, e a todo o réptil da terra, em que há alma vivente, toda a erva verde será para mantimento; e assim foi.",
+            "E viu Deus tudo quanto tinha feito, e eis que era muito bom; e foi a tarde e a manhã, o dia sexto."
         ],
-        'jo_3': [
-            "Havia um homem dos fariseus, chamado Nicodemos, príncipe dos judeus.",
-            "Este foi de noite ter com Jesus, e disse-lhe: Rabi, bem sabemos que és Mestre, vindo de Deus; porque ninguém pode fazer estes sinais que tu fazes, se Deus não for com ele.",
-            "Jesus respondeu, e disse-lhe: Na verdade, na verdade te digo que aquele que não nascer de novo, não pode ver o reino de Deus.",
-            "Disse-lhe Nicodemos: Como pode um homem nascer, sendo velho? Pode, porventura, tornar a entrar no ventre de sua mãe, e nascer?",
-            "Jesus respondeu: Na verdade, na verdade te digo que aquele que não nascer da água e do Espírito, não pode entrar no reino de Deus.",
-            "O que é nascido da carne é carne, e o que é nascido do Espírito é espírito.",
-            "Não te maravilhes de te ter dito: Necessário vos é nascer de novo.",
-            "O vento assopra onde quer, e ouves a sua voz, mas não sabes de onde vem, nem para onde vai; assim é todo aquele que é nascido do Espírito.",
-            "Nicodemos respondeu, e disse-lhe: Como pode ser isto?",
-            "Jesus respondeu, e disse-lhe: Tu és mestre de Israel, e não sabes isto?",
-            "Na verdade, na verdade te digo que nós dizemos o que sabemos, e testificamos o que vimos; e não aceitais o nosso testemunho.",
-            "Se vos disse coisas terrestres, e não credes, como crereis, se vos disser as celestiais?",
-            "Ora, ninguém subiu ao céu, senão o que desceu do céu, o Filho do homem, que está no céu.",
-            "E como Moisés levantou a serpente no deserto, assim importa que o Filho do homem seja levantado;",
-            "Para que todo aquele que nele crê não pereça, mas tenha a vida eterna.",
-            "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.",
-            "Porque Deus enviou o seu Filho ao mundo, não para que condenasse o mundo, mas para que o mundo fosse salvo por ele.",
-            "Quem crê nele não é condenado; mas quem não crê já está condenado, porquanto não crê no nome do unigênito Filho de Deus."
+        2: [
+            "Assim os céus e a terra foram acabados, e todo o seu exército.",
+            "E havendo Deus acabado no dia sétimo a obra que fizera, descansou no sétimo dia de toda a sua obra, que tinha feito.",
+            "E abençoou Deus o dia sétimo, e o santificou; porque nele descansou de toda a sua obra que Deus criara e fizera.",
+            "Estas são as origens dos céus e da terra, quando foram criados; no dia em que o SENHOR Deus fez a terra e os céus,",
+            "E toda a planta do campo que ainda não estava na terra, e toda a erva do campo que ainda não brotava; porque o SENHOR Deus não tinha feito chover sobre a terra, e não havia homem para lavrar a terra.",
+            "Um vapor, porém, subia da terra, e regava toda a face da terra.",
+            "E formou o SENHOR Deus o homem do pó da terra, e soprou em suas narinas o fôlego da vida; e o homem foi feito alma vivente.",
+            "E plantou o SENHOR Deus um jardim no Éden, do lado oriental; e pôs ali o homem que tinha formado.",
+            "E o SENHOR Deus fez brotar da terra toda a árvore agradável à vista, e boa para comida; e a árvore da vida no meio do jardim, e a árvore do conhecimento do bem e do mal.",
+            "E saía um rio do Éden para regar o jardim; e dali se dividia e se tornava em quatro braços.",
+            "O nome do primeiro é Pisom; este é o que rodeia toda a terra de Havilá, onde há ouro.",
+            "E o ouro dessa terra é bom; ali há o bdélio e a pedra sardônica.",
+            "E o nome do segundo rio é Giom; este é o que rodeia toda a terra de Cuxe.",
+            "E o nome do terceiro rio é Hidequel; este é o que vai para o lado oriental da Assíria; e o quarto rio é o Eufrates.",
+            "E tomou o SENHOR Deus o homem, e o pôs no jardim do Éden para o lavrar e o guardar.",
+            "E ordenou o SENHOR Deus ao homem, dizendo: De toda a árvore do jardim comerás livremente,",
+            "Mas da árvore do conhecimento do bem e do mal, dela não comerás; porque no dia em que dela comeres, certamente morrerás.",
+            "E disse o SENHOR Deus: Não é bom que o homem esteja só; far-lhe-ei uma adjutora que esteja como diante dele.",
+            "Havendo, pois, o SENHOR Deus formado da terra todo o animal do campo, e toda a ave dos céus, os trouxe a Adão, para ver como lhes chamaria; e tudo o que Adão chamou a toda a alma vivente, esse foi o seu nome.",
+            "E Adão pôs os nomes a todo o gado, e às aves dos céus, e a todo o animal do campo; mas para o homem não se achava adjutora que estivesse como diante dele.",
+            "Então o SENHOR Deus fez cair um sono pesado sobre Adão, e este adormeceu; e tomou uma das suas costelas, e fechou a carne em seu lugar.",
+            "E da costela que o SENHOR Deus tomou do homem, formou uma mulher, e trouxe-a a Adão.",
+            "E disse Adão: Esta é agora osso dos meus ossos, e carne da minha carne; ela será chamada mulher, porquanto do homem foi tomada.",
+            "Portanto deixará o homem o seu pai e a sua mãe, e apegar-se-á à sua mulher, e serão ambos uma carne.",
+            "E ambos estavam nus, o homem e a sua mulher; e não se envergonhavam."
         ],
-        'sl_23': [
+        3: [
+            "Ora, a serpente era mais astuta que todas as alimárias do campo que o SENHOR Deus tinha feito. E esta disse à mulher: É assim que Deus disse: Não comereis de toda a árvore do jardim?",
+            "E disse a mulher à serpente: Do fruto das árvores do jardim comeremos,",
+            "Mas do fruto da árvore que está no meio do jardim, disse Deus: Não comereis dele, nem nele tocareis, para que não morrais.",
+            "Então a serpente disse à mulher: Certamente não morrereis.",
+            "Porque Deus sabe que no dia em que dele comerdes se abrirão os vossos olhos, e sereis como Deus, sabendo o bem e o mal.",
+            "E viu a mulher que aquela árvore era boa para se comer, e agradável aos olhos, e árvore desejável para dar entendimento; tomou do seu fruto, e comeu, e deu também a seu marido, e ele comeu com ela.",
+            "Então foram abertos os olhos de ambos, e conheceram que estavam nus; e coseram folhas de figueira, e fizeram para si aventais.",
+            "E ouviram a voz do SENHOR Deus, que andava no jardim na viração do dia; e esconderam-se Adão e sua mulher da presença do SENHOR Deus, entre as árvores do jardim.",
+            "E chamou o SENHOR Deus a Adão, e disse-lhe: Onde estás?",
+            "E ele disse: Ouvi a tua voz no jardim, e temi, porque estava nu, e escondi-me.",
+            "E Deus disse: Quem te mostrou que estavas nu? Comeste tu da árvore de que te ordenei que não comesses?",
+            "Então disse Adão: A mulher que me deste por companheira, ela me deu da árvore, e comi.",
+            "E disse o SENHOR Deus à mulher: Por que fizeste isso? E disse a mulher: A serpente me enganou, e eu comi.",
+            "Então o SENHOR Deus disse à serpente: Porquanto fizeste isso, maldita serás mais que toda a fera, e mais que todo o animal do campo; sobre o teu ventre andarás, e pó comerás todos os dias da tua vida.",
+            "E porei inimizade entre ti e a mulher, e entre a tua semente e a sua semente; esta te ferirá a cabeça, e tu lhe ferirás o calcanhar.",
+            "E à mulher disse: Multiplicarei grandemente a tua dor, e a tua conceição; com dor darás à luz filhos; e o teu desejo será para o teu marido, e ele te dominará.",
+            "E a Adão disse: Porquanto deste ouvidos à voz de tua mulher, e comeste da árvore de que te ordenei, dizendo: Não comerás dela; maldita é a terra por causa de ti; com dor comerás dela todos os dias da tua vida.",
+            "Espinhos e cardos também te produzirá; e comerás a erva do campo.",
+            "No suor do teu rosto comerás o teu pão, até que te tornes à terra; porque dela foste tomado, porquanto és pó, e em pó te tornarás.",
+            "E chamou Adão o nome de sua mulher Eva, porquanto era a mãe de todos os viventes.",
+            "E fez o SENHOR Deus a Adão e a sua mulher túnicas de peles, e os vestiu.",
+            "Então disse o SENHOR Deus: Eis que o homem é como um de nós, sabendo o bem e o mal; ora, para que ele não estenda a sua mão, e tome também da árvore da vida, e coma, e viva para sempre,",
+            "O SENHOR Deus, pois, o enviou para fora do jardim do Éden, para lavrar a terra, de que fora tomado.",
+            "E havendo lançado fora o homem, pôs querubins ao oriente do jardim do Éden, e uma espada inflamada que andava ao redor, para guardar o caminho da árvore da vida."
+        ]
+    },
+    "ex": {
+        20: [
+            "Então falou Deus todas estas palavras, dizendo:",
+            "Eu sou o SENHOR teu Deus, que te tirei da terra do Egito, da casa da servidão.",
+            "Não terás outros deuses diante de mim.",
+            "Não farás para ti imagem de escultura, nem alguma semelhança do que há em cima nos céus, nem em baixo na terra, nem nas águas debaixo da terra.",
+            "Não te encurvarás a elas, nem as servirás; porque eu, o SENHOR teu Deus, sou Deus zeloso, que visito a iniquidade dos pais nos filhos, até à terceira e quarta geração daqueles que me aborrecem.",
+            "E faço misericórdia a milhares dos que me amam e guardam os meus mandamentos.",
+            "Não tomarás o nome do SENHOR teu Deus em vão; porque o SENHOR não terá por inocente o que tomar o seu nome em vão.",
+            "Lembra-te do dia de sábado, para o santificar.",
+            "Seis dias trabalharás, e farás toda a tua obra.",
+            "Mas o sétimo dia é o sábado do SENHOR teu Deus; não farás nenhuma obra, nem tu, nem teu filho, nem tua filha, nem teu servo, nem tua serva, nem teu animal, nem o estrangeiro que está dentro das tuas portas.",
+            "Porque em seis dias fez o SENHOR os céus e a terra, o mar e tudo o que neles há, e ao sétimo dia descansou; portanto abençoou o SENHOR o dia de sábado, e o santificou.",
+            "Honra a teu pai e a tua mãe, para que se prolonguem os teus dias na terra que o SENHOR teu Deus te dá.",
+            "Não matarás.",
+            "Não adulterarás.",
+            "Não furtarás.",
+            "Não dirás falso testemunho contra o teu próximo.",
+            "Não cobiçarás a casa do teu próximo, não cobiçarás a mulher do teu próximo, nem o seu servo, nem a sua serva, nem o seu boi, nem o seu jumento, nem coisa alguma do teu próximo."
+        ]
+    },
+    "sl": {
+        23: [
             "O SENHOR é o meu pastor; nada me faltará.",
             "Deitar-me faz em verdes pastos, guia-me mansamente a águas tranquilas.",
             "Refrigera a minha alma; guia-me pelas veredas da justiça, por amor do seu nome.",
@@ -873,39 +917,160 @@ async function searchBible() {
             "Preparas uma mesa perante mim na presença dos meus inimigos; unges a minha cabeça com óleo, o meu cálice transborda.",
             "Certamente que a bondade e a misericórdia me seguirão todos os dias da minha vida; e habitarei na casa do SENHOR para sempre."
         ],
-        'rm_8': [
-            "Portanto, agora nenhuma condenação há para os que estão em Cristo Jesus, que não andam segundo a carne, mas segundo o Espírito.",
-            "Porque a lei do Espírito de vida, em Cristo Jesus, me livrou da lei do pecado e da morte.",
-            "Porquanto o que era impossível à lei, visto como estava enferma pela carne, Deus, enviando o seu Filho em semelhança da carne do pecado, e por causa do pecado, condenou o pecado na carne;",
-            "Para que a justiça da lei se cumprisse em nós, que não andamos segundo a carne, mas segundo o Espírito."
+        91: [
+            "Aquele que habita no esconderijo do Altíssimo, à sombra do Onipotente descansará.",
+            "Direi do SENHOR: Ele é o meu Deus, o meu refúgio, a minha fortaleza, e nele confiarei.",
+            "Porque ele te livrará do laço do passarinheiro, e da peste perniciosa.",
+            "Ele te cobrirá com as suas penas, e debaixo das suas asas estarás seguro; a sua verdade é escudo e broquel.",
+            "Não temerás o terror noturno, nem a seta que voa de dia,",
+            "Nem a peste que anda na escuridão, nem a mortandade que assola ao meio-dia.",
+            "Mil cairão ao teu lado, e dez mil à tua direita; mas não chegará a ti.",
+            "Somente com os teus olhos olharás, e verás a recompensa dos ímpios.",
+            "Porque tu, ó SENHOR, és o meu refúgio! No Altíssimo fizeste a tua habitação.",
+            "Nenhum mal te sucederá, nem praga alguma chegará à tua tenda.",
+            "Porque aos seus anjos dará ordem a teu respeito, para te guardarem em todos os teus caminhos.",
+            "Eles te sustentarão nas suas mãos, para que não tropeces com o teu pé em pedra.",
+            "Pisarás o leão e a cobra; calcarás aos pés o filho do leão e a serpente.",
+            "Porque tanto a mim se apegou, eu o livrarei; pô-lo-ei num alto retiro, porque conheceu o meu nome.",
+            "Ele me invocará, e eu lhe responderei; estarei com ele na angústia; dela o retirarei, e o glorificarei.",
+            "Com longura de dias o satisfarei, e lhe mostrarei a minha salvação."
+        ]
+    },
+    "pv": {
+        3: [
+            "Filho meu, não te esqueças da minha lei, e o teu coração guarde os meus mandamentos.",
+            "Porque eles aumentarão os teus dias, e te acrescentarão anos de vida e paz.",
+            "Não se apartem de ti a misericórdia e a verdade; ata-as ao teu pescoço, escreve-as na tábua do teu coração.",
+            "E acharás graça e bom entendimento aos olhos de Deus e dos homens.",
+            "Confia no SENHOR de todo o teu coração, e não te estribes no teu próprio entendimento.",
+            "Reconhece-o em todos os teus caminhos, e ele endireitará as tuas veredas.",
+            "Não sejas sábio a teus próprios olhos; teme ao SENHOR e aparta-te do mal.",
+            "Isto será saúde para o teu corpo, e refrigerio para os teus ossos.",
+            "Honra ao SENHOR com os teus bens, e com as primícias de toda a tua renda;",
+            "E se encherão os teus celeiros de fartura, e transbordarão de mosto os teus lagares.",
+            "Filho meu, não rejeites a correção do SENHOR, nem te enojes da sua repreensão;",
+            "Porque o SENHOR repreende a quem ama, assim como o pai ao filho a quem quer bem.",
+            "Bem-aventurado o homem que acha sabedoria, e o homem que adquire conhecimento;",
+            "Porque melhor é o lucro que ela dá do que o lucro da prata, e a sua renda do que o ouro mais fino.",
+            "Mais preciosa é do que as jóias, e tudo o que mais possuis se não pode comparar a ela.",
+            "Comprimento de dias está na sua mão direita; na sua esquerda, riquezas e honra.",
+            "Os seus caminhos são caminhos de delícias, e todas as suas veredas são paz.",
+            "Ela é árvore de vida para os que a possuem, e bem-aventurados são todos os que a retêm.",
+            "O SENHOR com sabedoria fundou a terra; com entendimento estabeleceu os céus.",
+            "Com o seu conhecimento se fenderam os abismos, e as nuvens destilam o orvalho.",
+            "Filho meu, não se apartem estas coisas dos teus olhos; guarda a sabedoria e o conselho;",
+            "Assim serão vida para a tua alma, e graça para o teu pescoço.",
+            "Então andarás com segurança no teu caminho, e não tropeçará o teu pé.",
+            "Quando te deitares, não temerás; sim, tu te deitarás, e o teu sono será suave.",
+            "Não temas o pavor repentino, nem a assolação dos ímpios, quando vier.",
+            "Porque o SENHOR será a tua confiança, e guardará os teus pés de serem presos.",
+            "Não negues o bem a quem de direito, estando na tua mão o poder de o fazer.",
+            "Não digas ao teu próximo: Vai, e volta amanhã, que to darei; tendo-o tu contigo.",
+            "Não maquines mal contra o teu próximo, pois habita contigo confiadamente.",
+            "Não contendas com alguém sem razão, se não te fez mal.",
+            "Não tenhas inveja do homem violento, nem escolhas nenhum de seus caminhos.",
+            "Porque o perverso é abominação ao SENHOR, mas com os retos está a sua comunhão.",
+            "A maldição do SENHOR está na casa do ímpio, mas ele abençoa a habitação dos justos.",
+            "Quando ele escarnece dos escarnecedores, dá graça aos humildes.",
+            "Os sábios herdarão a honra, mas os loucos tomam sobre si a vergonha."
+        ]
+    },
+    "is": {
+        9: [
+            "Mas para a que estava angustiada não haverá escuridão; como nos tempos passados ele desonrou a terra de Zebulom e a terra de Naftali, assim nos últimos dias a honrará, o caminho do mar, além do Jordão, a Galileia dos gentios.",
+            "O povo que andava em trevas, viu uma grande luz; e sobre os que habitavam na região da sombra da morte, resplandeceu a luz.",
+            "Tu multiplicaste este povo, e aumentaste a sua alegria; eles se alegrarão perante ti, como se alegram na ceifa, como exultam quando se repartem os despojos.",
+            "Porque tu quebraste o jugo que pesava sobre ele, e a vara que feria os seus ombros, e o cetro do seu opressor, como no dia de Midiã.",
+            "Porque todo o calçado do que anda com estrépito, e a veste que se revolve em sangue, será para queimar, e servirá de pasto ao fogo.",
+            "Porque um menino nos nasceu, um filho se nos deu; e o principado está sobre os seus ombros, e se chamará o seu nome: Maravilhoso, Conselheiro, Deus Forte, Pai da Eternidade, Príncipe da Paz.",
+            "Do aumento deste principado e da paz não haverá fim, sobre o trono de Davi e no seu reino, para o firmar e o forte, em juízo e em justiça, desde agora e para sempre; o zelo do SENHOR dos Exércitos fará isto."
         ],
-        'fp_4': [
-            "Portanto, meus amados e mui queridos irmãos, minha alegria e coroa, estai assim firmes no Senhor, amados.",
-            "Rogo a Evódia, e rogo a Síntique, que sintam o mesmo no Senhor.",
-            "E rogo também a ti, meu verdadeiro companheiro, que ajudes estas mulheres que trabalharam comigo no evangelho, e com Clemente, e com os outros meus cooperadores, cujos nomes estão no livro da vida.",
-            "Regozijai-vos sempre no Senhor; outra vez digo, regozijai-vos.",
-            "Seja a vossa moderação conhecida de todos os homens. Perto está o Senhor.",
-            "Não estejais ansiosos por coisa alguma; antes, as vossas petições sejam em tudo conhecidas diante de Deus, pela oração e súplica, com ação de graças.",
-            "E a paz de Deus, que excede todo o entendimento, guardará os vossos corações e os vossos pensamentos em Cristo Jesus.",
-            "Quanto ao mais, irmãos, tudo o que é verdadeiro, tudo o que é honesto, tudo o que é justo, tudo o que é puro, tudo o que é amável, tudo o que é de boa fama, se há alguma virtude, e se há algum louvor, nisso pensai.",
-            "O que também aprendestes, e recebestes, e ouvistes, e vistes em mim, isso fazei; e o Deus de paz será convosco.",
-            "Ora, muito me regozijei no Senhor por finalmente reviver a vossa lembrança de mim; pois já vos tínheis lembrado, mas não tínheis oportunidade.",
-            "Não digo isto por causa de necessidade, porque já aprendi a contentar-me com o que tenho.",
-            "Sei estar abatido, e sei também ter abundância; em toda a maneira, e em todas as coisas, estou instruído, tanto a ter fartura, como a ter fome; tanto a ter abundância, como a padecer necessidade.",
-            "Posso todas as coisas naquele que me fortalece."
+        40: [
+            "Consolai, consolai o meu povo, diz o vosso Deus.",
+            "Falai ao coração de Jerusalém, e gritai-lhe que já o seu tempo de serviço é cumprido, que a sua iniquidade está perdoada, e que já recebeu em dobro da mão do SENHOR por todos os seus pecados.",
+            "Voz do que clama no deserto: Preparai o caminho do SENHOR; endireitai no ermo vereda a nosso Deus.",
+            "Todo o vale será exaltado, e todo o monte e outeiro serão abatidos; e o que é tortuoso se endireitará, e o que é escabroso se aplainará.",
+            "E a glória do SENHOR se manifestará, e toda a carne juntamente a verá, porque a boca do SENHOR o disse.",
+            "Uma voz diz: Clama. E alguém disse: Que hei de clamar? Toda a carne é erva, e toda a sua glória como a flor do campo.",
+            "Seca-se a erva, e murcha a flor, soprando nela o Espírito do SENHOR. Na verdade o povo é erva.",
+            "Seca-se a erva, e murcha a flor, mas a palavra de nosso Deus subsiste eternamente.",
+            "Sobe a um monte alto, ó Sião, que anuncias boas novas; levanta a tua voz com força, ó Jerusalém, que anuncias boas novas; levanta-a, não temas, e dize às cidades de Judá: Eis aqui está o vosso Deus.",
+            "Eis que o Senhor DEUS virá com poder, e o seu braço dominará; eis que o seu galardão está com ele, e a sua obra diante dele.",
+            "Como pastor apascentará o seu rebanho; entre os seus braços recolherá os cordeirinhos, e os levará no seu seio; as que amamentam, ele as guiará mansamente.",
+            "Quem mediu com o seu punho as águas, e tomou a medida dos céus aos palmos, e recolheu em três medidas o pó da terra, e pesou os montes em balanças, e os outeiros em peso?",
+            "Quem guiou o Espírito do SENHOR, ou como seu conselheiro o ensinou?",
+            "Com quem tomou conselho, para que lhe desse entendimento? Quem lhe ensinou a vereda do juízo, e lhe ensinou conhecimento, e lhe mostrou o caminho da sabedoria?",
+            "Eis que as nações são consideradas por ele como a gota de um balde, e como o pó miúdo das balanças; eis que ele levanta as ilhas como a uma coisa pequeníssima.",
+            "Nem o Líbano basta para o fogo, nem os seus animais bastam para holocausto.",
+            "Todas as nações são como nada perante ele; ele as considera menos do que nada, e como uma coisa vã.",
+            "A quem, pois, assemelhareis a Deus? Ou que representação comparareis a ele?",
+            "O artífice prepara a imagem de escultura, e o ourives estende o ouro sobre ela, e lhe solda cadeias de prata.",
+            "O que é demasiado pobre para isso escolhe madeira que não apodrece; busca para si um artífice esforçado, para preparar uma imagem de escultura que não se pode mover.",
+            "Porventura não sabeis? Porventura não ouvistes? Ou nunca se vos anunciou desde o princípio? Ou não considerastes os fundamentos da terra?",
+            "Ele é o que está assentado sobre o círculo da terra, cujos moradores são para ele como gafanhotos; ele é o que estende os céus como um cortinado, e os desenrola como uma tenda para neles habitar.",
+            "Ele é o que faz os príncipes em nada, e torna os juízes da terra em vaidade.",
+            "Mal são plantados, mal são semeados, mal o seu tronco lança raízes na terra, quando ele sopra sobre eles, e se secam, e um redemoinho os leva como palha.",
+            "A quem, pois, me comparareis, para que eu lhe seja semelhante? Diz o Santo.",
+            "Levantai ao alto os vossos olhos, e vede quem criou estas coisas; ele é o que produz o seu exército em número, e chama a todas pelo nome; por causa da grandeza das suas forças, e pela fortaleza do seu poder, ninguém faltará.",
+            "Por que dizes, ó Jacó, e tu falas, ó Israel: O meu caminho está encoberto ao SENHOR, e o meu juízo passa despercebido ao meu Deus?",
+            "Não sabes, não ouviste que o eterno Deus, o SENHOR, o Criador dos fins da terra, não se cansa nem se fatiga? Não há quem possa entender a sua sabedoria.",
+            "Ele dá força ao cansado, e aumenta as forças ao que não tem nenhum vigor.",
+            "Os jovens se cansarão e se fatigarão, e os moços certamente cairão.",
+            "Mas os que esperam no SENHOR renovarão as suas forças, subirão com asas como águias; correrão, e não se cansarão; andarão, e não se fatigarão."
+        ]
+    },
+    "mt": {
+        5: [
+            "E vendo as multidões, subiu ao monte; e, assentando-se, os seus discípulos se achegaram a ele;",
+            "E, abrindo a sua boca, os ensinava, dizendo:",
+            "Bem-aventurados os pobres de espírito, porque deles é o reino dos céus;",
+            "Bem-aventurados os que choram, porque eles serão consolados;",
+            "Bem-aventurados os mansos, porque eles herdarão a terra;",
+            "Bem-aventurados os que têm fome e sede de justiça, porque eles serão fartos;",
+            "Bem-aventurados os misericordiosos, porque eles alcançarão misericórdia;",
+            "Bem-aventurados os limpos de coração, porque eles verão a Deus;",
+            "Bem-aventurados os pacificadores, porque eles serão chamados filhos de Deus;",
+            "Bem-aventurados os que sofrem perseguição por causa da justiça, porque deles é o reino dos céus;",
+            "Bem-aventurados sois vós, quando vos injuriarem e perseguirem e, mentindo, disserem todo o mal contra vós por minha causa.",
+            "Exultai e alegrai-vos, porque é grande o vosso galardão nos céus; porque assim perseguiram os profetas que foram antes de vós.",
+            "Vós sois o sal da terra; e se o sal for insípido, com que se há de salgar? Para nada mais presta, senão para se lançar fora, e ser pisado pelos homens.",
+            "Vós sois a luz do mundo; não se pode esconder uma cidade edificada sobre um monte;",
+            "Nem se acende a candeia e se coloca debaixo do alqueire, mas no velador, e dá luz a todos que estão na casa.",
+            "Assim resplandeça a vossa luz diante dos homens, para que vejam as vossas boas obras e glorifiquem a vosso Pai, que está nos céus.",
+            "Não cuideis que vim destruir a lei ou os profetas; não vim ab-rogar, mas cumprir.",
+            "Porque em verdade vos digo que, até que o céu e a terra passem, nem um jota ou um til se omitirá da lei, sem que tudo seja cumprido.",
+            "Qualquer, pois, que violar um destes mandamentos, por menor que seja, e assim ensinar aos homens, será chamado o menor no reino dos céus; aquele, porém, que os cumprir e ensinar será chamado grande no reino dos céus.",
+            "Porque vos digo que, se a vossa justiça não exceder a dos escribas e fariseus, de modo algum entrareis no reino dos céus.",
+            "Ouvistes que foi dito aos antigos: Não matarás; mas qualquer que matar será réu de juízo.",
+            "Eu, porém, vos digo que qualquer que se encolerizar contra seu irmão será réu de juízo; e qualquer que disser a seu irmão: Raca, será réu do sinédrio; e qualquer que lhe disser: Louco, será réu do fogo do inferno.",
+            "Portanto, se trouxeres a tua oferta ao altar, e aí te lembrares de que teu irmão tem alguma coisa contra ti,",
+            "Deixa ali diante do altar a tua oferta, e vai reconciliar-te primeiro com teu irmão, e depois vem apresentar a tua oferta.",
+            "Concilia-te depressa com o teu adversário, enquanto estás no caminho com ele, para que não aconteça que o adversário te entregue ao juiz, e o juiz te entregue ao oficial, e te encerre na prisão.",
+            "Em verdade te digo que de maneira nenhuma sairás dali, enquanto não pagares o último ceitil.",
+            "Ouvistes que foi dito aos antigos: Não adulterarás.",
+            "Eu, porém, vos digo que qualquer que atentar numa mulher para a cobiçar, já em seu coração cometeu adultério com ela.",
+            "Portanto, se o teu olho direito te escandalizar, arranca-o e atira-o para longe de ti; porque te é melhor que se perca um dos teus membros do que seja todo o teu corpo lançado no inferno.",
+            "E, se a tua mão direita te escandalizar, corta-a e atira-a para longe de ti, porque te é melhor que um dos teus membros se perca do que seja todo o teu corpo lançado no inferno.",
+            "Também foi dito: Qualquer que deixar sua mulher, dê-lhe carta de divórcio.",
+            "Eu, porém, vos digo que qualquer que deixar sua mulher, a não ser por causa de fornicação, faz que ela cometa adultério; e qualquer que casar com a repudiada comete adultério.",
+            "Também ouvistes que foi dito aos antigos: Não jurarás falso, mas cumprirás os teus juramentos ao Senhor.",
+            "Eu, porém, vos digo que de maneira nenhuma jureis; nem pelo céu, porque é o trono de Deus;",
+            "Nem pela terra, porque é o escabelo de seus pés; nem por Jerusalém, porque é a cidade do grande Rei;",
+            "Nem jures pela tua cabeça, porque não podes tornar um só cabelo branco ou preto.",
+            "Seja, porém, o vosso falar: Sim, sim; Não, não; porque o que passa disso é de procedência maligna.",
+            "Ouvistes que foi dito: Olho por olho, e dente por dente.",
+            "Eu, porém, vos digo que não resistais ao mal; mas se qualquer te bater na face direita, oferece-lhe também a outra;",
+            "E ao que quiser pleitear contigo, e tirar-te a túnica, larga-lhe também a capa;",
+            "E se qualquer te obrigar a caminhar uma milha, vai com ele duas.",
+            "Dá a quem te pedir, e não te desvies daquele que quiser que lhe emprestes.",
+            "Ouvistes que foi dito: Amarás o teu próximo, e odiarás o teu inimigo.",
+            "Eu, porém, vos digo: Amai a vossos inimigos, bendizei os que vos maldizem, fazei bem aos que vos odeiam, e orai pelos que vos maltratam e vos perseguem;",
+            "Para que sejais filhos de vosso Pai que está nos céus; porque faz que o seu sol se levante sobre maus e bons, e a chuva desça sobre justos e injustos.",
+            "Porque, se amardes os que vos amam, que galardão tereis? Não fazem os publicanos também o mesmo?",
+            "E, se saudardes unicamente os vossos irmãos, que fazeis de mais? Não fazem os publicanos também assim?",
+            "Sede vós pois perfeitos, como é perfeito o vosso Pai que está nos céus."
         ],
-        'js_1': [
-            "E sucedeu depois da morte de Moisés, servo do SENHOR, que o SENHOR falou a Josué, filho de Num, servo de Moisés, dizendo:",
-            "Moisés, meu servo, é morto; levanta-te, pois, agora, passa este Jordão, tu e todo este povo, à terra que eu dou aos filhos de Israel.",
-            "Todo o lugar que pisar a planta do vosso pé, vo-lo dei, como eu disse a Moisés.",
-            "Desde o deserto e do Líbano, até ao grande rio, o rio Eufrates, toda a terra dos heteus, e até ao grande mar para o poente do sol, será o vosso termo.",
-            "Ninguém te poderá resistir, todos os dias da tua vida; como fui com Moisés, assim serei contigo; não te deixarei, nem te desampararei.",
-            "Esforça-te, e tem bom ânimo; porque tu farás a este povo herdar a terra que jurei a seus pais lhes daria.",
-            "Tão-somente esforça-te e tem mui bom ânimo, para teres o cuidado de fazer conforme toda a lei que meu servo Moisés te ordenou; não te desvies dela, nem para a direita nem para a esquerda, para que te saias bem por onde quer que andares.",
-            "Não se aparte da tua boca o livro desta lei; antes medita nele dia e noite, para que tenhas cuidado de fazer conforme tudo quanto nele está escrito; porque então farás prosperar o teu caminho, e serás bem-sucedido.",
-            "Não to mandei eu? Esforça-te, e tem bom ânimo; não temas, nem te espantes; porque o SENHOR teu Deus é contigo, por onde quer que andares."
-        ],
-        'mt_6': [
+        6: [
             "Guardai-vos de fazer a vossa esmola diante dos homens, para serdes vistos por eles; aliás, não tereis galardão junto de vosso Pai, que está nos céus.",
             "Quando, pois, deres esmola, não faças tocar trombeta diante de ti, como fazem os hipócritas nas sinagogas e nas ruas, para serem glorificados pelos homens. Em verdade vos digo que já receberam o seu galardão.",
             "Mas, quando tu deres esmola, não saiba a tua mão esquerda o que faz a tua direita;",
@@ -941,8 +1106,238 @@ async function searchBible() {
             "Mas buscai primeiro o reino de Deus e a sua justiça, e todas estas coisas vos serão acrescentadas.",
             "Não vos inquieteis, pois, pelo dia de amanhã, porque o dia de amanhã cuidará de si mesmo. Basta a cada dia o seu mal."
         ]
-    };
+    },
+    "jo": {
+        3: [
+            "Havia um homem dos fariseus, chamado Nicodemos, príncipe dos judeus.",
+            "Este foi de noite ter com Jesus, e disse-lhe: Rabi, bem sabemos que és Mestre, vindo de Deus; porque ninguém pode fazer estes sinais que tu fazes, se Deus não for com ele.",
+            "Jesus respondeu, e disse-lhe: Na verdade, na verdade te digo que aquele que não nascer de novo, não pode ver o reino de Deus.",
+            "Disse-lhe Nicodemos: Como pode um homem nascer, sendo velho? Pode, porventura, tornar a entrar no ventre de sua mãe, e nascer?",
+            "Jesus respondeu: Na verdade, na verdade te digo que aquele que não nascer da água e do Espírito, não pode entrar no reino de Deus.",
+            "O que é nascido da carne é carne, e o que é nascido do Espírito é espírito.",
+            "Não te maravilhes de te ter dito: Necessário vos é nascer de novo.",
+            "O vento assopra onde quer, e ouves a sua voz, mas não sabes de onde vem, nem para onde vai; assim é todo aquele que é nascido do Espírito.",
+            "Nicodemos respondeu, e disse-lhe: Como pode ser isto?",
+            "Jesus respondeu, e disse-lhe: Tu és mestre de Israel, e não sabes isto?",
+            "Na verdade, na verdade te digo que nós dizemos o que sabemos, e testificamos o que vimos; e não aceitais o nosso testemunho.",
+            "Se vos disse coisas terrestres, e não credes, como crereis, se vos disser as celestiais?",
+            "Ora, ninguém subiu ao céu, senão o que desceu do céu, o Filho do homem, que está no céu.",
+            "E como Moisés levantou a serpente no deserto, assim importa que o Filho do homem seja levantado;",
+            "Para que todo aquele que nele crê não pereça, mas tenha a vida eterna.",
+            "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.",
+            "Porque Deus enviou o seu Filho ao mundo, não para que condenasse o mundo, mas para que o mundo fosse salvo por ele.",
+            "Quem crê nele não é condenado; mas quem não crê já está condenado, porquanto não crê no nome do unigênito Filho de Deus."
+        ],
+        14: [
+            "Não se turbe o vosso coração; credes em Deus, crede também em mim.",
+            "Na casa de meu Pai há muitas moradas; se não fosse assim, eu vo-lo teria dito; vou preparar-vos lugar.",
+            "E, se eu for, e vos preparar lugar, virei outra vez, e vos levarei para mim mesmo, para que onde eu estiver estejais vós também.",
+            "E para onde eu vou vós sabeis o caminho.",
+            "Disse-lhe Tomé: Senhor, não sabemos para onde vais; e como podemos saber o caminho?",
+            "Disse-lhe Jesus: Eu sou o caminho, e a verdade, e a vida; ninguém vem ao Pai, senão por mim.",
+            "Se vós me conhecêsseis a mim, também conheceríeis a meu Pai; e já desde agora o conheceis, e o tendes visto.",
+            "Disse-lhe Filipe: Senhor, mostra-nos o Pai, o que nos basta.",
+            "Disse-lhe Jesus: Estou há tanto tempo convosco, e não me tendes conhecido, Filipe? Quem me vê a mim, vê o Pai; e como dizes tu: Mostra-nos o Pai?",
+            "Não crês tu que eu estou no Pai, e que o Pai está em mim? As palavras que eu vos digo, não as digo de mim mesmo, mas o Pai, que está em mim, é quem faz as obras.",
+            "Crede-me que estou no Pai, e o Pai em mim; crede-me, ao menos, por causa das mesmas obras.",
+            "Na verdade, na verdade vos digo que aquele que crê em mim também fará as obras que eu faço, e as fará maiores do que estas, porque eu vou para meu Pai.",
+            "E tudo quanto pedirdes em meu nome, isso farei, para que o Pai seja glorificado no Filho.",
+            "Se pedirdes alguma coisa em meu nome, eu o farei.",
+            "Se me amardes, guardai os meus mandamentos.",
+            "E eu rogarei ao Pai, e ele vos dará outro Consolador, para que fique convosco para sempre;",
+            "O Espírito de verdade, que o mundo não pode receber, porque não o vê nem o conhece; mas vós o conheceis, porque habita convosco, e estará em vós.",
+            "Não vos deixarei órfãos; voltarei a vós.",
+            "Ainda um pouco, e o mundo não me verá mais, mas vós me vereis; porque eu vivo, e vós vivereis.",
+            "Naquele dia conhecereis que estou em meu Pai, e vós em mim, e eu em vós.",
+            "Aquele que tem os meus mandamentos e os guarda, esse é o que me ama; e aquele que me ama será amado de meu Pai, e eu o amarei, e me manifestarei a ele.",
+            "Disse-lhe Judas (não o Iscariotes): Senhor, donde vem que te hás de manifestar a nós, e não ao mundo?",
+            "Jesus respondeu, e disse-lhe: Se alguém me ama, guardará a minha palavra, e meu Pai o amará, e viremos a ele, e faremos nele morada.",
+            "Quem não me ama não guarda as minhas palavras; ora, a palavra que ouvistes não é minha, mas do Pai que me enviou.",
+            "Estas coisas vos tenho dito, estando ainda convosco.",
+            "Mas aquele Consolador, o Espírito Santo, que o Pai enviará em meu nome, esse vos ensinará todas as coisas, e vos fará lembrar de tudo quanto vos tenho dito.",
+            "Deixo-vos a paz, a minha paz vos dou; não vo-la dou como o mundo a dá. Não se turbe o vosso coração, nem se atemorize.",
+            "Ouvistes que eu vos disse: Vou, e venho para vós. Se me amásseis, certamente exultaríeis, porque eu disse: Vou para o Pai, porque meu Pai é maior do que eu.",
+            "Eu vo-lo disse agora, antes que aconteça, para que, quando acontecer, vós creiais.",
+            "Já não falarei muito convosco, porque vem o príncipe deste mundo, e nada tem em mim.",
+            "Mas, para que o mundo saiba que eu amo o Pai, e que faço como o Pai me mandou. Levantai-vos, vamo-nos daqui."
+        ]
+    },
+    "rm": {
+        8: [
+            "Portanto, agora nenhuma condenação há para os que estão em Cristo Jesus, que não andam segundo a carne, mas segundo o Espírito.",
+            "Porque a lei do Espírito de vida, em Cristo Jesus, me livrou da lei do pecado e da morte.",
+            "Porquanto o que era impossível à lei, visto como estava enferma pela carne, Deus, enviando o seu Filho em semelhança da carne do pecado, e por causa do pecado, condenou o pecado na carne;",
+            "Para que a justiça da lei se cumprisse em nós, que não andamos segundo a carne, mas segundo o Espírito.",
+            "Porque os que são segundo a carne inclinam-se para as coisas da carne; mas os que são segundo o Espírito, para as coisas do Espírito.",
+            "Porque a inclinação da carne é morte; mas a inclinação do Espírito é vida e paz.",
+            "Porquanto a inclinação da carne é inimizade contra Deus, pois não é sujeita à lei de Deus, nem em verdade o pode ser.",
+            "Portanto, os que estão na carne não podem agradar a Deus.",
+            "Vós, porém, não estais na carne, mas no Espírito, se é que o Espírito de Deus habita em vós. Mas, se alguém não tem o Espírito de Cristo, esse tal não é dele.",
+            "E, se Cristo está em vós, o corpo, na verdade, está morto por causa do pecado, mas o espírito vive por causa da justiça.",
+            "E, se o Espírito daquele que dos mortos ressuscitou a Jesus habita em vós, aquele que dos mortos ressuscitou a Cristo também vivificará os vossos corpos mortais, pelo seu Espírito que em vós habita.",
+            "Assim que, irmãos, somos devedores, não à carne, para viver segundo a carne.",
+            "Porque, se viverdes segundo a carne, haveis de morrer; mas, se pelo Espírito mortificardes as obras do corpo, vivereis.",
+            "Porque todos os que são guiados pelo Espírito de Deus, esses são filhos de Deus.",
+            "Porque não recebestes o espírito de escravidão, para outra vez estardes em temor, mas recebestes o espírito de adoção de filhos, pelo qual clamamos: Aba, Pai.",
+            "O mesmo Espírito testifica com o nosso espírito que somos filhos de Deus.",
+            "E, se nós somos filhos, somos também herdeiros, herdeiros de Deus, e co-herdeiros de Cristo; se é certo que com ele padecemos, para que também com ele sejamos glorificados.",
+            "Porque para mim tenho por certo que as aflições deste tempo presente não são para comparar com a glória que em nós há de ser revelada.",
+            "Porque a ardente expectação da criatura espera a manifestação dos filhos de Deus.",
+            "Porque a criação ficou sujeita à vaidade, não por sua vontade, mas por causa do que a sujeitou,",
+            "Na esperança de que também a mesma criatura será libertada da servidão da corrupção, para a liberdade da glória dos filhos de Deus.",
+            "Porque sabemos que toda a criação geme e está juntamente com dores de parto até agora.",
+            "E não só ela, mas nós também, que temos as primícias do Espírito, nós mesmos gememos em nós mesmos, esperando a adoção, a saber, a redenção do nosso corpo.",
+            "Porque em esperança somos salvos. Ora, a esperança que se vê não é esperança; pois o que alguém vê, como o esperará?",
+            "Mas, se esperamos o que não vemos, com paciência o esperamos.",
+            "E da mesma maneira também o Espírito ajuda as nossas fraquezas; porque não sabemos o que havemos de pedir como convém, mas o mesmo Espírito intercede por nós com gemidos inexprimíveis.",
+            "E aquele que sonda os corações sabe qual é a intenção do Espírito; e é segundo Deus que ele intercede pelos santos.",
+            "E sabemos que todas as coisas contribuem juntamente para o bem daqueles que amam a Deus, daqueles que são chamados segundo o seu propósito.",
+            "Porque os que dantes conheceu, também os predestinou para serem conformes à imagem de seu Filho, a fim de que ele seja o primogênito entre muitos irmãos.",
+            "E aos que predestinou, a esses também chamou; e aos que chamou, a esses também justificou; e aos que justificou, a esses também glorificou.",
+            "Que diremos, pois, a estas coisas? Se Deus é por nós, quem será contra nós?",
+            "Aquele que nem mesmo a seu próprio Filho poupou, antes o entregou por todos nós, como nos não dará também com ele todas as coisas?",
+            "Quem intentará acusação contra os escolhidos de Deus? É Deus quem os justifica.",
+            "Quem é que condena? Cristo é o que morreu, e ainda mais, o que também ressuscitou, o que está à direita de Deus, e também intercede por nós.",
+            "Quem nos separará do amor de Cristo? A tribulação, ou a angústia, ou a perseguição, ou a fome, ou a nudez, ou o perigo, ou a espada?",
+            "Como está escrito: Por amor de ti somos entregues à morte todo o dia; fomos considerados como ovelhas para o matadouro.",
+            "Mas em todas estas coisas somos mais do que vencedores, por aquele que nos amou.",
+            "Porque estou certo de que, nem a morte, nem a vida, nem os anjos, nem os principados, nem as potestades, nem o presente, nem o porvir,",
+            "Nem a altura, nem a profundidade, nem alguma outra criatura nos poderá separar do amor de Deus, que está em Cristo Jesus nosso Senhor."
+        ]
+    },
+    "1co": {
+        13: [
+            "Ainda que eu falasse as línguas dos homens e dos anjos, e não tivesse amor, seria como o metal que soa, ou como o sino que tine.",
+            "E ainda que tivesse o dom de profecia, e conhecesse todos os mistérios e toda a ciência, e ainda que tivesse toda a fé, de maneira tal que transportasse os montes, e não tivesse amor, nada seria.",
+            "E ainda que distribuísse toda a minha fortuna para sustento dos pobres, e ainda que entregasse o meu corpo para ser queimado, e não tivesse amor, nada disso me aproveitaria.",
+            "O amor é sofredor, é benigno; o amor não é invejoso; o amor não trata com leviandade, não se ensoberbece.",
+            "Não se porta com indecência, não busca os seus interesses, não se irrita, não suspeita mal;",
+            "Não folga com a injustiça, mas folga com a verdade;",
+            "Tudo sofre, tudo crê, tudo espera, tudo suporta.",
+            "O amor nunca falha; mas havendo profecias, serão aniquiladas; havendo línguas, cessarão; havendo ciência, desaparecerá;",
+            "Porque, em parte, conhecemos, e em parte profetizamos.",
+            "Mas, quando vier o que é perfeito, então o que o é em parte será aniquilado.",
+            "Quando eu era menino, falava como menino, sentia como menino, discorria como menino; mas, logo que cheguei a ser homem, acabei com as coisas de menino.",
+            "Porque agora vemos por espelho em enigma, mas então veremos face a face; agora conheço em parte, mas então conhecerei como também sou conhecido.",
+            "Agora, pois, permanecem a fé, a esperança e o amor, estes três; mas o maior destes é o amor."
+        ]
+    },
+    "fp": {
+        4: [
+            "Portanto, meus amados e mui queridos irmãos, minha alegria e coroa, estai assim firmes no Senhor, amados.",
+            "Rogo a Evódia, e rogo a Síntique, que sintam o mesmo no Senhor.",
+            "E rogo também a ti, meu verdadeiro companheiro, que ajudes estas mulheres que trabalharam comigo no evangelho, e com Clemente, e com os outros meus cooperadores, cujos nomes estão no livro da vida.",
+            "Regozijai-vos sempre no Senhor; outra vez digo, regozijai-vos.",
+            "Seja a vossa moderação conhecida de todos os homens. Perto está o Senhor.",
+            "Não estejais ansiosos por coisa alguma; antes, as vossas petições sejam em tudo conhecidas diante de Deus, pela oração e súplica, com ação de graças.",
+            "E a paz de Deus, que excede todo o entendimento, guardará os vossos corações e os vossos pensamentos em Cristo Jesus.",
+            "Quanto ao mais, irmãos, tudo o que é verdadeiro, tudo o que é honesto, tudo o que é justo, tudo o que é puro, tudo o que é amável, tudo o que é de boa fama, se há alguma virtude, e se há algum louvor, nisso pensai.",
+            "O que também aprendestes, e recebestes, e ouvistes, e vistes em mim, isso fazei; e o Deus de paz será convosco.",
+            "Ora, muito me regozijei no Senhor por finalmente reviver a vossa lembrança de mim; pois já vos tínheis lembrado, mas não tínheis oportunidade.",
+            "Não digo isto por causa de necessidade, porque já aprendi a contentar-me com o que tenho.",
+            "Sei estar abatido, e sei também ter abundância; em toda a maneira, e em todas as coisas, estou instruído, tanto a ter fartura, como a ter fome; tanto a ter abundância, como a padecer necessidade.",
+            "Posso todas as coisas naquele que me fortalece.",
+            "Todavia fizestes bem em tomar parte na minha aflição.",
+            "E vós também sabeis, ó filipenses, que no princípio do evangelho, quando parti da Macedônia, nenhuma igreja comunicou comigo com respeito a dar e a receber, senão vós somente;",
+            "Porque também uma e outra vez me mandastes o necessário a Tessalônica.",
+            "Não que procure dádivas, mas procuro o fruto que cresça para a vossa conta.",
+            "Mas tenho tudo, e tenho abundância; cheio estou, depois que recebi de Epafrodito o que da vossa parte me foi enviado, como cheiro de suavidade, como sacrifício aceitável e aprazível a Deus.",
+            "E o meu Deus, segundo as suas riquezas, suprirá todas as vossas necessidades em glória, por Cristo Jesus.",
+            "Ora, a nosso Deus e Pai seja dada glória para todo o sempre. Amém.",
+            "Saudai a todos os santos em Cristo Jesus. Os irmãos que estão comigo vos saúdam.",
+            "Todos os santos vos saúdam, mas principalmente os que são da casa de César.",
+            "A graça de nosso Senhor Jesus Cristo seja com vós todos. Amém."
+        ]
+    },
+    "ap": {
+        3: [
+            "E ao anjo da igreja que está em Sardes escreve: Isto diz o que tem os sete espíritos de Deus, e as sete estrelas: Conheço as tuas obras, que tens nome de que vives, e estás morto.",
+            "Sê vigilante, e confirma o restante que estava para morrer; porque não achei as tuas obras perfeitas diante de Deus.",
+            "Lembra-te, pois, do que tens recebido e ouvido, e guarda-o, e arrepende-te. E, se não vigiares, virei a ti como um ladrão, e não saberás em que hora sobre ti virei.",
+            "Mas também tens em Sardes algumas pessoas que não contaminaram as suas vestes, e comigo andarão de branco; porquanto são dignas.",
+            "O que vencer será assim vestido de vestes brancas, e de maneira nenhuma riscarei o seu nome do livro da vida; e confessarei o seu nome diante de meu Pai, e diante dos seus anjos.",
+            "Quem tem ouvidos, ouça o que o Espírito diz às igrejas.",
+            "E ao anjo da igreja que está em Filadélfia escreve: Isto diz o que é santo, o que é verdadeiro, o que tem a chave de Davi; o que abre, e ninguém fecha; e fecha, e ninguém abre:",
+            "Conheço as tuas obras; eis que diante de ti pus uma porta aberta, e ninguém a pode fechar; tendo pouca força, guardaste a minha palavra, e não negaste o meu nome.",
+            "Eis que farei aos da sinagoga de Satanás, aos que se dizem judeus, e não o são, mas mentem; eis que os farei vir, e prostrar-se aos teus pés, e saber que eu te amei.",
+            "Como guardaste a palavra da minha paciência, também eu te guardarei da hora da tentação que há de vir sobre todo o mundo, para tentar os que habitam na terra.",
+            "Eis que venho sem demora; guarda o que tens, para que ninguém tome a tua coroa.",
+            "A quem vencer, eu o farei coluna no templo do meu Deus, e dele nunca sairá; e escreverei sobre ele o nome do meu Deus, e o nome da cidade do meu Deus, a nova Jerusalém, que desce do céu, do meu Deus, e também o meu novo nome.",
+            "Quem tem ouvidos, ouça o que o Espírito diz às igrejas.",
+            "E ao anjo da igreja que está em Laodiceia escreve: Isto diz o Amém, a testemunha fiel e verdadeira, o princípio da criação de Deus:",
+            "Conheço as tuas obras, que nem és frio nem quente; quem dera foras frio ou quente!",
+            "Assim, porque és morno, e não és frio nem quente, vomitar-te-ei da minha boca.",
+            "Porquanto dizes: Rico sou, e estou enriquecido, e de nada tenho falta; e não sabes que és um desgraçado, e miserável, e pobre, e cego, e nu;",
+            "Aconselho-te que de mim compres ouro provado no fogo, para que te enriqueças; e vestes brancas, para que te vistas, e não apareça a vergonha da tua nudez; e que unjas os teus olhos com colírio, para que vejas.",
+            "Eu repreendo e castigo a todos quantos amo; sê pois zeloso, e arrepende-te.",
+            "Eis que estou à porta, e bato; se alguém ouvir a minha voz, e abrir a porta, entrarei em sua casa, e com ele cearei, e ele comigo.",
+            "Ao que vencer, lhe concederei que se assente comigo no meu trono; assim como eu venci, e me assentei com meu Pai no seu trono.",
+            "Quem tem ouvidos, ouça o que o Espírito diz às igrejas."
+        ],
+        21: [
+            "E vi um novo céu e uma nova terra. Porque já o primeiro céu e a primeira terra passaram, e o mar já não existe.",
+            "E eu, João, vi a santa cidade, a nova Jerusalém, que de Deus descia do céu, adereçada como uma esposa ataviada para o seu marido.",
+            "E ouvi uma grande voz do céu, que dizia: Eis aqui o tabernáculo de Deus com os homens, pois com eles habitará, e eles serão o seu povo, e o próprio Deus estará com eles, e será o seu Deus.",
+            "E Deus limpará de seus olhos toda a lágrima; e não haverá mais morte, nem pranto, nem clamor, nem dor; porque já as primeiras coisas são passadas.",
+            "E o que estava assentado sobre o trono disse: Eis que faço novas todas as coisas. E disse-me: Escreve; porque estas palavras são fiéis e verdadeiras.",
+            "E disse-me: Está cumprido. Eu sou o Alfa e o Omega, o princípio e o fim. A quem quer que tiver sede, de graça lhe darei da fonte da água da vida.",
+            "Quem vencer, herdará todas as coisas; e eu serei seu Deus, e ele será meu filho.",
+            "Mas, quanto aos tímidos, e aos incrédulos, e aos abomináveis, e aos homicidas, e aos fornicadores, e aos feiticeiros, e aos idólatras, e a todos os mentirosos, a sua parte será no lago que arde com fogo e enxofre; o que é a segunda morte.",
+            "E veio um dos sete anjos que tinham as sete taças cheias das sete últimas pragas, e falou comigo, dizendo: Vem, mostrar-te-ei a esposa, a mulher do Cordeiro.",
+            "E levou-me em espírito a um grande e alto monte, e mostrou-me a grande cidade, a santa Jerusalém, que de Deus descia do céu.",
+            "E tinha a glória de Deus; a sua luz era semelhante a uma pedra preciosíssima, como a pedra de jaspe, como o cristal resplandecente.",
+            "E tinha um grande e alto muro com doze portas, e nas portas doze anjos, e nomes escritos sobre elas, que são os nomes das doze tribos de Israel.",
+            "Do lado oriental havia três portas, do norte três portas, do sul três portas, do ocidente três portas.",
+            "E o muro da cidade tinha doze fundamentos, e neles os nomes dos doze apóstolos do Cordeiro.",
+            "E aquele que falava comigo tinha uma vara de ouro, para medir a cidade, e as suas portas, e o seu muro.",
+            "E a cidade estava situada em quadrado; e o seu comprimento era igual à sua largura. E mediu a cidade com a vara, até doze mil estádios; e o seu comprimento, largura e altura eram iguais.",
+            "E mediu o seu muro, de cento e quarenta e quatro côvados, segundo a medida de homem, que é a de um anjo.",
+            "E a estrutura do seu muro era de jaspe, e a cidade era de ouro puro, semelhante a vidro puro.",
+            "E os fundamentos do muro da cidade estavam adornados de toda a pedra preciosa. O primeiro fundamento era jaspe; o segundo, safira; o terceiro, calcedônia; o quarto, esmeralda;",
+            "O quinto, sardônica; o sexto, sárdio; o sétimo, crisólito; o oitavo, berilo; o nono, topázio; o décimo, crisópraso; o undécimo, jacinto; o duodécimo, ametista.",
+            "E as doze portas eram doze pérolas; cada uma das portas era uma pérola; e a praça da cidade era de ouro puro, como vidro transparente.",
+            "E nela não vi templo, porque o seu templo é o Senhor Deus Todo-Poderoso, e o Cordeiro.",
+            "E a cidade não necessita de sol nem de lua, para que nela resplandeçam, porque a glória de Deus a iluminou, e o Cordeiro é a sua lâmpada.",
+            "E as nações dos salvos andarão à sua luz; e os reis da terra trarão para ela a sua glória e honra.",
+            "E as suas portas não se fecharão de dia, porque ali não haverá noite.",
+            "E a ela trarão a glória e honra das nações.",
+            "E não entrará nela coisa alguma que contamine, e que cometa abominação e mentira; mas só os que estão inscritos no livro da vida do Cordeiro."
+        ]
+    }
+};
 
+// ============================================
+// ===== FUNÇÃO DE BUSCA DA BÍBLIA =====
+// ============================================
+const bookNames = {
+    'gn': 'Gênesis', 'ex': 'Êxodo', 'lv': 'Levítico', 'nm': 'Números',
+    'dt': 'Deuteronômio', 'js': 'Josué', 'jz': 'Juízes', 'rt': 'Rute',
+    '1sm': '1 Samuel', '2sm': '2 Samuel', '1rs': '1 Reis', '2rs': '2 Reis',
+    '1cr': '1 Crônicas', '2cr': '2 Crônicas', 'ed': 'Esdras', 'ne': 'Neemias',
+    'et': 'Ester', 'jó': 'Jó', 'sl': 'Salmos', 'pv': 'Provérbios',
+    'ec': 'Eclesiastes', 'ct': 'Cânticos', 'is': 'Isaías', 'jr': 'Jeremias',
+    'lm': 'Lamentações', 'ez': 'Ezequiel', 'dn': 'Daniel', 'os': 'Oseias',
+    'jl': 'Joel', 'am': 'Amós', 'ob': 'Obadias', 'jn': 'Jonas',
+    'mq': 'Miqueias', 'na': 'Naum', 'hc': 'Habacuque', 'sf': 'Sofonias',
+    'ag': 'Ageu', 'zc': 'Zacarias', 'ml': 'Malaquias',
+    'mt': 'Mateus', 'mc': 'Marcos', 'lc': 'Lucas', 'jo': 'João',
+    'at': 'Atos', 'rm': 'Romanos', '1co': '1 Coríntios', '2co': '2 Coríntios',
+    'gl': 'Gálatas', 'ef': 'Efésios', 'fp': 'Filipenses', 'cl': 'Colossenses',
+    '1ts': '1 Tessalonicenses', '2ts': '2 Tessalonicenses',
+    '1tm': '1 Timóteo', '2tm': '2 Timóteo', 'tt': 'Tito', 'fm': 'Filemom',
+    'hb': 'Hebreus', 'tg': 'Tiago', '1pe': '1 Pedro', '2pe': '2 Pedro',
+    '1jo': '1 João', '2jo': '2 João', '3jo': '3 João', 'jd': 'Judas',
+    'ap': 'Apocalipse'
+};
+
+async function searchBible() {
+    const book = document.getElementById('bibleBook').value;
+    const chapter = parseInt(document.getElementById('bibleChapter').value) || 1;
+    const verse = parseInt(document.getElementById('bibleVerse').value);
+    const resultDiv = document.getElementById('bibleResult');
+    resultDiv.innerHTML = '<p>⏳ Carregando...</p>';
+
+    // Primeiro tenta a API online
     try {
         let url = `https://bible-api.com/${book}+${chapter}`;
         if (verse) url += `:${verse}`;
@@ -952,26 +1347,7 @@ async function searchBible() {
         let data = await response.json();
 
         if (data.error) {
-            const key = `${book}_${chapter}`;
-            if (offlineBible[key]) {
-                let html = '';
-                const verses = offlineBible[key];
-                const start = verse ? parseInt(verse) - 1 : 0;
-                const end = verse ? parseInt(verse) : verses.length;
-                for (let i = start; i < end && i < verses.length; i++) {
-                    html += `<p class="verse"><strong>${i+1}</strong> ${verses[i]}</p>`;
-                }
-                const bookName = bookNames[book] || book;
-                html += `<p class="reference">📖 ${bookName} ${chapter}${verse ? ':'+verse : ''}</p>`;
-                resultDiv.innerHTML = html;
-                return;
-            }
-
-            resultDiv.innerHTML = `
-                <p style="color:#dc3545;">❌ Não foi possível carregar ${bookNames[book] || book} ${chapter}.</p>
-                <p style="color:#888;margin-top:0.5rem;">Tente: Salmos 23, João 3, Romanos 8, Filipenses 4, Josué 1 ou Mateus 6</p>
-            `;
-            return;
+            throw new Error('API error');
         }
 
         let html = '';
@@ -984,34 +1360,42 @@ async function searchBible() {
         }
         html += `<p class="reference">📖 ${data.reference || bookNames[book] + ' ' + chapter}</p>`;
         resultDiv.innerHTML = html;
+        return;
     } catch (error) {
-        const key = `${book}_${chapter}`;
-        if (offlineBible[key]) {
+        // Fallback para offline
+        if (bibliaOffline[book] && bibliaOffline[book][chapter]) {
+            const verses = bibliaOffline[book][chapter];
             let html = '';
-            const verses = offlineBible[key];
-            const start = verse ? parseInt(verse) - 1 : 0;
-            const end = verse ? parseInt(verse) : verses.length;
-            for (let i = start; i < end && i < verses.length; i++) {
-                html += `<p class="verse"><strong>${i+1}</strong> ${verses[i]}</p>`;
+            if (verse) {
+                if (verse >= 1 && verse <= verses.length) {
+                    html = `<p class="verse"><strong>${verse}</strong> ${verses[verse-1]}</p>`;
+                } else {
+                    html = `<p style="color:#dc3545;">❌ Versículo ${verse} não encontrado no capítulo ${chapter}.</p>`;
+                }
+            } else {
+                verses.forEach((text, i) => {
+                    html += `<p class="verse"><strong>${i+1}</strong> ${text}</p>`;
+                });
             }
-            const bookName = bookNames[book] || book;
-            html += `<p class="reference">📖 ${bookName} ${chapter}${verse ? ':'+verse : ''}</p>`;
+            html += `<p class="reference">📖 ${bookNames[book] || book} ${chapter}${verse ? ':'+verse : ''}</p>`;
             resultDiv.innerHTML = html;
             return;
         }
 
+        // Livro não encontrado offline
+        let suggestions = [];
+        const availableBooks = Object.keys(bibliaOffline);
+        for (let b of availableBooks) {
+            if (bibliaOffline[b][chapter]) {
+                suggestions.push(`${bookNames[b] || b} ${chapter}`);
+                if (suggestions.length >= 3) break;
+            }
+        }
+
         resultDiv.innerHTML = `
-            <p style="color:#dc3545;">❌ Erro ao buscar: ${error.message}</p>
-            <p style="color:#888;margin-top:0.5rem;">Tente Salmos 23, João 3, Romanos 8, Filipenses 4, Josué 1 ou Mateus 6</p>
-            <div style="margin-top:1rem;padding:1rem;background:#f8f9fa;border-radius:8px;">
-                <p><strong>Salmos 23:1-6</strong></p>
-                <p>O SENHOR é o meu pastor; nada me faltará.</p>
-                <p>Deitar-me faz em verdes pastos, guia-me mansamente a águas tranquilas.</p>
-                <p>Refrigera a minha alma; guia-me pelas veredas da justiça, por amor do seu nome.</p>
-                <p>Ainda que eu ande pelo vale da sombra da morte, não temerei mal algum, porque tu estás comigo; a tua vara e o teu cajado me consolam.</p>
-                <p>Preparas uma mesa perante mim na presença dos meus inimigos; unges a minha cabeça com óleo, o meu cálice transborda.</p>
-                <p>Certamente que a bondade e a misericórdia me seguirão todos os dias da minha vida; e habitarei na casa do SENHOR para sempre.</p>
-            </div>
+            <p style="color:#dc3545;">❌ Não foi possível carregar ${bookNames[book] || book} ${chapter}.</p>
+            ${suggestions.length > 0 ? `<p style="color:#888;margin-top:0.5rem;">Sugestões disponíveis: ${suggestions.join(', ')}</p>` : ''}
+            <p style="color:#888;margin-top:0.5rem;">Livros disponíveis offline: ${availableBooks.map(b => bookNames[b] || b).join(', ')}</p>
         `;
     }
 }
@@ -1019,6 +1403,9 @@ async function searchBible() {
 // ============================================
 // ===== CARREGAR CARROSSEL =====
 // ============================================
+let carouselImages = [];
+let currentSlide = 0;
+let slideInterval;
 
 async function loadCarousel() {
     try {
@@ -1048,7 +1435,7 @@ async function loadCarousel() {
 
         data.forEach((img, index) => {
             const slide = document.createElement('div');
-            slide.className = 'carousel-slide' + (index === 0 ? ' active' : '');
+            slide.className = 'carousel-slide';
             let imgSrc = img.image_url || (img.image_base64 ? `data:image/jpeg;base64,${img.image_base64}` : 'https://via.placeholder.com/1400x450/0D47A1/ffffff?text=NJ+Cabu%C3%A7u');
             
             slide.innerHTML = `
@@ -1067,8 +1454,22 @@ async function loadCarousel() {
         });
 
         currentSlide = 0;
+        updateCarousel();
         startCarousel();
     } catch (e) { console.error('Erro carrossel:', e); }
+}
+
+function updateCarousel() {
+    const slides = document.querySelectorAll('.carousel-slide');
+    const dots = document.querySelectorAll('.dot');
+    if (!slides.length) return;
+
+    slides.forEach((s, i) => {
+        s.style.display = i === currentSlide ? 'block' : 'none';
+    });
+    dots.forEach((d, i) => {
+        d.className = 'dot' + (i === currentSlide ? ' active' : '');
+    });
 }
 
 function startCarousel() {
@@ -1078,40 +1479,21 @@ function startCarousel() {
 
 function changeSlide(direction) {
     const slides = document.querySelectorAll('.carousel-slide');
-    const dots = document.querySelectorAll('.dot');
     if (!slides.length) return;
-
-    slides[currentSlide].classList.remove('active');
-    dots[currentSlide].classList.remove('active');
-
     currentSlide = (currentSlide + direction + slides.length) % slides.length;
-
-    slides[currentSlide].classList.add('active');
-    dots[currentSlide].classList.add('active');
-
-    const wrapper = document.getElementById('carouselWrapper');
-    wrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
+    updateCarousel();
 }
 
 function goToSlide(index) {
     const slides = document.querySelectorAll('.carousel-slide');
-    const dots = document.querySelectorAll('.dot');
     if (!slides.length) return;
-
-    slides[currentSlide].classList.remove('active');
-    dots[currentSlide].classList.remove('active');
-
     currentSlide = index;
-    slides[currentSlide].classList.add('active');
-    dots[currentSlide].classList.add('active');
-
-    const wrapper = document.getElementById('carouselWrapper');
-    wrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
+    updateCarousel();
     startCarousel();
 }
 
 // ============================================
-// ===== CARREGAR DADOS (COM IMAGEM WRAPPER) =====
+// ===== CARREGAR DADOS =====
 // ============================================
 
 function createCardImage(imageData, alt) {
@@ -1196,8 +1578,12 @@ async function loadProducts() {
 }
 
 // ============================================
-// ===== DEMAIS FUNÇÕES (MANTIDAS) =====
+// ===== DEMAIS FUNÇÕES =====
 // ============================================
+
+let cart = [];
+let paymentType = 'sale';
+let donationType = '';
 
 async function registerForEvent(eventId, eventName, price) {
     const name = prompt('Seu nome completo:');
@@ -1515,10 +1901,6 @@ async function processPayment() {
         console.error('Erro no pagamento:', error);
     }
 }
-
-// ============================================
-// ===== DEMAIS FUNÇÕES (CONTINUAÇÃO) =====
-// ============================================
 
 async function submitPrayer() {
     const name = document.getElementById('prayerName').value || 'Anônimo';

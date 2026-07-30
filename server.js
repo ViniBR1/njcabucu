@@ -1,5 +1,5 @@
 // ============================================
-// ===== NJ CABUÇU - SERVIDOR SEM SUPABASE =====
+// ===== NJ CABUÇU - SERVIDOR (BASE64) =====
 // ============================================
 
 require('dotenv').config();
@@ -50,36 +50,18 @@ const PORT = process.env.PORT || 3000;
 const BASE_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use(express.static('public'));
 app.use('/uploads', express.static('public/uploads'));
 
 // ============================================
-// ===== MULTER (DISCO) =====
+// ===== MULTER =====
 // ============================================
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        let dir = './public/uploads/';
-        if (req.path.includes('studies')) dir = './public/uploads/estudos/';
-        else if (req.path.includes('products')) dir = './public/uploads/produtos/';
-        else if (req.path.includes('events')) dir = './public/uploads/eventos/';
-        else if (req.path.includes('carousel')) dir = './public/uploads/carousel/';
-        
-        // Criar pasta se não existir
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-        }
-        cb(null, dir);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
-    }
-});
+const storage = multer.memoryStorage();
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 },
+    limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: function (req, file, cb) {
         const allowedTypes = /jpeg|jpg|png|gif|webp/;
         const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -93,7 +75,7 @@ const upload = multer({
 });
 
 // ============================================
-// ===== FUNÇÕES DE AUTENTICAÇÃO =====
+// ===== FUNÇÕES =====
 // ============================================
 const hashPassword = async (pwd) => await bcrypt.hash(pwd, 10);
 const verifyPassword = async (pwd, hash) => await bcrypt.compare(pwd, hash);
@@ -159,6 +141,7 @@ async function initDB() {
             description TEXT,
             file_url VARCHAR(500),
             image_url VARCHAR(500),
+            image_base64 TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
@@ -168,6 +151,7 @@ async function initDB() {
             description TEXT,
             price DECIMAL(10,2) NOT NULL,
             image_url VARCHAR(500),
+            image_base64 TEXT,
             stock INTEGER DEFAULT 0,
             category VARCHAR(100),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -179,6 +163,7 @@ async function initDB() {
             description TEXT,
             date TIMESTAMP NOT NULL,
             image_url VARCHAR(500),
+            image_base64 TEXT,
             price DECIMAL(10,2) DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
@@ -247,7 +232,8 @@ async function initDB() {
             id SERIAL PRIMARY KEY,
             title VARCHAR(200),
             subtitle VARCHAR(200),
-            image_url VARCHAR(500) NOT NULL,
+            image_url VARCHAR(500),
+            image_base64 TEXT,
             link VARCHAR(500),
             order_position INTEGER DEFAULT 0,
             active BOOLEAN DEFAULT true,
@@ -271,16 +257,6 @@ async function initDB() {
                 VALUES ('Pastor', 'pastor@njcabucu.com', ${hash}, 'pastor', 'Administração', false, true)
             `;
             console.log('✅ Pastor criado: pastor@njcabucu.com / admin123');
-        }
-
-        const settings = await sql`SELECT * FROM site_settings WHERE key = 'primary_color'`;
-        if (settings.length === 0) {
-            await sql`
-                INSERT INTO site_settings (key, value) VALUES 
-                ('primary_color', '#0D47A1'),
-                ('site_title', 'NJ Cabuçu'),
-                ('whatsapp', '5521985345627')
-            `;
         }
 
         console.log('🎉 Sistema pronto!');
@@ -512,15 +488,19 @@ app.delete('/api/departments/:department_id/members/:user_id', auth, async (req,
     }
 });
 
-// ----- ESTUDOS (COM UPLOAD LOCAL) -----
+// ----- ESTUDOS -----
 app.post('/api/studies', auth, upload.single('image'), async (req, res) => {
     try {
         const { title, description, file_url } = req.body;
-        const image_url = req.file ? '/uploads/estudos/' + req.file.filename : null;
-        
+        let image_base64 = null;
+
+        if (req.file) {
+            image_base64 = req.file.buffer.toString('base64');
+        }
+
         const result = await sql`
-            INSERT INTO studies (title, description, file_url, image_url)
-            VALUES (${title}, ${description}, ${file_url}, ${image_url})
+            INSERT INTO studies (title, description, file_url, image_base64)
+            VALUES (${title}, ${description}, ${file_url}, ${image_base64})
             RETURNING *
         `;
         console.log('✅ Estudo criado:', result[0]);
@@ -549,15 +529,19 @@ app.delete('/api/studies/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- PRODUTOS (COM UPLOAD LOCAL) -----
+// ----- PRODUTOS -----
 app.post('/api/products', auth, upload.single('image'), async (req, res) => {
     try {
         const { name, description, price, stock, category } = req.body;
-        const image_url = req.file ? '/uploads/produtos/' + req.file.filename : null;
-        
+        let image_base64 = null;
+
+        if (req.file) {
+            image_base64 = req.file.buffer.toString('base64');
+        }
+
         const result = await sql`
-            INSERT INTO products (name, description, price, image_url, stock, category)
-            VALUES (${name}, ${description}, ${parseFloat(price)}, ${image_url}, ${parseInt(stock) || 0}, ${category || ''})
+            INSERT INTO products (name, description, price, image_base64, stock, category)
+            VALUES (${name}, ${description}, ${parseFloat(price)}, ${image_base64}, ${parseInt(stock) || 0}, ${category || ''})
             RETURNING *
         `;
         console.log('✅ Produto criado:', result[0]);
@@ -602,15 +586,19 @@ app.delete('/api/products/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- EVENTOS (COM UPLOAD LOCAL) -----
+// ----- EVENTOS -----
 app.post('/api/events', auth, upload.single('image'), async (req, res) => {
     try {
         const { title, description, date, price } = req.body;
-        const image_url = req.file ? '/uploads/eventos/' + req.file.filename : null;
-        
+        let image_base64 = null;
+
+        if (req.file) {
+            image_base64 = req.file.buffer.toString('base64');
+        }
+
         const result = await sql`
-            INSERT INTO events (title, description, date, image_url, price)
-            VALUES (${title}, ${description}, ${date || new Date()}, ${image_url}, ${parseFloat(price) || 0})
+            INSERT INTO events (title, description, date, image_base64, price)
+            VALUES (${title}, ${description}, ${date || new Date()}, ${image_base64}, ${parseFloat(price) || 0})
             RETURNING *
         `;
         console.log('✅ Evento criado:', result[0]);
@@ -688,7 +676,7 @@ app.put('/api/prayers/:id/read', auth, async (req, res) => {
     }
 });
 
-// ----- PEDIDOS (VENDAS) -----
+// ----- PEDIDOS -----
 app.post('/api/orders', async (req, res) => {
     try {
         const { user_name, user_email, user_phone, items, total, payment_id, payment_method } = req.body;
@@ -856,7 +844,7 @@ app.delete('/api/worship-scales/:id', auth, async (req, res) => {
     }
 });
 
-// ----- CARROSSEL (COM UPLOAD LOCAL) -----
+// ----- CARROSSEL -----
 app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, res) => {
     try {
         const { title, subtitle, link } = req.body;
@@ -865,11 +853,11 @@ app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, 
             return res.status(400).json({ error: 'Imagem é obrigatória' });
         }
 
-        const image_url = '/uploads/carousel/' + req.file.filename;
+        const image_base64 = req.file.buffer.toString('base64');
 
         const result = await sql`
-            INSERT INTO carousel_images (title, subtitle, image_url, link, order_position)
-            VALUES (${title || ''}, ${subtitle || ''}, ${image_url}, ${link || ''}, 
+            INSERT INTO carousel_images (title, subtitle, image_base64, link, order_position)
+            VALUES (${title || ''}, ${subtitle || ''}, ${image_base64}, ${link || ''}, 
                 (SELECT COALESCE(MAX(order_position), 0) + 1 FROM carousel_images))
             RETURNING *
         `;
@@ -903,14 +891,9 @@ app.put('/api/carousel/:id', auth, pastorOnly, upload.single('image'), async (re
             return res.status(404).json({ error: 'Imagem não encontrada' });
         }
         
-        let image_url = current[0].image_url;
+        let image_base64 = current[0].image_base64;
         if (req.file) {
-            // Remover imagem antiga
-            const oldPath = path.join(__dirname, 'public', current[0].image_url);
-            if (fs.existsSync(oldPath)) {
-                try { fs.unlinkSync(oldPath); } catch (e) {}
-            }
-            image_url = '/uploads/carousel/' + req.file.filename;
+            image_base64 = req.file.buffer.toString('base64');
         }
 
         const result = await sql`
@@ -918,7 +901,7 @@ app.put('/api/carousel/:id', auth, pastorOnly, upload.single('image'), async (re
             SET title = ${title || current[0].title},
                 subtitle = ${subtitle || current[0].subtitle},
                 link = ${link || current[0].link},
-                image_url = ${image_url},
+                image_base64 = ${image_base64},
                 active = ${active !== undefined ? active : current[0].active}
             WHERE id = ${id}
             RETURNING *
@@ -932,18 +915,7 @@ app.put('/api/carousel/:id', auth, pastorOnly, upload.single('image'), async (re
 
 app.delete('/api/carousel/:id', auth, pastorOnly, async (req, res) => {
     try {
-        const { id } = req.params;
-        
-        // Remover arquivo físico
-        const current = await sql`SELECT * FROM carousel_images WHERE id = ${id}`;
-        if (current.length > 0 && current[0].image_url) {
-            const oldPath = path.join(__dirname, 'public', current[0].image_url);
-            if (fs.existsSync(oldPath)) {
-                try { fs.unlinkSync(oldPath); } catch (e) {}
-            }
-        }
-        
-        await sql`DELETE FROM carousel_images WHERE id = ${id}`;
+        await sql`DELETE FROM carousel_images WHERE id = ${req.params.id}`;
         res.json({ message: 'Imagem removida' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -976,7 +948,7 @@ app.post('/api/settings', auth, pastorOnly, async (req, res) => {
 });
 
 // ============================================
-// ===== MERCADO PAGO - PIX =====
+// ===== MERCADO PAGO =====
 // ============================================
 
 app.post('/api/create-pix-payment', async (req, res) => {
@@ -1029,10 +1001,6 @@ app.post('/api/create-pix-payment', async (req, res) => {
         res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
     }
 });
-
-// ============================================
-// ===== MERCADO PAGO - CARTÃO =====
-// ============================================
 
 app.post('/api/create-card-payment', async (req, res) => {
     try {
@@ -1252,10 +1220,6 @@ app.listen(PORT, () => {
     console.log('');
     console.log('💰 Mercado Pago: ' + (process.env.MP_ACCESS_TOKEN ? '✅ Configurado' : '⚠️ Não configurado'));
     console.log('');
-    console.log('📂 Uploads: /public/uploads/');
-    console.log('   - estudos/');
-    console.log('   - produtos/');
-    console.log('   - eventos/');
-    console.log('   - carrossel/');
+    console.log('📸 Imagens salvas como Base64 no banco de dados!');
     console.log('');
 });

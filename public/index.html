@@ -67,6 +67,12 @@
         .btn-danger { background: #dc3545; color: white; }
         .btn-danger:hover { background: #c82333; }
         .btn-sm { padding: 0.3rem 0.8rem; font-size: 0.8rem; }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        .btn-outline:hover { background: var(--primary); color: white; }
 
         .main-nav {
             display: flex;
@@ -700,13 +706,28 @@
             <div class="form-group"><label>CPF *</label><input type="text" id="payCpf" required></div>
             <div class="form-group">
                 <label>Forma de Pagamento</label>
-                <select id="payMethod">
+                <select id="payMethod" onchange="togglePaymentMethod()">
                     <option value="pix">PIX</option>
+                    <option value="card">Cartão de Crédito</option>
                 </select>
+            </div>
+            <div id="cardFields" class="hidden">
+                <div class="form-group"><label>Número do Cartão</label><input type="text" id="cardNumber" placeholder="1234 5678 9012 3456"></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Validade</label><input type="text" id="cardExpiry" placeholder="MM/AA"></div>
+                    <div class="form-group"><label>CVV</label><input type="text" id="cardCvv" placeholder="123"></div>
+                </div>
+                <div class="form-group"><label>Parcelas</label>
+                    <select id="cardInstallments">
+                        <option value="1">1x</option><option value="2">2x</option>
+                        <option value="3">3x</option><option value="4">4x</option>
+                        <option value="5">5x</option><option value="6">6x</option>
+                    </select>
+                </div>
             </div>
             <div id="paymentTotal" style="text-align:center;font-size:1.5rem;font-weight:700;color:var(--primary);margin:1rem 0;"></div>
             <button onclick="processPayment()" class="btn btn-primary w-full" style="justify-content:center;">
-                <i class="fas fa-credit-card"></i> Pagar com PIX
+                <i class="fas fa-credit-card"></i> Pagar
             </button>
         </div>
         <div id="paymentResult" class="hidden text-center"></div>
@@ -738,7 +759,7 @@ let paymentType = 'sale';
 let donationType = '';
 
 // ============================================
-// ===== BÍBLIA (CORRIGIDA) =====
+// ===== BÍBLIA (COMPLETA COM FALLBACK) =====
 // ============================================
 
 async function searchBible() {
@@ -748,6 +769,7 @@ async function searchBible() {
     const resultDiv = document.getElementById('bibleResult');
     resultDiv.innerHTML = '<p>⏳ Carregando...</p>';
 
+    // MAPA DE LIVROS
     const bookNames = {
         'gn': 'Gênesis', 'ex': 'Êxodo', 'lv': 'Levítico', 'nm': 'Números',
         'dt': 'Deuteronômio', 'js': 'Josué', 'jz': 'Juízes', 'rt': 'Rute',
@@ -769,6 +791,7 @@ async function searchBible() {
         'ap': 'Apocalipse'
     };
 
+    // VERSÍCULOS CONHECIDOS (FALLBACK)
     const famousVerses = {
         'sl_23': [
             "O SENHOR é o meu pastor; nada me faltará.",
@@ -783,10 +806,19 @@ async function searchBible() {
         'fp_4_13': "Posso todas as coisas naquele que me fortalece.",
         'js_1_9': "Não te mandei eu? Esforça-te, e tem bom ânimo; não temas, nem te espantes; porque o SENHOR teu Deus é contigo, por onde quer que andares.",
         'mt_11_28': "Vinde a mim, todos os que estais cansados e oprimidos, e eu vos aliviarei.",
-        'sl_1_1': "Bem-aventurado o homem que não anda segundo o conselho dos ímpios, nem se detém no caminho dos pecadores, nem se assenta na roda dos escarnecedores."
+        'sl_1_1': "Bem-aventurado o homem que não anda segundo o conselho dos ímpios, nem se detém no caminho dos pecadores, nem se assenta na roda dos escarnecedores.",
+        'sl_121_1': "Elevo os meus olhos para os montes: de onde me virá o socorro?",
+        'sl_121_2': "O meu socorro vem do SENHOR, que fez o céu e a terra.",
+        'pv_3_5': "Confia no SENHOR de todo o teu coração, e não te estribes no teu próprio entendimento.",
+        'pv_3_6': "Reconhece-o em todos os teus caminhos, e ele endireitará as tuas veredas.",
+        'mt_6_33': "Mas buscai primeiro o reino de Deus e a sua justiça, e todas estas coisas vos serão acrescentadas.",
+        'rm_8_31': "Que diremos, pois, a estas coisas? Se Deus é por nós, quem será contra nós?",
+        'jo_14_6': "Respondeu Jesus: Eu sou o caminho, e a verdade, e a vida; ninguém vem ao Pai senão por mim.",
+        '2co_5_17': "Assim que, se alguém está em Cristo, nova criatura é; as coisas velhas já passaram; eis que tudo se fez novo."
     };
 
     try {
+        // TENTAR API PRINCIPAL
         let url = `https://bible-api.com/${book}+${chapter}`;
         if (verse) url += `:${verse}`;
         url += '?translation=almeida';
@@ -795,6 +827,30 @@ async function searchBible() {
         let data = await response.json();
 
         if (data.error) {
+            // TENTAR API ALTERNATIVA (ABIBLIA DIGITAL)
+            try {
+                const altUrl = `https://www.abibliadigital.com.br/api/verses/${book}/${chapter}`;
+                const altResponse = await fetch(altUrl);
+                if (altResponse.ok) {
+                    const altData = await altResponse.json();
+                    if (altData && altData.verses && altData.verses.length > 0) {
+                        let html = '';
+                        let verses = altData.verses;
+                        if (verse) {
+                            verses = verses.filter(v => v.number == verse);
+                        }
+                        verses.forEach(v => {
+                            html += `<p class="verse"><strong>${v.number}</strong> ${v.text}</p>`;
+                        });
+                        html += `<p class="reference">📖 ${altData.book.name} ${altData.chapter}</p>`;
+                        resultDiv.innerHTML = html;
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.log('API alternativa falhou');
+            }
+
             // FALLBACK: VERSÍCULOS CONHECIDOS
             const key = `${book}_${chapter}`;
             if (famousVerses[key]) {
@@ -814,14 +870,16 @@ async function searchBible() {
                 return;
             }
 
+            // MENSAGEM AMIGÁVEL
             resultDiv.innerHTML = `
                 <p style="color:#dc3545;">❌ Não foi possível carregar ${bookNames[book] || book} ${chapter}${verse ? ':'+verse : ''}.</p>
-                <p style="color:#888;margin-top:0.5rem;">Tente um capítulo conhecido como Salmos 23 ou João 3.</p>
+                <p style="color:#888;margin-top:0.5rem;">Tente um capítulo conhecido como Salmos 23, João 3, Romanos 8, Filipenses 4, Josué 1 ou Mateus 6.</p>
                 <p style="color:#888;">Dica: Selecione um livro, digite um capítulo e clique em Buscar.</p>
             `;
             return;
         }
 
+        // EXIBIR RESULTADO DA API
         let html = '';
         if (data.verses) {
             data.verses.forEach(v => {
@@ -833,9 +891,10 @@ async function searchBible() {
         html += `<p class="reference">📖 ${data.reference || bookNames[book] + ' ' + chapter}</p>`;
         resultDiv.innerHTML = html;
     } catch (error) {
+        // FALLBACK FINAL
         resultDiv.innerHTML = `
             <p style="color:#dc3545;">❌ Erro ao buscar: ${error.message}</p>
-            <p style="color:#888;margin-top:0.5rem;">Tente Salmos 23 ou João 3:16</p>
+            <p style="color:#888;margin-top:0.5rem;">Tente Salmos 23, João 3, Romanos 8, Filipenses 4, Josué 1 ou Mateus 6</p>
             <div style="margin-top:1rem;padding:1rem;background:#f8f9fa;border-radius:8px;">
                 <p><strong>Salmos 23:1-6</strong></p>
                 <p>O SENHOR é o meu pastor; nada me faltará.</p>
@@ -844,6 +903,10 @@ async function searchBible() {
                 <p>Ainda que eu ande pelo vale da sombra da morte, não temerei mal algum, porque tu estás comigo; a tua vara e o teu cajado me consolam.</p>
                 <p>Preparas uma mesa perante mim na presença dos meus inimigos; unges a minha cabeça com óleo, o meu cálice transborda.</p>
                 <p>Certamente que a bondade e a misericórdia me seguirão todos os dias da minha vida; e habitarei na casa do SENHOR para sempre.</p>
+            </div>
+            <div style="margin-top:1rem;padding:1rem;background:#f8f9fa;border-radius:8px;">
+                <p><strong>João 3:16</strong></p>
+                <p>Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.</p>
             </div>
         `;
     }
@@ -1169,14 +1232,20 @@ async function submitDonation() {
 }
 
 // ============================================
-// ===== PAGAMENTOS (COM REDIRECIONAMENTO) =====
+// ===== FUNÇÃO DE PAGAMENTO (PIX E CARTÃO) =====
 // ============================================
+
+function togglePaymentMethod() {
+    const method = document.getElementById('payMethod').value;
+    document.getElementById('cardFields').style.display = method === 'card' ? 'block' : 'none';
+}
 
 async function processPayment() {
     const name = document.getElementById('payName').value.trim();
     const email = document.getElementById('payEmail').value.trim();
     const phone = document.getElementById('payPhone').value.trim();
     const cpf = document.getElementById('payCpf').value.trim();
+    const method = document.getElementById('payMethod').value;
 
     if (!name || !email || !phone || !cpf) {
         showNotification('Preencha todos os dados!', 'error');
@@ -1206,7 +1275,27 @@ async function processPayment() {
             cpf: cpf
         };
 
-        const response = await fetch('/api/create-pix-payment', {
+        let endpoint = '/api/create-pix-payment';
+
+        if (method === 'card') {
+            const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+            const cardExpiry = document.getElementById('cardExpiry').value;
+            const cardCvv = document.getElementById('cardCvv').value;
+            const installments = document.getElementById('cardInstallments').value;
+
+            if (!cardNumber || !cardExpiry || !cardCvv) {
+                showNotification('Preencha os dados do cartão!', 'error');
+                return;
+            }
+
+            paymentData.card_number = cardNumber;
+            paymentData.card_expiry = cardExpiry;
+            paymentData.card_cvv = cardCvv;
+            paymentData.installments = installments;
+            endpoint = '/api/create-card-payment';
+        }
+
+        const response = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(paymentData)
@@ -1227,7 +1316,7 @@ async function processPayment() {
                     items: cart,
                     total: amount,
                     payment_id: payment.payment_id,
-                    payment_method: 'pix'
+                    payment_method: method
                 })
             });
             cart = [];
@@ -1243,7 +1332,7 @@ async function processPayment() {
                     type: donationType,
                     amount: amount,
                     payment_id: payment.payment_id,
-                    payment_method: 'pix'
+                    payment_method: method
                 })
             });
         }
@@ -1251,10 +1340,48 @@ async function processPayment() {
         // FECHAR MODAL
         closeModal('paymentModal');
 
-        // REDIRECIONAR PARA O MERCADO PAGO
-        if (payment.payment_link) {
+        if (method === 'pix' && payment.qr_code_base64) {
+            // Mostrar QR Code
+            const resultDiv = document.getElementById('paymentResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <h3>✅ Pagamento via PIX</h3>
+                <div class="qr-container">
+                    <img src="data:image/png;base64,${payment.qr_code_base64}" alt="QR Code PIX">
+                    <p style="margin:0.5rem 0;">Escaneie o QR Code ou copie o código:</p>
+                    <div style="background:#f0f0f0;padding:0.8rem;border-radius:8px;word-break:break-all;font-size:0.8rem;border:1px solid #e0e0e0;">${payment.qr_code}</div>
+                    <div style="display:flex;gap:0.5rem;justify-content:center;margin-top:0.5rem;flex-wrap:wrap;">
+                        <button onclick="navigator.clipboard.writeText('${payment.qr_code}')" class="btn btn-primary btn-sm">
+                            <i class="fas fa-copy"></i> Copiar
+                        </button>
+                        <a href="${payment.payment_link}" target="_blank" class="btn btn-success btn-sm">
+                            <i class="fas fa-external-link-alt"></i> Abrir no Banco
+                        </a>
+                    </div>
+                    <p style="margin-top:0.8rem;color:#888;">Status: ${payment.status}</p>
+                    <div style="display:flex;gap:0.5rem;justify-content:center;margin-top:0.5rem;flex-wrap:wrap;">
+                        <button onclick="closeModal('paymentModal')" class="btn btn-primary">
+                            <i class="fas fa-check"></i> Concluir
+                        </button>
+                        <a href="/" class="btn btn-success" style="text-decoration:none;display:inline-block;padding:0.8rem 2rem;border-radius:50px;background:#28a745;color:white;font-weight:600;">
+                            <i class="fas fa-home"></i> Voltar ao Site
+                        </a>
+                    </div>
+                </div>
+            `;
+            document.getElementById('paymentForm').style.display = 'none';
+            openModal('paymentModal');
+        } else if (method === 'card') {
+            if (payment.status === 'approved') {
+                showNotification('✅ Pagamento aprovado! Obrigado! 🙏', 'success');
+            } else {
+                showNotification(`⏳ Pagamento ${payment.status}. Aguarde a confirmação.`, 'info');
+            }
+        } else if (payment.payment_link) {
             showNotification('🔗 Redirecionando para o Mercado Pago...', 'info');
-            window.location.href = payment.payment_link;
+            setTimeout(() => {
+                window.open(payment.payment_link, '_blank');
+            }, 1000);
         } else {
             showNotification('✅ ' + (paymentType === 'sale' ? 'Compra' : donationType) + ' realizada com sucesso!', 'success');
         }
@@ -1262,57 +1389,6 @@ async function processPayment() {
     } catch (error) {
         showNotification('❌ Erro: ' + error.message, 'error');
         console.error('Erro no pagamento:', error);
-    }
-}
-
-// ============================================
-// ===== PÁGINA DE RETORNO =====
-// ============================================
-
-function showReturnPage() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const status = urlParams.get('status');
-    const paymentId = urlParams.get('payment_id');
-
-    if (status || paymentId) {
-        // Esconder conteúdo principal
-        document.getElementById('mainHeader').style.display = 'none';
-        document.getElementById('mainNav').style.display = 'none';
-        document.querySelector('.carousel-container').style.display = 'none';
-        document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-        document.getElementById('mainFooter').style.display = 'none';
-        
-        // Mostrar página de retorno
-        const returnPage = document.getElementById('paymentReturnPage');
-        returnPage.style.display = 'block';
-
-        let icon = '⏳';
-        let title = 'Aguardando Confirmação';
-        let message = 'Seu pagamento está sendo processado. Aguarde a confirmação.';
-        let msgClass = 'pending';
-        let statusText = 'Pendente';
-
-        if (status === 'approved') {
-            icon = '✅';
-            title = 'Pagamento Confirmado!';
-            message = 'Obrigado pela sua contribuição! Deus abençoe! 🙏';
-            msgClass = 'success';
-            statusText = 'Aprovado';
-        } else if (status === 'rejected') {
-            icon = '❌';
-            title = 'Pagamento Recusado';
-            message = 'Infelizmente seu pagamento não foi aprovado. Tente novamente.';
-            msgClass = 'error';
-            statusText = 'Recusado';
-        }
-
-        document.getElementById('returnIcon').textContent = icon;
-        document.getElementById('returnIcon').style.color = msgClass === 'success' ? '#28a745' : msgClass === 'error' ? '#dc3545' : '#ffc107';
-        document.getElementById('returnTitle').textContent = title;
-        document.getElementById('returnMessage').textContent = message;
-        document.getElementById('returnMessageBox').className = 'message-box ' + msgClass;
-        document.getElementById('returnStatusText').textContent = statusText;
-        document.getElementById('returnPaymentId').textContent = paymentId || '-';
     }
 }
 
@@ -1451,6 +1527,55 @@ function scrollToSection(id) {
 }
 
 // ============================================
+// ===== PÁGINA DE RETORNO =====
+// ============================================
+
+function showReturnPage() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const status = urlParams.get('status');
+    const paymentId = urlParams.get('payment_id');
+
+    if (status || paymentId) {
+        document.getElementById('mainHeader').style.display = 'none';
+        document.getElementById('mainNav').style.display = 'none';
+        document.querySelector('.carousel-container').style.display = 'none';
+        document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+        document.getElementById('mainFooter').style.display = 'none';
+        
+        const returnPage = document.getElementById('paymentReturnPage');
+        returnPage.style.display = 'block';
+
+        let icon = '⏳';
+        let title = 'Aguardando Confirmação';
+        let message = 'Seu pagamento está sendo processado. Aguarde a confirmação.';
+        let msgClass = 'pending';
+        let statusText = 'Pendente';
+
+        if (status === 'approved') {
+            icon = '✅';
+            title = 'Pagamento Confirmado!';
+            message = 'Obrigado pela sua contribuição! Deus abençoe! 🙏';
+            msgClass = 'success';
+            statusText = 'Aprovado';
+        } else if (status === 'rejected') {
+            icon = '❌';
+            title = 'Pagamento Recusado';
+            message = 'Infelizmente seu pagamento não foi aprovado. Tente novamente.';
+            msgClass = 'error';
+            statusText = 'Recusado';
+        }
+
+        document.getElementById('returnIcon').textContent = icon;
+        document.getElementById('returnIcon').style.color = msgClass === 'success' ? '#28a745' : msgClass === 'error' ? '#dc3545' : '#ffc107';
+        document.getElementById('returnTitle').textContent = title;
+        document.getElementById('returnMessage').textContent = message;
+        document.getElementById('returnMessageBox').className = 'message-box ' + msgClass;
+        document.getElementById('returnStatusText').textContent = statusText;
+        document.getElementById('returnPaymentId').textContent = paymentId || '-';
+    }
+}
+
+// ============================================
 // ===== MODAIS =====
 // ============================================
 
@@ -1513,10 +1638,8 @@ async function loadSettings() {
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Verificar se é página de retorno
     showReturnPage();
     
-    // Se não for página de retorno, carregar o site normalmente
     if (document.getElementById('paymentReturnPage').style.display !== 'block') {
         loadSettings();
         loadCarousel();

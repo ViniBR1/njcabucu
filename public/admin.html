@@ -310,6 +310,27 @@
         .notification.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .notification.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
 
+        /* Estilos para a lista de membros na frequência */
+        .member-row {
+            display: flex;
+            align-items: center;
+            padding: 0.4rem 0.5rem;
+            border-radius: 6px;
+            margin-bottom: 2px;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+        .member-row:hover {
+            background: #e8f0fe !important;
+        }
+        .member-row .member-checkbox {
+            margin-right: 0.8rem;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
         @media (max-width: 768px) {
             .header { flex-direction: column; gap: 0.5rem; padding: 0.8rem 1rem; }
             .stats-grid { grid-template-columns: 1fr 1fr; }
@@ -582,20 +603,17 @@
         </div>
     </div>
 
-    <!-- FREQUÊNCIA -->
+    <!-- FREQUÊNCIA - NOVA VERSÃO COM MULTISSELECAO -->
     <div id="tab-frequencia" class="tab-content">
-        <h3>📅 Frequência</h3>
+        <h3>📅 Registrar Frequência em Massa</h3>
+        
         <div class="form-row">
             <div class="form-group">
-                <label>Membro</label>
-                <select id="attendanceMember"></select>
+                <label>📅 Data do Culto</label>
+                <input type="date" id="attendanceDate" value="">
             </div>
             <div class="form-group">
-                <label>Data</label>
-                <input type="date" id="attendanceDate">
-            </div>
-            <div class="form-group">
-                <label>Culto</label>
+                <label>🕊️ Tipo de Culto</label>
                 <select id="attendanceService">
                     <option value="domingo">Domingo</option>
                     <option value="quarta">Quarta</option>
@@ -603,9 +621,69 @@
                     <option value="especial">Especial</option>
                 </select>
             </div>
+            <div class="form-group" style="display:flex; align-items:flex-end;">
+                <button onclick="loadAllMembersForAttendance()" class="btn btn-primary" style="width:100%;">
+                    <i class="fas fa-sync"></i> Carregar Membros
+                </button>
+            </div>
         </div>
-        <button onclick="registerAttendance()" class="btn btn-primary"><i class="fas fa-check"></i> Registrar Presença</button>
-        <div id="attendanceList" class="mt-1"></div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-top:1rem;">
+            <!-- LISTA DE MEMBROS -->
+            <div>
+                <div style="display:flex; gap:0.5rem; margin-bottom:0.8rem; flex-wrap:wrap;">
+                    <div style="flex:1; min-width:150px;">
+                        <input type="text" id="memberSearch" placeholder="🔍 Buscar membro..." 
+                               oninput="filterMembersForAttendance()" style="width:100%; padding:0.5rem; border-radius:8px; border:2px solid #e0e0e0;">
+                    </div>
+                    <button onclick="toggleSelectAll()" class="btn btn-warning btn-sm">
+                        <i class="fas fa-check-double"></i> Selecionar Todos
+                    </button>
+                    <button onclick="clearSelection()" class="btn btn-danger btn-sm">
+                        <i class="fas fa-times"></i> Limpar
+                    </button>
+                </div>
+
+                <div style="background:#f8f9fa; border-radius:12px; border:1px solid #e8e8e8; padding:0.8rem; max-height:400px; overflow-y:auto;">
+                    <div id="membersListContainer">
+                        <p style="color:#888; text-align:center;">Clique em "Carregar Membros" para começar</p>
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:0.5rem; margin-top:0.8rem; flex-wrap:wrap;">
+                    <span style="background:#e8e8e8; padding:0.2rem 0.8rem; border-radius:20px; font-size:0.8rem;">
+                        <span id="selectedCount">0</span> selecionados
+                    </span>
+                    <span style="background:#e8e8e8; padding:0.2rem 0.8rem; border-radius:20px; font-size:0.8rem;">
+                        Total: <span id="totalCount">0</span> membros
+                    </span>
+                </div>
+            </div>
+
+            <!-- RESUMO E AÇÕES -->
+            <div>
+                <div style="background:#f8f9fa; border-radius:12px; border:1px solid #e8e8e8; padding:1.2rem;">
+                    <h4 style="margin-bottom:0.8rem;">📋 Resumo da Frequência</h4>
+                    <div id="attendanceSummary" style="margin-bottom:1rem;">
+                        <p style="color:#888;">Nenhum membro selecionado</p>
+                    </div>
+                    <button onclick="registerMultipleAttendance()" class="btn btn-success" style="width:100%; justify-content:center; padding:0.8rem;">
+                        <i class="fas fa-check-circle"></i> Registrar Presença dos Selecionados
+                    </button>
+                    <button onclick="registerAllAttendance()" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:0.5rem; padding:0.8rem;">
+                        <i class="fas fa-users"></i> Registrar Todos os Membros
+                    </button>
+                </div>
+
+                <!-- ÚLTIMOS REGISTROS -->
+                <div style="margin-top:1rem; background:#f8f9fa; border-radius:12px; border:1px solid #e8e8e8; padding:1.2rem;">
+                    <h4 style="margin-bottom:0.8rem;">📊 Últimos Registros</h4>
+                    <div id="attendanceList" style="max-height:250px; overflow-y:auto;">
+                        <p style="color:#888; text-align:center;">Selecione uma data e carregue os membros</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- TESOURARIA -->
@@ -929,7 +1007,14 @@ function showTab(tab) {
     if (tab === 'carousel') loadCarouselAdmin();
     if (tab === 'departamentos') loadDepartments();
     if (tab === 'membros') loadMembers();
-    if (tab === 'frequencia') { loadAttendanceMembers(); loadAttendance(); }
+    if (tab === 'frequencia') { 
+        setDefaultAttendanceDate();
+        // Se já houver membros carregados, atualizar
+        if (allMembers.length > 0) {
+            renderMembersList();
+            loadAttendanceHistory(document.getElementById('attendanceDate').value);
+        }
+    }
     if (tab === 'tesouraria') { loadTithes(); loadTitheSummary(); }
     if (tab === 'contas') { loadBills(); loadBillSummary(); }
     if (tab === 'config') loadConfig();
@@ -1530,78 +1615,323 @@ async function deleteMember(id) {
 }
 
 // ============================================
-// ===== FREQUÊNCIA =====
+// ===== FREQUÊNCIA - MULTISSELECAO =====
 // ============================================
 
-async function loadAttendanceMembers() {
-    try {
-        const res = await fetch('/api/members', { headers: getHeaders() });
-        const data = await res.json();
-        const select = document.getElementById('attendanceMember');
-        select.innerHTML = '<option value="">Selecione</option>' + 
-            data.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
-    } catch (e) { console.error('Erro:', e); }
+let allMembers = [];
+let selectedMembers = new Set();
+let attendanceFilteredMembers = [];
+
+// Define a data atual como padrão
+function setDefaultAttendanceDate() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    document.getElementById('attendanceDate').value = `${year}-${month}-${day}`;
 }
 
-async function registerAttendance() {
-    const member_id = document.getElementById('attendanceMember').value;
-    const event_date = document.getElementById('attendanceDate').value;
-    const service_type = document.getElementById('attendanceService').value;
-
-    if (!member_id || !event_date) {
-        showNotification('Selecione membro e data!', 'error');
+// Carrega todos os membros para a lista de frequência
+async function loadAllMembersForAttendance() {
+    const date = document.getElementById('attendanceDate').value;
+    if (!date) {
+        showNotification('⚠️ Selecione uma data primeiro!', 'error');
         return;
     }
 
     try {
-        await fetch('/api/attendance', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...getHeaders() },
-            body: JSON.stringify({ member_id, event_date, service_type, present: true })
-        });
-        showNotification('✅ Presença registrada!', 'success');
-        loadAttendance();
-    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+        showNotification('🔄 Carregando membros...', 'info');
+        const res = await fetch('/api/members', { headers: getHeaders() });
+        allMembers = await res.json();
+        
+        // Limpar seleção anterior
+        selectedMembers.clear();
+        
+        // Verificar quais membros já têm presença nesta data
+        await checkExistingAttendance(date);
+        
+        renderMembersList();
+        updateSummary();
+        loadAttendanceHistory(date);
+        
+        showNotification(`✅ ${allMembers.length} membros carregados!`, 'success');
+    } catch (e) {
+        console.error('Erro:', e);
+        showNotification('❌ Erro ao carregar membros: ' + e.message, 'error');
+    }
 }
 
-async function loadAttendance() {
+// Verifica quais membros já têm presença registrada na data
+async function checkExistingAttendance(date) {
     try {
-        const member_id = document.getElementById('attendanceMember').value;
-        if (!member_id) {
-            document.getElementById('attendanceList').innerHTML = '<p style="color:#888;">Selecione um membro para ver a frequência.</p>';
+        const res = await fetch(`/api/attendance/date/${date}`, { headers: getHeaders() });
+        const existing = await res.json();
+        
+        // Marcar membros que já têm presença
+        existing.forEach(record => {
+            if (record.present) {
+                selectedMembers.add(record.member_id);
+            }
+        });
+        
+        document.getElementById('selectedCount').textContent = selectedMembers.size;
+    } catch (e) {
+        console.error('Erro ao verificar frequência existente:', e);
+    }
+}
+
+// Renderiza a lista de membros com checkbox
+function renderMembersList() {
+    const container = document.getElementById('membersListContainer');
+    const search = document.getElementById('memberSearch').value.toLowerCase().trim();
+    
+    // Filtrar membros
+    let filtered = allMembers;
+    if (search) {
+        filtered = allMembers.filter(m => 
+            m.name.toLowerCase().includes(search) || 
+            (m.email && m.email.toLowerCase().includes(search))
+        );
+    }
+    attendanceFilteredMembers = filtered;
+    
+    document.getElementById('totalCount').textContent = filtered.length;
+    
+    if (filtered.length === 0) {
+        container.innerHTML = '<p style="color:#888; text-align:center; padding:1rem;">Nenhum membro encontrado</p>';
+        return;
+    }
+    
+    let html = '';
+    filtered.forEach(m => {
+        const isChecked = selectedMembers.has(m.id) ? 'checked' : '';
+        const isPresent = isChecked ? 'style="background:#d4edda;"' : '';
+        html += `
+            <div class="member-row" data-id="${m.id}" ${isPresent} onclick="toggleMember(${m.id})">
+                <input type="checkbox" class="member-checkbox" value="${m.id}" ${isChecked} 
+                       onclick="event.stopPropagation(); toggleMember(${m.id})">
+                <div style="flex:1;">
+                    <div style="font-weight:500;">${m.name}</div>
+                    <div style="font-size:0.7rem; color:#888;">${m.department_name || 'Sem departamento'} ${m.email ? '| ' + m.email : ''}</div>
+                </div>
+                <span style="font-size:0.7rem; color:#888;">${m.phone || ''}</span>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+    document.getElementById('selectedCount').textContent = selectedMembers.size;
+}
+
+// Filtra membros pela busca
+function filterMembersForAttendance() {
+    renderMembersList();
+}
+
+// Alterna seleção de um membro
+function toggleMember(id) {
+    if (selectedMembers.has(id)) {
+        selectedMembers.delete(id);
+    } else {
+        selectedMembers.add(id);
+    }
+    
+    // Atualizar visual
+    const row = document.querySelector(`.member-row[data-id="${id}"]`);
+    if (row) {
+        const cb = row.querySelector('.member-checkbox');
+        if (cb) cb.checked = selectedMembers.has(id);
+        row.style.background = selectedMembers.has(id) ? '#d4edda' : '';
+    }
+    
+    document.getElementById('selectedCount').textContent = selectedMembers.size;
+    updateSummary();
+}
+
+// Selecionar todos os membros visíveis
+function toggleSelectAll() {
+    const visibleMembers = attendanceFilteredMembers.length > 0 ? attendanceFilteredMembers : allMembers;
+    const allSelected = visibleMembers.every(m => selectedMembers.has(m.id));
+    
+    if (allSelected) {
+        visibleMembers.forEach(m => selectedMembers.delete(m.id));
+    } else {
+        visibleMembers.forEach(m => selectedMembers.add(m.id));
+    }
+    
+    renderMembersList();
+    updateSummary();
+}
+
+// Limpar seleção
+function clearSelection() {
+    selectedMembers.clear();
+    renderMembersList();
+    updateSummary();
+}
+
+// Atualiza resumo da frequência
+function updateSummary() {
+    const container = document.getElementById('attendanceSummary');
+    const total = selectedMembers.size;
+    
+    if (total === 0) {
+        container.innerHTML = `<p style="color:#888;">Nenhum membro selecionado</p>`;
+        return;
+    }
+    
+    // Buscar nomes dos selecionados
+    const names = allMembers
+        .filter(m => selectedMembers.has(m.id))
+        .map(m => m.name)
+        .slice(0, 10);
+    
+    const more = total > 10 ? ` e +${total - 10} outros` : '';
+    container.innerHTML = `
+        <div style="background:#d4edda; padding:0.5rem 0.8rem; border-radius:8px;">
+            <strong style="font-size:1.2rem;">${total}</strong> membros selecionados
+            <div style="font-size:0.8rem; color:#155724; margin-top:0.3rem;">
+                ${names.join(', ')}${more}
+            </div>
+        </div>
+    `;
+}
+
+// Registrar presença dos selecionados
+async function registerMultipleAttendance() {
+    const date = document.getElementById('attendanceDate').value;
+    const service_type = document.getElementById('attendanceService').value;
+    
+    if (!date) {
+        showNotification('⚠️ Selecione uma data!', 'error');
+        return;
+    }
+    
+    if (selectedMembers.size === 0) {
+        showNotification('⚠️ Selecione pelo menos um membro!', 'error');
+        return;
+    }
+    
+    if (!confirm(`Registrar presença de ${selectedMembers.size} membros para ${new Date(date).toLocaleDateString('pt-BR')}?`)) {
+        return;
+    }
+    
+    try {
+        showNotification(`🔄 Registrando presença de ${selectedMembers.size} membros...`, 'info');
+        
+        let successCount = 0;
+        let errorCount = 0;
+        
+        for (const memberId of selectedMembers) {
+            try {
+                await fetch('/api/attendance', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    body: JSON.stringify({ 
+                        member_id: memberId, 
+                        event_date: date, 
+                        service_type, 
+                        present: true 
+                    })
+                });
+                successCount++;
+            } catch (e) {
+                errorCount++;
+                console.error(`Erro ao registrar membro ${memberId}:`, e);
+            }
+        }
+        
+        showNotification(`✅ ${successCount} membros registrados! ${errorCount > 0 ? '⚠️ ' + errorCount + ' erros' : ''}`, 'success');
+        
+        // Recarregar para mostrar atualizações
+        await checkExistingAttendance(date);
+        renderMembersList();
+        loadAttendanceHistory(date);
+        
+    } catch (e) {
+        showNotification('❌ Erro ao registrar presença: ' + e.message, 'error');
+    }
+}
+
+// Registrar todos os membros
+async function registerAllAttendance() {
+    const date = document.getElementById('attendanceDate').value;
+    const service_type = document.getElementById('attendanceService').value;
+    
+    if (!date) {
+        showNotification('⚠️ Selecione uma data!', 'error');
+        return;
+    }
+    
+    // Selecionar todos os membros primeiro
+    allMembers.forEach(m => selectedMembers.add(m.id));
+    renderMembersList();
+    updateSummary();
+    
+    // Depois registrar
+    await registerMultipleAttendance();
+}
+
+// Carregar histórico de frequência da data
+async function loadAttendanceHistory(date) {
+    if (!date) {
+        document.getElementById('attendanceList').innerHTML = '<p style="color:#888;">Selecione uma data</p>';
+        return;
+    }
+    
+    try {
+        const res = await fetch(`/api/attendance/date/${date}`, { headers: getHeaders() });
+        const records = await res.json();
+        
+        const container = document.getElementById('attendanceList');
+        
+        if (records.length === 0) {
+            container.innerHTML = `<p style="color:#888;">Nenhum registro para ${new Date(date).toLocaleDateString('pt-BR')}</p>`;
             return;
         }
-        const res = await fetch('/api/attendance/' + member_id + '?limit=10', { headers: getHeaders() });
-        const data = await res.json();
         
-        const stats = await fetch('/api/attendance/stats/' + member_id, { headers: getHeaders() }).then(r => r.json());
+        let html = `
+            <div style="font-size:0.8rem; color:#666; margin-bottom:0.5rem;">
+                <strong>${records.length}</strong> registros encontrados
+                <span style="margin-left:0.5rem; color:#28a745;">
+                    ✅ ${records.filter(r => r.present).length} presentes
+                </span>
+                <span style="margin-left:0.5rem; color:#dc3545;">
+                    ❌ ${records.filter(r => !r.present).length} faltas
+                </span>
+            </div>
+            <div class="table-wrapper">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Membro</th>
+                            <th>Culto</th>
+                            <th>Status</th>
+                            <th>Horário</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
         
-        let html = `<div style="background:#f8f9fa;padding:0.8rem;border-radius:8px;margin-bottom:0.8rem;">
-            <strong>📊 Estatísticas:</strong>
-            Total: ${stats.total || 0} | 
-            ✅ Presente: ${stats.present || 0} | 
-            ❌ Falta: ${stats.absent || 0} | 
-            🎯 ${stats.percentage || 0}%
-        </div>`;
+        records.slice(0, 20).forEach(r => {
+            const member = allMembers.find(m => m.id === r.member_id);
+            html += `
+                <tr>
+                    <td>${member ? member.name : 'Membro #' + r.member_id}</td>
+                    <td>${r.service_type}</td>
+                    <td><span class="status ${r.present ? 'status-approved' : 'status-pending'}">${r.present ? '✅ Presente' : '❌ Falta'}</span></td>
+                    <td>${r.check_in_time ? new Date(r.check_in_time).toLocaleTimeString('pt-BR') : '-'}</td>
+                </tr>
+            `;
+        });
         
-        if (data.length === 0) {
-            html += '<p style="color:#888;">Nenhum registro de frequência.</p>';
-        } else {
-            html += '<div class="table-wrapper"><table class="table"><thead><tr><th>Data</th><th>Culto</th><th>Status</th></tr></thead><tbody>';
-            data.forEach(a => {
-                html += `<tr>
-                    <td>${new Date(a.event_date).toLocaleDateString('pt-BR')}</td>
-                    <td>${a.service_type}</td>
-                    <td>${a.present ? '✅ Presente' : '❌ Falta'}</td>
-                </tr>`;
-            });
-            html += '</tbody></table></div>';
-        }
-        document.getElementById('attendanceList').innerHTML = html;
-    } catch (e) { console.error('Erro:', e); }
+        html += '</tbody></table></div>';
+        container.innerHTML = html;
+    } catch (e) {
+        console.error('Erro ao carregar histórico:', e);
+        document.getElementById('attendanceList').innerHTML = '<p style="color:#888;">Erro ao carregar histórico</p>';
+    }
 }
-
-document.getElementById('attendanceMember')?.addEventListener('change', loadAttendance);
 
 // ============================================
 // ===== DÍZIMOS =====
@@ -1895,6 +2225,7 @@ async function saveConfig(key, value) {
 document.addEventListener('DOMContentLoaded', () => {
     loadDashboard();
     loadConfig();
+    setDefaultAttendanceDate();
 });
 </script>
 </body>

@@ -14,8 +14,12 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { MercadoPagoConfig, Payment } = require('mercadopago');
+const { createClient } = require('@supabase/supabase-js');
+const sharp = require('sharp');
 
+// ============================================
 // ===== CONEXÃO NEON =====
+// ============================================
 if (!process.env.DATABASE_URL) {
     console.error('❌ DATABASE_URL não encontrada!');
     process.exit(1);
@@ -23,7 +27,27 @@ if (!process.env.DATABASE_URL) {
 const sql = neon(process.env.DATABASE_URL);
 console.log('✅ Conectado ao Neon Database');
 
+// ============================================
+// ===== SUPABASE CONFIG =====
+// ============================================
+const supabaseUrl = 'https://uygdcrrkagxyaahygrug.supabase.co';
+const supabaseKey = 'sb_publishable_WjXVAWz3jHE7AGi5UjdBvg_CNTeT574';
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+console.log('✅ Supabase configurado com sucesso!');
+
+// Buckets
+const BUCKETS = {
+    estudos: 'estudos',
+    produtos: 'produtos',
+    eventos: 'eventos',
+    carrossel: 'carrossel'
+};
+console.log('📦 Buckets:', BUCKETS);
+
+// ============================================
 // ===== MERCADO PAGO =====
+// ============================================
 let PaymentService = null;
 try {
     if (process.env.MP_ACCESS_TOKEN) {
@@ -38,7 +62,9 @@ try {
     console.log('⚠️ Erro MP:', error.message);
 }
 
+// ============================================
 // ===== APP =====
+// ============================================
 const app = express();
 const PORT = process.env.PORT || 3000;
 const BASE_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
@@ -48,25 +74,10 @@ app.use(express.json());
 app.use(express.static('public'));
 app.use('/uploads', express.static('public/uploads'));
 
-// ===== MULTER =====
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        let dir = './public/uploads/';
-        if (req.path.includes('studies')) dir = './public/uploads/estudos/';
-        else if (req.path.includes('products')) dir = './public/uploads/produtos/';
-        else if (req.path.includes('events')) dir = './public/uploads/eventos/';
-        else if (req.path.includes('carousel')) dir = './public/uploads/carousel/';
-        
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-        }
-        cb(null, dir);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
-    }
-});
+// ============================================
+// ===== MULTER (MEMÓRIA) =====
+// ============================================
+const storage = multer.memoryStorage();
 
 const upload = multer({
     storage: storage,
@@ -83,7 +94,54 @@ const upload = multer({
     }
 });
 
-// ===== FUNÇÕES =====
+// ============================================
+// ===== FUNÇÃO DE UPLOAD SUPABASE =====
+// ============================================
+async function uploadToSupabase(file, folder) {
+    try {
+        if (!file) return null;
+
+        // Comprimir imagem
+        const compressedBuffer = await sharp(file.buffer)
+            .resize(1200, 800, { 
+                fit: 'inside', 
+                withoutEnlargement: true 
+            })
+            .jpeg({ quality: 75, progressive: true })
+            .toBuffer();
+
+        const fileExt = path.extname(file.originalname) || '.jpg';
+        const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(2)}${fileExt}`;
+
+        const bucketName = BUCKETS[folder] || folder;
+
+        const { data, error } = await supabase.storage
+            .from(bucketName)
+            .upload(fileName, compressedBuffer, {
+                contentType: 'image/jpeg',
+                cacheControl: '3600'
+            });
+
+        if (error) {
+            console.error('❌ Erro no upload Supabase:', error);
+            return null;
+        }
+
+        // Buscar URL pública
+        const { data: publicUrl } = supabase.storage
+            .from(bucketName)
+            .getPublicUrl(fileName);
+
+        return publicUrl.publicUrl;
+    } catch (error) {
+        console.error('❌ Erro ao fazer upload:', error);
+        return null;
+    }
+}
+
+// ============================================
+// ===== FUNÇÕES DE AUTENTICAÇÃO =====
+// ============================================
 const hashPassword = async (pwd) => await bcrypt.hash(pwd, 10);
 const verifyPassword = async (pwd, hash) => await bcrypt.compare(pwd, hash);
 
@@ -108,7 +166,6 @@ const pastorOnly = (req, res, next) => {
 // ============================================
 // ===== INICIALIZAR BANCO =====
 // ============================================
-
 async function initDB() {
     console.log('📝 Criando tabelas...');
     
@@ -579,13 +636,18 @@ app.delete('/api/departments/:department_id/members/:user_id', auth, async (req,
 app.post('/api/studies', auth, upload.single('image'), async (req, res) => {
     try {
         const { title, description, file_url } = req.body;
-        const image_url = req.file ? '/uploads/estudos/' + req.file.filename : null;
-        
+        let image_url = null;
+
+        if (req.file) {
+            image_url = await uploadToSupabase(req.file, 'estudos');
+        }
+
         const result = await sql`
             INSERT INTO studies (title, description, file_url, image_url)
             VALUES (${title}, ${description}, ${file_url}, ${image_url})
             RETURNING *
         `;
+        console.log('✅ Estudo criado:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar estudo:', error);
@@ -615,13 +677,18 @@ app.delete('/api/studies/:id', auth, pastorOnly, async (req, res) => {
 app.post('/api/products', auth, upload.single('image'), async (req, res) => {
     try {
         const { name, description, price, stock, category } = req.body;
-        const image_url = req.file ? '/uploads/produtos/' + req.file.filename : null;
-        
+        let image_url = null;
+
+        if (req.file) {
+            image_url = await uploadToSupabase(req.file, 'produtos');
+        }
+
         const result = await sql`
             INSERT INTO products (name, description, price, image_url, stock, category)
             VALUES (${name}, ${description}, ${parseFloat(price)}, ${image_url}, ${parseInt(stock) || 0}, ${category || ''})
             RETURNING *
         `;
+        console.log('✅ Produto criado:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar produto:', error);
@@ -667,13 +734,18 @@ app.delete('/api/products/:id', auth, pastorOnly, async (req, res) => {
 app.post('/api/events', auth, upload.single('image'), async (req, res) => {
     try {
         const { title, description, date, price } = req.body;
-        const image_url = req.file ? '/uploads/eventos/' + req.file.filename : null;
-        
+        let image_url = null;
+
+        if (req.file) {
+            image_url = await uploadToSupabase(req.file, 'eventos');
+        }
+
         const result = await sql`
             INSERT INTO events (title, description, date, image_url, price)
             VALUES (${title}, ${description}, ${date || new Date()}, ${image_url}, ${parseFloat(price) || 0})
             RETURNING *
         `;
+        console.log('✅ Evento criado:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar evento:', error);
@@ -870,7 +942,7 @@ app.get('/api/donations', auth, async (req, res) => {
     }
 });
 
-// ----- ESCALAS (TODOS OS DEPARTAMENTOS) -----
+// ----- ESCALAS -----
 app.post('/api/worship-scales', auth, async (req, res) => {
     try {
         const { department_id, event_date, leader_id, songs, palette, rehearsal } = req.body;
@@ -920,8 +992,13 @@ app.delete('/api/worship-scales/:id', auth, async (req, res) => {
 app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, res) => {
     try {
         const { title, subtitle, link } = req.body;
-        const image_url = req.file ? '/uploads/carousel/' + req.file.filename : null;
-        if (!image_url) return res.status(400).json({ error: 'Imagem obrigatória' });
+        
+        if (!req.file) {
+            return res.status(400).json({ error: 'Imagem é obrigatória' });
+        }
+
+        let image_url = null;
+        image_url = await uploadToSupabase(req.file, 'carrossel');
 
         const result = await sql`
             INSERT INTO carousel_images (title, subtitle, image_url, link, order_position)
@@ -929,6 +1006,7 @@ app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, 
                 (SELECT COALESCE(MAX(order_position), 0) + 1 FROM carousel_images))
             RETURNING *
         `;
+        console.log('✅ Carrossel criado:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar carrossel:', error);
@@ -960,11 +1038,7 @@ app.put('/api/carousel/:id', auth, pastorOnly, upload.single('image'), async (re
         
         let image_url = current[0].image_url;
         if (req.file) {
-            const oldPath = path.join(__dirname, 'public', current[0].image_url);
-            if (fs.existsSync(oldPath)) {
-                try { fs.unlinkSync(oldPath); } catch (e) {}
-            }
-            image_url = '/uploads/carousel/' + req.file.filename;
+            image_url = await uploadToSupabase(req.file, 'carrossel');
         }
 
         const result = await sql`
@@ -986,17 +1060,7 @@ app.put('/api/carousel/:id', auth, pastorOnly, upload.single('image'), async (re
 
 app.delete('/api/carousel/:id', auth, pastorOnly, async (req, res) => {
     try {
-        const { id } = req.params;
-        
-        const current = await sql`SELECT * FROM carousel_images WHERE id = ${id}`;
-        if (current.length > 0 && current[0].image_url) {
-            const oldPath = path.join(__dirname, 'public', current[0].image_url);
-            if (fs.existsSync(oldPath)) {
-                try { fs.unlinkSync(oldPath); } catch (e) {}
-            }
-        }
-        
-        await sql`DELETE FROM carousel_images WHERE id = ${id}`;
+        await sql`DELETE FROM carousel_images WHERE id = ${req.params.id}`;
         res.json({ message: 'Imagem removida' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -1029,7 +1093,7 @@ app.post('/api/settings', auth, pastorOnly, async (req, res) => {
 });
 
 // ============================================
-// ===== MERCADO PAGO - PIX =====
+// ===== MERCADO PAGO =====
 // ============================================
 
 app.post('/api/create-pix-payment', async (req, res) => {
@@ -1083,10 +1147,6 @@ app.post('/api/create-pix-payment', async (req, res) => {
     }
 });
 
-// ============================================
-// ===== MERCADO PAGO - CARTÃO DE CRÉDITO =====
-// ============================================
-
 app.post('/api/create-card-payment', async (req, res) => {
     try {
         const { amount, description, email, name, phone, cpf, card_number, card_expiry, card_cvv, installments } = req.body;
@@ -1123,7 +1183,6 @@ app.post('/api/create-card-payment', async (req, res) => {
         console.log('📝 Criando pagamento com cartão...');
         const payment = await PaymentService.create(paymentData);
         console.log('✅ Pagamento criado:', payment.id);
-        console.log('📊 Status:', payment.status);
 
         res.json({
             payment_id: payment.id,
@@ -1179,7 +1238,7 @@ app.post('/api/webhook', async (req, res) => {
 });
 
 // ============================================
-// ===== GERAR PDF DE CONFIRMAÇÃO =====
+// ===== PDF DE CONFIRMAÇÃO =====
 // ============================================
 
 app.get('/api/registration-pdf/:id', async (req, res) => {
@@ -1306,5 +1365,9 @@ app.listen(PORT, () => {
     console.log('   Senha: admin123');
     console.log('');
     console.log('💰 Mercado Pago: ' + (process.env.MP_ACCESS_TOKEN ? '✅ Configurado' : '⚠️ Não configurado'));
+    console.log('');
+    console.log('📦 Supabase: ✅ Configurado');
+    console.log('   URL: ' + supabaseUrl);
+    console.log('   Buckets: estudos, produtos, eventos, carrossel');
     console.log('');
 });

@@ -393,7 +393,6 @@
         .qr-container { text-align: center; padding: 1rem; }
         .qr-container img { max-width: 200px; margin: 0 auto; display: block; }
 
-        /* PÁGINA DE RETORNO */
         #paymentReturnPage {
             max-width: 600px;
             margin: 2rem auto;
@@ -759,7 +758,7 @@ let paymentType = 'sale';
 let donationType = '';
 
 // ============================================
-// ===== BÍBLIA (COMPLETA COM FALLBACK) =====
+// ===== BÍBLIA COMPLETA COM FALLBACK =====
 // ============================================
 
 async function searchBible() {
@@ -769,7 +768,6 @@ async function searchBible() {
     const resultDiv = document.getElementById('bibleResult');
     resultDiv.innerHTML = '<p>⏳ Carregando...</p>';
 
-    // MAPA DE LIVROS
     const bookNames = {
         'gn': 'Gênesis', 'ex': 'Êxodo', 'lv': 'Levítico', 'nm': 'Números',
         'dt': 'Deuteronômio', 'js': 'Josué', 'jz': 'Juízes', 'rt': 'Rute',
@@ -791,7 +789,6 @@ async function searchBible() {
         'ap': 'Apocalipse'
     };
 
-    // VERSÍCULOS CONHECIDOS (FALLBACK)
     const famousVerses = {
         'sl_23': [
             "O SENHOR é o meu pastor; nada me faltará.",
@@ -818,7 +815,6 @@ async function searchBible() {
     };
 
     try {
-        // TENTAR API PRINCIPAL
         let url = `https://bible-api.com/${book}+${chapter}`;
         if (verse) url += `:${verse}`;
         url += '?translation=almeida';
@@ -827,7 +823,7 @@ async function searchBible() {
         let data = await response.json();
 
         if (data.error) {
-            // TENTAR API ALTERNATIVA (ABIBLIA DIGITAL)
+            // TENTAR API ALTERNATIVA
             try {
                 const altUrl = `https://www.abibliadigital.com.br/api/verses/${book}/${chapter}`;
                 const altResponse = await fetch(altUrl);
@@ -870,16 +866,13 @@ async function searchBible() {
                 return;
             }
 
-            // MENSAGEM AMIGÁVEL
             resultDiv.innerHTML = `
                 <p style="color:#dc3545;">❌ Não foi possível carregar ${bookNames[book] || book} ${chapter}${verse ? ':'+verse : ''}.</p>
                 <p style="color:#888;margin-top:0.5rem;">Tente um capítulo conhecido como Salmos 23, João 3, Romanos 8, Filipenses 4, Josué 1 ou Mateus 6.</p>
-                <p style="color:#888;">Dica: Selecione um livro, digite um capítulo e clique em Buscar.</p>
             `;
             return;
         }
 
-        // EXIBIR RESULTADO DA API
         let html = '';
         if (data.verses) {
             data.verses.forEach(v => {
@@ -891,7 +884,6 @@ async function searchBible() {
         html += `<p class="reference">📖 ${data.reference || bookNames[book] + ' ' + chapter}</p>`;
         resultDiv.innerHTML = html;
     } catch (error) {
-        // FALLBACK FINAL
         resultDiv.innerHTML = `
             <p style="color:#dc3545;">❌ Erro ao buscar: ${error.message}</p>
             <p style="color:#888;margin-top:0.5rem;">Tente Salmos 23, João 3, Romanos 8, Filipenses 4, Josué 1 ou Mateus 6</p>
@@ -1232,7 +1224,7 @@ async function submitDonation() {
 }
 
 // ============================================
-// ===== FUNÇÃO DE PAGAMENTO (PIX E CARTÃO) =====
+// ===== PAGAMENTO (PIX E CARTÃO) =====
 // ============================================
 
 function togglePaymentMethod() {
@@ -1340,50 +1332,52 @@ async function processPayment() {
         // FECHAR MODAL
         closeModal('paymentModal');
 
-        if (method === 'pix' && payment.qr_code_base64) {
-            // Mostrar QR Code
-            const resultDiv = document.getElementById('paymentResult');
-            resultDiv.style.display = 'block';
-            resultDiv.innerHTML = `
-                <h3>✅ Pagamento via PIX</h3>
-                <div class="qr-container">
-                    <img src="data:image/png;base64,${payment.qr_code_base64}" alt="QR Code PIX">
-                    <p style="margin:0.5rem 0;">Escaneie o QR Code ou copie o código:</p>
-                    <div style="background:#f0f0f0;padding:0.8rem;border-radius:8px;word-break:break-all;font-size:0.8rem;border:1px solid #e0e0e0;">${payment.qr_code}</div>
-                    <div style="display:flex;gap:0.5rem;justify-content:center;margin-top:0.5rem;flex-wrap:wrap;">
-                        <button onclick="navigator.clipboard.writeText('${payment.qr_code}')" class="btn btn-primary btn-sm">
-                            <i class="fas fa-copy"></i> Copiar
-                        </button>
-                        <a href="${payment.payment_link}" target="_blank" class="btn btn-success btn-sm">
-                            <i class="fas fa-external-link-alt"></i> Abrir no Banco
-                        </a>
+        // REDIRECIONAR PARA O MERCADO PAGO
+        if (method === 'pix') {
+            if (payment.payment_link) {
+                showNotification('🔗 Redirecionando para o Mercado Pago...', 'info');
+                window.location.href = payment.payment_link;
+            } else if (payment.qr_code_base64) {
+                // Fallback: mostrar QR Code
+                const resultDiv = document.getElementById('paymentResult');
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `
+                    <h3>✅ Pagamento via PIX</h3>
+                    <div class="qr-container">
+                        <img src="data:image/png;base64,${payment.qr_code_base64}" alt="QR Code PIX">
+                        <p style="margin:0.5rem 0;">Escaneie o QR Code ou copie o código:</p>
+                        <div style="background:#f0f0f0;padding:0.8rem;border-radius:8px;word-break:break-all;font-size:0.8rem;border:1px solid #e0e0e0;">${payment.qr_code}</div>
+                        <div style="display:flex;gap:0.5rem;justify-content:center;margin-top:0.5rem;flex-wrap:wrap;">
+                            <button onclick="navigator.clipboard.writeText('${payment.qr_code}')" class="btn btn-primary btn-sm">
+                                <i class="fas fa-copy"></i> Copiar
+                            </button>
+                            <a href="${payment.payment_link}" target="_blank" class="btn btn-success btn-sm">
+                                <i class="fas fa-external-link-alt"></i> Abrir no Banco
+                            </a>
+                        </div>
+                        <p style="margin-top:0.8rem;color:#888;">Status: ${payment.status}</p>
+                        <div style="display:flex;gap:0.5rem;justify-content:center;margin-top:0.5rem;flex-wrap:wrap;">
+                            <button onclick="closeModal('paymentModal')" class="btn btn-primary">
+                                <i class="fas fa-check"></i> Concluir
+                            </button>
+                            <a href="/" class="btn btn-success" style="text-decoration:none;display:inline-block;padding:0.8rem 2rem;border-radius:50px;background:#28a745;color:white;font-weight:600;">
+                                <i class="fas fa-home"></i> Voltar ao Site
+                            </a>
+                        </div>
                     </div>
-                    <p style="margin-top:0.8rem;color:#888;">Status: ${payment.status}</p>
-                    <div style="display:flex;gap:0.5rem;justify-content:center;margin-top:0.5rem;flex-wrap:wrap;">
-                        <button onclick="closeModal('paymentModal')" class="btn btn-primary">
-                            <i class="fas fa-check"></i> Concluir
-                        </button>
-                        <a href="/" class="btn btn-success" style="text-decoration:none;display:inline-block;padding:0.8rem 2rem;border-radius:50px;background:#28a745;color:white;font-weight:600;">
-                            <i class="fas fa-home"></i> Voltar ao Site
-                        </a>
-                    </div>
-                </div>
-            `;
-            document.getElementById('paymentForm').style.display = 'none';
-            openModal('paymentModal');
-        } else if (method === 'card') {
+                `;
+                document.getElementById('paymentForm').style.display = 'none';
+                openModal('paymentModal');
+            } else {
+                showNotification('✅ ' + (paymentType === 'sale' ? 'Compra' : donationType) + ' realizada com sucesso!', 'success');
+            }
+        } else {
+            // CARTÃO
             if (payment.status === 'approved') {
                 showNotification('✅ Pagamento aprovado! Obrigado! 🙏', 'success');
             } else {
                 showNotification(`⏳ Pagamento ${payment.status}. Aguarde a confirmação.`, 'info');
             }
-        } else if (payment.payment_link) {
-            showNotification('🔗 Redirecionando para o Mercado Pago...', 'info');
-            setTimeout(() => {
-                window.open(payment.payment_link, '_blank');
-            }, 1000);
-        } else {
-            showNotification('✅ ' + (paymentType === 'sale' ? 'Compra' : donationType) + ' realizada com sucesso!', 'success');
         }
 
     } catch (error) {

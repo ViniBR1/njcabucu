@@ -68,6 +68,49 @@
         .btn-danger:hover { background: #c82333; }
         .btn-sm { padding: 0.3rem 0.8rem; font-size: 0.8rem; }
 
+        /* Botão de pagamento padronizado */
+        .btn-payment {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+        }
+        .btn-payment:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(13, 71, 161, 0.3);
+        }
+
+        /* Botão do carrinho */
+        .btn-cart {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+        .btn-cart:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
         .main-nav {
             display: flex;
             justify-content: center;
@@ -348,11 +391,12 @@
             border: none;
         }
         .modal-close:hover { color: #333; transform: rotate(90deg); }
-        .modal-content .btn { width: 100%; justify-content: center; }
+        .modal-content .btn-payment { width: 100%; justify-content: center; }
         .modal-content .form-row { display: flex; gap: 1rem; }
         .modal-content .form-row > * { flex: 1; }
         .qr-container { text-align: center; padding: 1rem; }
         .qr-container img { max-width: 200px; margin: 0 auto; display: block; }
+        .qr-container .btn-payment { width: auto; padding: 0.5rem 1.2rem; margin: 0.3rem; }
 
         #paymentReturnPage {
             max-width: 600px;
@@ -592,7 +636,7 @@
     <h2 class="section-title"><i class="fas fa-store"></i> NJ Store</h2>
     <div class="grid" id="productsList"></div>
     <div class="text-center mt-2">
-        <button onclick="openCart()" class="btn btn-primary">
+        <button onclick="openCart()" class="btn-cart">
             <i class="fas fa-shopping-cart"></i> Ver Carrinho (<span id="cartCount">0</span>)
         </button>
     </div>
@@ -646,8 +690,8 @@
         <button onclick="showRegistration('event')" class="btn btn-primary"><i class="fas fa-calendar-plus"></i> Evento</button>
         <button onclick="showRegistration('department')" class="btn btn-primary"><i class="fas fa-users"></i> Departamento</button>
     </div>
-    <div id="registrationForm" class="hidden"></div>
-    <div id="registrationResult" class="hidden text-center mt-1"></div>
+    <div id="registrationForm" style="display:none; max-width:600px; margin:0 auto;"></div>
+    <div id="registrationResult" style="display:none;" class="text-center mt-1"></div>
 </section>
 
 <!-- FOOTER -->
@@ -715,7 +759,7 @@
             <input type="number" id="donationAmount" step="0.01" min="0.01" placeholder="10.00" required>
         </div>
         <input type="hidden" id="donationType">
-        <button onclick="submitDonation()" class="btn btn-primary w-full" style="justify-content:center;">
+        <button onclick="submitDonation()" class="btn-payment">
             <i class="fas fa-credit-card"></i> Continuar para Pagamento
         </button>
     </div>
@@ -756,7 +800,7 @@
             </div>
             
             <div id="paymentTotal" style="text-align:center;font-size:1.5rem;font-weight:700;color:var(--primary);margin:1rem 0;"></div>
-            <button onclick="processPayment()" class="btn btn-primary w-full" style="justify-content:center;">
+            <button onclick="processPayment()" class="btn-payment">
                 <i class="fas fa-credit-card"></i> Pagar
             </button>
         </div>
@@ -771,7 +815,7 @@
         <h3><i class="fas fa-shopping-cart"></i> Carrinho</h3>
         <div id="cartItems"><p class="text-center" style="color:#888;">Carrinho vazio</p></div>
         <div id="cartTotal" class="text-center" style="font-size:1.3rem;font-weight:700;color:var(--primary);margin:1rem 0;"></div>
-        <button onclick="checkout()" class="btn btn-primary w-full" style="justify-content:center;">
+        <button onclick="checkout()" class="btn-payment">
             <i class="fas fa-credit-card"></i> Finalizar Compra
         </button>
     </div>
@@ -787,6 +831,7 @@ let currentSlide = 0;
 let slideInterval;
 let paymentType = 'sale';
 let donationType = '';
+let departmentsList = [];
 
 // ============================================
 // ===== BÍBLIA =====
@@ -1327,7 +1372,7 @@ function togglePaymentMethod() {
 }
 
 // ============================================
-// ===== PAGAMENTO - CORRIGIDO =====
+// ===== PAGAMENTO =====
 // ============================================
 
 async function processPayment() {
@@ -1407,9 +1452,7 @@ async function processPayment() {
         const payment = await response.json();
         if (payment.error) throw new Error(payment.error);
 
-        // ===== CORREÇÃO: SALVAR PEDIDO =====
         if (paymentType === 'sale') {
-            // Formata os itens para salvar no banco
             const itemsForOrder = cart.map(item => ({
                 id: item.id,
                 name: item.name,
@@ -1438,7 +1481,6 @@ async function processPayment() {
             }
             console.log('✅ Pedido salvo:', orderData);
             
-            // Limpa o carrinho
             cart = [];
             document.getElementById('cartCount').textContent = 0;
         } else if (paymentType === 'donation') {
@@ -1479,10 +1521,10 @@ async function processPayment() {
                         <img src="data:image/png;base64,${payment.qr_code_base64}" alt="QR Code PIX">
                         <p style="margin:0.5rem 0;">Escaneie o QR Code ou copie o código:</p>
                         <div style="background:#f0f0f0;padding:0.8rem;border-radius:8px;word-break:break-all;font-size:0.8rem;border:1px solid #e0e0e0;">${payment.qr_code}</div>
-                        <button onclick="navigator.clipboard.writeText('${payment.qr_code}')" class="btn btn-primary btn-sm">
+                        <button onclick="navigator.clipboard.writeText('${payment.qr_code}')" class="btn-payment" style="width:auto;padding:0.5rem 1.2rem;margin:0.3rem;">
                             <i class="fas fa-copy"></i> Copiar
                         </button>
-                        <a href="${payment.payment_link}" target="_blank" class="btn btn-success btn-sm">
+                        <a href="${payment.payment_link}" target="_blank" class="btn-payment" style="width:auto;padding:0.5rem 1.2rem;margin:0.3rem;text-decoration:none;">
                             <i class="fas fa-external-link-alt"></i> Abrir no Banco
                         </a>
                         <p style="margin-top:0.8rem;color:#888;">Status: ${payment.status}</p>
@@ -1553,28 +1595,171 @@ async function submitPrayer() {
 // ===== INSCRIÇÕES =====
 // ============================================
 
-function showRegistration(type) {
+async function loadDepartmentsForRegistration() {
+    try {
+        const res = await fetch('/api/departments');
+        departmentsList = await res.json();
+        return departmentsList;
+    } catch (e) {
+        console.error('Erro ao carregar departamentos:', e);
+        return [];
+    }
+}
+
+async function showRegistration(type) {
     const container = document.getElementById('registrationForm');
     const resultDiv = document.getElementById('registrationResult');
     resultDiv.style.display = 'none';
+    resultDiv.innerHTML = '';
     container.style.display = 'block';
 
+    if (type === 'department' || type === 'volunteer') {
+        await loadDepartmentsForRegistration();
+    }
+
     const types = {
-        baptism: { title: '✝️ Inscrição para Batismo' },
-        volunteer: { title: '🙋 Cadastro de Voluntário' },
-        event: { title: '🎯 Inscrição para Evento' },
-        department: { title: '📋 Entrar em um Departamento' }
+        baptism: { 
+            title: '✝️ Inscrição para Batismo',
+            fields: ['name', 'email', 'phone', 'birth_date', 'baptism_date', 'notes'],
+            labels: {
+                name: 'Nome Completo *',
+                email: 'E-mail *',
+                phone: 'Telefone *',
+                birth_date: 'Data de Nascimento *',
+                baptism_date: 'Data desejada para o Batismo',
+                notes: 'Observações (opcional)'
+            }
+        },
+        volunteer: { 
+            title: '🙋 Cadastro de Voluntário',
+            fields: ['name', 'email', 'phone', 'department_select', 'availability', 'notes'],
+            labels: {
+                name: 'Nome Completo *',
+                email: 'E-mail *',
+                phone: 'Telefone *',
+                department_select: 'Departamento que deseja atuar *',
+                availability: 'Disponibilidade (dias/horários)',
+                notes: 'Habilidades/Experiência (opcional)'
+            }
+        },
+        event: { 
+            title: '🎯 Inscrição para Evento',
+            fields: ['name', 'email', 'phone', 'event_select', 'notes'],
+            labels: {
+                name: 'Nome Completo *',
+                email: 'E-mail *',
+                phone: 'Telefone *',
+                event_select: 'Selecione o Evento *',
+                notes: 'Observações (opcional)'
+            }
+        },
+        department: { 
+            title: '📋 Entrar em um Departamento',
+            fields: ['name', 'email', 'phone', 'department_select', 'notes'],
+            labels: {
+                name: 'Nome Completo *',
+                email: 'E-mail *',
+                phone: 'Telefone *',
+                department_select: 'Selecione o Departamento *',
+                notes: 'Por que deseja participar? (opcional)'
+            }
+        }
     };
 
     const t = types[type] || types.baptism;
-    let html = `<h3 style="text-align:center;color:#0D47A1;">${t.title}</h3><div class="prayer-form">`;
-    html += `<div class="form-group"><label>Nome Completo *</label><input type="text" id="regName" required></div>`;
-    html += `<div class="form-group"><label>E-mail *</label><input type="email" id="regEmail" required></div>`;
-    html += `<div class="form-group"><label>Telefone *</label><input type="tel" id="regPhone" required></div>`;
-    html += `<div class="form-group"><label>Departamento (opcional)</label><input type="text" id="regDepartment" placeholder="Ex: Louvor, Oração..."></div>`;
-    html += `<div class="form-group"><label>Detalhes (opcional)</label><textarea id="regDetails" placeholder="Informações adicionais..."></textarea></div>`;
-    html += `<button onclick="submitRegistration('${type}')" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-paper-plane"></i> Inscrever-se</button>`;
+    
+    let html = `<h3 style="text-align:center;color:#0D47A1;margin-bottom:1rem;">${t.title}</h3>`;
+    html += `<div class="prayer-form">`;
+    
+    html += `<div class="form-group">
+        <label>${t.labels.name}</label>
+        <input type="text" id="regName" placeholder="Digite seu nome completo" required>
+    </div>`;
+    
+    html += `<div class="form-group">
+        <label>${t.labels.email}</label>
+        <input type="email" id="regEmail" placeholder="seu@email.com" required>
+    </div>`;
+    
+    html += `<div class="form-group">
+        <label>${t.labels.phone}</label>
+        <input type="tel" id="regPhone" placeholder="(11) 99999-9999" required>
+    </div>`;
+
+    if (type === 'baptism') {
+        html += `<div class="form-group">
+            <label>${t.labels.birth_date}</label>
+            <input type="date" id="regBirthDate" required>
+        </div>`;
+        html += `<div class="form-group">
+            <label>${t.labels.baptism_date}</label>
+            <input type="date" id="regBaptismDate">
+        </div>`;
+    }
+
+    if (type === 'volunteer' || type === 'department') {
+        html += `<div class="form-group">
+            <label>${t.labels.department_select}</label>
+            <select id="regDepartmentSelect" required>
+                <option value="">Selecione um departamento</option>
+        `;
+        if (departmentsList && departmentsList.length > 0) {
+            departmentsList.forEach(d => {
+                html += `<option value="${d.id}">${d.name}</option>`;
+            });
+        } else {
+            html += `<option value="" disabled>Nenhum departamento disponível</option>`;
+        }
+        html += `</select></div>`;
+    }
+
+    if (type === 'event') {
+        html += `<div class="form-group">
+            <label>${t.labels.event_select}</label>
+            <select id="regEventSelect" required>
+                <option value="">Selecione um evento</option>
+        `;
+        try {
+            const eventsRes = await fetch('/api/events');
+            const events = await eventsRes.json();
+            if (events && events.length > 0) {
+                events.forEach(e => {
+                    const priceText = parseFloat(e.price || 0) > 0 ? ` - R$ ${parseFloat(e.price).toFixed(2)}` : ' - Grátis';
+                    html += `<option value="${e.id}" data-price="${e.price || 0}">${e.title}${priceText}</option>`;
+                });
+            } else {
+                html += `<option value="" disabled>Nenhum evento disponível</option>`;
+            }
+        } catch (e) {
+            html += `<option value="" disabled>Erro ao carregar eventos</option>`;
+        }
+        html += `</select></div>`;
+    }
+
+    if (type === 'volunteer') {
+        html += `<div class="form-group">
+            <label>${t.labels.availability}</label>
+            <input type="text" id="regAvailability" placeholder="Ex: Finais de semana, Terças e Quintas à noite">
+        </div>`;
+    }
+
+    if (type !== 'volunteer') {
+        html += `<div class="form-group">
+            <label>${t.labels.notes}</label>
+            <textarea id="regNotes" rows="3" placeholder="Informações adicionais..."></textarea>
+        </div>`;
+    } else {
+        html += `<div class="form-group">
+            <label>${t.labels.notes}</label>
+            <textarea id="regNotes" rows="3" placeholder="Conte-nos sobre suas habilidades e experiência..."></textarea>
+        </div>`;
+    }
+
+    html += `<button onclick="submitRegistration('${type}')" class="btn-payment" style="margin-top:0.5rem;">
+        <i class="fas fa-paper-plane"></i> Inscrever-se
+    </button>`;
     html += `</div>`;
+    
     container.innerHTML = html;
     container.scrollIntoView({ behavior: 'smooth' });
 }
@@ -1583,44 +1768,146 @@ async function submitRegistration(type) {
     const name = document.getElementById('regName').value.trim();
     const email = document.getElementById('regEmail').value.trim();
     const phone = document.getElementById('regPhone').value.trim();
-    const department = document.getElementById('regDepartment').value.trim();
-    const details = document.getElementById('regDetails').value.trim();
+    const notes = document.getElementById('regNotes')?.value.trim() || '';
     const resultDiv = document.getElementById('registrationResult');
 
     if (!name || !email || !phone) {
-        showNotification('Preencha os campos obrigatórios!', 'error');
+        showNotification('⚠️ Preencha todos os campos obrigatórios!', 'error');
         return;
     }
 
+    if (!email.includes('@')) {
+        showNotification('⚠️ Digite um e-mail válido!', 'error');
+        return;
+    }
+
+    let registrationData = {
+        type: type,
+        name: name,
+        email: email,
+        phone: phone,
+        details: notes
+    };
+
     try {
+        if (type === 'baptism') {
+            const birthDate = document.getElementById('regBirthDate')?.value;
+            const baptismDate = document.getElementById('regBaptismDate')?.value;
+            if (!birthDate) {
+                showNotification('⚠️ Informe sua data de nascimento!', 'error');
+                return;
+            }
+            registrationData.birth_date = birthDate;
+            registrationData.baptism_date = baptismDate || null;
+            registrationData.details = `Data de Nascimento: ${new Date(birthDate).toLocaleDateString('pt-BR')}\n${baptismDate ? `Data desejada para Batismo: ${new Date(baptismDate).toLocaleDateString('pt-BR')}\n` : ''}${notes}`;
+        }
+
+        if (type === 'volunteer') {
+            const deptId = document.getElementById('regDepartmentSelect')?.value;
+            const availability = document.getElementById('regAvailability')?.value.trim() || '';
+            if (!deptId) {
+                showNotification('⚠️ Selecione um departamento!', 'error');
+                return;
+            }
+            const dept = departmentsList.find(d => d.id == deptId);
+            registrationData.department_name = dept ? dept.name : '';
+            registrationData.department_id = deptId;
+            registrationData.details = `Disponibilidade: ${availability || 'Não informada'}\n${notes}`;
+        }
+
+        if (type === 'department') {
+            const deptId = document.getElementById('regDepartmentSelect')?.value;
+            if (!deptId) {
+                showNotification('⚠️ Selecione um departamento!', 'error');
+                return;
+            }
+            const dept = departmentsList.find(d => d.id == deptId);
+            registrationData.department_name = dept ? dept.name : '';
+            registrationData.department_id = deptId;
+            registrationData.details = notes || 'Deseja participar deste departamento.';
+        }
+
+        if (type === 'event') {
+            const eventId = document.getElementById('regEventSelect')?.value;
+            if (!eventId) {
+                showNotification('⚠️ Selecione um evento!', 'error');
+                return;
+            }
+            const eventsRes = await fetch('/api/events');
+            const events = await eventsRes.json();
+            const event = events.find(e => e.id == eventId);
+            
+            if (event) {
+                registrationData.event_name = event.title;
+                registrationData.amount = parseFloat(event.price || 0);
+                registrationData.is_paid = parseFloat(event.price || 0) > 0 ? false : true;
+                registrationData.details = `Evento: ${event.title}\n${notes}`;
+            } else {
+                showNotification('⚠️ Evento não encontrado!', 'error');
+                return;
+            }
+        }
+
+        console.log('📤 Enviando inscrição:', registrationData);
+
         const response = await fetch('/api/registrations', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                type: type,
-                name: name,
-                email: email,
-                phone: phone,
-                department_name: department || '',
-                details: details || ''
-            })
+            body: JSON.stringify(registrationData)
         });
 
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Erro ao inscrever');
+        if (!response.ok) {
+            throw new Error(data.error || 'Erro ao realizar inscrição');
+        }
 
         resultDiv.className = 'notification success';
-        resultDiv.textContent = '✅ Inscrição realizada com sucesso!';
+        resultDiv.innerHTML = `
+            <i class="fas fa-check-circle" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>
+            <strong>✅ Inscrição realizada com sucesso!</strong>
+            <p style="margin-top:0.5rem;font-size:0.9rem;">Protocolo: #${String(data.id).padStart(6, '0')}</p>
+        `;
         resultDiv.style.display = 'block';
         document.getElementById('registrationForm').style.display = 'none';
 
-        if (confirm('✅ Inscrição realizada! Deseja baixar o comprovante em PDF?')) {
-            window.open(`/api/registration-pdf/${data.id}`, '_blank');
+        if (type === 'event' && parseFloat(registrationData.amount || 0) > 0) {
+            if (confirm(`✅ Inscrição realizada! O evento é pago (R$ ${parseFloat(registrationData.amount).toFixed(2)}). Deseja fazer o pagamento agora?`)) {
+                paymentType = 'donation';
+                donationType = 'Inscrição Evento - ' + registrationData.event_name;
+                document.getElementById('paymentTitle').textContent = '💳 Inscrição - ' + registrationData.event_name;
+                document.getElementById('paymentTotal').textContent = 'Valor: R$ ' + parseFloat(registrationData.amount).toFixed(2);
+                document.getElementById('paymentForm').style.display = 'block';
+                document.getElementById('paymentResult').style.display = 'none';
+                window._donationAmount = parseFloat(registrationData.amount);
+                document.getElementById('payName').value = name;
+                document.getElementById('payEmail').value = email;
+                document.getElementById('payPhone').value = phone;
+                openModal('paymentModal');
+            }
+        } else {
+            setTimeout(() => {
+                if (confirm('✅ Deseja baixar o comprovante em PDF?')) {
+                    window.open(`/api/registration-pdf/${data.id}`, '_blank');
+                }
+            }, 500);
         }
 
-        setTimeout(() => { resultDiv.style.display = 'none'; }, 5000);
+        setTimeout(() => {
+            resultDiv.style.display = 'none';
+            document.getElementById('registrationForm').style.display = 'block';
+            document.getElementById('registrationForm').innerHTML = `
+                <p class="text-center" style="color:#28a745;padding:1rem;">
+                    ✅ Inscrição concluída! Obrigado!
+                </p>
+            `;
+        }, 8000);
+
     } catch (error) {
+        console.error('❌ Erro na inscrição:', error);
         showNotification('❌ Erro: ' + error.message, 'error');
+        resultDiv.className = 'notification error';
+        resultDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message}`;
+        resultDiv.style.display = 'block';
     }
 }
 
@@ -1777,7 +2064,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Enter key para Bíblia
 document.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         const active = document.activeElement;

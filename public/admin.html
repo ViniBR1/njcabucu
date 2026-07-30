@@ -507,7 +507,6 @@
         <div class="flex-between mb-1">
             <h3>🖼️ Carrossel</h3>
             <button onclick="openCarouselModal()" class="btn btn-success"><i class="fas fa-plus"></i> Nova Imagem</button>
-            <button onclick="openCarouselEditModal()" class="btn btn-warning"><i class="fas fa-edit"></i> Editar</button>
         </div>
         <div id="carouselList" style="display:flex;flex-wrap:wrap;gap:0.5rem;"></div>
     </div>
@@ -646,7 +645,7 @@
     </div>
 </div>
 
-<!-- CARROSSEL - NOVO -->
+<!-- CARROSSEL -->
 <div class="modal" id="carouselModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('carouselModal')">&times;</button>
@@ -657,22 +656,6 @@
             <div class="form-group"><label>Imagem *</label><input type="file" name="image" accept="image/*" required></div>
             <div class="form-group"><label>Link</label><input type="url" name="link" placeholder="https://..."></div>
             <button type="submit" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
-        </form>
-    </div>
-</div>
-
-<!-- CARROSSEL - EDITAR -->
-<div class="modal" id="carouselEditModal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('carouselEditModal')">&times;</button>
-        <h3>✏️ Editar Imagem</h3>
-        <form id="carouselEditForm" enctype="multipart/form-data">
-            <input type="hidden" id="editCarouselId">
-            <div class="form-group"><label>Título</label><input type="text" id="editCarouselTitle"></div>
-            <div class="form-group"><label>Subtítulo</label><input type="text" id="editCarouselSubtitle"></div>
-            <div class="form-group"><label>Nova Imagem (opcional)</label><input type="file" name="image" accept="image/*"></div>
-            <div class="form-group"><label>Link</label><input type="url" id="editCarouselLink" placeholder="https://..."></div>
-            <button type="submit" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Atualizar</button>
         </form>
     </div>
 </div>
@@ -740,15 +723,14 @@ function showTab(tab) {
 // ============================================
 async function loadDashboard() {
     try {
-        const [users, prayers, orders, donations, studies, events, registrations, salesStats] = await Promise.all([
+        const [users, prayers, orders, donations, studies, events, registrations] = await Promise.all([
             fetch('/api/users', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
             fetch('/api/prayers', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
             fetch('/api/orders', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
             fetch('/api/donations', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
             fetch('/api/studies', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
             fetch('/api/events', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
-            fetch('/api/registrations', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
-            fetch('/api/sales-stats', { headers: getHeaders() }).then(r => r.json()).catch(() => ({}))
+            fetch('/api/registrations', { headers: getHeaders() }).then(r => r.json()).catch(() => [])
         ]);
 
         const unreadPrayers = prayers.filter(p => !p.is_read).length;
@@ -769,94 +751,105 @@ async function loadDashboard() {
         loadEvents(events);
         loadRegistrations(registrations);
         loadProducts();
-        loadSalesStats(salesStats, orders);
+        loadSalesStats();
 
     } catch (e) { console.error('Erro:', e); }
 }
 
 // ============================================
-// ===== ESTATÍSTICAS DE VENDAS =====
+// ===== ESTATÍSTICAS DE VENDAS (CORRIGIDO) =====
 // ============================================
-function loadSalesStats(stats, orders) {
-    // Total de vendas
-    const totalSales = stats.total || { count: 0, total: 0 };
-    document.getElementById('totalSalesValue').textContent = 'R$ ' + parseFloat(totalSales.total || 0).toFixed(2);
-    document.getElementById('totalSalesCount').textContent = totalSales.count + ' vendas';
-
-    // Média por venda
-    const avg = totalSales.count > 0 ? totalSales.total / totalSales.count : 0;
-    document.getElementById('avgSalesValue').textContent = 'R$ ' + avg.toFixed(2);
-
-    // Método mais usado
-    if (stats.byMethod && stats.byMethod.length > 0) {
-        const topMethod = stats.byMethod.reduce((a, b) => a.count > b.count ? a : b);
-        document.getElementById('topPaymentMethod').textContent = topMethod.payment_method || 'PIX';
-        document.getElementById('topPaymentCount').textContent = topMethod.count + ' vendas';
-    }
-
-    // Produto mais vendido
-    if (stats.topProducts && stats.topProducts.length > 0) {
-        const topProduct = stats.topProducts[0];
-        document.getElementById('topProduct').textContent = topProduct.product_name || '-';
-        document.getElementById('topProductSales').textContent = topProduct.total_sales + ' vendas';
-    }
-
-    // Gráfico de barras
-    const barChart = document.getElementById('barChart');
-    if (stats.byDay && stats.byDay.length > 0) {
-        const maxTotal = Math.max(...stats.byDay.map(d => parseFloat(d.total || 0)), 1);
-        barChart.innerHTML = stats.byDay.slice(0, 7).map(d => {
-            const height = (parseFloat(d.total || 0) / maxTotal) * 100;
-            const date = new Date(d.date);
-            const label = date.toLocaleDateString('pt-BR', { weekday: 'short' });
-            return `
-                <div class="bar-item">
-                    <div class="bar" style="height: ${Math.max(height, 5)}%;"></div>
-                    <div class="bar-value">R$ ${parseFloat(d.total || 0).toFixed(0)}</div>
-                    <div class="bar-label">${label}</div>
-                    <div class="bar-label" style="font-size:0.6rem;">${d.count} vendas</div>
-                </div>
-            `;
-        }).join('');
-    } else {
-        barChart.innerHTML = '<p style="color:#888;text-align:center;width:100%;font-size:0.9rem;">Nenhuma venda nos últimos 7 dias</p>';
-    }
-
-    // Produtos mais vendidos
-    const topProductsList = document.getElementById('topProductsList');
-    if (stats.topProducts && stats.topProducts.length > 0) {
-        topProductsList.innerHTML = stats.topProducts.slice(0, 5).map(p => `
-            <tr>
-                <td>${p.product_name || '-'}</td>
-                <td>${p.total_sales || 0}</td>
-                <td>R$ ${parseFloat(p.total_revenue || 0).toFixed(2)}</td>
-            </tr>
-        `).join('');
-    } else {
-        topProductsList.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum produto vendido</td></tr>';
-    }
-
-    // Últimas vendas
-    const recentOrders = document.getElementById('recentOrdersList');
-    const recent = stats.recent || orders || [];
-    if (recent.length > 0) {
-        recentOrders.innerHTML = recent.slice(0, 5).map(o => {
-            let items = [];
-            try { items = JSON.parse(o.items || '[]'); } catch { items = []; }
-            const productName = items.length > 0 ? items.map(i => i.name).join(', ') : o.product_name || '-';
-            return `
+async function loadSalesStats() {
+    try {
+        const response = await fetch('/api/sales-stats', { headers: getHeaders() });
+        const data = await response.json();
+        
+        if (data.error) {
+            console.error('Erro nas estatísticas:', data.error);
+            return;
+        }
+        
+        // Total de vendas
+        document.getElementById('totalSalesValue').textContent = 'R$ ' + parseFloat(data.total?.total || 0).toFixed(2);
+        document.getElementById('totalSalesCount').textContent = (data.total?.count || 0) + ' vendas';
+        
+        // Média
+        const avg = data.total?.count > 0 ? data.total.total / data.total.count : 0;
+        document.getElementById('avgSalesValue').textContent = 'R$ ' + avg.toFixed(2);
+        
+        // Produto mais vendido
+        if (data.topProducts && data.topProducts.length > 0) {
+            const top = data.topProducts[0];
+            document.getElementById('topProduct').textContent = top.product_name || '-';
+            document.getElementById('topProductSales').textContent = top.total_sales + ' vendas';
+        }
+        
+        // Método mais usado
+        if (data.byMethod && data.byMethod.length > 0) {
+            const topMethod = data.byMethod.reduce((a, b) => (a.count > b.count) ? a : b);
+            document.getElementById('topPaymentMethod').textContent = topMethod.payment_method || 'PIX';
+            document.getElementById('topPaymentCount').textContent = topMethod.count + ' vendas';
+        }
+        
+        // Gráfico
+        const barChart = document.getElementById('barChart');
+        if (data.byDay && data.byDay.length > 0) {
+            const maxTotal = Math.max(...data.byDay.map(d => parseFloat(d.total || 0)), 1);
+            barChart.innerHTML = data.byDay.slice(0, 7).map(d => {
+                const height = (parseFloat(d.total || 0) / maxTotal) * 100;
+                const date = new Date(d.date);
+                const label = date.toLocaleDateString('pt-BR', { weekday: 'short' });
+                return `
+                    <div class="bar-item">
+                        <div class="bar" style="height: ${Math.max(height, 5)}%;"></div>
+                        <div class="bar-value">R$ ${parseFloat(d.total || 0).toFixed(0)}</div>
+                        <div class="bar-label">${label}</div>
+                        <div class="bar-label" style="font-size:0.6rem;">${d.count} vendas</div>
+                    </div>
+                `;
+            }).join('');
+        } else {
+            barChart.innerHTML = '<p style="color:#888;text-align:center;width:100%;font-size:0.9rem;">Nenhuma venda nos últimos 7 dias</p>';
+        }
+        
+        // Produtos mais vendidos (lista)
+        const topProductsList = document.getElementById('topProductsList');
+        if (data.topProducts && data.topProducts.length > 0) {
+            topProductsList.innerHTML = data.topProducts.slice(0, 5).map(p => `
                 <tr>
-                    <td>${o.user_name || 'Anônimo'}</td>
-                    <td>${o.user_email || '-'}</td>
-                    <td>${productName}</td>
-                    <td>R$ ${parseFloat(o.total || 0).toFixed(2)}</td>
-                    <td><span class="status status-${o.status || 'pending'}">${o.status || 'Pendente'}</span></td>
-                    <td>${new Date(o.created_at).toLocaleDateString('pt-BR')}</td>
+                    <td>${p.product_name || '-'}</td>
+                    <td>${p.total_sales || 0}</td>
+                    <td>R$ ${parseFloat(p.total_revenue || 0).toFixed(2)}</td>
                 </tr>
-            `;
-        }).join('');
-    } else {
-        recentOrders.innerHTML = '<tr><td colspan="6" class="text-center" style="color:#888;">Nenhuma venda</td></tr>';
+            `).join('');
+        } else {
+            topProductsList.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum produto vendido</td></tr>';
+        }
+        
+        // Últimas vendas
+        const recentOrders = document.getElementById('recentOrdersList');
+        if (data.recent && data.recent.length > 0) {
+            recentOrders.innerHTML = data.recent.map(o => {
+                let items = [];
+                try { items = JSON.parse(o.items || '[]'); } catch { items = []; }
+                const productName = items.length > 0 ? items.map(i => i.name).join(', ') : '-';
+                return `
+                    <tr>
+                        <td>${o.user_name || 'Anônimo'}</td>
+                        <td>${o.user_email || '-'}</td>
+                        <td>${productName}</td>
+                        <td>R$ ${parseFloat(o.total || 0).toFixed(2)}</td>
+                        <td><span class="status status-${o.status || 'pending'}">${o.status || 'Pendente'}</span></td>
+                        <td>${new Date(o.created_at).toLocaleDateString('pt-BR')}</td>
+                    </tr>
+                `;
+            }).join('');
+        } else {
+            recentOrders.innerHTML = '<tr><td colspan="6" class="text-center" style="color:#888;">Nenhuma venda</td></tr>';
+        }
+        
+    } catch (error) {
+        console.error('Erro ao carregar estatísticas:', error);
     }
 }
 
@@ -912,7 +905,7 @@ function loadOrders(orders) {
     tbody.innerHTML = orders.slice(0, 30).map(o => {
         let items = [];
         try { items = JSON.parse(o.items || '[]'); } catch { items = []; }
-        const productName = items.length > 0 ? items.map(i => i.name).join(', ') : o.product_name || '-';
+        const productName = items.length > 0 ? items.map(i => i.name).join(', ') : '-';
         return `
             <tr>
                 <td>${o.user_name || 'Anônimo'}</td>
@@ -952,7 +945,7 @@ function loadStudies(studies) {
         <tr>
             <td>${s.title}</td>
             <td>${s.description ? s.description.substring(0, 40) + (s.description.length > 40 ? '...' : '') : '-'}</td>
-            <td>${s.image_url ? '✅' : '-'}</td>
+            <td>${s.image_base64 ? '✅' : '-'}</td>
             <td><button onclick="deleteStudy(${s.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td>
         </tr>
     `).join('');
@@ -1022,17 +1015,19 @@ async function loadCarouselAdmin() {
             container.innerHTML = '<p class="text-center" style="color:#888;">Nenhuma imagem no carrossel</p>';
             return;
         }
-        container.innerHTML = data.map(img => `
-            <div class="carousel-item">
-                <img src="${img.image_url}" alt="${img.title || 'Slide'}">
-                <div style="margin-top:0.3rem;font-weight:600;font-size:0.8rem;">${img.title || 'Sem título'}</div>
-                <div style="font-size:0.7rem;color:#888;">${img.subtitle || ''}</div>
-                <div style="margin-top:0.3rem;">
-                    <button onclick="editCarousel(${img.id})" class="btn btn-warning btn-sm" style="margin:0.1rem;"><i class="fas fa-edit"></i></button>
-                    <button onclick="deleteCarousel(${img.id})" class="btn btn-danger btn-sm" style="margin:0.1rem;"><i class="fas fa-trash"></i></button>
+        container.innerHTML = data.map(img => {
+            let imgSrc = img.image_url || (img.image_base64 ? `data:image/jpeg;base64,${img.image_base64}` : 'https://via.placeholder.com/200x120/0D47A1/ffffff?text=Imagem');
+            return `
+                <div class="carousel-item">
+                    <img src="${imgSrc}" alt="${img.title || 'Slide'}">
+                    <div style="margin-top:0.3rem;font-weight:600;font-size:0.8rem;">${img.title || 'Sem título'}</div>
+                    <div style="font-size:0.7rem;color:#888;">${img.subtitle || ''}</div>
+                    <div style="margin-top:0.3rem;">
+                        <button onclick="deleteCarousel(${img.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     } catch (e) { console.error('Erro:', e); }
 }
 
@@ -1213,48 +1208,6 @@ async function saveDepartment() {
         showNotification('✅ Departamento criado!', 'success');
     } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
 }
-
-// ----- CARROSSEL - EDITAR -----
-function openCarouselEditModal() {
-    showNotification('Clique no botão "Editar" em uma imagem para modificá-la', 'info');
-}
-
-function editCarousel(id) {
-    // Buscar dados da imagem
-    fetch('/api/carousel', { headers: getHeaders() })
-        .then(r => r.json())
-        .then(data => {
-            const img = data.find(i => i.id === id);
-            if (img) {
-                document.getElementById('editCarouselId').value = id;
-                document.getElementById('editCarouselTitle').value = img.title || '';
-                document.getElementById('editCarouselSubtitle').value = img.subtitle || '';
-                document.getElementById('editCarouselLink').value = img.link || '';
-                openModal('carouselEditModal');
-            }
-        })
-        .catch(e => showNotification('❌ Erro ao carregar imagem', 'error'));
-}
-
-document.getElementById('carouselEditForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const id = document.getElementById('editCarouselId').value;
-    const formData = new FormData(this);
-    
-    try {
-        const response = await fetch('/api/carousel/' + id, {
-            method: 'PUT',
-            headers: getHeaders(),
-            body: formData
-        });
-        if (!response.ok) throw new Error('Erro ao atualizar');
-        closeModal('carouselEditModal');
-        loadCarouselAdmin();
-        showNotification('✅ Imagem atualizada!', 'success');
-    } catch (e) {
-        showNotification('❌ Erro: ' + e.message, 'error');
-    }
-});
 
 // ----- FORMULÁRIOS COM UPLOAD -----
 function openStudyModal() { openModal('studyModal'); }

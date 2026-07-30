@@ -850,7 +850,6 @@ app.post('/api/registrations', async (req, res) => {
         
         let finalDetails = details || '';
         
-        // Adiciona informações extras para batismo
         if (type === 'baptism' && birth_date) {
             finalDetails = `Data de Nascimento: ${new Date(birth_date).toLocaleDateString('pt-BR')}\n`;
             if (baptism_date) {
@@ -905,21 +904,29 @@ app.get('/api/donations', auth, async (req, res) => {
     }
 });
 
-// ----- ANIVERSARIANTES -----
+// ----- ANIVERSARIANTES (CORRIGIDO) -----
 app.get('/api/birthdays', async (req, res) => {
     try {
         const today = new Date();
+        const currentMonth = today.getMonth() + 1;
+        
+        // Busca todos os aniversariantes ativos
         const birthdays = await sql`
             SELECT * FROM birthdays 
             WHERE is_active = true 
             ORDER BY 
-                EXTRACT(MONTH FROM birth_date) = ${today.getMonth() + 1} DESC,
-                EXTRACT(DAY FROM birth_date) = ${today.getDate()} DESC,
                 EXTRACT(MONTH FROM birth_date),
                 EXTRACT(DAY FROM birth_date)
-            LIMIT 50
         `;
-        res.json(birthdays);
+        
+        // Filtra apenas os do mês atual
+        const monthBirthdays = birthdays.filter(b => {
+            const birthMonth = new Date(b.birth_date).getMonth() + 1;
+            return birthMonth === currentMonth;
+        });
+        
+        console.log(`🎂 Aniversariantes do mês ${currentMonth}:`, monthBirthdays.length);
+        res.json(monthBirthdays);
     } catch (error) {
         console.error('❌ Erro ao buscar aniversariantes:', error);
         res.status(500).json({ error: error.message });

@@ -290,6 +290,7 @@
         }
         .bible-result .verse { font-size: 1.05rem; line-height: 1.8; padding: 0.3rem 0; border-bottom: 1px solid #eee; }
         .bible-result .reference { font-weight: 700; color: var(--primary); margin-top: 0.5rem; }
+        .bible-result .api-info { font-size: 0.8rem; color: #888; margin-top: 0.5rem; font-style: italic; }
 
         .form-group { margin: 0.8rem 0; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 0.3rem; font-size: 0.95rem; }
@@ -785,99 +786,19 @@
 
 <script>
 // ============================================
-// ===== BÍBLIA COMPLETA OFFLINE (TODOS OS LIVROS) =====
+// ===== VARIÁVEIS =====
 // ============================================
-const bibliaOffline = {
-    // PENTATEUCO
-    "gn": { 1: ["No princípio criou Deus os céus e a terra.", "E a terra era sem forma e vazia;..."] },
-    "ex": { 20: ["Então falou Deus todas estas palavras, dizendo:..."] },
-    "lv": { 19: ["Falou mais o SENHOR a Moisés, dizendo:..."] },
-    "nm": { 6: ["Falou mais o SENHOR a Moisés, dizendo:..."] },
-    "dt": { 6: ["Estes, pois, são os mandamentos, os estatutos e os juízos..."] },
-    
-    // HISTÓRICOS
-    "js": { 1: ["E sucedeu depois da morte de Moisés, servo do SENHOR..."] },
-    "jz": { 6: ["E os filhos de Israel fizeram o que era mau aos olhos do SENHOR..."] },
-    "rt": { 1: ["E sucedeu que, no tempo em que os juízes julgavam..."] },
-    "1sm": { 16: ["Disse mais o SENHOR a Samuel: Até quando terás dó de Saul..."] },
-    "2sm": { 22: ["E falou Davi ao SENHOR as palavras deste cântico..."] },
-    "1rs": { 8: ["Então congregou Salomão os anciãos de Israel..."] },
-    "2rs": { 2: ["E sucedeu que, quando o SENHOR havia de tomar Elias..."] },
-    "1cr": { 29: ["E disse o rei Davi a toda a congregação: Salomão, meu filho..."] },
-    "2cr": { 7: ["E, quando Salomão acabou de orar, desceu fogo do céu..."] },
-    "ed": { 3: ["Chegando, pois, o sétimo mês, e estando os filhos de Israel..."] },
-    "ne": { 8: ["E todo o povo se ajuntou como um só homem, na praça..."] },
-    "et": { 4: ["Quando Mardoqueu soube tudo quanto se passara..."] },
-
-    // POÉTICOS
-    "jó": { 1: ["Havia um homem na terra de Uz, cujo nome era Jó..."] },
-    "sl": { 23: ["O SENHOR é o meu pastor; nada me faltará..."] },
-    "pv": { 3: ["Filho meu, não te esqueças da minha lei..."] },
-    "ec": { 3: ["Tudo tem o seu tempo determinado, e há tempo para todo o propósito..."] },
-    "ct": { 2: ["Eu sou a rosa de Sarom, o lírio dos vales..."] },
-
-    // PROFETAS MAIORES
-    "is": { 53: ["Quem deu crédito à nossa pregação? E a quem se manifestou o braço do SENHOR?"] },
-    "jr": { 31: ["Naquele tempo, diz o SENHOR, serei o Deus de todas as famílias de Israel..."] },
-    "lm": { 3: ["Eu sou o homem que viu a aflição debaixo da vara do seu furor."] },
-    "ez": { 37: ["Veio sobre mim a mão do SENHOR, e o SENHOR me fez sair em espírito..."] },
-    "dn": { 3: ["O rei Nabucodonosor fez uma estátua de ouro..."] },
-
-    // PROFETAS MENORES
-    "os": { 11: ["Quando Israel era menino, então eu o amei..."] },
-    "jl": { 2: ["Tocai a trombeta em Sião, e clamai em alta voz no meu santo monte..."] },
-    "am": { 5: ["Ouvi esta palavra que levanto sobre vós, como lamentação..."] },
-    "ob": { 1: ["Visão de Obadias. Assim diz o Senhor DEUS a Edom..."] },
-    "jn": { 2: ["E orou Jonas ao SENHOR seu Deus, lá do ventre do peixe..."] },
-    "mq": { 6: ["Ouvi, agora, o que diz o SENHOR: Levanta-te..."] },
-    "na": { 1: ["Peso de Nínive. Livro da visão de Naum, o elcosita."] },
-    "hc": { 3: ["Oração do profeta Habacuque, sobre Sigionote."] },
-    "sf": { 3: ["Ai da rebelde e contaminada, da cidade opressora!"] },
-    "ag": { 2: ["No sétimo mês, no dia vinte e um do mês, veio a palavra do SENHOR..."] },
-    "zc": { 9: ["Peso da palavra do SENHOR contra a terra de Hadraque..."] },
-    "ml": { 3: ["Eis que eu envio o meu anjo, e ele preparará o caminho diante de mim..."] },
-
-    // EVANGELHOS
-    "mt": { 5: ["E vendo as multidões, subiu ao monte..."] },
-    "mc": { 16: ["E, passado o sábado, Maria Madalena, e Maria, mãe de Tiago..."] },
-    "lc": { 2: ["E aconteceu naqueles dias que saiu um decreto da parte de César Augusto..."] },
-    "jo": { 3: ["Havia um homem dos fariseus, chamado Nicodemos..."] },
-
-    // HISTÓRICO DO NOVO TESTAMENTO
-    "at": { 2: ["E, cumprindo-se o dia de Pentecostes, estavam todos reunidos no mesmo lugar..."] },
-
-    // EPÍSTOLAS PAULINAS
-    "rm": { 8: ["Portanto, agora nenhuma condenação há para os que estão em Cristo Jesus..."] },
-    "1co": { 13: ["Ainda que eu falasse as línguas dos homens e dos anjos..."] },
-    "2co": { 5: ["Porque sabemos que, se a nossa casa terrestre deste tabernáculo se desfizer..."] },
-    "gl": { 5: ["Estai, pois, firmes na liberdade com que Cristo nos libertou..."] },
-    "ef": { 6: ["Vós, filhos, sede obedientes a vossos pais no Senhor..."] },
-    "fp": { 4: ["Portanto, meus amados e mui queridos irmãos..."] },
-    "cl": { 3: ["Portanto, se já ressuscitastes com Cristo, buscai as coisas que são de cima..."] },
-    "1ts": { 5: ["Mas, irmãos, acerca dos tempos e das estações..."] },
-    "2ts": { 3: ["Quanto ao mais, irmãos, orai por nós..."] },
-    "1tm": { 6: ["Todos os que estão debaixo do jugo da servidão..."] },
-    "2tm": { 4: ["Conjuro-te, pois, diante de Deus e do Senhor Jesus Cristo..."] },
-    "tt": { 2: ["Tu, porém, fala o que convém à sã doutrina."] },
-    "fm": { 1: ["Paulo, prisioneiro de Jesus Cristo, e o irmão Timóteo..."] },
-
-    // EPÍSTOLAS GERAIS
-    "hb": { 11: ["Ora, a fé é o firme fundamento das coisas que se esperam..."] },
-    "tg": { 1: ["Tiago, servo de Deus, e do Senhor Jesus Cristo..."] },
-    "1pe": { 5: ["Aos presbíteros, que estão entre vós, admoesto eu..."] },
-    "2pe": { 3: ["Amados, escrevo-vos esta segunda carta..."] },
-    "1jo": { 4: ["Amados, não creiais a todo o espírito..."] },
-    "2jo": { 1: ["O presbítero à senhora eleita, e a seus filhos..."] },
-    "3jo": { 1: ["O presbítero ao amado Gaio, a quem amo na verdade."] },
-    "jd": { 1: ["Judas, servo de Jesus Cristo, e irmão de Tiago..."] },
-
-    // APOCALIPSE
-    "ap": { 21: ["E vi um novo céu e uma nova terra..."] }
-};
+let cart = [];
+let carouselImages = [];
+let currentSlide = 0;
+let slideInterval;
+let paymentType = 'sale';
+let donationType = '';
 
 // ============================================
-// ===== FUNÇÃO DE BUSCA DA BÍBLIA =====
+// ===== BÍBLIA COM MÚLTIPLAS APIs =====
 // ============================================
+
 const bookNames = {
     'gn': 'Gênesis', 'ex': 'Êxodo', 'lv': 'Levítico', 'nm': 'Números',
     'dt': 'Deuteronômio', 'js': 'Josué', 'jz': 'Juízes', 'rt': 'Rute',
@@ -899,81 +820,239 @@ const bookNames = {
     'ap': 'Apocalipse'
 };
 
+// ===== 5 APIS DIFERENTES PARA FALLBACK =====
+const bibleAPIs = [
+    {
+        name: 'Bible-API (bible-api.com)',
+        url: (book, chapter, verse) => {
+            let url = `https://bible-api.com/${book}+${chapter}`;
+            if (verse) url += `:${verse}`;
+            return url + '?translation=almeida';
+        },
+        parse: (data) => {
+            if (data.error) throw new Error(data.error);
+            let verses = [];
+            if (data.verses) {
+                data.verses.forEach(v => verses.push({ number: v.verse, text: v.text }));
+            } else if (data.text) {
+                verses.push({ number: 1, text: data.text });
+            }
+            return { verses, reference: data.reference || '' };
+        }
+    },
+    {
+        name: 'Bíblia Digital (biblia.com.br)',
+        url: (book, chapter, verse) => {
+            // Usando o formato da Bíblia Digital
+            const bookMap = { 'gn': 'genesis', 'ex': 'exodo', 'sl': 'salmos', 'mt': 'mateus', 'jo': 'joao', 'rm': 'romanos', 'fp': 'filipenses', 'ap': 'apocalipse' };
+            const mapped = bookMap[book] || book;
+            let url = `https://biblia.com.br/ACF/${mapped}/${chapter}/`;
+            return url;
+        },
+        parse: (text) => {
+            // Esta API não é JSON, então vamos tentar extrair do HTML
+            // Como fallback, vamos retornar null para tentar a próxima
+            return null;
+        }
+    },
+    {
+        name: 'API do Bible (api.bible)',
+        url: (book, chapter, verse) => {
+            // Bible API da Faithlife
+            const bookMap = { 'gn': 'GEN', 'ex': 'EXO', 'sl': 'PSA', 'mt': 'MAT', 'jo': 'JHN', 'rm': 'ROM', 'fp': 'PHP', 'ap': 'REV' };
+            const mapped = bookMap[book] || book.toUpperCase();
+            let url = `https://api.bible/v1/bibles/06125adad2d5898a-01/books/${mapped}/chapters/${chapter}`;
+            if (verse) url += `/verses/${verse}`;
+            return url;
+        },
+        parse: (data) => {
+            if (data.error) throw new Error(data.error);
+            let verses = [];
+            if (data.data && data.data.verses) {
+                data.data.verses.forEach(v => verses.push({ number: v.number, text: v.text }));
+            } else if (data.data && data.data.text) {
+                verses.push({ number: 1, text: data.data.text });
+            }
+            return { verses, reference: data.data ? data.data.reference : '' };
+        }
+    },
+    {
+        name: 'Bíblia API (bible-api.io)',
+        url: (book, chapter, verse) => {
+            let url = `https://bible-api.io/verses/${book}/${chapter}`;
+            if (verse) url += `/${verse}`;
+            return url + '?version=acf';
+        },
+        parse: (data) => {
+            if (data.error) throw new Error(data.error);
+            let verses = [];
+            if (data.verses) {
+                data.verses.forEach(v => verses.push({ number: v.number, text: v.text }));
+            }
+            return { verses, reference: data.book + ' ' + data.chapter };
+        }
+    },
+    {
+        name: 'Our Bible API (ourbible.com)',
+        url: (book, chapter, verse) => {
+            let url = `https://www.ourbible.com/api/verses/${book}/${chapter}`;
+            if (verse) url += `/${verse}`;
+            return url + '?version=acf';
+        },
+        parse: (data) => {
+            if (data.error) throw new Error(data.error);
+            let verses = [];
+            if (data.verses) {
+                data.verses.forEach(v => verses.push({ number: v.number, text: v.text }));
+            }
+            return { verses, reference: data.reference || '' };
+        }
+    }
+];
+
+// ===== FALLBACK OFFLINE (VERSÍCULOS POPULARES) =====
+const offlineBible = {
+    'sl_23': [
+        "O SENHOR é o meu pastor; nada me faltará.",
+        "Deitar-me faz em verdes pastos, guia-me mansamente a águas tranquilas.",
+        "Refrigera a minha alma; guia-me pelas veredas da justiça, por amor do seu nome.",
+        "Ainda que eu ande pelo vale da sombra da morte, não temerei mal algum, porque tu estás comigo; a tua vara e o teu cajado me consolam.",
+        "Preparas uma mesa perante mim na presença dos meus inimigos; unges a minha cabeça com óleo, o meu cálice transborda.",
+        "Certamente que a bondade e a misericórdia me seguirão todos os dias da minha vida; e habitarei na casa do SENHOR para sempre."
+    ],
+    'jo_3': [
+        "Havia um homem dos fariseus, chamado Nicodemos, príncipe dos judeus.",
+        "Este foi de noite ter com Jesus, e disse-lhe: Rabi, bem sabemos que és Mestre, vindo de Deus; porque ninguém pode fazer estes sinais que tu fazes, se Deus não for com ele.",
+        "Jesus respondeu, e disse-lhe: Na verdade, na verdade te digo que aquele que não nascer de novo, não pode ver o reino de Deus.",
+        "Disse-lhe Nicodemos: Como pode um homem nascer, sendo velho? Pode, porventura, tornar a entrar no ventre de sua mãe, e nascer?",
+        "Jesus respondeu: Na verdade, na verdade te digo que aquele que não nascer da água e do Espírito, não pode entrar no reino de Deus.",
+        "O que é nascido da carne é carne, e o que é nascido do Espírito é espírito.",
+        "Não te maravilhes de te ter dito: Necessário vos é nascer de novo.",
+        "O vento assopra onde quer, e ouves a sua voz, mas não sabes de onde vem, nem para onde vai; assim é todo aquele que é nascido do Espírito.",
+        "Nicodemos respondeu, e disse-lhe: Como pode ser isto?",
+        "Jesus respondeu, e disse-lhe: Tu és mestre de Israel, e não sabes isto?",
+        "Na verdade, na verdade te digo que nós dizemos o que sabemos, e testificamos o que vimos; e não aceitais o nosso testemunho.",
+        "Se vos disse coisas terrestres, e não credes, como crereis, se vos disser as celestiais?",
+        "Ora, ninguém subiu ao céu, senão o que desceu do céu, o Filho do homem, que está no céu.",
+        "E como Moisés levantou a serpente no deserto, assim importa que o Filho do homem seja levantado;",
+        "Para que todo aquele que nele crê não pereça, mas tenha a vida eterna.",
+        "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.",
+        "Porque Deus enviou o seu Filho ao mundo, não para que condenasse o mundo, mas para que o mundo fosse salvo por ele.",
+        "Quem crê nele não é condenado; mas quem não crê já está condenado, porquanto não crê no nome do unigênito Filho de Deus."
+    ],
+    'mt_6': [
+        "Guardai-vos de fazer a vossa esmola diante dos homens, para serdes vistos por eles; aliás, não tereis galardão junto de vosso Pai, que está nos céus.",
+        "Quando, pois, deres esmola, não faças tocar trombeta diante de ti, como fazem os hipócritas nas sinagogas e nas ruas, para serem glorificados pelos homens. Em verdade vos digo que já receberam o seu galardão.",
+        "Mas, quando tu deres esmola, não saiba a tua mão esquerda o que faz a tua direita;",
+        "Para que a tua esmola seja em secreto; e teu Pai, que vê em secreto, te recompensará publicamente.",
+        "E, quando orares, não sejas como os hipócritas; pois se comprazem em orar em pé nas sinagogas, e às esquinas das ruas, para serem vistos pelos homens. Em verdade vos digo que já receberam o seu galardão.",
+        "Mas tu, quando orares, entra no teu aposento, e, fechada a porta, ora a teu Pai que está em secreto; e teu Pai, que vê em secreto, te recompensará publicamente.",
+        "E, orando, não useis de vãs repetições, como os gentios, que pensam que por muito falarem serão ouvidos.",
+        "Não vos assemelheis, pois, a eles; porque vosso Pai sabe o que vos é necessário, antes de vós lho pedirdes.",
+        "Portanto, vós orareis assim: Pai nosso, que estás nos céus, santificado seja o teu nome;",
+        "Venha o teu reino, seja feita a tua vontade, assim na terra como no céu;",
+        "O pão nosso de cada dia nos dá hoje;",
+        "E perdoa-nos as nossas dívidas, assim como nós perdoamos aos nossos devedores;",
+        "E não nos induzas à tentação; mas livra-nos do mal; porque teu é o reino, e o poder, e a glória, para sempre. Amém."
+    ],
+    'rm_8': [
+        "Portanto, agora nenhuma condenação há para os que estão em Cristo Jesus, que não andam segundo a carne, mas segundo o Espírito.",
+        "Porque a lei do Espírito de vida, em Cristo Jesus, me livrou da lei do pecado e da morte.",
+        "Porquanto o que era impossível à lei, visto como estava enferma pela carne, Deus, enviando o seu Filho em semelhança da carne do pecado, e por causa do pecado, condenou o pecado na carne;",
+        "Para que a justiça da lei se cumprisse em nós, que não andamos segundo a carne, mas segundo o Espírito."
+    ],
+    'fp_4': [
+        "Portanto, meus amados e mui queridos irmãos, minha alegria e coroa, estai assim firmes no Senhor, amados.",
+        "Rogo a Evódia, e rogo a Síntique, que sintam o mesmo no Senhor.",
+        "E rogo também a ti, meu verdadeiro companheiro, que ajudes estas mulheres que trabalharam comigo no evangelho, e com Clemente, e com os outros meus cooperadores, cujos nomes estão no livro da vida.",
+        "Regozijai-vos sempre no Senhor; outra vez digo, regozijai-vos.",
+        "Seja a vossa moderação conhecida de todos os homens. Perto está o Senhor.",
+        "Não estejais ansiosos por coisa alguma; antes, as vossas petições sejam em tudo conhecidas diante de Deus, pela oração e súplica, com ação de graças.",
+        "E a paz de Deus, que excede todo o entendimento, guardará os vossos corações e os vossos pensamentos em Cristo Jesus.",
+        "Quanto ao mais, irmãos, tudo o que é verdadeiro, tudo o que é honesto, tudo o que é justo, tudo o que é puro, tudo o que é amável, tudo o que é de boa fama, se há alguma virtude, e se há algum louvor, nisso pensai.",
+        "O que também aprendestes, e recebestes, e ouvistes, e vistes em mim, isso fazei; e o Deus de paz será convosco.",
+        "Ora, muito me regozijei no Senhor por finalmente reviver a vossa lembrança de mim; pois já vos tínheis lembrado, mas não tínheis oportunidade.",
+        "Não digo isto por causa de necessidade, porque já aprendi a contentar-me com o que tenho.",
+        "Sei estar abatido, e sei também ter abundância; em toda a maneira, e em todas as coisas, estou instruído, tanto a ter fartura, como a ter fome; tanto a ter abundância, como a padecer necessidade.",
+        "Posso todas as coisas naquele que me fortalece."
+    ]
+};
+
+// ===== FUNÇÃO PRINCIPAL DE BUSCA =====
 async function searchBible() {
     const book = document.getElementById('bibleBook').value;
-    const chapter = parseInt(document.getElementById('bibleChapter').value) || 1;
-    const verse = parseInt(document.getElementById('bibleVerse').value);
+    const chapter = document.getElementById('bibleChapter').value;
+    const verse = document.getElementById('bibleVerse').value;
     const resultDiv = document.getElementById('bibleResult');
-    resultDiv.innerHTML = '<p>⏳ Carregando...</p>';
+    resultDiv.innerHTML = '<p>⏳ Buscando em múltiplas APIs...</p>';
 
-    // Primeiro tenta a API online
-    try {
-        let url = `https://bible-api.com/${book}+${chapter}`;
-        if (verse) url += `:${verse}`;
-        url += '?translation=almeida';
+    let lastError = null;
 
-        let response = await fetch(url);
-        let data = await response.json();
-
-        if (data.error) throw new Error('API error');
-
-        let html = '';
-        if (data.verses) {
-            data.verses.forEach(v => {
-                html += `<p class="verse"><strong>${v.verse}</strong> ${v.text}</p>`;
-            });
-        } else if (data.text) {
-            html = `<p class="verse">${data.text}</p>`;
+    // Tenta cada API em sequência
+    for (let i = 0; i < bibleAPIs.length; i++) {
+        const api = bibleAPIs[i];
+        try {
+            const url = api.url(book, chapter, verse);
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const data = await response.json();
+            const parsed = api.parse(data);
+            
+            if (parsed && parsed.verses && parsed.verses.length > 0) {
+                let html = '';
+                parsed.verses.forEach(v => {
+                    html += `<p class="verse"><strong>${v.number}</strong> ${v.text}</p>`;
+                });
+                html += `<p class="reference">📖 ${parsed.reference || bookNames[book] + ' ' + chapter}</p>`;
+                html += `<p class="api-info">✅ Obtido via: ${api.name}</p>`;
+                resultDiv.innerHTML = html;
+                return;
+            }
+        } catch (error) {
+            lastError = error;
+            console.warn(`API ${api.name} falhou:`, error);
+            // Continua para a próxima API
         }
-        html += `<p class="reference">📖 ${data.reference || bookNames[book] + ' ' + chapter}</p>`;
+    }
+
+    // Se todas as APIs falharam, tenta o fallback offline
+    const key = `${book}_${chapter}`;
+    if (offlineBible[key]) {
+        let html = '';
+        const verses = offlineBible[key];
+        const start = verse ? parseInt(verse) - 1 : 0;
+        const end = verse ? parseInt(verse) : verses.length;
+        for (let i = start; i < end && i < verses.length; i++) {
+            html += `<p class="verse"><strong>${i+1}</strong> ${verses[i]}</p>`;
+        }
+        const bookName = bookNames[book] || book;
+        html += `<p class="reference">📖 ${bookName} ${chapter}${verse ? ':'+verse : ''}</p>`;
+        html += `<p class="api-info">📚 Dados offline (todas as APIs falharam)</p>`;
         resultDiv.innerHTML = html;
         return;
-    } catch (error) {
-        // Fallback para offline
-        if (bibliaOffline[book] && bibliaOffline[book][chapter]) {
-            const verses = bibliaOffline[book][chapter];
-            let html = '';
-            if (verse) {
-                if (verse >= 1 && verse <= verses.length) {
-                    html = `<p class="verse"><strong>${verse}</strong> ${verses[verse-1]}</p>`;
-                } else {
-                    html = `<p style="color:#dc3545;">❌ Versículo ${verse} não encontrado no capítulo ${chapter}.</p>`;
-                }
-            } else {
-                verses.forEach((text, i) => {
-                    html += `<p class="verse"><strong>${i+1}</strong> ${text}</p>`;
-                });
-            }
-            html += `<p class="reference">📖 ${bookNames[book] || book} ${chapter}${verse ? ':'+verse : ''}</p>`;
-            resultDiv.innerHTML = html;
-            return;
-        }
-
-        // Livro não encontrado offline
-        let suggestions = [];
-        const availableBooks = Object.keys(bibliaOffline);
-        for (let b of availableBooks) {
-            if (bibliaOffline[b][chapter]) {
-                suggestions.push(`${bookNames[b] || b} ${chapter}`);
-                if (suggestions.length >= 5) break;
-            }
-        }
-
-        resultDiv.innerHTML = `
-            <p style="color:#dc3545;">❌ Não foi possível carregar ${bookNames[book] || book} ${chapter}.</p>
-            ${suggestions.length > 0 ? `<p style="color:#888;margin-top:0.5rem;">Sugestões disponíveis: ${suggestions.join(', ')}</p>` : ''}
-            <p style="color:#888;margin-top:0.5rem;">📚 Livros disponíveis offline: ${availableBooks.map(b => bookNames[b] || b).join(', ')}</p>
-            <p style="color:#888;margin-top:0.5rem;">💡 Dica: Para uma experiência completa, conecte-se à internet.</p>
-        `;
     }
+
+    // Fallback final - exibe mensagem de erro com sugestões
+    const suggestions = Object.keys(offlineBible).map(k => {
+        const [b, c] = k.split('_');
+        return `${bookNames[b] || b} ${c}`;
+    }).slice(0, 5);
+
+    resultDiv.innerHTML = `
+        <p style="color:#dc3545;">❌ Não foi possível carregar ${bookNames[book] || book} ${chapter}.</p>
+        <p style="color:#888;margin-top:0.5rem;">Motivo: ${lastError ? lastError.message : 'Todas as APIs falharam'}</p>
+        <p style="color:#888;margin-top:0.5rem;">💡 Versículos disponíveis offline: ${suggestions.join(', ')}</p>
+        <p style="color:#888;margin-top:0.5rem;">🔌 Conecte-se à internet para acessar a Bíblia completa.</p>
+    `;
 }
 
 // ============================================
 // ===== CARREGAR CARROSSEL =====
 // ============================================
-let carouselImages = [];
-let currentSlide = 0;
-let slideInterval;
 
 async function loadCarousel() {
     try {
@@ -1003,7 +1082,7 @@ async function loadCarousel() {
 
         data.forEach((img, index) => {
             const slide = document.createElement('div');
-            slide.className = 'carousel-slide';
+            slide.className = 'carousel-slide' + (index === 0 ? ' active' : '');
             let imgSrc = img.image_url || (img.image_base64 ? `data:image/jpeg;base64,${img.image_base64}` : 'https://via.placeholder.com/1400x450/0D47A1/ffffff?text=NJ+Cabu%C3%A7u');
             
             slide.innerHTML = `
@@ -1022,22 +1101,8 @@ async function loadCarousel() {
         });
 
         currentSlide = 0;
-        updateCarousel();
         startCarousel();
     } catch (e) { console.error('Erro carrossel:', e); }
-}
-
-function updateCarousel() {
-    const slides = document.querySelectorAll('.carousel-slide');
-    const dots = document.querySelectorAll('.dot');
-    if (!slides.length) return;
-
-    slides.forEach((s, i) => {
-        s.style.display = i === currentSlide ? 'block' : 'none';
-    });
-    dots.forEach((d, i) => {
-        d.className = 'dot' + (i === currentSlide ? ' active' : '');
-    });
 }
 
 function startCarousel() {
@@ -1047,16 +1112,35 @@ function startCarousel() {
 
 function changeSlide(direction) {
     const slides = document.querySelectorAll('.carousel-slide');
+    const dots = document.querySelectorAll('.dot');
     if (!slides.length) return;
+
+    slides[currentSlide].classList.remove('active');
+    dots[currentSlide].classList.remove('active');
+
     currentSlide = (currentSlide + direction + slides.length) % slides.length;
-    updateCarousel();
+
+    slides[currentSlide].classList.add('active');
+    dots[currentSlide].classList.add('active');
+
+    const wrapper = document.getElementById('carouselWrapper');
+    wrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
 }
 
 function goToSlide(index) {
     const slides = document.querySelectorAll('.carousel-slide');
+    const dots = document.querySelectorAll('.dot');
     if (!slides.length) return;
+
+    slides[currentSlide].classList.remove('active');
+    dots[currentSlide].classList.remove('active');
+
     currentSlide = index;
-    updateCarousel();
+    slides[currentSlide].classList.add('active');
+    dots[currentSlide].classList.add('active');
+
+    const wrapper = document.getElementById('carouselWrapper');
+    wrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
     startCarousel();
 }
 
@@ -1148,10 +1232,6 @@ async function loadProducts() {
 // ============================================
 // ===== DEMAIS FUNÇÕES =====
 // ============================================
-
-let cart = [];
-let paymentType = 'sale';
-let donationType = '';
 
 async function registerForEvent(eventId, eventName, price) {
     const name = prompt('Seu nome completo:');

@@ -310,7 +310,6 @@
         .notification.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .notification.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
 
-        /* Estilos para a lista de membros na frequência */
         .member-row {
             display: flex;
             align-items: center;
@@ -408,6 +407,7 @@
         <button class="tab-btn" onclick="showTab('frequencia')"><i class="fas fa-calendar-check"></i> Frequência</button>
         <button class="tab-btn" onclick="showTab('tesouraria')"><i class="fas fa-hand-holding-heart"></i> Tesouraria</button>
         <button class="tab-btn" onclick="showTab('contas')"><i class="fas fa-receipt"></i> Contas</button>
+        <button class="tab-btn" onclick="showTab('aniversariantes')"><i class="fas fa-birthday-cake"></i> Aniversários</button>
         <button class="tab-btn" onclick="showTab('config')"><i class="fas fa-cog"></i> Config</button>
     </div>
 
@@ -459,7 +459,7 @@
             <h4>📋 Últimas Vendas</h4>
             <div class="table-wrapper">
                 <table class="table">
-                    <thead><tr><th>Cliente</th><th>E-mail</th><th>Produto</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
+                    <thead><tr><th>Cliente</th><th>E-mail</th><th>Produto</th><th>Qtd</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
                     <tbody id="recentOrdersList"></tbody>
                 </table>
             </div>
@@ -471,7 +471,7 @@
         <h3>🛒 Histórico de Vendas</h3>
         <div class="table-wrapper">
             <table class="table">
-                <thead><tr><th>Cliente</th><th>E-mail</th><th>Produto</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
+                <thead><tr><th>Cliente</th><th>E-mail</th><th>Produto</th><th>Qtd</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
                 <tbody id="ordersList"></tbody>
             </table>
         </div>
@@ -603,7 +603,7 @@
         </div>
     </div>
 
-    <!-- FREQUÊNCIA - VERSÃO COM MULTISSELECAO -->
+    <!-- FREQUÊNCIA -->
     <div id="tab-frequencia" class="tab-content">
         <h3>📅 Registrar Frequência em Massa</h3>
         
@@ -629,7 +629,6 @@
         </div>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-top:1rem;">
-            <!-- LISTA DE MEMBROS -->
             <div>
                 <div style="display:flex; gap:0.5rem; margin-bottom:0.8rem; flex-wrap:wrap;">
                     <div style="flex:1; min-width:150px;">
@@ -660,7 +659,6 @@
                 </div>
             </div>
 
-            <!-- RESUMO E AÇÕES -->
             <div>
                 <div style="background:#f8f9fa; border-radius:12px; border:1px solid #e8e8e8; padding:1.2rem;">
                     <h4 style="margin-bottom:0.8rem;">📋 Resumo da Frequência</h4>
@@ -675,7 +673,6 @@
                     </button>
                 </div>
 
-                <!-- ÚLTIMOS REGISTROS -->
                 <div style="margin-top:1rem; background:#f8f9fa; border-radius:12px; border:1px solid #e8e8e8; padding:1.2rem;">
                     <h4 style="margin-bottom:0.8rem;">📊 Registros do Dia</h4>
                     <div id="attendanceList" style="max-height:250px; overflow-y:auto;">
@@ -716,6 +713,20 @@
         </div>
     </div>
 
+    <!-- ANIVERSARIANTES -->
+    <div id="tab-aniversariantes" class="tab-content">
+        <div class="flex-between mb-1">
+            <h3>🎂 Aniversariantes</h3>
+            <button onclick="openBirthdayModal()" class="btn btn-success"><i class="fas fa-plus"></i> Adicionar</button>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Nome</th><th>Data de Nascimento</th><th>Telefone</th><th>Ações</th></tr></thead>
+                <tbody id="birthdaysList"></tbody>
+            </table>
+        </div>
+    </div>
+
     <!-- CONFIG -->
     <div id="tab-config" class="tab-content">
         <h3>⚙️ Configurações do Site</h3>
@@ -739,7 +750,7 @@
     </div>
 </div>
 
-<!-- ===== MODAIS ===== -->
+<!-- MODAIS -->
 <!-- USUÁRIO -->
 <div class="modal" id="userModal">
     <div class="modal-content">
@@ -850,6 +861,18 @@
         <div class="form-group"><label>Data de Vencimento *</label><input type="date" id="billDueDate"></div>
         <div class="form-group"><label>Observações</label><textarea id="billNotes" rows="3"></textarea></div>
         <button onclick="saveBill()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+    </div>
+</div>
+
+<!-- ANIVERSARIANTE -->
+<div class="modal" id="birthdayModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('birthdayModal')">&times;</button>
+        <h3>🎂 Adicionar Aniversariante</h3>
+        <div class="form-group"><label>Nome *</label><input type="text" id="birthdayName"></div>
+        <div class="form-group"><label>Data de Nascimento *</label><input type="date" id="birthdayDate"></div>
+        <div class="form-group"><label>Telefone</label><input type="tel" id="birthdayPhone"></div>
+        <button onclick="saveBirthday()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
     </div>
 </div>
 
@@ -999,6 +1022,7 @@ function showTab(tab) {
             'frequencia': 'Frequência',
             'tesouraria': 'Tesouraria',
             'contas': 'Contas',
+            'aniversariantes': 'Aniversários',
             'config': 'Config'
         };
         if (b.textContent.includes(map[tab])) b.classList.add('active');
@@ -1009,17 +1033,15 @@ function showTab(tab) {
     if (tab === 'membros') loadMembers();
     if (tab === 'frequencia') { 
         setDefaultAttendanceDate();
-        // Se já houver membros carregados, atualizar
         if (allMembers.length > 0) {
             renderMembersList();
             const date = document.getElementById('attendanceDate').value;
-            if (date) {
-                loadAttendanceHistory(date);
-            }
+            if (date) loadAttendanceHistory(date);
         }
     }
     if (tab === 'tesouraria') { loadTithes(); loadTitheSummary(); }
     if (tab === 'contas') { loadBills(); loadBillSummary(); }
+    if (tab === 'aniversariantes') loadBirthdaysAdmin();
     if (tab === 'config') loadConfig();
 }
 
@@ -1057,6 +1079,7 @@ async function loadDashboard() {
         loadRegistrations();
         loadSalesStats();
         loadMembers();
+        loadBirthdaysAdmin();
     } catch (e) { console.error('Erro:', e); }
 }
 
@@ -1127,11 +1150,13 @@ async function loadSalesStats() {
                 let items = [];
                 try { items = JSON.parse(o.items || '[]'); } catch { items = []; }
                 const productName = items.length > 0 ? items.map(i => i.name).join(', ') : '-';
+                const totalItems = items.reduce((sum, i) => sum + (i.quantity || 1), 0);
                 return `
                     <tr>
                         <td>${o.user_name || 'Anônimo'}</td>
                         <td>${o.user_email || '-'}</td>
                         <td>${productName}</td>
+                        <td>${totalItems}</td>
                         <td>R$ ${parseFloat(o.total || 0).toFixed(2)}</td>
                         <td><span class="status status-${o.status || 'pending'}">${o.status || 'Pendente'}</span></td>
                         <td>${new Date(o.created_at).toLocaleDateString('pt-BR')}</td>
@@ -1139,7 +1164,7 @@ async function loadSalesStats() {
                 `;
             }).join('');
         } else {
-            recentOrders.innerHTML = '<tr><td colspan="6" class="text-center" style="color:#888;">Nenhuma venda</td></tr>';
+            recentOrders.innerHTML = '<tr><td colspan="7" class="text-center" style="color:#888;">Nenhuma venda</td></tr>';
         }
         
     } catch (error) {
@@ -1193,18 +1218,20 @@ function loadPrayers(prayers) {
 function loadOrders(orders) {
     const tbody = document.getElementById('ordersList');
     if (!orders?.length) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="color:#888;">Nenhuma venda</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center" style="color:#888;">Nenhuma venda</td></tr>';
         return;
     }
     tbody.innerHTML = orders.slice(0, 30).map(o => {
         let items = [];
         try { items = JSON.parse(o.items || '[]'); } catch { items = []; }
         const productName = items.length > 0 ? items.map(i => i.name).join(', ') : '-';
+        const totalItems = items.reduce((sum, i) => sum + (i.quantity || 1), 0);
         return `
             <tr>
                 <td>${o.user_name || 'Anônimo'}</td>
                 <td>${o.user_email || '-'}</td>
                 <td>${productName}</td>
+                <td>${totalItems}</td>
                 <td>R$ ${parseFloat(o.total || 0).toFixed(2)}</td>
                 <td><span class="status status-${o.status || 'pending'}">${o.status || 'Pendente'}</span></td>
                 <td>${new Date(o.created_at).toLocaleDateString('pt-BR')}</td>
@@ -1348,6 +1375,26 @@ async function loadDepartments() {
     } catch (e) { console.error('Erro:', e); }
 }
 
+async function loadBirthdaysAdmin() {
+    try {
+        const res = await fetch('/api/birthdays', { headers: getHeaders() });
+        const data = await res.json();
+        const tbody = document.getElementById('birthdaysList');
+        if (!data?.length) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum aniversariante</td></tr>';
+            return;
+        }
+        tbody.innerHTML = data.map(b => `
+            <tr>
+                <td>${b.name}</td>
+                <td>${new Date(b.birth_date).toLocaleDateString('pt-BR')}</td>
+                <td>${b.phone || '-'}</td>
+                <td><button onclick="deleteBirthday(${b.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td>
+            </tr>
+        `).join('');
+    } catch (e) { console.error('Erro:', e); }
+}
+
 // ============================================
 // ===== AÇÕES =====
 // ============================================
@@ -1425,6 +1472,15 @@ async function deleteDepartment(id) {
         loadDepartments();
         loadDashboard();
         showNotification('✅ Departamento removido!', 'success');
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+async function deleteBirthday(id) {
+    if (!confirm('Remover este aniversariante?')) return;
+    try {
+        await fetch('/api/birthdays/' + id, { method: 'DELETE', headers: getHeaders() });
+        loadBirthdaysAdmin();
+        showNotification('✅ Aniversariante removido!', 'success');
     } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
 }
 
@@ -1618,26 +1674,22 @@ async function deleteMember(id) {
 }
 
 // ============================================
-// ===== FREQUÊNCIA - MULTISSELECAO CORRIGIDA =====
+// ===== FREQUÊNCIA - MULTISSELECAO =====
 // ============================================
 
 let allMembers = [];
 let selectedMembers = new Set();
 let attendanceFilteredMembers = [];
 
-// Define a data atual como padrão
 function setDefaultAttendanceDate() {
     const today = new Date();
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     const dateInput = document.getElementById('attendanceDate');
-    if (dateInput) {
-        dateInput.value = `${year}-${month}-${day}`;
-    }
+    if (dateInput) dateInput.value = `${year}-${month}-${day}`;
 }
 
-// Carrega todos os membros para a lista de frequência
 async function loadAllMembersForAttendance() {
     const date = document.getElementById('attendanceDate').value;
     if (!date) {
@@ -1656,16 +1708,11 @@ async function loadAllMembersForAttendance() {
             return;
         }
         
-        // Limpar seleção anterior
         selectedMembers.clear();
-        
-        // Verificar quais membros já têm presença nesta data
         await checkExistingAttendance(date);
-        
         renderMembersList();
         updateSummary();
         loadAttendanceHistory(date);
-        
         showNotification(`✅ ${allMembers.length} membros carregados!`, 'success');
     } catch (e) {
         console.error('Erro:', e);
@@ -1673,34 +1720,26 @@ async function loadAllMembersForAttendance() {
     }
 }
 
-// Verifica quais membros já têm presença registrada na data
 async function checkExistingAttendance(date) {
     try {
         const res = await fetch(`/api/attendance/date/${date}`, { headers: getHeaders() });
         const existing = await res.json();
-        
-        // Marcar membros que já têm presença
         if (existing && existing.length > 0) {
             existing.forEach(record => {
-                if (record.present) {
-                    selectedMembers.add(record.member_id);
-                }
+                if (record.present) selectedMembers.add(record.member_id);
             });
         }
-        
         document.getElementById('selectedCount').textContent = selectedMembers.size;
     } catch (e) {
         console.error('Erro ao verificar frequência existente:', e);
     }
 }
 
-// Renderiza a lista de membros com checkbox
 function renderMembersList() {
     const container = document.getElementById('membersListContainer');
     const searchInput = document.getElementById('memberSearch');
     const search = searchInput ? searchInput.value.toLowerCase().trim() : '';
     
-    // Filtrar membros
     let filtered = allMembers;
     if (search) {
         filtered = allMembers.filter(m => 
@@ -1709,7 +1748,6 @@ function renderMembersList() {
         );
     }
     attendanceFilteredMembers = filtered;
-    
     document.getElementById('totalCount').textContent = filtered.length;
     
     if (!filtered || filtered.length === 0) {
@@ -1733,22 +1771,17 @@ function renderMembersList() {
             </div>
         `;
     });
-    
     container.innerHTML = html;
     document.getElementById('selectedCount').textContent = selectedMembers.size;
 }
 
-// Adiciona evento de pesquisa em tempo real
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('memberSearch');
     if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            renderMembersList();
-        });
+        searchInput.addEventListener('input', function() { renderMembersList(); });
     }
 });
 
-// Alterna seleção de um membro
 function toggleMember(id) {
     if (selectedMembers.has(id)) {
         selectedMembers.delete(id);
@@ -1756,7 +1789,6 @@ function toggleMember(id) {
         selectedMembers.add(id);
     }
     
-    // Atualizar visual
     const row = document.querySelector(`.member-row[data-id="${id}"]`);
     if (row) {
         const cb = row.querySelector('.member-checkbox');
@@ -1768,101 +1800,64 @@ function toggleMember(id) {
     updateSummary();
 }
 
-// Selecionar todos os membros visíveis
 function toggleSelectAll() {
     const visibleMembers = attendanceFilteredMembers.length > 0 ? attendanceFilteredMembers : allMembers;
-    
     if (!visibleMembers || visibleMembers.length === 0) {
         showNotification('⚠️ Nenhum membro para selecionar!', 'error');
         return;
     }
-    
     const allSelected = visibleMembers.every(m => selectedMembers.has(m.id));
-    
     if (allSelected) {
-        // Desmarcar todos os visíveis
         visibleMembers.forEach(m => selectedMembers.delete(m.id));
     } else {
-        // Marcar todos os visíveis
         visibleMembers.forEach(m => selectedMembers.add(m.id));
     }
-    
     renderMembersList();
     updateSummary();
 }
 
-// Limpar seleção
 function clearSelection() {
     selectedMembers.clear();
     renderMembersList();
     updateSummary();
 }
 
-// Atualiza resumo da frequência
 function updateSummary() {
     const container = document.getElementById('attendanceSummary');
     const total = selectedMembers.size;
-    
     if (total === 0) {
         container.innerHTML = `<p style="color:#888;">Nenhum membro selecionado</p>`;
         return;
     }
-    
-    // Buscar nomes dos selecionados
-    const selectedNames = allMembers
-        .filter(m => selectedMembers.has(m.id))
-        .map(m => m.name);
-    
+    const selectedNames = allMembers.filter(m => selectedMembers.has(m.id)).map(m => m.name);
     const names = selectedNames.slice(0, 10);
     const more = total > 10 ? ` e +${total - 10} outros` : '';
-    
     container.innerHTML = `
         <div style="background:#d4edda; padding:0.5rem 0.8rem; border-radius:8px;">
             <strong style="font-size:1.2rem;">${total}</strong> membros selecionados
-            <div style="font-size:0.8rem; color:#155724; margin-top:0.3rem;">
-                ${names.join(', ')}${more}
-            </div>
+            <div style="font-size:0.8rem; color:#155724; margin-top:0.3rem;">${names.join(', ')}${more}</div>
         </div>
     `;
 }
 
-// Registrar presença dos selecionados
 async function registerMultipleAttendance() {
     const date = document.getElementById('attendanceDate').value;
     const service_type = document.getElementById('attendanceService').value;
-    
-    if (!date) {
-        showNotification('⚠️ Selecione uma data!', 'error');
-        return;
-    }
-    
-    if (selectedMembers.size === 0) {
-        showNotification('⚠️ Selecione pelo menos um membro!', 'error');
-        return;
-    }
+    if (!date) { showNotification('⚠️ Selecione uma data!', 'error'); return; }
+    if (selectedMembers.size === 0) { showNotification('⚠️ Selecione pelo menos um membro!', 'error'); return; }
     
     const dateFormatted = new Date(date).toLocaleDateString('pt-BR');
-    if (!confirm(`Registrar presença de ${selectedMembers.size} membros para ${dateFormatted}?`)) {
-        return;
-    }
+    if (!confirm(`Registrar presença de ${selectedMembers.size} membros para ${dateFormatted}?`)) return;
     
     try {
         showNotification(`🔄 Registrando presença de ${selectedMembers.size} membros...`, 'info');
-        
-        let successCount = 0;
-        let errorCount = 0;
-        
+        let successCount = 0, errorCount = 0;
         for (const memberId of selectedMembers) {
             try {
                 await fetch('/api/attendance', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', ...getHeaders() },
-                    body: JSON.stringify({ 
-                        member_id: memberId, 
-                        event_date: date, 
-                        service_type, 
-                        present: true 
-                    })
+                    body: JSON.stringify({ member_id: memberId, event_date: date, service_type, present: true })
                 });
                 successCount++;
             } catch (e) {
@@ -1870,85 +1865,55 @@ async function registerMultipleAttendance() {
                 console.error(`Erro ao registrar membro ${memberId}:`, e);
             }
         }
-        
         showNotification(`✅ ${successCount} membros registrados! ${errorCount > 0 ? '⚠️ ' + errorCount + ' erros' : ''}`, 'success');
-        
-        // Recarregar para mostrar atualizações
         await checkExistingAttendance(date);
         renderMembersList();
         loadAttendanceHistory(date);
-        
     } catch (e) {
         showNotification('❌ Erro ao registrar presença: ' + e.message, 'error');
     }
 }
 
-// Registrar todos os membros
 async function registerAllAttendance() {
     const date = document.getElementById('attendanceDate').value;
     const service_type = document.getElementById('attendanceService').value;
-    
-    if (!date) {
-        showNotification('⚠️ Selecione uma data!', 'error');
-        return;
-    }
-    
-    if (!allMembers || allMembers.length === 0) {
-        showNotification('⚠️ Carregue os membros primeiro!', 'error');
-        return;
-    }
-    
-    // Selecionar todos os membros primeiro
+    if (!date) { showNotification('⚠️ Selecione uma data!', 'error'); return; }
+    if (!allMembers || allMembers.length === 0) { showNotification('⚠️ Carregue os membros primeiro!', 'error'); return; }
     allMembers.forEach(m => selectedMembers.add(m.id));
     renderMembersList();
     updateSummary();
-    
-    // Depois registrar
     await registerMultipleAttendance();
 }
 
-// Carregar histórico de frequência da data
 async function loadAttendanceHistory(date) {
     if (!date) {
         document.getElementById('attendanceList').innerHTML = '<p style="color:#888;">Selecione uma data</p>';
         return;
     }
-    
     try {
         const res = await fetch(`/api/attendance/date/${date}`, { headers: getHeaders() });
         const records = await res.json();
-        
         const container = document.getElementById('attendanceList');
-        
         if (!records || records.length === 0) {
             container.innerHTML = `<p style="color:#888;">Nenhum registro para ${new Date(date).toLocaleDateString('pt-BR')}</p>`;
             return;
         }
-        
         const presentes = records.filter(r => r.present).length;
         const faltas = records.filter(r => !r.present).length;
-        
         let html = `
             <div style="font-size:0.8rem; color:#666; margin-bottom:0.5rem;">
                 <strong>${records.length}</strong> registros
-                <span style="margin-left:0.5rem; color:#28a745;">
-                    ✅ ${presentes} presentes
-                </span>
-                <span style="margin-left:0.5rem; color:#dc3545;">
-                    ❌ ${faltas} faltas
-                </span>
+                <span style="margin-left:0.5rem; color:#28a745;">✅ ${presentes} presentes</span>
+                <span style="margin-left:0.5rem; color:#dc3545;">❌ ${faltas} faltas</span>
             </div>
             <div style="max-height:180px; overflow-y:auto;">
                 <table style="width:100%; border-collapse:collapse; font-size:0.8rem;">
-                    <thead>
-                        <tr style="border-bottom:2px solid #e8e8e8;">
-                            <th style="text-align:left; padding:0.2rem 0.3rem;">Membro</th>
-                            <th style="text-align:left; padding:0.2rem 0.3rem;">Status</th>
-                        </tr>
-                    </thead>
+                    <thead><tr style="border-bottom:2px solid #e8e8e8;">
+                        <th style="text-align:left; padding:0.2rem 0.3rem;">Membro</th>
+                        <th style="text-align:left; padding:0.2rem 0.3rem;">Status</th>
+                    </tr></thead>
                     <tbody>
         `;
-        
         records.slice(0, 20).forEach(r => {
             const member = allMembers.find(m => m.id === r.member_id);
             const memberName = member ? member.name : 'Membro #' + r.member_id;
@@ -1956,18 +1921,12 @@ async function loadAttendanceHistory(date) {
                 <tr style="border-bottom:1px solid #f0f0f0;">
                     <td style="padding:0.2rem 0.3rem;">${memberName}</td>
                     <td style="padding:0.2rem 0.3rem;">
-                        <span class="status ${r.present ? 'status-approved' : 'status-pending'}">
-                            ${r.present ? '✅ Presente' : '❌ Falta'}
-                        </span>
+                        <span class="status ${r.present ? 'status-approved' : 'status-pending'}">${r.present ? '✅ Presente' : '❌ Falta'}</span>
                     </td>
                 </tr>
             `;
         });
-        
-        if (records.length > 20) {
-            html += `<tr><td colspan="2" style="padding:0.3rem; text-align:center; color:#888;">+ ${records.length - 20} registros</td></tr>`;
-        }
-        
+        if (records.length > 20) html += `<tr><td colspan="2" style="padding:0.3rem; text-align:center; color:#888;">+ ${records.length - 20} registros</td></tr>`;
         html += '</tbody></table></div>';
         container.innerHTML = html;
     } catch (e) {
@@ -1975,23 +1934,6 @@ async function loadAttendanceHistory(date) {
         document.getElementById('attendanceList').innerHTML = '<p style="color:#888;">Erro ao carregar histórico</p>';
     }
 }
-
-// Sobrescrever showTab para a aba de frequência
-const originalShowTab = window.showTab;
-window.showTab = function(tab) {
-    originalShowTab(tab);
-    if (tab === 'frequencia') {
-        setDefaultAttendanceDate();
-        // Se já houver membros carregados, atualizar
-        if (allMembers.length > 0) {
-            renderMembersList();
-            const date = document.getElementById('attendanceDate').value;
-            if (date) {
-                loadAttendanceHistory(date);
-            }
-        }
-    }
-};
 
 // ============================================
 // ===== DÍZIMOS =====
@@ -2192,6 +2134,40 @@ async function loadBillSummary() {
 }
 
 // ============================================
+// ===== ANIVERSARIANTES =====
+// ============================================
+
+function openBirthdayModal() {
+    document.getElementById('birthdayName').value = '';
+    document.getElementById('birthdayDate').value = '';
+    document.getElementById('birthdayPhone').value = '';
+    openModal('birthdayModal');
+}
+
+async function saveBirthday() {
+    const name = document.getElementById('birthdayName').value.trim();
+    const birth_date = document.getElementById('birthdayDate').value;
+    const phone = document.getElementById('birthdayPhone').value.trim();
+
+    if (!name || !birth_date) {
+        showNotification('Preencha nome e data de nascimento!', 'error');
+        return;
+    }
+
+    try {
+        await fetch('/api/birthdays', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...getHeaders() },
+            body: JSON.stringify({ name, birth_date, phone })
+        });
+        closeModal('birthdayModal');
+        loadBirthdaysAdmin();
+        loadDashboard();
+        showNotification('✅ Aniversariante adicionado!', 'success');
+    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+}
+
+// ============================================
 // ===== FORMULÁRIOS COM UPLOAD =====
 // ============================================
 
@@ -2282,7 +2258,7 @@ async function saveConfig(key, value) {
 // ===== INICIALIZAÇÃO =====
 // ============================================
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     loadDashboard();
     loadConfig();
     setDefaultAttendanceDate();

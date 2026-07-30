@@ -829,7 +829,7 @@ app.put('/api/orders/:id/status', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- ESTATÍSTICAS DE VENDAS (CORRIGIDO) -----
+// ----- ESTATÍSTICAS DE VENDAS -----
 app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
     try {
         const totalSales = await sql`
@@ -1092,7 +1092,7 @@ app.post('/api/settings', auth, pastorOnly, async (req, res) => {
 });
 
 // ============================================
-// ===== MEMBROS =====
+// ===== MEMBROS (CORRIGIDO) =====
 // ============================================
 
 app.post('/api/members', auth, async (req, res) => {
@@ -1129,23 +1129,40 @@ app.post('/api/members', auth, async (req, res) => {
 app.get('/api/members', auth, async (req, res) => {
     try {
         const { department_id, search } = req.query;
-        let query = `SELECT * FROM members WHERE is_active = true`;
-        let params = [];
-
-        if (department_id) {
-            query += ` AND department_id = $${params.length + 1}`;
-            params.push(department_id);
+        
+        let members;
+        
+        if (department_id && search) {
+            members = await sql`
+                SELECT * FROM members 
+                WHERE is_active = true 
+                AND department_id = ${department_id}
+                AND (name ILIKE ${'%' + search + '%'} OR email ILIKE ${'%' + search + '%'} OR phone ILIKE ${'%' + search + '%'})
+                ORDER BY name
+            `;
+        } else if (department_id) {
+            members = await sql`
+                SELECT * FROM members 
+                WHERE is_active = true 
+                AND department_id = ${department_id}
+                ORDER BY name
+            `;
+        } else if (search) {
+            members = await sql`
+                SELECT * FROM members 
+                WHERE is_active = true 
+                AND (name ILIKE ${'%' + search + '%'} OR email ILIKE ${'%' + search + '%'} OR phone ILIKE ${'%' + search + '%'})
+                ORDER BY name
+            `;
+        } else {
+            members = await sql`
+                SELECT * FROM members 
+                WHERE is_active = true 
+                ORDER BY name
+            `;
         }
 
-        if (search) {
-            query += ` AND (name ILIKE $${params.length + 1} OR email ILIKE $${params.length + 1} OR phone ILIKE $${params.length + 1})`;
-            params.push(`%${search}%`);
-        }
-
-        query += ` ORDER BY name`;
-
-        const members = await sql.query(query, params);
-        res.json(members.rows);
+        res.json(members);
     } catch (error) {
         console.error('❌ Erro ao listar membros:', error);
         res.status(500).json({ error: error.message });
@@ -1155,9 +1172,9 @@ app.get('/api/members', auth, async (req, res) => {
 app.get('/api/members/:id', auth, async (req, res) => {
     try {
         const { id } = req.params;
-        const result = await sql`SELECT * FROM members WHERE id = ${id}`;
+        const member = await sql`SELECT * FROM members WHERE id = ${id}`;
         
-        if (result.length === 0) {
+        if (member.length === 0) {
             return res.status(404).json({ error: 'Membro não encontrado' });
         }
 
@@ -1169,8 +1186,8 @@ app.get('/api/members/:id', auth, async (req, res) => {
         `;
 
         res.json({
-            ...result[0],
-            attendance: attendance.rows
+            ...member[0],
+            attendance: attendance
         });
     } catch (error) {
         console.error('❌ Erro ao buscar membro:', error);
@@ -1268,7 +1285,7 @@ app.get('/api/attendance/:member_id', auth, async (req, res) => {
             LIMIT ${limit}
         `;
 
-        res.json(result.rows);
+        res.json(result);
     } catch (error) {
         console.error('❌ Erro ao buscar frequência:', error);
         res.status(500).json({ error: error.message });
@@ -1324,33 +1341,35 @@ app.post('/api/tithes', auth, async (req, res) => {
 app.get('/api/tithes', auth, async (req, res) => {
     try {
         const { type, start_date, end_date, member_id } = req.query;
-        let query = `SELECT * FROM tithes WHERE 1=1`;
-        let params = [];
-
-        if (type) {
-            query += ` AND type = $${params.length + 1}`;
-            params.push(type);
+        
+        let tithes;
+        
+        if (type && member_id) {
+            tithes = await sql`
+                SELECT * FROM tithes 
+                WHERE type = ${type} AND member_id = ${member_id}
+                ORDER BY payment_date DESC
+            `;
+        } else if (type) {
+            tithes = await sql`
+                SELECT * FROM tithes 
+                WHERE type = ${type}
+                ORDER BY payment_date DESC
+            `;
+        } else if (member_id) {
+            tithes = await sql`
+                SELECT * FROM tithes 
+                WHERE member_id = ${member_id}
+                ORDER BY payment_date DESC
+            `;
+        } else {
+            tithes = await sql`
+                SELECT * FROM tithes 
+                ORDER BY payment_date DESC
+            `;
         }
 
-        if (member_id) {
-            query += ` AND member_id = $${params.length + 1}`;
-            params.push(member_id);
-        }
-
-        if (start_date) {
-            query += ` AND payment_date >= $${params.length + 1}`;
-            params.push(start_date);
-        }
-
-        if (end_date) {
-            query += ` AND payment_date <= $${params.length + 1}`;
-            params.push(end_date);
-        }
-
-        query += ` ORDER BY payment_date DESC`;
-
-        const result = await sql.query(query, params);
-        res.json(result.rows);
+        res.json(tithes);
     } catch (error) {
         console.error('❌ Erro ao listar dízimos:', error);
         res.status(500).json({ error: error.message });
@@ -1359,30 +1378,20 @@ app.get('/api/tithes', auth, async (req, res) => {
 
 app.get('/api/tithes/summary', auth, async (req, res) => {
     try {
-        const { start_date, end_date } = req.query;
-        let dateFilter = '';
-        let params = [];
-
-        if (start_date && end_date) {
-            dateFilter = `WHERE payment_date >= $1 AND payment_date <= $2`;
-            params = [start_date, end_date];
-        }
-
-        const result = await sql.query(`
+        const result = await sql`
             SELECT 
                 type,
                 COUNT(*) as count,
                 SUM(amount) as total
             FROM tithes
-            ${dateFilter}
             GROUP BY type
             ORDER BY type
-        `, params);
+        `;
 
-        const total = result.rows.reduce((sum, r) => sum + parseFloat(r.total), 0);
+        const total = result.reduce((sum, r) => sum + parseFloat(r.total), 0);
 
         res.json({
-            by_type: result.rows,
+            by_type: result,
             total: total
         });
     } catch (error) {
@@ -1418,34 +1427,36 @@ app.post('/api/bills', auth, async (req, res) => {
 
 app.get('/api/bills', auth, async (req, res) => {
     try {
-        const { paid, category, start_date, end_date } = req.query;
-        let query = `SELECT * FROM bills WHERE 1=1`;
-        let params = [];
-
-        if (paid !== undefined) {
-            query += ` AND paid = $${params.length + 1}`;
-            params.push(paid === 'true');
+        const { paid, category } = req.query;
+        
+        let bills;
+        
+        if (paid !== undefined && category) {
+            bills = await sql`
+                SELECT * FROM bills 
+                WHERE paid = ${paid === 'true'} AND category = ${category}
+                ORDER BY due_date ASC, paid ASC
+            `;
+        } else if (paid !== undefined) {
+            bills = await sql`
+                SELECT * FROM bills 
+                WHERE paid = ${paid === 'true'}
+                ORDER BY due_date ASC, paid ASC
+            `;
+        } else if (category) {
+            bills = await sql`
+                SELECT * FROM bills 
+                WHERE category = ${category}
+                ORDER BY due_date ASC, paid ASC
+            `;
+        } else {
+            bills = await sql`
+                SELECT * FROM bills 
+                ORDER BY due_date ASC, paid ASC
+            `;
         }
 
-        if (category) {
-            query += ` AND category = $${params.length + 1}`;
-            params.push(category);
-        }
-
-        if (start_date) {
-            query += ` AND due_date >= $${params.length + 1}`;
-            params.push(start_date);
-        }
-
-        if (end_date) {
-            query += ` AND due_date <= $${params.length + 1}`;
-            params.push(end_date);
-        }
-
-        query += ` ORDER BY due_date ASC, paid ASC`;
-
-        const result = await sql.query(query, params);
-        res.json(result.rows);
+        res.json(bills);
     } catch (error) {
         console.error('❌ Erro ao listar contas:', error);
         res.status(500).json({ error: error.message });
@@ -1490,7 +1501,7 @@ app.delete('/api/bills/:id', auth, async (req, res) => {
 
 app.get('/api/bills/summary', auth, async (req, res) => {
     try {
-        const result = await sql`
+        const summary = await sql`
             SELECT 
                 COUNT(*) as total,
                 SUM(CASE WHEN paid = false THEN amount ELSE 0 END) as pending,
@@ -1512,8 +1523,8 @@ app.get('/api/bills/summary', auth, async (req, res) => {
         `;
 
         res.json({
-            summary: result[0],
-            by_category: categories.rows
+            summary: summary[0],
+            by_category: categories
         });
     } catch (error) {
         console.error('❌ Erro ao buscar resumo:', error);

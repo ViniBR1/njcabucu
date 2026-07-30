@@ -94,7 +94,6 @@
         .nav-btn:hover { background: var(--primary); color: white; transform: translateY(-2px); }
         .nav-btn.active { background: var(--primary); color: white; }
 
-        /* ===== CARROSSEL ===== */
         .carousel-container {
             position: relative;
             max-width: 1400px;
@@ -177,7 +176,6 @@
         }
         .dot.active { background: var(--primary); transform: scale(1.2); }
 
-        /* ===== SEÇÕES ===== */
         .section {
             max-width: 1200px;
             margin: 2rem auto;
@@ -203,7 +201,6 @@
             border-radius: 10px;
         }
 
-        /* ===== GRID E CARDS ===== */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -250,7 +247,6 @@
         .card .price { font-size: 1.3rem; font-weight: 700; color: var(--primary); margin: 0.5rem 0; }
         .card .btn { width: 100%; justify-content: center; margin-top: auto; }
 
-        /* ===== BÍBLIA ===== */
         .bible-container {
             display: flex;
             gap: 2rem;
@@ -277,7 +273,6 @@
         .bible-result .verse { font-size: 1.05rem; line-height: 1.8; padding: 0.3rem 0; border-bottom: 1px solid #eee; }
         .bible-result .reference { font-weight: 700; color: var(--primary); margin-top: 0.5rem; }
 
-        /* ===== FORMULÁRIOS ===== */
         .form-group { margin: 0.8rem 0; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 0.3rem; font-size: 0.95rem; }
         .form-group input, .form-group textarea, .form-group select {
@@ -298,7 +293,6 @@
         .prayer-form { max-width: 600px; margin: 0 auto; }
         .prayer-form textarea { min-height: 120px; resize: vertical; }
 
-        /* ===== DÍZIMOS ===== */
         .tithe-options {
             display: flex;
             justify-content: center;
@@ -318,7 +312,6 @@
         }
         .btn-donation:hover { background: var(--primary-light); transform: translateY(-3px) scale(1.03); }
 
-        /* ===== MODAIS ===== */
         .modal {
             display: none;
             position: fixed;
@@ -361,7 +354,6 @@
         .qr-container { text-align: center; padding: 1rem; }
         .qr-container img { max-width: 200px; margin: 0 auto; display: block; }
 
-        /* ===== PÁGINA DE RETORNO ===== */
         #paymentReturnPage {
             max-width: 600px;
             margin: 2rem auto;
@@ -393,7 +385,6 @@
         #paymentReturnPage .message-box.pending { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
         #paymentReturnPage .message-box.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-        /* ===== FOOTER ===== */
         .footer {
             background: #1a1a2e;
             color: white;
@@ -485,13 +476,13 @@
 <nav class="main-nav" id="mainNav">
     <button onclick="scrollToSection('home')" class="nav-btn active"><i class="fas fa-home"></i> Início</button>
     <button onclick="scrollToSection('biblia')" class="nav-btn"><i class="fas fa-bible"></i> Bíblia</button>
+    <button onclick="scrollToSection('aniversariantes')" class="nav-btn"><i class="fas fa-birthday-cake"></i> Aniversários</button>
     <button onclick="scrollToSection('eventos')" class="nav-btn"><i class="fas fa-calendar"></i> Eventos</button>
     <button onclick="scrollToSection('estudos')" class="nav-btn"><i class="fas fa-book"></i> Estudos</button>
     <button onclick="scrollToSection('loja')" class="nav-btn"><i class="fas fa-store"></i> NJ Store</button>
     <button onclick="scrollToSection('dizimos')" class="nav-btn"><i class="fas fa-hand-holding-heart"></i> Dízimos</button>
     <button onclick="scrollToSection('oracao')" class="nav-btn"><i class="fas fa-pray"></i> Oração</button>
     <button onclick="scrollToSection('inscricoes')" class="nav-btn"><i class="fas fa-clipboard-list"></i> Inscrições</button>
-    <button onclick="scrollToSection('aniversariantes')" class="nav-btn"><i class="fas fa-birthday-cake"></i> Aniversários</button>
 </nav>
 
 <!-- CARROSSEL -->
@@ -798,8 +789,29 @@ let paymentType = 'sale';
 let donationType = '';
 
 // ============================================
-// ===== BÍBLIA COMPLETA COM FALLBACK OFFLINE =====
+// ===== BÍBLIA =====
 // ============================================
+
+const bookNames = {
+    'gn': 'Gênesis', 'ex': 'Êxodo', 'lv': 'Levítico', 'nm': 'Números',
+    'dt': 'Deuteronômio', 'js': 'Josué', 'jz': 'Juízes', 'rt': 'Rute',
+    '1sm': '1 Samuel', '2sm': '2 Samuel', '1rs': '1 Reis', '2rs': '2 Reis',
+    '1cr': '1 Crônicas', '2cr': '2 Crônicas', 'ed': 'Esdras', 'ne': 'Neemias',
+    'et': 'Ester', 'jó': 'Jó', 'sl': 'Salmos', 'pv': 'Provérbios',
+    'ec': 'Eclesiastes', 'ct': 'Cânticos', 'is': 'Isaías', 'jr': 'Jeremias',
+    'lm': 'Lamentações', 'ez': 'Ezequiel', 'dn': 'Daniel', 'os': 'Oseias',
+    'jl': 'Joel', 'am': 'Amós', 'ob': 'Obadias', 'jn': 'Jonas',
+    'mq': 'Miqueias', 'na': 'Naum', 'hc': 'Habacuque', 'sf': 'Sofonias',
+    'ag': 'Ageu', 'zc': 'Zacarias', 'ml': 'Malaquias',
+    'mt': 'Mateus', 'mc': 'Marcos', 'lc': 'Lucas', 'jo': 'João',
+    'at': 'Atos', 'rm': 'Romanos', '1co': '1 Coríntios', '2co': '2 Coríntios',
+    'gl': 'Gálatas', 'ef': 'Efésios', 'fp': 'Filipenses', 'cl': 'Colossenses',
+    '1ts': '1 Tessalonicenses', '2ts': '2 Tessalonicenses',
+    '1tm': '1 Timóteo', '2tm': '2 Timóteo', 'tt': 'Tito', 'fm': 'Filemom',
+    'hb': 'Hebreus', 'tg': 'Tiago', '1pe': '1 Pedro', '2pe': '2 Pedro',
+    '1jo': '1 João', '2jo': '2 João', '3jo': '3 João', 'jd': 'Judas',
+    'ap': 'Apocalipse'
+};
 
 async function searchBible() {
     const book = document.getElementById('bibleBook').value;
@@ -807,133 +819,6 @@ async function searchBible() {
     const verse = document.getElementById('bibleVerse').value;
     const resultDiv = document.getElementById('bibleResult');
     resultDiv.innerHTML = '<p>⏳ Carregando...</p>';
-
-    const bookNames = {
-        'gn': 'Gênesis', 'ex': 'Êxodo', 'lv': 'Levítico', 'nm': 'Números',
-        'dt': 'Deuteronômio', 'js': 'Josué', 'jz': 'Juízes', 'rt': 'Rute',
-        '1sm': '1 Samuel', '2sm': '2 Samuel', '1rs': '1 Reis', '2rs': '2 Reis',
-        '1cr': '1 Crônicas', '2cr': '2 Crônicas', 'ed': 'Esdras', 'ne': 'Neemias',
-        'et': 'Ester', 'jó': 'Jó', 'sl': 'Salmos', 'pv': 'Provérbios',
-        'ec': 'Eclesiastes', 'ct': 'Cânticos', 'is': 'Isaías', 'jr': 'Jeremias',
-        'lm': 'Lamentações', 'ez': 'Ezequiel', 'dn': 'Daniel', 'os': 'Oseias',
-        'jl': 'Joel', 'am': 'Amós', 'ob': 'Obadias', 'jn': 'Jonas',
-        'mq': 'Miqueias', 'na': 'Naum', 'hc': 'Habacuque', 'sf': 'Sofonias',
-        'ag': 'Ageu', 'zc': 'Zacarias', 'ml': 'Malaquias',
-        'mt': 'Mateus', 'mc': 'Marcos', 'lc': 'Lucas', 'jo': 'João',
-        'at': 'Atos', 'rm': 'Romanos', '1co': '1 Coríntios', '2co': '2 Coríntios',
-        'gl': 'Gálatas', 'ef': 'Efésios', 'fp': 'Filipenses', 'cl': 'Colossenses',
-        '1ts': '1 Tessalonicenses', '2ts': '2 Tessalonicenses',
-        '1tm': '1 Timóteo', '2tm': '2 Timóteo', 'tt': 'Tito', 'fm': 'Filemom',
-        'hb': 'Hebreus', 'tg': 'Tiago', '1pe': '1 Pedro', '2pe': '2 Pedro',
-        '1jo': '1 João', '2jo': '2 João', '3jo': '3 João', 'jd': 'Judas',
-        'ap': 'Apocalipse'
-    };
-
-    const offlineBible = {
-        'gn_1': [
-            "No princípio criou Deus os céus e a terra.",
-            "E a terra era sem forma e vazia; e havia trevas sobre a face do abismo; e o Espírito de Deus se movia sobre a face das águas.",
-            "E disse Deus: Haja luz; e houve luz.",
-            "E viu Deus que era boa a luz; e fez Deus separação entre a luz e as trevas.",
-            "E Deus chamou à luz Dia; e às trevas chamou Noite. E foi a tarde e a manhã, o dia primeiro."
-        ],
-        'jo_3': [
-            "Havia um homem dos fariseus, chamado Nicodemos, príncipe dos judeus.",
-            "Este foi de noite ter com Jesus, e disse-lhe: Rabi, bem sabemos que és Mestre, vindo de Deus; porque ninguém pode fazer estes sinais que tu fazes, se Deus não for com ele.",
-            "Jesus respondeu, e disse-lhe: Na verdade, na verdade te digo que aquele que não nascer de novo, não pode ver o reino de Deus.",
-            "Disse-lhe Nicodemos: Como pode um homem nascer, sendo velho? Pode, porventura, tornar a entrar no ventre de sua mãe, e nascer?",
-            "Jesus respondeu: Na verdade, na verdade te digo que aquele que não nascer da água e do Espírito, não pode entrar no reino de Deus.",
-            "O que é nascido da carne é carne, e o que é nascido do Espírito é espírito.",
-            "Não te maravilhes de te ter dito: Necessário vos é nascer de novo.",
-            "O vento assopra onde quer, e ouves a sua voz, mas não sabes de onde vem, nem para onde vai; assim é todo aquele que é nascido do Espírito.",
-            "Nicodemos respondeu, e disse-lhe: Como pode ser isto?",
-            "Jesus respondeu, e disse-lhe: Tu és mestre de Israel, e não sabes isto?",
-            "Na verdade, na verdade te digo que nós dizemos o que sabemos, e testificamos o que vimos; e não aceitais o nosso testemunho.",
-            "Se vos disse coisas terrestres, e não credes, como crereis, se vos disser as celestiais?",
-            "Ora, ninguém subiu ao céu, senão o que desceu do céu, o Filho do homem, que está no céu.",
-            "E como Moisés levantou a serpente no deserto, assim importa que o Filho do homem seja levantado;",
-            "Para que todo aquele que nele crê não pereça, mas tenha a vida eterna.",
-            "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.",
-            "Porque Deus enviou o seu Filho ao mundo, não para que condenasse o mundo, mas para que o mundo fosse salvo por ele.",
-            "Quem crê nele não é condenado; mas quem não crê já está condenado, porquanto não crê no nome do unigênito Filho de Deus."
-        ],
-        'sl_23': [
-            "O SENHOR é o meu pastor; nada me faltará.",
-            "Deitar-me faz em verdes pastos, guia-me mansamente a águas tranquilas.",
-            "Refrigera a minha alma; guia-me pelas veredas da justiça, por amor do seu nome.",
-            "Ainda que eu ande pelo vale da sombra da morte, não temerei mal algum, porque tu estás comigo; a tua vara e o teu cajado me consolam.",
-            "Preparas uma mesa perante mim na presença dos meus inimigos; unges a minha cabeça com óleo, o meu cálice transborda.",
-            "Certamente que a bondade e a misericórdia me seguirão todos os dias da minha vida; e habitarei na casa do SENHOR para sempre."
-        ],
-        'rm_8': [
-            "Portanto, agora nenhuma condenação há para os que estão em Cristo Jesus, que não andam segundo a carne, mas segundo o Espírito.",
-            "Porque a lei do Espírito de vida, em Cristo Jesus, me livrou da lei do pecado e da morte.",
-            "Porquanto o que era impossível à lei, visto como estava enferma pela carne, Deus, enviando o seu Filho em semelhança da carne do pecado, e por causa do pecado, condenou o pecado na carne;",
-            "Para que a justiça da lei se cumprisse em nós, que não andamos segundo a carne, mas segundo o Espírito."
-        ],
-        'fp_4': [
-            "Portanto, meus amados e mui queridos irmãos, minha alegria e coroa, estai assim firmes no Senhor, amados.",
-            "Rogo a Evódia, e rogo a Síntique, que sintam o mesmo no Senhor.",
-            "E rogo também a ti, meu verdadeiro companheiro, que ajudes estas mulheres que trabalharam comigo no evangelho, e com Clemente, e com os outros meus cooperadores, cujos nomes estão no livro da vida.",
-            "Regozijai-vos sempre no Senhor; outra vez digo, regozijai-vos.",
-            "Seja a vossa moderação conhecida de todos os homens. Perto está o Senhor.",
-            "Não estejais ansiosos por coisa alguma; antes, as vossas petições sejam em tudo conhecidas diante de Deus, pela oração e súplica, com ação de graças.",
-            "E a paz de Deus, que excede todo o entendimento, guardará os vossos corações e os vossos pensamentos em Cristo Jesus.",
-            "Quanto ao mais, irmãos, tudo o que é verdadeiro, tudo o que é honesto, tudo o que é justo, tudo o que é puro, tudo o que é amável, tudo o que é de boa fama, se há alguma virtude, e se há algum louvor, nisso pensai.",
-            "O que também aprendestes, e recebestes, e ouvistes, e vistes em mim, isso fazei; e o Deus de paz será convosco.",
-            "Ora, muito me regozijei no Senhor por finalmente reviver a vossa lembrança de mim; pois já vos tínheis lembrado, mas não tínheis oportunidade.",
-            "Não digo isto por causa de necessidade, porque já aprendi a contentar-me com o que tenho.",
-            "Sei estar abatido, e sei também ter abundância; em toda a maneira, e em todas as coisas, estou instruído, tanto a ter fartura, como a ter fome; tanto a ter abundância, como a padecer necessidade.",
-            "Posso todas as coisas naquele que me fortalece."
-        ],
-        'js_1': [
-            "E sucedeu depois da morte de Moisés, servo do SENHOR, que o SENHOR falou a Josué, filho de Num, servo de Moisés, dizendo:",
-            "Moisés, meu servo, é morto; levanta-te, pois, agora, passa este Jordão, tu e todo este povo, à terra que eu dou aos filhos de Israel.",
-            "Todo o lugar que pisar a planta do vosso pé, vo-lo dei, como eu disse a Moisés.",
-            "Desde o deserto e do Líbano, até ao grande rio, o rio Eufrates, toda a terra dos heteus, e até ao grande mar para o poente do sol, será o vosso termo.",
-            "Ninguém te poderá resistir, todos os dias da tua vida; como fui com Moisés, assim serei contigo; não te deixarei, nem te desampararei.",
-            "Esforça-te, e tem bom ânimo; porque tu farás a este povo herdar a terra que jurei a seus pais lhes daria.",
-            "Tão-somente esforça-te e tem mui bom ânimo, para teres o cuidado de fazer conforme toda a lei que meu servo Moisés te ordenou; não te desvies dela, nem para a direita nem para a esquerda, para que te saias bem por onde quer que andares.",
-            "Não se aparte da tua boca o livro desta lei; antes medita nele dia e noite, para que tenhas cuidado de fazer conforme tudo quanto nele está escrito; porque então farás prosperar o teu caminho, e serás bem-sucedido.",
-            "Não to mandei eu? Esforça-te, e tem bom ânimo; não temas, nem te espantes; porque o SENHOR teu Deus é contigo, por onde quer que andares."
-        ],
-        'mt_6': [
-            "Guardai-vos de fazer a vossa esmola diante dos homens, para serdes vistos por eles; aliás, não tereis galardão junto de vosso Pai, que está nos céus.",
-            "Quando, pois, deres esmola, não faças tocar trombeta diante de ti, como fazem os hipócritas nas sinagogas e nas ruas, para serem glorificados pelos homens. Em verdade vos digo que já receberam o seu galardão.",
-            "Mas, quando tu deres esmola, não saiba a tua mão esquerda o que faz a tua direita;",
-            "Para que a tua esmola seja em secreto; e teu Pai, que vê em secreto, te recompensará publicamente.",
-            "E, quando orares, não sejas como os hipócritas; pois se comprazem em orar em pé nas sinagogas, e às esquinas das ruas, para serem vistos pelos homens. Em verdade vos digo que já receberam o seu galardão.",
-            "Mas tu, quando orares, entra no teu aposento, e, fechada a porta, ora a teu Pai que está em secreto; e teu Pai, que vê em secreto, te recompensará publicamente.",
-            "E, orando, não useis de vãs repetições, como os gentios, que pensam que por muito falarem serão ouvidos.",
-            "Não vos assemelheis, pois, a eles; porque vosso Pai sabe o que vos é necessário, antes de vós lho pedirdes.",
-            "Portanto, vós orareis assim: Pai nosso, que estás nos céus, santificado seja o teu nome;",
-            "Venha o teu reino, seja feita a tua vontade, assim na terra como no céu;",
-            "O pão nosso de cada dia nos dá hoje;",
-            "E perdoa-nos as nossas dívidas, assim como nós perdoamos aos nossos devedores;",
-            "E não nos induzas à tentação; mas livra-nos do mal; porque teu é o reino, e o poder, e a glória, para sempre. Amém.",
-            "Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós;",
-            "Se, porém, não perdoardes aos homens as suas ofensas, também vosso Pai vos não perdoará as vossas ofensas.",
-            "Quando jejuardes, não vos mostreis aos homens com o rosto triste, como os hipócritas; porque desfiguram os seus rostos, para que aos homens pareça que jejuam. Em verdade vos digo que já receberam o seu galardão.",
-            "Porém tu, quando jejuares, unge a tua cabeça, e lava o teu rosto,",
-            "Para não pareceres aos homens que jejuas, mas a teu Pai, que está em secreto; e teu Pai, que vê em secreto, te recompensará publicamente.",
-            "Não ajunteis tesouros na terra, onde a traça e a ferrugem consomem, e onde os ladrões minam e roubam;",
-            "Mas ajuntai tesouros no céu, onde nem a traça nem a ferrugem consomem, e onde os ladrões não minam nem roubam.",
-            "Porque onde estiver o teu tesouro, aí estará também o teu coração.",
-            "A candeia do corpo são os olhos; se, pois, os teus olhos forem singelos, todo o teu corpo será luminoso.",
-            "Se, porém, os teus olhos forem maus, todo o teu corpo será tenebroso. Se, pois, a luz que em ti há são trevas, quão grandes serão tais trevas!",
-            "Ninguém pode servir a dois senhores; porque ou há de odiar um e amar o outro, ou se dedicará a um e desprezará o outro. Não podeis servir a Deus e a Mamom.",
-            "Por isso vos digo: Não andeis cuidadosos quanto à vossa vida, pelo que haveis de comer ou beber; nem quanto ao vosso corpo, pelo que haveis de vestir. Não é a vida mais do que o mantimento, e o corpo mais do que o vestuário?",
-            "Observai as aves do céu, que não semeiam, nem segam, nem ajuntam em celeiros; e vosso Pai celestial as alimenta. Não tendes vós muito mais valor do que elas?",
-            "E qual de vós, por mais que pense, pode acrescentar um côvado à sua estatura?",
-            "E, quanto ao vestuário, por que andais solícitos? Olhai para os lírios do campo, como crescem; não trabalham nem fiam;",
-            "E eu vos digo que nem mesmo Salomão, em toda a sua glória, se vestiu como qualquer deles.",
-            "Pois, se Deus assim veste a erva do campo, que hoje existe e amanhã é lançada no forno, não vos vestirá muito mais a vós, homens de pouca fé?",
-            "Não andeis, pois, inquietos, dizendo: Que comeremos, ou que beberemos, ou com que nos vestiremos?",
-            "Porque todas estas coisas os gentios procuram. Certamente vosso Pai celestial sabe que precisais de todas estas coisas;",
-            "Mas buscai primeiro o reino de Deus e a sua justiça, e todas estas coisas vos serão acrescentadas.",
-            "Não vos inquieteis, pois, pelo dia de amanhã, porque o dia de amanhã cuidará de si mesmo. Basta a cada dia o seu mal."
-        ]
-    };
 
     try {
         let url = `https://bible-api.com/${book}+${chapter}`;
@@ -944,24 +829,9 @@ async function searchBible() {
         let data = await response.json();
 
         if (data.error) {
-            const key = `${book}_${chapter}`;
-            if (offlineBible[key]) {
-                let html = '';
-                const verses = offlineBible[key];
-                const start = verse ? parseInt(verse) - 1 : 0;
-                const end = verse ? parseInt(verse) : verses.length;
-                for (let i = start; i < end && i < verses.length; i++) {
-                    html += `<p class="verse"><strong>${i+1}</strong> ${verses[i]}</p>`;
-                }
-                const bookName = bookNames[book] || book;
-                html += `<p class="reference">📖 ${bookName} ${chapter}${verse ? ':'+verse : ''}</p>`;
-                resultDiv.innerHTML = html;
-                return;
-            }
-
             resultDiv.innerHTML = `
                 <p style="color:#dc3545;">❌ Não foi possível carregar ${bookNames[book] || book} ${chapter}.</p>
-                <p style="color:#888;margin-top:0.5rem;">Tente: Salmos 23, João 3, Romanos 8, Filipenses 4, Josué 1 ou Mateus 6</p>
+                <p style="color:#888;margin-top:0.5rem;">Tente: Salmos 23, João 3, Romanos 8, Filipenses 4</p>
             `;
             return;
         }
@@ -977,39 +847,15 @@ async function searchBible() {
         html += `<p class="reference">📖 ${data.reference || bookNames[book] + ' ' + chapter}</p>`;
         resultDiv.innerHTML = html;
     } catch (error) {
-        const key = `${book}_${chapter}`;
-        if (offlineBible[key]) {
-            let html = '';
-            const verses = offlineBible[key];
-            const start = verse ? parseInt(verse) - 1 : 0;
-            const end = verse ? parseInt(verse) : verses.length;
-            for (let i = start; i < end && i < verses.length; i++) {
-                html += `<p class="verse"><strong>${i+1}</strong> ${verses[i]}</p>`;
-            }
-            const bookName = bookNames[book] || book;
-            html += `<p class="reference">📖 ${bookName} ${chapter}${verse ? ':'+verse : ''}</p>`;
-            resultDiv.innerHTML = html;
-            return;
-        }
-
         resultDiv.innerHTML = `
             <p style="color:#dc3545;">❌ Erro ao buscar: ${error.message}</p>
-            <p style="color:#888;margin-top:0.5rem;">Tente Salmos 23, João 3, Romanos 8, Filipenses 4, Josué 1 ou Mateus 6</p>
-            <div style="margin-top:1rem;padding:1rem;background:#f8f9fa;border-radius:8px;">
-                <p><strong>Salmos 23:1-6</strong></p>
-                <p>O SENHOR é o meu pastor; nada me faltará.</p>
-                <p>Deitar-me faz em verdes pastos, guia-me mansamente a águas tranquilas.</p>
-                <p>Refrigera a minha alma; guia-me pelas veredas da justiça, por amor do seu nome.</p>
-                <p>Ainda que eu ande pelo vale da sombra da morte, não temerei mal algum, porque tu estás comigo; a tua vara e o teu cajado me consolam.</p>
-                <p>Preparas uma mesa perante mim na presença dos meus inimigos; unges a minha cabeça com óleo, o meu cálice transborda.</p>
-                <p>Certamente que a bondade e a misericórdia me seguirão todos os dias da minha vida; e habitarei na casa do SENHOR para sempre.</p>
-            </div>
+            <p style="color:#888;margin-top:0.5rem;">Tente Salmos 23, João 3, Romanos 8</p>
         `;
     }
 }
 
 // ============================================
-// ===== ANIVERSARIANTES E CASAMENTOS =====
+// ===== ANIVERSARIANTES =====
 // ============================================
 
 async function loadBirthdays() {
@@ -1018,24 +864,61 @@ async function loadBirthdays() {
         const data = await res.json();
         const container = document.getElementById('birthdayList');
         
-        if (data.length === 0) {
-            container.innerHTML = '<p class="text-center" style="color:#888;">Nenhum aniversariante esta semana.</p>';
+        if (!data || data.length === 0) {
+            container.innerHTML = `
+                <div style="text-align:center;padding:2rem;color:#888;grid-column:1/-1;">
+                    <i class="fas fa-birthday-cake" style="font-size:2rem;color:#ccc;display:block;margin-bottom:0.5rem;"></i>
+                    Nenhum aniversariante esta semana 🎉
+                </div>
+            `;
             return;
         }
 
         container.innerHTML = data.map(person => {
-            const date = new Date(person.birth_date);
-            const age = new Date().getFullYear() - date.getFullYear();
+            const birth = new Date(person.birth_date);
+            const hoje = new Date();
+            let idade = hoje.getFullYear() - birth.getFullYear();
+            
+            const mesNiver = birth.getMonth();
+            const diaNiver = birth.getDate();
+            if (hoje.getMonth() < mesNiver || (hoje.getMonth() === mesNiver && hoje.getDate() < diaNiver)) {
+                idade--;
+            }
+            
+            const emojis = ['🎂', '🎈', '🎉', '🎊', '✨', '🌟', '💫', '🥳'];
+            const emoji = emojis[person.id % emojis.length];
+            
+            const dataFormatada = birth.toLocaleDateString('pt-BR', { 
+                day: 'numeric', 
+                month: 'long' 
+            });
+            
             return `
-                <div class="card" style="text-align:center;">
-                    <div style="font-size:3rem;margin-bottom:0.5rem;">🎂</div>
-                    <h3>${person.name}</h3>
-                    <p style="color:#666;">${date.toLocaleDateString('pt-BR', { day:'numeric', month:'long' })}</p>
-                    <p style="color:#888;font-size:0.9rem;">🎯 ${age} anos</p>
+                <div class="card" style="text-align:center;border-left:4px solid var(--primary);">
+                    <div style="font-size:2.5rem;margin-bottom:0.3rem;">${emoji}</div>
+                    <h3 style="color:var(--primary);">${person.name}</h3>
+                    <p style="color:#666;font-size:0.95rem;">
+                        <i class="fas fa-calendar-alt" style="color:var(--primary);"></i> 
+                        ${dataFormatada}
+                    </p>
+                    <p style="color:#888;font-size:0.85rem;margin-top:0.2rem;">
+                        🎯 ${idade} anos
+                    </p>
+                    ${person.phone ? `<p style="color:#888;font-size:0.8rem;margin-top:0.2rem;">
+                        <i class="fas fa-phone"></i> ${person.phone}
+                    </p>` : ''}
                 </div>
             `;
         }).join('');
-    } catch (e) { console.error('Erro:', e); }
+    } catch (e) { 
+        console.error('❌ Erro ao carregar aniversariantes:', e);
+        document.getElementById('birthdayList').innerHTML = `
+            <div style="text-align:center;padding:2rem;color:#dc3545;grid-column:1/-1;">
+                <i class="fas fa-exclamation-circle" style="font-size:2rem;display:block;margin-bottom:0.5rem;"></i>
+                Erro ao carregar aniversariantes
+            </div>
+        `;
+    }
 }
 
 async function loadWeddings() {
@@ -1043,28 +926,52 @@ async function loadWeddings() {
         const res = await fetch('/api/weddings');
         const data = await res.json();
         const container = document.getElementById('weddingList');
+        const section = document.getElementById('casamentos');
         
-        if (data.length === 0) {
-            container.innerHTML = '<p class="text-center" style="color:#888;">Nenhum casamento esta semana.</p>';
-            container.parentElement.style.display = 'none';
+        if (!data || data.length === 0) {
+            section.style.display = 'none';
             return;
         }
 
-        container.parentElement.style.display = 'block';
+        section.style.display = 'block';
         container.innerHTML = data.map(person => {
-            const date = new Date(person.wedding_date);
-            const years = new Date().getFullYear() - date.getFullYear();
+            const wedding = new Date(person.wedding_date);
+            const hoje = new Date();
+            let anos = hoje.getFullYear() - wedding.getFullYear();
+            
+            const mesCasamento = wedding.getMonth();
+            const diaCasamento = wedding.getDate();
+            if (hoje.getMonth() < mesCasamento || (hoje.getMonth() === mesCasamento && hoje.getDate() < diaCasamento)) {
+                anos--;
+            }
+            
+            const dataFormatada = wedding.toLocaleDateString('pt-BR', { 
+                day: 'numeric', 
+                month: 'long', 
+                year: 'numeric' 
+            });
+            
             return `
-                <div class="card" style="text-align:center;">
-                    <div style="font-size:3rem;margin-bottom:0.5rem;">💍</div>
-                    <h3>${person.name}</h3>
-                    <p style="color:#666;">${person.spouse_name || 'Cônjuge'}</p>
-                    <p style="color:#888;font-size:0.9rem;">📅 ${date.toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric' })}</p>
-                    <p style="color:#888;font-size:0.9rem;">🎉 ${years} anos de casamento</p>
+                <div class="card" style="text-align:center;border-left:4px solid #e91e63;">
+                    <div style="font-size:2.5rem;margin-bottom:0.3rem;">💍</div>
+                    <h3 style="color:#e91e63;">${person.name}</h3>
+                    <p style="color:#666;font-size:0.95rem;">
+                        <i class="fas fa-heart" style="color:#e91e63;"></i> 
+                        ${person.spouse_name || 'Cônjuge'}
+                    </p>
+                    <p style="color:#888;font-size:0.85rem;margin-top:0.2rem;">
+                        📅 ${dataFormatada}
+                    </p>
+                    <p style="color:#888;font-size:0.85rem;">
+                        🎉 ${anos} anos de casamento
+                    </p>
                 </div>
             `;
         }).join('');
-    } catch (e) { console.error('Erro:', e); }
+    } catch (e) { 
+        console.error('❌ Erro ao carregar casamentos:', e);
+        document.getElementById('casamentos').style.display = 'none';
+    }
 }
 
 // ============================================
@@ -1420,7 +1327,7 @@ function togglePaymentMethod() {
 }
 
 // ============================================
-// ===== PAGAMENTO (PIX E CARTÃO) =====
+// ===== PAGAMENTO =====
 // ============================================
 
 async function processPayment() {
@@ -1804,7 +1711,7 @@ function showNotification(message, type = 'info') {
 }
 
 // ============================================
-// ===== CARREGAR CONFIGURAÇÕES =====
+// ===== CONFIGURAÇÕES =====
 // ============================================
 
 async function loadSettings() {

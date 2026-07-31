@@ -222,6 +222,9 @@ async function initDB() {
             event_date TIMESTAMP NOT NULL,
             leader_id INTEGER,
             songs TEXT[],
+            song_ids TEXT,
+            minister_id INTEGER,
+            musician_ids TEXT,
             palette TEXT,
             rehearsal BOOLEAN DEFAULT FALSE,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -351,6 +354,26 @@ async function initDB() {
             is_active BOOLEAN DEFAULT true,
             created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // ===== TABELAS PARA DEPARTAMENTOS =====
+        await sql`CREATE TABLE IF NOT EXISTS songs (
+            id SERIAL PRIMARY KEY,
+            title VARCHAR(200) NOT NULL,
+            artist VARCHAR(100),
+            key VARCHAR(10) DEFAULT 'C',
+            lyrics TEXT,
+            department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE,
+            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS availability (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            date TIMESTAMP NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, date)
         )`;
 
         console.log('✅ Tabelas criadas');
@@ -576,6 +599,100 @@ app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
     try {
         await sql`UPDATE departments SET is_active = false WHERE id = ${req.params.id}`;
         res.json({ message: 'Departamento removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- DEPARTMENT MEMBERS -----
+app.get('/api/departments/:id/members', auth, async (req, res) => {
+    try {
+        const members = await sql`
+            SELECT u.id, u.name, u.email, u.role, u.is_leader, dm.role as member_role
+            FROM users u
+            INNER JOIN department_members dm ON u.id = dm.user_id
+            WHERE dm.department_id = ${req.params.id}
+            ORDER BY dm.role DESC, u.name
+        `;
+        res.json(members);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/departments/:id/members', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { user_id, role } = req.body;
+        
+        const user = await sql`SELECT * FROM users WHERE id = ${user_id}`;
+        if (user.length === 0) {
+            return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+        
+        await sql`
+            INSERT INTO department_members (department_id, user_id, role)
+            VALUES (${id}, ${user_id}, ${role || 'membro'})
+            ON CONFLICT (department_id, user_id) DO UPDATE SET role = ${role || 'membro'}
+        `;
+        
+        await sql`
+            UPDATE users SET department_id = ${id}, is_leader = ${role === 'lider' ? true : false}
+            WHERE id = ${user_id}
+        `;
+        
+        if (role === 'lider') {
+            await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${id}`;
+        }
+        
+        res.json({ message: 'Membro adicionado com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao adicionar membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/departments/:department_id/members/:user_id', auth, async (req, res) => {
+    try {
+        const { department_id, user_id } = req.params;
+        const { role } = req.body;
+
+        await sql`
+            UPDATE department_members 
+            SET role = ${role} 
+            WHERE department_id = ${department_id} AND user_id = ${user_id}
+        `;
+
+        if (role === 'lider') {
+            await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${department_id}`;
+            await sql`UPDATE users SET is_leader = true, role = 'lider' WHERE id = ${user_id}`;
+        } else {
+            await sql`UPDATE users SET is_leader = false, role = ${role} WHERE id = ${user_id}`;
+            await sql`UPDATE departments SET leader_id = NULL WHERE id = ${department_id} AND leader_id = ${user_id}`;
+        }
+
+        res.json({ message: 'Função atualizada com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao atualizar função:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/departments/:department_id/members/:user_id', auth, async (req, res) => {
+    try {
+        const { department_id, user_id } = req.params;
+        
+        await sql`
+            DELETE FROM department_members WHERE department_id = ${department_id} AND user_id = ${user_id}
+        `;
+        
+        await sql`
+            UPDATE users SET department_id = NULL, is_leader = false WHERE id = ${user_id}
+        `;
+        
+        await sql`UPDATE departments SET leader_id = NULL WHERE id = ${department_id} AND leader_id = ${user_id}`;
+        
+        res.json({ message: 'Membro removido com sucesso' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -899,7 +1016,6 @@ app.post('/api/registrations', async (req, res) => {
             }
             finalDetails += details || '';
             
-            // Atualiza contador de participantes
             if (baptism_date_id) {
                 await sql`
                     UPDATE baptism_dates 
@@ -1083,19 +1199,110 @@ app.delete('/api/baptism-dates/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
+// ----- MÚSICAS -----
+app.post('/api/songs', auth, async (req, res) => {
+    try {
+        const { title, artist, key, lyrics, department_id } = req.body;
+        const result = await sql`
+            INSERT INTO songs (title, artist, key, lyrics, department_id, created_by)
+            VALUES (${title}, ${artist || ''}, ${key || 'C'}, ${lyrics}, ${department_id || req.user.department_id}, ${req.user.id})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar música:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/songs', auth, async (req, res) => {
+    try {
+        const { department_id } = req.query;
+        let query = `SELECT * FROM songs WHERE 1=1`;
+        const params = [];
+        let paramIndex = 1;
+
+        if (department_id) {
+            query += ` AND department_id = $${paramIndex}`;
+            params.push(department_id);
+            paramIndex++;
+        } else if (req.user.department_id) {
+            query += ` AND department_id = $${paramIndex}`;
+            params.push(req.user.department_id);
+            paramIndex++;
+        }
+        query += ` ORDER BY title`;
+
+        const songs = await sql.query(query, params);
+        res.json(songs.rows);
+    } catch (error) {
+        console.error('❌ Erro ao buscar músicas:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/songs/:id', auth, async (req, res) => {
+    try {
+        await sql`DELETE FROM songs WHERE id = ${req.params.id}`;
+        res.json({ message: 'Música removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- DISPONIBILIDADE -----
+app.post('/api/availability', auth, async (req, res) => {
+    try {
+        const { user_id, date } = req.body;
+        const result = await sql`
+            INSERT INTO availability (user_id, date)
+            VALUES (${user_id || req.user.id}, ${date})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao adicionar disponibilidade:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/availability/:user_id', auth, async (req, res) => {
+    try {
+        const { user_id } = req.params;
+        const availability = await sql`
+            SELECT * FROM availability 
+            WHERE user_id = ${user_id} 
+            ORDER BY date ASC
+        `;
+        res.json(availability);
+    } catch (error) {
+        console.error('❌ Erro ao buscar disponibilidade:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/availability/:id', auth, async (req, res) => {
+    try {
+        await sql`DELETE FROM availability WHERE id = ${req.params.id}`;
+        res.json({ message: 'Disponibilidade removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // ----- ESCALAS -----
 app.post('/api/worship-scales', auth, async (req, res) => {
     try {
-        const { department_id, event_date, leader_id, songs, palette, rehearsal } = req.body;
+        const { department_id, event_date, leader_id, minister_id, songs, song_ids, palette, rehearsal, musicians } = req.body;
         
         const user = await sql`SELECT * FROM users WHERE id = ${req.user.id} AND is_leader = true`;
-        if (user.length === 0 && req.user.role !== 'pastor') {
+        if (user.length === 0 && req.user.role !== 'pastor' && req.user.role !== 'lider') {
             return res.status(403).json({ error: 'Apenas líderes podem criar escalas' });
         }
         
         const result = await sql`
-            INSERT INTO worship_scales (department_id, event_date, leader_id, songs, palette, rehearsal)
-            VALUES (${department_id}, ${event_date}, ${leader_id}, ${songs}, ${palette}, ${rehearsal || false})
+            INSERT INTO worship_scales (department_id, event_date, leader_id, minister_id, songs, song_ids, palette, rehearsal, musician_ids)
+            VALUES (${department_id || req.user.department_id}, ${event_date}, ${leader_id || req.user.id}, ${minister_id || null}, ${songs}, ${JSON.stringify(song_ids || [])}, ${palette || 'Azul, Prata, Branco, Dourado'}, ${rehearsal || false}, ${JSON.stringify(musicians || [])})
             RETURNING *
         `;
         res.status(201).json(result[0]);
@@ -1108,10 +1315,14 @@ app.post('/api/worship-scales', auth, async (req, res) => {
 app.get('/api/worship-scales', auth, async (req, res) => {
     try {
         const scales = await sql`
-            SELECT ws.*, d.name as department_name, u.name as leader_name
+            SELECT ws.*, 
+                   d.name as department_name, 
+                   u.name as leader_name,
+                   m.name as minister_name
             FROM worship_scales ws
             LEFT JOIN departments d ON ws.department_id = d.id
             LEFT JOIN users u ON ws.leader_id = u.id
+            LEFT JOIN users m ON ws.minister_id = m.id
             ORDER BY ws.event_date DESC
         `;
         res.json(scales);
@@ -1122,6 +1333,13 @@ app.get('/api/worship-scales', auth, async (req, res) => {
 
 app.delete('/api/worship-scales/:id', auth, async (req, res) => {
     try {
+        const scale = await sql`SELECT * FROM worship_scales WHERE id = ${req.params.id}`;
+        if (scale.length === 0) return res.status(404).json({ error: 'Escala não encontrada' });
+        
+        if (req.user.role !== 'pastor' && req.user.role !== 'lider' && scale[0].leader_id !== req.user.id) {
+            return res.status(403).json({ error: 'Você não tem permissão para remover esta escala' });
+        }
+        
         await sql`DELETE FROM worship_scales WHERE id = ${req.params.id}`;
         res.json({ message: 'Escala removida' });
     } catch (error) {

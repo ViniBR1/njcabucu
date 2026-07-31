@@ -1,4 +1,6 @@
+Aqui está o `admin.html` completo:
 
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -779,8 +781,10 @@
                 </select>
             </div>
             <div class="form-group">
-                <label>Departamento (opcional)</label>
-                <input type="text" id="userDepartment" placeholder="Digite o nome do departamento">
+                <label>Departamento</label>
+                <select id="userDepartmentSelect">
+                    <option value="">Nenhum</option>
+                </select>
             </div>
         </div>
         <div class="form-group">
@@ -1509,18 +1513,30 @@ async function deleteBirthday(id) {
 }
 
 // ============================================
-// ===== USUÁRIOS - CORRIGIDO =====
+// ===== USUÁRIOS - CORRIGIDO COM SELECT =====
 // ============================================
 
-function openUserModal() {
+async function openUserModal() {
     document.getElementById('userName').value = '';
     document.getElementById('userEmail').value = '';
     document.getElementById('userPassword').value = '';
     document.getElementById('userRole').value = 'fiel';
-    document.getElementById('userDepartment').value = '';
     document.getElementById('userIsLeader').checked = false;
-    openModal('userModal');
     
+    // Carrega departamentos para o select
+    try {
+        const res = await fetch('/api/departments', { headers: getHeaders() });
+        const depts = await res.json();
+        const select = document.getElementById('userDepartmentSelect');
+        select.innerHTML = '<option value="">Nenhum</option>';
+        depts.forEach(d => {
+            select.innerHTML += `<option value="${d.id}">${d.name}</option>`;
+        });
+    } catch (e) {
+        console.error('Erro ao carregar departamentos:', e);
+    }
+    
+    openModal('userModal');
     setTimeout(() => {
         document.getElementById('userName').focus();
     }, 300);
@@ -1531,7 +1547,7 @@ async function saveUser() {
     const email = document.getElementById('userEmail').value.trim().toLowerCase();
     const password = document.getElementById('userPassword').value;
     const role = document.getElementById('userRole').value;
-    const department = document.getElementById('userDepartment').value.trim();
+    const departmentId = document.getElementById('userDepartmentSelect').value;
     const isLeader = document.getElementById('userIsLeader').checked;
 
     // Validações
@@ -1557,7 +1573,13 @@ async function saveUser() {
     }
 
     try {
-        const departmentValue = department || null;
+        // Busca o nome do departamento se selecionado
+        let departmentName = null;
+        if (departmentId) {
+            const depts = await fetch('/api/departments', { headers: getHeaders() }).then(r => r.json());
+            const dept = depts.find(d => d.id == departmentId);
+            departmentName = dept ? dept.name : null;
+        }
         
         const response = await fetch('/api/users', {
             method: 'POST',
@@ -1567,7 +1589,8 @@ async function saveUser() {
                 email, 
                 password, 
                 role, 
-                department_name: departmentValue,
+                department_id: departmentId || null,
+                department_name: departmentName,
                 is_leader: isLeader 
             })
         });
@@ -1586,9 +1609,9 @@ async function saveUser() {
         document.getElementById('userName').value = '';
         document.getElementById('userEmail').value = '';
         document.getElementById('userPassword').value = '';
-        document.getElementById('userDepartment').value = '';
         document.getElementById('userRole').value = 'fiel';
         document.getElementById('userIsLeader').checked = false;
+        document.getElementById('userDepartmentSelect').value = '';
         
     } catch (e) { 
         showNotification('❌ Erro: ' + e.message, 'error'); 

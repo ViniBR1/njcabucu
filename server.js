@@ -484,21 +484,19 @@ app.post('/api/users', auth, pastorOnly, async (req, res) => {
             RETURNING id, name, email, role, department_id, department_name, is_leader
         `;
         
-        if (is_leader && deptId) {
+        if (deptId) {
+            const memberRole = is_leader ? 'lider' : 'membro';
             await sql`
                 INSERT INTO department_members (department_id, user_id, role)
-                VALUES (${deptId}, ${result[0].id}, 'lider')
-                ON CONFLICT (department_id, user_id) DO UPDATE SET role = 'lider'
+                VALUES (${deptId}, ${result[0].id}, ${memberRole})
+                ON CONFLICT (department_id, user_id) DO UPDATE SET role = ${memberRole}
             `;
-            await sql`
-                UPDATE departments SET leader_id = ${result[0].id} WHERE id = ${deptId}
-            `;
-        } else if (deptId) {
-            await sql`
-                INSERT INTO department_members (department_id, user_id, role)
-                VALUES (${deptId}, ${result[0].id}, 'membro')
-                ON CONFLICT (department_id, user_id) DO NOTHING
-            `;
+            
+            if (is_leader) {
+                await sql`
+                    UPDATE departments SET leader_id = ${result[0].id} WHERE id = ${deptId}
+                `;
+            }
         }
         
         res.status(201).json(result[0]);
@@ -631,14 +629,28 @@ app.post('/api/departments/:id/members', auth, async (req, res) => {
             return res.status(404).json({ error: 'Usuário não encontrado' });
         }
         
-        await sql`
-            INSERT INTO department_members (department_id, user_id, role)
-            VALUES (${id}, ${user_id}, ${role || 'membro'})
-            ON CONFLICT (department_id, user_id) DO UPDATE SET role = ${role || 'membro'}
+        const existing = await sql`
+            SELECT * FROM department_members 
+            WHERE department_id = ${id} AND user_id = ${user_id}
         `;
         
+        if (existing.length > 0) {
+            await sql`
+                UPDATE department_members 
+                SET role = ${role || 'membro'} 
+                WHERE department_id = ${id} AND user_id = ${user_id}
+            `;
+        } else {
+            await sql`
+                INSERT INTO department_members (department_id, user_id, role)
+                VALUES (${id}, ${user_id}, ${role || 'membro'})
+            `;
+        }
+        
         await sql`
-            UPDATE users SET department_id = ${id}, is_leader = ${role === 'lider' ? true : false}
+            UPDATE users 
+            SET department_id = ${id}, 
+                is_leader = ${role === 'lider' ? true : false}
             WHERE id = ${user_id}
         `;
         
@@ -658,6 +670,15 @@ app.put('/api/departments/:department_id/members/:user_id', auth, async (req, re
         const { department_id, user_id } = req.params;
         const { role } = req.body;
 
+        const member = await sql`
+            SELECT * FROM department_members 
+            WHERE department_id = ${department_id} AND user_id = ${user_id}
+        `;
+        
+        if (member.length === 0) {
+            return res.status(404).json({ error: 'Membro não encontrado neste departamento' });
+        }
+
         await sql`
             UPDATE department_members 
             SET role = ${role} 
@@ -665,11 +686,27 @@ app.put('/api/departments/:department_id/members/:user_id', auth, async (req, re
         `;
 
         if (role === 'lider') {
-            await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${department_id}`;
-            await sql`UPDATE users SET is_leader = true, role = 'lider' WHERE id = ${user_id}`;
+            await sql`
+                UPDATE departments 
+                SET leader_id = ${user_id} 
+                WHERE id = ${department_id}
+            `;
+            await sql`
+                UPDATE users 
+                SET is_leader = true, role = 'lider' 
+                WHERE id = ${user_id}
+            `;
         } else {
-            await sql`UPDATE users SET is_leader = false, role = ${role} WHERE id = ${user_id}`;
-            await sql`UPDATE departments SET leader_id = NULL WHERE id = ${department_id} AND leader_id = ${user_id}`;
+            await sql`
+                UPDATE departments 
+                SET leader_id = NULL 
+                WHERE id = ${department_id} AND leader_id = ${user_id}
+            `;
+            await sql`
+                UPDATE users 
+                SET is_leader = false, role = ${role} 
+                WHERE id = ${user_id}
+            `;
         }
 
         res.json({ message: 'Função atualizada com sucesso' });
@@ -1200,7 +1237,7 @@ app.delete('/api/baptism-dates/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- MÚSICAS (CORRIGIDO) -----
+// ----- MÚSICAS -----
 app.post('/api/songs', auth, async (req, res) => {
     try {
         const { title, artist, key, lyrics, department_id } = req.body;

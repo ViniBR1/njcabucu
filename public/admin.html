@@ -1,4 +1,4 @@
-Aqui está o `admin.html` completo:
+Aqui está o `admin.html` completo e atualizado:
 
 ```html
 <!DOCTYPE html>
@@ -1513,7 +1513,7 @@ async function deleteBirthday(id) {
 }
 
 // ============================================
-// ===== USUÁRIOS - CORRIGIDO COM SELECT =====
+// ===== USUÁRIOS =====
 // ============================================
 
 async function openUserModal() {
@@ -1523,7 +1523,6 @@ async function openUserModal() {
     document.getElementById('userRole').value = 'fiel';
     document.getElementById('userIsLeader').checked = false;
     
-    // Carrega departamentos para o select
     try {
         const res = await fetch('/api/departments', { headers: getHeaders() });
         const depts = await res.json();
@@ -1550,7 +1549,6 @@ async function saveUser() {
     const departmentId = document.getElementById('userDepartmentSelect').value;
     const isLeader = document.getElementById('userIsLeader').checked;
 
-    // Validações
     if (!name) {
         showNotification('⚠️ Digite o nome do usuário!', 'error');
         return;
@@ -1572,8 +1570,13 @@ async function saveUser() {
         return;
     }
 
+    const btn = document.querySelector('#userModal .btn-primary');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+    }
+
     try {
-        // Busca o nome do departamento se selecionado
         let departmentName = null;
         if (departmentId) {
             const depts = await fetch('/api/departments', { headers: getHeaders() }).then(r => r.json());
@@ -1605,7 +1608,6 @@ async function saveUser() {
         showNotification(`✅ Usuário ${name} criado com sucesso!`, 'success');
         loadDashboard();
         
-        // Limpa o formulário
         document.getElementById('userName').value = '';
         document.getElementById('userEmail').value = '';
         document.getElementById('userPassword').value = '';
@@ -1616,6 +1618,11 @@ async function saveUser() {
     } catch (e) { 
         showNotification('❌ Erro: ' + e.message, 'error'); 
         console.error('Erro detalhado:', e);
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save"></i> Salvar';
+        }
     }
 }
 
@@ -1766,7 +1773,7 @@ async function deleteMember(id) {
 }
 
 // ============================================
-// ===== FREQUÊNCIA - MULTISSELECAO =====
+// ===== FREQUÊNCIA =====
 // ============================================
 
 let allMembers = [];

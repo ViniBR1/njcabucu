@@ -460,23 +460,24 @@ app.post('/api/change-password', async (req, res) => {
 app.post('/api/users', auth, pastorOnly, async (req, res) => {
     try {
         const { name, email, password, role, department_name, phone, is_leader, department_id } = req.body;
+        
         const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
-        if (existing.length > 0) return res.status(400).json({ error: 'Usuário já existe' });
+        if (existing.length > 0) {
+            return res.status(400).json({ error: 'Usuário já existe' });
+        }
 
         const hash = await hashPassword(password || '123456');
         
         let deptId = department_id || null;
-        let deptName = department_name || '';
+        let deptName = department_name || null;
         
-        if (!deptId && deptName) {
-            const newDept = await sql`
-                INSERT INTO departments (name, description)
-                VALUES (${deptName}, 'Departamento de ${deptName}')
-                RETURNING id
-            `;
-            deptId = newDept[0].id;
+        if (deptId) {
+            const dept = await sql`SELECT name FROM departments WHERE id = ${deptId}`;
+            if (dept.length > 0) {
+                deptName = dept[0].name;
+            }
         }
-        
+
         const result = await sql`
             INSERT INTO users (name, email, password_hash, role, department_id, department_name, phone, first_login, is_leader)
             VALUES (${name}, ${email}, ${hash}, ${role || 'colaborador'}, ${deptId}, ${deptName}, ${phone || ''}, true, ${is_leader || false})
@@ -1199,7 +1200,7 @@ app.delete('/api/baptism-dates/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- MÚSICAS -----
+// ----- MÚSICAS (CORRIGIDO) -----
 app.post('/api/songs', auth, async (req, res) => {
     try {
         const { title, artist, key, lyrics, department_id } = req.body;
@@ -1218,23 +1219,28 @@ app.post('/api/songs', auth, async (req, res) => {
 app.get('/api/songs', auth, async (req, res) => {
     try {
         const { department_id } = req.query;
-        let query = `SELECT * FROM songs WHERE 1=1`;
-        const params = [];
-        let paramIndex = 1;
-
+        let songs;
+        
         if (department_id) {
-            query += ` AND department_id = $${paramIndex}`;
-            params.push(department_id);
-            paramIndex++;
+            songs = await sql`
+                SELECT * FROM songs 
+                WHERE department_id = ${department_id}
+                ORDER BY title
+            `;
         } else if (req.user.department_id) {
-            query += ` AND department_id = $${paramIndex}`;
-            params.push(req.user.department_id);
-            paramIndex++;
+            songs = await sql`
+                SELECT * FROM songs 
+                WHERE department_id = ${req.user.department_id}
+                ORDER BY title
+            `;
+        } else {
+            songs = await sql`
+                SELECT * FROM songs 
+                ORDER BY title
+            `;
         }
-        query += ` ORDER BY title`;
-
-        const songs = await sql.query(query, params);
-        res.json(songs.rows);
+        
+        res.json(songs);
     } catch (error) {
         console.error('❌ Erro ao buscar músicas:', error);
         res.status(500).json({ error: error.message });

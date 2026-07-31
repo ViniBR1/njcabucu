@@ -1,3 +1,6 @@
+Aqui está o `admin.html` completo com todas as correções:
+
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -756,17 +759,40 @@
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('userModal')">&times;</button>
         <h3>👤 Novo Usuário</h3>
-        <div class="form-group"><label>Nome *</label><input type="text" id="userName"></div>
-        <div class="form-group"><label>E-mail *</label><input type="email" id="userEmail"></div>
-        <div class="form-group"><label>Senha *</label><input type="password" id="userPassword" minlength="6"></div>
-        <div class="form-row">
-            <div class="form-group"><label>Cargo</label>
-                <select id="userRole"><option value="fiel">Fiel</option><option value="lider">Líder</option><option value="colaborador">Colaborador</option></select>
-            </div>
-            <div class="form-group"><label>Departamento</label><input type="text" id="userDepartment"></div>
+        <div class="form-group">
+            <label>Nome *</label>
+            <input type="text" id="userName" placeholder="Digite o nome completo">
         </div>
-        <div class="form-group"><label><input type="checkbox" id="userIsLeader"> É Líder?</label></div>
-        <button onclick="saveUser()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+        <div class="form-group">
+            <label>E-mail *</label>
+            <input type="email" id="userEmail" placeholder="email@exemplo.com">
+        </div>
+        <div class="form-group">
+            <label>Senha * (mínimo 6 caracteres)</label>
+            <input type="password" id="userPassword" minlength="6" placeholder="Digite uma senha">
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Cargo</label>
+                <select id="userRole">
+                    <option value="fiel">Fiel</option>
+                    <option value="lider">Líder</option>
+                    <option value="colaborador">Colaborador</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Departamento (opcional)</label>
+                <input type="text" id="userDepartment" placeholder="Digite o nome do departamento">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>
+                <input type="checkbox" id="userIsLeader"> É Líder?
+            </label>
+        </div>
+        <button onclick="saveUser()" class="btn btn-primary w-full" style="justify-content:center;">
+            <i class="fas fa-save"></i> Salvar
+        </button>
     </div>
 </div>
 
@@ -1485,7 +1511,7 @@ async function deleteBirthday(id) {
 }
 
 // ============================================
-// ===== USUÁRIOS =====
+// ===== USUÁRIOS - CORRIGIDO =====
 // ============================================
 
 function openUserModal() {
@@ -1496,35 +1522,80 @@ function openUserModal() {
     document.getElementById('userDepartment').value = '';
     document.getElementById('userIsLeader').checked = false;
     openModal('userModal');
+    
+    setTimeout(() => {
+        document.getElementById('userName').focus();
+    }, 300);
 }
 
 async function saveUser() {
     const name = document.getElementById('userName').value.trim();
-    const email = document.getElementById('userEmail').value.trim();
+    const email = document.getElementById('userEmail').value.trim().toLowerCase();
     const password = document.getElementById('userPassword').value;
     const role = document.getElementById('userRole').value;
     const department = document.getElementById('userDepartment').value.trim();
     const isLeader = document.getElementById('userIsLeader').checked;
 
-    if (!name || !email || !password) {
-        showNotification('Preencha todos os campos obrigatórios!', 'error');
+    // Validações
+    if (!name) {
+        showNotification('⚠️ Digite o nome do usuário!', 'error');
+        return;
+    }
+    if (!email) {
+        showNotification('⚠️ Digite o e-mail do usuário!', 'error');
+        return;
+    }
+    if (!email.includes('@') || !email.includes('.')) {
+        showNotification('⚠️ Digite um e-mail válido!', 'error');
+        return;
+    }
+    if (!password) {
+        showNotification('⚠️ Digite uma senha!', 'error');
         return;
     }
     if (password.length < 6) {
-        showNotification('Senha mínima 6 caracteres', 'error');
+        showNotification('⚠️ A senha deve ter no mínimo 6 caracteres!', 'error');
         return;
     }
 
     try {
-        await fetch('/api/users', {
+        const departmentValue = department || null;
+        
+        const response = await fetch('/api/users', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', ...getHeaders() },
-            body: JSON.stringify({ name, email, password, role, department_name: department, is_leader: isLeader })
+            body: JSON.stringify({ 
+                name, 
+                email, 
+                password, 
+                role, 
+                department_name: departmentValue,
+                is_leader: isLeader 
+            })
         });
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Erro ao criar usuário');
+        }
+
         closeModal('userModal');
+        showNotification(`✅ Usuário ${name} criado com sucesso!`, 'success');
         loadDashboard();
-        showNotification('✅ Usuário criado!', 'success');
-    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+        
+        // Limpa o formulário
+        document.getElementById('userName').value = '';
+        document.getElementById('userEmail').value = '';
+        document.getElementById('userPassword').value = '';
+        document.getElementById('userDepartment').value = '';
+        document.getElementById('userRole').value = 'fiel';
+        document.getElementById('userIsLeader').checked = false;
+        
+    } catch (e) { 
+        showNotification('❌ Erro: ' + e.message, 'error'); 
+        console.error('Erro detalhado:', e);
+    }
 }
 
 // ============================================
@@ -2266,3 +2337,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+```

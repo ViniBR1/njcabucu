@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-    
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -831,6 +830,8 @@ let slideInterval;
 let paymentType = 'sale';
 let donationType = '';
 let departmentsList = [];
+let eventsList = [];
+let baptismDatesList = [];
 
 // ============================================
 // ===== BÍBLIA =====
@@ -920,7 +921,6 @@ async function loadBirthdays() {
             return;
         }
 
-        // Ordena por dia do mês
         const sortedData = [...data].sort((a, b) => {
             const dayA = new Date(a.birth_date).getDate();
             const dayB = new Date(b.birth_date).getDate();
@@ -946,7 +946,6 @@ async function loadBirthdays() {
                 month: 'long' 
             });
             
-            // Verifica se é hoje
             const isToday = hoje.getMonth() === mesNiver && hoje.getDate() === diaNiver;
             
             return `
@@ -1608,11 +1607,33 @@ async function submitPrayer() {
 
 async function loadDepartmentsForRegistration() {
     try {
-        const res = await fetch('/api/departments');
+        const res = await fetch('/api/departments/active');
         departmentsList = await res.json();
         return departmentsList;
     } catch (e) {
         console.error('Erro ao carregar departamentos:', e);
+        return [];
+    }
+}
+
+async function loadEventsForRegistration() {
+    try {
+        const res = await fetch('/api/events/active');
+        eventsList = await res.json();
+        return eventsList;
+    } catch (e) {
+        console.error('Erro ao carregar eventos:', e);
+        return [];
+    }
+}
+
+async function loadBaptismDatesForRegistration() {
+    try {
+        const res = await fetch('/api/baptism-dates');
+        baptismDatesList = await res.json();
+        return baptismDatesList;
+    } catch (e) {
+        console.error('Erro ao carregar datas de batismo:', e);
         return [];
     }
 }
@@ -1623,9 +1644,16 @@ async function showRegistration(type) {
     resultDiv.style.display = 'none';
     resultDiv.innerHTML = '';
     container.style.display = 'block';
+    container.innerHTML = '<p style="text-align:center;color:#888;">⏳ Carregando...</p>';
 
     if (type === 'department' || type === 'volunteer') {
         await loadDepartmentsForRegistration();
+    }
+    if (type === 'event') {
+        await loadEventsForRegistration();
+    }
+    if (type === 'baptism') {
+        await loadBaptismDatesForRegistration();
     }
 
     const types = {
@@ -1636,7 +1664,7 @@ async function showRegistration(type) {
                 email: 'E-mail *',
                 phone: 'Telefone *',
                 birth_date: 'Data de Nascimento *',
-                baptism_date: 'Data desejada para o Batismo',
+                baptism_date: 'Selecione a Data do Batismo *',
                 notes: 'Observações (opcional)'
             }
         },
@@ -1698,13 +1726,40 @@ async function showRegistration(type) {
             <label>${t.labels.birth_date}</label>
             <input type="date" id="regBirthDate" required>
         </div>`;
+        
         html += `<div class="form-group">
             <label>${t.labels.baptism_date}</label>
-            <input type="date" id="regBaptismDate">
+            <select id="regBaptismDate" required>
+                <option value="">Selecione uma data para o Batismo</option>
+        `;
+        if (baptismDatesList && baptismDatesList.length > 0) {
+            baptismDatesList.forEach(d => {
+                const dateFormatted = new Date(d.date).toLocaleDateString('pt-BR', { 
+                    day: 'numeric', 
+                    month: 'long', 
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const participantes = d.current_participants || 0;
+                const max = d.max_participants || 20;
+                const disponivel = participantes < max;
+                html += `<option value="${d.id}" ${!disponivel ? 'disabled' : ''}>
+                    ${d.title || 'Batismo'} - ${dateFormatted} (${participantes}/${max}) ${disponivel ? '✅ Disponível' : '❌ Esgotado'}
+                </option>`;
+            });
+        } else {
+            html += `<option value="" disabled>Nenhuma data de batismo disponível</option>`;
+        }
+        html += `</select></div>`;
+        
+        html += `<div class="form-group">
+            <label>${t.labels.notes}</label>
+            <textarea id="regNotes" rows="3" placeholder="Observações adicionais..."></textarea>
         </div>`;
     }
 
-    if (type === 'volunteer' || type === 'department') {
+    if (type === 'volunteer') {
         html += `<div class="form-group">
             <label>${t.labels.department_select}</label>
             <select id="regDepartmentSelect" required>
@@ -1718,6 +1773,16 @@ async function showRegistration(type) {
             html += `<option value="" disabled>Nenhum departamento disponível</option>`;
         }
         html += `</select></div>`;
+        
+        html += `<div class="form-group">
+            <label>${t.labels.availability}</label>
+            <input type="text" id="regAvailability" placeholder="Ex: Finais de semana, Terças e Quintas à noite">
+        </div>`;
+        
+        html += `<div class="form-group">
+            <label>${t.labels.notes}</label>
+            <textarea id="regNotes" rows="3" placeholder="Conte-nos sobre suas habilidades e experiência..."></textarea>
+        </div>`;
     }
 
     if (type === 'event') {
@@ -1726,39 +1791,49 @@ async function showRegistration(type) {
             <select id="regEventSelect" required>
                 <option value="">Selecione um evento</option>
         `;
-        try {
-            const eventsRes = await fetch('/api/events');
-            const events = await eventsRes.json();
-            if (events && events.length > 0) {
-                events.forEach(e => {
-                    const priceText = parseFloat(e.price || 0) > 0 ? ` - R$ ${parseFloat(e.price).toFixed(2)}` : ' - Grátis';
-                    html += `<option value="${e.id}" data-price="${e.price || 0}">${e.title}${priceText}</option>`;
+        if (eventsList && eventsList.length > 0) {
+            eventsList.forEach(e => {
+                const dateFormatted = new Date(e.date).toLocaleDateString('pt-BR', { 
+                    day: 'numeric', 
+                    month: 'long', 
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
                 });
-            } else {
-                html += `<option value="" disabled>Nenhum evento disponível</option>`;
-            }
-        } catch (e) {
-            html += `<option value="" disabled>Erro ao carregar eventos</option>`;
+                const priceText = parseFloat(e.price || 0) > 0 ? `R$ ${parseFloat(e.price).toFixed(2)}` : 'Grátis';
+                html += `<option value="${e.id}" data-price="${e.price || 0}">
+                    ${e.title} - ${dateFormatted} (${priceText})
+                </option>`;
+            });
+        } else {
+            html += `<option value="" disabled>Nenhum evento disponível</option>`;
         }
         html += `</select></div>`;
-    }
-
-    if (type === 'volunteer') {
+        
         html += `<div class="form-group">
-            <label>${t.labels.availability}</label>
-            <input type="text" id="regAvailability" placeholder="Ex: Finais de semana, Terças e Quintas à noite">
+            <label>${t.labels.notes}</label>
+            <textarea id="regNotes" rows="3" placeholder="Observações adicionais..."></textarea>
         </div>`;
     }
 
-    if (type !== 'volunteer') {
+    if (type === 'department') {
+        html += `<div class="form-group">
+            <label>${t.labels.department_select}</label>
+            <select id="regDepartmentSelect" required>
+                <option value="">Selecione um departamento</option>
+        `;
+        if (departmentsList && departmentsList.length > 0) {
+            departmentsList.forEach(d => {
+                html += `<option value="${d.id}">${d.name}</option>`;
+            });
+        } else {
+            html += `<option value="" disabled>Nenhum departamento disponível</option>`;
+        }
+        html += `</select></div>`;
+        
         html += `<div class="form-group">
             <label>${t.labels.notes}</label>
-            <textarea id="regNotes" rows="3" placeholder="Informações adicionais..."></textarea>
-        </div>`;
-    } else {
-        html += `<div class="form-group">
-            <label>${t.labels.notes}</label>
-            <textarea id="regNotes" rows="3" placeholder="Conte-nos sobre suas habilidades e experiência..."></textarea>
+            <textarea id="regNotes" rows="3" placeholder="Por que deseja participar? (opcional)"></textarea>
         </div>`;
     }
 
@@ -1799,23 +1874,41 @@ async function submitRegistration(type) {
     try {
         if (type === 'baptism') {
             const birthDate = document.getElementById('regBirthDate')?.value;
-            const baptismDate = document.getElementById('regBaptismDate')?.value;
+            const baptismDateId = document.getElementById('regBaptismDate')?.value;
+            
             if (!birthDate) {
                 showNotification('⚠️ Informe sua data de nascimento!', 'error');
                 return;
             }
+            if (!baptismDateId) {
+                showNotification('⚠️ Selecione uma data para o batismo!', 'error');
+                return;
+            }
+            
+            const selectedDate = baptismDatesList.find(d => d.id == baptismDateId);
+            if (!selectedDate) {
+                showNotification('⚠️ Data de batismo não encontrada!', 'error');
+                return;
+            }
+            
             registrationData.birth_date = birthDate;
-            registrationData.baptism_date = baptismDate || null;
-            registrationData.details = `Data de Nascimento: ${new Date(birthDate).toLocaleDateString('pt-BR')}\n${baptismDate ? `Data desejada para Batismo: ${new Date(baptismDate).toLocaleDateString('pt-BR')}\n` : ''}${notes}`;
+            registrationData.baptism_date = selectedDate.date;
+            registrationData.baptism_date_id = baptismDateId;
+            registrationData.event_name = selectedDate.title || 'Batismo';
+            registrationData.details = `Data de Nascimento: ${new Date(birthDate).toLocaleDateString('pt-BR')}\n`;
+            registrationData.details += `Data do Batismo: ${new Date(selectedDate.date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}\n`;
+            registrationData.details += notes || '';
         }
 
         if (type === 'volunteer') {
             const deptId = document.getElementById('regDepartmentSelect')?.value;
             const availability = document.getElementById('regAvailability')?.value.trim() || '';
+            
             if (!deptId) {
                 showNotification('⚠️ Selecione um departamento!', 'error');
                 return;
             }
+            
             const dept = departmentsList.find(d => d.id == deptId);
             registrationData.department_name = dept ? dept.name : '';
             registrationData.department_id = deptId;
@@ -1824,10 +1917,12 @@ async function submitRegistration(type) {
 
         if (type === 'department') {
             const deptId = document.getElementById('regDepartmentSelect')?.value;
+            
             if (!deptId) {
                 showNotification('⚠️ Selecione um departamento!', 'error');
                 return;
             }
+            
             const dept = departmentsList.find(d => d.id == deptId);
             registrationData.department_name = dept ? dept.name : '';
             registrationData.department_id = deptId;
@@ -1836,23 +1931,23 @@ async function submitRegistration(type) {
 
         if (type === 'event') {
             const eventId = document.getElementById('regEventSelect')?.value;
+            
             if (!eventId) {
                 showNotification('⚠️ Selecione um evento!', 'error');
                 return;
             }
-            const eventsRes = await fetch('/api/events');
-            const events = await eventsRes.json();
-            const event = events.find(e => e.id == eventId);
             
-            if (event) {
-                registrationData.event_name = event.title;
-                registrationData.amount = parseFloat(event.price || 0);
-                registrationData.is_paid = parseFloat(event.price || 0) > 0 ? false : true;
-                registrationData.details = `Evento: ${event.title}\n${notes}`;
-            } else {
+            const event = eventsList.find(e => e.id == eventId);
+            if (!event) {
                 showNotification('⚠️ Evento não encontrado!', 'error');
                 return;
             }
+            
+            registrationData.event_name = event.title;
+            registrationData.event_id = eventId;
+            registrationData.amount = parseFloat(event.price || 0);
+            registrationData.is_paid = parseFloat(event.price || 0) > 0 ? false : true;
+            registrationData.details = `Evento: ${event.title}\nData: ${new Date(event.date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}\n${notes}`;
         }
 
         console.log('📤 Enviando inscrição:', registrationData);

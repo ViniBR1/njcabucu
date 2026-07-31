@@ -242,7 +242,6 @@
         .notification.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .notification.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
 
-        /* Modal de Música */
         .modal {
             display: none;
             position: fixed;
@@ -280,21 +279,6 @@
         }
         .modal-close:hover { color: #333; }
 
-        .chord-transposer {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            margin: 0.5rem 0;
-            flex-wrap: wrap;
-        }
-        .chord-transposer select {
-            padding: 0.3rem 0.5rem;
-            border-radius: 8px;
-            border: 2px solid #e0e0e0;
-            font-size: 0.9rem;
-        }
-        .chord-transposer .btn { padding: 0.3rem 0.8rem; }
-
         @media (max-width: 768px) {
             .header { flex-direction: column; gap: 0.5rem; padding: 0.8rem 1rem; }
             .grid { grid-template-columns: 1fr; }
@@ -328,6 +312,7 @@
             <button class="tab-btn active" onclick="showTab('escalas')"><i class="fas fa-calendar-alt"></i> Escalas</button>
             <button class="tab-btn" onclick="showTab('membros')"><i class="fas fa-users"></i> Membros</button>
             <button class="tab-btn" onclick="showTab('ministerios')"><i class="fas fa-user-tag"></i> Ministros</button>
+            <button class="tab-btn" onclick="showTab('musicos')"><i class="fas fa-music"></i> Músicos</button>
             <button class="tab-btn" onclick="showTab('musicas')"><i class="fas fa-music"></i> Músicas</button>
             <button class="tab-btn" onclick="showTab('disponibilidade')"><i class="fas fa-calendar-check"></i> Disponibilidade</button>
             <button class="tab-btn" onclick="showTab('stats')"><i class="fas fa-chart-bar"></i> Estatísticas</button>
@@ -343,7 +328,6 @@
                 <p style="color:#888;">Carregando...</p>
             </div>
 
-            <!-- FORMULÁRIO DE CRIAÇÃO -->
             <div id="createScaleForm" class="hidden" style="margin-top:1rem;border-top:1px solid #eee;padding-top:1rem;">
                 <h4>Nova Escala</h4>
                 <div class="grid" style="grid-template-columns:1fr 1fr;">
@@ -408,6 +392,17 @@
             </div>
         </div>
 
+        <!-- TAB: MÚSICOS -->
+        <div id="tab-musicos" class="tab-content">
+            <div class="flex-between mb-1">
+                <h3><i class="fas fa-music"></i> Músicos</h3>
+                <button onclick="openAddMusicianModal()" class="btn btn-success"><i class="fas fa-user-plus"></i> Adicionar Músico</button>
+            </div>
+            <div id="musiciansList">
+                <p style="color:#888;">Carregando...</p>
+            </div>
+        </div>
+
         <!-- TAB: MÚSICAS -->
         <div id="tab-musicas" class="tab-content">
             <div class="flex-between mb-1">
@@ -439,13 +434,15 @@
                 <div class="card"><strong>Total de Escalas:</strong> <span id="totalScales">0</span></div>
                 <div class="card"><strong>Membros:</strong> <span id="totalMembers">0</span></div>
                 <div class="card"><strong>Ministros:</strong> <span id="totalMinisters">0</span></div>
+                <div class="card"><strong>Músicos:</strong> <span id="totalMusicians">0</span></div>
                 <div class="card"><strong>Músicas:</strong> <span id="totalSongs">0</span></div>
                 <div class="card"><strong>Próximos Cultos:</strong> <span id="nextCults">0</span></div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL ADICIONAR MEMBRO -->
+    <!-- MODAIS -->
+    <!-- ADICIONAR MEMBRO -->
     <div class="modal" id="addMemberModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('addMemberModal')">&times;</button>
@@ -467,20 +464,37 @@
         </div>
     </div>
 
-    <!-- MODAL ADICIONAR MINISTRO -->
+    <!-- ADICIONAR MINISTRO -->
     <div class="modal" id="addMinisterModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('addMinisterModal')">&times;</button>
             <h3><i class="fas fa-user-tag"></i> Adicionar Ministro</h3>
             <div class="form-group">
-                <label>Membro</label>
+                <label>Selecione o Membro</label>
                 <select id="ministerMemberSelect"></select>
             </div>
             <button onclick="addMinister()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Adicionar Ministro</button>
         </div>
     </div>
 
-    <!-- MODAL ADICIONAR MÚSICA -->
+    <!-- ADICIONAR MÚSICO -->
+    <div class="modal" id="addMusicianModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('addMusicianModal')">&times;</button>
+            <h3><i class="fas fa-user-music"></i> Adicionar Músico</h3>
+            <div class="form-group">
+                <label>Selecione o Membro</label>
+                <select id="musicianMemberSelect"></select>
+            </div>
+            <div class="form-group">
+                <label>Instrumento</label>
+                <input type="text" id="musicianInstrument" placeholder="Ex: Guitarra, Teclado, Bateria">
+            </div>
+            <button onclick="addMusician()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Adicionar Músico</button>
+        </div>
+    </div>
+
+    <!-- ADICIONAR MÚSICA -->
     <div class="modal" id="addMusicModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('addMusicModal')">&times;</button>
@@ -512,7 +526,7 @@
         </div>
     </div>
 
-    <!-- MODAL VISUALIZAR MÚSICA -->
+    <!-- VISUALIZAR MÚSICA -->
     <div class="modal" id="viewMusicModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('viewMusicModal')">&times;</button>
@@ -532,6 +546,7 @@
     let scales = [];
     let members = [];
     let ministers = [];
+    let musicians = [];
     let songs = [];
     let availabilities = [];
 
@@ -552,6 +567,7 @@
                 'escalas': 'Escalas',
                 'membros': 'Membros',
                 'ministerios': 'Ministros',
+                'musicos': 'Músicos',
                 'musicas': 'Músicas',
                 'disponibilidade': 'Disponibilidade',
                 'stats': 'Estatísticas'
@@ -562,6 +578,7 @@
         if (tab === 'escalas') loadScales();
         if (tab === 'membros') loadMembers();
         if (tab === 'ministerios') loadMinisters();
+        if (tab === 'musicos') loadMusicians();
         if (tab === 'musicas') loadSongs();
         if (tab === 'disponibilidade') loadAvailability();
         if (tab === 'stats') updateStats();
@@ -582,14 +599,13 @@
             return;
         }
 
+        // Carrega os dados
         loadScales();
         loadMembers();
         loadMinisters();
+        loadMusicians();
         loadSongs();
         loadAvailability();
-        loadMinisterSelect();
-        loadMusicSelect();
-        loadMusiciansSelect();
     });
 
     // ============================================
@@ -599,7 +615,6 @@
     function showCreateScale() {
         document.getElementById('createScaleForm').classList.remove('hidden');
         document.getElementById('createScaleForm').scrollIntoView({ behavior: 'smooth' });
-        // Preenche selects
         loadMinisterSelect();
         loadMusicSelect();
         loadMusiciansSelect();
@@ -684,7 +699,7 @@
             scales = data.filter(s => s.department_id === user.department_id);
             const container = document.getElementById('scalesList');
 
-            if (!scales.length) {
+            if (!scales || scales.length === 0) {
                 container.innerHTML = '<p style="color:#888;">Nenhuma escala cadastrada.</p>';
                 updateStats();
                 return;
@@ -706,7 +721,7 @@
                         ${s.minister_name ? `<div><strong>Ministro:</strong> ${s.minister_name}</div>` : ''}
                         <div class="songs">
                             <strong>Músicas:</strong>
-                            ${songsList.map(m => `<span class="music-tag" onclick="viewSongByName('${m}')">${m}</span>`).join('') || '-'}
+                            ${songsList.map(m => `<span class="music-tag">${m}</span>`).join('') || '-'}
                         </div>
                         ${paletteColors.length ? `
                             <div class="palette">
@@ -760,41 +775,43 @@
             members = await res.json();
             const container = document.getElementById('membersList');
 
-            if (!members.length) {
+            if (!members || members.length === 0) {
                 container.innerHTML = '<p style="color:#888;">Nenhum membro neste departamento.</p>';
                 document.getElementById('totalMembers').textContent = 0;
                 return;
             }
 
-            container.innerHTML = members.map(m => {
-                const roleLabels = {
-                    lider: '<span class="role-badge leader">👑 Líder</span>',
-                    ministro: '<span class="role-badge minister">🎤 Ministro</span>',
-                    musico: '<span class="role-badge musician">🎸 Músico</span>',
-                    membro: '<span class="role-badge member">🙋 Membro</span>'
-                };
-                return `
-                    <div class="member-item">
-                        <div>
-                            <span class="name">${m.name}</span>
-                            <span class="email">${m.email}</span>
-                            ${roleLabels[m.member_role] || roleLabels.membro}
-                        </div>
-                        ${isLeader && m.id !== user.id ? `
-                            <div>
-                                <button onclick="changeMemberRole(${m.id})" class="btn btn-warning btn-sm" title="Alterar Função">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button onclick="removeMember(${m.id})" class="btn btn-danger btn-sm" title="Remover membro">
-                                    <i class="fas fa-user-minus"></i>
-                                </button>
-                            </div>
-                        ` : ''}
+            const roleLabels = {
+                lider: '<span class="role-badge leader">👑 Líder</span>',
+                ministro: '<span class="role-badge minister">🎤 Ministro</span>',
+                musico: '<span class="role-badge musician">🎸 Músico</span>',
+                membro: '<span class="role-badge member">🙋 Membro</span>'
+            };
+
+            container.innerHTML = members.map(m => `
+                <div class="member-item">
+                    <div>
+                        <span class="name">${m.name}</span>
+                        <span class="email">${m.email}</span>
+                        ${roleLabels[m.member_role] || roleLabels.membro}
                     </div>
-                `;
-            }).join('');
+                    ${isLeader && m.id !== user.id ? `
+                        <div>
+                            <button onclick="changeMemberRole(${m.id})" class="btn btn-warning btn-sm" title="Alterar Função">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="removeMember(${m.id})" class="btn btn-danger btn-sm" title="Remover membro">
+                                <i class="fas fa-user-minus"></i>
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
 
             document.getElementById('totalMembers').textContent = members.length;
+            // Atualiza selects de ministros e músicos
+            loadMinisterSelect();
+            loadMusiciansSelect();
         } catch (e) {
             console.error('Erro:', e);
             document.getElementById('membersList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar membros</p>';
@@ -827,7 +844,6 @@
             closeModal('addMemberModal');
             showNotification(`✅ ${found.name} adicionado como ${role}!`, 'success');
             loadMembers();
-            loadMinisterSelect();
         } catch (e) {
             showNotification('❌ Erro ao adicionar: ' + e.message, 'error');
         }
@@ -850,7 +866,6 @@
             });
             showNotification('✅ Função atualizada!', 'success');
             loadMembers();
-            loadMinisterSelect();
         } catch (e) {
             showNotification('❌ Erro: ' + e.message, 'error');
         }
@@ -865,7 +880,6 @@
             });
             showNotification('✅ Membro removido!', 'success');
             loadMembers();
-            loadMinisterSelect();
         } catch (e) {
             showNotification('❌ Erro ao remover: ' + e.message, 'error');
         }
@@ -882,7 +896,7 @@
             ministers = data.filter(m => m.member_role === 'ministro' || m.member_role === 'lider');
             const container = document.getElementById('ministersList');
 
-            if (!ministers.length) {
+            if (!ministers || ministers.length === 0) {
                 container.innerHTML = '<p style="color:#888;">Nenhum ministro cadastrado.</p>';
                 document.getElementById('totalMinisters').textContent = 0;
                 return;
@@ -933,7 +947,6 @@
             showNotification('✅ Ministro adicionado!', 'success');
             loadMinisters();
             loadMembers();
-            loadMinisterSelect();
         } catch (e) {
             showNotification('❌ Erro: ' + e.message, 'error');
         }
@@ -950,7 +963,92 @@
             showNotification('✅ Ministro removido!', 'success');
             loadMinisters();
             loadMembers();
-            loadMinisterSelect();
+        } catch (e) {
+            showNotification('❌ Erro: ' + e.message, 'error');
+        }
+    }
+
+    // ============================================
+    // ===== MÚSICOS =====
+    // ============================================
+
+    async function loadMusicians() {
+        try {
+            const res = await fetch(`/api/departments/${user.department_id}/members`, { headers: getHeaders() });
+            const data = await res.json();
+            musicians = data.filter(m => m.member_role === 'musico' || m.member_role === 'lider');
+            const container = document.getElementById('musiciansList');
+
+            if (!musicians || musicians.length === 0) {
+                container.innerHTML = '<p style="color:#888;">Nenhum músico cadastrado.</p>';
+                document.getElementById('totalMusicians').textContent = 0;
+                return;
+            }
+
+            container.innerHTML = musicians.map(m => `
+                <div class="member-item">
+                    <div>
+                        <span class="name">${m.name}</span>
+                        <span class="email">${m.email}</span>
+                        <span class="role-badge musician">🎸 Músico</span>
+                    </div>
+                    ${isLeader && m.id !== user.id ? `
+                        <button onclick="removeMusician(${m.id})" class="btn btn-danger btn-sm" title="Remover Músico">
+                            <i class="fas fa-user-minus"></i>
+                        </button>
+                    ` : ''}
+                </div>
+            `).join('');
+
+            document.getElementById('totalMusicians').textContent = musicians.length;
+            loadMusiciansSelect();
+        } catch (e) {
+            console.error('Erro:', e);
+            document.getElementById('musiciansList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar músicos</p>';
+        }
+    }
+
+    function openAddMusicianModal() {
+        const select = document.getElementById('musicianMemberSelect');
+        select.innerHTML = '<option value="">Selecione um membro</option>';
+        members.filter(m => m.member_role !== 'musico' && m.member_role !== 'lider').forEach(m => {
+            select.innerHTML += `<option value="${m.id}">${m.name} (${m.email})</option>`;
+        });
+        document.getElementById('musicianInstrument').value = '';
+        openModal('addMusicianModal');
+    }
+
+    async function addMusician() {
+        const userId = document.getElementById('musicianMemberSelect').value;
+        const instrument = document.getElementById('musicianInstrument').value.trim();
+        if (!userId) { showNotification('Selecione um membro!', 'error'); return; }
+
+        try {
+            await fetch(`/api/departments/${user.department_id}/members/${userId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                body: JSON.stringify({ role: 'musico' })
+            });
+            closeModal('addMusicianModal');
+            showNotification(`✅ Músico adicionado! ${instrument ? 'Instrumento: ' + instrument : ''}`, 'success');
+            loadMusicians();
+            loadMembers();
+        } catch (e) {
+            showNotification('❌ Erro: ' + e.message, 'error');
+        }
+    }
+
+    async function removeMusician(userId) {
+        if (!confirm('Remover este músico?')) return;
+        try {
+            await fetch(`/api/departments/${user.department_id}/members/${userId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                body: JSON.stringify({ role: 'membro' })
+            });
+            showNotification('✅ Músico removido!', 'success');
+            loadMusicians();
+            loadMembers();
         } catch (e) {
             showNotification('❌ Erro: ' + e.message, 'error');
         }
@@ -962,11 +1060,11 @@
 
     async function loadSongs() {
         try {
-            const res = await fetch('/api/songs', { headers: getHeaders() });
+            const res = await fetch(`/api/songs?department_id=${user.department_id}`, { headers: getHeaders() });
             songs = await res.json();
             const container = document.getElementById('songsList');
 
-            if (!songs.length) {
+            if (!songs || songs.length === 0) {
                 container.innerHTML = '<p style="color:#888;">Nenhuma música cadastrada.</p>';
                 document.getElementById('totalSongs').textContent = 0;
                 return;
@@ -1041,24 +1139,12 @@
         openModal('viewMusicModal');
     }
 
-    function viewSongByName(name) {
-        const song = songs.find(s => s.title === name);
-        if (song) viewSong(song.id);
-        else showNotification('Música não encontrada no repertório.', 'info');
-    }
-
     function transposeSong(id) {
         const song = songs.find(s => s.id === id);
         if (!song) return;
         const newKey = prompt(`Tom atual: ${song.key || 'C'}\nDigite o novo tom (Ex: D, E, F#):`);
         if (!newKey) return;
-
-        try {
-            // Simulação de transposição - na prática, você precisaria de uma lógica de transposição real
-            showNotification(`🎵 Tom alterado para ${newKey}! (Simulação)`, 'info');
-        } catch (e) {
-            showNotification('❌ Erro: ' + e.message, 'error');
-        }
+        showNotification(`🎵 Tom alterado para ${newKey}! (Simulação)`, 'info');
     }
 
     async function deleteSong(id) {
@@ -1082,7 +1168,7 @@
             availabilities = await res.json();
             const container = document.getElementById('availabilityList');
 
-            if (!availabilities.length) {
+            if (!availabilities || availabilities.length === 0) {
                 container.innerHTML = '<p style="color:#888;">Nenhuma data disponível cadastrada.</p>';
                 return;
             }
@@ -1149,6 +1235,26 @@
         }
     }
 
+    function loadMusiciansSelect() {
+        const select = document.getElementById('scaleMusicians');
+        const musicianSelect = document.getElementById('musicianMemberSelect');
+        const musiciansList = members.filter(m => m.member_role === 'musico' || m.member_role === 'lider');
+
+        if (select) {
+            select.innerHTML = '';
+            musiciansList.forEach(m => {
+                select.innerHTML += `<option value="${m.id}">${m.name}</option>`;
+            });
+        }
+
+        if (musicianSelect) {
+            musicianSelect.innerHTML = '<option value="">Selecione um membro</option>';
+            members.filter(m => m.member_role !== 'musico' && m.member_role !== 'lider').forEach(m => {
+                musicianSelect.innerHTML += `<option value="${m.id}">${m.name} (${m.email})</option>`;
+            });
+        }
+    }
+
     function loadMusicSelect() {
         const select = document.getElementById('musicSelect');
         if (!select) return;
@@ -1158,28 +1264,19 @@
         });
     }
 
-    function loadMusiciansSelect() {
-        const select = document.getElementById('scaleMusicians');
-        if (!select) return;
-        select.innerHTML = '';
-        const musiciansList = members.filter(m => m.member_role === 'musico' || m.member_role === 'lider');
-        musiciansList.forEach(m => {
-            select.innerHTML += `<option value="${m.id}">${m.name}</option>`;
-        });
-    }
-
     // ============================================
     // ===== ESTATÍSTICAS =====
     // ============================================
 
     function updateStats() {
         const now = new Date();
-        const nextCults = scales.filter(s => new Date(s.event_date) > now).length;
+        const nextCults = scales ? scales.filter(s => new Date(s.event_date) > now).length : 0;
 
-        document.getElementById('totalScales').textContent = scales.length;
-        document.getElementById('totalMembers').textContent = members.length;
-        document.getElementById('totalMinisters').textContent = ministers.length;
-        document.getElementById('totalSongs').textContent = songs.length;
+        document.getElementById('totalScales').textContent = scales ? scales.length : 0;
+        document.getElementById('totalMembers').textContent = members ? members.length : 0;
+        document.getElementById('totalMinisters').textContent = ministers ? ministers.length : 0;
+        document.getElementById('totalMusicians').textContent = musicians ? musicians.length : 0;
+        document.getElementById('totalSongs').textContent = songs ? songs.length : 0;
         document.getElementById('nextCults').textContent = nextCults;
     }
 

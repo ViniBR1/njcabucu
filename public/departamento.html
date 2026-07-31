@@ -29,11 +29,13 @@
             align-items: center;
             border-bottom: 3px solid var(--primary);
             flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         .logo { display: flex; align-items: center; gap: 0.8rem; }
         .logo-icon {
-            width: 45px;
-            height: 45px;
+            width: 45px; height: 45px;
             border-radius: 50%;
             background: var(--primary);
             display: flex;
@@ -63,19 +65,55 @@
         .btn-danger:hover { background: #c82333; }
         .btn-success { background: #28a745; color: white; }
         .btn-success:hover { background: #218838; }
+        .btn-warning { background: #ffc107; color: #1a1a1a; }
+        .btn-warning:hover { background: #e0a800; }
         .btn-sm { padding: 0.3rem 0.8rem; font-size: 0.8rem; }
+        .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: white; }
 
-        .container { max-width: 1200px; margin: 1.5rem auto; padding: 0 1.5rem; }
+        .container { max-width: 1400px; margin: 1.5rem auto; padding: 0 1.5rem; }
 
         .dept-header {
             background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: white;
-            padding: 1.5rem;
+            padding: 2rem;
             border-radius: var(--radius);
             margin-bottom: 1.5rem;
         }
-        .dept-header h1 { font-size: 2rem; }
+        .dept-header h1 { font-size: 2.2rem; }
         .dept-header .subtitle { opacity: 0.9; margin-top: 0.3rem; }
+
+        .tabs {
+            display: flex;
+            gap: 0.3rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            background: var(--card-bg);
+            padding: 0.6rem;
+            border-radius: 12px;
+            border: 1px solid #e8e8e8;
+        }
+        .tab-btn {
+            padding: 0.4rem 1.2rem;
+            border: 2px solid transparent;
+            border-radius: 50px;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+        }
+        .tab-btn:hover { border-color: var(--primary); }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .tab-content {
+            display: none;
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            border: 1px solid #e8e8e8;
+        }
+        .tab-content.active { display: block; }
 
         .grid {
             display: grid;
@@ -84,12 +122,10 @@
         }
 
         .card {
-            background: var(--card-bg);
-            padding: 1.5rem;
+            background: #f8f9fa;
+            padding: 1.2rem;
             border-radius: var(--radius);
             border: 1px solid #e8e8e8;
-            max-height: 500px;
-            overflow-y: auto;
         }
         .card h3 {
             color: var(--primary);
@@ -100,19 +136,18 @@
         }
 
         .scale-item {
-            background: #f8f9fa;
+            background: white;
             padding: 0.8rem;
             border-radius: 10px;
             margin-bottom: 0.6rem;
             border-left: 4px solid var(--primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
         .scale-item .date {
             font-weight: 700;
             color: var(--primary);
         }
-        .scale-item .songs {
-            margin: 0.3rem 0;
-        }
+        .scale-item .songs { margin: 0.3rem 0; }
         .music-tag {
             background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: white;
@@ -121,27 +156,19 @@
             font-size: 0.75rem;
             display: inline-block;
             margin: 0.15rem;
+            cursor: pointer;
         }
-        .scale-item .palette {
-            display: flex;
-            gap: 0.3rem;
-            margin-top: 0.3rem;
-        }
+        .music-tag:hover { opacity: 0.8; }
+        .scale-item .palette { display: flex; gap: 0.3rem; margin-top: 0.3rem; flex-wrap: wrap; align-items: center; }
         .scale-item .palette .color {
             width: 20px;
             height: 20px;
             border-radius: 50%;
             border: 2px solid #ddd;
         }
-        .scale-item .rehearsal {
-            color: #28a745;
-            font-weight: 600;
-            font-size: 0.85rem;
-            margin-top: 0.3rem;
-        }
-        .scale-item .actions {
-            margin-top: 0.5rem;
-        }
+        .scale-item .rehearsal { color: #28a745; font-weight: 600; font-size: 0.85rem; margin-top: 0.3rem; }
+        .scale-item .ministers { margin-top: 0.3rem; font-size: 0.85rem; color: #666; }
+        .scale-item .actions { margin-top: 0.5rem; }
 
         .form-group { margin: 0.8rem 0; }
         .form-group label {
@@ -150,14 +177,20 @@
             margin-bottom: 0.3rem;
             font-size: 0.9rem;
         }
-        .form-group input {
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 0.7rem;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
             font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.3s;
         }
-        .form-group input:focus { border-color: var(--primary); outline: none; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        .form-group textarea { min-height: 60px; resize: vertical; }
 
         .member-item {
             display: flex;
@@ -168,6 +201,16 @@
         }
         .member-item .name { font-weight: 600; }
         .member-item .email { color: #888; font-size: 0.85rem; }
+        .member-item .role-badge {
+            font-size: 0.7rem;
+            padding: 0.1rem 0.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+        }
+        .role-badge.leader { background: #28a745; color: white; }
+        .role-badge.minister { background: #17a2b8; color: white; }
+        .role-badge.musician { background: #ffc107; color: #1a1a1a; }
+        .role-badge.member { background: #6c757d; color: white; }
 
         .hidden { display: none !important; }
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
@@ -183,22 +226,80 @@
             border-radius: 10px;
             margin: 0.8rem 0;
             font-weight: 500;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            max-width: 400px;
+            z-index: 99999;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            animation: fadeIn 0.3s ease;
         }
-        .notification.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .notification.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+        .notification.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .notification.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .notification.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+
+        /* Modal de Música */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
         }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius);
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalIn 0.3s ease;
+        }
+        @keyframes modalIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-close {
+            float: right;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #888;
+            background: none;
+            border: none;
+        }
+        .modal-close:hover { color: #333; }
+
+        .chord-transposer {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin: 0.5rem 0;
+            flex-wrap: wrap;
+        }
+        .chord-transposer select {
+            padding: 0.3rem 0.5rem;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            font-size: 0.9rem;
+        }
+        .chord-transposer .btn { padding: 0.3rem 0.8rem; }
 
         @media (max-width: 768px) {
             .header { flex-direction: column; gap: 0.5rem; padding: 0.8rem 1rem; }
             .grid { grid-template-columns: 1fr; }
-            .card { max-height: none; }
+            .tabs { gap: 0.2rem; padding: 0.4rem; }
+            .tab-btn { padding: 0.2rem 0.8rem; font-size: 0.75rem; }
         }
     </style>
 </head>
@@ -218,71 +319,205 @@
         <div class="dept-header">
             <h1><i class="fas fa-users"></i> <span id="deptName">Meu Departamento</span></h1>
             <div class="subtitle" id="deptRole">Membro</div>
+            <div style="margin-top:0.5rem;font-size:0.9rem;">
+                <span id="deptType"><i class="fas fa-music"></i> Louvor</span>
+            </div>
         </div>
 
-        <div class="grid">
-            <!-- ESCALAS -->
-            <div class="card">
-                <h3><i class="fas fa-calendar-alt"></i> Escalas</h3>
-                <div id="scalesList">
-                    <p style="color:#888;">Carregando...</p>
-                </div>
-                <button onclick="showCreateScale()" class="btn btn-primary w-full" style="margin-top:0.8rem;justify-content:center;">
-                    <i class="fas fa-plus"></i> Nova Escala
-                </button>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('escalas')"><i class="fas fa-calendar-alt"></i> Escalas</button>
+            <button class="tab-btn" onclick="showTab('membros')"><i class="fas fa-users"></i> Membros</button>
+            <button class="tab-btn" onclick="showTab('ministerios')"><i class="fas fa-user-tag"></i> Ministros</button>
+            <button class="tab-btn" onclick="showTab('musicas')"><i class="fas fa-music"></i> Músicas</button>
+            <button class="tab-btn" onclick="showTab('disponibilidade')"><i class="fas fa-calendar-check"></i> Disponibilidade</button>
+            <button class="tab-btn" onclick="showTab('stats')"><i class="fas fa-chart-bar"></i> Estatísticas</button>
+        </div>
 
-                <!-- FORMULÁRIO DE CRIAÇÃO -->
-                <div id="createScaleForm" class="hidden" style="margin-top:0.8rem;border-top:1px solid #eee;padding-top:0.8rem;">
+        <!-- TAB: ESCALAS -->
+        <div id="tab-escalas" class="tab-content active">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:1rem;">
+                <h3><i class="fas fa-calendar-alt"></i> Escalas de Louvor</h3>
+                <button onclick="showCreateScale()" class="btn btn-primary"><i class="fas fa-plus"></i> Nova Escala</button>
+            </div>
+            <div id="scalesList">
+                <p style="color:#888;">Carregando...</p>
+            </div>
+
+            <!-- FORMULÁRIO DE CRIAÇÃO -->
+            <div id="createScaleForm" class="hidden" style="margin-top:1rem;border-top:1px solid #eee;padding-top:1rem;">
+                <h4>Nova Escala</h4>
+                <div class="grid" style="grid-template-columns:1fr 1fr;">
                     <div class="form-group">
                         <label><i class="fas fa-calendar"></i> Data e Hora *</label>
                         <input type="datetime-local" id="scaleDate">
                     </div>
                     <div class="form-group">
-                        <label><i class="fas fa-music"></i> Músicas (separadas por vírgula)</label>
-                        <input type="text" id="musicInput" placeholder="Ex: Aleluia, Santo, Deus de Promessas">
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-palette"></i> Paleta de Cores</label>
-                        <input type="text" id="scalePalette" placeholder="Ex: Azul, Prata, Branco, Dourado">
-                        <small style="color:#888;">Cores para iluminação do culto</small>
-                    </div>
-                    <div class="form-group">
-                        <label class="flex-center">
-                            <input type="checkbox" id="hasRehearsal">
-                            <span style="margin-left:0.5rem;"><i class="fas fa-microphone"></i> Com Ensaio</span>
-                        </label>
-                    </div>
-                    <div class="flex-between gap-1">
-                        <button onclick="saveScale()" class="btn btn-success"><i class="fas fa-save"></i> Salvar</button>
-                        <button onclick="hideCreateScale()" class="btn" style="background:#6c757d;color:white;">Cancelar</button>
+                        <label><i class="fas fa-user"></i> Ministro Responsável</label>
+                        <select id="scaleMinister"></select>
                     </div>
                 </div>
-            </div>
-
-            <!-- MEMBROS -->
-            <div class="card">
-                <h3><i class="fas fa-user-friends"></i> Membros</h3>
-                <div id="membersList">
-                    <p style="color:#888;">Carregando...</p>
-                </div>
-                <div style="margin-top:0.8rem;">
+                <div class="form-group">
+                    <label><i class="fas fa-music"></i> Músicas (selecione uma a uma)</label>
                     <div style="display:flex;gap:0.5rem;">
-                        <input type="email" id="memberEmail" placeholder="E-mail do membro" style="flex:1;padding:0.5rem;border:2px solid #e0e0e0;border-radius:8px;">
-                        <button onclick="addMember()" class="btn btn-primary btn-sm"><i class="fas fa-user-plus"></i> Adicionar</button>
+                        <select id="musicSelect" style="flex:1;"></select>
+                        <button onclick="addMusicToScale()" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Adicionar</button>
                     </div>
+                    <div id="selectedMusics" style="margin-top:0.5rem;display:flex;flex-wrap:wrap;gap:0.3rem;"></div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-palette"></i> Paleta de Cores</label>
+                    <input type="text" id="scalePalette" placeholder="Ex: Azul, Prata, Branco, Dourado">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-users"></i> Músicos</label>
+                    <select id="scaleMusicians" multiple style="height:80px;"></select>
+                    <small style="color:#888;">Segure Ctrl para selecionar múltiplos músicos</small>
+                </div>
+                <div class="form-group">
+                    <label class="flex-center">
+                        <input type="checkbox" id="hasRehearsal">
+                        <span style="margin-left:0.5rem;"><i class="fas fa-microphone"></i> Com Ensaio</span>
+                    </label>
+                </div>
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                    <button onclick="saveScale()" class="btn btn-success"><i class="fas fa-save"></i> Salvar Escala</button>
+                    <button onclick="hideCreateScale()" class="btn" style="background:#6c757d;color:white;">Cancelar</button>
                 </div>
             </div>
+        </div>
 
-            <!-- ESTATÍSTICAS -->
-            <div class="card">
-                <h3><i class="fas fa-chart-bar"></i> Estatísticas</h3>
-                <div id="stats">
-                    <p><strong>Total de Escalas:</strong> <span id="totalScales">0</span></p>
-                    <p><strong>Membros:</strong> <span id="totalMembers">0</span></p>
-                    <p><strong>Músicas Cadastradas:</strong> <span id="totalSongs">0</span></p>
-                    <p><strong>Próximos Cultos:</strong> <span id="nextCults">0</span></p>
-                </div>
+        <!-- TAB: MEMBROS -->
+        <div id="tab-membros" class="tab-content">
+            <div class="flex-between mb-1">
+                <h3><i class="fas fa-user-friends"></i> Membros do Departamento</h3>
+                <button onclick="openAddMemberModal()" class="btn btn-success"><i class="fas fa-user-plus"></i> Adicionar</button>
             </div>
+            <div id="membersList">
+                <p style="color:#888;">Carregando...</p>
+            </div>
+        </div>
+
+        <!-- TAB: MINISTROS -->
+        <div id="tab-ministerios" class="tab-content">
+            <div class="flex-between mb-1">
+                <h3><i class="fas fa-user-tag"></i> Ministros</h3>
+                <button onclick="openAddMinisterModal()" class="btn btn-success"><i class="fas fa-user-plus"></i> Adicionar Ministro</button>
+            </div>
+            <div id="ministersList">
+                <p style="color:#888;">Carregando...</p>
+            </div>
+        </div>
+
+        <!-- TAB: MÚSICAS -->
+        <div id="tab-musicas" class="tab-content">
+            <div class="flex-between mb-1">
+                <h3><i class="fas fa-music"></i> Músicas do Ministério</h3>
+                <button onclick="openAddMusicModal()" class="btn btn-success"><i class="fas fa-plus"></i> Nova Música</button>
+            </div>
+            <div id="songsList">
+                <p style="color:#888;">Carregando...</p>
+            </div>
+        </div>
+
+        <!-- TAB: DISPONIBILIDADE -->
+        <div id="tab-disponibilidade" class="tab-content">
+            <h3><i class="fas fa-calendar-check"></i> Minha Disponibilidade</h3>
+            <div class="form-group">
+                <label>Datas que estou disponível</label>
+                <input type="datetime-local" id="availabilityDate">
+                <button onclick="addAvailability()" class="btn btn-primary mt-1"><i class="fas fa-plus"></i> Adicionar Data</button>
+            </div>
+            <div id="availabilityList" style="margin-top:1rem;">
+                <p style="color:#888;">Nenhuma data disponível cadastrada.</p>
+            </div>
+        </div>
+
+        <!-- TAB: ESTATÍSTICAS -->
+        <div id="tab-stats" class="tab-content">
+            <h3><i class="fas fa-chart-bar"></i> Estatísticas</h3>
+            <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
+                <div class="card"><strong>Total de Escalas:</strong> <span id="totalScales">0</span></div>
+                <div class="card"><strong>Membros:</strong> <span id="totalMembers">0</span></div>
+                <div class="card"><strong>Ministros:</strong> <span id="totalMinisters">0</span></div>
+                <div class="card"><strong>Músicas:</strong> <span id="totalSongs">0</span></div>
+                <div class="card"><strong>Próximos Cultos:</strong> <span id="nextCults">0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ADICIONAR MEMBRO -->
+    <div class="modal" id="addMemberModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('addMemberModal')">&times;</button>
+            <h3><i class="fas fa-user-plus"></i> Adicionar Membro</h3>
+            <div class="form-group">
+                <label>E-mail do Membro *</label>
+                <input type="email" id="newMemberEmail" placeholder="email@exemplo.com">
+            </div>
+            <div class="form-group">
+                <label>Função</label>
+                <select id="newMemberRole">
+                    <option value="membro">Membro</option>
+                    <option value="lider">Líder</option>
+                    <option value="ministro">Ministro</option>
+                    <option value="musico">Músico</option>
+                </select>
+            </div>
+            <button onclick="addMember()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Adicionar</button>
+        </div>
+    </div>
+
+    <!-- MODAL ADICIONAR MINISTRO -->
+    <div class="modal" id="addMinisterModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('addMinisterModal')">&times;</button>
+            <h3><i class="fas fa-user-tag"></i> Adicionar Ministro</h3>
+            <div class="form-group">
+                <label>Membro</label>
+                <select id="ministerMemberSelect"></select>
+            </div>
+            <button onclick="addMinister()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Adicionar Ministro</button>
+        </div>
+    </div>
+
+    <!-- MODAL ADICIONAR MÚSICA -->
+    <div class="modal" id="addMusicModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('addMusicModal')">&times;</button>
+            <h3><i class="fas fa-music"></i> Nova Música</h3>
+            <div class="form-group">
+                <label>Título *</label>
+                <input type="text" id="newMusicTitle" placeholder="Nome da música">
+            </div>
+            <div class="form-group">
+                <label>Artista</label>
+                <input type="text" id="newMusicArtist" placeholder="Artista/Cantor">
+            </div>
+            <div class="form-group">
+                <label>Tom Original</label>
+                <select id="newMusicKey">
+                    <option value="C">C</option><option value="C#">C#</option><option value="D">D</option>
+                    <option value="D#">D#</option><option value="E">E</option><option value="F">F</option>
+                    <option value="F#">F#</option><option value="G">G</option>
+                    <option value="G#">G#</option><option value="A">A</option><option value="A#">A#</option>
+                    <option value="B">B</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Letra e Cifras</label>
+                <textarea id="newMusicLyrics" rows="6" placeholder="Digite a letra com cifras...&#10;Ex: G&#10;Aleluia, aleluia&#10;Am&#10;Aleluia, aleluia"></textarea>
+                <small style="color:#888;">Use acordes entre colchetes: [G] ou em linhas separadas</small>
+            </div>
+            <button onclick="saveMusic()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar Música</button>
+        </div>
+    </div>
+
+    <!-- MODAL VISUALIZAR MÚSICA -->
+    <div class="modal" id="viewMusicModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('viewMusicModal')">&times;</button>
+            <h3 id="viewMusicTitle"><i class="fas fa-music"></i> Música</h3>
+            <div id="viewMusicContent"></div>
         </div>
     </div>
 
@@ -295,9 +530,41 @@
 
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     let scales = [];
+    let members = [];
+    let ministers = [];
+    let songs = [];
+    let availabilities = [];
+
+    const isLeader = user.role === 'lider' || user.is_leader;
 
     function getHeaders() {
         return { 'Authorization': 'Bearer ' + token };
+    }
+
+    // ============================================
+    // ===== TABS =====
+    // ============================================
+    function showTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            const map = {
+                'escalas': 'Escalas',
+                'membros': 'Membros',
+                'ministerios': 'Ministros',
+                'musicas': 'Músicas',
+                'disponibilidade': 'Disponibilidade',
+                'stats': 'Estatísticas'
+            };
+            if (b.textContent.includes(map[tab])) b.classList.add('active');
+        });
+        document.getElementById('tab-' + tab).classList.add('active');
+        if (tab === 'escalas') loadScales();
+        if (tab === 'membros') loadMembers();
+        if (tab === 'ministerios') loadMinisters();
+        if (tab === 'musicas') loadSongs();
+        if (tab === 'disponibilidade') loadAvailability();
+        if (tab === 'stats') updateStats();
     }
 
     // ============================================
@@ -307,14 +574,22 @@
     document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('userName').textContent = user.name || 'Usuário';
         document.getElementById('deptName').textContent = user.department_name || 'Meu Departamento';
-        document.getElementById('deptRole').textContent = user.role === 'lider' ? '👑 Líder do Ministério' : '🙋 Membro';
+        document.getElementById('deptRole').textContent = isLeader ? '👑 Líder' : '🙋 Membro';
+        document.getElementById('deptType').innerHTML = user.department_name === 'Louvor' ? '<i class="fas fa-music"></i> Louvor' : '<i class="fas fa-building"></i> ' + (user.department_name || 'Departamento');
 
         if (!user.department_id) {
             document.getElementById('membersList').innerHTML = '<p style="color:#888;">Você não está em um departamento. Peça ao pastor para te adicionar.</p>';
-        } else {
-            loadScales();
-            loadMembers();
+            return;
         }
+
+        loadScales();
+        loadMembers();
+        loadMinisters();
+        loadSongs();
+        loadAvailability();
+        loadMinisterSelect();
+        loadMusicSelect();
+        loadMusiciansSelect();
     });
 
     // ============================================
@@ -324,32 +599,59 @@
     function showCreateScale() {
         document.getElementById('createScaleForm').classList.remove('hidden');
         document.getElementById('createScaleForm').scrollIntoView({ behavior: 'smooth' });
+        // Preenche selects
+        loadMinisterSelect();
+        loadMusicSelect();
+        loadMusiciansSelect();
+        document.getElementById('selectedMusics').innerHTML = '';
     }
 
     function hideCreateScale() {
         document.getElementById('createScaleForm').classList.add('hidden');
         document.getElementById('scaleDate').value = '';
-        document.getElementById('musicInput').value = '';
         document.getElementById('scalePalette').value = '';
         document.getElementById('hasRehearsal').checked = false;
+        document.getElementById('selectedMusics').innerHTML = '';
+    }
+
+    function addMusicToScale() {
+        const select = document.getElementById('musicSelect');
+        const musicId = select.value;
+        if (!musicId) { showNotification('Selecione uma música!', 'error'); return; }
+        const music = songs.find(s => s.id == musicId);
+        if (!music) return;
+
+        const container = document.getElementById('selectedMusics');
+        const tag = document.createElement('span');
+        tag.className = 'music-tag';
+        tag.textContent = music.title;
+        tag.dataset.id = music.id;
+        tag.onclick = function() { this.remove(); };
+        container.appendChild(tag);
+        select.value = '';
+    }
+
+    function getSelectedMusicIds() {
+        const tags = document.querySelectorAll('#selectedMusics .music-tag');
+        return Array.from(tags).map(t => parseInt(t.dataset.id));
     }
 
     async function saveScale() {
         const date = document.getElementById('scaleDate').value;
-        const musicInput = document.getElementById('musicInput').value;
+        const minister = document.getElementById('scaleMinister').value;
         const palette = document.getElementById('scalePalette').value;
         const rehearsal = document.getElementById('hasRehearsal').checked;
+        const musicians = document.getElementById('scaleMusicians').value;
 
-        if (!date) {
-            showNotification('Selecione a data do culto!', 'error');
-            return;
-        }
-        if (!musicInput.trim()) {
-            showNotification('Adicione pelo menos uma música!', 'error');
-            return;
-        }
+        if (!date) { showNotification('Selecione a data do culto!', 'error'); return; }
 
-        const songs = musicInput.split(',').map(s => s.trim()).filter(s => s);
+        const musicIds = getSelectedMusicIds();
+        if (!musicIds.length) { showNotification('Adicione pelo menos uma música!', 'error'); return; }
+
+        const musicNames = musicIds.map(id => {
+            const m = songs.find(s => s.id == id);
+            return m ? m.title : 'Música';
+        });
 
         try {
             await fetch('/api/worship-scales', {
@@ -359,9 +661,12 @@
                     department_id: user.department_id,
                     event_date: date,
                     leader_id: user.id,
-                    songs: songs,
+                    minister_id: minister || null,
+                    songs: musicNames,
+                    song_ids: musicIds,
                     palette: palette || 'Azul, Prata, Branco, Dourado',
-                    rehearsal: rehearsal
+                    rehearsal: rehearsal,
+                    musicians: musicians ? [musicians] : []
                 })
             });
             showNotification('✅ Escala criada com sucesso!', 'success');
@@ -385,15 +690,9 @@
                 return;
             }
 
-            let totalSongs = 0;
-            let nextCults = 0;
-            const now = new Date();
-
             container.innerHTML = scales.map(s => {
-                if (s.songs) totalSongs += s.songs.length;
                 const eventDate = new Date(s.event_date);
-                if (eventDate > now) nextCults++;
-
+                const songsList = s.songs || [];
                 const paletteColors = s.palette ? s.palette.split(',').map(c => c.trim()) : [];
 
                 return `
@@ -404,9 +703,10 @@
                             às ${eventDate.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' })}
                         </div>
                         ${s.leader_name ? `<div><strong>Líder:</strong> ${s.leader_name}</div>` : ''}
+                        ${s.minister_name ? `<div><strong>Ministro:</strong> ${s.minister_name}</div>` : ''}
                         <div class="songs">
                             <strong>Músicas:</strong>
-                            ${s.songs ? s.songs.map(m => `<span class="music-tag">${m}</span>`).join('') : '-'}
+                            ${songsList.map(m => `<span class="music-tag" onclick="viewSongByName('${m}')">${m}</span>`).join('') || '-'}
                         </div>
                         ${paletteColors.length ? `
                             <div class="palette">
@@ -416,7 +716,7 @@
                             </div>
                         ` : ''}
                         ${s.rehearsal ? `<div class="rehearsal"><i class="fas fa-microphone"></i> Com Ensaio</div>` : ''}
-                        ${user.role === 'lider' ? `
+                        ${isLeader ? `
                             <div class="actions">
                                 <button onclick="deleteScale(${s.id})" class="btn btn-danger btn-sm">
                                     <i class="fas fa-trash"></i> Remover
@@ -427,10 +727,7 @@
                 `;
             }).join('');
 
-            document.getElementById('totalScales').textContent = scales.length;
-            document.getElementById('totalSongs').textContent = totalSongs;
-            document.getElementById('nextCults').textContent = nextCults;
-
+            updateStats();
         } catch (e) {
             console.error('Erro:', e);
             document.getElementById('scalesList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar escalas</p>';
@@ -440,10 +737,7 @@
     async function deleteScale(id) {
         if (!confirm('Remover esta escala?')) return;
         try {
-            await fetch('/api/worship-scales/' + id, {
-                method: 'DELETE',
-                headers: getHeaders()
-            });
+            await fetch('/api/worship-scales/' + id, { method: 'DELETE', headers: getHeaders() });
             showNotification('✅ Escala removida!', 'success');
             loadScales();
         } catch (e) {
@@ -463,70 +757,102 @@
             }
 
             const res = await fetch(`/api/departments/${user.department_id}/members`, { headers: getHeaders() });
-            const data = await res.json();
+            members = await res.json();
             const container = document.getElementById('membersList');
 
-            if (!data.length) {
+            if (!members.length) {
                 container.innerHTML = '<p style="color:#888;">Nenhum membro neste departamento.</p>';
                 document.getElementById('totalMembers').textContent = 0;
                 return;
             }
 
-            container.innerHTML = data.map(m => `
-                <div class="member-item">
-                    <div>
-                        <span class="name">${m.name}</span>
-                        <span class="email">${m.email}</span>
-                        ${m.member_role === 'lider' ? ' <span style="color:#28a745;font-size:0.8rem;font-weight:600;">👑 Líder</span>' : ''}
+            container.innerHTML = members.map(m => {
+                const roleLabels = {
+                    lider: '<span class="role-badge leader">👑 Líder</span>',
+                    ministro: '<span class="role-badge minister">🎤 Ministro</span>',
+                    musico: '<span class="role-badge musician">🎸 Músico</span>',
+                    membro: '<span class="role-badge member">🙋 Membro</span>'
+                };
+                return `
+                    <div class="member-item">
+                        <div>
+                            <span class="name">${m.name}</span>
+                            <span class="email">${m.email}</span>
+                            ${roleLabels[m.member_role] || roleLabels.membro}
+                        </div>
+                        ${isLeader && m.id !== user.id ? `
+                            <div>
+                                <button onclick="changeMemberRole(${m.id})" class="btn btn-warning btn-sm" title="Alterar Função">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="removeMember(${m.id})" class="btn btn-danger btn-sm" title="Remover membro">
+                                    <i class="fas fa-user-minus"></i>
+                                </button>
+                            </div>
+                        ` : ''}
                     </div>
-                    ${user.role === 'lider' && m.id !== user.id ? `
-                        <button onclick="removeMember(${m.id})" class="btn btn-danger btn-sm" title="Remover membro">
-                            <i class="fas fa-user-minus"></i>
-                        </button>
-                    ` : ''}
-                </div>
-            `).join('');
+                `;
+            }).join('');
 
-            document.getElementById('totalMembers').textContent = data.length;
-
+            document.getElementById('totalMembers').textContent = members.length;
         } catch (e) {
             console.error('Erro:', e);
             document.getElementById('membersList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar membros</p>';
         }
     }
 
+    function openAddMemberModal() {
+        document.getElementById('newMemberEmail').value = '';
+        document.getElementById('newMemberRole').value = 'membro';
+        openModal('addMemberModal');
+    }
+
     async function addMember() {
-        const email = document.getElementById('memberEmail').value.trim();
-        if (!email) {
-            showNotification('Digite o e-mail do membro!', 'error');
-            return;
-        }
-        if (!user.department_id) {
-            showNotification('Você não está em um departamento.', 'error');
-            return;
-        }
+        const email = document.getElementById('newMemberEmail').value.trim();
+        const role = document.getElementById('newMemberRole').value;
+        if (!email) { showNotification('Digite o e-mail do membro!', 'error'); return; }
 
         try {
             const res = await fetch('/api/users', { headers: getHeaders() });
             const users = await res.json();
             const found = users.find(u => u.email === email);
-
-            if (!found) {
-                showNotification('Usuário não encontrado! Verifique o e-mail.', 'error');
-                return;
-            }
+            if (!found) { showNotification('Usuário não encontrado!', 'error'); return; }
 
             await fetch(`/api/departments/${user.department_id}/members`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...getHeaders() },
-                body: JSON.stringify({ user_id: found.id, role: 'membro' })
+                body: JSON.stringify({ user_id: found.id, role: role })
             });
 
-            document.getElementById('memberEmail').value = '';
-            showNotification(`✅ ${found.name} adicionado ao departamento!`, 'success');
+            closeModal('addMemberModal');
+            showNotification(`✅ ${found.name} adicionado como ${role}!`, 'success');
             loadMembers();
+            loadMinisterSelect();
         } catch (e) {
             showNotification('❌ Erro ao adicionar: ' + e.message, 'error');
+        }
+    }
+
+    async function changeMemberRole(userId) {
+        const newRole = prompt('Digite a nova função (membro, lider, ministro, musico):');
+        if (!newRole) return;
+        const validRoles = ['membro', 'lider', 'ministro', 'musico'];
+        if (!validRoles.includes(newRole)) {
+            showNotification('Função inválida! Use: membro, lider, ministro, musico', 'error');
+            return;
+        }
+
+        try {
+            await fetch(`/api/departments/${user.department_id}/members/${userId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                body: JSON.stringify({ role: newRole })
+            });
+            showNotification('✅ Função atualizada!', 'success');
+            loadMembers();
+            loadMinisterSelect();
+        } catch (e) {
+            showNotification('❌ Erro: ' + e.message, 'error');
         }
     }
 
@@ -539,9 +865,307 @@
             });
             showNotification('✅ Membro removido!', 'success');
             loadMembers();
+            loadMinisterSelect();
         } catch (e) {
             showNotification('❌ Erro ao remover: ' + e.message, 'error');
         }
+    }
+
+    // ============================================
+    // ===== MINISTROS =====
+    // ============================================
+
+    async function loadMinisters() {
+        try {
+            const res = await fetch(`/api/departments/${user.department_id}/members`, { headers: getHeaders() });
+            const data = await res.json();
+            ministers = data.filter(m => m.member_role === 'ministro' || m.member_role === 'lider');
+            const container = document.getElementById('ministersList');
+
+            if (!ministers.length) {
+                container.innerHTML = '<p style="color:#888;">Nenhum ministro cadastrado.</p>';
+                document.getElementById('totalMinisters').textContent = 0;
+                return;
+            }
+
+            container.innerHTML = ministers.map(m => `
+                <div class="member-item">
+                    <div>
+                        <span class="name">${m.name}</span>
+                        <span class="email">${m.email}</span>
+                        <span class="role-badge minister">🎤 Ministro</span>
+                    </div>
+                    ${isLeader && m.id !== user.id ? `
+                        <button onclick="removeMinister(${m.id})" class="btn btn-danger btn-sm" title="Remover Ministro">
+                            <i class="fas fa-user-minus"></i>
+                        </button>
+                    ` : ''}
+                </div>
+            `).join('');
+
+            document.getElementById('totalMinisters').textContent = ministers.length;
+        } catch (e) {
+            console.error('Erro:', e);
+            document.getElementById('ministersList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar ministros</p>';
+        }
+    }
+
+    function openAddMinisterModal() {
+        const select = document.getElementById('ministerMemberSelect');
+        select.innerHTML = '<option value="">Selecione um membro</option>';
+        members.filter(m => m.member_role !== 'ministro' && m.member_role !== 'lider').forEach(m => {
+            select.innerHTML += `<option value="${m.id}">${m.name} (${m.email})</option>`;
+        });
+        openModal('addMinisterModal');
+    }
+
+    async function addMinister() {
+        const userId = document.getElementById('ministerMemberSelect').value;
+        if (!userId) { showNotification('Selecione um membro!', 'error'); return; }
+
+        try {
+            await fetch(`/api/departments/${user.department_id}/members/${userId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                body: JSON.stringify({ role: 'ministro' })
+            });
+            closeModal('addMinisterModal');
+            showNotification('✅ Ministro adicionado!', 'success');
+            loadMinisters();
+            loadMembers();
+            loadMinisterSelect();
+        } catch (e) {
+            showNotification('❌ Erro: ' + e.message, 'error');
+        }
+    }
+
+    async function removeMinister(userId) {
+        if (!confirm('Remover este ministro?')) return;
+        try {
+            await fetch(`/api/departments/${user.department_id}/members/${userId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                body: JSON.stringify({ role: 'membro' })
+            });
+            showNotification('✅ Ministro removido!', 'success');
+            loadMinisters();
+            loadMembers();
+            loadMinisterSelect();
+        } catch (e) {
+            showNotification('❌ Erro: ' + e.message, 'error');
+        }
+    }
+
+    // ============================================
+    // ===== MÚSICAS =====
+    // ============================================
+
+    async function loadSongs() {
+        try {
+            const res = await fetch('/api/songs', { headers: getHeaders() });
+            songs = await res.json();
+            const container = document.getElementById('songsList');
+
+            if (!songs.length) {
+                container.innerHTML = '<p style="color:#888;">Nenhuma música cadastrada.</p>';
+                document.getElementById('totalSongs').textContent = 0;
+                return;
+            }
+
+            container.innerHTML = songs.map(s => `
+                <div class="scale-item">
+                    <div><strong>${s.title}</strong></div>
+                    <div style="font-size:0.85rem;color:#666;">${s.artist || 'Artista desconhecido'} | Tom: ${s.key || 'C'}</div>
+                    <div style="margin-top:0.3rem;">
+                        <button onclick="viewSong(${s.id})" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Ver</button>
+                        <button onclick="transposeSong(${s.id})" class="btn btn-warning btn-sm"><i class="fas fa-arrow-up"></i> Transpor</button>
+                        ${isLeader ? `<button onclick="deleteSong(${s.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('totalSongs').textContent = songs.length;
+            loadMusicSelect();
+        } catch (e) {
+            console.error('Erro:', e);
+            document.getElementById('songsList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar músicas</p>';
+        }
+    }
+
+    function openAddMusicModal() {
+        document.getElementById('newMusicTitle').value = '';
+        document.getElementById('newMusicArtist').value = '';
+        document.getElementById('newMusicKey').value = 'C';
+        document.getElementById('newMusicLyrics').value = '';
+        openModal('addMusicModal');
+    }
+
+    async function saveMusic() {
+        const title = document.getElementById('newMusicTitle').value.trim();
+        const artist = document.getElementById('newMusicArtist').value.trim();
+        const key = document.getElementById('newMusicKey').value;
+        const lyrics = document.getElementById('newMusicLyrics').value.trim();
+
+        if (!title) { showNotification('Digite o título da música!', 'error'); return; }
+        if (!lyrics) { showNotification('Digite a letra com cifras!', 'error'); return; }
+
+        try {
+            await fetch('/api/songs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                body: JSON.stringify({
+                    title,
+                    artist,
+                    key,
+                    lyrics,
+                    department_id: user.department_id
+                })
+            });
+            closeModal('addMusicModal');
+            showNotification('✅ Música salva!', 'success');
+            loadSongs();
+        } catch (e) {
+            showNotification('❌ Erro: ' + e.message, 'error');
+        }
+    }
+
+    function viewSong(id) {
+        const song = songs.find(s => s.id === id);
+        if (!song) return;
+        document.getElementById('viewMusicTitle').textContent = `🎵 ${song.title}`;
+        document.getElementById('viewMusicContent').innerHTML = `
+            <div style="margin-bottom:0.5rem;"><strong>Artista:</strong> ${song.artist || 'Desconhecido'}</div>
+            <div style="margin-bottom:0.5rem;"><strong>Tom Original:</strong> ${song.key || 'C'}</div>
+            <div style="white-space:pre-wrap;font-family:monospace;background:#f8f9fa;padding:1rem;border-radius:8px;max-height:400px;overflow-y:auto;">${song.lyrics || 'Sem letra'}</div>
+        `;
+        openModal('viewMusicModal');
+    }
+
+    function viewSongByName(name) {
+        const song = songs.find(s => s.title === name);
+        if (song) viewSong(song.id);
+        else showNotification('Música não encontrada no repertório.', 'info');
+    }
+
+    function transposeSong(id) {
+        const song = songs.find(s => s.id === id);
+        if (!song) return;
+        const newKey = prompt(`Tom atual: ${song.key || 'C'}\nDigite o novo tom (Ex: D, E, F#):`);
+        if (!newKey) return;
+
+        try {
+            // Simulação de transposição - na prática, você precisaria de uma lógica de transposição real
+            showNotification(`🎵 Tom alterado para ${newKey}! (Simulação)`, 'info');
+        } catch (e) {
+            showNotification('❌ Erro: ' + e.message, 'error');
+        }
+    }
+
+    async function deleteSong(id) {
+        if (!confirm('Remover esta música?')) return;
+        try {
+            await fetch('/api/songs/' + id, { method: 'DELETE', headers: getHeaders() });
+            showNotification('✅ Música removida!', 'success');
+            loadSongs();
+        } catch (e) {
+            showNotification('❌ Erro: ' + e.message, 'error');
+        }
+    }
+
+    // ============================================
+    // ===== DISPONIBILIDADE =====
+    // ============================================
+
+    async function loadAvailability() {
+        try {
+            const res = await fetch(`/api/availability/${user.id}`, { headers: getHeaders() });
+            availabilities = await res.json();
+            const container = document.getElementById('availabilityList');
+
+            if (!availabilities.length) {
+                container.innerHTML = '<p style="color:#888;">Nenhuma data disponível cadastrada.</p>';
+                return;
+            }
+
+            container.innerHTML = availabilities.map(a => `
+                <div class="scale-item">
+                    <div><i class="fas fa-calendar"></i> ${new Date(a.date).toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' })}</div>
+                    <button onclick="deleteAvailability(${a.id})" class="btn btn-danger btn-sm mt-1"><i class="fas fa-trash"></i> Remover</button>
+                </div>
+            `).join('');
+        } catch (e) {
+            console.error('Erro:', e);
+        }
+    }
+
+    async function addAvailability() {
+        const date = document.getElementById('availabilityDate').value;
+        if (!date) { showNotification('Selecione uma data!', 'error'); return; }
+
+        try {
+            await fetch('/api/availability', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                body: JSON.stringify({ user_id: user.id, date })
+            });
+            showNotification('✅ Data adicionada!', 'success');
+            document.getElementById('availabilityDate').value = '';
+            loadAvailability();
+        } catch (e) {
+            showNotification('❌ Erro: ' + e.message, 'error');
+        }
+    }
+
+    async function deleteAvailability(id) {
+        if (!confirm('Remover esta data?')) return;
+        try {
+            await fetch('/api/availability/' + id, { method: 'DELETE', headers: getHeaders() });
+            showNotification('✅ Data removida!', 'success');
+            loadAvailability();
+        } catch (e) {
+            showNotification('❌ Erro: ' + e.message, 'error');
+        }
+    }
+
+    // ============================================
+    // ===== SELECTS AUXILIARES =====
+    // ============================================
+
+    function loadMinisterSelect() {
+        const select = document.getElementById('scaleMinister');
+        const ministerSelect = document.getElementById('ministerMemberSelect');
+        const ministersList = members.filter(m => m.member_role === 'ministro' || m.member_role === 'lider');
+
+        select.innerHTML = '<option value="">Selecione um ministro</option>';
+        ministersList.forEach(m => {
+            select.innerHTML += `<option value="${m.id}">${m.name}</option>`;
+        });
+
+        if (ministerSelect) {
+            ministerSelect.innerHTML = '<option value="">Selecione um membro</option>';
+            members.filter(m => m.member_role !== 'ministro' && m.member_role !== 'lider').forEach(m => {
+                ministerSelect.innerHTML += `<option value="${m.id}">${m.name} (${m.email})</option>`;
+            });
+        }
+    }
+
+    function loadMusicSelect() {
+        const select = document.getElementById('musicSelect');
+        if (!select) return;
+        select.innerHTML = '<option value="">Selecione uma música</option>';
+        songs.forEach(s => {
+            select.innerHTML += `<option value="${s.id}">${s.title} (${s.key || 'C'})</option>`;
+        });
+    }
+
+    function loadMusiciansSelect() {
+        const select = document.getElementById('scaleMusicians');
+        if (!select) return;
+        select.innerHTML = '';
+        const musiciansList = members.filter(m => m.member_role === 'musico' || m.member_role === 'lider');
+        musiciansList.forEach(m => {
+            select.innerHTML += `<option value="${m.id}">${m.name}</option>`;
+        });
     }
 
     // ============================================
@@ -549,17 +1173,35 @@
     // ============================================
 
     function updateStats() {
-        const total = scales.length;
-        let nextCults = 0;
         const now = new Date();
+        const nextCults = scales.filter(s => new Date(s.event_date) > now).length;
 
-        scales.forEach(s => {
-            if (new Date(s.event_date) > now) nextCults++;
-        });
-
-        document.getElementById('totalScales').textContent = total;
+        document.getElementById('totalScales').textContent = scales.length;
+        document.getElementById('totalMembers').textContent = members.length;
+        document.getElementById('totalMinisters').textContent = ministers.length;
+        document.getElementById('totalSongs').textContent = songs.length;
         document.getElementById('nextCults').textContent = nextCults;
     }
+
+    // ============================================
+    // ===== MODAIS =====
+    // ============================================
+
+    function openModal(id) {
+        document.getElementById(id).style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    document.querySelectorAll('.modal').forEach(m => {
+        m.addEventListener('click', (e) => {
+            if (e.target === m) closeModal(m.id);
+        });
+    });
 
     // ============================================
     // ===== NOTIFICAÇÕES =====
@@ -569,12 +1211,6 @@
         const div = document.createElement('div');
         div.className = 'notification ' + type;
         div.textContent = message;
-        div.style.position = 'fixed';
-        div.style.top = '20px';
-        div.style.right = '20px';
-        div.style.maxWidth = '400px';
-        div.style.zIndex = '99999';
-        div.style.boxShadow = '0 10px 40px rgba(0,0,0,0.1)';
         document.body.appendChild(div);
         setTimeout(() => {
             div.style.opacity = '0';
@@ -592,21 +1228,6 @@
         localStorage.removeItem('user');
         window.location.href = '/login';
     }
-
-    // ============================================
-    // ===== ENTER KEY SUPPORT =====
-    // ============================================
-
-    document.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            if (document.activeElement && document.activeElement.id === 'memberEmail') {
-                addMember();
-            }
-            if (document.activeElement && document.activeElement.id === 'musicInput') {
-                // Não faz nada, o usuário pode clicar em Salvar
-            }
-        }
-    });
     </script>
 </body>
 </html>

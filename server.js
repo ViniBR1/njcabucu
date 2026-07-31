@@ -341,6 +341,18 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        await sql`CREATE TABLE IF NOT EXISTS baptism_dates (
+            id SERIAL PRIMARY KEY,
+            date TIMESTAMP NOT NULL,
+            title VARCHAR(200) DEFAULT 'Batismo',
+            description TEXT,
+            max_participants INTEGER DEFAULT 20,
+            current_participants INTEGER DEFAULT 0,
+            is_active BOOLEAN DEFAULT true,
+            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
         console.log('✅ Tabelas criadas');
 
         const existing = await sql`SELECT * FROM users WHERE email = 'pastor@njcabucu.com'`;
@@ -545,6 +557,21 @@ app.get('/api/departments', auth, async (req, res) => {
     }
 });
 
+app.get('/api/departments/active', async (req, res) => {
+    try {
+        const depts = await sql`
+            SELECT id, name, description, leader_id
+            FROM departments 
+            WHERE is_active = true 
+            ORDER BY name
+        `;
+        res.json(depts);
+    } catch (error) {
+        console.error('❌ Erro ao buscar departamentos:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
     try {
         await sql`UPDATE departments SET is_active = false WHERE id = ${req.params.id}`;
@@ -680,6 +707,21 @@ app.get('/api/events', async (req, res) => {
         const events = await sql`SELECT * FROM events ORDER BY date DESC`;
         res.json(events);
     } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/events/active', async (req, res) => {
+    try {
+        const events = await sql`
+            SELECT id, title, description, date, price, image_base64
+            FROM events 
+            WHERE date >= NOW() 
+            ORDER BY date ASC
+        `;
+        res.json(events);
+    } catch (error) {
+        console.error('❌ Erro ao buscar eventos ativos:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -846,16 +888,25 @@ app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
 // ----- INSCRIÇÕES -----
 app.post('/api/registrations', async (req, res) => {
     try {
-        const { type, name, email, phone, department_name, event_name, details, amount, is_paid, birth_date, baptism_date, department_id } = req.body;
+        const { type, name, email, phone, department_name, event_name, details, amount, is_paid, birth_date, baptism_date, baptism_date_id } = req.body;
         
         let finalDetails = details || '';
         
         if (type === 'baptism' && birth_date) {
             finalDetails = `Data de Nascimento: ${new Date(birth_date).toLocaleDateString('pt-BR')}\n`;
             if (baptism_date) {
-                finalDetails += `Data desejada para Batismo: ${new Date(baptism_date).toLocaleDateString('pt-BR')}\n`;
+                finalDetails += `Data do Batismo: ${new Date(baptism_date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}\n`;
             }
             finalDetails += details || '';
+            
+            // Atualiza contador de participantes
+            if (baptism_date_id) {
+                await sql`
+                    UPDATE baptism_dates 
+                    SET current_participants = current_participants + 1 
+                    WHERE id = ${baptism_date_id}
+                `;
+            }
         }
 
         const result = await sql`
@@ -904,13 +955,12 @@ app.get('/api/donations', auth, async (req, res) => {
     }
 });
 
-// ----- ANIVERSARIANTES (CORRIGIDO) -----
+// ----- ANIVERSARIANTES -----
 app.get('/api/birthdays', async (req, res) => {
     try {
         const today = new Date();
         const currentMonth = today.getMonth() + 1;
         
-        // Busca todos os aniversariantes ativos
         const birthdays = await sql`
             SELECT * FROM birthdays 
             WHERE is_active = true 
@@ -919,7 +969,6 @@ app.get('/api/birthdays', async (req, res) => {
                 EXTRACT(DAY FROM birth_date)
         `;
         
-        // Filtra apenas os do mês atual
         const monthBirthdays = birthdays.filter(b => {
             const birthMonth = new Date(b.birth_date).getMonth() + 1;
             return birthMonth === currentMonth;
@@ -989,6 +1038,47 @@ app.post('/api/weddings', auth, pastorOnly, async (req, res) => {
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar casamento:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- BATISMO DATAS -----
+app.get('/api/baptism-dates', async (req, res) => {
+    try {
+        const dates = await sql`
+            SELECT id, date, title, description, max_participants, current_participants, is_active
+            FROM baptism_dates 
+            WHERE is_active = true
+            ORDER BY date ASC
+        `;
+        res.json(dates);
+    } catch (error) {
+        console.error('❌ Erro ao buscar datas de batismo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/baptism-dates', auth, pastorOnly, async (req, res) => {
+    try {
+        const { date, title, description, max_participants } = req.body;
+        const result = await sql`
+            INSERT INTO baptism_dates (date, title, description, max_participants, created_by)
+            VALUES (${date}, ${title || 'Batismo'}, ${description || ''}, ${max_participants || 20}, ${req.user.id})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar data de batismo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/baptism-dates/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`UPDATE baptism_dates SET is_active = false WHERE id = ${req.params.id}`;
+        res.json({ message: 'Data de batismo removida' });
+    } catch (error) {
+        console.error('❌ Erro ao remover data de batismo:', error);
         res.status(500).json({ error: error.message });
     }
 });

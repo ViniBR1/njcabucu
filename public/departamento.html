@@ -324,6 +324,44 @@
             border: 2px solid var(--primary);
         }
 
+        .date-selector-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .date-selector-grid .date-option {
+            padding: 0.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+        }
+        .date-selector-grid .date-option:hover {
+            border-color: var(--primary);
+            background: #f0f4ff;
+        }
+        .date-selector-grid .date-option.selected {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+        .date-selector-grid .date-option .day-week {
+            font-weight: 600;
+            font-size: 0.7rem;
+            opacity: 0.7;
+        }
+        .date-selector-grid .date-option .day-number {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        .date-selector-grid .date-option .month {
+            font-size: 0.7rem;
+            opacity: 0.7;
+        }
+
         @media (max-width: 768px) {
             .header { flex-direction: column; gap: 0.5rem; padding: 0.8rem 1rem; }
             .grid { grid-template-columns: 1fr; }
@@ -331,6 +369,7 @@
             .tab-btn { padding: 0.2rem 0.8rem; font-size: 0.75rem; }
             .weekday-grid { grid-template-columns: repeat(7, 1fr); }
             .weekday-grid .day { font-size: 0.65rem; padding: 0.2rem; }
+            .date-selector-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
         }
     </style>
 </head>
@@ -355,7 +394,6 @@
             </div>
         </div>
 
-        <!-- TABS - Visíveis para todos -->
         <div class="tabs">
             <button class="tab-btn active" onclick="showTab('dashboard')"><i class="fas fa-home"></i> Dashboard</button>
             <button class="tab-btn" onclick="showTab('escalas')"><i class="fas fa-calendar-alt"></i> Escalas</button>
@@ -363,7 +401,6 @@
             <button class="tab-btn" onclick="showTab('equipe')"><i class="fas fa-users"></i> Equipe</button>
             <button class="tab-btn" onclick="showTab('musicas')"><i class="fas fa-music"></i> Músicas</button>
             <button class="tab-btn" onclick="showTab('disponibilidade')"><i class="fas fa-calendar-check"></i> Disponibilidade</button>
-            <!-- Tabs apenas para líder -->
             <button class="tab-btn hidden" id="tabLiderMembros" onclick="showTab('membros')"><i class="fas fa-user-cog"></i> Gerenciar</button>
             <button class="tab-btn hidden" id="tabLiderMinisterios" onclick="showTab('ministerios')"><i class="fas fa-user-tag"></i> Ministros</button>
             <button class="tab-btn hidden" id="tabLiderMusicos" onclick="showTab('musicos')"><i class="fas fa-music"></i> Músicos</button>
@@ -393,13 +430,17 @@
             </div>
         </div>
 
-        <!-- ESCALAS (TODOS) -->
+        <!-- ESCALAS -->
         <div id="tab-escalas" class="tab-content">
-            <h3><i class="fas fa-calendar-alt"></i> Escalas do Departamento</h3>
+            <div class="flex-between">
+                <h3><i class="fas fa-calendar-alt"></i> Escalas do Departamento</h3>
+                <button onclick="showCreateScale()" class="btn btn-primary hidden" id="btnNovaEscala"><i class="fas fa-plus"></i> Nova Escala</button>
+            </div>
             <div id="scalesList">
                 <p style="color:#888;">Carregando...</p>
             </div>
-            <!-- Formulário de criação - apenas líder -->
+
+            <!-- Formulário de criação -->
             <div id="createScaleForm" class="hidden" style="margin-top:1rem;border-top:1px solid #eee;padding-top:1rem;">
                 <h4>Nova Escala</h4>
                 <div class="grid" style="grid-template-columns:1fr 1fr;">
@@ -413,9 +454,9 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-music"></i> Músicas (selecione uma a uma)</label>
-                    <div style="display:flex;gap:0.5rem;">
-                        <select id="musicSelect" style="flex:1;"></select>
+                    <label><i class="fas fa-music"></i> Músicas</label>
+                    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                        <select id="musicSelect" style="flex:1;min-width:150px;"></select>
                         <button onclick="addMusicToScale()" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Adicionar</button>
                     </div>
                     <div id="selectedMusics" style="margin-top:0.5rem;display:flex;flex-wrap:wrap;gap:0.3rem;"></div>
@@ -440,9 +481,6 @@
                     <button onclick="hideCreateScale()" class="btn" style="background:#6c757d;color:white;">Cancelar</button>
                 </div>
             </div>
-            <div id="leaderScaleActions" class="hidden" style="margin-top:0.5rem;">
-                <button onclick="showCreateScale()" class="btn btn-primary"><i class="fas fa-plus"></i> Nova Escala</button>
-            </div>
         </div>
 
         <!-- MINHAS ESCALAS -->
@@ -465,7 +503,7 @@
         <div id="tab-musicas" class="tab-content">
             <div class="flex-between mb-1">
                 <h3><i class="fas fa-music"></i> Músicas do Ministério</h3>
-                <button onclick="openAddMusicModal()" class="btn btn-success" id="addMusicBtn"><i class="fas fa-plus"></i> Nova Música</button>
+                <button onclick="openAddMusicModal()" class="btn btn-success hidden" id="addMusicBtn"><i class="fas fa-plus"></i> Nova Música</button>
             </div>
             <div id="songsList">
                 <p style="color:#888;">Carregando...</p>
@@ -475,18 +513,20 @@
         <!-- DISPONIBILIDADE -->
         <div id="tab-disponibilidade" class="tab-content">
             <h3><i class="fas fa-calendar-check"></i> Minha Disponibilidade</h3>
-            <p style="color:#666;margin-bottom:0.5rem;">Cadastre os dias em que você está disponível para participar dos cultos.</p>
+            <p style="color:#666;margin-bottom:0.5rem;">Selecione os dias em que você está disponível para participar dos cultos.</p>
+            
             <div class="form-group">
-                <label>Data disponível</label>
-                <input type="datetime-local" id="availabilityDate">
-                <button onclick="addAvailability()" class="btn btn-primary mt-1"><i class="fas fa-plus"></i> Adicionar Data</button>
+                <label>Selecione as datas disponíveis</label>
+                <div class="date-selector-grid" id="dateSelectorGrid"></div>
+                <button onclick="addMultipleAvailability()" class="btn btn-primary mt-1"><i class="fas fa-save"></i> Salvar Datas Selecionadas</button>
             </div>
+
             <div id="availabilityList" style="margin-top:1rem;">
                 <p style="color:#888;">Nenhuma data disponível cadastrada.</p>
             </div>
         </div>
 
-        <!-- MEMBROS (apenas líder) -->
+        <!-- MEMBROS (LÍDER) -->
         <div id="tab-membros" class="tab-content">
             <div class="flex-between mb-1">
                 <h3><i class="fas fa-user-friends"></i> Gerenciar Membros</h3>
@@ -497,7 +537,7 @@
             </div>
         </div>
 
-        <!-- MINISTROS (apenas líder) -->
+        <!-- MINISTROS (LÍDER) -->
         <div id="tab-ministerios" class="tab-content">
             <div class="flex-between mb-1">
                 <h3><i class="fas fa-user-tag"></i> Ministros</h3>
@@ -508,7 +548,7 @@
             </div>
         </div>
 
-        <!-- MÚSICOS (apenas líder) -->
+        <!-- MÚSICOS (LÍDER) -->
         <div id="tab-musicos" class="tab-content">
             <div class="flex-between mb-1">
                 <h3><i class="fas fa-music"></i> Músicos</h3>
@@ -521,7 +561,6 @@
     </div>
 
     <!-- MODAIS -->
-    <!-- ADICIONAR MEMBRO -->
     <div class="modal" id="addMemberModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('addMemberModal')">&times;</button>
@@ -543,7 +582,6 @@
         </div>
     </div>
 
-    <!-- ADICIONAR MINISTRO -->
     <div class="modal" id="addMinisterModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('addMinisterModal')">&times;</button>
@@ -556,7 +594,6 @@
         </div>
     </div>
 
-    <!-- ADICIONAR MÚSICO -->
     <div class="modal" id="addMusicianModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('addMusicianModal')">&times;</button>
@@ -573,7 +610,6 @@
         </div>
     </div>
 
-    <!-- ADICIONAR MÚSICA -->
     <div class="modal" id="addMusicModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('addMusicModal')">&times;</button>
@@ -605,12 +641,19 @@
         </div>
     </div>
 
-    <!-- VISUALIZAR MÚSICA -->
     <div class="modal" id="viewMusicModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('viewMusicModal')">&times;</button>
             <h3 id="viewMusicTitle"><i class="fas fa-music"></i> Música</h3>
             <div id="viewMusicContent"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="viewScaleModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('viewScaleModal')">&times;</button>
+            <h3 id="viewScaleTitle"><i class="fas fa-calendar-alt"></i> Detalhes da Escala</h3>
+            <div id="viewScaleContent"></div>
         </div>
     </div>
 
@@ -629,8 +672,11 @@
     let songs = [];
     let availabilities = [];
     let myScales = [];
+    let selectedAvailabilityDates = [];
 
     const isLeader = user.role === 'lider' || user.is_leader;
+    const isMinister = user.role === 'ministro';
+    const isMusician = user.role === 'musico';
 
     function getHeaders() {
         return { 'Authorization': 'Bearer ' + token };
@@ -658,12 +704,11 @@
         });
         document.getElementById('tab-' + tab).classList.add('active');
         
-        // Recarregar dados conforme a tab
         if (tab === 'escalas') loadScales();
         if (tab === 'minhas-escalas') loadMyScales();
         if (tab === 'equipe') loadTeam();
         if (tab === 'musicas') loadSongs();
-        if (tab === 'disponibilidade') loadAvailability();
+        if (tab === 'disponibilidade') { loadAvailability(); generateDateSelector(); }
         if (tab === 'membros') loadMembers();
         if (tab === 'ministerios') loadMinisters();
         if (tab === 'musicos') loadMusicians();
@@ -691,10 +736,9 @@
             '<i class="fas fa-music"></i> Louvor' : 
             '<i class="fas fa-building"></i> ' + (user.department_name || 'Departamento');
 
-        // Mostrar tabs do líder
         if (isLeader) {
-            document.querySelectorAll('#tabLiderMembros, #tabLiderMinisterios, #tabLiderMusicos').forEach(el => {
-                el.classList.remove('hidden');
+            document.querySelectorAll('#tabLiderMembros, #tabLiderMinisterios, #tabLiderMusicos, #btnNovaEscala, #addMusicBtn').forEach(el => {
+                if (el) el.classList.remove('hidden');
             });
         }
 
@@ -704,7 +748,95 @@
         }
 
         loadDashboard();
+        generateDateSelector();
     });
+
+    // ============================================
+    // ===== GERADOR DE SELETOR DE DATAS =====
+    // ============================================
+
+    function generateDateSelector() {
+        const container = document.getElementById('dateSelectorGrid');
+        const today = new Date();
+        const dates = [];
+        
+        // Gera próximos 30 dias
+        for (let i = 0; i < 30; i++) {
+            const date = new Date(today);
+            date.setDate(date.getDate() + i);
+            dates.push(date);
+        }
+
+        // Filtra apenas dias da semana (segunda a sábado) e finais de semana
+        const filteredDates = dates.filter(d => d.getDay() !== 0); // Remove domingos
+
+        container.innerHTML = filteredDates.map(d => {
+            const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+            const dayName = dayNames[d.getDay()];
+            const dayNumber = d.getDate();
+            const month = d.toLocaleDateString('pt-BR', { month: 'short' });
+            const dateStr = d.toISOString().split('T')[0];
+            const isSelected = selectedAvailabilityDates.includes(dateStr);
+            
+            return `
+                <div class="date-option ${isSelected ? 'selected' : ''}" 
+                     onclick="toggleDateSelection('${dateStr}')"
+                     data-date="${dateStr}">
+                    <div class="day-week">${dayName}</div>
+                    <div class="day-number">${dayNumber}</div>
+                    <div class="month">${month}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function toggleDateSelection(dateStr) {
+        const index = selectedAvailabilityDates.indexOf(dateStr);
+        if (index > -1) {
+            selectedAvailabilityDates.splice(index, 1);
+        } else {
+            selectedAvailabilityDates.push(dateStr);
+        }
+        
+        // Atualiza visual
+        document.querySelectorAll('.date-option').forEach(el => {
+            if (el.dataset.date === dateStr) {
+                el.classList.toggle('selected');
+            }
+        });
+    }
+
+    async function addMultipleAvailability() {
+        if (selectedAvailabilityDates.length === 0) {
+            showNotification('⚠️ Selecione pelo menos uma data!', 'error');
+            return;
+        }
+
+        try {
+            let successCount = 0;
+            let errorCount = 0;
+
+            for (const date of selectedAvailabilityDates) {
+                try {
+                    await fetch('/api/availability', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                        body: JSON.stringify({ user_id: user.id, date: date + 'T00:00:00' })
+                    });
+                    successCount++;
+                } catch (e) {
+                    errorCount++;
+                }
+            }
+
+            showNotification(`✅ ${successCount} datas adicionadas! ${errorCount > 0 ? '⚠️ ' + errorCount + ' erros' : ''}`, 'success');
+            selectedAvailabilityDates = [];
+            generateDateSelector();
+            loadAvailability();
+        } catch (e) {
+            showNotification('❌ Erro: ' + e.message, 'error');
+        }
+    }
 
     // ============================================
     // ===== DASHBOARD =====
@@ -726,7 +858,7 @@
     }
 
     function loadWeekdayGrid() {
-        const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
+        const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
         const today = new Date().getDay();
         const container = document.getElementById('weekdayGrid');
         
@@ -790,7 +922,7 @@
         const minister = document.getElementById('scaleMinister').value;
         const palette = document.getElementById('scalePalette').value;
         const rehearsal = document.getElementById('hasRehearsal').checked;
-        const musicians = document.getElementById('scaleMusicians').value;
+        const musicians = Array.from(document.getElementById('scaleMusicians').selectedOptions).map(o => o.value);
 
         if (!date) { showNotification('Selecione a data do culto!', 'error'); return; }
 
@@ -803,7 +935,7 @@
         });
 
         try {
-            await fetch('/api/worship-scales', {
+            const response = await fetch('/api/worship-scales', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...getHeaders() },
                 body: JSON.stringify({
@@ -815,9 +947,13 @@
                     song_ids: musicIds,
                     palette: palette || 'Azul, Prata, Branco, Dourado',
                     rehearsal: rehearsal,
-                    musicians: musicians ? [musicians] : []
+                    musicians: musicians
                 })
             });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Erro ao criar escala');
+
             showNotification('✅ Escala criada com sucesso!', 'success');
             hideCreateScale();
             loadScales();
@@ -844,6 +980,11 @@
                 const songsList = s.songs || [];
                 const paletteColors = s.palette ? s.palette.split(',').map(c => c.trim()) : [];
                 const isMyScale = myScales.some(m => m.id === s.id);
+                const musicianIds = JSON.parse(s.musician_ids || '[]');
+                const musicianNames = musicianIds.map(id => {
+                    const m = members.find(mem => mem.id == id);
+                    return m ? m.name : '';
+                }).filter(Boolean);
 
                 return `
                     <div class="scale-item" style="${isMyScale ? 'border-left-color: #28a745;' : ''}">
@@ -867,33 +1008,59 @@
                             </div>
                         ` : ''}
                         ${s.rehearsal ? `<div class="rehearsal"><i class="fas fa-microphone"></i> Com Ensaio</div>` : ''}
-                        ${s.musician_ids ? `<div class="minister-info"><strong>Músicos:</strong> ${JSON.parse(s.musician_ids || '[]').map(id => {
-                            const m = members.find(mem => mem.id == id);
-                            return m ? m.name : '';
-                        }).filter(Boolean).join(', ') || '-'}</div>` : ''}
-                        ${isLeader ? `
-                            <div class="actions">
-                                <button onclick="deleteScale(${s.id})" class="btn btn-danger btn-sm">
-                                    <i class="fas fa-trash"></i> Remover
-                                </button>
-                            </div>
-                        ` : ''}
+                        ${musicianNames.length ? `<div class="minister-info"><strong>Músicos:</strong> ${musicianNames.join(', ')}</div>` : ''}
+                        <div style="margin-top:0.3rem;">
+                            <button onclick="viewScaleDetails(${s.id})" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Detalhes</button>
+                            ${isLeader ? `
+                                <button onclick="deleteScale(${s.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Remover</button>
+                            ` : ''}
+                        </div>
                     </div>
                 `;
             }).join('');
-
-            // Mostrar botão de criar apenas para líder
-            const leaderActions = document.getElementById('leaderScaleActions');
-            if (isLeader) {
-                leaderActions.classList.remove('hidden');
-            } else {
-                leaderActions.classList.add('hidden');
-            }
 
         } catch (e) {
             console.error('Erro:', e);
             document.getElementById('scalesList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar escalas</p>';
         }
+    }
+
+    function viewScaleDetails(id) {
+        const scale = scales.find(s => s.id === id);
+        if (!scale) return;
+
+        const eventDate = new Date(scale.event_date);
+        const songsList = scale.songs || [];
+        const paletteColors = scale.palette ? scale.palette.split(',').map(c => c.trim()) : [];
+        const musicianIds = JSON.parse(scale.musician_ids || '[]');
+        const musicianNames = musicianIds.map(id => {
+            const m = members.find(mem => mem.id == id);
+            return m ? m.name : '';
+        }).filter(Boolean);
+
+        document.getElementById('viewScaleTitle').textContent = `📅 Escala - ${eventDate.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' })}`;
+        document.getElementById('viewScaleContent').innerHTML = `
+            <div style="margin-bottom:0.5rem;"><strong>Data:</strong> ${eventDate.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' })} às ${eventDate.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' })}</div>
+            <div style="margin-bottom:0.5rem;"><strong>Líder:</strong> ${scale.leader_name || 'Não definido'}</div>
+            <div style="margin-bottom:0.5rem;"><strong>Ministro:</strong> ${scale.minister_name || 'Não definido'}</div>
+            <div style="margin-bottom:0.5rem;"><strong>Músicas:</strong></div>
+            <div style="margin-bottom:0.5rem;display:flex;flex-wrap:wrap;gap:0.3rem;">
+                ${songsList.map(m => `<span class="music-tag" onclick="viewSongByName('${m}')" style="font-size:0.85rem;">${m}</span>`).join('') || '-'}
+            </div>
+            ${paletteColors.length ? `
+                <div style="margin-bottom:0.5rem;"><strong>Paleta:</strong></div>
+                <div style="display:flex;gap:0.3rem;margin-bottom:0.5rem;flex-wrap:wrap;">
+                    ${paletteColors.map(c => `<span style="width:30px;height:30px;border-radius:50%;background:${c};border:2px solid #ddd;"></span>`).join('')}
+                    <span style="font-size:0.9rem;color:#888;margin-left:0.3rem;">${scale.palette}</span>
+                </div>
+            ` : ''}
+            ${scale.rehearsal ? `<div style="margin-bottom:0.5rem;color:#28a745;"><i class="fas fa-microphone"></i> Com Ensaio</div>` : ''}
+            ${musicianNames.length ? `<div style="margin-bottom:0.5rem;"><strong>Músicos:</strong> ${musicianNames.join(', ')}</div>` : ''}
+            <div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid #eee;font-size:0.85rem;color:#888;">
+                <i class="fas fa-info-circle"></i> Cifras disponíveis nas músicas
+            </div>
+        `;
+        openModal('viewScaleModal');
     }
 
     async function deleteScale(id) {
@@ -918,7 +1085,6 @@
             const data = await res.json();
             const allScales = data.filter(s => s.department_id === user.department_id);
             
-            // Filtra escalas onde o usuário está envolvido
             myScales = allScales.filter(s => {
                 const musicianIds = JSON.parse(s.musician_ids || '[]');
                 return s.leader_id === user.id || 
@@ -936,10 +1102,25 @@
             container.innerHTML = myScales.map(s => {
                 const eventDate = new Date(s.event_date);
                 const songsList = s.songs || [];
-                const role = s.leader_id === user.id ? 'Líder' : 
-                            s.minister_id === user.id ? 'Ministro' : 'Músico';
-                const roleClass = s.leader_id === user.id ? 'leader' : 
-                                 s.minister_id === user.id ? 'minister' : 'musician';
+                const paletteColors = s.palette ? s.palette.split(',').map(c => c.trim()) : [];
+                const musicianIds = JSON.parse(s.musician_ids || '[]');
+                const musicianNames = musicianIds.map(id => {
+                    const m = members.find(mem => mem.id == id);
+                    return m ? m.name : '';
+                }).filter(Boolean);
+                
+                let role = 'Membro';
+                let roleClass = 'member';
+                if (s.leader_id === user.id) {
+                    role = 'Líder';
+                    roleClass = 'leader';
+                } else if (s.minister_id === user.id) {
+                    role = 'Ministro';
+                    roleClass = 'minister';
+                } else if (musicianIds.includes(user.id)) {
+                    role = 'Músico';
+                    roleClass = 'musician';
+                }
 
                 return `
                     <div class="my-scale-item">
@@ -955,19 +1136,22 @@
                             <strong>Músicas:</strong>
                             ${songsList.map(m => `<span class="music-tag" onclick="viewSongByName('${m}')">${m}</span>`).join('') || '-'}
                         </div>
-                        ${s.palette ? `
+                        ${paletteColors.length ? `
                             <div class="palette">
                                 <strong>Paleta:</strong>
-                                ${s.palette.split(',').map(c => `<span class="color" style="background:${c.trim()};"></span>`).join('')}
+                                ${paletteColors.map(c => `<span class="color" style="background:${c};"></span>`).join('')}
                                 <span style="font-size:0.8rem;color:#888;margin-left:0.3rem;">${s.palette}</span>
                             </div>
                         ` : ''}
                         ${s.rehearsal ? `<div class="rehearsal"><i class="fas fa-microphone"></i> Com Ensaio</div>` : ''}
+                        ${musicianNames.length ? `<div class="minister-info"><strong>Equipe:</strong> ${musicianNames.join(', ')}</div>` : ''}
+                        <div style="margin-top:0.3rem;">
+                            <button onclick="viewScaleDetails(${s.id})" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Ver Detalhes</button>
+                        </div>
                     </div>
                 `;
             }).join('');
 
-            // Atualiza estatísticas
             document.getElementById('myTotalScales').textContent = myScales.length;
             const now = new Date();
             const nextCults = myScales.filter(s => new Date(s.event_date) > now).length;
@@ -1037,7 +1221,7 @@
     }
 
     // ============================================
-    // ===== MEMBROS (GERENCIAR - APENAS LÍDER) =====
+    // ===== MEMBROS =====
     // ============================================
 
     async function loadMembers() {
@@ -1356,14 +1540,6 @@
                 </div>
             `).join('');
 
-            // Mostrar/ocultar botão de adicionar música
-            const addBtn = document.getElementById('addMusicBtn');
-            if (isLeader) {
-                addBtn.classList.remove('hidden');
-            } else {
-                addBtn.classList.add('hidden');
-            }
-
         } catch (e) {
             console.error('Erro:', e);
             document.getElementById('songsList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar músicas</p>';
@@ -1470,24 +1646,6 @@
         }
     }
 
-    async function addAvailability() {
-        const date = document.getElementById('availabilityDate').value;
-        if (!date) { showNotification('Selecione uma data!', 'error'); return; }
-
-        try {
-            await fetch('/api/availability', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', ...getHeaders() },
-                body: JSON.stringify({ user_id: user.id, date })
-            });
-            showNotification('✅ Data adicionada!', 'success');
-            document.getElementById('availabilityDate').value = '';
-            loadAvailability();
-        } catch (e) {
-            showNotification('❌ Erro: ' + e.message, 'error');
-        }
-    }
-
     async function deleteAvailability(id) {
         if (!confirm('Remover esta data?')) return;
         try {
@@ -1505,38 +1663,22 @@
 
     function loadMinisterSelect() {
         const select = document.getElementById('scaleMinister');
-        const ministerSelect = document.getElementById('ministerMemberSelect');
         const ministersList = members.filter(m => m.member_role === 'ministro' || m.member_role === 'lider');
 
         select.innerHTML = '<option value="">Selecione um ministro</option>';
         ministersList.forEach(m => {
             select.innerHTML += `<option value="${m.id}">${m.name}</option>`;
         });
-
-        if (ministerSelect) {
-            ministerSelect.innerHTML = '<option value="">Selecione um membro</option>';
-            members.filter(m => m.member_role !== 'ministro' && m.member_role !== 'lider').forEach(m => {
-                ministerSelect.innerHTML += `<option value="${m.id}">${m.name} (${m.email})</option>`;
-            });
-        }
     }
 
     function loadMusiciansSelect() {
         const select = document.getElementById('scaleMusicians');
-        const musicianSelect = document.getElementById('musicianMemberSelect');
         const musiciansList = members.filter(m => m.member_role === 'musico' || m.member_role === 'lider');
 
         if (select) {
             select.innerHTML = '';
             musiciansList.forEach(m => {
                 select.innerHTML += `<option value="${m.id}">${m.name}</option>`;
-            });
-        }
-
-        if (musicianSelect) {
-            musicianSelect.innerHTML = '<option value="">Selecione um membro</option>';
-            members.filter(m => m.member_role !== 'musico' && m.member_role !== 'lider').forEach(m => {
-                musicianSelect.innerHTML += `<option value="${m.id}">${m.name} (${m.email})</option>`;
             });
         }
     }

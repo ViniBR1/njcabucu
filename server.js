@@ -536,7 +536,6 @@ app.post('/api/users-by-leader', auth, async (req, res) => {
             RETURNING id, name, email, role, department_id, is_leader
         `;
         
-        // Adiciona como membro do departamento
         await sql`
             INSERT INTO department_members (department_id, user_id, role)
             VALUES (${department_id}, ${result[0].id}, ${userRole})
@@ -650,13 +649,14 @@ app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- DEPARTMENT MEMBERS (CORRIGIDO) -----
+// ----- DEPARTMENT MEMBERS -----
 app.get('/api/departments/:id/members', auth, async (req, res) => {
     try {
         const members = await sql`
-            SELECT u.id, u.name, u.email, u.role, u.is_leader, dm.role as member_role
+            SELECT u.id, u.name, u.email, u.role, u.is_leader, 
+                   COALESCE(dm.role, 'membro') as member_role
             FROM users u
-            INNER JOIN department_members dm ON u.id = dm.user_id
+            LEFT JOIN department_members dm ON u.id = dm.user_id AND dm.department_id = ${req.params.id}
             WHERE dm.department_id = ${req.params.id}
             ORDER BY dm.role DESC, u.name
         `;
@@ -677,25 +677,14 @@ app.post('/api/departments/:id/members', auth, async (req, res) => {
             return res.status(404).json({ error: 'Usuário não encontrado' });
         }
         
-        const existing = await sql`
-            SELECT * FROM department_members 
-            WHERE department_id = ${id} AND user_id = ${user_id}
-        `;
-        
         const memberRole = role || 'membro';
         
-        if (existing.length > 0) {
-            await sql`
-                UPDATE department_members 
-                SET role = ${memberRole} 
-                WHERE department_id = ${id} AND user_id = ${user_id}
-            `;
-        } else {
-            await sql`
-                INSERT INTO department_members (department_id, user_id, role)
-                VALUES (${id}, ${user_id}, ${memberRole})
-            `;
-        }
+        await sql`
+            INSERT INTO department_members (department_id, user_id, role)
+            VALUES (${id}, ${user_id}, ${memberRole})
+            ON CONFLICT (department_id, user_id) 
+            DO UPDATE SET role = ${memberRole}
+        `;
         
         await sql`
             UPDATE users 
@@ -1388,12 +1377,14 @@ app.post('/api/worship-scales', auth, async (req, res) => {
     try {
         const { department_id, event_date, leader_id, minister_id, songs, song_ids, palette, rehearsal, musicians } = req.body;
         
-        const user = await sql`SELECT * FROM users WHERE id = ${req.user.id}`;
-        if (user.length === 0) {
-            return res.status(403).json({ error: 'Usuário não encontrado' });
-        }
+        // Verifica se o usuário é líder do departamento
+        const user = await sql`
+            SELECT * FROM users 
+            WHERE id = ${req.user.id} 
+            AND (is_leader = true OR role = 'lider' OR role = 'pastor')
+        `;
         
-        if (!user[0].is_leader && req.user.role !== 'pastor') {
+        if (user.length === 0) {
             return res.status(403).json({ error: 'Apenas líderes podem criar escalas' });
         }
         

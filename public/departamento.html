@@ -6,6 +6,7 @@
     <title>Departamento - NJ Cabuçu</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* ... (mesmo CSS anterior, mantido por questões de espaço) ... */
         * { margin:0; padding:0; box-sizing:border-box; }
         :root {
             --primary: #0D47A1;
@@ -20,7 +21,6 @@
             background: var(--bg);
             color: #1a1a1a;
         }
-
         .header {
             background: var(--card-bg);
             padding: 0.8rem 2rem;
@@ -68,8 +68,6 @@
         .btn-warning { background: #ffc107; color: #1a1a1a; }
         .btn-warning:hover { background: #e0a800; }
         .btn-sm { padding: 0.3rem 0.8rem; font-size: 0.8rem; }
-        .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
-        .btn-outline:hover { background: var(--primary); color: white; }
 
         .container { max-width: 1400px; margin: 1.5rem auto; padding: 0 1.5rem; }
 
@@ -143,10 +141,7 @@
             border-left: 4px solid var(--primary);
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
-        .scale-item .date {
-            font-weight: 700;
-            color: var(--primary);
-        }
+        .scale-item .date { font-weight: 700; color: var(--primary); }
         .scale-item .songs { margin: 0.3rem 0; }
         .music-tag {
             background: linear-gradient(135deg, var(--primary), var(--primary-light));
@@ -160,15 +155,8 @@
         }
         .music-tag:hover { opacity: 0.8; }
         .scale-item .palette { display: flex; gap: 0.3rem; margin-top: 0.3rem; flex-wrap: wrap; align-items: center; }
-        .scale-item .palette .color {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 2px solid #ddd;
-        }
+        .scale-item .palette .color { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #ddd; }
         .scale-item .rehearsal { color: #28a745; font-weight: 600; font-size: 0.85rem; margin-top: 0.3rem; }
-        .scale-item .minister-info { margin-top: 0.3rem; font-size: 0.85rem; color: #666; }
-        .scale-item .actions { margin-top: 0.5rem; }
 
         .form-group { margin: 0.8rem 0; }
         .form-group label {
@@ -184,13 +172,11 @@
             border-radius: 10px;
             font-size: 0.95rem;
             font-family: inherit;
-            transition: all 0.3s;
         }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             border-color: var(--primary);
             outline: none;
         }
-        .form-group textarea { min-height: 60px; resize: vertical; }
 
         .member-item {
             display: flex;
@@ -215,7 +201,6 @@
         .hidden { display: none !important; }
         .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
         .flex-center { display: flex; align-items: center; gap: 0.5rem; }
-        .gap-1 { gap: 0.5rem; }
         .mt-1 { margin-top: 0.8rem; }
         .mb-1 { margin-bottom: 0.8rem; }
         .text-center { text-align: center; }
@@ -224,7 +209,6 @@
         .notification {
             padding: 0.8rem 1.2rem;
             border-radius: 10px;
-            margin: 0.8rem 0;
             font-weight: 500;
             position: fixed;
             top: 20px;
@@ -287,10 +271,7 @@
             border-left: 4px solid #28a745;
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
-        .my-scale-item .date {
-            font-weight: 700;
-            color: #28a745;
-        }
+        .my-scale-item .date { font-weight: 700; color: #28a745; }
         .my-scale-item .role-tag {
             font-size: 0.7rem;
             padding: 0.1rem 0.5rem;
@@ -316,17 +297,12 @@
             background: #f0f0f0;
             font-size: 0.75rem;
         }
-        .weekday-grid .day.active {
-            background: var(--primary);
-            color: white;
-        }
-        .weekday-grid .day.today {
-            border: 2px solid var(--primary);
-        }
+        .weekday-grid .day.active { background: var(--primary); color: white; }
+        .weekday-grid .day.today { border: 2px solid var(--primary); }
 
         .date-selector-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 0.5rem;
             margin-top: 0.5rem;
         }
@@ -339,37 +315,37 @@
             transition: all 0.3s;
             font-size: 0.85rem;
         }
-        .date-selector-grid .date-option:hover {
-            border-color: var(--primary);
-            background: #f0f4ff;
+        .date-selector-grid .date-option:hover { border-color: var(--primary); background: #f0f4ff; }
+        .date-selector-grid .date-option.selected { border-color: var(--primary); background: var(--primary); color: white; }
+        .date-selector-grid .date-option .day-number { font-size: 1.2rem; font-weight: 700; }
+
+        .music-checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.3rem;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 0.5rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
         }
-        .date-selector-grid .date-option.selected {
-            border-color: var(--primary);
-            background: var(--primary);
-            color: white;
+        .music-checkbox-grid label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.3rem;
+            border-radius: 6px;
+            cursor: pointer;
         }
-        .date-selector-grid .date-option .day-week {
-            font-weight: 600;
-            font-size: 0.7rem;
-            opacity: 0.7;
-        }
-        .date-selector-grid .date-option .day-number {
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
-        .date-selector-grid .date-option .month {
-            font-size: 0.7rem;
-            opacity: 0.7;
-        }
+        .music-checkbox-grid label:hover { background: #f0f4ff; }
 
         @media (max-width: 768px) {
             .header { flex-direction: column; gap: 0.5rem; padding: 0.8rem 1rem; }
             .grid { grid-template-columns: 1fr; }
             .tabs { gap: 0.2rem; padding: 0.4rem; }
             .tab-btn { padding: 0.2rem 0.8rem; font-size: 0.75rem; }
-            .weekday-grid { grid-template-columns: repeat(7, 1fr); }
-            .weekday-grid .day { font-size: 0.65rem; padding: 0.2rem; }
-            .date-selector-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+            .date-selector-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+            .music-checkbox-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -402,8 +378,7 @@
             <button class="tab-btn" onclick="showTab('musicas')"><i class="fas fa-music"></i> Músicas</button>
             <button class="tab-btn" onclick="showTab('disponibilidade')"><i class="fas fa-calendar-check"></i> Disponibilidade</button>
             <button class="tab-btn hidden" id="tabLiderMembros" onclick="showTab('membros')"><i class="fas fa-user-cog"></i> Gerenciar</button>
-            <button class="tab-btn hidden" id="tabLiderMinisterios" onclick="showTab('ministerios')"><i class="fas fa-user-tag"></i> Ministros</button>
-            <button class="tab-btn hidden" id="tabLiderMusicos" onclick="showTab('musicos')"><i class="fas fa-music"></i> Músicos</button>
+            <button class="tab-btn hidden" id="tabLiderCriarUsuario" onclick="showTab('criar-usuario')"><i class="fas fa-user-plus"></i> Criar Usuário</button>
         </div>
 
         <!-- DASHBOARD -->
@@ -411,9 +386,7 @@
             <div class="grid">
                 <div class="card">
                     <h3><i class="fas fa-calendar-alt"></i> Próximos Compromissos</h3>
-                    <div id="nextAppointments">
-                        <p style="color:#888;">Carregando...</p>
-                    </div>
+                    <div id="nextAppointments"><p style="color:#888;">Carregando...</p></div>
                 </div>
                 <div class="card">
                     <h3><i class="fas fa-chart-bar"></i> Sua Participação</h3>
@@ -436,39 +409,30 @@
                 <h3><i class="fas fa-calendar-alt"></i> Escalas do Departamento</h3>
                 <button onclick="showCreateScale()" class="btn btn-primary hidden" id="btnNovaEscala"><i class="fas fa-plus"></i> Nova Escala</button>
             </div>
-            <div id="scalesList">
-                <p style="color:#888;">Carregando...</p>
-            </div>
+            <div id="scalesList"><p style="color:#888;">Carregando...</p></div>
 
-            <!-- Formulário de criação -->
             <div id="createScaleForm" class="hidden" style="margin-top:1rem;border-top:1px solid #eee;padding-top:1rem;">
                 <h4>Nova Escala</h4>
-                <div class="grid" style="grid-template-columns:1fr 1fr;">
-                    <div class="form-group">
-                        <label><i class="fas fa-calendar"></i> Data e Hora *</label>
-                        <input type="datetime-local" id="scaleDate">
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-user"></i> Ministro Responsável</label>
-                        <select id="scaleMinister"></select>
-                    </div>
+                <div class="form-group">
+                    <label><i class="fas fa-calendar"></i> Data e Hora *</label>
+                    <input type="datetime-local" id="scaleDate">
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-music"></i> Músicas</label>
-                    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-                        <select id="musicSelect" style="flex:1;min-width:150px;"></select>
-                        <button onclick="addMusicToScale()" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Adicionar</button>
-                    </div>
-                    <div id="selectedMusics" style="margin-top:0.5rem;display:flex;flex-wrap:wrap;gap:0.3rem;"></div>
+                    <label><i class="fas fa-user"></i> Ministro Responsável</label>
+                    <select id="scaleMinister"></select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-music"></i> Músicas (selecione as músicas)</label>
+                    <div class="music-checkbox-grid" id="musicCheckboxGrid"></div>
                 </div>
                 <div class="form-group">
                     <label><i class="fas fa-palette"></i> Paleta de Cores</label>
                     <input type="text" id="scalePalette" placeholder="Ex: Azul, Prata, Branco, Dourado">
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-users"></i> Músicos</label>
+                    <label><i class="fas fa-users"></i> Músicos (selecione múltiplos)</label>
                     <select id="scaleMusicians" multiple style="height:80px;"></select>
-                    <small style="color:#888;">Segure Ctrl para selecionar múltiplos músicos</small>
+                    <small style="color:#888;">Segure Ctrl para selecionar múltiplos</small>
                 </div>
                 <div class="form-group">
                     <label class="flex-center">
@@ -486,17 +450,13 @@
         <!-- MINHAS ESCALAS -->
         <div id="tab-minhas-escalas" class="tab-content">
             <h3><i class="fas fa-calendar-check"></i> Minhas Escalas</h3>
-            <div id="myScalesList">
-                <p style="color:#888;">Carregando...</p>
-            </div>
+            <div id="myScalesList"><p style="color:#888;">Carregando...</p></div>
         </div>
 
         <!-- EQUIPE -->
         <div id="tab-equipe" class="tab-content">
             <h3><i class="fas fa-users"></i> Equipe do Departamento</h3>
-            <div id="teamList">
-                <p style="color:#888;">Carregando...</p>
-            </div>
+            <div id="teamList"><p style="color:#888;">Carregando...</p></div>
         </div>
 
         <!-- MÚSICAS -->
@@ -505,57 +465,55 @@
                 <h3><i class="fas fa-music"></i> Músicas do Ministério</h3>
                 <button onclick="openAddMusicModal()" class="btn btn-success hidden" id="addMusicBtn"><i class="fas fa-plus"></i> Nova Música</button>
             </div>
-            <div id="songsList">
-                <p style="color:#888;">Carregando...</p>
-            </div>
+            <div id="songsList"><p style="color:#888;">Carregando...</p></div>
         </div>
 
         <!-- DISPONIBILIDADE -->
         <div id="tab-disponibilidade" class="tab-content">
             <h3><i class="fas fa-calendar-check"></i> Minha Disponibilidade</h3>
-            <p style="color:#666;margin-bottom:0.5rem;">Selecione os dias em que você está disponível para participar dos cultos.</p>
-            
-            <div class="form-group">
-                <label>Selecione as datas disponíveis</label>
-                <div class="date-selector-grid" id="dateSelectorGrid"></div>
-                <button onclick="addMultipleAvailability()" class="btn btn-primary mt-1"><i class="fas fa-save"></i> Salvar Datas Selecionadas</button>
-            </div>
-
-            <div id="availabilityList" style="margin-top:1rem;">
-                <p style="color:#888;">Nenhuma data disponível cadastrada.</p>
-            </div>
+            <p style="color:#666;margin-bottom:0.5rem;">Selecione os dias em que você está disponível:</p>
+            <div class="date-selector-grid" id="dateSelectorGrid"></div>
+            <button onclick="addMultipleAvailability()" class="btn btn-primary mt-1"><i class="fas fa-save"></i> Salvar Datas Selecionadas</button>
+            <div id="availabilityList" style="margin-top:1rem;"><p style="color:#888;">Nenhuma data disponível cadastrada.</p></div>
         </div>
 
-        <!-- MEMBROS (LÍDER) -->
+        <!-- GERENCIAR MEMBROS (LÍDER) -->
         <div id="tab-membros" class="tab-content">
             <div class="flex-between mb-1">
                 <h3><i class="fas fa-user-friends"></i> Gerenciar Membros</h3>
                 <button onclick="openAddMemberModal()" class="btn btn-success"><i class="fas fa-user-plus"></i> Adicionar</button>
             </div>
-            <div id="membersList">
-                <p style="color:#888;">Carregando...</p>
-            </div>
+            <div id="membersList"><p style="color:#888;">Carregando...</p></div>
         </div>
 
-        <!-- MINISTROS (LÍDER) -->
-        <div id="tab-ministerios" class="tab-content">
-            <div class="flex-between mb-1">
-                <h3><i class="fas fa-user-tag"></i> Ministros</h3>
-                <button onclick="openAddMinisterModal()" class="btn btn-success"><i class="fas fa-user-plus"></i> Adicionar Ministro</button>
-            </div>
-            <div id="ministersList">
-                <p style="color:#888;">Carregando...</p>
-            </div>
-        </div>
-
-        <!-- MÚSICOS (LÍDER) -->
-        <div id="tab-musicos" class="tab-content">
-            <div class="flex-between mb-1">
-                <h3><i class="fas fa-music"></i> Músicos</h3>
-                <button onclick="openAddMusicianModal()" class="btn btn-success"><i class="fas fa-user-plus"></i> Adicionar Músico</button>
-            </div>
-            <div id="musiciansList">
-                <p style="color:#888;">Carregando...</p>
+        <!-- CRIAR USUÁRIO (LÍDER) -->
+        <div id="tab-criar-usuario" class="tab-content">
+            <h3><i class="fas fa-user-plus"></i> Criar Usuário para o Ministério</h3>
+            <div class="card">
+                <div class="form-group">
+                    <label>Nome *</label>
+                    <input type="text" id="newUserName" placeholder="Nome completo">
+                </div>
+                <div class="form-group">
+                    <label>E-mail *</label>
+                    <input type="email" id="newUserEmail" placeholder="email@exemplo.com">
+                </div>
+                <div class="form-group">
+                    <label>Senha *</label>
+                    <input type="password" id="newUserPassword" placeholder="Digite uma senha">
+                </div>
+                <div class="form-group">
+                    <label>Função</label>
+                    <select id="newUserRole">
+                        <option value="membro">Membro</option>
+                        <option value="ministro">Ministro</option>
+                        <option value="musico">Músico</option>
+                        <option value="lider">Líder</option>
+                    </select>
+                </div>
+                <button onclick="createUserByLeader()" class="btn btn-primary w-full" style="justify-content:center;">
+                    <i class="fas fa-save"></i> Criar Usuário
+                </button>
             </div>
         </div>
     </div>
@@ -579,34 +537,6 @@
                 </select>
             </div>
             <button onclick="addMember()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Adicionar</button>
-        </div>
-    </div>
-
-    <div class="modal" id="addMinisterModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal('addMinisterModal')">&times;</button>
-            <h3><i class="fas fa-user-tag"></i> Adicionar Ministro</h3>
-            <div class="form-group">
-                <label>Selecione o Membro</label>
-                <select id="ministerMemberSelect"></select>
-            </div>
-            <button onclick="addMinister()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Adicionar Ministro</button>
-        </div>
-    </div>
-
-    <div class="modal" id="addMusicianModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal('addMusicianModal')">&times;</button>
-            <h3><i class="fas fa-user-music"></i> Adicionar Músico</h3>
-            <div class="form-group">
-                <label>Selecione o Membro</label>
-                <select id="musicianMemberSelect"></select>
-            </div>
-            <div class="form-group">
-                <label>Instrumento</label>
-                <input type="text" id="musicianInstrument" placeholder="Ex: Guitarra, Teclado, Bateria">
-            </div>
-            <button onclick="addMusician()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Adicionar Músico</button>
         </div>
     </div>
 
@@ -634,10 +564,9 @@
             </div>
             <div class="form-group">
                 <label>Letra e Cifras</label>
-                <textarea id="newMusicLyrics" rows="6" placeholder="Digite a letra com cifras...&#10;Ex: G&#10;Aleluia, aleluia&#10;Am&#10;Aleluia, aleluia"></textarea>
-                <small style="color:#888;">Use acordes entre colchetes: [G] ou em linhas separadas</small>
+                <textarea id="newMusicLyrics" rows="6" placeholder="Digite a letra com cifras..."></textarea>
             </div>
-            <button onclick="saveMusic()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar Música</button>
+            <button onclick="saveMusic()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
         </div>
     </div>
 
@@ -667,16 +596,11 @@
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     let scales = [];
     let members = [];
-    let ministers = [];
-    let musicians = [];
     let songs = [];
-    let availabilities = [];
     let myScales = [];
     let selectedAvailabilityDates = [];
 
     const isLeader = user.role === 'lider' || user.is_leader;
-    const isMinister = user.role === 'ministro';
-    const isMusician = user.role === 'musico';
 
     function getHeaders() {
         return { 'Authorization': 'Bearer ' + token };
@@ -697,21 +621,19 @@
                 'musicas': 'Músicas',
                 'disponibilidade': 'Disponibilidade',
                 'membros': 'Gerenciar',
-                'ministerios': 'Ministros',
-                'musicos': 'Músicos'
+                'criar-usuario': 'Criar Usuário'
             };
             if (b.textContent.includes(map[tab])) b.classList.add('active');
         });
         document.getElementById('tab-' + tab).classList.add('active');
         
-        if (tab === 'escalas') loadScales();
+        if (tab === 'escalas') { loadScales(); loadMusicCheckboxGrid(); }
         if (tab === 'minhas-escalas') loadMyScales();
         if (tab === 'equipe') loadTeam();
         if (tab === 'musicas') loadSongs();
         if (tab === 'disponibilidade') { loadAvailability(); generateDateSelector(); }
         if (tab === 'membros') loadMembers();
-        if (tab === 'ministerios') loadMinisters();
-        if (tab === 'musicos') loadMusicians();
+        if (tab === 'criar-usuario') {}
         if (tab === 'dashboard') loadDashboard();
     }
 
@@ -737,18 +659,19 @@
             '<i class="fas fa-building"></i> ' + (user.department_name || 'Departamento');
 
         if (isLeader) {
-            document.querySelectorAll('#tabLiderMembros, #tabLiderMinisterios, #tabLiderMusicos, #btnNovaEscala, #addMusicBtn').forEach(el => {
+            document.querySelectorAll('#tabLiderMembros, #tabLiderCriarUsuario, #btnNovaEscala, #addMusicBtn').forEach(el => {
                 if (el) el.classList.remove('hidden');
             });
         }
 
         if (!user.department_id) {
-            document.getElementById('membersList').innerHTML = '<p style="color:#888;">Você não está em um departamento. Peça ao pastor para te adicionar.</p>';
+            document.getElementById('membersList').innerHTML = '<p style="color:#888;">Você não está em um departamento. Peça ao líder para te adicionar.</p>';
             return;
         }
 
         loadDashboard();
         generateDateSelector();
+        loadMusicCheckboxGrid();
     });
 
     // ============================================
@@ -760,15 +683,13 @@
         const today = new Date();
         const dates = [];
         
-        // Gera próximos 30 dias
         for (let i = 0; i < 30; i++) {
             const date = new Date(today);
             date.setDate(date.getDate() + i);
             dates.push(date);
         }
 
-        // Filtra apenas dias da semana (segunda a sábado) e finais de semana
-        const filteredDates = dates.filter(d => d.getDay() !== 0); // Remove domingos
+        const filteredDates = dates.filter(d => d.getDay() !== 0);
 
         container.innerHTML = filteredDates.map(d => {
             const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -798,7 +719,6 @@
             selectedAvailabilityDates.push(dateStr);
         }
         
-        // Atualiza visual
         document.querySelectorAll('.date-option').forEach(el => {
             if (el.dataset.date === dateStr) {
                 el.classList.toggle('selected');
@@ -814,8 +734,6 @@
 
         try {
             let successCount = 0;
-            let errorCount = 0;
-
             for (const date of selectedAvailabilityDates) {
                 try {
                     await fetch('/api/availability', {
@@ -824,18 +742,41 @@
                         body: JSON.stringify({ user_id: user.id, date: date + 'T00:00:00' })
                     });
                     successCount++;
-                } catch (e) {
-                    errorCount++;
-                }
+                } catch (e) {}
             }
-
-            showNotification(`✅ ${successCount} datas adicionadas! ${errorCount > 0 ? '⚠️ ' + errorCount + ' erros' : ''}`, 'success');
+            showNotification(`✅ ${successCount} datas adicionadas!`, 'success');
             selectedAvailabilityDates = [];
             generateDateSelector();
             loadAvailability();
         } catch (e) {
             showNotification('❌ Erro: ' + e.message, 'error');
         }
+    }
+
+    // ============================================
+    // ===== MUSIC CHECKBOX GRID =====
+    // ============================================
+
+    function loadMusicCheckboxGrid() {
+        const container = document.getElementById('musicCheckboxGrid');
+        if (!container) return;
+        
+        if (!songs || songs.length === 0) {
+            container.innerHTML = '<p style="color:#888;">Nenhuma música cadastrada.</p>';
+            return;
+        }
+
+        container.innerHTML = songs.map(s => `
+            <label>
+                <input type="checkbox" class="music-checkbox" value="${s.id}" data-title="${s.title}">
+                ${s.title} (${s.key || 'C'})
+            </label>
+        `).join('');
+    }
+
+    function getSelectedMusicIds() {
+        const checkboxes = document.querySelectorAll('.music-checkbox:checked');
+        return Array.from(checkboxes).map(cb => parseInt(cb.value));
     }
 
     // ============================================
@@ -882,9 +823,8 @@
         document.getElementById('createScaleForm').classList.remove('hidden');
         document.getElementById('createScaleForm').scrollIntoView({ behavior: 'smooth' });
         loadMinisterSelect();
-        loadMusicSelect();
         loadMusiciansSelect();
-        document.getElementById('selectedMusics').innerHTML = '';
+        loadMusicCheckboxGrid();
     }
 
     function hideCreateScale() {
@@ -892,29 +832,7 @@
         document.getElementById('scaleDate').value = '';
         document.getElementById('scalePalette').value = '';
         document.getElementById('hasRehearsal').checked = false;
-        document.getElementById('selectedMusics').innerHTML = '';
-    }
-
-    function addMusicToScale() {
-        const select = document.getElementById('musicSelect');
-        const musicId = select.value;
-        if (!musicId) { showNotification('Selecione uma música!', 'error'); return; }
-        const music = songs.find(s => s.id == musicId);
-        if (!music) return;
-
-        const container = document.getElementById('selectedMusics');
-        const tag = document.createElement('span');
-        tag.className = 'music-tag';
-        tag.textContent = music.title;
-        tag.dataset.id = music.id;
-        tag.onclick = function() { this.remove(); };
-        container.appendChild(tag);
-        select.value = '';
-    }
-
-    function getSelectedMusicIds() {
-        const tags = document.querySelectorAll('#selectedMusics .music-tag');
-        return Array.from(tags).map(t => parseInt(t.dataset.id));
+        document.querySelectorAll('.music-checkbox').forEach(cb => cb.checked = false);
     }
 
     async function saveScale() {
@@ -923,11 +841,10 @@
         const palette = document.getElementById('scalePalette').value;
         const rehearsal = document.getElementById('hasRehearsal').checked;
         const musicians = Array.from(document.getElementById('scaleMusicians').selectedOptions).map(o => o.value);
+        const musicIds = getSelectedMusicIds();
 
         if (!date) { showNotification('Selecione a data do culto!', 'error'); return; }
-
-        const musicIds = getSelectedMusicIds();
-        if (!musicIds.length) { showNotification('Adicione pelo menos uma música!', 'error'); return; }
+        if (!musicIds.length) { showNotification('Selecione pelo menos uma música!', 'error'); return; }
 
         const musicNames = musicIds.map(id => {
             const m = songs.find(s => s.id == id);
@@ -1004,16 +921,13 @@
                             <div class="palette">
                                 <strong>Paleta:</strong>
                                 ${paletteColors.map(c => `<span class="color" style="background:${c};"></span>`).join('')}
-                                <span style="font-size:0.8rem;color:#888;margin-left:0.3rem;">${s.palette}</span>
                             </div>
                         ` : ''}
                         ${s.rehearsal ? `<div class="rehearsal"><i class="fas fa-microphone"></i> Com Ensaio</div>` : ''}
-                        ${musicianNames.length ? `<div class="minister-info"><strong>Músicos:</strong> ${musicianNames.join(', ')}</div>` : ''}
+                        ${musicianNames.length ? `<div><strong>Músicos:</strong> ${musicianNames.join(', ')}</div>` : ''}
                         <div style="margin-top:0.3rem;">
                             <button onclick="viewScaleDetails(${s.id})" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Detalhes</button>
-                            ${isLeader ? `
-                                <button onclick="deleteScale(${s.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Remover</button>
-                            ` : ''}
+                            ${isLeader ? `<button onclick="deleteScale(${s.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Remover</button>` : ''}
                         </div>
                     </div>
                 `;
@@ -1040,25 +954,21 @@
 
         document.getElementById('viewScaleTitle').textContent = `📅 Escala - ${eventDate.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' })}`;
         document.getElementById('viewScaleContent').innerHTML = `
-            <div style="margin-bottom:0.5rem;"><strong>Data:</strong> ${eventDate.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' })} às ${eventDate.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' })}</div>
-            <div style="margin-bottom:0.5rem;"><strong>Líder:</strong> ${scale.leader_name || 'Não definido'}</div>
-            <div style="margin-bottom:0.5rem;"><strong>Ministro:</strong> ${scale.minister_name || 'Não definido'}</div>
-            <div style="margin-bottom:0.5rem;"><strong>Músicas:</strong></div>
-            <div style="margin-bottom:0.5rem;display:flex;flex-wrap:wrap;gap:0.3rem;">
+            <div><strong>Data:</strong> ${eventDate.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' })} às ${eventDate.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' })}</div>
+            <div><strong>Líder:</strong> ${scale.leader_name || 'Não definido'}</div>
+            <div><strong>Ministro:</strong> ${scale.minister_name || 'Não definido'}</div>
+            <div><strong>Músicas:</strong></div>
+            <div style="display:flex;flex-wrap:wrap;gap:0.3rem;">
                 ${songsList.map(m => `<span class="music-tag" onclick="viewSongByName('${m}')" style="font-size:0.85rem;">${m}</span>`).join('') || '-'}
             </div>
             ${paletteColors.length ? `
-                <div style="margin-bottom:0.5rem;"><strong>Paleta:</strong></div>
-                <div style="display:flex;gap:0.3rem;margin-bottom:0.5rem;flex-wrap:wrap;">
+                <div><strong>Paleta:</strong></div>
+                <div style="display:flex;gap:0.3rem;flex-wrap:wrap;">
                     ${paletteColors.map(c => `<span style="width:30px;height:30px;border-radius:50%;background:${c};border:2px solid #ddd;"></span>`).join('')}
-                    <span style="font-size:0.9rem;color:#888;margin-left:0.3rem;">${scale.palette}</span>
                 </div>
             ` : ''}
-            ${scale.rehearsal ? `<div style="margin-bottom:0.5rem;color:#28a745;"><i class="fas fa-microphone"></i> Com Ensaio</div>` : ''}
-            ${musicianNames.length ? `<div style="margin-bottom:0.5rem;"><strong>Músicos:</strong> ${musicianNames.join(', ')}</div>` : ''}
-            <div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid #eee;font-size:0.85rem;color:#888;">
-                <i class="fas fa-info-circle"></i> Cifras disponíveis nas músicas
-            </div>
+            ${scale.rehearsal ? `<div style="color:#28a745;"><i class="fas fa-microphone"></i> Com Ensaio</div>` : ''}
+            ${musicianNames.length ? `<div><strong>Músicos:</strong> ${musicianNames.join(', ')}</div>` : ''}
         `;
         openModal('viewScaleModal');
     }
@@ -1102,7 +1012,6 @@
             container.innerHTML = myScales.map(s => {
                 const eventDate = new Date(s.event_date);
                 const songsList = s.songs || [];
-                const paletteColors = s.palette ? s.palette.split(',').map(c => c.trim()) : [];
                 const musicianIds = JSON.parse(s.musician_ids || '[]');
                 const musicianNames = musicianIds.map(id => {
                     const m = members.find(mem => mem.id == id);
@@ -1136,15 +1045,7 @@
                             <strong>Músicas:</strong>
                             ${songsList.map(m => `<span class="music-tag" onclick="viewSongByName('${m}')">${m}</span>`).join('') || '-'}
                         </div>
-                        ${paletteColors.length ? `
-                            <div class="palette">
-                                <strong>Paleta:</strong>
-                                ${paletteColors.map(c => `<span class="color" style="background:${c};"></span>`).join('')}
-                                <span style="font-size:0.8rem;color:#888;margin-left:0.3rem;">${s.palette}</span>
-                            </div>
-                        ` : ''}
-                        ${s.rehearsal ? `<div class="rehearsal"><i class="fas fa-microphone"></i> Com Ensaio</div>` : ''}
-                        ${musicianNames.length ? `<div class="minister-info"><strong>Equipe:</strong> ${musicianNames.join(', ')}</div>` : ''}
+                        ${musicianNames.length ? `<div><strong>Equipe:</strong> ${musicianNames.join(', ')}</div>` : ''}
                         <div style="margin-top:0.3rem;">
                             <button onclick="viewScaleDetails(${s.id})" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Ver Detalhes</button>
                         </div>
@@ -1180,6 +1081,7 @@
         try {
             const res = await fetch(`/api/departments/${user.department_id}/members`, { headers: getHeaders() });
             const data = await res.json();
+            members = data;
             const container = document.getElementById('teamList');
 
             if (!data || data.length === 0) {
@@ -1192,8 +1094,7 @@
                 ministro: '🎤 Ministro',
                 musico: '🎸 Músico',
                 membro: '🙋 Membro',
-                colaborador: '🤝 Colaborador',
-                voluntario: '🙋 Voluntário'
+                colaborador: '🤝 Colaborador'
             };
 
             const roleBadges = {
@@ -1201,8 +1102,7 @@
                 ministro: 'role-badge minister',
                 musico: 'role-badge musician',
                 membro: 'role-badge member',
-                colaborador: 'role-badge member',
-                voluntario: 'role-badge member'
+                colaborador: 'role-badge member'
             };
 
             container.innerHTML = data.map(m => `
@@ -1221,16 +1121,11 @@
     }
 
     // ============================================
-    // ===== MEMBROS =====
+    // ===== MEMBROS (GERENCIAR) =====
     // ============================================
 
     async function loadMembers() {
         try {
-            if (!user.department_id) {
-                document.getElementById('membersList').innerHTML = '<p style="color:#888;">Você não está em um departamento.</p>';
-                return;
-            }
-
             const res = await fetch(`/api/departments/${user.department_id}/members`, { headers: getHeaders() });
             members = await res.json();
             const container = document.getElementById('membersList');
@@ -1245,8 +1140,7 @@
                 ministro: '<span class="role-badge minister">🎤 Ministro</span>',
                 musico: '<span class="role-badge musician">🎸 Músico</span>',
                 membro: '<span class="role-badge member">🙋 Membro</span>',
-                colaborador: '<span class="role-badge member">🤝 Colaborador</span>',
-                voluntario: '<span class="role-badge member">🙋 Voluntário</span>'
+                colaborador: '<span class="role-badge member">🤝 Colaborador</span>'
             };
 
             container.innerHTML = members.map(m => `
@@ -1258,12 +1152,8 @@
                     </div>
                     ${isLeader && m.id !== user.id ? `
                         <div>
-                            <button onclick="changeMemberRole(${m.id})" class="btn btn-warning btn-sm" title="Alterar Função">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="removeMember(${m.id})" class="btn btn-danger btn-sm" title="Remover membro">
-                                <i class="fas fa-user-minus"></i>
-                            </button>
+                            <button onclick="changeMemberRole(${m.id})" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>
+                            <button onclick="removeMember(${m.id})" class="btn btn-danger btn-sm"><i class="fas fa-user-minus"></i></button>
                         </div>
                     ` : ''}
                 </div>
@@ -1346,170 +1236,44 @@
     }
 
     // ============================================
-    // ===== MINISTROS =====
+    // ===== CRIAR USUÁRIO (LÍDER) =====
     // ============================================
 
-    async function loadMinisters() {
-        try {
-            const res = await fetch(`/api/departments/${user.department_id}/members`, { headers: getHeaders() });
-            const data = await res.json();
-            ministers = data.filter(m => m.member_role === 'ministro' || m.member_role === 'lider');
-            const container = document.getElementById('ministersList');
+    async function createUserByLeader() {
+        const name = document.getElementById('newUserName').value.trim();
+        const email = document.getElementById('newUserEmail').value.trim().toLowerCase();
+        const password = document.getElementById('newUserPassword').value;
+        const role = document.getElementById('newUserRole').value;
 
-            if (!ministers || ministers.length === 0) {
-                container.innerHTML = '<p style="color:#888;">Nenhum ministro cadastrado.</p>';
-                return;
-            }
-
-            container.innerHTML = ministers.map(m => `
-                <div class="member-item">
-                    <div>
-                        <span class="name">${m.name}</span>
-                        <span class="email">${m.email}</span>
-                        <span class="role-badge minister">🎤 Ministro</span>
-                    </div>
-                    ${isLeader && m.id !== user.id ? `
-                        <button onclick="removeMinister(${m.id})" class="btn btn-danger btn-sm" title="Remover Ministro">
-                            <i class="fas fa-user-minus"></i>
-                        </button>
-                    ` : ''}
-                </div>
-            `).join('');
-
-        } catch (e) {
-            console.error('Erro:', e);
-            document.getElementById('ministersList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar ministros</p>';
-        }
-    }
-
-    function openAddMinisterModal() {
-        const select = document.getElementById('ministerMemberSelect');
-        select.innerHTML = '<option value="">Selecione um membro</option>';
-        members.filter(m => m.member_role !== 'ministro' && m.member_role !== 'lider').forEach(m => {
-            select.innerHTML += `<option value="${m.id}">${m.name} (${m.email})</option>`;
-        });
-        openModal('addMinisterModal');
-    }
-
-    async function addMinister() {
-        const userId = document.getElementById('ministerMemberSelect').value;
-        if (!userId) { showNotification('Selecione um membro!', 'error'); return; }
+        if (!name) { showNotification('Digite o nome do usuário!', 'error'); return; }
+        if (!email) { showNotification('Digite o e-mail do usuário!', 'error'); return; }
+        if (!email.includes('@')) { showNotification('Digite um e-mail válido!', 'error'); return; }
+        if (!password || password.length < 6) { showNotification('Digite uma senha com no mínimo 6 caracteres!', 'error'); return; }
 
         try {
-            await fetch(`/api/departments/${user.department_id}/members/${userId}`, {
-                method: 'PUT',
+            const response = await fetch('/api/users-by-leader', {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...getHeaders() },
-                body: JSON.stringify({ role: 'ministro' })
+                body: JSON.stringify({
+                    name,
+                    email,
+                    password,
+                    role: role,
+                    department_id: user.department_id
+                })
             });
-            closeModal('addMinisterModal');
-            showNotification('✅ Ministro adicionado!', 'success');
-            loadMinisters();
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Erro ao criar usuário');
+
+            showNotification(`✅ Usuário ${name} criado com sucesso! Senha: ${password}`, 'success');
+            document.getElementById('newUserName').value = '';
+            document.getElementById('newUserEmail').value = '';
+            document.getElementById('newUserPassword').value = '';
             loadMembers();
             loadTeam();
         } catch (e) {
-            showNotification('❌ Erro: ' + e.message, 'error');
-        }
-    }
-
-    async function removeMinister(userId) {
-        if (!confirm('Remover este ministro?')) return;
-        try {
-            await fetch(`/api/departments/${user.department_id}/members/${userId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', ...getHeaders() },
-                body: JSON.stringify({ role: 'membro' })
-            });
-            showNotification('✅ Ministro removido!', 'success');
-            loadMinisters();
-            loadMembers();
-            loadTeam();
-        } catch (e) {
-            showNotification('❌ Erro: ' + e.message, 'error');
-        }
-    }
-
-    // ============================================
-    // ===== MÚSICOS =====
-    // ============================================
-
-    async function loadMusicians() {
-        try {
-            const res = await fetch(`/api/departments/${user.department_id}/members`, { headers: getHeaders() });
-            const data = await res.json();
-            musicians = data.filter(m => m.member_role === 'musico' || m.member_role === 'lider');
-            const container = document.getElementById('musiciansList');
-
-            if (!musicians || musicians.length === 0) {
-                container.innerHTML = '<p style="color:#888;">Nenhum músico cadastrado.</p>';
-                return;
-            }
-
-            container.innerHTML = musicians.map(m => `
-                <div class="member-item">
-                    <div>
-                        <span class="name">${m.name}</span>
-                        <span class="email">${m.email}</span>
-                        <span class="role-badge musician">🎸 Músico</span>
-                    </div>
-                    ${isLeader && m.id !== user.id ? `
-                        <button onclick="removeMusician(${m.id})" class="btn btn-danger btn-sm" title="Remover Músico">
-                            <i class="fas fa-user-minus"></i>
-                        </button>
-                    ` : ''}
-                </div>
-            `).join('');
-
-        } catch (e) {
-            console.error('Erro:', e);
-            document.getElementById('musiciansList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar músicos</p>';
-        }
-    }
-
-    function openAddMusicianModal() {
-        const select = document.getElementById('musicianMemberSelect');
-        select.innerHTML = '<option value="">Selecione um membro</option>';
-        members.filter(m => m.member_role !== 'musico' && m.member_role !== 'lider').forEach(m => {
-            select.innerHTML += `<option value="${m.id}">${m.name} (${m.email})</option>`;
-        });
-        document.getElementById('musicianInstrument').value = '';
-        openModal('addMusicianModal');
-    }
-
-    async function addMusician() {
-        const userId = document.getElementById('musicianMemberSelect').value;
-        const instrument = document.getElementById('musicianInstrument').value.trim();
-        if (!userId) { showNotification('Selecione um membro!', 'error'); return; }
-
-        try {
-            await fetch(`/api/departments/${user.department_id}/members/${userId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', ...getHeaders() },
-                body: JSON.stringify({ role: 'musico' })
-            });
-            closeModal('addMusicianModal');
-            showNotification(`✅ Músico adicionado! ${instrument ? 'Instrumento: ' + instrument : ''}`, 'success');
-            loadMusicians();
-            loadMembers();
-            loadTeam();
-        } catch (e) {
-            showNotification('❌ Erro: ' + e.message, 'error');
-        }
-    }
-
-    async function removeMusician(userId) {
-        if (!confirm('Remover este músico?')) return;
-        try {
-            await fetch(`/api/departments/${user.department_id}/members/${userId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', ...getHeaders() },
-                body: JSON.stringify({ role: 'membro' })
-            });
-            showNotification('✅ Músico removido!', 'success');
-            loadMusicians();
-            loadMembers();
-            loadTeam();
-        } catch (e) {
-            showNotification('❌ Erro: ' + e.message, 'error');
+            showNotification('❌ Erro ao criar usuário: ' + e.message, 'error');
         }
     }
 
@@ -1534,12 +1298,12 @@
                     <div style="font-size:0.85rem;color:#666;">${s.artist || 'Artista desconhecido'} | Tom: ${s.key || 'C'}</div>
                     <div style="margin-top:0.3rem;">
                         <button onclick="viewSong(${s.id})" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Ver</button>
-                        <button onclick="transposeSong(${s.id})" class="btn btn-warning btn-sm"><i class="fas fa-arrow-up"></i> Transpor</button>
                         ${isLeader ? `<button onclick="deleteSong(${s.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>` : ''}
                     </div>
                 </div>
             `).join('');
 
+            loadMusicCheckboxGrid();
         } catch (e) {
             console.error('Erro:', e);
             document.getElementById('songsList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar músicas</p>';
@@ -1588,8 +1352,8 @@
         if (!song) return;
         document.getElementById('viewMusicTitle').textContent = `🎵 ${song.title}`;
         document.getElementById('viewMusicContent').innerHTML = `
-            <div style="margin-bottom:0.5rem;"><strong>Artista:</strong> ${song.artist || 'Desconhecido'}</div>
-            <div style="margin-bottom:0.5rem;"><strong>Tom Original:</strong> ${song.key || 'C'}</div>
+            <div><strong>Artista:</strong> ${song.artist || 'Desconhecido'}</div>
+            <div><strong>Tom Original:</strong> ${song.key || 'C'}</div>
             <div style="white-space:pre-wrap;font-family:monospace;background:#f8f9fa;padding:1rem;border-radius:8px;max-height:400px;overflow-y:auto;">${song.lyrics || 'Sem letra'}</div>
         `;
         openModal('viewMusicModal');
@@ -1598,15 +1362,7 @@
     function viewSongByName(name) {
         const song = songs.find(s => s.title === name);
         if (song) viewSong(song.id);
-        else showNotification('Música não encontrada no repertório.', 'info');
-    }
-
-    function transposeSong(id) {
-        const song = songs.find(s => s.id === id);
-        if (!song) return;
-        const newKey = prompt(`Tom atual: ${song.key || 'C'}\nDigite o novo tom (Ex: D, E, F#):`);
-        if (!newKey) return;
-        showNotification(`🎵 Tom alterado para ${newKey}! (Simulação)`, 'info');
+        else showNotification('Música não encontrada.', 'info');
     }
 
     async function deleteSong(id) {
@@ -1627,17 +1383,17 @@
     async function loadAvailability() {
         try {
             const res = await fetch(`/api/availability/${user.id}`, { headers: getHeaders() });
-            availabilities = await res.json();
+            const data = await res.json();
             const container = document.getElementById('availabilityList');
 
-            if (!availabilities || availabilities.length === 0) {
+            if (!data || data.length === 0) {
                 container.innerHTML = '<p style="color:#888;">Nenhuma data disponível cadastrada.</p>';
                 return;
             }
 
-            container.innerHTML = availabilities.map(a => `
+            container.innerHTML = data.map(a => `
                 <div class="scale-item">
-                    <div><i class="fas fa-calendar"></i> ${new Date(a.date).toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' })}</div>
+                    <div><i class="fas fa-calendar"></i> ${new Date(a.date).toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' })}</div>
                     <button onclick="deleteAvailability(${a.id})" class="btn btn-danger btn-sm mt-1"><i class="fas fa-trash"></i> Remover</button>
                 </div>
             `).join('');
@@ -1675,20 +1431,9 @@
         const select = document.getElementById('scaleMusicians');
         const musiciansList = members.filter(m => m.member_role === 'musico' || m.member_role === 'lider');
 
-        if (select) {
-            select.innerHTML = '';
-            musiciansList.forEach(m => {
-                select.innerHTML += `<option value="${m.id}">${m.name}</option>`;
-            });
-        }
-    }
-
-    function loadMusicSelect() {
-        const select = document.getElementById('musicSelect');
-        if (!select) return;
-        select.innerHTML = '<option value="">Selecione uma música</option>';
-        songs.forEach(s => {
-            select.innerHTML += `<option value="${s.id}">${s.title} (${s.key || 'C'})</option>`;
+        select.innerHTML = '';
+        musiciansList.forEach(m => {
+            select.innerHTML += `<option value="${m.id}">${m.name}</option>`;
         });
     }
 

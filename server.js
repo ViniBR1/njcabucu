@@ -221,9 +221,9 @@ async function initDB() {
             department_id INTEGER,
             event_date TIMESTAMP NOT NULL,
             leader_id INTEGER,
+            minister_id INTEGER,
             songs TEXT[],
             song_ids TEXT,
-            minister_id INTEGER,
             musician_ids TEXT,
             palette TEXT,
             rehearsal BOOLEAN DEFAULT FALSE,
@@ -506,6 +506,53 @@ app.post('/api/users', auth, pastorOnly, async (req, res) => {
     }
 });
 
+// ----- CRIAR USUÁRIO PELO LÍDER -----
+app.post('/api/users-by-leader', auth, async (req, res) => {
+    try {
+        const { name, email, password, role, department_id } = req.body;
+        
+        // Verifica se o usuário atual é líder do departamento
+        const leaderCheck = await sql`
+            SELECT * FROM users 
+            WHERE id = ${req.user.id} AND is_leader = true AND department_id = ${department_id}
+        `;
+        
+        if (leaderCheck.length === 0 && req.user.role !== 'pastor') {
+            return res.status(403).json({ error: 'Apenas líderes podem criar usuários no departamento' });
+        }
+        
+        // Verifica se o usuário já existe
+        const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
+        if (existing.length > 0) {
+            return res.status(400).json({ error: 'Usuário já existe' });
+        }
+
+        const hash = await hashPassword(password || '123456');
+        const userRole = role || 'membro';
+        
+        const result = await sql`
+            INSERT INTO users (name, email, password_hash, role, department_id, department_name, phone, first_login, is_leader)
+            VALUES (${name}, ${email}, ${hash}, ${userRole}, ${department_id}, ${null}, ${''}, true, ${userRole === 'lider' ? true : false})
+            RETURNING id, name, email, role, department_id, is_leader
+        `;
+        
+        // Adiciona como membro do departamento
+        await sql`
+            INSERT INTO department_members (department_id, user_id, role)
+            VALUES (${department_id}, ${result[0].id}, ${userRole})
+        `;
+        
+        if (userRole === 'lider') {
+            await sql`UPDATE departments SET leader_id = ${result[0].id} WHERE id = ${department_id}`;
+        }
+        
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar usuário pelo líder:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.get('/api/users', auth, async (req, res) => {
     try {
         let users;
@@ -603,7 +650,7 @@ app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- DEPARTMENT MEMBERS -----
+// ----- DEPARTMENT MEMBERS (CORRIGIDO) -----
 app.get('/api/departments/:id/members', auth, async (req, res) => {
     try {
         const members = await sql`
@@ -615,6 +662,7 @@ app.get('/api/departments/:id/members', auth, async (req, res) => {
         `;
         res.json(members);
     } catch (error) {
+        console.error('❌ Erro ao buscar membros:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -634,27 +682,30 @@ app.post('/api/departments/:id/members', auth, async (req, res) => {
             WHERE department_id = ${id} AND user_id = ${user_id}
         `;
         
+        const memberRole = role || 'membro';
+        
         if (existing.length > 0) {
             await sql`
                 UPDATE department_members 
-                SET role = ${role || 'membro'} 
+                SET role = ${memberRole} 
                 WHERE department_id = ${id} AND user_id = ${user_id}
             `;
         } else {
             await sql`
                 INSERT INTO department_members (department_id, user_id, role)
-                VALUES (${id}, ${user_id}, ${role || 'membro'})
+                VALUES (${id}, ${user_id}, ${memberRole})
             `;
         }
         
         await sql`
             UPDATE users 
             SET department_id = ${id}, 
-                is_leader = ${role === 'lider' ? true : false}
+                is_leader = ${memberRole === 'lider' ? true : false},
+                role = ${memberRole}
             WHERE id = ${user_id}
         `;
         
-        if (role === 'lider') {
+        if (memberRole === 'lider') {
             await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${id}`;
         }
         
@@ -685,28 +736,17 @@ app.put('/api/departments/:department_id/members/:user_id', auth, async (req, re
             WHERE department_id = ${department_id} AND user_id = ${user_id}
         `;
 
+        await sql`
+            UPDATE users 
+            SET is_leader = ${role === 'lider' ? true : false},
+                role = ${role}
+            WHERE id = ${user_id}
+        `;
+
         if (role === 'lider') {
-            await sql`
-                UPDATE departments 
-                SET leader_id = ${user_id} 
-                WHERE id = ${department_id}
-            `;
-            await sql`
-                UPDATE users 
-                SET is_leader = true, role = 'lider' 
-                WHERE id = ${user_id}
-            `;
+            await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${department_id}`;
         } else {
-            await sql`
-                UPDATE departments 
-                SET leader_id = NULL 
-                WHERE id = ${department_id} AND leader_id = ${user_id}
-            `;
-            await sql`
-                UPDATE users 
-                SET is_leader = false, role = ${role} 
-                WHERE id = ${user_id}
-            `;
+            await sql`UPDATE departments SET leader_id = NULL WHERE id = ${department_id} AND leader_id = ${user_id}`;
         }
 
         res.json({ message: 'Função atualizada com sucesso' });
@@ -721,17 +761,27 @@ app.delete('/api/departments/:department_id/members/:user_id', auth, async (req,
         const { department_id, user_id } = req.params;
         
         await sql`
-            DELETE FROM department_members WHERE department_id = ${department_id} AND user_id = ${user_id}
+            DELETE FROM department_members 
+            WHERE department_id = ${department_id} AND user_id = ${user_id}
         `;
         
         await sql`
-            UPDATE users SET department_id = NULL, is_leader = false WHERE id = ${user_id}
+            UPDATE users 
+            SET department_id = NULL, 
+                is_leader = false,
+                role = 'colaborador'
+            WHERE id = ${user_id}
         `;
         
-        await sql`UPDATE departments SET leader_id = NULL WHERE id = ${department_id} AND leader_id = ${user_id}`;
+        await sql`
+            UPDATE departments 
+            SET leader_id = NULL 
+            WHERE id = ${department_id} AND leader_id = ${user_id}
+        `;
         
         res.json({ message: 'Membro removido com sucesso' });
     } catch (error) {
+        console.error('❌ Erro ao remover membro:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1333,21 +1383,48 @@ app.delete('/api/availability/:id', auth, async (req, res) => {
     }
 });
 
-// ----- ESCALAS -----
+// ----- WORSHIP SCALES (CORRIGIDO) -----
 app.post('/api/worship-scales', auth, async (req, res) => {
     try {
         const { department_id, event_date, leader_id, minister_id, songs, song_ids, palette, rehearsal, musicians } = req.body;
         
-        const user = await sql`SELECT * FROM users WHERE id = ${req.user.id} AND is_leader = true`;
-        if (user.length === 0 && req.user.role !== 'pastor' && req.user.role !== 'lider') {
+        const user = await sql`SELECT * FROM users WHERE id = ${req.user.id}`;
+        if (user.length === 0) {
+            return res.status(403).json({ error: 'Usuário não encontrado' });
+        }
+        
+        if (!user[0].is_leader && req.user.role !== 'pastor') {
             return res.status(403).json({ error: 'Apenas líderes podem criar escalas' });
         }
         
+        const songsArray = songs || [];
+        const songIdsArray = song_ids || [];
+        const musiciansArray = musicians || [];
+        
         const result = await sql`
-            INSERT INTO worship_scales (department_id, event_date, leader_id, minister_id, songs, song_ids, palette, rehearsal, musician_ids)
-            VALUES (${department_id || req.user.department_id}, ${event_date}, ${leader_id || req.user.id}, ${minister_id || null}, ${songs}, ${JSON.stringify(song_ids || [])}, ${palette || 'Azul, Prata, Branco, Dourado'}, ${rehearsal || false}, ${JSON.stringify(musicians || [])})
-            RETURNING *
+            INSERT INTO worship_scales (
+                department_id, 
+                event_date, 
+                leader_id, 
+                minister_id, 
+                songs, 
+                song_ids, 
+                palette, 
+                rehearsal, 
+                musician_ids
+            ) VALUES (
+                ${department_id || user[0].department_id}, 
+                ${event_date}, 
+                ${leader_id || req.user.id}, 
+                ${minister_id || null}, 
+                ${songsArray}, 
+                ${JSON.stringify(songIdsArray)}, 
+                ${palette || 'Azul, Prata, Branco, Dourado'}, 
+                ${rehearsal || false}, 
+                ${JSON.stringify(musiciansArray)}
+            ) RETURNING *
         `;
+        
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar escala:', error);
@@ -1370,6 +1447,7 @@ app.get('/api/worship-scales', auth, async (req, res) => {
         `;
         res.json(scales);
     } catch (error) {
+        console.error('❌ Erro ao buscar escalas:', error);
         res.status(500).json({ error: error.message });
     }
 });

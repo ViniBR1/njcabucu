@@ -181,29 +181,37 @@
             box-shadow: 0 6px 14px rgba(10, 43, 92, 0.12);
         }
 
-        /* CARROSSEL — com gradiente e mais elegância */
+        /* ===== CARROSSEL — TAMANHO FIXO E IMAGENS PERFEITAS ===== */
         .carousel-container {
             position: relative;
             max-width: 1400px;
+            width: 100%;
             margin: 1.8rem auto;
             border-radius: var(--radius);
             overflow: hidden;
             box-shadow: 0 16px 48px rgba(0, 0, 0, 0.06);
+            /* ALTURA FIXA */
+            height: 440px;
+            background: var(--primary);
         }
         .carousel-wrapper {
             display: flex;
+            height: 100%;
             transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         .carousel-slide {
             min-width: 100%;
+            height: 100%;
             position: relative;
-            height: 440px;
+            flex-shrink: 0;
             background: var(--primary);
         }
+        /* IMAGEM — ocupa todo o espaço sem distorção */
         .carousel-slide img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: block;
         }
         .carousel-slide::after {
             content: '';
@@ -213,6 +221,7 @@
             right: 0;
             height: 70%;
             background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+            pointer-events: none;
         }
         .carousel-caption {
             position: absolute;
@@ -718,7 +727,8 @@
                 padding: 0.25rem 0.8rem;
                 font-size: 0.7rem;
             }
-            .carousel-slide {
+            /* CARROSSEL RESPONSIVO — altura fixa menor */
+            .carousel-container {
                 height: 240px;
             }
             .carousel-caption {
@@ -726,6 +736,14 @@
             }
             .carousel-caption h3 {
                 font-size: 1.5rem;
+            }
+            .carousel-caption p {
+                font-size: 0.9rem;
+            }
+            .carousel-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
             }
             .section {
                 padding: 1.2rem 1.2rem;
@@ -869,11 +887,12 @@
         <button onclick="scrollToSection('inscricoes')" class="nav-btn"><i class="fas fa-clipboard-list"></i> Inscrições</button>
     </nav>
 
-    <!-- CARROSSEL -->
+    <!-- CARROSSEL — TAMANHO FIXO -->
     <section id="home" class="carousel-container">
         <div class="carousel-wrapper" id="carouselWrapper">
+            <!-- Os slides serão injetados via JS, mas mantemos um fallback -->
             <div class="carousel-slide">
-                <img src="https://via.placeholder.com/1400x450/0a2b5c/ffffff?text=NJ+Cabuçu" alt="NJ Cabuçu" />
+                <img src="https://via.placeholder.com/1400x440/0a2b5c/ffffff?text=NJ+Cabuçu" alt="NJ Cabuçu" />
                 <div class="carousel-caption">
                     <h3>🙏 Bem-vindo à NJ Cabuçu</h3>
                     <p>Uma igreja que ama a Deus e ao próximo</p>
@@ -1390,7 +1409,7 @@
         }
 
         // ============================================================
-        //  CARROSSEL
+        //  CARROSSEL — TAMANHO FIXO E IMAGENS PERFEITAS
         // ============================================================
         async function loadCarousel() {
             try {
@@ -1402,10 +1421,11 @@
                 wrapper.innerHTML = '';
                 dots.innerHTML = '';
 
-                if (data.length === 0) {
+                // Se não houver imagens, usa fallback
+                if (!data || data.length === 0) {
                     wrapper.innerHTML = `
                         <div class="carousel-slide">
-                            <img src="https://via.placeholder.com/1400x450/0a2b5c/ffffff?text=NJ+Cabuçu" alt="NJ Cabuçu" />
+                            <img src="https://via.placeholder.com/1400x440/0a2b5c/ffffff?text=NJ+Cabuçu" alt="NJ Cabuçu" />
                             <div class="carousel-caption">
                                 <h3>🙏 Bem-vindo à NJ Cabuçu</h3>
                                 <p>Uma igreja que ama a Deus e ao próximo</p>
@@ -1420,8 +1440,10 @@
                 data.forEach((img, index) => {
                     const slide = document.createElement('div');
                     slide.className = 'carousel-slide';
-                    let imgSrc = img.image_url || (img.image_base64 ? `data:image/jpeg;base64,${img.image_base64}` :
-                        'https://via.placeholder.com/1400x450/0a2b5c/ffffff?text=NJ+Cabuçu');
+                    // Define a fonte da imagem (url ou base64)
+                    let imgSrc = img.image_url || 
+                                 (img.image_base64 ? `data:image/jpeg;base64,${img.image_base64}` : 
+                                 'https://via.placeholder.com/1400x440/0a2b5c/ffffff?text=NJ+Cabuçu');
                     slide.innerHTML = `
                         <img src="${imgSrc}" alt="${img.title || 'Slide'}" />
                         <div class="carousel-caption">
@@ -1439,7 +1461,22 @@
 
                 currentSlide = 0;
                 startCarousel();
-            } catch (e) { console.error('Erro carrossel:', e); }
+            } catch (e) {
+                console.error('Erro carrossel:', e);
+                // Fallback em caso de erro
+                const wrapper = document.getElementById('carouselWrapper');
+                wrapper.innerHTML = `
+                    <div class="carousel-slide">
+                        <img src="https://via.placeholder.com/1400x440/0a2b5c/ffffff?text=NJ+Cabuçu" alt="NJ Cabuçu" />
+                        <div class="carousel-caption">
+                            <h3>🙏 Bem-vindo à NJ Cabuçu</h3>
+                            <p>Uma igreja que ama a Deus e ao próximo</p>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('carouselDots').innerHTML = '<span class="dot active" onclick="goToSlide(0)"></span>';
+                currentSlide = 0;
+            }
         }
 
         function startCarousel() {

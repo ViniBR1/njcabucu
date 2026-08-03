@@ -6,7 +6,7 @@
     <title>Departamento - NJ Cabuçu</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* ... (mesmo CSS anterior, mantido por questões de espaço) ... */
+        /* ... (mesmo CSS anterior) ... */
         * { margin:0; padding:0; box-sizing:border-box; }
         :root {
             --primary: #0D47A1;
@@ -600,7 +600,7 @@
     let myScales = [];
     let selectedAvailabilityDates = [];
 
-    const isLeader = user.role === 'lider' || user.is_leader;
+    const isLeader = user.role === 'lider' || user.is_leader || user.role === 'pastor';
 
     function getHeaders() {
         return { 'Authorization': 'Bearer ' + token };
@@ -648,7 +648,8 @@
             'musico': '🎸 Músico',
             'colaborador': '🤝 Colaborador',
             'voluntario': '🙋 Voluntário',
-            'fiel': '🙏 Fiel'
+            'fiel': '🙏 Fiel',
+            'pastor': '👑 Pastor'
         };
 
         document.getElementById('userName').textContent = user.name || 'Usuário';
@@ -683,15 +684,14 @@
         const today = new Date();
         const dates = [];
         
+        // Gera próximos 30 dias (incluindo domingos)
         for (let i = 0; i < 30; i++) {
             const date = new Date(today);
             date.setDate(date.getDate() + i);
             dates.push(date);
         }
 
-        const filteredDates = dates.filter(d => d.getDay() !== 0);
-
-        container.innerHTML = filteredDates.map(d => {
+        container.innerHTML = dates.map(d => {
             const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
             const dayName = dayNames[d.getDay()];
             const dayNumber = d.getDate();
@@ -703,9 +703,9 @@
                 <div class="date-option ${isSelected ? 'selected' : ''}" 
                      onclick="toggleDateSelection('${dateStr}')"
                      data-date="${dateStr}">
-                    <div class="day-week">${dayName}</div>
-                    <div class="day-number">${dayNumber}</div>
-                    <div class="month">${month}</div>
+                    <div style="font-size:0.7rem;opacity:0.7;">${dayName}</div>
+                    <div style="font-size:1.2rem;font-weight:700;">${dayNumber}</div>
+                    <div style="font-size:0.7rem;opacity:0.7;">${month}</div>
                 </div>
             `;
         }).join('');
@@ -897,7 +897,8 @@
                 const songsList = s.songs || [];
                 const paletteColors = s.palette ? s.palette.split(',').map(c => c.trim()) : [];
                 const isMyScale = myScales.some(m => m.id === s.id);
-                const musicianIds = JSON.parse(s.musician_ids || '[]');
+                let musicianIds = [];
+                try { musicianIds = JSON.parse(s.musician_ids || '[]'); } catch { musicianIds = []; }
                 const musicianNames = musicianIds.map(id => {
                     const m = members.find(mem => mem.id == id);
                     return m ? m.name : '';
@@ -946,7 +947,8 @@
         const eventDate = new Date(scale.event_date);
         const songsList = scale.songs || [];
         const paletteColors = scale.palette ? scale.palette.split(',').map(c => c.trim()) : [];
-        const musicianIds = JSON.parse(scale.musician_ids || '[]');
+        let musicianIds = [];
+        try { musicianIds = JSON.parse(scale.musician_ids || '[]'); } catch { musicianIds = []; }
         const musicianNames = musicianIds.map(id => {
             const m = members.find(mem => mem.id == id);
             return m ? m.name : '';
@@ -996,7 +998,8 @@
             const allScales = data.filter(s => s.department_id === user.department_id);
             
             myScales = allScales.filter(s => {
-                const musicianIds = JSON.parse(s.musician_ids || '[]');
+                let musicianIds = [];
+                try { musicianIds = JSON.parse(s.musician_ids || '[]'); } catch { musicianIds = []; }
                 return s.leader_id === user.id || 
                        s.minister_id === user.id || 
                        musicianIds.includes(user.id);
@@ -1012,7 +1015,8 @@
             container.innerHTML = myScales.map(s => {
                 const eventDate = new Date(s.event_date);
                 const songsList = s.songs || [];
-                const musicianIds = JSON.parse(s.musician_ids || '[]');
+                let musicianIds = [];
+                try { musicianIds = JSON.parse(s.musician_ids || '[]'); } catch { musicianIds = []; }
                 const musicianNames = musicianIds.map(id => {
                     const m = members.find(mem => mem.id == id);
                     return m ? m.name : '';
@@ -1069,7 +1073,7 @@
 
         } catch (e) {
             console.error('Erro:', e);
-            document.getElementById('myScalesList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar minhas escalas</p>';
+            document.getElementById('myScalesList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar minhas escalas: ' + e.message + '</p>';
         }
     }
 
@@ -1116,7 +1120,7 @@
             `).join('');
         } catch (e) {
             console.error('Erro:', e);
-            document.getElementById('teamList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar equipe</p>';
+            document.getElementById('teamList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar equipe: ' + e.message + '</p>';
         }
     }
 
@@ -1127,10 +1131,11 @@
     async function loadMembers() {
         try {
             const res = await fetch(`/api/departments/${user.department_id}/members`, { headers: getHeaders() });
-            members = await res.json();
+            const data = await res.json();
+            members = data;
             const container = document.getElementById('membersList');
 
-            if (!members || members.length === 0) {
+            if (!data || data.length === 0) {
                 container.innerHTML = '<p style="color:#888;">Nenhum membro neste departamento.</p>';
                 return;
             }
@@ -1143,7 +1148,7 @@
                 colaborador: '<span class="role-badge member">🤝 Colaborador</span>'
             };
 
-            container.innerHTML = members.map(m => `
+            container.innerHTML = data.map(m => `
                 <div class="member-item">
                     <div>
                         <span class="name">${m.name}</span>
@@ -1161,7 +1166,7 @@
 
         } catch (e) {
             console.error('Erro:', e);
-            document.getElementById('membersList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar membros</p>';
+            document.getElementById('membersList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar membros: ' + e.message + '</p>';
         }
     }
 
@@ -1306,7 +1311,7 @@
             loadMusicCheckboxGrid();
         } catch (e) {
             console.error('Erro:', e);
-            document.getElementById('songsList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar músicas</p>';
+            document.getElementById('songsList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar músicas: ' + e.message + '</p>';
         }
     }
 

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -329,6 +328,14 @@
             height: 18px;
             cursor: pointer;
             flex-shrink: 0;
+        }
+
+        .birthday-today {
+            background: #d4edda !important;
+        }
+        .birthday-today td:first-child::after {
+            content: ' 🎉';
+            font-size: 1.2rem;
         }
 
         @media (max-width: 768px) {
@@ -717,15 +724,27 @@
     <!-- ANIVERSARIANTES -->
     <div id="tab-aniversariantes" class="tab-content">
         <div class="flex-between mb-1">
-            <h3>🎂 Aniversariantes</h3>
-            <button onclick="openBirthdayModal()" class="btn btn-success"><i class="fas fa-plus"></i> Adicionar</button>
+            <h3>🎂 Aniversariantes do Mês</h3>
+            <span style="font-size:0.85rem;color:#888;">Baseado nos membros cadastrados</span>
         </div>
         <div class="table-wrapper">
             <table class="table">
-                <thead><tr><th>Nome</th><th>Data de Nascimento</th><th>Telefone</th><th>Ações</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Data de Nascimento</th>
+                        <th>Telefone</th>
+                        <th>Idade</th>
+                        <th>Departamento</th>
+                    </tr>
+                </thead>
                 <tbody id="birthdaysList"></tbody>
             </table>
         </div>
+        <p style="font-size:0.8rem;color:#888;margin-top:0.5rem;">
+            <i class="fas fa-info-circle"></i> Aniversariantes são carregados automaticamente dos membros cadastrados.
+            Cadastre membros com data de nascimento para aparecerem aqui.
+        </p>
     </div>
 
     <!-- CONFIG -->
@@ -887,18 +906,6 @@
         <div class="form-group"><label>Data de Vencimento *</label><input type="date" id="billDueDate"></div>
         <div class="form-group"><label>Observações</label><textarea id="billNotes" rows="3"></textarea></div>
         <button onclick="saveBill()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
-    </div>
-</div>
-
-<!-- ANIVERSARIANTE -->
-<div class="modal" id="birthdayModal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('birthdayModal')">&times;</button>
-        <h3>🎂 Adicionar Aniversariante</h3>
-        <div class="form-group"><label>Nome *</label><input type="text" id="birthdayName"></div>
-        <div class="form-group"><label>Data de Nascimento *</label><input type="date" id="birthdayDate"></div>
-        <div class="form-group"><label>Telefone</label><input type="tel" id="birthdayPhone"></div>
-        <button onclick="saveBirthday()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
     </div>
 </div>
 
@@ -1401,24 +1408,60 @@ async function loadDepartments() {
     } catch (e) { console.error('Erro:', e); }
 }
 
+// ============================================
+// ===== ANIVERSARIANTES - ADMIN (CORRIGIDO) =====
+// ============================================
+
 async function loadBirthdaysAdmin() {
     try {
         const res = await fetch('/api/birthdays', { headers: getHeaders() });
         const data = await res.json();
         const tbody = document.getElementById('birthdaysList');
-        if (!data?.length) {
-            tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum aniversariante</td></tr>';
+        
+        if (!data || data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhum aniversariante este mês</td></tr>';
             return;
         }
-        tbody.innerHTML = data.map(b => `
-            <tr>
-                <td>${b.name}</td>
-                <td>${new Date(b.birth_date).toLocaleDateString('pt-BR')}</td>
-                <td>${b.phone || '-'}</td>
-                <td><button onclick="deleteBirthday(${b.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td>
-            </tr>
-        `).join('');
-    } catch (e) { console.error('Erro:', e); }
+        
+        // Ordena por dia do mês
+        const sorted = [...data].sort((a, b) => {
+            const dateA = new Date(a.birth_date);
+            const dateB = new Date(b.birth_date);
+            const monthA = dateA.getMonth();
+            const monthB = dateB.getMonth();
+            if (monthA !== monthB) return monthA - monthB;
+            return dateA.getDate() - dateB.getDate();
+        });
+        
+        const today = new Date();
+        const todayMonth = today.getMonth();
+        const todayDay = today.getDate();
+        
+        tbody.innerHTML = sorted.map(b => {
+            const birthDate = new Date(b.birth_date);
+            let idade = today.getFullYear() - birthDate.getFullYear();
+            if (today.getMonth() < birthDate.getMonth() || 
+                (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())) {
+                idade--;
+            }
+            
+            const isToday = birthDate.getMonth() === todayMonth && birthDate.getDate() === todayDay;
+            const rowClass = isToday ? 'birthday-today' : '';
+            
+            return `
+                <tr class="${rowClass}">
+                    <td>${b.name} ${isToday ? '🎉 HOJE!' : ''}</td>
+                    <td>${birthDate.toLocaleDateString('pt-BR')}</td>
+                    <td>${b.phone || '-'}</td>
+                    <td>${idade} anos</td>
+                    <td>${b.department_name || '-'}</td>
+                </tr>
+            `;
+        }).join('');
+    } catch (e) { 
+        console.error('Erro:', e);
+        document.getElementById('birthdaysList').innerHTML = '<tr><td colspan="5" class="text-center" style="color:#dc3545;">Erro ao carregar aniversariantes</td></tr>';
+    }
 }
 
 // ============================================
@@ -1498,15 +1541,6 @@ async function deleteDepartment(id) {
         loadDepartments();
         loadDashboard();
         showNotification('✅ Departamento removido!', 'success');
-    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
-}
-
-async function deleteBirthday(id) {
-    if (!confirm('Remover este aniversariante?')) return;
-    try {
-        await fetch('/api/birthdays/' + id, { method: 'DELETE', headers: getHeaders() });
-        loadBirthdaysAdmin();
-        showNotification('✅ Aniversariante removido!', 'success');
     } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
 }
 
@@ -1771,7 +1805,7 @@ async function deleteMember(id) {
 }
 
 // ============================================
-// ===== FREQUÊNCIA =====
+// ===== FREQUÊNCIA - MULTISSELECAO =====
 // ============================================
 
 let allMembers = [];
@@ -2231,36 +2265,31 @@ async function loadBillSummary() {
 }
 
 // ============================================
-// ===== ANIVERSARIANTES =====
+// ===== CONFIGURAÇÕES =====
 // ============================================
 
-function openBirthdayModal() {
-    document.getElementById('birthdayName').value = '';
-    document.getElementById('birthdayDate').value = '';
-    document.getElementById('birthdayPhone').value = '';
-    openModal('birthdayModal');
+async function loadConfig() {
+    try {
+        const res = await fetch('/api/settings');
+        const data = await res.json();
+        if (data.primary_color) document.getElementById('configPrimary').value = data.primary_color;
+        if (data.site_title) document.getElementById('configTitle').value = data.site_title;
+        if (data.whatsapp) document.getElementById('configWhatsapp').value = data.whatsapp;
+        if (data.instagram) document.getElementById('configInstagram').value = data.instagram;
+    } catch (e) { console.error('Erro:', e); }
 }
 
-async function saveBirthday() {
-    const name = document.getElementById('birthdayName').value.trim();
-    const birth_date = document.getElementById('birthdayDate').value;
-    const phone = document.getElementById('birthdayPhone').value.trim();
-
-    if (!name || !birth_date) {
-        showNotification('Preencha nome e data de nascimento!', 'error');
-        return;
-    }
-
+async function saveConfig(key, value) {
     try {
-        await fetch('/api/birthdays', {
+        await fetch('/api/settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', ...getHeaders() },
-            body: JSON.stringify({ name, birth_date, phone })
+            body: JSON.stringify({ key, value })
         });
-        closeModal('birthdayModal');
-        loadBirthdaysAdmin();
-        loadDashboard();
-        showNotification('✅ Aniversariante adicionado!', 'success');
+        if (key === 'primary_color') {
+            document.documentElement.style.setProperty('--primary', value);
+        }
+        showNotification('✅ Configuração salva!', 'success');
     } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
 }
 
@@ -2323,35 +2352,6 @@ document.getElementById('carouselForm')?.addEventListener('submit', async functi
 });
 
 // ============================================
-// ===== CONFIGURAÇÕES =====
-// ============================================
-
-async function loadConfig() {
-    try {
-        const res = await fetch('/api/settings');
-        const data = await res.json();
-        if (data.primary_color) document.getElementById('configPrimary').value = data.primary_color;
-        if (data.site_title) document.getElementById('configTitle').value = data.site_title;
-        if (data.whatsapp) document.getElementById('configWhatsapp').value = data.whatsapp;
-        if (data.instagram) document.getElementById('configInstagram').value = data.instagram;
-    } catch (e) { console.error('Erro:', e); }
-}
-
-async function saveConfig(key, value) {
-    try {
-        await fetch('/api/settings', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...getHeaders() },
-            body: JSON.stringify({ key, value })
-        });
-        if (key === 'primary_color') {
-            document.documentElement.style.setProperty('--primary', value);
-        }
-        showNotification('✅ Configuração salva!', 'success');
-    } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
-}
-
-// ============================================
 // ===== INICIALIZAÇÃO =====
 // ============================================
 
@@ -2363,4 +2363,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-```

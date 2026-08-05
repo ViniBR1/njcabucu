@@ -511,7 +511,6 @@ app.post('/api/users-by-leader', auth, async (req, res) => {
     try {
         const { name, email, password, role, department_id } = req.body;
         
-        // Verifica se o usuário atual é líder do departamento
         const leaderCheck = await sql`
             SELECT * FROM users 
             WHERE id = ${req.user.id} AND is_leader = true AND department_id = ${department_id}
@@ -521,7 +520,6 @@ app.post('/api/users-by-leader', auth, async (req, res) => {
             return res.status(403).json({ error: 'Apenas líderes podem criar usuários no departamento' });
         }
         
-        // Verifica se o usuário já existe
         const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
         if (existing.length > 0) {
             return res.status(400).json({ error: 'Usuário já existe' });
@@ -1148,53 +1146,90 @@ app.get('/api/donations', auth, async (req, res) => {
     }
 });
 
-// ----- ANIVERSARIANTES -----
+// ============================================
+// ===== ANIVERSARIANTES (CORRIGIDO) =====
+// ============================================
+
 app.get('/api/birthdays', async (req, res) => {
     try {
         const today = new Date();
         const currentMonth = today.getMonth() + 1;
+        const currentDay = today.getDate();
         
-        const birthdays = await sql`
-            SELECT * FROM birthdays 
+        // Busca aniversariantes da tabela members (que já tem birth_date)
+        const birthdayMembers = await sql`
+            SELECT 
+                id, 
+                name, 
+                birth_date,
+                phone,
+                department_name,
+                'member' as source
+            FROM members 
             WHERE is_active = true 
-            ORDER BY 
-                EXTRACT(MONTH FROM birth_date),
-                EXTRACT(DAY FROM birth_date)
+            AND EXTRACT(MONTH FROM birth_date) = ${currentMonth}
+            ORDER BY EXTRACT(DAY FROM birth_date)
         `;
         
-        const monthBirthdays = birthdays.filter(b => {
-            const birthMonth = new Date(b.birth_date).getMonth() + 1;
-            return birthMonth === currentMonth;
+        // Também busca da tabela birthdays (para compatibilidade)
+        const birthdayLegacy = await sql`
+            SELECT 
+                id, 
+                name, 
+                birth_date,
+                phone,
+                NULL as department_name,
+                'legacy' as source
+            FROM birthdays 
+            WHERE is_active = true 
+            AND EXTRACT(MONTH FROM birth_date) = ${currentMonth}
+            ORDER BY EXTRACT(DAY FROM birth_date)
+        `;
+        
+        // Combina e remove duplicatas por nome
+        const allBirthdays = [...birthdayMembers, ...birthdayLegacy];
+        const uniqueBirthdays = [];
+        const names = new Set();
+        
+        allBirthdays.forEach(b => {
+            if (!names.has(b.name)) {
+                names.add(b.name);
+                uniqueBirthdays.push(b);
+            }
         });
         
-        console.log(`🎂 Aniversariantes do mês ${currentMonth}:`, monthBirthdays.length);
-        res.json(monthBirthdays);
+        console.log(`🎂 Aniversariantes do mês ${currentMonth}:`, uniqueBirthdays.length);
+        res.json(uniqueBirthdays);
     } catch (error) {
         console.error('❌ Erro ao buscar aniversariantes:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-app.post('/api/birthdays', auth, pastorOnly, async (req, res) => {
+// ----- ROTA PARA BUSCAR ANIVERSARIANTES DO DIA -----
+app.get('/api/birthdays/today', async (req, res) => {
     try {
-        const { name, birth_date, phone } = req.body;
-        const result = await sql`
-            INSERT INTO birthdays (name, birth_date, phone)
-            VALUES (${name}, ${birth_date}, ${phone || ''})
-            RETURNING *
+        const today = new Date();
+        const currentMonth = today.getMonth() + 1;
+        const currentDay = today.getDate();
+        
+        const birthdayMembers = await sql`
+            SELECT 
+                id, 
+                name, 
+                birth_date,
+                phone,
+                department_name
+            FROM members 
+            WHERE is_active = true 
+            AND EXTRACT(MONTH FROM birth_date) = ${currentMonth}
+            AND EXTRACT(DAY FROM birth_date) = ${currentDay}
+            ORDER BY name
         `;
-        res.status(201).json(result[0]);
+        
+        res.json(birthdayMembers);
     } catch (error) {
-        console.error('❌ Erro ao criar aniversariante:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/birthdays/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        await sql`DELETE FROM birthdays WHERE id = ${req.params.id}`;
-        res.json({ message: 'Aniversariante removido' });
-    } catch (error) {
+        console.error('❌ Erro ao buscar aniversariantes do dia:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1372,12 +1407,11 @@ app.delete('/api/availability/:id', auth, async (req, res) => {
     }
 });
 
-// ----- WORSHIP SCALES (CORRIGIDO) -----
+// ----- WORSHIP SCALES -----
 app.post('/api/worship-scales', auth, async (req, res) => {
     try {
         const { department_id, event_date, leader_id, minister_id, songs, song_ids, palette, rehearsal, musicians } = req.body;
         
-        // Verifica se o usuário é líder do departamento
         const user = await sql`
             SELECT * FROM users 
             WHERE id = ${req.user.id} 

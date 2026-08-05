@@ -585,6 +585,19 @@
         </div>
     </div>
 
+    <!-- MODAL MINISTRO ADICIONAR MÚSICAS -->
+    <div class="modal" id="ministerMusicModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('ministerMusicModal')">&times;</button>
+            <h3><i class="fas fa-music"></i> Adicionar Músicas à Escala</h3>
+            <p style="color:#666;margin-bottom:0.5rem;">Selecione as músicas que você vai ministrar neste culto:</p>
+            <div class="music-checkbox-grid" id="ministerMusicGrid"></div>
+            <button onclick="saveMinisterSongs()" class="btn btn-primary w-full" style="margin-top:0.5rem;justify-content:center;">
+                <i class="fas fa-save"></i> Salvar Músicas
+            </button>
+        </div>
+    </div>
+
     <script>
     // ============================================
     // ===== CONFIGURAÇÕES =====
@@ -598,8 +611,11 @@
     let songs = [];
     let myScales = [];
     let selectedAvailabilityDates = [];
+    let ministerScales = [];
+    let currentScaleId = null;
 
     const isLeader = user.role === 'lider' || user.is_leader || user.role === 'pastor';
+    const isMinister = user.role === 'ministro';
 
     function getHeaders() {
         return { 'Authorization': 'Bearer ' + token };
@@ -669,11 +685,96 @@
             return;
         }
 
-        // Carrega dados iniciais
         loadDashboard();
         generateDateSelector();
         loadMusicCheckboxGrid();
+        if (isMinister) loadMinisterScales();
     });
+
+    // ============================================
+    // ===== MINISTRO ADICIONAR MÚSICAS =====
+    // ============================================
+
+    async function loadMinisterScales() {
+        try {
+            const res = await fetch(`/api/worship-scales/minister/${user.id}`, { headers: getHeaders() });
+            const data = await res.json();
+            ministerScales = Array.isArray(data) ? data : [];
+        } catch (e) {
+            console.error('Erro ao carregar escalas do ministro:', e);
+        }
+    }
+
+    function openMinisterMusicModal(scaleId) {
+        currentScaleId = scaleId;
+        const scale = ministerScales.find(s => s.id === scaleId);
+        if (!scale) {
+            showNotification('Escala não encontrada!', 'error');
+            return;
+        }
+        
+        const container = document.getElementById('ministerMusicGrid');
+        if (!songs || songs.length === 0) {
+            container.innerHTML = '<p style="color:#888;">Nenhuma música cadastrada.</p>';
+            return;
+        }
+
+        // Carrega músicas disponíveis
+        const songIds = JSON.parse(scale.song_ids || '[]');
+        
+        container.innerHTML = songs.map(s => {
+            const isChecked = songIds.includes(s.id) ? 'checked' : '';
+            return `
+                <label>
+                    <input type="checkbox" class="music-checkbox" value="${s.id}" data-title="${s.title}" ${isChecked}>
+                    ${s.title} (${s.key || 'C'})
+                </label>
+            `;
+        }).join('');
+        
+        openModal('ministerMusicModal');
+    }
+
+    function getSelectedMinisterMusicIds() {
+        const checkboxes = document.querySelectorAll('#ministerMusicGrid .music-checkbox:checked');
+        return Array.from(checkboxes).map(cb => parseInt(cb.value));
+    }
+
+    async function saveMinisterSongs() {
+        const musicIds = getSelectedMinisterMusicIds();
+        if (!musicIds.length) {
+            showNotification('Selecione pelo menos uma música!', 'error');
+            return;
+        }
+        
+        const musicNames = musicIds.map(id => {
+            const m = songs.find(s => s.id == id);
+            return m ? m.title : 'Música';
+        });
+        
+        try {
+            const response = await fetch(`/api/worship-scales/${currentScaleId}/songs`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                body: JSON.stringify({
+                    songs: musicNames,
+                    song_ids: musicIds
+                })
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Erro ao adicionar músicas');
+            }
+            
+            showNotification('✅ Músicas adicionadas à escala!', 'success');
+            closeModal('ministerMusicModal');
+            loadScales();
+            loadMyScales();
+        } catch (e) {
+            showNotification('❌ Erro: ' + e.message, 'error');
+        }
+    }
 
     // ============================================
     // ===== GERADOR DE SELETOR DE DATAS =====
@@ -774,7 +875,7 @@
     }
 
     function getSelectedMusicIds() {
-        const checkboxes = document.querySelectorAll('.music-checkbox:checked');
+        const checkboxes = document.querySelectorAll('#musicCheckboxGrid .music-checkbox:checked');
         return Array.from(checkboxes).map(cb => parseInt(cb.value));
     }
 
@@ -815,6 +916,23 @@
     }
 
     // ============================================
+    // ===== BUSCAR DISPONÍVEIS PARA UMA DATA =====
+    // ============================================
+
+    async function loadAvailableMembersForDate(date) {
+        try {
+            const res = await fetch(`/api/availability/date/${date}?department_id=${user.department_id}`, { 
+                headers: getHeaders() 
+            });
+            const data = await res.json();
+            return Array.isArray(data) ? data : [];
+        } catch (e) {
+            console.error('Erro:', e);
+            return [];
+        }
+    }
+
+    // ============================================
     // ===== ESCALAS =====
     // ============================================
 
@@ -824,6 +942,13 @@
         loadMinisterSelect();
         loadMusiciansSelect();
         loadMusicCheckboxGrid();
+        
+        // Carrega músicos disponíveis quando a data mudar
+        const dateInput = document.getElementById('scaleDate');
+        dateInput.addEventListener('change', loadMusiciansSelect);
+        if (dateInput.value) {
+            loadMusiciansSelect();
+        }
     }
 
     function hideCreateScale() {
@@ -831,7 +956,7 @@
         document.getElementById('scaleDate').value = '';
         document.getElementById('scalePalette').value = '';
         document.getElementById('hasRehearsal').checked = false;
-        document.querySelectorAll('.music-checkbox').forEach(cb => cb.checked = false);
+        document.querySelectorAll('#musicCheckboxGrid .music-checkbox').forEach(cb => cb.checked = false);
     }
 
     async function saveScale() {
@@ -844,6 +969,20 @@
 
         if (!date) { showNotification('Selecione a data do culto!', 'error'); return; }
         if (!musicIds.length) { showNotification('Selecione pelo menos uma música!', 'error'); return; }
+
+        // Verifica se os músicos selecionados estão disponíveis na data
+        const available = await loadAvailableMembersForDate(date);
+        const availableIds = available.map(m => m.id);
+        
+        const invalidMusicians = musicians.filter(id => !availableIds.includes(parseInt(id)));
+        if (invalidMusicians.length > 0) {
+            const names = invalidMusicians.map(id => {
+                const m = members.find(mem => mem.id == id);
+                return m ? m.name : 'Músico';
+            });
+            showNotification(`⚠️ Os seguintes músicos não estão disponíveis na data: ${names.join(', ')}`, 'error');
+            return;
+        }
 
         const musicNames = musicIds.map(id => {
             const m = songs.find(s => s.id == id);
@@ -883,8 +1022,6 @@
         try {
             const res = await fetch('/api/worship-scales', { headers: getHeaders() });
             const data = await res.json();
-            
-            // Garantir que data é um array
             scales = Array.isArray(data) ? data.filter(s => s.department_id === user.department_id) : [];
             
             const container = document.getElementById('scalesList');
@@ -899,6 +1036,7 @@
                 const songsList = Array.isArray(s.songs) ? s.songs : [];
                 const paletteColors = s.palette ? s.palette.split(',').map(c => c.trim()) : [];
                 const isMyScale = myScales.some(m => m.id === s.id);
+                const isMinisterScale = s.minister_id === user.id;
                 let musicianIds = [];
                 try { musicianIds = JSON.parse(s.musician_ids || '[]'); } catch { musicianIds = []; }
                 const musicianNames = musicianIds.map(id => {
@@ -930,7 +1068,14 @@
                         ${musicianNames.length ? `<div><strong>Músicos:</strong> ${musicianNames.join(', ')}</div>` : ''}
                         <div style="margin-top:0.3rem;">
                             <button onclick="viewScaleDetails(${s.id})" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Detalhes</button>
-                            ${isLeader ? `<button onclick="deleteScale(${s.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Remover</button>` : ''}
+                            ${isMinisterScale ? `
+                                <button onclick="openMinisterMusicModal(${s.id})" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-music"></i> Adicionar Músicas
+                                </button>
+                            ` : ''}
+                            ${isLeader ? `
+                                <button onclick="deleteScale(${s.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Remover</button>
+                            ` : ''}
                         </div>
                     </div>
                 `;
@@ -942,39 +1087,60 @@
         }
     }
 
-    function viewScaleDetails(id) {
-        const scale = scales.find(s => s.id === id);
-        if (!scale) return;
+    async function viewScaleDetails(id) {
+        try {
+            const res = await fetch(`/api/worship-scales/${id}/details`, { headers: getHeaders() });
+            const scale = await res.json();
+            if (!scale) {
+                showNotification('Escala não encontrada!', 'error');
+                return;
+            }
 
-        const eventDate = new Date(scale.event_date);
-        const songsList = Array.isArray(scale.songs) ? scale.songs : [];
-        const paletteColors = scale.palette ? scale.palette.split(',').map(c => c.trim()) : [];
-        let musicianIds = [];
-        try { musicianIds = JSON.parse(scale.musician_ids || '[]'); } catch { musicianIds = []; }
-        const musicianNames = musicianIds.map(id => {
-            const m = members.find(mem => mem.id == id);
-            return m ? m.name : '';
-        }).filter(Boolean);
+            const eventDate = new Date(scale.event_date);
+            const songsList = scale.songs || [];
+            const paletteColors = scale.palette ? scale.palette.split(',').map(c => c.trim()) : [];
+            const musiciansList = scale.musicians || [];
 
-        document.getElementById('viewScaleTitle').textContent = `📅 Escala - ${eventDate.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' })}`;
-        document.getElementById('viewScaleContent').innerHTML = `
-            <div><strong>Data:</strong> ${eventDate.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' })} às ${eventDate.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' })}</div>
-            <div><strong>Líder:</strong> ${scale.leader_name || 'Não definido'}</div>
-            <div><strong>Ministro:</strong> ${scale.minister_name || 'Não definido'}</div>
-            <div><strong>Músicas:</strong></div>
-            <div style="display:flex;flex-wrap:wrap;gap:0.3rem;">
-                ${songsList.map(m => `<span class="music-tag" onclick="viewSongByName('${m}')" style="font-size:0.85rem;">${m}</span>`).join('') || '-'}
-            </div>
-            ${paletteColors.length ? `
-                <div><strong>Paleta:</strong></div>
-                <div style="display:flex;gap:0.3rem;flex-wrap:wrap;">
-                    ${paletteColors.map(c => `<span style="width:30px;height:30px;border-radius:50%;background:${c};border:2px solid #ddd;"></span>`).join('')}
+            document.getElementById('viewScaleTitle').textContent = `📅 Escala - ${eventDate.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' })}`;
+            document.getElementById('viewScaleContent').innerHTML = `
+                <div><strong>Data:</strong> ${eventDate.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' })} às ${eventDate.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' })}</div>
+                <div><strong>Líder:</strong> ${scale.leader_name || 'Não definido'}</div>
+                <div><strong>Ministro:</strong> ${scale.minister_name || 'Não definido'}</div>
+                <div><strong>Músicas:</strong></div>
+                <div style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:0.5rem;">
+                    ${songsList.map(s => `
+                        <div style="background:linear-gradient(135deg, var(--primary), var(--primary-light));color:white;padding:0.3rem 0.8rem;border-radius:50px;font-size:0.8rem;display:inline-block;margin:0.15rem;">
+                            ${s.title || s}
+                            ${s.key ? ` (${s.key})` : ''}
+                            ${s.lyrics ? `<button onclick="viewSong(${s.id})" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:white;padding:0.1rem 0.4rem;margin-left:0.3rem;font-size:0.6rem;border:none;cursor:pointer;">🎵 Ver Cifra</button>` : ''}
+                        </div>
+                    `).join('') || '-'}
                 </div>
-            ` : ''}
-            ${scale.rehearsal ? `<div style="color:#28a745;"><i class="fas fa-microphone"></i> Com Ensaio</div>` : ''}
-            ${musicianNames.length ? `<div><strong>Músicos:</strong> ${musicianNames.join(', ')}</div>` : ''}
-        `;
-        openModal('viewScaleModal');
+                ${paletteColors.length ? `
+                    <div><strong>Paleta:</strong></div>
+                    <div style="display:flex;gap:0.3rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+                        ${paletteColors.map(c => `<span style="width:30px;height:30px;border-radius:50%;background:${c};border:2px solid #ddd;"></span>`).join('')}
+                    </div>
+                ` : ''}
+                ${scale.rehearsal ? `<div style="color:#28a745;margin-bottom:0.5rem;"><i class="fas fa-microphone"></i> Com Ensaio</div>` : ''}
+                ${musiciansList.length ? `
+                    <div><strong>Equipe Músicos:</strong></div>
+                    <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.5rem;">
+                        ${musiciansList.map(m => `
+                            <span style="background:#f0f0f0;padding:0.2rem 0.8rem;border-radius:50px;font-size:0.8rem;">
+                                ${m.name}
+                            </span>
+                        `).join('')}
+                    </div>
+                ` : ''}
+                <div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid #eee;font-size:0.85rem;color:#888;">
+                    <i class="fas fa-info-circle"></i> Clique em "Ver Cifra" para visualizar a letra com cifras
+                </div>
+            `;
+            openModal('viewScaleModal');
+        } catch (e) {
+            showNotification('❌ Erro ao carregar detalhes: ' + e.message, 'error');
+        }
     }
 
     async function deleteScale(id) {
@@ -995,18 +1161,10 @@
 
     async function loadMyScales() {
         try {
-            const res = await fetch('/api/worship-scales', { headers: getHeaders() });
+            const res = await fetch(`/api/worship-scales/member/${user.id}`, { headers: getHeaders() });
             const data = await res.json();
-            const allScales = Array.isArray(data) ? data.filter(s => s.department_id === user.department_id) : [];
+            myScales = Array.isArray(data) ? data : [];
             
-            myScales = allScales.filter(s => {
-                let musicianIds = [];
-                try { musicianIds = JSON.parse(s.musician_ids || '[]'); } catch { musicianIds = []; }
-                return s.leader_id === user.id || 
-                       s.minister_id === user.id || 
-                       musicianIds.includes(user.id);
-            });
-
             const container = document.getElementById('myScalesList');
 
             if (!myScales || myScales.length === 0) {
@@ -1088,7 +1246,6 @@
             const res = await fetch(`/api/departments/${user.department_id}/members`, { headers: getHeaders() });
             const data = await res.json();
             
-            // Garantir que data é um array
             members = Array.isArray(data) ? data : [];
             
             const container = document.getElementById('teamList');
@@ -1442,14 +1599,34 @@
         });
     }
 
-    function loadMusiciansSelect() {
+    async function loadMusiciansSelect() {
+        const date = document.getElementById('scaleDate').value;
         const select = document.getElementById('scaleMusicians');
-        const musiciansList = members.filter(m => m.member_role === 'musico' || m.member_role === 'lider');
-
-        select.innerHTML = '';
-        musiciansList.forEach(m => {
-            select.innerHTML += `<option value="${m.id}">${m.name}</option>`;
-        });
+        
+        if (!date) {
+            select.innerHTML = '<option value="">Selecione uma data primeiro</option>';
+            return;
+        }
+        
+        try {
+            const available = await loadAvailableMembersForDate(date);
+            const musiciansList = members.filter(m => 
+                (m.member_role === 'musico' || m.member_role === 'lider') && 
+                available.some(a => a.id === m.id)
+            );
+            
+            select.innerHTML = '';
+            if (musiciansList.length === 0) {
+                select.innerHTML = '<option value="">Nenhum músico disponível nesta data</option>';
+            } else {
+                musiciansList.forEach(m => {
+                    select.innerHTML += `<option value="${m.id}">${m.name} ✅ Disponível</option>`;
+                });
+            }
+        } catch (e) {
+            console.error('Erro:', e);
+            select.innerHTML = '<option value="">Erro ao carregar disponíveis</option>';
+        }
     }
 
     // ============================================

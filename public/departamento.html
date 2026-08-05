@@ -6,7 +6,6 @@
     <title>Departamento - NJ Cabuçu</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* ... (mesmo CSS anterior) ... */
         * { margin:0; padding:0; box-sizing:border-box; }
         :root {
             --primary: #0D47A1;
@@ -670,6 +669,7 @@
             return;
         }
 
+        // Carrega dados iniciais
         loadDashboard();
         generateDateSelector();
         loadMusicCheckboxGrid();
@@ -684,7 +684,6 @@
         const today = new Date();
         const dates = [];
         
-        // Gera próximos 30 dias (incluindo domingos)
         for (let i = 0; i < 30; i++) {
             const date = new Date(today);
             date.setDate(date.getDate() + i);
@@ -884,7 +883,10 @@
         try {
             const res = await fetch('/api/worship-scales', { headers: getHeaders() });
             const data = await res.json();
-            scales = data.filter(s => s.department_id === user.department_id);
+            
+            // Garantir que data é um array
+            scales = Array.isArray(data) ? data.filter(s => s.department_id === user.department_id) : [];
+            
             const container = document.getElementById('scalesList');
 
             if (!scales || scales.length === 0) {
@@ -894,7 +896,7 @@
 
             container.innerHTML = scales.map(s => {
                 const eventDate = new Date(s.event_date);
-                const songsList = s.songs || [];
+                const songsList = Array.isArray(s.songs) ? s.songs : [];
                 const paletteColors = s.palette ? s.palette.split(',').map(c => c.trim()) : [];
                 const isMyScale = myScales.some(m => m.id === s.id);
                 let musicianIds = [];
@@ -936,7 +938,7 @@
 
         } catch (e) {
             console.error('Erro:', e);
-            document.getElementById('scalesList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar escalas</p>';
+            document.getElementById('scalesList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar escalas: ' + e.message + '</p>';
         }
     }
 
@@ -945,7 +947,7 @@
         if (!scale) return;
 
         const eventDate = new Date(scale.event_date);
-        const songsList = scale.songs || [];
+        const songsList = Array.isArray(scale.songs) ? scale.songs : [];
         const paletteColors = scale.palette ? scale.palette.split(',').map(c => c.trim()) : [];
         let musicianIds = [];
         try { musicianIds = JSON.parse(scale.musician_ids || '[]'); } catch { musicianIds = []; }
@@ -995,7 +997,7 @@
         try {
             const res = await fetch('/api/worship-scales', { headers: getHeaders() });
             const data = await res.json();
-            const allScales = data.filter(s => s.department_id === user.department_id);
+            const allScales = Array.isArray(data) ? data.filter(s => s.department_id === user.department_id) : [];
             
             myScales = allScales.filter(s => {
                 let musicianIds = [];
@@ -1014,7 +1016,7 @@
 
             container.innerHTML = myScales.map(s => {
                 const eventDate = new Date(s.event_date);
-                const songsList = s.songs || [];
+                const songsList = Array.isArray(s.songs) ? s.songs : [];
                 let musicianIds = [];
                 try { musicianIds = JSON.parse(s.musician_ids || '[]'); } catch { musicianIds = []; }
                 const musicianNames = musicianIds.map(id => {
@@ -1085,10 +1087,13 @@
         try {
             const res = await fetch(`/api/departments/${user.department_id}/members`, { headers: getHeaders() });
             const data = await res.json();
-            members = data;
+            
+            // Garantir que data é um array
+            members = Array.isArray(data) ? data : [];
+            
             const container = document.getElementById('teamList');
 
-            if (!data || data.length === 0) {
+            if (!members || members.length === 0) {
                 container.innerHTML = '<p style="color:#888;">Nenhum membro na equipe.</p>';
                 return;
             }
@@ -1109,7 +1114,7 @@
                 colaborador: 'role-badge member'
             };
 
-            container.innerHTML = data.map(m => `
+            container.innerHTML = members.map(m => `
                 <div class="member-item">
                     <div>
                         <span class="name">${m.name}</span>
@@ -1132,10 +1137,12 @@
         try {
             const res = await fetch(`/api/departments/${user.department_id}/members`, { headers: getHeaders() });
             const data = await res.json();
-            members = data;
+            
+            members = Array.isArray(data) ? data : [];
+            
             const container = document.getElementById('membersList');
 
-            if (!data || data.length === 0) {
+            if (!members || members.length === 0) {
                 container.innerHTML = '<p style="color:#888;">Nenhum membro neste departamento.</p>';
                 return;
             }
@@ -1148,7 +1155,7 @@
                 colaborador: '<span class="role-badge member">🤝 Colaborador</span>'
             };
 
-            container.innerHTML = data.map(m => `
+            container.innerHTML = members.map(m => `
                 <div class="member-item">
                     <div>
                         <span class="name">${m.name}</span>
@@ -1289,7 +1296,10 @@
     async function loadSongs() {
         try {
             const res = await fetch(`/api/songs?department_id=${user.department_id}`, { headers: getHeaders() });
-            songs = await res.json();
+            const data = await res.json();
+            
+            songs = Array.isArray(data) ? data : [];
+            
             const container = document.getElementById('songsList');
 
             if (!songs || songs.length === 0) {

@@ -69,6 +69,7 @@
             align-items: center;
             gap: 1rem;
             text-decoration: none;
+            cursor: pointer;
         }
         .logo-icon {
             width: 48px;
@@ -83,6 +84,7 @@
             color: white;
             box-shadow: 0 4px 15px rgba(13,71,161,0.3);
             transition: var(--transition);
+            position: relative;
         }
         .logo-icon:hover {
             transform: scale(1.05) rotate(-5deg);
@@ -142,6 +144,15 @@
             box-shadow: 0 4px 15px rgba(37,211,102,0.4);
         }
         .btn-sm { padding: 0.3rem 0.8rem; font-size: 0.8rem; }
+        .btn-bible {
+            background: #8B5A2B;
+            color: white;
+            box-shadow: 0 4px 15px rgba(139,90,43,0.3);
+        }
+        .btn-bible:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(139,90,43,0.4);
+        }
 
         /* Menu Mobile */
         .menu-toggle {
@@ -199,17 +210,6 @@
             background: var(--primary-gradient);
             box-shadow: 0 4px 15px rgba(13,71,161,0.3);
         }
-        .nav-btn .badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #dc3545;
-            color: white;
-            font-size: 0.6rem;
-            padding: 0.1rem 0.4rem;
-            border-radius: 50px;
-            font-weight: 700;
-        }
 
         /* ============================================
            HERO / CARROSSEL
@@ -217,11 +217,12 @@
         .hero {
             margin-top: 120px;
             position: relative;
-            height: 85vh;
+            height: 80vh;
             min-height: 500px;
-            max-height: 800px;
+            max-height: 700px;
             overflow: hidden;
             border-radius: 0 0 40px 40px;
+            background: #1a1a2e;
         }
         .hero-slides {
             display: flex;
@@ -235,6 +236,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
         }
         .hero-slide .bg-image {
             position: absolute;
@@ -251,6 +253,10 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(135deg, rgba(13,71,161,0.7), rgba(10,58,122,0.5));
+            transition: var(--transition);
+        }
+        .hero-slide:hover .overlay {
+            background: linear-gradient(135deg, rgba(13,71,161,0.5), rgba(10,58,122,0.3));
         }
         .hero-content {
             position: relative;
@@ -260,6 +266,7 @@
             padding: 2rem;
             text-align: center;
             animation: fadeUp 1s ease;
+            pointer-events: none;
         }
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(30px); }
@@ -275,12 +282,41 @@
         .hero-content p {
             font-size: 1.2rem;
             opacity: 0.95;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             text-shadow: 0 2px 20px rgba(0,0,0,0.2);
         }
         .hero-content .btn {
+            pointer-events: all;
             font-size: 1.1rem;
             padding: 0.8rem 2rem;
+        }
+
+        /* Badge de informação no carrossel */
+        .hero-slide .info-badge {
+            position: absolute;
+            bottom: 6rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            pointer-events: none;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+        .hero-slide .info-badge i {
+            font-size: 1rem;
         }
 
         /* Controles do Carrossel */
@@ -301,6 +337,7 @@
             cursor: pointer;
             transition: var(--transition);
             border: none;
+            padding: 0;
         }
         .hero-dot.active {
             background: white;
@@ -391,6 +428,8 @@
             cursor: default;
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
         .card:hover {
             transform: translateY(-8px);
@@ -409,6 +448,7 @@
             color: var(--primary);
             margin-bottom: 1rem;
             transition: var(--transition);
+            flex-shrink: 0;
         }
         .card:hover .icon-wrapper {
             background: var(--primary-gradient);
@@ -437,6 +477,7 @@
             border-radius: var(--radius-sm);
             margin-bottom: 0.8rem;
             background: #e8e8e8;
+            flex-shrink: 0;
         }
         .card-image-wrapper img {
             position: absolute;
@@ -452,43 +493,10 @@
         }
 
         /* ============================================
-           BÍBLIA - ABA INTERATIVA
+           MODAL BÍBLIA
         ============================================ */
-        .bible-toggle {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.6rem 1.5rem;
-            background: var(--primary-gradient);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            font-size: 0.95rem;
-            font-family: var(--font);
-            box-shadow: 0 4px 15px rgba(13,71,161,0.3);
-        }
-        .bible-toggle:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(13,71,161,0.4);
-        }
-        .bible-toggle i { transition: var(--transition); }
-        .bible-toggle.active i { transform: rotate(180deg); }
-
-        .bible-panel {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            border: 1px solid rgba(0,0,0,0.05);
-            margin-top: 1rem;
-        }
-        .bible-panel.open {
-            max-height: 800px;
-            padding: 2rem;
+        .modal-bible .modal-content {
+            max-width: 700px;
         }
         .bible-container {
             display: flex;
@@ -535,49 +543,40 @@
         }
 
         /* ============================================
-           ANIVERSARIANTES
+           MODAL CARROSSEL INFO
         ============================================ */
-        .birthday-card {
-            text-align: center;
-            border-left: 4px solid var(--primary);
-            padding: 1.5rem;
+        .modal-carousel .modal-content {
+            max-width: 700px;
         }
-        .birthday-card .emoji { font-size: 2.5rem; margin-bottom: 0.3rem; }
-        .birthday-card .name { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
-        .birthday-card .date { color: #666; font-size: 0.9rem; }
-        .birthday-card .age { color: #888; font-size: 0.85rem; }
-        .birthday-card.today { border-color: #e91e63; }
-        .birthday-card.today .name { color: #e91e63; }
-
-        /* ============================================
-           DÍZIMOS
-        ============================================ */
-        .tithe-options {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            flex-wrap: wrap;
+        .modal-carousel .modal-content .carousel-info-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1rem;
         }
-        .btn-donation {
-            background: var(--primary-gradient);
-            color: white;
-            border: none;
-            padding: 1.2rem 2.5rem;
-            font-size: 1.2rem;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-weight: 700;
-            font-family: var(--font);
-            box-shadow: 0 4px 20px rgba(13,71,161,0.2);
+        .modal-carousel .modal-content .carousel-info-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
         }
-        .btn-donation:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 8px 35px rgba(13,71,161,0.3);
+        .modal-carousel .modal-content .carousel-info-subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        .modal-carousel .modal-content .carousel-info-description {
+            color: #555;
+            line-height: 1.8;
+        }
+        .modal-carousel .modal-content .carousel-info-link {
+            display: inline-block;
+            margin-top: 1rem;
         }
 
         /* ============================================
-           MODAIS
+           MODAIS GERAIS
         ============================================ */
         .modal {
             display: none;
@@ -654,6 +653,21 @@
         .modal-content .btn { width: 100%; justify-content: center; margin-top: 0.5rem; }
 
         /* ============================================
+           ANIVERSARIANTES
+        ============================================ */
+        .birthday-card {
+            text-align: center;
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+        }
+        .birthday-card .emoji { font-size: 2.5rem; margin-bottom: 0.3rem; }
+        .birthday-card .name { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
+        .birthday-card .date { color: #666; font-size: 0.9rem; }
+        .birthday-card .age { color: #888; font-size: 0.85rem; }
+        .birthday-card.today { border-color: #e91e63; }
+        .birthday-card.today .name { color: #e91e63; }
+
+        /* ============================================
            NOTIFICAÇÕES
         ============================================ */
         .notification {
@@ -676,6 +690,33 @@
         .notification.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .notification.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .notification.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+
+        /* ============================================
+           TITHE OPTIONS
+        ============================================ */
+        .tithe-options {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .btn-donation {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 1.2rem 2.5rem;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 700;
+            font-family: var(--font);
+            box-shadow: 0 4px 20px rgba(13,71,161,0.2);
+        }
+        .btn-donation:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 35px rgba(13,71,161,0.3);
+        }
 
         /* ============================================
            FOOTER
@@ -760,26 +801,28 @@
                 padding: 1rem;
             }
             .nav-btn { width: 100%; text-align: center; padding: 0.6rem; }
-            .hero { margin-top: 65px; height: 60vh; min-height: 400px; }
-            .hero-content h1 { font-size: 2rem; }
-            .hero-content p { font-size: 1rem; }
+            .hero { margin-top: 65px; height: 50vh; min-height: 350px; }
+            .hero-content h1 { font-size: 1.8rem; }
+            .hero-content p { font-size: 0.95rem; }
             .hero-arrows .hero-arrow { width: 40px; height: 40px; font-size: 1rem; }
             .section { padding: 0 1rem; margin: 2rem auto; }
             .section-header h2 { font-size: 1.8rem; }
             .grid { grid-template-columns: 1fr; }
-            .bible-container { flex-direction: column; }
-            .bible-panel.open { padding: 1rem; }
             .modal-content { padding: 1.5rem; }
             .modal-content .form-row { flex-direction: column; }
             .tithe-options { gap: 0.8rem; }
             .btn-donation { padding: 0.8rem 1.5rem; font-size: 1rem; }
             .footer-content { grid-template-columns: 1fr; text-align: center; }
             .footer .social-links { justify-content: center; }
+            .hero-slide .info-badge { bottom: 5rem; font-size: 0.75rem; padding: 0.3rem 1rem; }
+            .modal-carousel .modal-content .carousel-info-image { height: 200px; }
+            .modal-carousel .modal-content .carousel-info-title { font-size: 1.4rem; }
         }
         @media (max-width: 480px) {
-            .hero-content h1 { font-size: 1.6rem; }
+            .hero-content h1 { font-size: 1.4rem; }
             .hero-arrows { padding: 0 0.5rem; }
             .hero-arrows .hero-arrow { width: 35px; height: 35px; font-size: 0.8rem; }
+            .hero-slide .info-badge { bottom: 4rem; font-size: 0.65rem; padding: 0.2rem 0.8rem; }
         }
     </style>
 </head>
@@ -792,6 +835,9 @@
         <h1>NJ <span>Cabuçu</span></h1>
     </a>
     <div class="header-actions">
+        <button onclick="openBibleModal()" class="btn btn-bible btn-sm" title="Abrir Bíblia">
+            <i class="fas fa-bible"></i> <span>Bíblia</span>
+        </button>
         <a href="https://wa.me/5521985345627" target="_blank" class="btn btn-whatsapp btn-sm" id="whatsappBtn">
             <i class="fab fa-whatsapp"></i> <span>WhatsApp</span>
         </a>
@@ -818,37 +864,46 @@
 <!-- HERO / CARROSSEL -->
 <section id="home" class="hero">
     <div class="hero-slides" id="heroSlides">
-        <div class="hero-slide">
-            <img src="https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1400&h=800&fit=crop" alt="Igreja" class="bg-image">
+        <div class="hero-slide" onclick="openCarouselInfo(0)">
+            <img src="https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1400&h=700&fit=crop&crop=center" alt="Igreja" class="bg-image">
             <div class="overlay"></div>
             <div class="hero-content">
                 <h1>🙏 Bem-Vindo à NJ Cabuçu</h1>
                 <p>Uma comunidade que ama a Deus e ao próximo, transformando vidas através da palavra</p>
-                <a href="#sobre" class="btn btn-primary" onclick="scrollToSection('sobre')">
+                <a href="#sobre" class="btn btn-primary" onclick="event.stopPropagation(); scrollToSection('sobre')">
                     <i class="fas fa-chevron-right"></i> Conheça Mais
                 </a>
             </div>
+            <div class="info-badge">
+                <i class="fas fa-info-circle"></i> Clique para mais informações
+            </div>
         </div>
-        <div class="hero-slide">
-            <img src="https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1400&h=800&fit=crop" alt="Louvor" class="bg-image">
+        <div class="hero-slide" onclick="openCarouselInfo(1)">
+            <img src="https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1400&h=700&fit=crop&crop=center" alt="Louvor" class="bg-image">
             <div class="overlay"></div>
             <div class="hero-content">
                 <h1>🎶 Venha nos Louvar</h1>
                 <p>Nossos cultos são cheios de adoração e presença de Deus</p>
-                <a href="#eventos" class="btn btn-primary" onclick="scrollToSection('eventos')">
+                <a href="#eventos" class="btn btn-primary" onclick="event.stopPropagation(); scrollToSection('eventos')">
                     <i class="fas fa-chevron-right"></i> Ver Eventos
                 </a>
             </div>
+            <div class="info-badge">
+                <i class="fas fa-info-circle"></i> Clique para mais informações
+            </div>
         </div>
-        <div class="hero-slide">
-            <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1400&h=800&fit=crop" alt="Comunidade" class="bg-image">
+        <div class="hero-slide" onclick="openCarouselInfo(2)">
+            <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1400&h=700&fit=crop&crop=center" alt="Comunidade" class="bg-image">
             <div class="overlay"></div>
             <div class="hero-content">
                 <h1>🤝 Faça Parte</h1>
                 <p>Junte-se a nós e faça a diferença na sua comunidade</p>
-                <a href="#inscricoes" class="btn btn-primary" onclick="scrollToSection('inscricoes')">
+                <a href="#inscricoes" class="btn btn-primary" onclick="event.stopPropagation(); scrollToSection('inscricoes')">
                     <i class="fas fa-chevron-right"></i> Inscreva-se
                 </a>
+            </div>
+            <div class="info-badge">
+                <i class="fas fa-info-circle"></i> Clique para mais informações
             </div>
         </div>
     </div>
@@ -887,79 +942,6 @@
             <div class="icon-wrapper"><i class="fas fa-hand-holding-heart"></i></div>
             <h3>Nossos Valores</h3>
             <p>Amor, fé, esperança, serviço e comunhão. Vivemos os valores do Reino de Deus.</p>
-        </div>
-    </div>
-</section>
-
-<!-- BÍBLIA - ABA INTERATIVA -->
-<section id="biblia" class="section">
-    <div class="section-header">
-        <h2>📖 Bíblia Online</h2>
-        <div class="line"></div>
-        <p class="subtitle">Acesse a palavra de Deus de forma rápida e fácil</p>
-    </div>
-    <div style="text-align:center;">
-        <button class="bible-toggle" onclick="toggleBible()">
-            <i class="fas fa-chevron-down"></i> Abrir Bíblia
-        </button>
-    </div>
-    <div class="bible-panel" id="biblePanel">
-        <div class="bible-container">
-            <div class="bible-input">
-                <div class="form-group">
-                    <label>Livro</label>
-                    <select id="bibleBook">
-                        <option value="gn">Gênesis</option><option value="ex">Êxodo</option>
-                        <option value="lv">Levítico</option><option value="nm">Números</option>
-                        <option value="dt">Deuteronômio</option><option value="js">Josué</option>
-                        <option value="jz">Juízes</option><option value="rt">Rute</option>
-                        <option value="1sm">1 Samuel</option><option value="2sm">2 Samuel</option>
-                        <option value="1rs">1 Reis</option><option value="2rs">2 Reis</option>
-                        <option value="1cr">1 Crônicas</option><option value="2cr">2 Crônicas</option>
-                        <option value="ed">Esdras</option><option value="ne">Neemias</option>
-                        <option value="et">Ester</option><option value="jó">Jó</option>
-                        <option value="sl">Salmos</option><option value="pv">Provérbios</option>
-                        <option value="ec">Eclesiastes</option><option value="ct">Cânticos</option>
-                        <option value="is">Isaías</option><option value="jr">Jeremias</option>
-                        <option value="lm">Lamentações</option><option value="ez">Ezequiel</option>
-                        <option value="dn">Daniel</option><option value="os">Oseias</option>
-                        <option value="jl">Joel</option><option value="am">Amós</option>
-                        <option value="ob">Obadias</option><option value="jn">Jonas</option>
-                        <option value="mq">Miqueias</option><option value="na">Naum</option>
-                        <option value="hc">Habacuque</option><option value="sf">Sofonias</option>
-                        <option value="ag">Ageu</option><option value="zc">Zacarias</option>
-                        <option value="ml">Malaquias</option>
-                        <option value="mt">Mateus</option><option value="mc">Marcos</option>
-                        <option value="lc">Lucas</option><option value="jo">João</option>
-                        <option value="at">Atos</option><option value="rm">Romanos</option>
-                        <option value="1co">1 Coríntios</option><option value="2co">2 Coríntios</option>
-                        <option value="gl">Gálatas</option><option value="ef">Efésios</option>
-                        <option value="fp">Filipenses</option><option value="cl">Colossenses</option>
-                        <option value="1ts">1 Tessalonicenses</option><option value="2ts">2 Tessalonicenses</option>
-                        <option value="1tm">1 Timóteo</option><option value="2tm">2 Timóteo</option>
-                        <option value="tt">Tito</option><option value="fm">Filemom</option>
-                        <option value="hb">Hebreus</option><option value="tg">Tiago</option>
-                        <option value="1pe">1 Pedro</option><option value="2pe">2 Pedro</option>
-                        <option value="1jo">1 João</option><option value="2jo">2 João</option>
-                        <option value="3jo">3 João</option><option value="jd">Judas</option>
-                        <option value="ap">Apocalipse</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Capítulo</label>
-                    <input type="number" id="bibleChapter" value="1" min="1">
-                </div>
-                <div class="form-group">
-                    <label>Versículo (opcional)</label>
-                    <input type="number" id="bibleVerse" placeholder="Ex: 1" min="1">
-                </div>
-                <button onclick="searchBible()" class="btn btn-primary" style="width:100%;justify-content:center;">
-                    <i class="fas fa-search"></i> Buscar
-                </button>
-            </div>
-            <div class="bible-result" id="bibleResult">
-                <p style="color:#888;">Selecione um livro e capítulo para buscar</p>
-            </div>
         </div>
     </div>
 </section>
@@ -1103,6 +1085,87 @@
     </div>
 </footer>
 
+<!-- MODAL BÍBLIA -->
+<div class="modal modal-bible" id="bibleModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('bibleModal')">&times;</button>
+        <h2 style="color:var(--primary);margin-bottom:1rem;">📖 Bíblia Online</h2>
+        <div class="bible-container">
+            <div class="bible-input">
+                <div class="form-group">
+                    <label>Livro</label>
+                    <select id="bibleBook">
+                        <option value="gn">Gênesis</option><option value="ex">Êxodo</option>
+                        <option value="lv">Levítico</option><option value="nm">Números</option>
+                        <option value="dt">Deuteronômio</option><option value="js">Josué</option>
+                        <option value="jz">Juízes</option><option value="rt">Rute</option>
+                        <option value="1sm">1 Samuel</option><option value="2sm">2 Samuel</option>
+                        <option value="1rs">1 Reis</option><option value="2rs">2 Reis</option>
+                        <option value="1cr">1 Crônicas</option><option value="2cr">2 Crônicas</option>
+                        <option value="ed">Esdras</option><option value="ne">Neemias</option>
+                        <option value="et">Ester</option><option value="jó">Jó</option>
+                        <option value="sl">Salmos</option><option value="pv">Provérbios</option>
+                        <option value="ec">Eclesiastes</option><option value="ct">Cânticos</option>
+                        <option value="is">Isaías</option><option value="jr">Jeremias</option>
+                        <option value="lm">Lamentações</option><option value="ez">Ezequiel</option>
+                        <option value="dn">Daniel</option><option value="os">Oseias</option>
+                        <option value="jl">Joel</option><option value="am">Amós</option>
+                        <option value="ob">Obadias</option><option value="jn">Jonas</option>
+                        <option value="mq">Miqueias</option><option value="na">Naum</option>
+                        <option value="hc">Habacuque</option><option value="sf">Sofonias</option>
+                        <option value="ag">Ageu</option><option value="zc">Zacarias</option>
+                        <option value="ml">Malaquias</option>
+                        <option value="mt">Mateus</option><option value="mc">Marcos</option>
+                        <option value="lc">Lucas</option><option value="jo">João</option>
+                        <option value="at">Atos</option><option value="rm">Romanos</option>
+                        <option value="1co">1 Coríntios</option><option value="2co">2 Coríntios</option>
+                        <option value="gl">Gálatas</option><option value="ef">Efésios</option>
+                        <option value="fp">Filipenses</option><option value="cl">Colossenses</option>
+                        <option value="1ts">1 Tessalonicenses</option><option value="2ts">2 Tessalonicenses</option>
+                        <option value="1tm">1 Timóteo</option><option value="2tm">2 Timóteo</option>
+                        <option value="tt">Tito</option><option value="fm">Filemom</option>
+                        <option value="hb">Hebreus</option><option value="tg">Tiago</option>
+                        <option value="1pe">1 Pedro</option><option value="2pe">2 Pedro</option>
+                        <option value="1jo">1 João</option><option value="2jo">2 João</option>
+                        <option value="3jo">3 João</option><option value="jd">Judas</option>
+                        <option value="ap">Apocalipse</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Capítulo</label>
+                    <input type="number" id="bibleChapter" value="1" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Versículo (opcional)</label>
+                    <input type="number" id="bibleVerse" placeholder="Ex: 1" min="1">
+                </div>
+                <button onclick="searchBible()" class="btn btn-primary" style="width:100%;justify-content:center;">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
+            <div class="bible-result" id="bibleResult">
+                <p style="color:#888;">Selecione um livro e capítulo para buscar</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CARROSSEL INFO -->
+<div class="modal modal-carousel" id="carouselInfoModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('carouselInfoModal')">&times;</button>
+        <div id="carouselInfoContent">
+            <img id="carouselInfoImage" src="" alt="" class="carousel-info-image">
+            <h2 id="carouselInfoTitle" class="carousel-info-title"></h2>
+            <p id="carouselInfoSubtitle" class="carousel-info-subtitle"></p>
+            <div id="carouselInfoDescription" class="carousel-info-description"></div>
+            <a id="carouselInfoLink" href="#" target="_blank" class="btn btn-primary carousel-info-link">
+                <i class="fas fa-external-link-alt"></i> Saiba Mais
+            </a>
+        </div>
+    </div>
+</div>
+
 <!-- MODAL DÍZIMO -->
 <div class="modal" id="donationModal">
     <div class="modal-content">
@@ -1172,14 +1235,6 @@
     </div>
 </div>
 
-<!-- MODAL INSCRIÇÃO -->
-<div class="modal" id="registrationModal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('registrationModal')">&times;</button>
-        <div id="registrationModalContent"></div>
-    </div>
-</div>
-
 <script>
 // ============================================
 // ===== VARIÁVEIS =====
@@ -1188,11 +1243,33 @@ let cart = [];
 let currentSlide = 0;
 let slideInterval;
 let slideCount = 3;
-let carouselImages = [];
 let departmentsList = [];
 let songs = [];
-let allMembers = [];
-let selectedMembers = new Set();
+
+// Dados do carrossel para o modal
+const carouselInfo = [
+    {
+        title: '🙏 NJ Cabuçu - Uma Igreja que Ama',
+        subtitle: 'Transformando vidas através da palavra de Deus',
+        description: 'A NJ Cabuçu é uma comunidade cristã dedicada a levar o amor de Deus a todas as pessoas. Com cultos vibrantes, estudos bíblicos e ações sociais, nossa missão é transformar vidas e impactar a comunidade com o evangelho de Jesus Cristo.<br><br>Venha nos visitar e fazer parte dessa família!',
+        image: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=800&h=400&fit=crop&crop=center',
+        link: '#sobre'
+    },
+    {
+        title: '🎶 Louvor e Adoração',
+        subtitle: 'Cultos cheios da presença de Deus',
+        description: 'Nossos cultos são marcados por louvores vibrantes e adoração sincera. Com uma equipe de ministros e músicos dedicados, criamos um ambiente propício para experimentar a presença de Deus.<br><br>Venha louvar conosco e sentir o amor de Deus!',
+        image: 'https://images.unsplash.com/photo-1438032005730-c779502df39b?w=800&h=400&fit=crop&crop=center',
+        link: '#eventos'
+    },
+    {
+        title: '🤝 Comunidade e Missão',
+        subtitle: 'Juntos fazendo a diferença',
+        description: 'Acreditamos que a igreja não é um lugar, mas um povo. Por isso, investimos em ações sociais, projetos comunitários e grupos de discipulado que fortalecem os laços entre os irmãos e impactam a cidade.<br><br>Venha fazer parte dessa missão!',
+        image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800&h=400&fit=crop&crop=center',
+        link: '#inscricoes'
+    }
+];
 
 // ============================================
 // ===== HEADER SCROLL =====
@@ -1214,7 +1291,6 @@ function toggleMobileMenu() {
     nav.classList.toggle('open');
 }
 
-// Fecha menu ao clicar em um link
 document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.getElementById('mainNav').classList.remove('open');
@@ -1243,13 +1319,11 @@ function changeSlide(direction) {
     goToSlide(newIndex);
 }
 
-// Inicia carrossel automático
 function startCarousel() {
     if (slideInterval) clearInterval(slideInterval);
     slideInterval = setInterval(() => changeSlide(1), 6000);
 }
 
-// Para carrossel quando o usuário interage
 document.querySelector('.hero')?.addEventListener('mouseenter', () => {
     clearInterval(slideInterval);
 });
@@ -1257,18 +1331,28 @@ document.querySelector('.hero')?.addEventListener('mouseenter', () => {
 document.querySelector('.hero')?.addEventListener('mouseleave', startCarousel);
 
 // ============================================
-// ===== BÍBLIA - TOGGLE =====
+// ===== CARROSSEL - OPEN INFO MODAL =====
 // ============================================
-function toggleBible() {
-    const panel = document.getElementById('biblePanel');
-    const btn = document.querySelector('.bible-toggle');
-    panel.classList.toggle('open');
-    btn.classList.toggle('active');
-    if (panel.classList.contains('open')) {
-        btn.innerHTML = '<i class="fas fa-chevron-up"></i> Fechar Bíblia';
-    } else {
-        btn.innerHTML = '<i class="fas fa-chevron-down"></i> Abrir Bíblia';
-    }
+function openCarouselInfo(index) {
+    const info = carouselInfo[index];
+    if (!info) return;
+    
+    document.getElementById('carouselInfoImage').src = info.image;
+    document.getElementById('carouselInfoImage').alt = info.title;
+    document.getElementById('carouselInfoTitle').textContent = info.title;
+    document.getElementById('carouselInfoSubtitle').textContent = info.subtitle;
+    document.getElementById('carouselInfoDescription').innerHTML = info.description;
+    document.getElementById('carouselInfoLink').href = info.link;
+    
+    openModal('carouselInfoModal');
+}
+
+// ============================================
+// ===== MODAL BÍBLIA =====
+// ============================================
+function openBibleModal() {
+    openModal('bibleModal');
+    setTimeout(() => searchBible(), 100);
 }
 
 // ============================================
@@ -1343,7 +1427,6 @@ async function searchBible() {
     }
 }
 
-// Enter key para Bíblia
 document.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         const active = document.activeElement;
@@ -1367,7 +1450,6 @@ function scrollToSection(id) {
         const map = {
             'home': 'Início',
             'sobre': 'Sobre',
-            'biblia': 'Bíblia',
             'eventos': 'Eventos',
             'estudos': 'Estudos',
             'loja': 'NJ Store',
@@ -2181,18 +2263,27 @@ async function registerForEvent(eventId, eventName, price) {
 // ============================================
 
 function openModal(id) {
-    document.getElementById(id).style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
 }
 
 function closeModal(id) {
-    document.getElementById(id).style.display = 'none';
-    document.body.style.overflow = 'auto';
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.classList.remove('open');
+        document.body.style.overflow = 'auto';
+    }
 }
 
 document.querySelectorAll('.modal').forEach(m => {
     m.addEventListener('click', (e) => {
-        if (e.target === m) closeModal(m.id);
+        if (e.target === m) {
+            m.classList.remove('open');
+            document.body.style.overflow = 'auto';
+        }
     });
 });
 
@@ -2224,7 +2315,8 @@ async function loadSettings() {
             document.documentElement.style.setProperty('--primary', settings.primary_color);
         }
         if (settings.site_title) {
-            document.querySelector('.logo h1').innerHTML = settings.site_title;
+            const titleEl = document.querySelector('.logo h1');
+            if (titleEl) titleEl.innerHTML = settings.site_title;
             document.title = settings.site_title;
         }
         if (settings.whatsapp) {
@@ -2246,7 +2338,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadBirthdays();
     startCarousel();
     document.getElementById('cartCount').textContent = 0;
-    setTimeout(() => searchBible(), 500);
 });
 
 // ============================================
@@ -2257,7 +2348,10 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') changeSlide(-1);
     if (e.key === 'ArrowRight') changeSlide(1);
     if (e.key === 'Escape') {
-        document.querySelectorAll('.modal.open').forEach(m => closeModal(m.id));
+        document.querySelectorAll('.modal.open').forEach(m => {
+            m.classList.remove('open');
+            document.body.style.overflow = 'auto';
+        });
     }
 });
 </script>

@@ -12,35 +12,26 @@
             --primary: #0D47A1;
             --primary-light: #1565C0;
             --primary-gradient: linear-gradient(135deg, #0D47A1, #1565C0);
-            --bg: #f0f4f8;
+            --bg: #f5f7fc;
             --card-bg: #ffffff;
-            --shadow: 0 2px 12px rgba(0,0,0,0.06);
+            --shadow: 0 2px 12px rgba(0,0,0,0.05);
             --radius: 12px;
             --radius-sm: 8px;
-            --transition: all 0.25s ease;
             --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             --header-h: 56px;
         }
-        html { 
-            scroll-behavior: smooth; 
-            -webkit-tap-highlight-color: transparent;
-            overflow-x: hidden;
-            width: 100%;
-        }
+        html { overflow-x: hidden; width: 100%; }
         body {
             font-family: var(--font);
             background: var(--bg);
             color: #1a1a2e;
-            line-height: 1.5;
             overflow-x: hidden;
             width: 100%;
             max-width: 100vw;
-            padding-bottom: 2rem;
+            padding-bottom: 1.5rem;
         }
 
-        /* ============================================
-           HEADER
-        ============================================ */
+        /* HEADER */
         .header {
             background: rgba(255,255,255,0.96);
             backdrop-filter: blur(10px);
@@ -57,12 +48,11 @@
         .logo {
             display: flex;
             align-items: center;
-            gap: 0.6rem;
-            flex-shrink: 0;
+            gap: 0.5rem;
         }
         .logo-icon {
-            width: 36px;
-            height: 36px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             background: var(--primary-gradient);
             display: flex;
@@ -77,7 +67,6 @@
             font-size: 1rem;
             font-weight: 800;
             color: var(--primary);
-            white-space: nowrap;
         }
         .logo h1 span { color: #F5A623; }
 
@@ -85,49 +74,38 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            flex-shrink: 0;
         }
         .user-badge {
             background: #E8F0FE;
-            padding: 0.2rem 0.7rem;
+            padding: 0.15rem 0.6rem;
             border-radius: 50px;
             font-weight: 600;
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             color: var(--primary);
-            white-space: nowrap;
         }
         .user-badge i { margin-right: 0.2rem; }
 
         .btn {
-            padding: 0.3rem 0.8rem;
+            padding: 0.25rem 0.7rem;
             border-radius: 50px;
             border: none;
             font-weight: 600;
             cursor: pointer;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
+            transition: all 0.2s;
             font-size: 0.7rem;
             font-family: var(--font);
             white-space: nowrap;
-            flex-shrink: 0;
         }
         .btn-primary { background: var(--primary-gradient); color: #fff; }
-        .btn-primary:hover { transform: translateY(-1px); opacity:0.9; }
+        .btn-primary:hover { opacity:0.9; transform:translateY(-1px); }
         .btn-danger { background: #dc3545; color: #fff; }
         .btn-danger:hover { background: #c82333; }
         .btn-success { background: #28a745; color: #fff; }
         .btn-success:hover { background: #218838; }
-        .btn-warning { background: #ffc107; color: #1a1a1a; }
-        .btn-warning:hover { background: #e0a800; }
-        .btn-sm { padding: 0.15rem 0.5rem; font-size: 0.6rem; }
-        .btn-xs { padding: 0.1rem 0.4rem; font-size: 0.55rem; }
-        .btn-block { width: 100%; justify-content: center; }
+        .btn-sm { padding: 0.12rem 0.5rem; font-size: 0.6rem; }
+        .btn-xs { padding: 0.08rem 0.35rem; font-size: 0.55rem; }
 
-        /* ============================================
-           CONTAINER
-        ============================================ */
+        /* CONTAINER */
         .container {
             width: 100%;
             max-width: 100%;
@@ -135,37 +113,43 @@
             overflow-x: hidden;
         }
 
-        /* ============================================
-           STATS - ORGANIZADO
-        ============================================ */
+        /* STATS - MINIMAL */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 0.5rem;
-            margin-bottom: 1rem;
+            gap: 0.4rem;
+            margin-bottom: 0.8rem;
         }
         .stat-card {
             background: var(--card-bg);
-            padding: 0.7rem 0.3rem;
+            padding: 0.5rem 0.2rem;
             border-radius: var(--radius-sm);
             text-align: center;
             border: 1px solid rgba(0,0,0,0.04);
             box-shadow: var(--shadow);
         }
-        .stat-card .icon { font-size: 1.1rem; color: var(--primary); }
-        .stat-card .number { font-size: 1.2rem; font-weight: 800; color: var(--primary); line-height: 1.2; }
-        .stat-card .label { font-size: 0.55rem; color: #888; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
+        .stat-card .number {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1.2;
+        }
+        .stat-card .label {
+            font-size: 0.5rem;
+            color: #888;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
 
-        /* ============================================
-           NAVEGAÇÃO - CARDS ORGANIZADOS
-        ============================================ */
-        .nav-grid {
+        /* MENU - LIMPO */
+        .menu-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 0.4rem;
-            margin-bottom: 1rem;
+            gap: 0.3rem;
+            margin-bottom: 0.8rem;
         }
-        .nav-card {
+        .menu-item {
             background: var(--card-bg);
             padding: 0.5rem 0.2rem;
             border-radius: var(--radius-sm);
@@ -173,24 +157,22 @@
             border: 2px solid transparent;
             box-shadow: var(--shadow);
             cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.2s;
         }
-        .nav-card:active { transform: scale(0.95); }
-        .nav-card.active {
+        .menu-item:active { transform: scale(0.95); }
+        .menu-item.active {
             border-color: var(--primary);
             background: #E8F0FE;
         }
-        .nav-card .nav-icon { font-size: 1rem; color: var(--primary); }
-        .nav-card .nav-label {
-            font-size: 0.55rem;
+        .menu-item .icon { font-size: 0.9rem; color: var(--primary); }
+        .menu-item .label {
+            font-size: 0.5rem;
             font-weight: 600;
             color: #333;
             margin-top: 0.1rem;
         }
 
-        /* ============================================
-           TAB CONTENT
-        ============================================ */
+        /* TAB CONTENT - SIMPLES */
         .tab-content {
             display: none;
             background: var(--card-bg);
@@ -203,135 +185,90 @@
         }
         .tab-content.active { display: block; }
         .tab-content h3 {
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 700;
             color: var(--primary);
-            margin-bottom: 0.6rem;
-            padding-bottom: 0.3rem;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.2rem;
             border-bottom: 2px solid var(--primary);
         }
-        .tab-content h4 {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #333;
-            margin: 0.6rem 0 0.3rem 0;
-        }
 
-        /* ============================================
-           SALES CARDS
-        ============================================ */
-        .sales-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.4rem;
-            margin: 0.5rem 0;
-        }
-        .sales-card {
-            background: #f8f9fa;
-            padding: 0.6rem;
-            border-radius: var(--radius-sm);
-            border: 1px solid rgba(0,0,0,0.04);
-        }
-        .sales-card .value { font-size: 1rem; font-weight: 700; color: var(--primary); }
-        .sales-card .label { font-size: 0.55rem; color: #666; text-transform: uppercase; letter-spacing: 0.3px; font-weight: 500; }
-        .sales-card .sub { font-size: 0.5rem; color: #888; }
-
-        /* ============================================
-           TABLES - SEM SCROLL
-        ============================================ */
+        /* TABLES */
         .table-wrapper {
             width: 100%;
             overflow: hidden;
             border-radius: var(--radius-sm);
             border: 1px solid #f0f0f0;
-            margin: 0.3rem 0;
+            margin: 0.2rem 0;
         }
         .table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             table-layout: fixed;
         }
         .table th {
             text-align: left;
-            padding: 0.3rem 0.3rem;
+            padding: 0.2rem 0.3rem;
             border-bottom: 2px solid #e8e8e8;
             color: #666;
             font-weight: 600;
-            font-size: 0.55rem;
+            font-size: 0.5rem;
             text-transform: uppercase;
             letter-spacing: 0.3px;
             background: #fafafa;
-            white-space: nowrap;
         }
         .table td {
-            padding: 0.3rem 0.3rem;
+            padding: 0.2rem 0.3rem;
             border-bottom: 1px solid #f0f0f0;
-            vertical-align: middle;
             word-break: break-word;
-            overflow-wrap: break-word;
         }
         .table tr:hover { background: #f8f9fa; }
 
-        /* ============================================
-           BADGES
-        ============================================ */
         .status {
-            padding: 0.05rem 0.4rem;
+            padding: 0.04rem 0.35rem;
             border-radius: 50px;
-            font-size: 0.5rem;
+            font-size: 0.45rem;
             font-weight: 600;
             display: inline-block;
             text-transform: uppercase;
-            letter-spacing: 0.2px;
-            white-space: nowrap;
         }
         .status-pending { background: #fff3cd; color: #856404; }
         .status-approved { background: #d4edda; color: #155724; }
-        .status-rejected { background: #f8d7da; color: #721c24; }
-
         .badge {
-            padding: 0.05rem 0.4rem;
+            padding: 0.04rem 0.35rem;
             border-radius: 50px;
-            font-size: 0.5rem;
+            font-size: 0.45rem;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.2px;
-            white-space: nowrap;
         }
         .badge-pastor { background: var(--primary); color: #fff; }
         .badge-lider { background: #28a745; color: #fff; }
         .badge-colaborador { background: #17a2b8; color: #fff; }
         .badge-fiel { background: #6c757d; color: #fff; }
 
-        /* ============================================
-           FLEX
-        ============================================ */
         .flex-between {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
             gap: 0.3rem;
+            flex-wrap: wrap;
         }
-        .text-center { text-align: center; }
-        .mt-1 { margin-top: 0.6rem; }
-        .mb-1 { margin-bottom: 0.6rem; }
+        .mt-1 { margin-top: 0.5rem; }
+        .mb-1 { margin-bottom: 0.5rem; }
         .hidden { display: none !important; }
         .w-full { width: 100%; }
+        .text-center { text-align: center; }
 
-        /* ============================================
-           BAR CHART - ORGANIZADO
-        ============================================ */
+        /* BAR CHART */
         .bar-chart {
             display: flex;
             align-items: flex-end;
-            gap: 0.2rem;
-            height: 100px;
-            padding: 0.2rem 0;
+            gap: 0.15rem;
+            height: 80px;
+            padding: 0.15rem 0;
             width: 100%;
             overflow: hidden;
-            flex-wrap: nowrap;
         }
         .bar-item {
             flex: 1;
@@ -339,58 +276,53 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.1rem;
+            gap: 0.05rem;
         }
         .bar {
             width: 100%;
-            max-width: 28px;
+            max-width: 20px;
             background: var(--primary-gradient);
-            border-radius: 3px 3px 0 0;
+            border-radius: 2px 2px 0 0;
             min-height: 3px;
             transition: height 0.5s ease;
         }
-        .bar-label { font-size: 0.45rem; color: #666; text-align: center; }
-        .bar-value { font-size: 0.45rem; font-weight: 600; color: var(--primary); }
+        .bar-label { font-size: 0.4rem; color: #888; }
+        .bar-value { font-size: 0.4rem; font-weight: 600; color: var(--primary); }
 
-        /* ============================================
-           CARROSSEL - GRID
-        ============================================ */
+        /* CARROSSEL */
         .carousel-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-            gap: 0.4rem;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 0.3rem;
             width: 100%;
         }
         .carousel-item {
             text-align: center;
             border: 1px solid #e8e8e8;
             border-radius: var(--radius-sm);
-            padding: 0.3rem;
+            padding: 0.2rem;
             background: #f8f9fa;
         }
         .carousel-item img {
             width: 100%;
-            height: 65px;
+            height: 55px;
             object-fit: cover;
             border-radius: 4px;
         }
         .carousel-item .title {
-            font-size: 0.55rem;
+            font-size: 0.5rem;
             font-weight: 600;
-            margin-top: 0.1rem;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
 
-        /* ============================================
-           FORMS
-        ============================================ */
-        .form-group { margin: 0.4rem 0; }
+        /* FORMS */
+        .form-group { margin: 0.3rem 0; }
         .form-group label {
             display: block;
             font-weight: 600;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: #333;
             margin-bottom: 0.1rem;
         }
@@ -398,13 +330,13 @@
         .form-group textarea,
         .form-group select {
             width: 100%;
-            padding: 0.4rem 0.6rem;
+            padding: 0.3rem 0.5rem;
             border: 2px solid #e0e0e0;
             border-radius: var(--radius-sm);
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-family: var(--font);
             background: #fafbff;
-            transition: var(--transition);
+            transition: all 0.2s;
         }
         .form-group input:focus,
         .form-group textarea:focus,
@@ -416,13 +348,11 @@
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 0.4rem;
+            gap: 0.3rem;
         }
-        .form-group textarea { min-height: 60px; resize: vertical; }
+        .form-group textarea { min-height: 50px; resize: vertical; }
 
-        /* ============================================
-           MODAL
-        ============================================ */
+        /* MODAL */
         .modal {
             display: none;
             position: fixed;
@@ -441,7 +371,7 @@
             background: #fff;
             padding: 1rem;
             border-radius: var(--radius);
-            max-width: 420px;
+            max-width: 400px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
@@ -454,7 +384,7 @@
         .modal-close {
             float: right;
             cursor: pointer;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: #888;
             background: none;
             border: none;
@@ -462,66 +392,56 @@
         }
         .modal-close:hover { color: #333; }
         .modal-content h3 {
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 700;
             color: var(--primary);
-            margin-bottom: 0.6rem;
+            margin-bottom: 0.5rem;
         }
 
-        /* ============================================
-           FREQUÊNCIA
-        ============================================ */
-        .freq-section {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 0.6rem;
-        }
+        /* FREQUÊNCIA */
         .freq-box {
             background: #f8f9fa;
             border-radius: var(--radius-sm);
             border: 1px solid #e8e8e8;
-            padding: 0.6rem;
+            padding: 0.5rem;
         }
-        .freq-box h4 { font-size: 0.75rem; font-weight: 600; margin-bottom: 0.3rem; }
+        .freq-box h4 { font-size: 0.65rem; font-weight: 600; margin-bottom: 0.2rem; }
 
         .member-row {
             display: flex;
             align-items: center;
-            padding: 0.2rem 0.3rem;
+            padding: 0.15rem 0.2rem;
             border-radius: 4px;
-            margin-bottom: 2px;
-            gap: 0.3rem;
-            font-size: 0.7rem;
+            gap: 0.2rem;
+            font-size: 0.6rem;
         }
         .member-row .member-checkbox {
-            width: 14px;
-            height: 14px;
+            width: 12px;
+            height: 12px;
             flex-shrink: 0;
             cursor: pointer;
         }
         .member-row .member-info { flex: 1; min-width: 0; }
-        .member-row .member-name { font-weight: 500; font-size: 0.7rem; }
-        .member-row .member-dept { font-size: 0.55rem; color: #888; }
+        .member-row .member-name { font-weight: 500; font-size: 0.6rem; }
+        .member-row .member-dept { font-size: 0.5rem; color: #888; }
 
-        .birthday-today { background: #d4edda !important; }
+        .birthday-today { background: #d4edda; }
 
-        /* ============================================
-           NOTIFICATION
-        ============================================ */
+        /* NOTIFICATION */
         .notification {
             position: fixed;
             top: calc(var(--header-h) + 4px);
             left: 8px;
             right: 8px;
-            padding: 0.6rem 0.8rem;
+            padding: 0.5rem 0.8rem;
             border-radius: var(--radius-sm);
             font-weight: 500;
             z-index: 99999;
-            max-width: 400px;
+            max-width: 380px;
             margin: 0 auto;
             box-shadow: 0 8px 30px rgba(0,0,0,0.12);
             animation: slideDown 0.3s ease;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             text-align: center;
         }
         @keyframes slideDown {
@@ -532,48 +452,38 @@
         .notification.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .notification.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
 
-        /* ============================================
-           RESPONSIVO
-        ============================================ */
+        /* RESPONSIVO */
         @media (min-width: 600px) {
             .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
-            .stat-card .number { font-size: 1.4rem; }
-            .stat-card .icon { font-size: 1.3rem; }
-            .nav-grid { grid-template-columns: repeat(4, 1fr); gap: 0.6rem; }
-            .sales-grid { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
-            .freq-section { grid-template-columns: 1fr 1fr; }
+            .stat-card .number { font-size: 1.3rem; }
+            .menu-grid { grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
             .container { padding: 0.8rem 1.2rem; }
             .tab-content { padding: 1rem; }
-            .carousel-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
-            .modal-content { padding: 1.2rem; }
+            .carousel-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
         }
         @media (min-width: 900px) {
             .stats-grid { grid-template-columns: repeat(6, 1fr); }
-            .sales-grid { grid-template-columns: repeat(4, 1fr); }
+            .menu-grid { grid-template-columns: repeat(6, 1fr); }
             .container { padding: 1rem 2rem; max-width: 1200px; margin: 0 auto; }
             .header { padding: 0.6rem 2rem; }
             .tab-content { padding: 1.2rem; }
-            .table { font-size: 0.75rem; }
-            .nav-grid { grid-template-columns: repeat(6, 1fr); }
+            .table { font-size: 0.7rem; }
         }
         @media (max-width: 400px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .stat-card .number { font-size: 0.9rem; }
-            .stat-card .icon { font-size: 0.9rem; }
-            .stat-card { padding: 0.4rem 0.1rem; }
-            .nav-grid { grid-template-columns: repeat(3, 1fr); gap: 0.3rem; }
-            .nav-card .nav-icon { font-size: 0.8rem; }
-            .nav-card .nav-label { font-size: 0.5rem; }
-            .sales-grid { grid-template-columns: 1fr 1fr; }
-            .sales-card .value { font-size: 0.85rem; }
+            .menu-grid { grid-template-columns: repeat(3, 1fr); gap: 0.2rem; }
+            .menu-item .icon { font-size: 0.7rem; }
+            .menu-item .label { font-size: 0.45rem; }
+            .container { padding: 0.4rem; }
+            .tab-content { padding: 0.5rem; }
+            .carousel-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-row { grid-template-columns: 1fr; }
+            .modal-content { padding: 0.8rem; }
             .logo h1 { font-size: 0.8rem; }
             .logo-icon { width: 28px; height: 28px; font-size: 0.7rem; }
             .user-badge { font-size: 0.5rem; padding: 0.1rem 0.4rem; }
             .btn { font-size: 0.6rem; padding: 0.2rem 0.5rem; }
-            .form-row { grid-template-columns: 1fr; }
-            .container { padding: 0.4rem; }
-            .tab-content { padding: 0.5rem; }
-            .carousel-grid { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
@@ -587,7 +497,7 @@
     </div>
     <div class="header-right">
         <span class="user-badge"><i class="fas fa-crown"></i> Pastor</span>
-        <button onclick="logout()" class="btn btn-danger btn-xs"><i class="fas fa-sign-out-alt"></i></button>
+        <button onclick="logout()" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i></button>
     </div>
 </header>
 
@@ -597,161 +507,106 @@
     <!-- STATS -->
     <div class="stats-grid" id="statsGrid">
         <div class="stat-card">
-            <div class="icon"><i class="fas fa-users"></i></div>
             <div class="number" id="totalUsers">0</div>
             <div class="label">Membros</div>
         </div>
         <div class="stat-card">
-            <div class="icon"><i class="fas fa-pray"></i></div>
             <div class="number" id="totalPrayers">0</div>
             <div class="label">Orações</div>
         </div>
         <div class="stat-card">
-            <div class="icon"><i class="fas fa-shopping-cart"></i></div>
             <div class="number" id="totalOrders">0</div>
             <div class="label">Vendas</div>
         </div>
         <div class="stat-card">
-            <div class="icon"><i class="fas fa-hand-holding-heart"></i></div>
-            <div class="number" id="totalDonations">R$ 0</div>
+            <div class="number" id="totalDonations">R$0</div>
             <div class="label">Doações</div>
         </div>
         <div class="stat-card">
-            <div class="icon"><i class="fas fa-book"></i></div>
             <div class="number" id="totalStudies">0</div>
             <div class="label">Estudos</div>
         </div>
         <div class="stat-card">
-            <div class="icon"><i class="fas fa-calendar"></i></div>
             <div class="number" id="totalEvents">0</div>
             <div class="label">Eventos</div>
         </div>
     </div>
 
-    <!-- NAVEGAÇÃO -->
-    <div class="nav-grid" id="navGrid">
-        <div class="nav-card active" onclick="showTab('dashboard')" data-tab="dashboard">
-            <div class="nav-icon"><i class="fas fa-chart-pie"></i></div>
-            <div class="nav-label">Dashboard</div>
+    <!-- MENU -->
+    <div class="menu-grid" id="menuGrid">
+        <div class="menu-item active" onclick="showTab('dashboard')" data-tab="dashboard">
+            <div class="icon"><i class="fas fa-chart-pie"></i></div>
+            <div class="label">Resumo</div>
         </div>
-        <div class="nav-card" onclick="showTab('vendas')" data-tab="vendas">
-            <div class="nav-icon"><i class="fas fa-shopping-cart"></i></div>
-            <div class="nav-label">Vendas</div>
+        <div class="menu-item" onclick="showTab('vendas')" data-tab="vendas">
+            <div class="icon"><i class="fas fa-shopping-cart"></i></div>
+            <div class="label">Vendas</div>
         </div>
-        <div class="nav-card" onclick="showTab('usuarios')" data-tab="usuarios">
-            <div class="nav-icon"><i class="fas fa-users"></i></div>
-            <div class="nav-label">Usuários</div>
+        <div class="menu-item" onclick="showTab('usuarios')" data-tab="usuarios">
+            <div class="icon"><i class="fas fa-users"></i></div>
+            <div class="label">Usuários</div>
         </div>
-        <div class="nav-card" onclick="showTab('oracoes')" data-tab="oracoes">
-            <div class="nav-icon"><i class="fas fa-pray"></i></div>
-            <div class="nav-label">Orações</div>
+        <div class="menu-item" onclick="showTab('membros')" data-tab="membros">
+            <div class="icon"><i class="fas fa-user-plus"></i></div>
+            <div class="label">Membros</div>
         </div>
-        <div class="nav-card" onclick="showTab('estudos')" data-tab="estudos">
-            <div class="nav-icon"><i class="fas fa-book"></i></div>
-            <div class="nav-label">Estudos</div>
+        <div class="menu-item" onclick="showTab('oracoes')" data-tab="oracoes">
+            <div class="icon"><i class="fas fa-pray"></i></div>
+            <div class="label">Orações</div>
         </div>
-        <div class="nav-card" onclick="showTab('eventos')" data-tab="eventos">
-            <div class="nav-icon"><i class="fas fa-calendar"></i></div>
-            <div class="nav-label">Eventos</div>
+        <div class="menu-item" onclick="showTab('eventos')" data-tab="eventos">
+            <div class="icon"><i class="fas fa-calendar"></i></div>
+            <div class="label">Eventos</div>
         </div>
-        <div class="nav-card" onclick="showTab('produtos')" data-tab="produtos">
-            <div class="nav-icon"><i class="fas fa-box"></i></div>
-            <div class="nav-label">Produtos</div>
+        <div class="menu-item" onclick="showTab('produtos')" data-tab="produtos">
+            <div class="icon"><i class="fas fa-box"></i></div>
+            <div class="label">Produtos</div>
         </div>
-        <div class="nav-card" onclick="showTab('carousel')" data-tab="carousel">
-            <div class="nav-icon"><i class="fas fa-images"></i></div>
-            <div class="nav-label">Carrossel</div>
+        <div class="menu-item" onclick="showTab('carousel')" data-tab="carousel">
+            <div class="icon"><i class="fas fa-images"></i></div>
+            <div class="label">Carrossel</div>
         </div>
-        <div class="nav-card" onclick="showTab('doacoes')" data-tab="doacoes">
-            <div class="nav-icon"><i class="fas fa-hand-holding-heart"></i></div>
-            <div class="nav-label">Doações</div>
+        <div class="menu-item" onclick="showTab('departamentos')" data-tab="departamentos">
+            <div class="icon"><i class="fas fa-building"></i></div>
+            <div class="label">Deptos</div>
         </div>
-        <div class="nav-card" onclick="showTab('inscricoes')" data-tab="inscricoes">
-            <div class="nav-icon"><i class="fas fa-clipboard-list"></i></div>
-            <div class="nav-label">Inscrições</div>
+        <div class="menu-item" onclick="showTab('tesouraria')" data-tab="tesouraria">
+            <div class="icon"><i class="fas fa-hand-holding-heart"></i></div>
+            <div class="label">Dízimos</div>
         </div>
-        <div class="nav-card" onclick="showTab('departamentos')" data-tab="departamentos">
-            <div class="nav-icon"><i class="fas fa-building"></i></div>
-            <div class="nav-label">Deptos</div>
+        <div class="menu-item" onclick="showTab('contas')" data-tab="contas">
+            <div class="icon"><i class="fas fa-receipt"></i></div>
+            <div class="label">Contas</div>
         </div>
-        <div class="nav-card" onclick="showTab('membros')" data-tab="membros">
-            <div class="nav-icon"><i class="fas fa-users"></i></div>
-            <div class="nav-label">Membros</div>
-        </div>
-        <div class="nav-card" onclick="showTab('frequencia')" data-tab="frequencia">
-            <div class="nav-icon"><i class="fas fa-calendar-check"></i></div>
-            <div class="nav-label">Frequência</div>
-        </div>
-        <div class="nav-card" onclick="showTab('tesouraria')" data-tab="tesouraria">
-            <div class="nav-icon"><i class="fas fa-hand-holding-heart"></i></div>
-            <div class="nav-label">Dízimos</div>
-        </div>
-        <div class="nav-card" onclick="showTab('contas')" data-tab="contas">
-            <div class="nav-icon"><i class="fas fa-receipt"></i></div>
-            <div class="nav-label">Contas</div>
-        </div>
-        <div class="nav-card" onclick="showTab('aniversariantes')" data-tab="aniversariantes">
-            <div class="nav-icon"><i class="fas fa-birthday-cake"></i></div>
-            <div class="nav-label">Aniversários</div>
-        </div>
-        <div class="nav-card" onclick="showTab('config')" data-tab="config">
-            <div class="nav-icon"><i class="fas fa-cog"></i></div>
-            <div class="nav-label">Config</div>
+        <div class="menu-item" onclick="showTab('config')" data-tab="config">
+            <div class="icon"><i class="fas fa-cog"></i></div>
+            <div class="label">Config</div>
         </div>
     </div>
 
     <!-- DASHBOARD -->
     <div id="tab-dashboard" class="tab-content active">
-        <h3>📊 Resumo de Vendas</h3>
-        <div class="sales-grid">
-            <div class="sales-card">
-                <div class="label">💰 Total</div>
-                <div class="value" id="totalSalesValue">R$ 0</div>
-                <div class="sub" id="totalSalesCount">0 vendas</div>
+        <h3>📊 Resumo</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.4rem; margin-bottom:0.5rem;">
+            <div style="background:#f8f9fa; padding:0.4rem; border-radius:6px;">
+                <div style="font-size:0.5rem;color:#888;">Total Vendas</div>
+                <div style="font-size:0.9rem;font-weight:700;color:var(--primary);" id="totalSalesValue">R$ 0</div>
             </div>
-            <div class="sales-card">
-                <div class="label">📈 Ticket</div>
-                <div class="value" id="avgSalesValue">R$ 0</div>
-                <div class="sub">Médio</div>
-            </div>
-            <div class="sales-card">
-                <div class="label">💳 Método</div>
-                <div class="value" id="topPaymentMethod">-</div>
-                <div class="sub" id="topPaymentCount">0</div>
-            </div>
-            <div class="sales-card">
-                <div class="label">🏆 Top</div>
-                <div class="value" id="topProduct">-</div>
-                <div class="sub" id="topProductSales">0</div>
+            <div style="background:#f8f9fa; padding:0.4rem; border-radius:6px;">
+                <div style="font-size:0.5rem;color:#888;">Ticket Médio</div>
+                <div style="font-size:0.9rem;font-weight:700;color:var(--primary);" id="avgSalesValue">R$ 0</div>
             </div>
         </div>
-
-        <h4>📅 Vendas por Dia</h4>
+        <div style="font-size:0.7rem;font-weight:600;color:#333;margin-bottom:0.2rem;">📅 Vendas por Dia</div>
         <div class="bar-chart" id="barChart"></div>
-
-        <h4>🏆 Produtos Mais Vendidos</h4>
-        <div class="table-wrapper">
-            <table class="table">
-                <thead><tr><th>Produto</th><th>Vendas</th><th>Receita</th></tr></thead>
-                <tbody id="topProductsList"></tbody>
-            </table>
-        </div>
-
-        <h4>📋 Últimas Vendas</h4>
-        <div class="table-wrapper">
-            <table class="table">
-                <thead><tr><th>Cliente</th><th>Produto</th><th>Valor</th><th>Status</th></tr></thead>
-                <tbody id="recentOrdersList"></tbody>
-            </table>
-        </div>
     </div>
 
     <!-- VENDAS -->
     <div id="tab-vendas" class="tab-content">
-        <h3>🛒 Histórico de Vendas</h3>
+        <h3>🛒 Vendas</h3>
         <div class="table-wrapper">
             <table class="table">
-                <thead><tr><th>Cliente</th><th>Produto</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
+                <thead><tr><th>Cliente</th><th>Produto</th><th>Valor</th><th>Status</th></tr></thead>
                 <tbody id="ordersList"></tbody>
             </table>
         </div>
@@ -761,19 +616,33 @@
     <div id="tab-usuarios" class="tab-content">
         <div class="flex-between mb-1">
             <h3>👥 Usuários</h3>
-            <button onclick="openUserModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
+            <button onclick="openUserModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
         </div>
         <div class="table-wrapper">
             <table class="table">
-                <thead><tr><th>Nome</th><th>Cargo</th><th>Depto</th><th>Ações</th></tr></thead>
+                <thead><tr><th>Nome</th><th>Cargo</th><th>Ações</th></tr></thead>
                 <tbody id="usersList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MEMBROS -->
+    <div id="tab-membros" class="tab-content">
+        <div class="flex-between mb-1">
+            <h3>👥 Membros</h3>
+            <button onclick="openMemberModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Nome</th><th>Telefone</th><th>Ações</th></tr></thead>
+                <tbody id="membersList"></tbody>
             </table>
         </div>
     </div>
 
     <!-- ORAÇÕES -->
     <div id="tab-oracoes" class="tab-content">
-        <h3>🙏 Pedidos de Oração</h3>
+        <h3>🙏 Orações</h3>
         <div class="table-wrapper">
             <table class="table">
                 <thead><tr><th>Nome</th><th>Pedido</th><th>Status</th><th>Ações</th></tr></thead>
@@ -782,29 +651,15 @@
         </div>
     </div>
 
-    <!-- ESTUDOS -->
-    <div id="tab-estudos" class="tab-content">
-        <div class="flex-between mb-1">
-            <h3>📖 Estudos</h3>
-            <button onclick="openStudyModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
-        </div>
-        <div class="table-wrapper">
-            <table class="table">
-                <thead><tr><th>Título</th><th>Imagem</th><th>Ações</th></tr></thead>
-                <tbody id="studiesList"></tbody>
-            </table>
-        </div>
-    </div>
-
     <!-- EVENTOS -->
     <div id="tab-eventos" class="tab-content">
         <div class="flex-between mb-1">
             <h3>📅 Eventos</h3>
-            <button onclick="openEventModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
+            <button onclick="openEventModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
         </div>
         <div class="table-wrapper">
             <table class="table">
-                <thead><tr><th>Título</th><th>Data</th><th>Valor</th><th>Ações</th></tr></thead>
+                <thead><tr><th>Título</th><th>Data</th><th>Ações</th></tr></thead>
                 <tbody id="eventsList"></tbody>
             </table>
         </div>
@@ -814,11 +669,11 @@
     <div id="tab-produtos" class="tab-content">
         <div class="flex-between mb-1">
             <h3>📦 Produtos</h3>
-            <button onclick="openProductModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
+            <button onclick="openProductModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
         </div>
         <div class="table-wrapper">
             <table class="table">
-                <thead><tr><th>Nome</th><th>Preço</th><th>Estoque</th><th>Ações</th></tr></thead>
+                <thead><tr><th>Nome</th><th>Preço</th><th>Ações</th></tr></thead>
                 <tbody id="productsList"></tbody>
             </table>
         </div>
@@ -828,38 +683,16 @@
     <div id="tab-carousel" class="tab-content">
         <div class="flex-between mb-1">
             <h3>🖼️ Carrossel</h3>
-            <button onclick="openCarouselModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Nova</button>
+            <button onclick="openCarouselModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
         </div>
         <div id="carouselList" class="carousel-grid"></div>
-    </div>
-
-    <!-- DOAÇÕES -->
-    <div id="tab-doacoes" class="tab-content">
-        <h3>💝 Doações</h3>
-        <div class="table-wrapper">
-            <table class="table">
-                <thead><tr><th>Doador</th><th>Tipo</th><th>Valor</th><th>Data</th></tr></thead>
-                <tbody id="donationsList"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- INSCRIÇÕES -->
-    <div id="tab-inscricoes" class="tab-content">
-        <h3>📋 Inscrições</h3>
-        <div class="table-wrapper">
-            <table class="table">
-                <thead><tr><th>Nome</th><th>Tipo</th><th>Evento</th><th>Status</th></tr></thead>
-                <tbody id="registrationsList"></tbody>
-            </table>
-        </div>
     </div>
 
     <!-- DEPARTAMENTOS -->
     <div id="tab-departamentos" class="tab-content">
         <div class="flex-between mb-1">
             <h3>🏢 Departamentos</h3>
-            <button onclick="openDeptModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
+            <button onclick="openDeptModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
         </div>
         <div class="table-wrapper">
             <table class="table">
@@ -869,94 +702,12 @@
         </div>
     </div>
 
-    <!-- MEMBROS -->
-    <div id="tab-membros" class="tab-content">
-        <div class="flex-between mb-1">
-            <h3>👥 Membros</h3>
-            <button onclick="openMemberModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
-        </div>
-        <div class="table-wrapper">
-            <table class="table">
-                <thead><tr><th>Nome</th><th>Telefone</th><th>Depto</th><th>Ações</th></tr></thead>
-                <tbody id="membersList"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- FREQUÊNCIA -->
-    <div id="tab-frequencia" class="tab-content">
-        <h3>📅 Registrar Frequência</h3>
-        <div class="form-row" style="grid-template-columns:1fr 1fr; gap:0.4rem;">
-            <div class="form-group">
-                <label>Data</label>
-                <input type="date" id="attendanceDate">
-            </div>
-            <div class="form-group">
-                <label>Tipo</label>
-                <select id="attendanceService">
-                    <option value="domingo">Domingo</option>
-                    <option value="quarta">Quarta</option>
-                    <option value="sabado">Sábado</option>
-                    <option value="especial">Especial</option>
-                </select>
-            </div>
-        </div>
-        <button onclick="loadAllMembersForAttendance()" class="btn btn-primary btn-block" style="margin-bottom:0.6rem; padding:0.4rem;">
-            <i class="fas fa-sync"></i> Carregar Membros
-        </button>
-
-        <div class="freq-section">
-            <div class="freq-box">
-                <h4>👥 Selecionar Membros</h4>
-                <div style="display:flex; gap:0.3rem; margin-bottom:0.3rem; flex-wrap:wrap;">
-                    <input type="text" id="memberSearch" placeholder="🔍 Buscar..." 
-                           style="flex:1; padding:0.3rem 0.5rem; border-radius:6px; border:2px solid #e0e0e0; font-size:0.7rem; min-width:80px;">
-                    <button onclick="toggleSelectAll()" class="btn btn-warning btn-xs"><i class="fas fa-check-double"></i> Todos</button>
-                    <button onclick="clearSelection()" class="btn btn-danger btn-xs"><i class="fas fa-times"></i> Limpar</button>
-                </div>
-                <div style="background:#fff; border-radius:6px; border:1px solid #e8e8e8; padding:0.3rem; max-height:200px; overflow-y:auto;">
-                    <div id="membersListContainer">
-                        <p style="color:#888; text-align:center; padding:0.3rem; font-size:0.7rem;">Carregue os membros</p>
-                    </div>
-                </div>
-                <div style="display:flex; gap:0.3rem; margin-top:0.3rem; font-size:0.6rem; flex-wrap:wrap;">
-                    <span style="background:#e8e8e8; padding:0.1rem 0.5rem; border-radius:20px;">
-                        <i class="fas fa-check-circle" style="color:#28a745;"></i> <span id="selectedCount">0</span>
-                    </span>
-                    <span style="background:#e8e8e8; padding:0.1rem 0.5rem; border-radius:20px;">
-                        <i class="fas fa-users"></i> Total: <span id="totalCount">0</span>
-                    </span>
-                </div>
-            </div>
-
-            <div class="freq-box">
-                <h4>📋 Registrar</h4>
-                <div id="attendanceSummary" style="margin-bottom:0.3rem; min-height:25px;">
-                    <p style="color:#888; font-size:0.65rem;">Nenhum selecionado</p>
-                </div>
-                <button onclick="registerMultipleAttendance()" class="btn btn-success btn-block" style="padding:0.3rem; font-size:0.65rem;">
-                    <i class="fas fa-check-circle"></i> Registrar Selecionados
-                </button>
-                <button onclick="registerAllAttendance()" class="btn btn-primary btn-block" style="margin-top:0.2rem; padding:0.3rem; font-size:0.65rem;">
-                    <i class="fas fa-users"></i> Registrar Todos
-                </button>
-                <div style="margin-top:0.4rem;">
-                    <h4 style="font-size:0.65rem; margin-bottom:0.2rem;">📊 Registros</h4>
-                    <div id="attendanceList" style="max-height:120px; overflow-y:auto; font-size:0.6rem; background:#fff; border-radius:4px; padding:0.2rem;">
-                        <p style="color:#888; text-align:center;">Selecione uma data</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- TESOURARIA -->
     <div id="tab-tesouraria" class="tab-content">
         <div class="flex-between mb-1">
             <h3>💝 Dízimos</h3>
-            <button onclick="openTitheModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Registrar</button>
+            <button onclick="openTitheModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
         </div>
-        <div id="titheSummary" style="font-size:0.65rem; margin-bottom:0.3rem;"></div>
         <div class="table-wrapper">
             <table class="table">
                 <thead><tr><th>Membro</th><th>Tipo</th><th>Valor</th><th>Data</th></tr></thead>
@@ -969,50 +720,36 @@
     <div id="tab-contas" class="tab-content">
         <div class="flex-between mb-1">
             <h3>📋 Contas</h3>
-            <button onclick="openBillModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Nova</button>
+            <button onclick="openBillModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
         </div>
-        <div id="billSummary" style="font-size:0.65rem; margin-bottom:0.3rem;"></div>
         <div class="table-wrapper">
             <table class="table">
-                <thead><tr><th>Descrição</th><th>Valor</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr></thead>
+                <thead><tr><th>Descrição</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead>
                 <tbody id="billsList"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- ANIVERSARIANTES -->
-    <div id="tab-aniversariantes" class="tab-content">
-        <h3>🎂 Aniversariantes</h3>
-        <div class="table-wrapper">
-            <table class="table">
-                <thead><tr><th>Nome</th><th>Data</th><th>Idade</th></tr></thead>
-                <tbody id="birthdaysList"></tbody>
             </table>
         </div>
     </div>
 
     <!-- CONFIG -->
     <div id="tab-config" class="tab-content">
-        <h3>⚙️ Configurações</h3>
+        <h3>⚙️ Config</h3>
         <div class="form-group">
-            <label>Cor Primária</label>
+            <label>Cor</label>
             <input type="color" id="configPrimary" value="#0D47A1" onchange="saveConfig('primary_color', this.value)">
         </div>
         <div class="form-group">
-            <label>Título do Site</label>
+            <label>Título</label>
             <input type="text" id="configTitle" value="NJ Cabuçu" onchange="saveConfig('site_title', this.value)">
         </div>
         <div class="form-group">
             <label>WhatsApp</label>
             <input type="text" id="configWhatsapp" value="5521985345627" onchange="saveConfig('whatsapp', this.value)">
         </div>
-        <button onclick="loadConfig()" class="btn btn-primary btn-sm"><i class="fas fa-sync"></i> Recarregar</button>
+        <button onclick="loadConfig()" class="btn btn-primary btn-sm">Recarregar</button>
     </div>
 </div>
 
-<!-- ============================================
-     MODAIS
-============================================ -->
+<!-- MODAIS SIMPLES -->
 <div class="modal" id="userModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('userModal')">&times;</button>
@@ -1032,10 +769,7 @@
                 <select id="userDepartmentSelect"><option value="">Nenhum</option></select>
             </div>
         </div>
-        <div class="form-group">
-            <label><input type="checkbox" id="userIsLeader"> Líder?</label>
-        </div>
-        <button onclick="saveUser()" class="btn btn-primary btn-block" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+        <button onclick="saveUser()" class="btn btn-primary w-full" style="justify-content:center;padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
     </div>
 </div>
 
@@ -1044,25 +778,12 @@
         <button class="modal-close" onclick="closeModal('memberModal')">&times;</button>
         <h3>👤 Membro</h3>
         <div class="form-group"><label>Nome</label><input type="text" id="memberName"></div>
-        <div class="form-group"><label>Email</label><input type="email" id="memberEmail"></div>
         <div class="form-group"><label>Telefone</label><input type="tel" id="memberPhone"></div>
-        <div class="form-row">
-            <div class="form-group"><label>Nascimento</label><input type="date" id="memberBirth"></div>
-            <div class="form-group"><label>Estado</label>
-                <select id="memberMarital">
-                    <option value="solteiro">Solteiro</option>
-                    <option value="casado">Casado</option>
-                    <option value="divorciado">Divorciado</option>
-                    <option value="viuvo">Viúvo</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-group"><label>Cônjuge</label><input type="text" id="memberSpouse"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="memberEmail"></div>
         <div class="form-group"><label>Depto</label>
             <select id="memberDepartment"><option value="">Selecione</option></select>
         </div>
-        <div class="form-group"><label>Obs</label><textarea id="memberNotes" rows="2"></textarea></div>
-        <button onclick="saveMember()" class="btn btn-primary btn-block" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+        <button onclick="saveMember()" class="btn btn-primary w-full" style="justify-content:center;padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
     </div>
 </div>
 
@@ -1081,19 +802,9 @@
                     <option value="missoes">Missões</option>
                 </select>
             </div>
-            <div class="form-group"><label>Valor</label><input type="number" id="titheAmount" step="0.01" min="0.01"></div>
+            <div class="form-group"><label>Valor</label><input type="number" id="titheAmount" step="0.01"></div>
         </div>
-        <div class="form-row">
-            <div class="form-group"><label>Data</label><input type="date" id="titheDate"></div>
-            <div class="form-group"><label>Método</label>
-                <select id="titheMethod">
-                    <option value="dinheiro">Dinheiro</option>
-                    <option value="pix">PIX</option>
-                    <option value="cartao">Cartão</option>
-                </select>
-            </div>
-        </div>
-        <button onclick="saveTithe()" class="btn btn-primary btn-block" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+        <button onclick="saveTithe()" class="btn btn-primary w-full" style="justify-content:center;padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
     </div>
 </div>
 
@@ -1106,14 +817,12 @@
             <div class="form-group"><label>Categoria</label>
                 <select id="billCategory">
                     <option value="agua">Água</option><option value="luz">Luz</option>
-                    <option value="internet">Internet</option><option value="aluguel">Aluguel</option>
-                    <option value="outros">Outros</option>
+                    <option value="internet">Internet</option><option value="outros">Outros</option>
                 </select>
             </div>
-            <div class="form-group"><label>Valor</label><input type="number" id="billAmount" step="0.01" min="0.01"></div>
+            <div class="form-group"><label>Valor</label><input type="number" id="billAmount" step="0.01"></div>
         </div>
-        <div class="form-group"><label>Vencimento</label><input type="date" id="billDueDate"></div>
-        <button onclick="saveBill()" class="btn btn-primary btn-block" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+        <button onclick="saveBill()" class="btn btn-primary w-full" style="justify-content:center;padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
     </div>
 </div>
 
@@ -1123,10 +832,8 @@
         <h3>📖 Estudo</h3>
         <form id="studyForm" enctype="multipart/form-data">
             <div class="form-group"><label>Título</label><input type="text" name="title" required></div>
-            <div class="form-group"><label>Descrição</label><textarea name="description" rows="2"></textarea></div>
             <div class="form-group"><label>Imagem</label><input type="file" name="image" accept="image/*"></div>
-            <div class="form-group"><label>Link</label><input type="url" name="file_url" placeholder="https://"></div>
-            <button type="submit" class="btn btn-primary btn-block" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+            <button type="submit" class="btn btn-primary w-full" style="justify-content:center;padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
         </form>
     </div>
 </div>
@@ -1137,16 +844,9 @@
         <h3>📅 Evento</h3>
         <form id="eventForm" enctype="multipart/form-data">
             <div class="form-group"><label>Título</label><input type="text" name="title" required></div>
-            <div class="form-group"><label>Descrição</label><textarea name="description" rows="2"></textarea></div>
             <div class="form-group"><label>Data</label><input type="datetime-local" name="date" required></div>
             <div class="form-group"><label>Imagem</label><input type="file" name="image" accept="image/*"></div>
-            <div class="form-row">
-                <div class="form-group"><label>Preço</label><input type="number" name="price" step="0.01" value="0"></div>
-                <div class="form-group"><label>Pago?</label>
-                    <select name="is_paid"><option value="false">Grátis</option><option value="true">Pago</option></select>
-                </div>
-            </div>
-            <button type="submit" class="btn btn-primary btn-block" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+            <button type="submit" class="btn btn-primary w-full" style="justify-content:center;padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
         </form>
     </div>
 </div>
@@ -1157,14 +857,9 @@
         <h3>📦 Produto</h3>
         <form id="productForm" enctype="multipart/form-data">
             <div class="form-group"><label>Nome</label><input type="text" name="name" required></div>
-            <div class="form-group"><label>Descrição</label><textarea name="description" rows="2"></textarea></div>
-            <div class="form-row">
-                <div class="form-group"><label>Preço</label><input type="number" name="price" step="0.01" required></div>
-                <div class="form-group"><label>Estoque</label><input type="number" name="stock" value="10"></div>
-            </div>
-            <div class="form-group"><label>Categoria</label><input type="text" name="category"></div>
+            <div class="form-group"><label>Preço</label><input type="number" name="price" step="0.01" required></div>
             <div class="form-group"><label>Imagem</label><input type="file" name="image" accept="image/*"></div>
-            <button type="submit" class="btn btn-primary btn-block" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+            <button type="submit" class="btn btn-primary w-full" style="justify-content:center;padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
         </form>
     </div>
 </div>
@@ -1175,10 +870,8 @@
         <h3>🖼️ Imagem</h3>
         <form id="carouselForm" enctype="multipart/form-data">
             <div class="form-group"><label>Título</label><input type="text" name="title"></div>
-            <div class="form-group"><label>Subtítulo</label><input type="text" name="subtitle"></div>
             <div class="form-group"><label>Imagem *</label><input type="file" name="image" accept="image/*" required></div>
-            <div class="form-group"><label>Link</label><input type="url" name="link" placeholder="https://"></div>
-            <button type="submit" class="btn btn-primary btn-block" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+            <button type="submit" class="btn btn-primary w-full" style="justify-content:center;padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
         </form>
     </div>
 </div>
@@ -1188,14 +881,10 @@
         <button class="modal-close" onclick="closeModal('deptModal')">&times;</button>
         <h3>🏢 Departamento</h3>
         <div class="form-group"><label>Nome</label><input type="text" id="deptName"></div>
-        <div class="form-group"><label>Descrição</label><textarea id="deptDesc" rows="2"></textarea></div>
-        <button onclick="saveDepartment()" class="btn btn-primary btn-block" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+        <button onclick="saveDepartment()" class="btn btn-primary w-full" style="justify-content:center;padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
     </div>
 </div>
 
-<!-- ============================================
-     SCRIPT
-============================================ -->
 <script>
 // ============================================
 // ===== CONFIG =====
@@ -1256,32 +945,16 @@ function logout() {
 // ============================================
 function showTab(tab) {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    document.querySelectorAll('.nav-card').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.menu-item').forEach(c => c.classList.remove('active'));
     document.getElementById('tab-' + tab).classList.add('active');
-    document.querySelector(`.nav-card[data-tab="${tab}"]`)?.classList.add('active');
+    document.querySelector(`.menu-item[data-tab="${tab}"]`)?.classList.add('active');
     
     if (tab === 'carousel') loadCarouselAdmin();
     if (tab === 'departamentos') loadDepartments();
     if (tab === 'membros') loadMembers();
-    if (tab === 'frequencia') { 
-        setDefaultAttendanceDate();
-        if (allMembers.length > 0) {
-            renderMembersList();
-            const date = document.getElementById('attendanceDate').value;
-            if (date) loadAttendanceHistory(date);
-        }
-    }
     if (tab === 'tesouraria') { loadTithes(); loadTitheSummary(); }
     if (tab === 'contas') { loadBills(); loadBillSummary(); }
-    if (tab === 'aniversariantes') loadBirthdaysAdmin();
     if (tab === 'config') loadConfig();
-    
-    // Scroll para o topo da aba
-    const el = document.getElementById('tab-' + tab);
-    if (el) {
-        const top = el.getBoundingClientRect().top + window.pageYOffset - 70;
-        window.scrollTo({ top, behavior: 'smooth' });
-    }
 }
 
 // ============================================
@@ -1304,21 +977,18 @@ async function loadDashboard() {
         document.getElementById('totalUsers').textContent = users.length;
         document.getElementById('totalPrayers').textContent = unreadPrayers;
         document.getElementById('totalOrders').textContent = orders.length;
-        document.getElementById('totalDonations').textContent = 'R$ ' + totalDonations.toFixed(0);
+        document.getElementById('totalDonations').textContent = 'R$' + totalDonations.toFixed(0);
         document.getElementById('totalStudies').textContent = studies.length;
         document.getElementById('totalEvents').textContent = events.length;
 
         loadUsers(users);
         loadPrayers(prayers);
         loadOrders(orders);
-        loadDonations(donations);
         loadStudies(studies);
         loadEvents(events);
         loadProducts();
-        loadRegistrations();
-        loadSalesStats();
         loadMembers();
-        loadBirthdaysAdmin();
+        loadSalesStats();
     } catch (e) { console.error('Erro:', e); }
 }
 
@@ -1329,20 +999,8 @@ async function loadSalesStats() {
         if (data.error) return;
         
         document.getElementById('totalSalesValue').textContent = 'R$ ' + parseFloat(data.total?.total || 0).toFixed(0);
-        document.getElementById('totalSalesCount').textContent = (data.total?.count || 0) + ' vendas';
         const avg = data.total?.count > 0 ? data.total.total / data.total.count : 0;
         document.getElementById('avgSalesValue').textContent = 'R$ ' + avg.toFixed(0);
-        
-        if (data.topProducts?.length) {
-            const top = data.topProducts[0];
-            document.getElementById('topProduct').textContent = top.product_name || '-';
-            document.getElementById('topProductSales').textContent = top.total_sales + ' vendas';
-        }
-        if (data.byMethod?.length) {
-            const tm = data.byMethod.reduce((a, b) => (a.count > b.count) ? a : b);
-            document.getElementById('topPaymentMethod').textContent = tm.payment_method || 'PIX';
-            document.getElementById('topPaymentCount').textContent = tm.count + ' vendas';
-        }
         
         const chart = document.getElementById('barChart');
         if (data.byDay?.length) {
@@ -1357,33 +1015,7 @@ async function loadSalesStats() {
                 </div>`;
             }).join('');
         } else {
-            chart.innerHTML = '<p style="color:#888;font-size:0.7rem;text-align:center;width:100%;">Nenhuma venda</p>';
-        }
-        
-        const topList = document.getElementById('topProductsList');
-        if (data.topProducts?.length) {
-            topList.innerHTML = data.topProducts.slice(0, 5).map(p => `
-                <tr><td>${p.product_name||'-'}</td><td>${p.total_sales||0}</td><td>R$ ${parseFloat(p.total_revenue||0).toFixed(0)}</td></tr>
-            `).join('');
-        } else {
-            topList.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>';
-        }
-        
-        const recent = document.getElementById('recentOrdersList');
-        if (data.recent?.length) {
-            recent.innerHTML = data.recent.map(o => {
-                let items = [];
-                try { items = JSON.parse(o.items || '[]'); } catch { items = []; }
-                const pn = items.length ? items.map(i => i.name).join(', ') : '-';
-                return `<tr>
-                    <td>${o.user_name||'Anônimo'}</td>
-                    <td>${pn}</td>
-                    <td>R$ ${parseFloat(o.total||0).toFixed(2)}</td>
-                    <td><span class="status status-${o.status||'pending'}">${o.status||'Pendente'}</span></td>
-                </tr>`;
-            }).join('');
-        } else {
-            recent.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma</td></tr>';
+            chart.innerHTML = '<p style="color:#888;font-size:0.65rem;text-align:center;width:100%;">Nenhuma venda</p>';
         }
     } catch (e) { console.error('Erro:', e); }
 }
@@ -1393,14 +1025,13 @@ async function loadSalesStats() {
 // ============================================
 function loadUsers(users) {
     const tbody = document.getElementById('usersList');
-    if (!users?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+    if (!users?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
     const roleMap = { pastor:'Pastor', lider:'Líder', colaborador:'Colaborador', fiel:'Fiel' };
     const badgeMap = { pastor:'badge-pastor', lider:'badge-lider', colaborador:'badge-colaborador', fiel:'badge-fiel' };
     tbody.innerHTML = users.map(u => `
         <tr>
             <td>${u.name}</td>
             <td><span class="badge ${badgeMap[u.role]||'badge-fiel'}">${roleMap[u.role]||u.role}</span></td>
-            <td>${u.department_name||'-'}</td>
             <td>
                 <button onclick="resetPassword('${u.email}')" class="btn btn-warning btn-xs"><i class="fas fa-key"></i></button>
                 <button onclick="deleteUser(${u.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button>
@@ -1415,8 +1046,8 @@ function loadPrayers(prayers) {
     tbody.innerHTML = prayers.slice(0, 30).map(p => `
         <tr>
             <td>${p.name||'Anônimo'}</td>
-            <td>${p.request.substring(0, 40)}${p.request.length>40?'...':''}</td>
-            <td>${p.is_read ? '✅ Lido' : '📩 Novo'}</td>
+            <td>${p.request.substring(0, 35)}${p.request.length>35?'...':''}</td>
+            <td>${p.is_read ? '✅' : '📩'}</td>
             <td>${!p.is_read ? `<button onclick="markPrayerRead(${p.id})" class="btn btn-success btn-xs"><i class="fas fa-check"></i></button>` : ''}</td>
         </tr>
     `).join('');
@@ -1424,7 +1055,7 @@ function loadPrayers(prayers) {
 
 function loadOrders(orders) {
     const tbody = document.getElementById('ordersList');
-    if (!orders?.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
+    if (!orders?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
     tbody.innerHTML = orders.slice(0, 30).map(o => {
         let items = [];
         try { items = JSON.parse(o.items || '[]'); } catch { items = []; }
@@ -1434,22 +1065,8 @@ function loadOrders(orders) {
             <td>${pn}</td>
             <td>R$ ${parseFloat(o.total||0).toFixed(2)}</td>
             <td><span class="status status-${o.status||'pending'}">${o.status||'Pendente'}</span></td>
-            <td>${new Date(o.created_at).toLocaleDateString('pt-BR')}</td>
         </tr>`;
     }).join('');
-}
-
-function loadDonations(donations) {
-    const tbody = document.getElementById('donationsList');
-    if (!donations?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
-    tbody.innerHTML = donations.slice(0, 30).map(d => `
-        <tr>
-            <td>${d.user_name||'Anônimo'}</td>
-            <td>${d.type||'-'}</td>
-            <td>R$ ${parseFloat(d.amount||0).toFixed(2)}</td>
-            <td>${new Date(d.created_at).toLocaleDateString('pt-BR')}</td>
-        </tr>
-    `).join('');
 }
 
 function loadStudies(studies) {
@@ -1466,12 +1083,11 @@ function loadStudies(studies) {
 
 function loadEvents(events) {
     const tbody = document.getElementById('eventsList');
-    if (!events?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+    if (!events?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
     tbody.innerHTML = events.map(e => `
         <tr>
             <td>${e.title}</td>
             <td>${new Date(e.date).toLocaleDateString('pt-BR')}</td>
-            <td>${parseFloat(e.price||0)>0 ? 'R$ '+parseFloat(e.price).toFixed(2) : 'Grátis'}</td>
             <td><button onclick="deleteEvent(${e.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button></td>
         </tr>
     `).join('');
@@ -1482,31 +1098,12 @@ async function loadProducts() {
         const res = await fetch('/api/products', { headers: getHeaders() });
         const products = await res.json();
         const tbody = document.getElementById('productsList');
-        if (!products?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+        if (!products?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
         tbody.innerHTML = products.map(p => `
             <tr>
                 <td>${p.name}</td>
                 <td>R$ ${parseFloat(p.price).toFixed(2)}</td>
-                <td>${p.stock}</td>
                 <td><button onclick="deleteProduct(${p.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button></td>
-            </tr>
-        `).join('');
-    } catch (e) { console.error('Erro:', e); }
-}
-
-async function loadRegistrations() {
-    try {
-        const res = await fetch('/api/registrations', { headers: getHeaders() });
-        const data = await res.json();
-        const tbody = document.getElementById('registrationsList');
-        if (!data?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
-        const typeMap = { baptism:'Batismo', volunteer:'Voluntário', event:'Evento', department:'Depto' };
-        tbody.innerHTML = data.slice(0, 30).map(r => `
-            <tr>
-                <td>${r.name}</td>
-                <td>${typeMap[r.type]||r.type}</td>
-                <td>${r.department_name||r.event_name||'-'}</td>
-                <td><span class="status status-${r.status||'pending'}">${r.status||'Pendente'}</span></td>
             </tr>
         `).join('');
     } catch (e) { console.error('Erro:', e); }
@@ -1517,7 +1114,7 @@ async function loadCarouselAdmin() {
         const res = await fetch('/api/carousel', { headers: getHeaders() });
         const data = await res.json();
         const container = document.getElementById('carouselList');
-        if (!data?.length) { container.innerHTML = '<p class="text-center" style="color:#888;font-size:0.7rem;">Nenhuma imagem</p>'; return; }
+        if (!data?.length) { container.innerHTML = '<p class="text-center" style="color:#888;font-size:0.65rem;">Nenhuma</p>'; return; }
         container.innerHTML = data.map(img => {
             const src = img.image_url || (img.image_base64 ? `data:image/jpeg;base64,${img.image_base64}` : 'https://via.placeholder.com/200x120/0D47A1/fff?text=NJ');
             return `<div class="carousel-item">
@@ -1546,27 +1143,75 @@ async function loadDepartments() {
 }
 
 // ============================================
-// ===== ANIVERSARIANTES =====
+// ===== MEMBROS =====
 // ============================================
-async function loadBirthdaysAdmin() {
+async function loadMembers() {
     try {
-        const res = await fetch('/api/birthdays', { headers: getHeaders() });
+        const res = await fetch('/api/members', { headers: getHeaders() });
         const data = await res.json();
-        const tbody = document.getElementById('birthdaysList');
+        const tbody = document.getElementById('membersList');
         if (!data?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
-        const today = new Date();
-        tbody.innerHTML = data.map(b => {
-            const birth = new Date(b.birth_date);
-            let idade = today.getFullYear() - birth.getFullYear();
-            if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) idade--;
-            const isToday = birth.getMonth() === today.getMonth() && birth.getDate() === today.getDate();
-            return `<tr class="${isToday ? 'birthday-today' : ''}">
-                <td>${b.name} ${isToday ? '🎉' : ''}</td>
-                <td>${birth.toLocaleDateString('pt-BR')}</td>
-                <td>${idade} anos</td>
-            </tr>`;
-        }).join('');
+        tbody.innerHTML = data.map(m => `
+            <tr>
+                <td>${m.name}</td>
+                <td>${m.phone||'-'}</td>
+                <td>
+                    <button onclick="viewMember(${m.id})" class="btn btn-primary btn-xs"><i class="fas fa-eye"></i></button>
+                    <button onclick="deleteMember(${m.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `).join('');
     } catch (e) { console.error('Erro:', e); }
+}
+
+async function openMemberModal() {
+    try {
+        const depts = await fetch('/api/departments', { headers: getHeaders() }).then(r => r.json());
+        const select = document.getElementById('memberDepartment');
+        select.innerHTML = '<option value="">Selecione</option>' + depts.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+        document.getElementById('memberName').value = '';
+        document.getElementById('memberEmail').value = '';
+        document.getElementById('memberPhone').value = '';
+        openModal('memberModal');
+    } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+}
+
+async function saveMember() {
+    const data = {
+        name: document.getElementById('memberName').value.trim(),
+        email: document.getElementById('memberEmail').value.trim(),
+        phone: document.getElementById('memberPhone').value.trim(),
+        department_id: document.getElementById('memberDepartment').value || null,
+    };
+    if (!data.name) { showNotification('Nome é obrigatório!', 'error'); return; }
+    try {
+        await fetch('/api/members', {
+            method: 'POST',
+            headers: { 'Content-Type':'application/json', ...getHeaders() },
+            body: JSON.stringify(data)
+        });
+        closeModal('memberModal');
+        loadMembers();
+        showNotification('✅ Membro cadastrado!', 'success');
+    } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+}
+
+async function viewMember(id) {
+    try {
+        const res = await fetch('/api/members/' + id, { headers: getHeaders() });
+        const data = await res.json();
+        let msg = `👤 ${data.name}\n📧 ${data.email||'-'}\n📱 ${data.phone||'-'}\n🏛️ ${data.department_name||'-'}`;
+        alert(msg);
+    } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+}
+
+async function deleteMember(id) {
+    if (!confirm('Remover?')) return;
+    try {
+        await fetch('/api/members/' + id, { method: 'DELETE', headers: getHeaders() });
+        loadMembers();
+        showNotification('✅ Removido!', 'success');
+    } catch (e) { showNotification('❌ ' + e.message, 'error'); }
 }
 
 // ============================================
@@ -1650,7 +1295,6 @@ async function openUserModal() {
     document.getElementById('userEmail').value = '';
     document.getElementById('userPassword').value = '';
     document.getElementById('userRole').value = 'fiel';
-    document.getElementById('userIsLeader').checked = false;
     try {
         const res = await fetch('/api/departments', { headers: getHeaders() });
         const depts = await res.json();
@@ -1667,7 +1311,6 @@ async function saveUser() {
     const password = document.getElementById('userPassword').value;
     const role = document.getElementById('userRole').value;
     const dept = document.getElementById('userDepartmentSelect').value;
-    const isLeader = document.getElementById('userIsLeader').checked;
     if (!name || !email || !password || password.length < 6) {
         showNotification('Preencha todos os campos!', 'error');
         return;
@@ -1678,7 +1321,7 @@ async function saveUser() {
         const res = await fetch('/api/users', {
             method: 'POST',
             headers: { 'Content-Type':'application/json', ...getHeaders() },
-            body: JSON.stringify({ name, email, password, role, department_id: dept||null, is_leader: isLeader })
+            body: JSON.stringify({ name, email, password, role, department_id: dept||null })
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Erro');
@@ -1694,284 +1337,22 @@ async function saveUser() {
 // ============================================
 function openDeptModal() {
     document.getElementById('deptName').value = '';
-    document.getElementById('deptDesc').value = '';
     openModal('deptModal');
 }
 
 async function saveDepartment() {
     const name = document.getElementById('deptName').value.trim();
-    const desc = document.getElementById('deptDesc').value.trim();
     if (!name) { showNotification('Digite o nome!', 'error'); return; }
     try {
         await fetch('/api/departments', {
             method: 'POST',
             headers: { 'Content-Type':'application/json', ...getHeaders() },
-            body: JSON.stringify({ name, description: desc })
+            body: JSON.stringify({ name, description: '' })
         });
         closeModal('deptModal');
         loadDepartments();
         showNotification('✅ Departamento criado!', 'success');
     } catch (e) { showNotification('❌ ' + e.message, 'error'); }
-}
-
-// ============================================
-// ===== MEMBROS =====
-// ============================================
-async function loadMembers() {
-    try {
-        const res = await fetch('/api/members', { headers: getHeaders() });
-        const data = await res.json();
-        const tbody = document.getElementById('membersList');
-        if (!data?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
-        tbody.innerHTML = data.map(m => `
-            <tr>
-                <td>${m.name}</td>
-                <td>${m.phone||'-'}</td>
-                <td>${m.department_name||'-'}</td>
-                <td>
-                    <button onclick="viewMember(${m.id})" class="btn btn-primary btn-xs"><i class="fas fa-eye"></i></button>
-                    <button onclick="deleteMember(${m.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button>
-                </td>
-            </tr>
-        `).join('');
-    } catch (e) { console.error('Erro:', e); }
-}
-
-async function openMemberModal() {
-    try {
-        const depts = await fetch('/api/departments', { headers: getHeaders() }).then(r => r.json());
-        const select = document.getElementById('memberDepartment');
-        select.innerHTML = '<option value="">Selecione</option>' + depts.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
-        document.getElementById('memberName').value = '';
-        document.getElementById('memberEmail').value = '';
-        document.getElementById('memberPhone').value = '';
-        document.getElementById('memberBirth').value = '';
-        document.getElementById('memberMarital').value = 'solteiro';
-        document.getElementById('memberSpouse').value = '';
-        document.getElementById('memberNotes').value = '';
-        openModal('memberModal');
-    } catch (e) { showNotification('❌ ' + e.message, 'error'); }
-}
-
-async function saveMember() {
-    const data = {
-        name: document.getElementById('memberName').value.trim(),
-        email: document.getElementById('memberEmail').value.trim(),
-        phone: document.getElementById('memberPhone').value.trim(),
-        birth_date: document.getElementById('memberBirth').value || null,
-        marital_status: document.getElementById('memberMarital').value,
-        spouse_name: document.getElementById('memberSpouse').value.trim(),
-        department_id: document.getElementById('memberDepartment').value || null,
-        notes: document.getElementById('memberNotes').value.trim()
-    };
-    if (!data.name) { showNotification('Nome é obrigatório!', 'error'); return; }
-    try {
-        await fetch('/api/members', {
-            method: 'POST',
-            headers: { 'Content-Type':'application/json', ...getHeaders() },
-            body: JSON.stringify(data)
-        });
-        closeModal('memberModal');
-        loadMembers();
-        showNotification('✅ Membro cadastrado!', 'success');
-    } catch (e) { showNotification('❌ ' + e.message, 'error'); }
-}
-
-async function viewMember(id) {
-    try {
-        const res = await fetch('/api/members/' + id, { headers: getHeaders() });
-        const data = await res.json();
-        let msg = `👤 ${data.name}\n📧 ${data.email||'-'}\n📱 ${data.phone||'-'}\n🎂 ${data.birth_date ? new Date(data.birth_date).toLocaleDateString('pt-BR') : '-'}\n💑 ${data.marital_status||'-'}`;
-        if (data.spouse_name) msg += `\n👰 ${data.spouse_name}`;
-        if (data.department_name) msg += `\n🏛️ ${data.department_name}`;
-        alert(msg);
-    } catch (e) { showNotification('❌ ' + e.message, 'error'); }
-}
-
-async function deleteMember(id) {
-    if (!confirm('Remover?')) return;
-    try {
-        await fetch('/api/members/' + id, { method: 'DELETE', headers: getHeaders() });
-        loadMembers();
-        showNotification('✅ Removido!', 'success');
-    } catch (e) { showNotification('❌ ' + e.message, 'error'); }
-}
-
-// ============================================
-// ===== FREQUÊNCIA =====
-// ============================================
-let allMembers = [];
-let selectedMembers = new Set();
-let attendanceFilteredMembers = [];
-
-function setDefaultAttendanceDate() {
-    const today = new Date();
-    const dateInput = document.getElementById('attendanceDate');
-    if (dateInput) {
-        const y = today.getFullYear();
-        const m = String(today.getMonth() + 1).padStart(2,'0');
-        const d = String(today.getDate()).padStart(2,'0');
-        dateInput.value = `${y}-${m}-${d}`;
-    }
-}
-
-async function loadAllMembersForAttendance() {
-    const date = document.getElementById('attendanceDate').value;
-    if (!date) { showNotification('Selecione uma data!', 'error'); return; }
-    try {
-        showNotification('Carregando...', 'info');
-        const res = await fetch('/api/members', { headers: getHeaders() });
-        allMembers = await res.json();
-        if (!allMembers?.length) {
-            showNotification('Nenhum membro!', 'error');
-            document.getElementById('membersListContainer').innerHTML = '<p style="color:#888;text-align:center;font-size:0.7rem;">Nenhum</p>';
-            return;
-        }
-        selectedMembers.clear();
-        await checkExistingAttendance(date);
-        renderMembersList();
-        updateSummary();
-        loadAttendanceHistory(date);
-        showNotification(`✅ ${allMembers.length} membros`, 'success');
-    } catch (e) {
-        showNotification('❌ ' + e.message, 'error');
-    }
-}
-
-async function checkExistingAttendance(date) {
-    try {
-        const res = await fetch(`/api/attendance/date/${date}`, { headers: getHeaders() });
-        const existing = await res.json();
-        if (existing?.length) {
-            existing.forEach(r => { if (r.present) selectedMembers.add(r.member_id); });
-        }
-        document.getElementById('selectedCount').textContent = selectedMembers.size;
-    } catch (e) { console.error(e); }
-}
-
-function renderMembersList() {
-    const container = document.getElementById('membersListContainer');
-    const search = document.getElementById('memberSearch')?.value.toLowerCase().trim() || '';
-    let filtered = allMembers;
-    if (search) filtered = allMembers.filter(m => m.name.toLowerCase().includes(search) || (m.email && m.email.toLowerCase().includes(search)));
-    attendanceFilteredMembers = filtered;
-    document.getElementById('totalCount').textContent = filtered.length;
-    if (!filtered.length) {
-        container.innerHTML = '<p style="color:#888;text-align:center;font-size:0.7rem;">Nenhum</p>';
-        return;
-    }
-    let html = '';
-    filtered.forEach(m => {
-        const checked = selectedMembers.has(m.id) ? 'checked' : '';
-        const bg = checked ? 'background:#d4edda;' : '';
-        html += `<div class="member-row" data-id="${m.id}" style="${bg}">
-            <input type="checkbox" class="member-checkbox" value="${m.id}" ${checked} onchange="toggleMember(${m.id})">
-            <div class="member-info" onclick="toggleMember(${m.id})">
-                <div class="member-name">${m.name}</div>
-                <div class="member-dept">${m.department_name||'Sem depto'}</div>
-            </div>
-            <span style="font-size:0.55rem;color:#888;">${m.phone||''}</span>
-        </div>`;
-    });
-    container.innerHTML = html;
-    document.getElementById('selectedCount').textContent = selectedMembers.size;
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('memberSearch')?.addEventListener('input', renderMembersList);
-});
-
-function toggleMember(id) {
-    if (selectedMembers.has(id)) selectedMembers.delete(id);
-    else selectedMembers.add(id);
-    const row = document.querySelector(`.member-row[data-id="${id}"]`);
-    if (row) {
-        const cb = row.querySelector('.member-checkbox');
-        if (cb) cb.checked = selectedMembers.has(id);
-        row.style.background = selectedMembers.has(id) ? '#d4edda' : '';
-    }
-    document.getElementById('selectedCount').textContent = selectedMembers.size;
-    updateSummary();
-}
-
-function toggleSelectAll() {
-    const visible = attendanceFilteredMembers.length ? attendanceFilteredMembers : allMembers;
-    if (!visible.length) { showNotification('Nenhum membro!', 'error'); return; }
-    const allSelected = visible.every(m => selectedMembers.has(m.id));
-    if (allSelected) visible.forEach(m => selectedMembers.delete(m.id));
-    else visible.forEach(m => selectedMembers.add(m.id));
-    renderMembersList();
-    updateSummary();
-}
-
-function clearSelection() {
-    selectedMembers.clear();
-    renderMembersList();
-    updateSummary();
-}
-
-function updateSummary() {
-    const container = document.getElementById('attendanceSummary');
-    const total = selectedMembers.size;
-    container.innerHTML = total ? `<div style="background:#d4edda;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.65rem;"><strong>${total}</strong> selecionados</div>` 
-        : '<p style="color:#888;font-size:0.65rem;">Nenhum selecionado</p>';
-}
-
-async function registerMultipleAttendance() {
-    const date = document.getElementById('attendanceDate').value;
-    const service = document.getElementById('attendanceService').value;
-    if (!date) { showNotification('Selecione a data!', 'error'); return; }
-    if (!selectedMembers.size) { showNotification('Selecione membros!', 'error'); return; }
-    if (!confirm(`Registrar ${selectedMembers.size} membros?`)) return;
-    let success = 0, errors = 0;
-    for (const id of selectedMembers) {
-        try {
-            await fetch('/api/attendance', {
-                method: 'POST',
-                headers: { 'Content-Type':'application/json', ...getHeaders() },
-                body: JSON.stringify({ member_id: id, event_date: date, service_type: service, present: true })
-            });
-            success++;
-        } catch (e) { errors++; }
-    }
-    showNotification(`✅ ${success} registrados ${errors ? '⚠️ '+errors+' erros' : ''}`, 'success');
-    await checkExistingAttendance(date);
-    renderMembersList();
-    loadAttendanceHistory(date);
-}
-
-async function registerAllAttendance() {
-    const date = document.getElementById('attendanceDate').value;
-    if (!date) { showNotification('Selecione a data!', 'error'); return; }
-    if (!allMembers.length) { showNotification('Carregue os membros!', 'error'); return; }
-    allMembers.forEach(m => selectedMembers.add(m.id));
-    renderMembersList();
-    updateSummary();
-    await registerMultipleAttendance();
-}
-
-async function loadAttendanceHistory(date) {
-    if (!date) { document.getElementById('attendanceList').innerHTML = '<p style="color:#888;text-align:center;font-size:0.6rem;">Selecione uma data</p>'; return; }
-    try {
-        const res = await fetch(`/api/attendance/date/${date}`, { headers: getHeaders() });
-        const records = await res.json();
-        const container = document.getElementById('attendanceList');
-        if (!records?.length) {
-            container.innerHTML = `<p style="color:#888;text-align:center;font-size:0.6rem;">Nenhum registro para ${new Date(date).toLocaleDateString('pt-BR')}</p>`;
-            return;
-        }
-        const presentes = records.filter(r => r.present).length;
-        let html = `<div style="font-size:0.55rem;color:#666;margin-bottom:0.1rem;"><strong>${records.length}</strong> registros ✅ ${presentes} ❌ ${records.length - presentes}</div>`;
-        records.slice(0, 15).forEach(r => {
-            const m = allMembers.find(x => x.id === r.member_id);
-            const name = m ? m.name : '#' + r.member_id;
-            html += `<div style="display:flex;justify-content:space-between;padding:0.05rem 0;border-bottom:1px solid #f0f0f0;font-size:0.55rem;">
-                <span>${name}</span>
-                <span class="status ${r.present ? 'status-approved' : 'status-pending'}">${r.present ? '✅' : '❌'}</span>
-            </div>`;
-        });
-        container.innerHTML = html;
-    } catch (e) { console.error(e); }
 }
 
 // ============================================
@@ -1982,11 +1363,8 @@ async function openTitheModal() {
         const members = await fetch('/api/members', { headers: getHeaders() }).then(r => r.json());
         const select = document.getElementById('titheMember');
         select.innerHTML = '<option value="">Visitante</option>' + members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
-        document.getElementById('titheName').value = '';
         document.getElementById('titheAmount').value = '';
-        document.getElementById('titheDate').value = new Date().toISOString().split('T')[0];
         document.getElementById('titheType').value = 'dizimo';
-        document.getElementById('titheMethod').value = 'dinheiro';
         openModal('titheModal');
     } catch (e) { showNotification('❌ ' + e.message, 'error'); }
 }
@@ -1995,14 +1373,12 @@ async function saveTithe() {
     const member_id = document.getElementById('titheMember').value;
     const type = document.getElementById('titheType').value;
     const amount = parseFloat(document.getElementById('titheAmount').value);
-    const payment_date = document.getElementById('titheDate').value;
-    const payment_method = document.getElementById('titheMethod').value;
     if (!amount || amount <= 0) { showNotification('Valor inválido!', 'error'); return; }
     try {
         await fetch('/api/tithes', {
             method: 'POST',
             headers: { 'Content-Type':'application/json', ...getHeaders() },
-            body: JSON.stringify({ member_id: member_id||null, member_name: null, type, amount, payment_date, payment_method, description: '' })
+            body: JSON.stringify({ member_id: member_id||null, member_name: null, type, amount, payment_date: new Date().toISOString().split('T')[0], payment_method: 'dinheiro', description: '' })
         });
         closeModal('titheModal');
         loadTithes();
@@ -2033,7 +1409,7 @@ async function loadTitheSummary() {
         const res = await fetch('/api/tithes/summary', { headers: getHeaders() });
         const data = await res.json();
         const div = document.getElementById('titheSummary');
-        if (!data.by_type?.length) { div.innerHTML = '<span style="color:#888;">Nenhum</span>'; return; }
+        if (!data.by_type?.length) { div.innerHTML = ''; return; }
         div.innerHTML = data.by_type.map(t => `<span><strong>${t.type}:</strong> R$ ${parseFloat(t.total).toFixed(0)}</span> `).join('') +
             `<span><strong>Total:</strong> R$ ${parseFloat(data.total).toFixed(0)}</span>`;
     } catch (e) { console.error('Erro:', e); }
@@ -2046,8 +1422,6 @@ function openBillModal() {
     document.getElementById('billDescription').value = '';
     document.getElementById('billCategory').value = 'agua';
     document.getElementById('billAmount').value = '';
-    document.getElementById('billDueDate').value = '';
-    document.getElementById('billNotes').value = '';
     openModal('billModal');
 }
 
@@ -2055,13 +1429,12 @@ async function saveBill() {
     const desc = document.getElementById('billDescription').value.trim();
     const cat = document.getElementById('billCategory').value;
     const amount = parseFloat(document.getElementById('billAmount').value);
-    const due = document.getElementById('billDueDate').value;
-    if (!desc || !amount || !due) { showNotification('Preencha todos os campos!', 'error'); return; }
+    if (!desc || !amount) { showNotification('Preencha todos os campos!', 'error'); return; }
     try {
         await fetch('/api/bills', {
             method: 'POST',
             headers: { 'Content-Type':'application/json', ...getHeaders() },
-            body: JSON.stringify({ description: desc, category: cat, amount, due_date: due, notes: '' })
+            body: JSON.stringify({ description: desc, category: cat, amount, due_date: new Date().toISOString().split('T')[0], notes: '' })
         });
         closeModal('billModal');
         loadBills();
@@ -2075,13 +1448,12 @@ async function loadBills() {
         const res = await fetch('/api/bills', { headers: getHeaders() });
         const data = await res.json();
         const tbody = document.getElementById('billsList');
-        if (!data?.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
+        if (!data?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
         tbody.innerHTML = data.map(b => `
             <tr>
                 <td>${b.description}</td>
                 <td>R$ ${parseFloat(b.amount).toFixed(2)}</td>
-                <td>${new Date(b.due_date).toLocaleDateString('pt-BR')}</td>
-                <td><span class="status ${b.paid ? 'status-approved' : 'status-pending'}">${b.paid ? '✅ Pago' : '⏳'}</span></td>
+                <td><span class="status ${b.paid ? 'status-approved' : 'status-pending'}">${b.paid ? '✅' : '⏳'}</span></td>
                 <td>
                     ${!b.paid ? `<button onclick="payBill(${b.id})" class="btn btn-success btn-xs"><i class="fas fa-check"></i></button>` : ''}
                     <button onclick="deleteBill(${b.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button>
@@ -2092,7 +1464,7 @@ async function loadBills() {
 }
 
 async function payBill(id) {
-    if (!confirm('Pagar esta conta?')) return;
+    if (!confirm('Pagar?')) return;
     try {
         await fetch('/api/bills/' + id + '/pay', {
             method: 'PUT',
@@ -2120,7 +1492,7 @@ async function loadBillSummary() {
         const res = await fetch('/api/bills/summary', { headers: getHeaders() });
         const data = await res.json();
         const div = document.getElementById('billSummary');
-        if (!data.summary) { div.innerHTML = '<span style="color:#888;">Nenhuma</span>'; return; }
+        if (!data.summary) { div.innerHTML = ''; return; }
         div.innerHTML = `<span style="color:#dc3545;">⏳ R$ ${parseFloat(data.summary.pending||0).toFixed(0)}</span> 
             <span style="color:#28a745;">✅ R$ ${parseFloat(data.summary.paid_total||0).toFixed(0)}</span>`;
     } catch (e) { console.error('Erro:', e); }
@@ -2209,7 +1581,6 @@ document.getElementById('carouselForm')?.addEventListener('submit', async functi
 document.addEventListener('DOMContentLoaded', () => {
     loadDashboard();
     loadConfig();
-    setDefaultAttendanceDate();
 });
 </script>
 </body>

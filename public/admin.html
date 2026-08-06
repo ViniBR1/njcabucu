@@ -5,23 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - NJ Cabuçu</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+        /* ============================================
+           RESET E VARIÁVEIS
+        ============================================ */
         * { margin:0; padding:0; box-sizing:border-box; }
         :root {
             --primary: #0D47A1;
             --primary-light: #1565C0;
+            --primary-dark: #0A3A7A;
+            --primary-gradient: linear-gradient(135deg, #0D47A1, #1565C0);
+            --secondary: #E8F0FE;
+            --accent: #F5A623;
             --bg: #f0f4f8;
             --card-bg: #ffffff;
-            --shadow: 0 2px 20px rgba(0,0,0,0.06);
+            --shadow: 0 4px 30px rgba(0,0,0,0.08);
+            --shadow-hover: 0 8px 50px rgba(0,0,0,0.15);
             --radius: 16px;
+            --radius-sm: 10px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Inter', system-ui, sans-serif;
         }
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: var(--font);
             background: var(--bg);
-            color: #1a1a1a;
+            color: #1a1a2e;
+            line-height: 1.6;
         }
+
+        /* ============================================
+           SCROLLBAR
+        ============================================ */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-light); }
+
+        /* ============================================
+           HEADER
+        ============================================ */
         .header {
-            background: var(--card-bg);
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
             padding: 0.8rem 2rem;
             display: flex;
             justify-content: space-between;
@@ -31,20 +57,43 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.04);
         }
         .logo { display: flex; align-items: center; gap: 0.8rem; }
         .logo-icon {
-            width: 45px; height: 45px;
+            width: 48px; height: 48px;
             border-radius: 50%;
-            background: var(--primary);
+            background: var(--primary-gradient);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
-            font-size: 1.3rem;
+            font-weight: 800;
+            font-size: 1.2rem;
             color: white;
+            box-shadow: 0 4px 15px rgba(13,71,161,0.3);
         }
-        .logo h1 { font-size: 1.3rem; color: var(--primary); }
+        .logo h1 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+        .logo h1 span { color: var(--accent); }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .header-right .user-badge {
+            background: var(--secondary);
+            padding: 0.3rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--primary);
+        }
+        .header-right .user-badge i { margin-right: 0.4rem; }
 
         .btn {
             padding: 0.5rem 1.2rem;
@@ -52,41 +101,75 @@
             border: none;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: var(--transition);
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
             font-size: 0.9rem;
+            font-family: var(--font);
+            text-decoration: none;
         }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-light); transform: translateY(-2px); }
+        .btn-primary { background: var(--primary-gradient); color: white; box-shadow: 0 4px 15px rgba(13,71,161,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(13,71,161,0.4); }
         .btn-danger { background: #dc3545; color: white; }
-        .btn-danger:hover { background: #c82333; }
+        .btn-danger:hover { background: #c82333; transform: translateY(-2px); }
         .btn-success { background: #28a745; color: white; }
-        .btn-success:hover { background: #218838; }
+        .btn-success:hover { background: #218838; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(40,167,69,0.3); }
         .btn-warning { background: #ffc107; color: #1a1a1a; }
-        .btn-warning:hover { background: #e0a800; }
-        .btn-sm { padding: 0.3rem 0.8rem; font-size: 0.8rem; }
+        .btn-warning:hover { background: #e0a800; transform: translateY(-2px); }
+        .btn-sm { padding: 0.25rem 0.8rem; font-size: 0.75rem; }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: white; transform: translateY(-2px); }
 
+        /* ============================================
+           CONTAINER
+        ============================================ */
         .container { max-width: 1400px; margin: 1.5rem auto; padding: 0 1.5rem; }
 
+        /* ============================================
+           STATS
+        ============================================ */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
             gap: 1rem;
             margin-bottom: 2rem;
         }
         .stat-card {
             background: var(--card-bg);
-            padding: 1.2rem;
+            padding: 1.2rem 1rem;
             border-radius: var(--radius);
             text-align: center;
-            border: 1px solid #e8e8e8;
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: var(--transition);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
         }
-        .stat-card .number { font-size: 2rem; font-weight: 700; color: var(--primary); }
-        .stat-card .label { color: #888; font-size: 0.85rem; }
-        .stat-card .icon { font-size: 1.5rem; color: var(--primary); margin-bottom: 0.3rem; }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary);
+        }
+        .stat-card .icon {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 0.3rem;
+            opacity: 0.8;
+        }
+        .stat-card .number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+        .stat-card .label {
+            color: #888;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
 
+        /* ============================================
+           SALES GRID
+        ============================================ */
         .sales-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -97,21 +180,41 @@
             background: #f8f9fa;
             padding: 1.2rem;
             border-radius: var(--radius);
-            border: 1px solid #e8e8e8;
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: var(--transition);
         }
-        .sales-card .value { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
-        .sales-card .label { color: #666; font-size: 0.85rem; }
-        .sales-card .sub { color: #888; font-size: 0.8rem; }
+        .sales-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .sales-card .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .sales-card .label {
+            color: #666;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .sales-card .sub {
+            color: #888;
+            font-size: 0.75rem;
+        }
 
+        /* ============================================
+           TABS
+        ============================================ */
         .tabs {
             display: flex;
             gap: 0.3rem;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             flex-wrap: wrap;
             background: var(--card-bg);
-            padding: 0.6rem;
-            border-radius: 12px;
-            border: 1px solid #e8e8e8;
+            padding: 0.5rem 0.8rem;
+            border-radius: var(--radius);
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
         }
         .tab-btn {
             padding: 0.4rem 1rem;
@@ -120,22 +223,53 @@
             background: transparent;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.3s;
+            transition: var(--transition);
             font-size: 0.8rem;
+            font-family: var(--font);
+            color: #666;
         }
-        .tab-btn:hover { border-color: var(--primary); }
-        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .tab-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .tab-btn.active {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 15px rgba(13,71,161,0.25);
+        }
+        .tab-btn i { margin-right: 0.3rem; }
 
+        /* ============================================
+           TAB CONTENT
+        ============================================ */
         .tab-content {
             display: none;
             background: var(--card-bg);
-            padding: 1.5rem;
+            padding: 1.5rem 2rem;
             border-radius: var(--radius);
-            border: 1px solid #e8e8e8;
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
         }
         .tab-content.active { display: block; }
+        .tab-content h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1.2rem;
+            letter-spacing: -0.3px;
+        }
+        .tab-content h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.8rem;
+        }
 
-        .table-wrapper { overflow-x: auto; }
+        /* ============================================
+           TABLES
+        ============================================ */
+        .table-wrapper { overflow-x: auto; margin-top: 0.5rem; }
         .table {
             width: 100%;
             border-collapse: collapse;
@@ -143,19 +277,32 @@
         }
         .table th {
             text-align: left;
-            padding: 0.4rem 0.5rem;
+            padding: 0.6rem 0.6rem;
             border-bottom: 2px solid #e8e8e8;
             color: #666;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .table td { padding: 0.4rem 0.5rem; border-bottom: 1px solid #f0f0f0; }
+        .table td {
+            padding: 0.5rem 0.6rem;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
         .table tr:hover { background: #f8f9fa; }
 
+        /* ============================================
+           STATUS BADGES
+        ============================================ */
         .status {
-            padding: 0.1rem 0.5rem;
+            padding: 0.15rem 0.6rem;
             border-radius: 50px;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 600;
             display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
         .status-pending { background: #fff3cd; color: #856404; }
         .status-approved { background: #d4edda; color: #155724; }
@@ -163,16 +310,21 @@
         .status-rejected { background: #f8d7da; color: #721c24; }
 
         .badge {
-            padding: 0.1rem 0.5rem;
+            padding: 0.15rem 0.6rem;
             border-radius: 50px;
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
         .badge-pastor { background: var(--primary); color: white; }
         .badge-lider { background: #28a745; color: white; }
         .badge-colaborador { background: #17a2b8; color: white; }
         .badge-fiel { background: #6c757d; color: white; }
 
+        /* ============================================
+           MODAIS
+        ============================================ */
         .modal {
             display: none;
             position: fixed;
@@ -180,25 +332,26 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.4);
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(6px);
             z-index: 9999;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(4px);
         }
         .modal-content {
             background: white;
-            padding: 2rem;
+            padding: 2rem 2.2rem;
             border-radius: var(--radius);
             max-width: 550px;
-            width: 90%;
+            width: 92%;
             max-height: 90vh;
             overflow-y: auto;
             animation: modalIn 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
         }
         @keyframes modalIn {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+            from { transform: scale(0.9) translateY(20px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
         }
         .modal-close {
             float: right;
@@ -207,27 +360,47 @@
             color: #888;
             background: none;
             border: none;
+            transition: var(--transition);
+            line-height: 1;
         }
-        .modal-close:hover { color: #333; }
+        .modal-close:hover { color: #333; transform: rotate(90deg); }
+        .modal-content h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1.2rem;
+        }
 
+        /* ============================================
+           FORMS
+        ============================================ */
         .form-group { margin: 0.8rem 0; }
         .form-group label {
             display: block;
             font-weight: 600;
-            margin-bottom: 0.2rem;
-            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+            font-size: 0.85rem;
+            color: #333;
         }
-        .form-group input, .form-group textarea, .form-group select {
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
             width: 100%;
-            padding: 0.7rem;
+            padding: 0.7rem 1rem;
             border: 2px solid #e0e0e0;
-            border-radius: 10px;
+            border-radius: var(--radius-sm);
             font-size: 0.95rem;
-            font-family: inherit;
+            font-family: var(--font);
+            transition: var(--transition);
+            background: #fafbff;
         }
-        .form-group input:focus, .form-group textarea:focus {
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
             border-color: var(--primary);
             outline: none;
+            box-shadow: 0 0 0 4px rgba(13,71,161,0.08);
+            background: white;
         }
         .form-row { display: flex; gap: 1rem; }
         .form-row > * { flex: 1; }
@@ -237,6 +410,7 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
+            gap: 0.5rem;
         }
         .text-center { text-align: center; }
         .mt-1 { margin-top: 1rem; }
@@ -244,6 +418,9 @@
         .hidden { display: none !important; }
         .w-full { width: 100%; }
 
+        /* ============================================
+           CHARTS
+        ============================================ */
         .bar-chart {
             display: flex;
             align-items: flex-end;
@@ -261,55 +438,76 @@
         .bar {
             width: 100%;
             max-width: 35px;
-            background: var(--primary);
+            background: var(--primary-gradient);
             border-radius: 4px 4px 0 0;
             min-height: 5px;
-            transition: height 0.5s ease;
+            transition: height 0.6s ease;
         }
         .bar-label {
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             color: #666;
             text-align: center;
+            font-weight: 500;
         }
         .bar-value {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             font-weight: 600;
             color: var(--primary);
         }
 
+        /* ============================================
+           CARROSSEL ADMIN
+        ============================================ */
         .carousel-item {
             display: inline-block;
             width: 200px;
             margin: 0.5rem;
             text-align: center;
             border: 1px solid #e8e8e8;
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             padding: 0.5rem;
             background: #f8f9fa;
+            transition: var(--transition);
+        }
+        .carousel-item:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary);
         }
         .carousel-item img {
             width: 100%;
             height: 120px;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 6px;
         }
 
+        /* ============================================
+           NOTIFICATIONS
+        ============================================ */
         .notification {
             position: fixed;
-            top: 20px;
+            top: 90px;
             right: 20px;
-            padding: 0.8rem 1.2rem;
-            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-sm);
             font-weight: 500;
             z-index: 99999;
             max-width: 400px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            animation: modalIn 0.3s ease;
+            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: var(--font);
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
         }
         .notification.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .notification.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .notification.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
 
+        /* ============================================
+           MEMBER ROW
+        ============================================ */
         .member-row {
             display: flex;
             align-items: center;
@@ -319,9 +517,7 @@
             transition: background 0.2s;
             cursor: pointer;
         }
-        .member-row:hover {
-            background: #e8f0fe !important;
-        }
+        .member-row:hover { background: #e8f0fe !important; }
         .member-row .member-checkbox {
             margin-right: 0.8rem;
             width: 18px;
@@ -329,40 +525,54 @@
             cursor: pointer;
             flex-shrink: 0;
         }
-
-        .birthday-today {
-            background: #d4edda !important;
-        }
+        .birthday-today { background: #d4edda !important; }
         .birthday-today td:first-child::after {
             content: ' 🎉';
             font-size: 1.2rem;
         }
 
+        /* ============================================
+           RESPONSIVO
+        ============================================ */
+        @media (max-width: 1024px) {
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+        }
         @media (max-width: 768px) {
             .header { flex-direction: column; gap: 0.5rem; padding: 0.8rem 1rem; }
+            .header-right { width: 100%; justify-content: center; flex-wrap: wrap; }
             .stats-grid { grid-template-columns: 1fr 1fr; }
             .sales-grid { grid-template-columns: 1fr; }
-            .tabs { gap: 0.2rem; padding: 0.4rem; }
-            .tab-btn { padding: 0.2rem 0.6rem; font-size: 0.7rem; }
-            .form-row { flex-direction: column; }
+            .tabs { gap: 0.2rem; padding: 0.4rem; overflow-x: auto; flex-wrap: nowrap; }
+            .tab-btn { padding: 0.25rem 0.6rem; font-size: 0.7rem; white-space: nowrap; }
+            .tab-content { padding: 1rem; }
+            .form-row { flex-direction: column; gap: 0.2rem; }
             .bar-chart { height: 100px; }
             .carousel-item { width: 150px; }
+            .modal-content { padding: 1.5rem; }
+        }
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+            .stat-card .number { font-size: 1.4rem; }
+            .stat-card .icon { font-size: 1.4rem; }
+            .container { padding: 0 0.8rem; }
         }
     </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <header class="header">
     <div class="logo">
         <div class="logo-icon">NJ</div>
-        <h1>Painel do Pastor</h1>
+        <h1>Painel <span>Pastoral</span></h1>
     </div>
-    <div>
-        <span style="margin-right:0.8rem;color:#666;font-weight:600;">👑 Pastor</span>
-        <button onclick="logout()" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Sair</button>
+    <div class="header-right">
+        <span class="user-badge"><i class="fas fa-crown"></i> Pastor</span>
+        <button onclick="logout()" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i> Sair</button>
     </div>
 </header>
 
+<!-- CONTAINER -->
 <div class="container">
     <!-- STATS -->
     <div class="stats-grid" id="statsGrid">
@@ -448,7 +658,7 @@
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-top:1.5rem;">
             <div>
                 <h4>📅 Vendas por Dia (Últimos 7 dias)</h4>
-                <div class="chart-container" id="salesChart">
+                <div class="chart-container">
                     <div class="bar-chart" id="barChart"></div>
                 </div>
             </div>
@@ -489,7 +699,7 @@
     <div id="tab-usuarios" class="tab-content">
         <div class="flex-between mb-1">
             <h3>👥 Usuários</h3>
-            <button onclick="openUserModal()" class="btn btn-success"><i class="fas fa-plus"></i> Novo</button>
+            <button onclick="openUserModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
         </div>
         <div class="table-wrapper">
             <table class="table">
@@ -514,7 +724,7 @@
     <div id="tab-estudos" class="tab-content">
         <div class="flex-between mb-1">
             <h3>📖 Estudos</h3>
-            <button onclick="openStudyModal()" class="btn btn-success"><i class="fas fa-plus"></i> Novo</button>
+            <button onclick="openStudyModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
         </div>
         <div class="table-wrapper">
             <table class="table">
@@ -528,7 +738,7 @@
     <div id="tab-eventos" class="tab-content">
         <div class="flex-between mb-1">
             <h3>📅 Eventos</h3>
-            <button onclick="openEventModal()" class="btn btn-success"><i class="fas fa-plus"></i> Novo</button>
+            <button onclick="openEventModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
         </div>
         <div class="table-wrapper">
             <table class="table">
@@ -542,7 +752,7 @@
     <div id="tab-produtos" class="tab-content">
         <div class="flex-between mb-1">
             <h3>📦 Produtos</h3>
-            <button onclick="openProductModal()" class="btn btn-success"><i class="fas fa-plus"></i> Novo</button>
+            <button onclick="openProductModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
         </div>
         <div class="table-wrapper">
             <table class="table">
@@ -556,7 +766,7 @@
     <div id="tab-carousel" class="tab-content">
         <div class="flex-between mb-1">
             <h3>🖼️ Carrossel</h3>
-            <button onclick="openCarouselModal()" class="btn btn-success"><i class="fas fa-plus"></i> Nova Imagem</button>
+            <button onclick="openCarouselModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Nova Imagem</button>
         </div>
         <div id="carouselList" style="display:flex;flex-wrap:wrap;gap:0.5rem;"></div>
     </div>
@@ -587,7 +797,7 @@
     <div id="tab-departamentos" class="tab-content">
         <div class="flex-between mb-1">
             <h3>🏢 Departamentos</h3>
-            <button onclick="openDeptModal()" class="btn btn-success"><i class="fas fa-plus"></i> Novo</button>
+            <button onclick="openDeptModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
         </div>
         <div class="table-wrapper">
             <table class="table">
@@ -601,7 +811,7 @@
     <div id="tab-membros" class="tab-content">
         <div class="flex-between mb-1">
             <h3>👥 Membros</h3>
-            <button onclick="openMemberModal()" class="btn btn-success"><i class="fas fa-plus"></i> Novo Membro</button>
+            <button onclick="openMemberModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo Membro</button>
         </div>
         <div class="table-wrapper">
             <table class="table">
@@ -613,7 +823,7 @@
 
     <!-- FREQUÊNCIA -->
     <div id="tab-frequencia" class="tab-content">
-        <h3>📅 Registrar Frequência em Massa</h3>
+        <h3>📅 Registrar Frequência</h3>
         
         <div class="form-row">
             <div class="form-group">
@@ -630,7 +840,7 @@
                 </select>
             </div>
             <div class="form-group" style="display:flex; align-items:flex-end;">
-                <button onclick="loadAllMembersForAttendance()" class="btn btn-primary" style="width:100%;">
+                <button onclick="loadAllMembersForAttendance()" class="btn btn-primary" style="width:100%;justify-content:center;">
                     <i class="fas fa-sync"></i> Carregar Membros
                 </button>
             </div>
@@ -640,11 +850,11 @@
             <div>
                 <div style="display:flex; gap:0.5rem; margin-bottom:0.8rem; flex-wrap:wrap;">
                     <div style="flex:1; min-width:150px;">
-                        <input type="text" id="memberSearch" placeholder="🔍 Buscar membro por nome..." 
+                        <input type="text" id="memberSearch" placeholder="🔍 Buscar membro..." 
                                style="width:100%; padding:0.5rem; border-radius:8px; border:2px solid #e0e0e0;">
                     </div>
                     <button onclick="toggleSelectAll()" class="btn btn-warning btn-sm">
-                        <i class="fas fa-check-double"></i> Selecionar Todos
+                        <i class="fas fa-check-double"></i> Todos
                     </button>
                     <button onclick="clearSelection()" class="btn btn-danger btn-sm">
                         <i class="fas fa-times"></i> Limpar
@@ -653,7 +863,7 @@
 
                 <div style="background:#f8f9fa; border-radius:12px; border:1px solid #e8e8e8; padding:0.8rem; max-height:400px; overflow-y:auto;">
                     <div id="membersListContainer">
-                        <p style="color:#888; text-align:center; padding:1rem;">Clique em "Carregar Membros" para começar</p>
+                        <p style="color:#888; text-align:center; padding:1rem;">Clique em "Carregar Membros"</p>
                     </div>
                 </div>
 
@@ -669,15 +879,15 @@
 
             <div>
                 <div style="background:#f8f9fa; border-radius:12px; border:1px solid #e8e8e8; padding:1.2rem;">
-                    <h4 style="margin-bottom:0.8rem;">📋 Resumo da Frequência</h4>
+                    <h4 style="margin-bottom:0.8rem;">📋 Resumo</h4>
                     <div id="attendanceSummary" style="margin-bottom:1rem; min-height:50px;">
                         <p style="color:#888;">Nenhum membro selecionado</p>
                     </div>
                     <button onclick="registerMultipleAttendance()" class="btn btn-success" style="width:100%; justify-content:center; padding:0.8rem;">
-                        <i class="fas fa-check-circle"></i> Registrar Presença dos Selecionados
+                        <i class="fas fa-check-circle"></i> Registrar Selecionados
                     </button>
                     <button onclick="registerAllAttendance()" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:0.5rem; padding:0.8rem;">
-                        <i class="fas fa-users"></i> Registrar Todos os Membros
+                        <i class="fas fa-users"></i> Registrar Todos
                     </button>
                 </div>
 
@@ -695,7 +905,7 @@
     <div id="tab-tesouraria" class="tab-content">
         <div class="flex-between mb-1">
             <h3>💝 Dízimos e Ofertas</h3>
-            <button onclick="openTitheModal()" class="btn btn-success"><i class="fas fa-plus"></i> Registrar</button>
+            <button onclick="openTitheModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Registrar</button>
             <div id="titheSummary"></div>
         </div>
         <div class="table-wrapper">
@@ -710,7 +920,7 @@
     <div id="tab-contas" class="tab-content">
         <div class="flex-between mb-1">
             <h3>📋 Contas a Pagar</h3>
-            <button onclick="openBillModal()" class="btn btn-success"><i class="fas fa-plus"></i> Nova Conta</button>
+            <button onclick="openBillModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Nova Conta</button>
             <div id="billSummary"></div>
         </div>
         <div class="table-wrapper">
@@ -725,31 +935,22 @@
     <div id="tab-aniversariantes" class="tab-content">
         <div class="flex-between mb-1">
             <h3>🎂 Aniversariantes do Mês</h3>
-            <span style="font-size:0.85rem;color:#888;">Baseado nos membros cadastrados</span>
+            <span style="font-size:0.8rem;color:#888;">Baseado nos membros cadastrados</span>
         </div>
         <div class="table-wrapper">
             <table class="table">
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Data de Nascimento</th>
-                        <th>Telefone</th>
-                        <th>Idade</th>
-                        <th>Departamento</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Nome</th><th>Data</th><th>Telefone</th><th>Idade</th><th>Departamento</th></tr></thead>
                 <tbody id="birthdaysList"></tbody>
             </table>
         </div>
-        <p style="font-size:0.8rem;color:#888;margin-top:0.5rem;">
-            <i class="fas fa-info-circle"></i> Aniversariantes são carregados automaticamente dos membros cadastrados.
-            Cadastre membros com data de nascimento para aparecerem aqui.
+        <p style="font-size:0.75rem;color:#888;margin-top:0.5rem;">
+            <i class="fas fa-info-circle"></i> Aniversariantes carregados dos membros cadastrados.
         </p>
     </div>
 
     <!-- CONFIG -->
     <div id="tab-config" class="tab-content">
-        <h3>⚙️ Configurações do Site</h3>
+        <h3>⚙️ Configurações</h3>
         <div class="form-group">
             <label>Cor Primária</label>
             <input type="color" id="configPrimary" value="#0D47A1" onchange="saveConfig('primary_color', this.value)">
@@ -766,52 +967,38 @@
             <label>Instagram</label>
             <input type="text" id="configInstagram" value="novajerusalemcabucu" onchange="saveConfig('instagram', this.value)">
         </div>
-        <button onclick="loadConfig()" class="btn btn-primary"><i class="fas fa-sync"></i> Recarregar</button>
+        <button onclick="loadConfig()" class="btn btn-primary btn-sm"><i class="fas fa-sync"></i> Recarregar</button>
     </div>
 </div>
 
-<!-- MODAIS -->
+<!-- ============================================
+     MODAIS
+============================================ -->
+
 <!-- USUÁRIO -->
 <div class="modal" id="userModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('userModal')">&times;</button>
         <h3>👤 Novo Usuário</h3>
-        <div class="form-group">
-            <label>Nome *</label>
-            <input type="text" id="userName" placeholder="Digite o nome completo">
-        </div>
-        <div class="form-group">
-            <label>E-mail *</label>
-            <input type="email" id="userEmail" placeholder="email@exemplo.com">
-        </div>
-        <div class="form-group">
-            <label>Senha * (mínimo 6 caracteres)</label>
-            <input type="password" id="userPassword" minlength="6" placeholder="Digite uma senha">
-        </div>
+        <div class="form-group"><label>Nome *</label><input type="text" id="userName" placeholder="Nome completo"></div>
+        <div class="form-group"><label>E-mail *</label><input type="email" id="userEmail" placeholder="email@exemplo.com"></div>
+        <div class="form-group"><label>Senha * (mín. 6)</label><input type="password" id="userPassword" minlength="6" placeholder="Digite uma senha"></div>
         <div class="form-row">
-            <div class="form-group">
-                <label>Cargo</label>
+            <div class="form-group"><label>Cargo</label>
                 <select id="userRole">
                     <option value="fiel">Fiel</option>
                     <option value="lider">Líder</option>
                     <option value="colaborador">Colaborador</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label>Departamento</label>
-                <select id="userDepartmentSelect">
-                    <option value="">Nenhum</option>
-                </select>
+            <div class="form-group"><label>Departamento</label>
+                <select id="userDepartmentSelect"><option value="">Nenhum</option></select>
             </div>
         </div>
         <div class="form-group">
-            <label>
-                <input type="checkbox" id="userIsLeader"> É Líder?
-            </label>
+            <label><input type="checkbox" id="userIsLeader"> É Líder?</label>
         </div>
-        <button onclick="saveUser()" class="btn btn-primary w-full" style="justify-content:center;">
-            <i class="fas fa-save"></i> Salvar
-        </button>
+        <button onclick="saveUser()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
     </div>
 </div>
 
@@ -834,7 +1021,7 @@
                 </select>
             </div>
         </div>
-        <div class="form-group"><label>Nome do Cônjuge</label><input type="text" id="memberSpouse"></div>
+        <div class="form-group"><label>Cônjuge</label><input type="text" id="memberSpouse"></div>
         <div class="form-group"><label>Filhos (separados por vírgula)</label><input type="text" id="memberChildren" placeholder="Ex: João, Maria"></div>
         <div class="form-row">
             <div class="form-group"><label>Data de Batismo</label><input type="date" id="memberBaptism"></div>
@@ -857,7 +1044,7 @@
         <div class="form-group"><label>Membro</label>
             <select id="titheMember"><option value="">Visitante</option></select>
         </div>
-        <div class="form-group"><label>Nome (se visitante)</label><input type="text" id="titheName"></div>
+        <div class="form-group"><label>Nome (visitante)</label><input type="text" id="titheName"></div>
         <div class="form-row">
             <div class="form-group"><label>Tipo *</label>
                 <select id="titheType">
@@ -903,7 +1090,7 @@
             </div>
             <div class="form-group"><label>Valor *</label><input type="number" id="billAmount" step="0.01" min="0.01"></div>
         </div>
-        <div class="form-group"><label>Data de Vencimento *</label><input type="date" id="billDueDate"></div>
+        <div class="form-group"><label>Vencimento *</label><input type="date" id="billDueDate"></div>
         <div class="form-group"><label>Observações</label><textarea id="billNotes" rows="3"></textarea></div>
         <button onclick="saveBill()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
     </div>
@@ -990,6 +1177,9 @@
     </div>
 </div>
 
+<!-- ============================================
+     SCRIPT
+============================================ -->
 <script>
 // ============================================
 // ===== CONFIGURAÇÕES =====
@@ -1409,7 +1599,7 @@ async function loadDepartments() {
 }
 
 // ============================================
-// ===== ANIVERSARIANTES - ADMIN (CORRIGIDO) =====
+// ===== ANIVERSARIANTES =====
 // ============================================
 
 async function loadBirthdaysAdmin() {
@@ -1423,7 +1613,6 @@ async function loadBirthdaysAdmin() {
             return;
         }
         
-        // Ordena por dia do mês
         const sorted = [...data].sort((a, b) => {
             const dateA = new Date(a.birth_date);
             const dateB = new Date(b.birth_date);
@@ -1805,7 +1994,7 @@ async function deleteMember(id) {
 }
 
 // ============================================
-// ===== FREQUÊNCIA - MULTISSELECAO =====
+// ===== FREQUÊNCIA =====
 // ============================================
 
 let allMembers = [];

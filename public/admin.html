@@ -14,13 +14,12 @@
             --primary-gradient: linear-gradient(135deg, #0D47A1, #1565C0);
             --bg: #f0f4f8;
             --card-bg: #ffffff;
-            --shadow: 0 2px 8px rgba(0,0,0,0.06);
+            --shadow: 0 2px 12px rgba(0,0,0,0.06);
             --radius: 12px;
             --radius-sm: 8px;
             --transition: all 0.25s ease;
             --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             --header-h: 56px;
-            --nav-h: 44px;
         }
         html { 
             scroll-behavior: smooth; 
@@ -32,18 +31,20 @@
             font-family: var(--font);
             background: var(--bg);
             color: #1a1a2e;
-            line-height: 1.4;
+            line-height: 1.5;
             overflow-x: hidden;
             width: 100%;
             max-width: 100vw;
-            padding-bottom: 1rem;
+            padding-bottom: 2rem;
         }
 
-        /* HEADER */
+        /* ============================================
+           HEADER
+        ============================================ */
         .header {
             background: rgba(255,255,255,0.96);
             backdrop-filter: blur(10px);
-            padding: 0.5rem 0.8rem;
+            padding: 0.5rem 1rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -56,12 +57,12 @@
         .logo {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.6rem;
             flex-shrink: 0;
         }
         .logo-icon {
-            width: 34px;
-            height: 34px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: var(--primary-gradient);
             display: flex;
@@ -83,22 +84,22 @@
         .header-right {
             display: flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.5rem;
             flex-shrink: 0;
         }
         .user-badge {
             background: #E8F0FE;
-            padding: 0.15rem 0.6rem;
+            padding: 0.2rem 0.7rem;
             border-radius: 50px;
             font-weight: 600;
-            font-size: 0.6rem;
+            font-size: 0.65rem;
             color: var(--primary);
             white-space: nowrap;
         }
         .user-badge i { margin-right: 0.2rem; }
 
         .btn {
-            padding: 0.25rem 0.7rem;
+            padding: 0.3rem 0.8rem;
             border-radius: 50px;
             border: none;
             font-weight: 600;
@@ -120,45 +121,13 @@
         .btn-success:hover { background: #218838; }
         .btn-warning { background: #ffc107; color: #1a1a1a; }
         .btn-warning:hover { background: #e0a800; }
-        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
-        .btn-outline:hover { background: var(--primary); color: #fff; }
         .btn-sm { padding: 0.15rem 0.5rem; font-size: 0.6rem; }
         .btn-xs { padding: 0.1rem 0.4rem; font-size: 0.55rem; }
+        .btn-block { width: 100%; justify-content: center; }
 
-        /* NAV - DROPDOWN MOBILE */
-        .nav-dropdown {
-            background: rgba(255,255,255,0.96);
-            backdrop-filter: blur(8px);
-            border-bottom: 1px solid rgba(0,0,0,0.04);
-            position: sticky;
-            top: var(--header-h);
-            z-index: 99;
-            padding: 0.3rem 0.8rem;
-        }
-        .nav-dropdown select {
-            width: 100%;
-            padding: 0.4rem 0.6rem;
-            border: 2px solid #e0e0e0;
-            border-radius: var(--radius-sm);
-            font-size: 0.75rem;
-            font-weight: 600;
-            font-family: var(--font);
-            background: #fff;
-            color: #333;
-            appearance: none;
-            -webkit-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            cursor: pointer;
-        }
-        .nav-dropdown select:focus {
-            border-color: var(--primary);
-            outline: none;
-        }
-        .nav-dropdown select option { padding: 0.3rem; }
-
-        /* CONTAINER */
+        /* ============================================
+           CONTAINER
+        ============================================ */
         .container {
             width: 100%;
             max-width: 100%;
@@ -166,26 +135,62 @@
             overflow-x: hidden;
         }
 
-        /* STATS */
+        /* ============================================
+           STATS - ORGANIZADO
+        ============================================ */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 0.4rem;
-            margin-bottom: 0.8rem;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
         .stat-card {
             background: var(--card-bg);
-            padding: 0.5rem 0.2rem;
+            padding: 0.7rem 0.3rem;
             border-radius: var(--radius-sm);
             text-align: center;
             border: 1px solid rgba(0,0,0,0.04);
             box-shadow: var(--shadow);
         }
-        .stat-card .icon { font-size: 1rem; color: var(--primary); }
-        .stat-card .number { font-size: 1.1rem; font-weight: 800; color: var(--primary); line-height: 1.2; }
-        .stat-card .label { font-size: 0.55rem; color: #888; font-weight: 500; text-transform: uppercase; letter-spacing: 0.2px; }
+        .stat-card .icon { font-size: 1.1rem; color: var(--primary); }
+        .stat-card .number { font-size: 1.2rem; font-weight: 800; color: var(--primary); line-height: 1.2; }
+        .stat-card .label { font-size: 0.55rem; color: #888; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
 
-        /* TAB CONTENT */
+        /* ============================================
+           NAVEGAÇÃO - CARDS ORGANIZADOS
+        ============================================ */
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.4rem;
+            margin-bottom: 1rem;
+        }
+        .nav-card {
+            background: var(--card-bg);
+            padding: 0.5rem 0.2rem;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            border: 2px solid transparent;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .nav-card:active { transform: scale(0.95); }
+        .nav-card.active {
+            border-color: var(--primary);
+            background: #E8F0FE;
+        }
+        .nav-card .nav-icon { font-size: 1rem; color: var(--primary); }
+        .nav-card .nav-label {
+            font-size: 0.55rem;
+            font-weight: 600;
+            color: #333;
+            margin-top: 0.1rem;
+        }
+
+        /* ============================================
+           TAB CONTENT
+        ============================================ */
         .tab-content {
             display: none;
             background: var(--card-bg);
@@ -202,15 +207,19 @@
             font-weight: 700;
             color: var(--primary);
             margin-bottom: 0.6rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 2px solid var(--primary);
         }
         .tab-content h4 {
             font-size: 0.8rem;
             font-weight: 600;
             color: #333;
-            margin-bottom: 0.4rem;
+            margin: 0.6rem 0 0.3rem 0;
         }
 
-        /* SALES GRID */
+        /* ============================================
+           SALES CARDS
+        ============================================ */
         .sales-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -227,7 +236,9 @@
         .sales-card .label { font-size: 0.55rem; color: #666; text-transform: uppercase; letter-spacing: 0.3px; font-weight: 500; }
         .sales-card .sub { font-size: 0.5rem; color: #888; }
 
-        /* TABLES - SEM SCROLL LATERAL */
+        /* ============================================
+           TABLES - SEM SCROLL
+        ============================================ */
         .table-wrapper {
             width: 100%;
             overflow: hidden;
@@ -262,7 +273,9 @@
         }
         .table tr:hover { background: #f8f9fa; }
 
-        /* BADGES */
+        /* ============================================
+           BADGES
+        ============================================ */
         .status {
             padding: 0.05rem 0.4rem;
             border-radius: 50px;
@@ -291,7 +304,9 @@
         .badge-colaborador { background: #17a2b8; color: #fff; }
         .badge-fiel { background: #6c757d; color: #fff; }
 
-        /* FLEX */
+        /* ============================================
+           FLEX
+        ============================================ */
         .flex-between {
             display: flex;
             justify-content: space-between;
@@ -305,7 +320,9 @@
         .hidden { display: none !important; }
         .w-full { width: 100%; }
 
-        /* BAR CHART - SEM SCROLL */
+        /* ============================================
+           BAR CHART - ORGANIZADO
+        ============================================ */
         .bar-chart {
             display: flex;
             align-items: flex-end;
@@ -326,19 +343,21 @@
         }
         .bar {
             width: 100%;
-            max-width: 24px;
+            max-width: 28px;
             background: var(--primary-gradient);
-            border-radius: 2px 2px 0 0;
+            border-radius: 3px 3px 0 0;
             min-height: 3px;
             transition: height 0.5s ease;
         }
         .bar-label { font-size: 0.45rem; color: #666; text-align: center; }
         .bar-value { font-size: 0.45rem; font-weight: 600; color: var(--primary); }
 
-        /* CARROSSEL - GRID SEM SCROLL */
+        /* ============================================
+           CARROSSEL - GRID
+        ============================================ */
         .carousel-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
             gap: 0.4rem;
             width: 100%;
         }
@@ -351,20 +370,22 @@
         }
         .carousel-item img {
             width: 100%;
-            height: 70px;
+            height: 65px;
             object-fit: cover;
             border-radius: 4px;
         }
         .carousel-item .title {
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             font-weight: 600;
-            margin-top: 0.15rem;
+            margin-top: 0.1rem;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
 
-        /* FORMS */
+        /* ============================================
+           FORMS
+        ============================================ */
         .form-group { margin: 0.4rem 0; }
         .form-group label {
             display: block;
@@ -399,7 +420,9 @@
         }
         .form-group textarea { min-height: 60px; resize: vertical; }
 
-        /* MODAL */
+        /* ============================================
+           MODAL
+        ============================================ */
         .modal {
             display: none;
             position: fixed;
@@ -445,8 +468,10 @@
             margin-bottom: 0.6rem;
         }
 
-        /* FREQUÊNCIA */
-        .freq-grid {
+        /* ============================================
+           FREQUÊNCIA
+        ============================================ */
+        .freq-section {
             display: grid;
             grid-template-columns: 1fr;
             gap: 0.6rem;
@@ -457,7 +482,7 @@
             border: 1px solid #e8e8e8;
             padding: 0.6rem;
         }
-        .freq-box h4 { font-size: 0.75rem; margin-bottom: 0.3rem; }
+        .freq-box h4 { font-size: 0.75rem; font-weight: 600; margin-bottom: 0.3rem; }
 
         .member-row {
             display: flex;
@@ -480,10 +505,12 @@
 
         .birthday-today { background: #d4edda !important; }
 
-        /* NOTIFICATION */
+        /* ============================================
+           NOTIFICATION
+        ============================================ */
         .notification {
             position: fixed;
-            top: calc(var(--header-h) + var(--nav-h) + 4px);
+            top: calc(var(--header-h) + 4px);
             left: 8px;
             right: 8px;
             padding: 0.6rem 0.8rem;
@@ -505,16 +532,19 @@
         .notification.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .notification.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
 
-        /* RESPONSIVO */
+        /* ============================================
+           RESPONSIVO
+        ============================================ */
         @media (min-width: 600px) {
             .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
             .stat-card .number { font-size: 1.4rem; }
             .stat-card .icon { font-size: 1.3rem; }
+            .nav-grid { grid-template-columns: repeat(4, 1fr); gap: 0.6rem; }
             .sales-grid { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
-            .freq-grid { grid-template-columns: 1fr 1fr; }
+            .freq-section { grid-template-columns: 1fr 1fr; }
             .container { padding: 0.8rem 1.2rem; }
             .tab-content { padding: 1rem; }
-            .carousel-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+            .carousel-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
             .modal-content { padding: 1.2rem; }
         }
         @media (min-width: 900px) {
@@ -522,16 +552,18 @@
             .sales-grid { grid-template-columns: repeat(4, 1fr); }
             .container { padding: 1rem 2rem; max-width: 1200px; margin: 0 auto; }
             .header { padding: 0.6rem 2rem; }
-            .nav-dropdown { padding: 0.3rem 2rem; }
             .tab-content { padding: 1.2rem; }
-            .freq-grid { grid-template-columns: 1fr 1fr; }
             .table { font-size: 0.75rem; }
+            .nav-grid { grid-template-columns: repeat(6, 1fr); }
         }
         @media (max-width: 400px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .stat-card .number { font-size: 0.9rem; }
             .stat-card .icon { font-size: 0.9rem; }
-            .stat-card { padding: 0.3rem 0.1rem; }
+            .stat-card { padding: 0.4rem 0.1rem; }
+            .nav-grid { grid-template-columns: repeat(3, 1fr); gap: 0.3rem; }
+            .nav-card .nav-icon { font-size: 0.8rem; }
+            .nav-card .nav-label { font-size: 0.5rem; }
             .sales-grid { grid-template-columns: 1fr 1fr; }
             .sales-card .value { font-size: 0.85rem; }
             .logo h1 { font-size: 0.8rem; }
@@ -558,29 +590,6 @@
         <button onclick="logout()" class="btn btn-danger btn-xs"><i class="fas fa-sign-out-alt"></i></button>
     </div>
 </header>
-
-<!-- NAV DROPDOWN -->
-<nav class="nav-dropdown" id="navDropdown">
-    <select id="navSelect" onchange="showTab(this.value)">
-        <option value="dashboard">📊 Dashboard</option>
-        <option value="vendas">🛒 Vendas</option>
-        <option value="usuarios">👥 Usuários</option>
-        <option value="oracoes">🙏 Orações</option>
-        <option value="estudos">📖 Estudos</option>
-        <option value="eventos">📅 Eventos</option>
-        <option value="produtos">📦 Produtos</option>
-        <option value="carousel">🖼️ Carrossel</option>
-        <option value="doacoes">💝 Doações</option>
-        <option value="inscricoes">📋 Inscrições</option>
-        <option value="departamentos">🏢 Departamentos</option>
-        <option value="membros">👥 Membros</option>
-        <option value="frequencia">📅 Frequência</option>
-        <option value="tesouraria">💝 Dízimos</option>
-        <option value="contas">📋 Contas</option>
-        <option value="aniversariantes">🎂 Aniversários</option>
-        <option value="config">⚙️ Config</option>
-    </select>
-</nav>
 
 <!-- CONTAINER -->
 <div class="container">
@@ -619,9 +628,81 @@
         </div>
     </div>
 
+    <!-- NAVEGAÇÃO -->
+    <div class="nav-grid" id="navGrid">
+        <div class="nav-card active" onclick="showTab('dashboard')" data-tab="dashboard">
+            <div class="nav-icon"><i class="fas fa-chart-pie"></i></div>
+            <div class="nav-label">Dashboard</div>
+        </div>
+        <div class="nav-card" onclick="showTab('vendas')" data-tab="vendas">
+            <div class="nav-icon"><i class="fas fa-shopping-cart"></i></div>
+            <div class="nav-label">Vendas</div>
+        </div>
+        <div class="nav-card" onclick="showTab('usuarios')" data-tab="usuarios">
+            <div class="nav-icon"><i class="fas fa-users"></i></div>
+            <div class="nav-label">Usuários</div>
+        </div>
+        <div class="nav-card" onclick="showTab('oracoes')" data-tab="oracoes">
+            <div class="nav-icon"><i class="fas fa-pray"></i></div>
+            <div class="nav-label">Orações</div>
+        </div>
+        <div class="nav-card" onclick="showTab('estudos')" data-tab="estudos">
+            <div class="nav-icon"><i class="fas fa-book"></i></div>
+            <div class="nav-label">Estudos</div>
+        </div>
+        <div class="nav-card" onclick="showTab('eventos')" data-tab="eventos">
+            <div class="nav-icon"><i class="fas fa-calendar"></i></div>
+            <div class="nav-label">Eventos</div>
+        </div>
+        <div class="nav-card" onclick="showTab('produtos')" data-tab="produtos">
+            <div class="nav-icon"><i class="fas fa-box"></i></div>
+            <div class="nav-label">Produtos</div>
+        </div>
+        <div class="nav-card" onclick="showTab('carousel')" data-tab="carousel">
+            <div class="nav-icon"><i class="fas fa-images"></i></div>
+            <div class="nav-label">Carrossel</div>
+        </div>
+        <div class="nav-card" onclick="showTab('doacoes')" data-tab="doacoes">
+            <div class="nav-icon"><i class="fas fa-hand-holding-heart"></i></div>
+            <div class="nav-label">Doações</div>
+        </div>
+        <div class="nav-card" onclick="showTab('inscricoes')" data-tab="inscricoes">
+            <div class="nav-icon"><i class="fas fa-clipboard-list"></i></div>
+            <div class="nav-label">Inscrições</div>
+        </div>
+        <div class="nav-card" onclick="showTab('departamentos')" data-tab="departamentos">
+            <div class="nav-icon"><i class="fas fa-building"></i></div>
+            <div class="nav-label">Deptos</div>
+        </div>
+        <div class="nav-card" onclick="showTab('membros')" data-tab="membros">
+            <div class="nav-icon"><i class="fas fa-users"></i></div>
+            <div class="nav-label">Membros</div>
+        </div>
+        <div class="nav-card" onclick="showTab('frequencia')" data-tab="frequencia">
+            <div class="nav-icon"><i class="fas fa-calendar-check"></i></div>
+            <div class="nav-label">Frequência</div>
+        </div>
+        <div class="nav-card" onclick="showTab('tesouraria')" data-tab="tesouraria">
+            <div class="nav-icon"><i class="fas fa-hand-holding-heart"></i></div>
+            <div class="nav-label">Dízimos</div>
+        </div>
+        <div class="nav-card" onclick="showTab('contas')" data-tab="contas">
+            <div class="nav-icon"><i class="fas fa-receipt"></i></div>
+            <div class="nav-label">Contas</div>
+        </div>
+        <div class="nav-card" onclick="showTab('aniversariantes')" data-tab="aniversariantes">
+            <div class="nav-icon"><i class="fas fa-birthday-cake"></i></div>
+            <div class="nav-label">Aniversários</div>
+        </div>
+        <div class="nav-card" onclick="showTab('config')" data-tab="config">
+            <div class="nav-icon"><i class="fas fa-cog"></i></div>
+            <div class="nav-label">Config</div>
+        </div>
+    </div>
+
     <!-- DASHBOARD -->
     <div id="tab-dashboard" class="tab-content active">
-        <h3>📊 Resumo</h3>
+        <h3>📊 Resumo de Vendas</h3>
         <div class="sales-grid">
             <div class="sales-card">
                 <div class="label">💰 Total</div>
@@ -648,7 +729,7 @@
         <h4>📅 Vendas por Dia</h4>
         <div class="bar-chart" id="barChart"></div>
 
-        <h4>🏆 Produtos</h4>
+        <h4>🏆 Produtos Mais Vendidos</h4>
         <div class="table-wrapper">
             <table class="table">
                 <thead><tr><th>Produto</th><th>Vendas</th><th>Receita</th></tr></thead>
@@ -667,7 +748,7 @@
 
     <!-- VENDAS -->
     <div id="tab-vendas" class="tab-content">
-        <h3>🛒 Vendas</h3>
+        <h3>🛒 Histórico de Vendas</h3>
         <div class="table-wrapper">
             <table class="table">
                 <thead><tr><th>Cliente</th><th>Produto</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
@@ -692,7 +773,7 @@
 
     <!-- ORAÇÕES -->
     <div id="tab-oracoes" class="tab-content">
-        <h3>🙏 Orações</h3>
+        <h3>🙏 Pedidos de Oração</h3>
         <div class="table-wrapper">
             <table class="table">
                 <thead><tr><th>Nome</th><th>Pedido</th><th>Status</th><th>Ações</th></tr></thead>
@@ -804,7 +885,7 @@
 
     <!-- FREQUÊNCIA -->
     <div id="tab-frequencia" class="tab-content">
-        <h3>📅 Frequência</h3>
+        <h3>📅 Registrar Frequência</h3>
         <div class="form-row" style="grid-template-columns:1fr 1fr; gap:0.4rem;">
             <div class="form-group">
                 <label>Data</label>
@@ -820,19 +901,20 @@
                 </select>
             </div>
         </div>
-        <button onclick="loadAllMembersForAttendance()" class="btn btn-primary w-full" style="justify-content:center; margin-bottom:0.6rem;">
+        <button onclick="loadAllMembersForAttendance()" class="btn btn-primary btn-block" style="margin-bottom:0.6rem; padding:0.4rem;">
             <i class="fas fa-sync"></i> Carregar Membros
         </button>
 
-        <div class="freq-grid">
-            <div>
+        <div class="freq-section">
+            <div class="freq-box">
+                <h4>👥 Selecionar Membros</h4>
                 <div style="display:flex; gap:0.3rem; margin-bottom:0.3rem; flex-wrap:wrap;">
                     <input type="text" id="memberSearch" placeholder="🔍 Buscar..." 
                            style="flex:1; padding:0.3rem 0.5rem; border-radius:6px; border:2px solid #e0e0e0; font-size:0.7rem; min-width:80px;">
-                    <button onclick="toggleSelectAll()" class="btn btn-warning btn-xs"><i class="fas fa-check-double"></i> Tudo</button>
+                    <button onclick="toggleSelectAll()" class="btn btn-warning btn-xs"><i class="fas fa-check-double"></i> Todos</button>
                     <button onclick="clearSelection()" class="btn btn-danger btn-xs"><i class="fas fa-times"></i> Limpar</button>
                 </div>
-                <div style="background:#f8f9fa; border-radius:8px; border:1px solid #e8e8e8; padding:0.4rem; max-height:250px; overflow-y:auto;">
+                <div style="background:#fff; border-radius:6px; border:1px solid #e8e8e8; padding:0.3rem; max-height:200px; overflow-y:auto;">
                     <div id="membersListContainer">
                         <p style="color:#888; text-align:center; padding:0.3rem; font-size:0.7rem;">Carregue os membros</p>
                     </div>
@@ -846,22 +928,21 @@
                     </span>
                 </div>
             </div>
-            <div>
-                <div style="background:#f8f9fa; border-radius:8px; border:1px solid #e8e8e8; padding:0.5rem;">
-                    <h4 style="font-size:0.7rem;">📋 Resumo</h4>
-                    <div id="attendanceSummary" style="margin-bottom:0.3rem; min-height:25px;">
-                        <p style="color:#888; font-size:0.65rem;">Nenhum selecionado</p>
-                    </div>
-                    <button onclick="registerMultipleAttendance()" class="btn btn-success w-full" style="justify-content:center; padding:0.3rem; font-size:0.65rem;">
-                        <i class="fas fa-check-circle"></i> Registrar
-                    </button>
-                    <button onclick="registerAllAttendance()" class="btn btn-primary w-full" style="justify-content:center; margin-top:0.2rem; padding:0.3rem; font-size:0.65rem;">
-                        <i class="fas fa-users"></i> Todos
-                    </button>
+
+            <div class="freq-box">
+                <h4>📋 Registrar</h4>
+                <div id="attendanceSummary" style="margin-bottom:0.3rem; min-height:25px;">
+                    <p style="color:#888; font-size:0.65rem;">Nenhum selecionado</p>
                 </div>
-                <div style="margin-top:0.4rem; background:#f8f9fa; border-radius:8px; border:1px solid #e8e8e8; padding:0.5rem;">
-                    <h4 style="font-size:0.7rem;">📊 Registros</h4>
-                    <div id="attendanceList" style="max-height:150px; overflow-y:auto; font-size:0.65rem;">
+                <button onclick="registerMultipleAttendance()" class="btn btn-success btn-block" style="padding:0.3rem; font-size:0.65rem;">
+                    <i class="fas fa-check-circle"></i> Registrar Selecionados
+                </button>
+                <button onclick="registerAllAttendance()" class="btn btn-primary btn-block" style="margin-top:0.2rem; padding:0.3rem; font-size:0.65rem;">
+                    <i class="fas fa-users"></i> Registrar Todos
+                </button>
+                <div style="margin-top:0.4rem;">
+                    <h4 style="font-size:0.65rem; margin-bottom:0.2rem;">📊 Registros</h4>
+                    <div id="attendanceList" style="max-height:120px; overflow-y:auto; font-size:0.6rem; background:#fff; border-radius:4px; padding:0.2rem;">
                         <p style="color:#888; text-align:center;">Selecione uma data</p>
                     </div>
                 </div>
@@ -912,13 +993,13 @@
 
     <!-- CONFIG -->
     <div id="tab-config" class="tab-content">
-        <h3>⚙️ Config</h3>
+        <h3>⚙️ Configurações</h3>
         <div class="form-group">
-            <label>Cor</label>
+            <label>Cor Primária</label>
             <input type="color" id="configPrimary" value="#0D47A1" onchange="saveConfig('primary_color', this.value)">
         </div>
         <div class="form-group">
-            <label>Título</label>
+            <label>Título do Site</label>
             <input type="text" id="configTitle" value="NJ Cabuçu" onchange="saveConfig('site_title', this.value)">
         </div>
         <div class="form-group">
@@ -929,7 +1010,9 @@
     </div>
 </div>
 
-<!-- MODAIS -->
+<!-- ============================================
+     MODAIS
+============================================ -->
 <div class="modal" id="userModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('userModal')">&times;</button>
@@ -952,7 +1035,7 @@
         <div class="form-group">
             <label><input type="checkbox" id="userIsLeader"> Líder?</label>
         </div>
-        <button onclick="saveUser()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+        <button onclick="saveUser()" class="btn btn-primary btn-block" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
     </div>
 </div>
 
@@ -979,7 +1062,7 @@
             <select id="memberDepartment"><option value="">Selecione</option></select>
         </div>
         <div class="form-group"><label>Obs</label><textarea id="memberNotes" rows="2"></textarea></div>
-        <button onclick="saveMember()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+        <button onclick="saveMember()" class="btn btn-primary btn-block" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
     </div>
 </div>
 
@@ -1010,7 +1093,7 @@
                 </select>
             </div>
         </div>
-        <button onclick="saveTithe()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+        <button onclick="saveTithe()" class="btn btn-primary btn-block" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
     </div>
 </div>
 
@@ -1030,7 +1113,7 @@
             <div class="form-group"><label>Valor</label><input type="number" id="billAmount" step="0.01" min="0.01"></div>
         </div>
         <div class="form-group"><label>Vencimento</label><input type="date" id="billDueDate"></div>
-        <button onclick="saveBill()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+        <button onclick="saveBill()" class="btn btn-primary btn-block" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
     </div>
 </div>
 
@@ -1043,7 +1126,7 @@
             <div class="form-group"><label>Descrição</label><textarea name="description" rows="2"></textarea></div>
             <div class="form-group"><label>Imagem</label><input type="file" name="image" accept="image/*"></div>
             <div class="form-group"><label>Link</label><input type="url" name="file_url" placeholder="https://"></div>
-            <button type="submit" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+            <button type="submit" class="btn btn-primary btn-block" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
         </form>
     </div>
 </div>
@@ -1063,7 +1146,7 @@
                     <select name="is_paid"><option value="false">Grátis</option><option value="true">Pago</option></select>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+            <button type="submit" class="btn btn-primary btn-block" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
         </form>
     </div>
 </div>
@@ -1081,7 +1164,7 @@
             </div>
             <div class="form-group"><label>Categoria</label><input type="text" name="category"></div>
             <div class="form-group"><label>Imagem</label><input type="file" name="image" accept="image/*"></div>
-            <button type="submit" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+            <button type="submit" class="btn btn-primary btn-block" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
         </form>
     </div>
 </div>
@@ -1095,7 +1178,7 @@
             <div class="form-group"><label>Subtítulo</label><input type="text" name="subtitle"></div>
             <div class="form-group"><label>Imagem *</label><input type="file" name="image" accept="image/*" required></div>
             <div class="form-group"><label>Link</label><input type="url" name="link" placeholder="https://"></div>
-            <button type="submit" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+            <button type="submit" class="btn btn-primary btn-block" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
         </form>
     </div>
 </div>
@@ -1106,10 +1189,13 @@
         <h3>🏢 Departamento</h3>
         <div class="form-group"><label>Nome</label><input type="text" id="deptName"></div>
         <div class="form-group"><label>Descrição</label><textarea id="deptDesc" rows="2"></textarea></div>
-        <button onclick="saveDepartment()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
+        <button onclick="saveDepartment()" class="btn btn-primary btn-block" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
     </div>
 </div>
 
+<!-- ============================================
+     SCRIPT
+============================================ -->
 <script>
 // ============================================
 // ===== CONFIG =====
@@ -1170,8 +1256,9 @@ function logout() {
 // ============================================
 function showTab(tab) {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.nav-card').forEach(c => c.classList.remove('active'));
     document.getElementById('tab-' + tab).classList.add('active');
-    document.getElementById('navSelect').value = tab;
+    document.querySelector(`.nav-card[data-tab="${tab}"]`)?.classList.add('active');
     
     if (tab === 'carousel') loadCarouselAdmin();
     if (tab === 'departamentos') loadDepartments();
@@ -1188,6 +1275,13 @@ function showTab(tab) {
     if (tab === 'contas') { loadBills(); loadBillSummary(); }
     if (tab === 'aniversariantes') loadBirthdaysAdmin();
     if (tab === 'config') loadConfig();
+    
+    // Scroll para o topo da aba
+    const el = document.getElementById('tab-' + tab);
+    if (el) {
+        const top = el.getBoundingClientRect().top + window.pageYOffset - 70;
+        window.scrollTo({ top, behavior: 'smooth' });
+    }
 }
 
 // ============================================
@@ -1857,21 +1951,21 @@ async function registerAllAttendance() {
 }
 
 async function loadAttendanceHistory(date) {
-    if (!date) { document.getElementById('attendanceList').innerHTML = '<p style="color:#888;text-align:center;font-size:0.65rem;">Selecione uma data</p>'; return; }
+    if (!date) { document.getElementById('attendanceList').innerHTML = '<p style="color:#888;text-align:center;font-size:0.6rem;">Selecione uma data</p>'; return; }
     try {
         const res = await fetch(`/api/attendance/date/${date}`, { headers: getHeaders() });
         const records = await res.json();
         const container = document.getElementById('attendanceList');
         if (!records?.length) {
-            container.innerHTML = `<p style="color:#888;text-align:center;font-size:0.65rem;">Nenhum registro para ${new Date(date).toLocaleDateString('pt-BR')}</p>`;
+            container.innerHTML = `<p style="color:#888;text-align:center;font-size:0.6rem;">Nenhum registro para ${new Date(date).toLocaleDateString('pt-BR')}</p>`;
             return;
         }
         const presentes = records.filter(r => r.present).length;
-        let html = `<div style="font-size:0.6rem;color:#666;margin-bottom:0.2rem;"><strong>${records.length}</strong> registros ✅ ${presentes} ❌ ${records.length - presentes}</div>`;
+        let html = `<div style="font-size:0.55rem;color:#666;margin-bottom:0.1rem;"><strong>${records.length}</strong> registros ✅ ${presentes} ❌ ${records.length - presentes}</div>`;
         records.slice(0, 15).forEach(r => {
             const m = allMembers.find(x => x.id === r.member_id);
             const name = m ? m.name : '#' + r.member_id;
-            html += `<div style="display:flex;justify-content:space-between;padding:0.1rem 0;border-bottom:1px solid #f0f0f0;font-size:0.6rem;">
+            html += `<div style="display:flex;justify-content:space-between;padding:0.05rem 0;border-bottom:1px solid #f0f0f0;font-size:0.55rem;">
                 <span>${name}</span>
                 <span class="status ${r.present ? 'status-approved' : 'status-pending'}">${r.present ? '✅' : '❌'}</span>
             </div>`;

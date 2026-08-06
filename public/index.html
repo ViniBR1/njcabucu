@@ -2,10 +2,12 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>NJ Cabuçu - Igreja</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- SDK Mercado Pago -->
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
     <style>
         /* ============================================
            RESET E VARIÁVEIS
@@ -166,8 +168,8 @@
             color: white;
         }
         .btn-danger:hover {
+            background: #c82333;
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(220,53,69,0.4);
         }
 
         .menu-toggle {
@@ -1188,7 +1190,7 @@
             <div class="form-group"><label>Nome Completo *</label><input type="text" id="payName"></div>
             <div class="form-group"><label>E-mail *</label><input type="email" id="payEmail"></div>
             <div class="form-group"><label>Telefone *</label><input type="tel" id="payPhone"></div>
-            <div class="form-group"><label>CPF *</label><input type="text" id="payCpf"></div>
+            <div class="form-group"><label>CPF *</label><input type="text" id="payCpf" placeholder="000.000.000-00"></div>
             <div class="form-group">
                 <label>Forma de Pagamento</label>
                 <select id="payMethod" onchange="togglePaymentMethod()">
@@ -1197,10 +1199,10 @@
                 </select>
             </div>
             <div id="cardFields" style="display:none;">
-                <div class="form-group"><label>Número do Cartão</label><input type="text" id="cardNumber" placeholder="1234 5678 9012 3456"></div>
+                <div class="form-group"><label>Número do Cartão</label><input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19"></div>
                 <div class="form-row">
                     <div class="form-group"><label>Validade</label><input type="text" id="cardExpiry" placeholder="MM/AA"></div>
-                    <div class="form-group"><label>CVV</label><input type="text" id="cardCvv" placeholder="123"></div>
+                    <div class="form-group"><label>CVV</label><input type="text" id="cardCvv" placeholder="123" maxlength="4"></div>
                 </div>
                 <div class="form-group"><label>Parcelas</label>
                     <select id="cardInstallments">
@@ -1259,6 +1261,9 @@ let slideInterval;
 let slideCount = 0;
 let departmentsList = [];
 let carouselData = [];
+let paymentType = 'sale';
+let donationType = '';
+let _donationAmount = 0;
 
 // ============================================
 // ===== HEADER SCROLL =====
@@ -1465,7 +1470,7 @@ function openBibleModal() {
 }
 
 // ============================================
-// ===== BÍBLIA - BUSCA CORRIGIDA =====
+// ===== BÍBLIA - BUSCA =====
 // ============================================
 const bookNames = {
     'gn': 'Gênesis', 'ex': 'Êxodo', 'lv': 'Levítico', 'nm': 'Números',
@@ -1488,63 +1493,6 @@ const bookNames = {
     'ap': 'Apocalipse'
 };
 
-// Mapeamento de nomes para códigos alternativos (para compatibilidade)
-const bookAliases = {
-    'gn': 'genesis', 'ex': 'exodus', 'lv': 'leviticus', 'nm': 'numbers',
-    'dt': 'deuteronomy', 'js': 'joshua', 'jz': 'judges', 'rt': 'ruth',
-    '1sm': '1samuel', '2sm': '2samuel', '1rs': '1kings', '2rs': '2kings',
-    '1cr': '1chronicles', '2cr': '2chronicles', 'ed': 'ezra', 'ne': 'nehemiah',
-    'et': 'esther', 'jó': 'job', 'sl': 'psalms', 'pv': 'proverbs',
-    'ec': 'ecclesiastes', 'ct': 'songofsolomon', 'is': 'isaiah', 'jr': 'jeremiah',
-    'lm': 'lamentations', 'ez': 'ezekiel', 'dn': 'daniel', 'os': 'hosea',
-    'jl': 'joel', 'am': 'amos', 'ob': 'obadiah', 'jn': 'jonah',
-    'mq': 'micah', 'na': 'nahum', 'hc': 'habakkuk', 'sf': 'zephaniah',
-    'ag': 'haggai', 'zc': 'zechariah', 'ml': 'malachi',
-    'mt': 'matthew', 'mc': 'mark', 'lc': 'luke', 'jo': 'john',
-    'at': 'acts', 'rm': 'romans', '1co': '1corinthians', '2co': '2corinthians',
-    'gl': 'galatians', 'ef': 'ephesians', 'fp': 'philippians', 'cl': 'colossians',
-    '1ts': '1thessalonians', '2ts': '2thessalonians',
-    '1tm': '1timothy', '2tm': '2timothy', 'tt': 'titus', 'fm': 'philemon',
-    'hb': 'hebrews', 'tg': 'james', '1pe': '1peter', '2pe': '2peter',
-    '1jo': '1john', '2jo': '2john', '3jo': '3john', 'jd': 'jude',
-    'ap': 'revelation'
-};
-
-// Versículos de fallback para quando a API falhar
-const fallbackVerses = {
-    'sl23': 'O SENHOR é o meu pastor; nada me faltará. Deitar-me faz em verdes pastos, guia-me mansamente a águas tranquilas. Refrigera a minha alma; guia-me pelas veredas da justiça, por amor do seu nome.',
-    'sl23_1': 'O SENHOR é o meu pastor; nada me faltará.',
-    'sl23_2': 'Deitar-me faz em verdes pastos, guia-me mansamente a águas tranquilas.',
-    'sl23_3': 'Refrigera a minha alma; guia-me pelas veredas da justiça, por amor do seu nome.',
-    'sl23_4': 'Ainda que eu ande pelo vale da sombra da morte, não temerei mal nenhum, porque tu estás comigo; a tua vara e o teu cajado me consolam.',
-    'sl23_5': 'Preparas uma mesa perante mim na presença dos meus inimigos; unges a minha cabeça com óleo; o meu cálice transborda.',
-    'sl23_6': 'Certamente que a bondade e a misericórdia me seguirão todos os dias da minha vida; e habitarei na casa do SENHOR por longos dias.',
-    'jo3_16': 'Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.',
-    'rm8_28': 'E sabemos que todas as coisas contribuem juntamente para o bem daqueles que amam a Deus, daqueles que são chamados segundo o seu propósito.',
-    'fp4_13': 'Posso todas as coisas naquele que me fortalece.',
-    'mt11_28': 'Vinde a mim, todos os que estais cansados e oprimidos, e eu vos aliviarei.',
-    'mt11_29': 'Tomai sobre vós o meu jugo, e aprendei de mim, que sou manso e humilde de coração; e encontrareis descanso para as vossas almas.',
-    'mt11_30': 'Porque o meu jugo é suave, e o meu fardo é leve.',
-    'jo14_6': 'Disse-lhe Jesus: Eu sou o caminho, e a verdade e a vida; ninguém vem ao Pai, senão por mim.',
-    'jo14_27': 'Deixo-vos a paz, a minha paz vos dou; não vo-la dou como o mundo a dá. Não se turbe o vosso coração, nem se atemorize.',
-    '2co5_17': 'Assim que, se alguém está em Cristo, nova criatura é; as coisas velhas já passaram; eis que tudo se fez novo.',
-    'js1_9': 'Não to mandei eu? Esforça-te, e tem bom ânimo; não te atemorizes, nem te espantes; porque o SENHOR teu Deus é contigo, por onde quer que andares.',
-    'pv3_5': 'Confia no SENHOR de todo o teu coração, e não te estribes no teu próprio entendimento.',
-    'pv3_6': 'Reconhece-o em todos os teus caminhos, e ele endireitará as tuas veredas.',
-    'is41_10': 'Não temas, porque eu sou contigo; não te assombres, porque eu sou o teu Deus; eu te esforço, e te ajudo, e te sustento com a minha destra justa.',
-    'rm8_31': 'Que diremos, pois, a estas coisas? Se Deus é por nós, quem será contra nós?',
-    'rm8_32': 'Aquele que nem mesmo a seu próprio Filho poupou, antes o entregou por todos nós, como nos não dará também com ele todas as coisas?',
-    '1pe5_7': 'Lançando sobre ele toda a vossa ansiedade, porque ele tem cuidado de vós.',
-    'sl121_1': 'Levanto os meus olhos para os montes; de onde me virá o socorro?',
-    'sl121_2': 'O meu socorro vem do SENHOR, que fez o céu e a terra.',
-    'sl121_3': 'Não deixará vacilar o teu pé; aquele que te guarda não dormitará.',
-    'sl121_4': 'Eis que não dormitará nem dormirá o guarda de Israel.',
-    'sl121_5': 'O SENHOR é quem te guarda; o SENHOR é a tua sombra à tua direita.',
-    'sl121_6': 'O sol não te molestará de dia, nem a lua de noite.',
-    'sl121_7': 'O SENHOR te guardará de todo o mal; guardará a tua alma.',
-    'sl121_8': 'O SENHOR guardará a tua saída e a tua entrada, desde agora e para sempre.'
-};
-
 async function searchBible() {
     const book = document.getElementById('bibleBook').value;
     const chapter = document.getElementById('bibleChapter').value;
@@ -1559,49 +1507,23 @@ async function searchBible() {
     resultDiv.innerHTML = '<p class="loading">⏳ Carregando...</p>';
 
     try {
-        // Tenta primeiro com o formato da Bible API
-        let bookName = bookAliases[book] || book;
-        let url = `https://bible-api.com/${bookName} ${chapter}`;
+        let url = `https://bible-api.com/${book}+${chapter}`;
         if (verse && verse > 0) {
             url += `:${verse}`;
         }
         url += '?translation=almeida';
         
-        console.log('🔍 Buscando URL 1:', url);
+        console.log('🔍 Buscando:', url);
 
-        let response = await fetch(url);
-        let data;
+        const response = await fetch(url);
         
-        if (response.ok) {
-            data = await response.json();
-        } else {
-            // Tenta com o formato alternativo (sem espaço)
-            let url2 = `https://bible-api.com/${book}${chapter}`;
-            if (verse && verse > 0) {
-                url2 += `:${verse}`;
-            }
-            url2 += '?translation=almeida';
-            
-            console.log('🔍 Buscando URL 2:', url2);
-            
-            response = await fetch(url2);
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status} - ${response.statusText}`);
-            }
-            data = await response.json();
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status} - ${response.statusText}`);
         }
+        
+        const data = await response.json();
 
         if (data.error) {
-            // Tenta fallback com versículo conhecido
-            const fallbackKey = `${book}${chapter}${verse ? '_' + verse : ''}`;
-            if (fallbackVerses[fallbackKey]) {
-                let html = `<p class="verse">${fallbackVerses[fallbackKey]}</p>`;
-                html += `<p class="reference">📖 ${bookNames[book]} ${chapter}${verse ? ':' + verse : ''}</p>`;
-                html += `<p class="fallback-note">⚠️ Versículo de fallback (API indisponível)</p>`;
-                resultDiv.innerHTML = html;
-                return;
-            }
-            
             resultDiv.innerHTML = `
                 <p class="error-message">❌ ${data.error}</p>
                 <p style="color:#888;margin-top:0.5rem;">Tente: Salmos 23, João 3:16, Romanos 8:28</p>
@@ -1625,37 +1547,13 @@ async function searchBible() {
         
     } catch (error) {
         console.error('❌ Erro na busca:', error);
-        
-        // Tenta fallback com versículo conhecido
-        const fallbackKey = `${book}${chapter}${verse ? '_' + verse : ''}`;
-        if (fallbackVerses[fallbackKey]) {
-            let html = `<p class="verse">${fallbackVerses[fallbackKey]}</p>`;
-            html += `<p class="reference">📖 ${bookNames[book]} ${chapter}${verse ? ':' + verse : ''}</p>`;
-            html += `<p class="fallback-note">⚠️ Versículo de fallback (API indisponível)</p>`;
-            resultDiv.innerHTML = html;
-            return;
-        }
-        
-        // Tenta com um versículo aleatório de fallback
-        const randomFallbackKeys = Object.keys(fallbackVerses);
-        const randomKey = randomFallbackKeys[Math.floor(Math.random() * randomFallbackKeys.length)];
-        if (randomKey) {
-            let html = `<p class="verse">${fallbackVerses[randomKey]}</p>`;
-            html += `<p class="reference">📖 ${randomKey.replace('_', ' ')}</p>`;
-            html += `<p class="fallback-note">⚠️ Versículo de fallback (API indisponível)</p>`;
-            resultDiv.innerHTML = html;
-            return;
-        }
-        
         resultDiv.innerHTML = `
             <p class="error-message">❌ Erro ao buscar: ${error.message}</p>
             <p style="color:#888;margin-top:0.5rem;">Tente: Salmos 23, João 3:16, Romanos 8:28</p>
-            <p style="color:#888;font-size:0.85rem;margin-top:0.3rem;">Certifique-se de que o capítulo existe para o livro selecionado.</p>
         `;
     }
 }
 
-// Versículo aleatório
 async function searchBibleRandom() {
     const resultDiv = document.getElementById('bibleResult');
     resultDiv.innerHTML = '<p class="loading">⏳ Buscando versículo aleatório...</p>';
@@ -1667,13 +1565,7 @@ async function searchBibleRandom() {
         const data = await response.json();
         
         if (data.error) {
-            // Fallback com versículo aleatório conhecido
-            const randomFallbackKeys = Object.keys(fallbackVerses);
-            const randomKey = randomFallbackKeys[Math.floor(Math.random() * randomFallbackKeys.length)];
-            let html = `<p class="verse">${fallbackVerses[randomKey]}</p>`;
-            html += `<p class="reference">📖 ${randomKey.replace('_', ' ')}</p>`;
-            html += `<p class="fallback-note">⚠️ Versículo aleatório de fallback</p>`;
-            resultDiv.innerHTML = html;
+            resultDiv.innerHTML = `<p class="error-message">❌ ${data.error}</p>`;
             return;
         }
         
@@ -1689,37 +1581,12 @@ async function searchBibleRandom() {
         html += `<p class="reference">📖 ${data.reference || 'Versículo aleatório'}</p>`;
         resultDiv.innerHTML = html;
         
-        // Atualiza os campos com a referência encontrada
-        if (data.reference) {
-            const refParts = data.reference.split(' ');
-            if (refParts.length >= 2) {
-                const bookName = refParts[0];
-                const chapterVerse = refParts[1].split(':');
-                const chapterNum = chapterVerse[0] || 1;
-                const verseNum = chapterVerse[1] || '';
-                
-                // Tenta encontrar o código do livro
-                for (const [code, name] of Object.entries(bookNames)) {
-                    if (name === bookName || name.startsWith(bookName)) {
-                        document.getElementById('bibleBook').value = code;
-                        break;
-                    }
-                }
-                document.getElementById('bibleChapter').value = parseInt(chapterNum) || 1;
-                if (verseNum) document.getElementById('bibleVerse').value = parseInt(verseNum) || '';
-            }
-        }
-        
     } catch (error) {
         console.error('❌ Erro no versículo aleatório:', error);
-        
-        // Fallback com versículo aleatório conhecido
-        const randomFallbackKeys = Object.keys(fallbackVerses);
-        const randomKey = randomFallbackKeys[Math.floor(Math.random() * randomFallbackKeys.length)];
-        let html = `<p class="verse">${fallbackVerses[randomKey]}</p>`;
-        html += `<p class="reference">📖 ${randomKey.replace('_', ' ')}</p>`;
-        html += `<p class="fallback-note">⚠️ Versículo aleatório de fallback</p>`;
-        resultDiv.innerHTML = html;
+        resultDiv.innerHTML = `
+            <p class="error-message">❌ Erro ao buscar versículo aleatório: ${error.message}</p>
+            <p style="color:#888;margin-top:0.5rem;">Tente novamente ou faça uma busca manual.</p>
+        `;
     }
 }
 
@@ -1968,10 +1835,6 @@ function checkout() {
 // ===== DÍZIMOS =====
 // ============================================
 
-let paymentType = 'sale';
-let donationType = '';
-let _donationAmount = 0;
-
 function openDonationForm(type) {
     document.getElementById('donationModal').classList.add('open');
     document.getElementById('donationType').value = type;
@@ -1981,6 +1844,25 @@ function openDonationForm(type) {
     document.getElementById('donationPhone').value = '';
     document.getElementById('donationAmount').value = '';
 }
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+    document.body.style.overflow = 'auto';
+}
+
+function openModal(id) {
+    document.getElementById(id).classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+document.querySelectorAll('.modal').forEach(m => {
+    m.addEventListener('click', (e) => {
+        if (e.target === m) {
+            m.classList.remove('open');
+            document.body.style.overflow = 'auto';
+        }
+    });
+});
 
 async function submitDonation() {
     const type = document.getElementById('donationType').value;
@@ -2001,30 +1883,154 @@ async function submitDonation() {
     donationType = type;
     paymentType = 'donation';
     _donationAmount = parseFloat(amount);
-
     closeModal('donationModal');
 
     document.getElementById('paymentTitle').textContent = '💳 ' + type;
     document.getElementById('paymentTotal').textContent = 'Valor: R$ ' + parseFloat(amount).toFixed(2);
     document.getElementById('paymentForm').style.display = 'block';
     document.getElementById('paymentResult').style.display = 'none';
-    
     document.getElementById('payName').value = name;
     document.getElementById('payEmail').value = email;
     document.getElementById('payPhone').value = phone;
-    
     openModal('paymentModal');
 }
 
 // ============================================
-// ===== PAGAMENTO =====
+// ===== TOGGLE MÉTODO DE PAGAMENTO =====
 // ============================================
 
 function togglePaymentMethod() {
     const method = document.getElementById('payMethod').value;
-    document.getElementById('cardFields').style.display = method === 'card' ? 'block' : 'none';
+    const cardFields = document.getElementById('cardFields');
+    if (method === 'card') {
+        cardFields.style.display = 'block';
+        cardFields.style.animation = 'modalIn 0.3s ease';
+    } else {
+        cardFields.style.display = 'none';
+    }
 }
 
+// ============================================
+// ===== FUNÇÃO PARA SALVAR PEDIDO/DOAÇÃO =====
+// ============================================
+async function saveOrderOrDonation(name, email, phone, amount, paymentId, method, description) {
+    try {
+        if (paymentType === 'sale') {
+            const itemsForOrder = cart.map(item => ({
+                id: item.id,
+                name: item.name,
+                price: parseFloat(item.price),
+                quantity: 1
+            }));
+
+            await fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_name: name,
+                    user_email: email,
+                    user_phone: phone,
+                    items: itemsForOrder,
+                    total: amount,
+                    payment_id: paymentId,
+                    payment_method: method,
+                    status: 'pending'
+                })
+            });
+            cart = [];
+            document.getElementById('cartCount').textContent = 0;
+        } else if (paymentType === 'donation') {
+            await fetch('/api/donations', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_name: name,
+                    user_email: email,
+                    user_phone: phone,
+                    type: donationType,
+                    amount: amount,
+                    payment_id: paymentId,
+                    payment_method: method,
+                    status: 'pending'
+                })
+            });
+        }
+        console.log('✅ Registro salvo com sucesso!');
+    } catch (error) {
+        console.error('❌ Erro ao salvar:', error);
+    }
+}
+
+// ============================================
+// ===== FUNÇÃO PARA VERIFICAR STATUS =====
+// ============================================
+async function checkPaymentStatus(paymentId) {
+    try {
+        showNotification('🔄 Verificando status do pagamento...', 'info');
+        
+        const response = await fetch(`/api/check-payment/${paymentId}`, {
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'approved') {
+            showNotification('✅ Pagamento confirmado! Obrigado! 🙏', 'success');
+            await fetch('/api/update-payment-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    payment_id: paymentId,
+                    status: 'approved'
+                })
+            });
+            localStorage.removeItem('last_payment_id');
+            closeModal('paymentModal');
+        } else if (data.status === 'pending' || data.status === 'in_process') {
+            showNotification('⏳ Pagamento ainda pendente. Aguarde...', 'info');
+        } else if (data.status === 'rejected' || data.status === 'cancelled') {
+            showNotification('❌ Pagamento recusado ou cancelado.', 'error');
+        } else {
+            showNotification(`ℹ️ Status atual: ${data.status}`, 'info');
+        }
+        
+        return data;
+    } catch (error) {
+        console.error('Erro ao verificar status:', error);
+        showNotification('❌ Erro ao verificar status: ' + error.message, 'error');
+    }
+}
+
+// ============================================
+// ===== VALIDAR CPF =====
+// ============================================
+function validarCPF(cpf) {
+    cpf = cpf.replace(/[^\d]/g, '');
+    if (cpf.length !== 11) return false;
+    if (/^(\d)\1{10}$/.test(cpf)) return false;
+    
+    let soma = 0;
+    for (let i = 0; i < 9; i++) {
+        soma += parseInt(cpf.charAt(i)) * (10 - i);
+    }
+    let resto = 11 - (soma % 11);
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(cpf.charAt(9))) return false;
+    
+    soma = 0;
+    for (let i = 0; i < 10; i++) {
+        soma += parseInt(cpf.charAt(i)) * (11 - i);
+    }
+    resto = 11 - (soma % 11);
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(cpf.charAt(10))) return false;
+    
+    return true;
+}
+
+// ============================================
+// ===== PROCESSAR PAGAMENTO - CORRIGIDO =====
+// ============================================
 async function processPayment() {
     const name = document.getElementById('payName').value.trim();
     const email = document.getElementById('payEmail').value.trim();
@@ -2050,11 +2056,17 @@ async function processPayment() {
 
     if (amount <= 0) { showNotification('Valor inválido!', 'error'); return; }
 
+    // Valida CPF
+    if (!validarCPF(cpf)) {
+        showNotification('CPF inválido! Digite um CPF válido.', 'error');
+        return;
+    }
+
     try {
-        const paymentData = { amount, description, email, name, phone, cpf };
-        let endpoint = '/api/create-pix-payment';
+        showNotification('🔄 Processando pagamento...', 'info');
 
         if (method === 'card') {
+            // ===== PAGAMENTO COM CARTÃO =====
             const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
             const cardExpiry = document.getElementById('cardExpiry').value;
             const cardCvv = document.getElementById('cardCvv').value;
@@ -2065,93 +2077,140 @@ async function processPayment() {
                 return;
             }
 
-            paymentData.card_number = cardNumber;
-            paymentData.card_expiry = cardExpiry;
-            paymentData.card_cvv = cardCvv;
-            paymentData.installments = installments;
-            endpoint = '/api/create-card-payment';
-        }
+            if (cardNumber.length < 16) { showNotification('Número do cartão inválido (16 dígitos)', 'error'); return; }
+            if (!cardExpiry.includes('/') || cardExpiry.length < 5) { showNotification('Validade inválida (MM/AA)', 'error'); return; }
+            if (cardCvv.length < 3) { showNotification('CVV inválido (3 dígitos)', 'error'); return; }
 
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(paymentData)
-        });
+            try {
+                // Cria token do cartão usando SDK do Mercado Pago
+                const mp = new MercadoPago('APP_USR-9cbd3a18-e58d-4091-920b-ab3cd0faa588');
+                
+                const cardToken = await mp.fields.createCardToken({
+                    cardNumber: cardNumber,
+                    expirationMonth: cardExpiry.split('/')[0],
+                    expirationYear: '20' + cardExpiry.split('/')[1],
+                    securityCode: cardCvv,
+                    cardholderName: name,
+                    cardholderEmail: email,
+                    cardholderIdentification: {
+                        type: 'CPF',
+                        number: cpf
+                    }
+                });
 
-        const payment = await response.json();
-        if (payment.error) throw new Error(payment.error);
-
-        if (paymentType === 'sale') {
-            const itemsForOrder = cart.map(item => ({
-                id: item.id,
-                name: item.name,
-                price: parseFloat(item.price),
-                quantity: 1
-            }));
-
-            await fetch('/api/orders', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    user_name: name,
-                    user_email: email,
-                    user_phone: phone,
-                    items: itemsForOrder,
-                    total: amount,
-                    payment_id: payment.payment_id,
-                    payment_method: method
-                })
-            });
-            cart = [];
-            document.getElementById('cartCount').textContent = 0;
-        } else if (paymentType === 'donation') {
-            await fetch('/api/donations', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    user_name: name,
-                    user_email: email,
-                    user_phone: phone,
-                    type: donationType,
+                const paymentData = {
                     amount: amount,
-                    payment_id: payment.payment_id,
-                    payment_method: method
-                })
-            });
-        }
+                    description: description,
+                    email: email,
+                    name: name,
+                    phone: phone,
+                    cpf: cpf,
+                    card_token: cardToken.id,
+                    installments: parseInt(installments)
+                };
 
-        closeModal('paymentModal');
+                const response = await fetch('/api/create-card-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(paymentData)
+                });
 
-        if (method === 'pix' && payment.payment_link) {
-            showNotification('🔗 Redirecionando para o Mercado Pago...', 'info');
-            window.location.href = payment.payment_link;
-        } else if (method === 'pix' && payment.qr_code_base64) {
-            const resultDiv = document.getElementById('paymentResult');
-            resultDiv.style.display = 'block';
-            resultDiv.innerHTML = `
-                <h3>✅ Pagamento via PIX</h3>
-                <div style="text-align:center;padding:1rem;">
-                    <img src="data:image/png;base64,${payment.qr_code_base64}" style="max-width:200px;margin:0 auto;display:block;">
-                    <p style="margin:0.5rem 0;">Escaneie o QR Code</p>
-                    <button onclick="navigator.clipboard.writeText('${payment.qr_code}')" class="btn btn-primary btn-sm">
-                        <i class="fas fa-copy"></i> Copiar código
-                    </button>
-                    <a href="${payment.payment_link}" target="_blank" class="btn btn-success btn-sm">
-                        <i class="fas fa-external-link-alt"></i> Abrir no Banco
-                    </a>
-                    <p style="margin-top:0.8rem;color:#888;">Status: ${payment.status}</p>
-                    <button onclick="closeModal('paymentModal')" class="btn btn-primary" style="margin-top:0.5rem;">
-                        <i class="fas fa-check"></i> Concluir
-                    </button>
-                </div>
-            `;
-            document.getElementById('paymentForm').style.display = 'none';
+                const payment = await response.json();
+                if (payment.error) throw new Error(payment.error);
+
+                // Salva no banco
+                await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'card', description);
+
+                if (payment.status === 'approved') {
+                    showNotification('✅ Pagamento aprovado! Obrigado! 🙏', 'success');
+                    cart = [];
+                    document.getElementById('cartCount').textContent = 0;
+                    closeModal('paymentModal');
+                } else {
+                    showNotification(`⏳ Pagamento ${payment.status}. Aguarde a confirmação.`, 'info');
+                    closeModal('paymentModal');
+                }
+
+            } catch (mpError) {
+                console.error('Erro no token do cartão:', mpError);
+                showNotification('❌ Erro ao processar cartão: ' + mpError.message, 'error');
+            }
+
         } else {
-            showNotification('✅ Pagamento realizado com sucesso!', 'success');
+            // ===== PAGAMENTO COM PIX =====
+            const paymentData = {
+                amount: amount,
+                description: description,
+                email: email,
+                name: name,
+                phone: phone,
+                cpf: cpf
+            };
+
+            const response = await fetch('/api/create-pix-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(paymentData)
+            });
+
+            const payment = await response.json();
+            if (payment.error) throw new Error(payment.error);
+
+            // Salva no banco
+            await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'pix', description);
+
+            // Mostra QR Code
+            if (payment.payment_link) {
+                // Abre o link do Mercado Pago
+                window.open(payment.payment_link, '_blank');
+                showNotification('🔗 Abrindo pagamento PIX...', 'info');
+                
+                // Salva o payment_id para verificação posterior
+                localStorage.setItem('last_payment_id', payment.payment_id);
+                localStorage.setItem('last_payment_status', payment.status);
+                
+                closeModal('paymentModal');
+                
+                // Pergunta se quer verificar o status
+                setTimeout(() => {
+                    if (confirm('✅ Pagamento PIX gerado! Após pagar, deseja verificar o status?')) {
+                        checkPaymentStatus(payment.payment_id);
+                    }
+                }, 5000);
+                
+            } else if (payment.qr_code_base64) {
+                // Mostra QR Code no modal
+                const resultDiv = document.getElementById('paymentResult');
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `
+                    <h3>✅ Pagamento via PIX</h3>
+                    <div style="text-align:center;padding:1rem;">
+                        <img src="data:image/png;base64,${payment.qr_code_base64}" style="max-width:200px;margin:0 auto;display:block;">
+                        <p style="margin:0.5rem 0;">Escaneie o QR Code ou copie o código:</p>
+                        <div style="background:#f4f6fc;padding:0.5rem;border-radius:8px;word-break:break-all;font-size:0.8rem;">${payment.qr_code}</div>
+                        <button onclick="navigator.clipboard.writeText('${payment.qr_code}')" class="btn btn-primary btn-sm" style="margin:0.3rem;">
+                            <i class="fas fa-copy"></i> Copiar
+                        </button>
+                        <a href="${payment.payment_link}" target="_blank" class="btn btn-success btn-sm" style="margin:0.3rem;">
+                            <i class="fas fa-external-link-alt"></i> Abrir no Banco
+                        </a>
+                        <p style="margin-top:0.5rem;color:#888;">Status: ${payment.status}</p>
+                        <button onclick="checkPaymentStatus('${payment.payment_id}')" class="btn btn-primary btn-sm" style="margin:0.3rem;">
+                            <i class="fas fa-sync"></i> Verificar Status
+                        </button>
+                        <button onclick="closeModal('paymentModal')" class="btn btn-sm" style="margin:0.3rem;">
+                            <i class="fas fa-check"></i> Concluir
+                        </button>
+                    </div>
+                `;
+                document.getElementById('paymentForm').style.display = 'none';
+                localStorage.setItem('last_payment_id', payment.payment_id);
+            }
         }
 
     } catch (error) {
         showNotification('❌ Erro: ' + error.message, 'error');
+        console.error('Erro no pagamento:', error);
     }
 }
 
@@ -2175,14 +2234,12 @@ async function submitPrayer() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, request })
         });
-
         if (!response.ok) throw new Error('Erro ao enviar');
 
         messageDiv.className = 'notification success';
         messageDiv.textContent = '✅ Pedido de oração enviado com sucesso! Deus te abençoe! 🙏';
         messageDiv.style.display = 'block';
         document.getElementById('prayerRequest').value = '';
-
         setTimeout(() => { messageDiv.style.display = 'none'; }, 5000);
     } catch (error) {
         showNotification('❌ Erro: ' + error.message, 'error');
@@ -2204,156 +2261,125 @@ async function loadDepartmentsForRegistration() {
     }
 }
 
+async function loadEventsForRegistration() {
+    try {
+        const res = await fetch('/api/events/active');
+        eventsList = await res.json();
+        return eventsList;
+    } catch (e) {
+        console.error('Erro ao carregar eventos:', e);
+        return [];
+    }
+}
+
+async function loadBaptismDatesForRegistration() {
+    try {
+        const res = await fetch('/api/baptism-dates');
+        baptismDatesList = await res.json();
+        return baptismDatesList;
+    } catch (e) {
+        console.error('Erro ao carregar datas de batismo:', e);
+        return [];
+    }
+}
+
 async function showRegistration(type) {
     const container = document.getElementById('registrationForm');
     const resultDiv = document.getElementById('registrationResult');
     resultDiv.style.display = 'none';
     resultDiv.innerHTML = '';
     container.style.display = 'block';
+    container.innerHTML = '<p style="text-align:center;color:#8a8a9a;">⏳ Carregando...</p>';
 
-    if (type === 'department' || type === 'volunteer') {
-        await loadDepartmentsForRegistration();
-    }
+    if (type === 'department' || type === 'volunteer') await loadDepartmentsForRegistration();
+    if (type === 'event') await loadEventsForRegistration();
+    if (type === 'baptism') await loadBaptismDatesForRegistration();
 
     const types = {
-        baptism: { 
+        baptism: {
             title: '✝️ Inscrição para Batismo',
-            labels: {
-                name: 'Nome Completo *',
-                email: 'E-mail *',
-                phone: 'Telefone *',
-                birth_date: 'Data de Nascimento *',
-                baptism_date: 'Data desejada para o Batismo',
-                notes: 'Observações (opcional)'
-            }
+            labels: { name: 'Nome Completo *', email: 'E-mail *', phone: 'Telefone *', birth_date: 'Data de Nascimento *',
+                baptism_date: 'Selecione a Data do Batismo *', notes: 'Observações (opcional)' }
         },
-        volunteer: { 
+        volunteer: {
             title: '🙋 Cadastro de Voluntário',
-            labels: {
-                name: 'Nome Completo *',
-                email: 'E-mail *',
-                phone: 'Telefone *',
-                department_select: 'Departamento que deseja atuar *',
-                availability: 'Disponibilidade (dias/horários)',
-                notes: 'Habilidades/Experiência (opcional)'
-            }
+            labels: { name: 'Nome Completo *', email: 'E-mail *', phone: 'Telefone *',
+                department_select: 'Departamento que deseja atuar *', availability: 'Disponibilidade (dias/horários)',
+                notes: 'Habilidades/Experiência (opcional)' }
         },
-        event: { 
+        event: {
             title: '🎯 Inscrição para Evento',
-            labels: {
-                name: 'Nome Completo *',
-                email: 'E-mail *',
-                phone: 'Telefone *',
-                event_select: 'Selecione o Evento *',
-                notes: 'Observações (opcional)'
-            }
+            labels: { name: 'Nome Completo *', email: 'E-mail *', phone: 'Telefone *',
+                event_select: 'Selecione o Evento *', notes: 'Observações (opcional)' }
         },
-        department: { 
+        department: {
             title: '📋 Entrar em um Departamento',
-            labels: {
-                name: 'Nome Completo *',
-                email: 'E-mail *',
-                phone: 'Telefone *',
-                department_select: 'Selecione o Departamento *',
-                notes: 'Por que deseja participar? (opcional)'
-            }
+            labels: { name: 'Nome Completo *', email: 'E-mail *', phone: 'Telefone *',
+                department_select: 'Selecione o Departamento *', notes: 'Por que deseja participar? (opcional)' }
         }
     };
 
     const t = types[type] || types.baptism;
-    
-    let html = `<h3 style="text-align:center;color:#0D47A1;margin-bottom:1rem;">${t.title}</h3>`;
-    html += `<div style="max-width:600px;margin:0 auto;">`;
-    
-    html += `<div class="form-group">
-        <label>${t.labels.name}</label>
-        <input type="text" id="regName" placeholder="Digite seu nome completo" required>
-    </div>`;
-    
-    html += `<div class="form-group">
-        <label>${t.labels.email}</label>
-        <input type="email" id="regEmail" placeholder="seu@email.com" required>
-    </div>`;
-    
-    html += `<div class="form-group">
-        <label>${t.labels.phone}</label>
-        <input type="tel" id="regPhone" placeholder="(11) 99999-9999" required>
-    </div>`;
+    let html = `<h3 style="text-align:center;color:#0a2b5c;margin-bottom:1rem;">${t.title}</h3><div class="prayer-form">`;
+    html += `<div class="form-group"><label>${t.labels.name}</label><input type="text" id="regName" placeholder="Digite seu nome completo" required /></div>`;
+    html += `<div class="form-group"><label>${t.labels.email}</label><input type="email" id="regEmail" placeholder="seu@email.com" required /></div>`;
+    html += `<div class="form-group"><label>${t.labels.phone}</label><input type="tel" id="regPhone" placeholder="(11) 99999-9999" required /></div>`;
 
     if (type === 'baptism') {
-        html += `<div class="form-group">
-            <label>${t.labels.birth_date}</label>
-            <input type="date" id="regBirthDate" required>
-        </div>`;
-        html += `<div class="form-group">
-            <label>${t.labels.baptism_date}</label>
-            <input type="date" id="regBaptismDate">
-        </div>`;
-    }
-
-    if (type === 'volunteer' || type === 'department') {
-        html += `<div class="form-group">
-            <label>${t.labels.department_select}</label>
-            <select id="regDepartmentSelect" required>
-                <option value="">Selecione um departamento</option>
-        `;
-        if (departmentsList && departmentsList.length > 0) {
-            departmentsList.forEach(d => {
-                html += `<option value="${d.id}">${d.name}</option>`;
+        html += `<div class="form-group"><label>${t.labels.birth_date}</label><input type="date" id="regBirthDate" required /></div>`;
+        html += `<div class="form-group"><label>${t.labels.baptism_date}</label><select id="regBaptismDate" required><option value="">Selecione uma data para o Batismo</option>`;
+        if (baptismDatesList && baptismDatesList.length > 0) {
+            baptismDatesList.forEach(d => {
+                const dateFormatted = new Date(d.date).toLocaleDateString('pt-BR', { day: 'numeric',
+                    month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                const participantes = d.current_participants || 0;
+                const max = d.max_participants || 20;
+                const disponivel = participantes < max;
+                html += `<option value="${d.id}" ${!disponivel ? 'disabled' : ''}>${d.title || 'Batismo'} — ${dateFormatted} (${participantes}/${max}) ${disponivel ? '✅ Disponível' : '❌ Esgotado'}</option>`;
             });
         } else {
-            html += `<option value="" disabled>Nenhum departamento disponível</option>`;
+            html += `<option value="" disabled>Nenhuma data de batismo disponível</option>`;
         }
         html += `</select></div>`;
-    }
-
-    if (type === 'event') {
-        html += `<div class="form-group">
-            <label>${t.labels.event_select}</label>
-            <select id="regEventSelect" required>
-                <option value="">Selecione um evento</option>
-        `;
-        try {
-            const eventsRes = await fetch('/api/events/active');
-            const events = await eventsRes.json();
-            if (events && events.length > 0) {
-                events.forEach(e => {
-                    const priceText = parseFloat(e.price || 0) > 0 ? ` - R$ ${parseFloat(e.price).toFixed(2)}` : ' - Grátis';
-                    html += `<option value="${e.id}" data-price="${e.price || 0}">${e.title}${priceText}</option>`;
-                });
-            } else {
-                html += `<option value="" disabled>Nenhum evento disponível</option>`;
-            }
-        } catch (e) {
-            html += `<option value="" disabled>Erro ao carregar eventos</option>`;
-        }
-        html += `</select></div>`;
+        html += `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Observações adicionais..."></textarea></div>`;
     }
 
     if (type === 'volunteer') {
-        html += `<div class="form-group">
-            <label>${t.labels.availability}</label>
-            <input type="text" id="regAvailability" placeholder="Ex: Finais de semana, Terças e Quintas à noite">
-        </div>`;
+        html += `<div class="form-group"><label>${t.labels.department_select}</label><select id="regDepartmentSelect" required><option value="">Selecione um departamento</option>`;
+        if (departmentsList && departmentsList.length > 0) {
+            departmentsList.forEach(d => { html += `<option value="${d.id}">${d.name}</option>`; });
+        } else { html += `<option value="" disabled>Nenhum departamento disponível</option>`; }
+        html += `</select></div>`;
+        html += `<div class="form-group"><label>${t.labels.availability}</label><input type="text" id="regAvailability" placeholder="Ex: Finais de semana, Terças e Quintas à noite" /></div>`;
+        html += `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Conte-nos sobre suas habilidades e experiência..."></textarea></div>`;
     }
 
-    if (type !== 'volunteer') {
-        html += `<div class="form-group">
-            <label>${t.labels.notes}</label>
-            <textarea id="regNotes" rows="3" placeholder="Informações adicionais..."></textarea>
-        </div>`;
-    } else {
-        html += `<div class="form-group">
-            <label>${t.labels.notes}</label>
-            <textarea id="regNotes" rows="3" placeholder="Conte-nos sobre suas habilidades e experiência..."></textarea>
-        </div>`;
+    if (type === 'event') {
+        html += `<div class="form-group"><label>${t.labels.event_select}</label><select id="regEventSelect" required><option value="">Selecione um evento</option>`;
+        if (eventsList && eventsList.length > 0) {
+            eventsList.forEach(e => {
+                const dateFormatted = new Date(e.date).toLocaleDateString('pt-BR', { day: 'numeric',
+                    month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                const priceText = parseFloat(e.price || 0) > 0 ? `R$ ${parseFloat(e.price).toFixed(2)}` : 'Grátis';
+                html += `<option value="${e.id}" data-price="${e.price || 0}">${e.title} — ${dateFormatted} (${priceText})</option>`;
+            });
+        } else { html += `<option value="" disabled>Nenhum evento disponível</option>`; }
+        html += `</select></div>`;
+        html += `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Observações adicionais..."></textarea></div>`;
+    }
+
+    if (type === 'department') {
+        html += `<div class="form-group"><label>${t.labels.department_select}</label><select id="regDepartmentSelect" required><option value="">Selecione um departamento</option>`;
+        if (departmentsList && departmentsList.length > 0) {
+            departmentsList.forEach(d => { html += `<option value="${d.id}">${d.name}</option>`; });
+        } else { html += `<option value="" disabled>Nenhum departamento disponível</option>`; }
+        html += `</select></div>`;
+        html += `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Por que deseja participar? (opcional)"></textarea></div>`;
     }
 
     html += `<button onclick="submitRegistration('${type}')" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.5rem;">
         <i class="fas fa-paper-plane"></i> Inscrever-se
-    </button>`;
-    html += `</div>`;
-    
+    </button></div>`;
     container.innerHTML = html;
     container.scrollIntoView({ behavior: 'smooth' });
 }
@@ -2365,98 +2391,69 @@ async function submitRegistration(type) {
     const notes = document.getElementById('regNotes')?.value.trim() || '';
     const resultDiv = document.getElementById('registrationResult');
 
-    if (!name || !email || !phone) {
-        showNotification('⚠️ Preencha todos os campos obrigatórios!', 'error');
-        return;
-    }
+    if (!name || !email || !phone) { showNotification('⚠️ Preencha todos os campos obrigatórios!', 'error'); return; }
+    if (!email.includes('@')) { showNotification('⚠️ Digite um e-mail válido!', 'error'); return; }
 
-    if (!email.includes('@')) {
-        showNotification('⚠️ Digite um e-mail válido!', 'error');
-        return;
-    }
-
-    let registrationData = {
-        type: type,
-        name: name,
-        email: email,
-        phone: phone,
-        details: notes
-    };
+    let registrationData = { type, name, email, phone, details: notes };
 
     try {
         if (type === 'baptism') {
             const birthDate = document.getElementById('regBirthDate')?.value;
-            const baptismDate = document.getElementById('regBaptismDate')?.value;
-            if (!birthDate) {
-                showNotification('⚠️ Informe sua data de nascimento!', 'error');
-                return;
-            }
+            const baptismDateId = document.getElementById('regBaptismDate')?.value;
+            if (!birthDate) { showNotification('⚠️ Informe sua data de nascimento!', 'error'); return; }
+            if (!baptismDateId) { showNotification('⚠️ Selecione uma data para o batismo!', 'error'); return; }
+            const selectedDate = baptismDatesList.find(d => d.id == baptismDateId);
+            if (!selectedDate) { showNotification('⚠️ Data de batismo não encontrada!', 'error'); return; }
             registrationData.birth_date = birthDate;
-            registrationData.baptism_date = baptismDate || null;
-            registrationData.details = `Data de Nascimento: ${new Date(birthDate).toLocaleDateString('pt-BR')}\n${baptismDate ? `Data desejada para Batismo: ${new Date(baptismDate).toLocaleDateString('pt-BR')}\n` : ''}${notes}`;
+            registrationData.baptism_date = selectedDate.date;
+            registrationData.baptism_date_id = baptismDateId;
+            registrationData.event_name = selectedDate.title || 'Batismo';
+            registrationData.details = `Data de Nascimento: ${new Date(birthDate).toLocaleDateString('pt-BR')}\nData do Batismo: ${new Date(selectedDate.date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}\n${notes}`;
         }
 
         if (type === 'volunteer') {
             const deptId = document.getElementById('regDepartmentSelect')?.value;
             const availability = document.getElementById('regAvailability')?.value.trim() || '';
-            if (!deptId) {
-                showNotification('⚠️ Selecione um departamento!', 'error');
-                return;
-            }
+            if (!deptId) { showNotification('⚠️ Selecione um departamento!', 'error'); return; }
             const dept = departmentsList.find(d => d.id == deptId);
             registrationData.department_name = dept ? dept.name : '';
+            registrationData.department_id = deptId;
             registrationData.details = `Disponibilidade: ${availability || 'Não informada'}\n${notes}`;
         }
 
         if (type === 'department') {
             const deptId = document.getElementById('regDepartmentSelect')?.value;
-            if (!deptId) {
-                showNotification('⚠️ Selecione um departamento!', 'error');
-                return;
-            }
+            if (!deptId) { showNotification('⚠️ Selecione um departamento!', 'error'); return; }
             const dept = departmentsList.find(d => d.id == deptId);
             registrationData.department_name = dept ? dept.name : '';
+            registrationData.department_id = deptId;
             registrationData.details = notes || 'Deseja participar deste departamento.';
         }
 
         if (type === 'event') {
             const eventId = document.getElementById('regEventSelect')?.value;
-            if (!eventId) {
-                showNotification('⚠️ Selecione um evento!', 'error');
-                return;
-            }
-            const eventsRes = await fetch('/api/events');
-            const events = await eventsRes.json();
-            const event = events.find(e => e.id == eventId);
-            
-            if (event) {
-                registrationData.event_name = event.title;
-                registrationData.amount = parseFloat(event.price || 0);
-                registrationData.is_paid = parseFloat(event.price || 0) > 0 ? false : true;
-                registrationData.details = `Evento: ${event.title}\n${notes}`;
-            } else {
-                showNotification('⚠️ Evento não encontrado!', 'error');
-                return;
-            }
+            if (!eventId) { showNotification('⚠️ Selecione um evento!', 'error'); return; }
+            const event = eventsList.find(e => e.id == eventId);
+            if (!event) { showNotification('⚠️ Evento não encontrado!', 'error'); return; }
+            registrationData.event_name = event.title;
+            registrationData.event_id = eventId;
+            registrationData.amount = parseFloat(event.price || 0);
+            registrationData.is_paid = parseFloat(event.price || 0) > 0 ? false : true;
+            registrationData.details = `Evento: ${event.title}\nData: ${new Date(event.date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}\n${notes}`;
         }
+
+        console.log('📤 Enviando inscrição:', registrationData);
 
         const response = await fetch('/api/registrations', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(registrationData)
         });
-
         const data = await response.json();
-        if (!response.ok) {
-            throw new Error(data.error || 'Erro ao realizar inscrição');
-        }
+        if (!response.ok) throw new Error(data.error || 'Erro ao realizar inscrição');
 
         resultDiv.className = 'notification success';
-        resultDiv.innerHTML = `
-            <i class="fas fa-check-circle" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>
-            <strong>✅ Inscrição realizada com sucesso!</strong>
-            <p style="margin-top:0.5rem;font-size:0.9rem;">Protocolo: #${String(data.id).padStart(6, '0')}</p>
-        `;
+        resultDiv.innerHTML = `<i class="fas fa-check-circle" style="font-size:1.5rem;display:block;margin-bottom:0.4rem;"></i><strong>✅ Inscrição realizada com sucesso!</strong><p style="margin-top:0.4rem;font-size:0.9rem;">Protocolo: #${String(data.id).padStart(6, '0')}</p>`;
         resultDiv.style.display = 'block';
         document.getElementById('registrationForm').style.display = 'none';
 
@@ -2485,11 +2482,7 @@ async function submitRegistration(type) {
         setTimeout(() => {
             resultDiv.style.display = 'none';
             document.getElementById('registrationForm').style.display = 'block';
-            document.getElementById('registrationForm').innerHTML = `
-                <p style="text-align:center;color:#28a745;padding:1rem;">
-                    ✅ Inscrição concluída! Obrigado!
-                </p>
-            `;
+            document.getElementById('registrationForm').innerHTML = `<p style="text-align:center;color:#28a745;padding:1rem;">✅ Inscrição concluída! Obrigado!</p>`;
         }, 8000);
 
     } catch (error) {
@@ -2556,35 +2549,6 @@ async function registerForEvent(eventId, eventName, price) {
 }
 
 // ============================================
-// ===== MODAIS =====
-// ============================================
-
-function openModal(id) {
-    const modal = document.getElementById(id);
-    if (modal) {
-        modal.classList.add('open');
-        document.body.style.overflow = 'hidden';
-    }
-}
-
-function closeModal(id) {
-    const modal = document.getElementById(id);
-    if (modal) {
-        modal.classList.remove('open');
-        document.body.style.overflow = 'auto';
-    }
-}
-
-document.querySelectorAll('.modal').forEach(m => {
-    m.addEventListener('click', (e) => {
-        if (e.target === m) {
-            m.classList.remove('open');
-            document.body.style.overflow = 'auto';
-        }
-    });
-});
-
-// ============================================
 // ===== NOTIFICAÇÕES =====
 // ============================================
 
@@ -2593,12 +2557,57 @@ function showNotification(message, type = 'info') {
     div.className = 'notification ' + type;
     div.textContent = message;
     document.body.appendChild(div);
-    setTimeout(() => {
-        div.style.opacity = '0';
-        div.style.transition = 'opacity 0.5s';
-        setTimeout(() => div.remove(), 500);
-    }, 4000);
+    setTimeout(() => { div.style.opacity = '0'; div.style.transition = 'opacity 0.4s'; setTimeout(() => div.remove(), 400); }, 4000);
 }
+
+// ============================================
+// ===== CONFIGURAÇÕES =====
+// ============================================
+
+async function loadSettings() {
+    try {
+        const res = await fetch('/api/settings');
+        const settings = await res.json();
+        if (settings.primary_color) document.documentElement.style.setProperty('--primary', settings.primary_color);
+        if (settings.site_title) { document.title = settings.site_title; }
+        if (settings.whatsapp) { const btn = document.getElementById('whatsappBtn');
+            btn.href = 'https://wa.me/55' + settings.whatsapp; }
+    } catch (e) { console.error('Erro ao carregar configurações:', e); }
+}
+
+// ============================================
+// ===== INICIALIZAÇÃO =====
+// ============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    showReturnPage();
+    if (document.getElementById('paymentReturnPage').style.display !== 'block') {
+        loadSettings();
+        loadCarouselFromServer();
+        loadStudies();
+        loadEvents();
+        loadProducts();
+        loadBirthdays();
+        document.getElementById('cartCount').textContent = 0;
+    }
+});
+
+// Fechar modal de carrossel ao clicar fora
+document.getElementById('carouselInfoOverlay')?.addEventListener('click', function(e) {
+    if (e.target === this) closeCarouselInfo();
+});
+
+// Tecla ESC para fechar modais
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeCarouselInfo();
+        closeBible();
+        document.querySelectorAll('.modal.open').forEach(m => {
+            m.classList.remove('open');
+            document.body.style.overflow = 'auto';
+        });
+    }
+});
 
 // ============================================
 // ===== PÁGINA DE RETORNO =====
@@ -2645,59 +2654,6 @@ function showReturnPage() {
         document.getElementById('returnPaymentId').textContent = paymentId || '-';
     }
 }
-
-// ============================================
-// ===== CONFIGURAÇÕES =====
-// ============================================
-
-async function loadSettings() {
-    try {
-        const res = await fetch('/api/settings');
-        const settings = await res.json();
-        if (settings.primary_color) {
-            document.documentElement.style.setProperty('--primary', settings.primary_color);
-        }
-        if (settings.site_title) {
-            const titleEl = document.querySelector('.logo h1');
-            if (titleEl) titleEl.innerHTML = settings.site_title;
-            document.title = settings.site_title;
-        }
-        if (settings.whatsapp) {
-            const btn = document.getElementById('whatsappBtn');
-            btn.href = 'https://wa.me/55' + settings.whatsapp;
-        }
-    } catch (e) { console.error('Erro ao carregar configurações:', e); }
-}
-
-// ============================================
-// ===== INICIALIZAÇÃO =====
-// ============================================
-
-document.addEventListener('DOMContentLoaded', () => {
-    showReturnPage();
-    
-    if (document.getElementById('paymentReturnPage').style.display !== 'block') {
-        loadSettings();
-        loadCarouselFromServer();
-        loadStudies();
-        loadEvents();
-        loadProducts();
-        loadBirthdays();
-        document.getElementById('cartCount').textContent = 0;
-    }
-});
-
-// Keyboard shortcuts
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft') changeSlide(-1);
-    if (e.key === 'ArrowRight') changeSlide(1);
-    if (e.key === 'Escape') {
-        document.querySelectorAll('.modal.open').forEach(m => {
-            m.classList.remove('open');
-            document.body.style.overflow = 'auto';
-        });
-    }
-});
 </script>
 </body>
 </html>

@@ -145,45 +145,73 @@
             letter-spacing: 0.3px;
         }
 
-        /* MENU - AGRUPADO POR ÁREAS */
-        .menu-group {
-            margin-bottom: 0.6rem;
-        }
-        .menu-group-title {
-            font-size: 0.55rem;
-            font-weight: 700;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.2rem;
-            padding-left: 0.2rem;
-        }
-        .menu-grid {
+        /* MENU PRINCIPAL - 4 AREAS */
+        .main-menu {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 0.3rem;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
         }
-        .menu-item {
+        .main-menu-item {
             background: var(--card-bg);
-            padding: 0.4rem 0.2rem;
-            border-radius: var(--radius-sm);
+            padding: 0.8rem 0.5rem;
+            border-radius: var(--radius);
             text-align: center;
             border: 2px solid transparent;
             box-shadow: var(--shadow);
             cursor: pointer;
             transition: all 0.2s;
         }
-        .menu-item:active { transform: scale(0.95); }
-        .menu-item.active {
+        .main-menu-item:active { transform: scale(0.95); }
+        .main-menu-item.active {
             border-color: var(--primary);
             background: #E8F0FE;
         }
-        .menu-item .icon { font-size: 0.85rem; color: var(--primary); }
-        .menu-item .label {
+        .main-menu-item .icon { font-size: 1.5rem; color: var(--primary); }
+        .main-menu-item .label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #333;
+            margin-top: 0.2rem;
+        }
+        .main-menu-item .sub {
+            font-size: 0.5rem;
+            color: #888;
+            margin-top: 0.1rem;
+        }
+
+        /* SUBMENU */
+        .sub-menu {
+            display: none;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.3rem;
+            margin-bottom: 0.6rem;
+            padding: 0.5rem;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: var(--shadow);
+        }
+        .sub-menu.active { display: grid; }
+        .sub-menu-item {
+            padding: 0.4rem 0.2rem;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .sub-menu-item:active { transform: scale(0.95); }
+        .sub-menu-item.active {
+            border-color: var(--primary);
+            background: #E8F0FE;
+        }
+        .sub-menu-item .icon { font-size: 0.8rem; color: var(--primary); }
+        .sub-menu-item .label {
             font-size: 0.5rem;
             font-weight: 600;
             color: #333;
-            margin-top: 0.1rem;
+            margin-top: 0.05rem;
         }
 
         /* TAB CONTENT */
@@ -484,7 +512,8 @@
         @media (min-width: 600px) {
             .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
             .stat-card .number { font-size: 1.3rem; }
-            .menu-grid { grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+            .main-menu { grid-template-columns: repeat(4, 1fr); gap: 0.6rem; }
+            .sub-menu { grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
             .container { padding: 0.8rem 1.2rem; }
             .tab-content { padding: 1rem; }
             .carousel-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
@@ -492,7 +521,6 @@
         }
         @media (min-width: 900px) {
             .stats-grid { grid-template-columns: repeat(6, 1fr); }
-            .menu-grid { grid-template-columns: repeat(4, 1fr); }
             .container { padding: 1rem 2rem; max-width: 1200px; margin: 0 auto; }
             .header { padding: 0.6rem 2rem; }
             .tab-content { padding: 1.2rem; }
@@ -501,9 +529,12 @@
         @media (max-width: 400px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .stat-card .number { font-size: 0.9rem; }
-            .menu-grid { grid-template-columns: repeat(3, 1fr); gap: 0.2rem; }
-            .menu-item .icon { font-size: 0.7rem; }
-            .menu-item .label { font-size: 0.45rem; }
+            .main-menu { grid-template-columns: repeat(2, 1fr); gap: 0.3rem; }
+            .main-menu-item .icon { font-size: 1.2rem; }
+            .main-menu-item .label { font-size: 0.6rem; }
+            .sub-menu { grid-template-columns: repeat(2, 1fr); gap: 0.2rem; }
+            .sub-menu-item .icon { font-size: 0.7rem; }
+            .sub-menu-item .label { font-size: 0.45rem; }
             .container { padding: 0.4rem; }
             .tab-content { padding: 0.5rem; }
             .carousel-grid { grid-template-columns: repeat(2, 1fr); }
@@ -561,104 +592,119 @@
         </div>
     </div>
 
-    <!-- MENU AGRUPADO -->
-    <!-- GRUPO 1: Gestão de Membros -->
-    <div class="menu-group">
-        <div class="menu-group-title">👥 Gestão de Membros</div>
-        <div class="menu-grid">
-            <div class="menu-item active" onclick="showTab('membros')" data-tab="membros">
-                <div class="icon"><i class="fas fa-user-plus"></i></div>
-                <div class="label">Membros</div>
-            </div>
-            <div class="menu-item" onclick="showTab('usuarios')" data-tab="usuarios">
-                <div class="icon"><i class="fas fa-users"></i></div>
-                <div class="label">Usuários</div>
-            </div>
-            <div class="menu-item" onclick="showTab('aniversariantes')" data-tab="aniversariantes">
-                <div class="icon"><i class="fas fa-birthday-cake"></i></div>
-                <div class="label">Aniversários</div>
-            </div>
-            <div class="menu-item" onclick="showTab('frequencia')" data-tab="frequencia">
-                <div class="icon"><i class="fas fa-calendar-check"></i></div>
-                <div class="label">Frequência</div>
-            </div>
+    <!-- MENU PRINCIPAL - 4 AREAS -->
+    <div class="main-menu">
+        <div class="main-menu-item active" onclick="showArea('membros')" data-area="membros">
+            <div class="icon"><i class="fas fa-users"></i></div>
+            <div class="label">Gestão de Membros</div>
+            <div class="sub">Membros, Usuários, Frequência</div>
+        </div>
+        <div class="main-menu-item" onclick="showArea('financeiro')" data-area="financeiro">
+            <div class="icon"><i class="fas fa-chart-line"></i></div>
+            <div class="label">Vendas e Financeiro</div>
+            <div class="sub">Vendas, Dízimos, Contas</div>
+        </div>
+        <div class="main-menu-item" onclick="showArea('conteudo')" data-area="conteudo">
+            <div class="icon"><i class="fas fa-book"></i></div>
+            <div class="label">Conteúdo e Eventos</div>
+            <div class="sub">Eventos, Estudos, Produtos</div>
+        </div>
+        <div class="main-menu-item" onclick="showArea('admin')" data-area="admin">
+            <div class="icon"><i class="fas fa-cog"></i></div>
+            <div class="label">Administração</div>
+            <div class="sub">Deptos, Inscrições, Config</div>
         </div>
     </div>
 
-    <!-- GRUPO 2: Vendas e Financeiro -->
-    <div class="menu-group">
-        <div class="menu-group-title">💰 Vendas e Financeiro</div>
-        <div class="menu-grid">
-            <div class="menu-item" onclick="showTab('dashboard')" data-tab="dashboard">
-                <div class="icon"><i class="fas fa-chart-pie"></i></div>
-                <div class="label">Resumo</div>
-            </div>
-            <div class="menu-item" onclick="showTab('vendas')" data-tab="vendas">
-                <div class="icon"><i class="fas fa-shopping-cart"></i></div>
-                <div class="label">Vendas</div>
-            </div>
-            <div class="menu-item" onclick="showTab('tesouraria')" data-tab="tesouraria">
-                <div class="icon"><i class="fas fa-hand-holding-heart"></i></div>
-                <div class="label">Dízimos</div>
-            </div>
-            <div class="menu-item" onclick="showTab('contas')" data-tab="contas">
-                <div class="icon"><i class="fas fa-receipt"></i></div>
-                <div class="label">Contas</div>
-            </div>
+    <!-- SUBMENU - ÁREA 1: GESTÃO DE MEMBROS -->
+    <div class="sub-menu active" id="sub-membros">
+        <div class="sub-menu-item active" onclick="showTab('membros')" data-tab="membros">
+            <div class="icon"><i class="fas fa-user-plus"></i></div>
+            <div class="label">Membros</div>
+        </div>
+        <div class="sub-menu-item" onclick="showTab('usuarios')" data-tab="usuarios">
+            <div class="icon"><i class="fas fa-users-cog"></i></div>
+            <div class="label">Usuários</div>
+        </div>
+        <div class="sub-menu-item" onclick="showTab('frequencia')" data-tab="frequencia">
+            <div class="icon"><i class="fas fa-calendar-check"></i></div>
+            <div class="label">Frequência</div>
+        </div>
+        <div class="sub-menu-item" onclick="showTab('aniversariantes')" data-tab="aniversariantes">
+            <div class="icon"><i class="fas fa-birthday-cake"></i></div>
+            <div class="label">Aniversários</div>
         </div>
     </div>
 
-    <!-- GRUPO 3: Conteúdo e Eventos -->
-    <div class="menu-group">
-        <div class="menu-group-title">📚 Conteúdo e Eventos</div>
-        <div class="menu-grid">
-            <div class="menu-item" onclick="showTab('eventos')" data-tab="eventos">
-                <div class="icon"><i class="fas fa-calendar"></i></div>
-                <div class="label">Eventos</div>
-            </div>
-            <div class="menu-item" onclick="showTab('estudos')" data-tab="estudos">
-                <div class="icon"><i class="fas fa-book"></i></div>
-                <div class="label">Estudos</div>
-            </div>
-            <div class="menu-item" onclick="showTab('produtos')" data-tab="produtos">
-                <div class="icon"><i class="fas fa-box"></i></div>
-                <div class="label">Produtos</div>
-            </div>
-            <div class="menu-item" onclick="showTab('carousel')" data-tab="carousel">
-                <div class="icon"><i class="fas fa-images"></i></div>
-                <div class="label">Carrossel</div>
-            </div>
+    <!-- SUBMENU - ÁREA 2: VENDAS E FINANCEIRO -->
+    <div class="sub-menu" id="sub-financeiro">
+        <div class="sub-menu-item active" onclick="showTab('dashboard')" data-tab="dashboard">
+            <div class="icon"><i class="fas fa-chart-pie"></i></div>
+            <div class="label">Resumo</div>
+        </div>
+        <div class="sub-menu-item" onclick="showTab('vendas')" data-tab="vendas">
+            <div class="icon"><i class="fas fa-shopping-cart"></i></div>
+            <div class="label">Vendas</div>
+        </div>
+        <div class="sub-menu-item" onclick="showTab('tesouraria')" data-tab="tesouraria">
+            <div class="icon"><i class="fas fa-hand-holding-heart"></i></div>
+            <div class="label">Dízimos</div>
+        </div>
+        <div class="sub-menu-item" onclick="showTab('contas')" data-tab="contas">
+            <div class="icon"><i class="fas fa-receipt"></i></div>
+            <div class="label">Contas</div>
         </div>
     </div>
 
-    <!-- GRUPO 4: Administração -->
-    <div class="menu-group">
-        <div class="menu-group-title">⚙️ Administração</div>
-        <div class="menu-grid">
-            <div class="menu-item" onclick="showTab('departamentos')" data-tab="departamentos">
-                <div class="icon"><i class="fas fa-building"></i></div>
-                <div class="label">Deptos</div>
-            </div>
-            <div class="menu-item" onclick="showTab('inscricoes')" data-tab="inscricoes">
-                <div class="icon"><i class="fas fa-clipboard-list"></i></div>
-                <div class="label">Inscrições</div>
-            </div>
-            <div class="menu-item" onclick="showTab('doacoes')" data-tab="doacoes">
-                <div class="icon"><i class="fas fa-hand-holding-heart"></i></div>
-                <div class="label">Doações</div>
-            </div>
-            <div class="menu-item" onclick="showTab('config')" data-tab="config">
-                <div class="icon"><i class="fas fa-cog"></i></div>
-                <div class="label">Config</div>
-            </div>
+    <!-- SUBMENU - ÁREA 3: CONTEÚDO E EVENTOS -->
+    <div class="sub-menu" id="sub-conteudo">
+        <div class="sub-menu-item active" onclick="showTab('eventos')" data-tab="eventos">
+            <div class="icon"><i class="fas fa-calendar"></i></div>
+            <div class="label">Eventos</div>
+        </div>
+        <div class="sub-menu-item" onclick="showTab('estudos')" data-tab="estudos">
+            <div class="icon"><i class="fas fa-book"></i></div>
+            <div class="label">Estudos</div>
+        </div>
+        <div class="sub-menu-item" onclick="showTab('produtos')" data-tab="produtos">
+            <div class="icon"><i class="fas fa-box"></i></div>
+            <div class="label">Produtos</div>
+        </div>
+        <div class="sub-menu-item" onclick="showTab('carousel')" data-tab="carousel">
+            <div class="icon"><i class="fas fa-images"></i></div>
+            <div class="label">Carrossel</div>
         </div>
     </div>
+
+    <!-- SUBMENU - ÁREA 4: ADMINISTRAÇÃO -->
+    <div class="sub-menu" id="sub-admin">
+        <div class="sub-menu-item active" onclick="showTab('departamentos')" data-tab="departamentos">
+            <div class="icon"><i class="fas fa-building"></i></div>
+            <div class="label">Departamentos</div>
+        </div>
+        <div class="sub-menu-item" onclick="showTab('inscricoes')" data-tab="inscricoes">
+            <div class="icon"><i class="fas fa-clipboard-list"></i></div>
+            <div class="label">Inscrições</div>
+        </div>
+        <div class="sub-menu-item" onclick="showTab('doacoes')" data-tab="doacoes">
+            <div class="icon"><i class="fas fa-hand-holding-heart"></i></div>
+            <div class="label">Doações</div>
+        </div>
+        <div class="sub-menu-item" onclick="showTab('config')" data-tab="config">
+            <div class="icon"><i class="fas fa-cog"></i></div>
+            <div class="label">Config</div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         TABS - CONTEÚDO
+    ============================================ -->
 
     <!-- TAB: MEMBROS -->
     <div id="tab-membros" class="tab-content active">
         <div class="flex-between mb-1">
             <h3>👥 Membros</h3>
-            <button onclick="openMemberModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
+            <button onclick="openMemberModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
         </div>
         <div class="table-wrapper">
             <table class="table">
@@ -671,24 +717,13 @@
     <!-- TAB: USUÁRIOS -->
     <div id="tab-usuarios" class="tab-content">
         <div class="flex-between mb-1">
-            <h3>👥 Usuários</h3>
-            <button onclick="openUserModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
+            <h3>👥 Usuários do Sistema</h3>
+            <button onclick="openUserModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
         </div>
         <div class="table-wrapper">
             <table class="table">
                 <thead><tr><th>Nome</th><th>Cargo</th><th>Ações</th></tr></thead>
                 <tbody id="usersList"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- TAB: ANIVERSARIANTES -->
-    <div id="tab-aniversariantes" class="tab-content">
-        <h3>🎂 Aniversariantes</h3>
-        <div class="table-wrapper">
-            <table class="table">
-                <thead><tr><th>Nome</th><th>Data</th><th>Idade</th></tr></thead>
-                <tbody id="birthdaysList"></tbody>
             </table>
         </div>
     </div>
@@ -758,6 +793,17 @@
         </div>
     </div>
 
+    <!-- TAB: ANIVERSARIANTES -->
+    <div id="tab-aniversariantes" class="tab-content">
+        <h3>🎂 Aniversariantes</h3>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Nome</th><th>Data</th><th>Idade</th></tr></thead>
+                <tbody id="birthdaysList"></tbody>
+            </table>
+        </div>
+    </div>
+
     <!-- TAB: DASHBOARD -->
     <div id="tab-dashboard" class="tab-content">
         <h3>📊 Resumo Financeiro</h3>
@@ -794,7 +840,7 @@
     <div id="tab-tesouraria" class="tab-content">
         <div class="flex-between mb-1">
             <h3>💝 Dízimos e Ofertas</h3>
-            <button onclick="openTitheModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
+            <button onclick="openTitheModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Registrar</button>
         </div>
         <div id="titheSummary" style="font-size:0.6rem; margin-bottom:0.2rem;"></div>
         <div class="table-wrapper">
@@ -809,7 +855,7 @@
     <div id="tab-contas" class="tab-content">
         <div class="flex-between mb-1">
             <h3>📋 Contas a Pagar</h3>
-            <button onclick="openBillModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
+            <button onclick="openBillModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Nova</button>
         </div>
         <div id="billSummary" style="font-size:0.6rem; margin-bottom:0.2rem;"></div>
         <div class="table-wrapper">
@@ -824,7 +870,7 @@
     <div id="tab-eventos" class="tab-content">
         <div class="flex-between mb-1">
             <h3>📅 Eventos</h3>
-            <button onclick="openEventModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
+            <button onclick="openEventModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
         </div>
         <div class="table-wrapper">
             <table class="table">
@@ -838,7 +884,7 @@
     <div id="tab-estudos" class="tab-content">
         <div class="flex-between mb-1">
             <h3>📖 Estudos</h3>
-            <button onclick="openStudyModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
+            <button onclick="openStudyModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
         </div>
         <div class="table-wrapper">
             <table class="table">
@@ -852,7 +898,7 @@
     <div id="tab-produtos" class="tab-content">
         <div class="flex-between mb-1">
             <h3>📦 Produtos</h3>
-            <button onclick="openProductModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
+            <button onclick="openProductModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
         </div>
         <div class="table-wrapper">
             <table class="table">
@@ -866,7 +912,7 @@
     <div id="tab-carousel" class="tab-content">
         <div class="flex-between mb-1">
             <h3>🖼️ Carrossel</h3>
-            <button onclick="openCarouselModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
+            <button onclick="openCarouselModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Nova</button>
         </div>
         <div id="carouselList" class="carousel-grid"></div>
     </div>
@@ -875,7 +921,7 @@
     <div id="tab-departamentos" class="tab-content">
         <div class="flex-between mb-1">
             <h3>🏢 Departamentos</h3>
-            <button onclick="openDeptModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
+            <button onclick="openDeptModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
         </div>
         <div class="table-wrapper">
             <table class="table">
@@ -986,7 +1032,7 @@
 <div class="modal" id="titheModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('titheModal')">&times;</button>
-        <h3>💝 Dízimo</h3>
+        <h3>💝 Dízimo/Oferta</h3>
         <div class="form-group"><label>Membro</label>
             <select id="titheMember"><option value="">Visitante</option></select>
         </div>
@@ -1175,14 +1221,49 @@ function logout() {
 }
 
 // ============================================
+// ===== MENU PRINCIPAL E SUBMENU =====
+// ============================================
+function showArea(area) {
+    // Atualiza menu principal
+    document.querySelectorAll('.main-menu-item').forEach(el => el.classList.remove('active'));
+    document.querySelector(`.main-menu-item[data-area="${area}"]`)?.classList.add('active');
+    
+    // Mostra submenu correspondente
+    document.querySelectorAll('.sub-menu').forEach(el => el.classList.remove('active'));
+    document.getElementById('sub-' + area)?.classList.add('active');
+    
+    // Ativa primeira tab do submenu
+    const firstTab = document.querySelector(`#sub-${area} .sub-menu-item`);
+    if (firstTab) {
+        const tabName = firstTab.dataset.tab;
+        showTab(tabName);
+    }
+}
+
+// ============================================
 // ===== TABS =====
 // ============================================
 function showTab(tab) {
+    // Esconde todos os tabs
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    document.querySelectorAll('.menu-item').forEach(c => c.classList.remove('active'));
-    document.getElementById('tab-' + tab).classList.add('active');
-    document.querySelector(`.menu-item[data-tab="${tab}"]`)?.classList.add('active');
     
+    // Remove active de todos os submenu items
+    document.querySelectorAll('.sub-menu-item').forEach(c => c.classList.remove('active'));
+    
+    // Ativa o tab
+    const tabEl = document.getElementById('tab-' + tab);
+    if (tabEl) {
+        tabEl.classList.add('active');
+    }
+    
+    // Ativa o submenu item correspondente
+    document.querySelectorAll('.sub-menu-item').forEach(item => {
+        if (item.dataset.tab === tab) {
+            item.classList.add('active');
+        }
+    });
+    
+    // Carrega dados específicos
     if (tab === 'carousel') loadCarouselAdmin();
     if (tab === 'departamentos') loadDepartments();
     if (tab === 'membros') loadMembers();
@@ -1198,6 +1279,14 @@ function showTab(tab) {
     if (tab === 'contas') { loadBills(); loadBillSummary(); }
     if (tab === 'aniversariantes') loadBirthdaysAdmin();
     if (tab === 'config') loadConfig();
+    if (tab === 'dashboard') loadSalesStats();
+    if (tab === 'vendas') loadOrders();
+    if (tab === 'usuarios') loadUsers();
+    if (tab === 'eventos') loadEvents();
+    if (tab === 'estudos') loadStudies();
+    if (tab === 'produtos') loadProducts();
+    if (tab === 'inscricoes') loadRegistrations();
+    if (tab === 'doacoes') loadDonations();
 }
 
 // ============================================
@@ -1223,18 +1312,6 @@ async function loadDashboard() {
         document.getElementById('totalDonations').textContent = 'R$' + totalDonations.toFixed(0);
         document.getElementById('totalStudies').textContent = studies.length;
         document.getElementById('totalEvents').textContent = events.length;
-
-        loadUsers(users);
-        loadPrayers(prayers);
-        loadOrders(orders);
-        loadDonations(donations);
-        loadStudies(studies);
-        loadEvents(events);
-        loadProducts();
-        loadRegistrations();
-        loadMembers();
-        loadBirthdaysAdmin();
-        loadSalesStats();
     } catch (e) { console.error('Erro:', e); }
 }
 
@@ -1272,7 +1349,10 @@ async function loadSalesStats() {
 // ============================================
 function loadUsers(users) {
     const tbody = document.getElementById('usersList');
-    if (!users?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+    if (!users?.length) { 
+        tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; 
+        return; 
+    }
     const roleMap = { pastor:'Pastor', lider:'Líder', colaborador:'Colaborador', fiel:'Fiel' };
     const badgeMap = { pastor:'badge-pastor', lider:'badge-lider', colaborador:'badge-colaborador', fiel:'badge-fiel' };
     tbody.innerHTML = users.map(u => `
@@ -1280,8 +1360,8 @@ function loadUsers(users) {
             <td>${u.name}</td>
             <td><span class="badge ${badgeMap[u.role]||'badge-fiel'}">${roleMap[u.role]||u.role}</span></td>
             <td>
-                <button onclick="resetPassword('${u.email}')" class="btn btn-warning btn-xs"><i class="fas fa-key"></i></button>
-                <button onclick="deleteUser(${u.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button>
+                <button onclick="resetPassword('${u.email}')" class="btn btn-warning btn-xs" title="Resetar senha"><i class="fas fa-key"></i></button>
+                <button onclick="deleteUser(${u.id})" class="btn btn-danger btn-xs" title="Remover"><i class="fas fa-trash"></i></button>
             </td>
         </tr>
     `).join('');
@@ -1289,7 +1369,10 @@ function loadUsers(users) {
 
 function loadPrayers(prayers) {
     const tbody = document.getElementById('prayersList');
-    if (!prayers?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+    if (!prayers?.length) { 
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum</td></tr>'; 
+        return; 
+    }
     tbody.innerHTML = prayers.slice(0, 30).map(p => `
         <tr>
             <td>${p.name||'Anônimo'}</td>
@@ -1302,7 +1385,10 @@ function loadPrayers(prayers) {
 
 function loadOrders(orders) {
     const tbody = document.getElementById('ordersList');
-    if (!orders?.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
+    if (!orders?.length) { 
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhuma</td></tr>'; 
+        return; 
+    }
     tbody.innerHTML = orders.slice(0, 30).map(o => {
         let items = [];
         try { items = JSON.parse(o.items || '[]'); } catch { items = []; }
@@ -1319,7 +1405,10 @@ function loadOrders(orders) {
 
 function loadDonations(donations) {
     const tbody = document.getElementById('donationsList');
-    if (!donations?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
+    if (!donations?.length) { 
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma</td></tr>'; 
+        return; 
+    }
     tbody.innerHTML = donations.slice(0, 30).map(d => `
         <tr>
             <td>${d.user_name||'Anônimo'}</td>
@@ -1332,7 +1421,10 @@ function loadDonations(donations) {
 
 function loadStudies(studies) {
     const tbody = document.getElementById('studiesList');
-    if (!studies?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+    if (!studies?.length) { 
+        tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; 
+        return; 
+    }
     tbody.innerHTML = studies.map(s => `
         <tr>
             <td>${s.title}</td>
@@ -1344,7 +1436,10 @@ function loadStudies(studies) {
 
 function loadEvents(events) {
     const tbody = document.getElementById('eventsList');
-    if (!events?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+    if (!events?.length) { 
+        tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; 
+        return; 
+    }
     tbody.innerHTML = events.map(e => `
         <tr>
             <td>${e.title}</td>
@@ -1359,7 +1454,10 @@ async function loadProducts() {
         const res = await fetch('/api/products', { headers: getHeaders() });
         const products = await res.json();
         const tbody = document.getElementById('productsList');
-        if (!products?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+        if (!products?.length) { 
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; 
+            return; 
+        }
         tbody.innerHTML = products.map(p => `
             <tr>
                 <td>${p.name}</td>
@@ -1375,7 +1473,10 @@ async function loadRegistrations() {
         const res = await fetch('/api/registrations', { headers: getHeaders() });
         const data = await res.json();
         const tbody = document.getElementById('registrationsList');
-        if (!data?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
+        if (!data?.length) { 
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma</td></tr>'; 
+            return; 
+        }
         const typeMap = { baptism:'Batismo', volunteer:'Voluntário', event:'Evento', department:'Depto' };
         tbody.innerHTML = data.slice(0, 30).map(r => `
             <tr>
@@ -1393,7 +1494,10 @@ async function loadCarouselAdmin() {
         const res = await fetch('/api/carousel', { headers: getHeaders() });
         const data = await res.json();
         const container = document.getElementById('carouselList');
-        if (!data?.length) { container.innerHTML = '<p class="text-center" style="color:#888;font-size:0.65rem;">Nenhuma</p>'; return; }
+        if (!data?.length) { 
+            container.innerHTML = '<p class="text-center" style="color:#888;font-size:0.65rem;">Nenhuma imagem</p>'; 
+            return; 
+        }
         container.innerHTML = data.map(img => {
             const src = img.image_url || (img.image_base64 ? `data:image/jpeg;base64,${img.image_base64}` : 'https://via.placeholder.com/200x120/0D47A1/fff?text=NJ');
             return `<div class="carousel-item">
@@ -1410,7 +1514,10 @@ async function loadDepartments() {
         const res = await fetch('/api/departments', { headers: getHeaders() });
         const data = await res.json();
         const tbody = document.getElementById('departmentsList');
-        if (!data?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+        if (!data?.length) { 
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; 
+            return; 
+        }
         tbody.innerHTML = data.map(d => `
             <tr>
                 <td>${d.name}</td>
@@ -1429,7 +1536,10 @@ async function loadBirthdaysAdmin() {
         const res = await fetch('/api/birthdays', { headers: getHeaders() });
         const data = await res.json();
         const tbody = document.getElementById('birthdaysList');
-        if (!data?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+        if (!data?.length) { 
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; 
+            return; 
+        }
         const today = new Date();
         tbody.innerHTML = data.map(b => {
             const birth = new Date(b.birth_date);
@@ -1457,64 +1567,68 @@ async function markPrayerRead(id) {
 }
 
 async function deleteUser(id) {
-    if (!confirm('Remover?')) return;
+    if (!confirm('Remover este usuário?')) return;
     try {
         await fetch('/api/users/' + id, { method: 'DELETE', headers: getHeaders() });
         loadDashboard();
-        showNotification('✅ Removido!', 'success');
+        showNotification('✅ Usuário removido!', 'success');
     } catch (e) { showNotification('❌ ' + e.message, 'error'); }
 }
 
 async function resetPassword(email) {
-    if (!confirm('Resetar para 123456?')) return;
+    if (!confirm('Resetar senha para 123456?')) return;
     try {
-        await fetch('/api/reset-password', { method: 'POST', headers: { 'Content-Type':'application/json', ...getHeaders() }, body: JSON.stringify({ email }) });
-        showNotification('✅ Senha resetada!', 'success');
+        await fetch('/api/reset-password', { 
+            method: 'POST', 
+            headers: { 'Content-Type':'application/json', ...getHeaders() }, 
+            body: JSON.stringify({ email }) 
+        });
+        showNotification('✅ Senha resetada para 123456', 'success');
     } catch (e) { showNotification('❌ ' + e.message, 'error'); }
 }
 
 async function deleteStudy(id) {
-    if (!confirm('Remover?')) return;
+    if (!confirm('Remover este estudo?')) return;
     try {
         await fetch('/api/studies/' + id, { method: 'DELETE', headers: getHeaders() });
         loadDashboard();
-        showNotification('✅ Removido!', 'success');
+        showNotification('✅ Estudo removido!', 'success');
     } catch (e) { showNotification('❌ ' + e.message, 'error'); }
 }
 
 async function deleteEvent(id) {
-    if (!confirm('Remover?')) return;
+    if (!confirm('Remover este evento?')) return;
     try {
         await fetch('/api/events/' + id, { method: 'DELETE', headers: getHeaders() });
         loadDashboard();
-        showNotification('✅ Removido!', 'success');
+        showNotification('✅ Evento removido!', 'success');
     } catch (e) { showNotification('❌ ' + e.message, 'error'); }
 }
 
 async function deleteProduct(id) {
-    if (!confirm('Remover?')) return;
+    if (!confirm('Remover este produto?')) return;
     try {
         await fetch('/api/products/' + id, { method: 'DELETE', headers: getHeaders() });
         loadDashboard();
-        showNotification('✅ Removido!', 'success');
+        showNotification('✅ Produto removido!', 'success');
     } catch (e) { showNotification('❌ ' + e.message, 'error'); }
 }
 
 async function deleteCarousel(id) {
-    if (!confirm('Remover?')) return;
+    if (!confirm('Remover esta imagem?')) return;
     try {
         await fetch('/api/carousel/' + id, { method: 'DELETE', headers: getHeaders() });
         loadCarouselAdmin();
-        showNotification('✅ Removido!', 'success');
+        showNotification('✅ Imagem removida!', 'success');
     } catch (e) { showNotification('❌ ' + e.message, 'error'); }
 }
 
 async function deleteDepartment(id) {
-    if (!confirm('Remover?')) return;
+    if (!confirm('Remover este departamento?')) return;
     try {
         await fetch('/api/departments/' + id, { method: 'DELETE', headers: getHeaders() });
         loadDepartments();
-        showNotification('✅ Removido!', 'success');
+        showNotification('✅ Departamento removido!', 'success');
     } catch (e) { showNotification('❌ ' + e.message, 'error'); }
 }
 
@@ -1555,7 +1669,7 @@ async function saveUser() {
             body: JSON.stringify({ name, email, password, role, department_id: dept||null })
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Erro');
+        if (!res.ok) throw new Error(data.error || 'Erro ao criar usuário');
         closeModal('userModal');
         showNotification('✅ Usuário criado!', 'success');
         loadDashboard();
@@ -1596,7 +1710,10 @@ async function loadMembers() {
         const res = await fetch('/api/members', { headers: getHeaders() });
         const data = await res.json();
         const tbody = document.getElementById('membersList');
-        if (!data?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+        if (!data?.length) { 
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; 
+            return; 
+        }
         tbody.innerHTML = data.map(m => `
             <tr>
                 <td>${m.name}</td>
@@ -1662,11 +1779,11 @@ async function viewMember(id) {
 }
 
 async function deleteMember(id) {
-    if (!confirm('Remover?')) return;
+    if (!confirm('Remover este membro?')) return;
     try {
         await fetch('/api/members/' + id, { method: 'DELETE', headers: getHeaders() });
         loadMembers();
-        showNotification('✅ Removido!', 'success');
+        showNotification('✅ Membro removido!', 'success');
     } catch (e) { showNotification('❌ ' + e.message, 'error'); }
 }
 
@@ -1692,12 +1809,12 @@ async function loadAllMembersForAttendance() {
     const date = document.getElementById('attendanceDate').value;
     if (!date) { showNotification('Selecione uma data!', 'error'); return; }
     try {
-        showNotification('Carregando...', 'info');
+        showNotification('Carregando membros...', 'info');
         const res = await fetch('/api/members', { headers: getHeaders() });
         allMembers = await res.json();
         if (!allMembers?.length) {
-            showNotification('Nenhum membro!', 'error');
-            document.getElementById('membersListContainer').innerHTML = '<p style="color:#888;text-align:center;font-size:0.6rem;">Nenhum</p>';
+            showNotification('Nenhum membro cadastrado!', 'error');
+            document.getElementById('membersListContainer').innerHTML = '<p style="color:#888;text-align:center;font-size:0.6rem;">Nenhum membro</p>';
             return;
         }
         selectedMembers.clear();
@@ -1705,7 +1822,7 @@ async function loadAllMembersForAttendance() {
         renderMembersList();
         updateSummary();
         loadAttendanceHistory(date);
-        showNotification(`✅ ${allMembers.length} membros`, 'success');
+        showNotification(`✅ ${allMembers.length} membros carregados!`, 'success');
     } catch (e) {
         showNotification('❌ ' + e.message, 'error');
     }
@@ -1730,7 +1847,7 @@ function renderMembersList() {
     attendanceFilteredMembers = filtered;
     document.getElementById('totalCount').textContent = filtered.length;
     if (!filtered.length) {
-        container.innerHTML = '<p style="color:#888;text-align:center;font-size:0.6rem;">Nenhum</p>';
+        container.innerHTML = '<p style="color:#888;text-align:center;font-size:0.6rem;">Nenhum membro encontrado</p>';
         return;
     }
     let html = '';
@@ -1888,7 +2005,10 @@ async function loadTithes() {
         const res = await fetch('/api/tithes', { headers: getHeaders() });
         const data = await res.json();
         const tbody = document.getElementById('tithesList');
-        if (!data?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+        if (!data?.length) { 
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum</td></tr>'; 
+            return; 
+        }
         tbody.innerHTML = data.slice(0, 30).map(t => `
             <tr>
                 <td>${t.member_name||'Visitante'}</td>
@@ -1946,7 +2066,10 @@ async function loadBills() {
         const res = await fetch('/api/bills', { headers: getHeaders() });
         const data = await res.json();
         const tbody = document.getElementById('billsList');
-        if (!data?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
+        if (!data?.length) { 
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma</td></tr>'; 
+            return; 
+        }
         tbody.innerHTML = data.map(b => `
             <tr>
                 <td>${b.description}</td>
@@ -1962,7 +2085,7 @@ async function loadBills() {
 }
 
 async function payBill(id) {
-    if (!confirm('Pagar?')) return;
+    if (!confirm('Pagar esta conta?')) return;
     try {
         await fetch('/api/bills/' + id + '/pay', {
             method: 'PUT',
@@ -1971,17 +2094,17 @@ async function payBill(id) {
         });
         loadBills();
         loadBillSummary();
-        showNotification('✅ Paga!', 'success');
+        showNotification('✅ Conta paga!', 'success');
     } catch (e) { showNotification('❌ ' + e.message, 'error'); }
 }
 
 async function deleteBill(id) {
-    if (!confirm('Remover?')) return;
+    if (!confirm('Remover esta conta?')) return;
     try {
         await fetch('/api/bills/' + id, { method: 'DELETE', headers: getHeaders() });
         loadBills();
         loadBillSummary();
-        showNotification('✅ Removida!', 'success');
+        showNotification('✅ Conta removida!', 'success');
     } catch (e) { showNotification('❌ ' + e.message, 'error'); }
 }
 
@@ -2017,7 +2140,7 @@ async function saveConfig(key, value) {
             body: JSON.stringify({ key, value })
         });
         if (key === 'primary_color') document.documentElement.style.setProperty('--primary', value);
-        showNotification('✅ Salvo!', 'success');
+        showNotification('✅ Configuração salva!', 'success');
     } catch (e) { showNotification('❌ ' + e.message, 'error'); }
 }
 
@@ -2035,7 +2158,7 @@ document.getElementById('studyForm')?.addEventListener('submit', async function(
         await fetch('/api/studies', { method: 'POST', headers: getHeaders(), body: new FormData(this) });
         closeModal('studyModal');
         loadDashboard();
-        showNotification('✅ Criado!', 'success');
+        showNotification('✅ Estudo criado!', 'success');
         this.reset();
     } catch (e) { showNotification('❌ ' + e.message, 'error'); }
 });
@@ -2046,7 +2169,7 @@ document.getElementById('eventForm')?.addEventListener('submit', async function(
         await fetch('/api/events', { method: 'POST', headers: getHeaders(), body: new FormData(this) });
         closeModal('eventModal');
         loadDashboard();
-        showNotification('✅ Criado!', 'success');
+        showNotification('✅ Evento criado!', 'success');
         this.reset();
     } catch (e) { showNotification('❌ ' + e.message, 'error'); }
 });
@@ -2057,7 +2180,7 @@ document.getElementById('productForm')?.addEventListener('submit', async functio
         await fetch('/api/products', { method: 'POST', headers: getHeaders(), body: new FormData(this) });
         closeModal('productModal');
         loadDashboard();
-        showNotification('✅ Criado!', 'success');
+        showNotification('✅ Produto criado!', 'success');
         this.reset();
     } catch (e) { showNotification('❌ ' + e.message, 'error'); }
 });
@@ -2068,7 +2191,7 @@ document.getElementById('carouselForm')?.addEventListener('submit', async functi
         await fetch('/api/carousel', { method: 'POST', headers: getHeaders(), body: new FormData(this) });
         closeModal('carouselModal');
         loadCarouselAdmin();
-        showNotification('✅ Adicionado!', 'success');
+        showNotification('✅ Imagem adicionada!', 'success');
         this.reset();
     } catch (e) { showNotification('❌ ' + e.message, 'error'); }
 });
@@ -2080,6 +2203,8 @@ document.addEventListener('DOMContentLoaded', () => {
     loadDashboard();
     loadConfig();
     setDefaultAttendanceDate();
+    // Carrega membros na inicialização
+    loadMembers();
 });
 </script>
 </body>

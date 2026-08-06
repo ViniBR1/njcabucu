@@ -7,9 +7,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        /* ============================================
-           RESET E VARIÁVEIS - MANTIDO IGUAL AO SEU
-        ============================================ */
         * { margin:0; padding:0; box-sizing:border-box; }
         :root {
             --primary: #0D47A1;
@@ -34,10 +31,6 @@
             color: #1a1a2e;
             line-height: 1.6;
         }
-
-        /* ============================================
-           SCROLLBAR, HEADER, NAV, HERO, SECTION, CARDS - MANTIDOS IGUAIS
-        ============================================ */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
@@ -141,7 +134,6 @@
         .nav-btn:hover { color: var(--primary); background: var(--secondary); }
         .nav-btn.active { color: white; background: var(--primary-gradient); box-shadow: 0 4px 15px rgba(13,71,161,0.3); }
 
-        /* HERO */
         .hero {
             margin-top: 120px;
             position: relative;
@@ -273,7 +265,6 @@
         }
         .hero-arrow:hover { background: white; transform: scale(1.1); box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
 
-        /* SEÇÕES */
         .section {
             max-width: 1200px;
             margin: 3rem auto;
@@ -285,7 +276,6 @@
         .section-header .subtitle { color: #888; font-size: 1.05rem; margin-top: 0.3rem; }
         .section-header .line { width: 60px; height: 4px; background: var(--primary-gradient); border-radius: 10px; margin: 0.5rem auto 0; }
 
-        /* CARDS */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -345,7 +335,6 @@
         }
         .card:hover .card-image-wrapper img { transform: scale(1.05); }
 
-        /* MODAIS */
         .modal {
             display: none;
             position: fixed;
@@ -417,7 +406,6 @@
         .modal-content .form-row > * { flex: 1; }
         .modal-content .btn { width: 100%; justify-content: center; margin-top: 0.5rem; }
 
-        /* BÍBLIA MODAL */
         .modal-bible .modal-content { max-width: 750px; }
         .bible-container { display: flex; gap: 2rem; flex-wrap: wrap; }
         .bible-input { flex: 1; min-width: 250px; }
@@ -454,9 +442,7 @@
         .bible-result .reference { font-weight: 700; color: var(--primary); margin-top: 0.5rem; font-size: 0.95rem; }
         .bible-result .error-message { color: #dc3545; padding: 0.5rem 0; }
         .bible-result .loading { color: #888; padding: 0.5rem 0; }
-        .bible-result .fallback-note { color: #888; font-size: 0.8rem; margin-top: 0.5rem; }
 
-        /* CARROSSEL INFO */
         .modal-carousel .modal-content { max-width: 700px; }
         .modal-carousel .modal-content .carousel-info-image {
             width: 100%;
@@ -470,7 +456,6 @@
         .modal-carousel .modal-content .carousel-info-description { color: #555; line-height: 1.8; }
         .modal-carousel .modal-content .carousel-info-link { display: inline-block; margin-top: 1rem; }
 
-        /* ANIVERSARIANTES */
         .birthday-card { text-align: center; border-left: 4px solid var(--primary); padding: 1.5rem; }
         .birthday-card .emoji { font-size: 2.5rem; margin-bottom: 0.3rem; }
         .birthday-card .name { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
@@ -479,7 +464,6 @@
         .birthday-card.today { border-color: #e91e63; }
         .birthday-card.today .name { color: #e91e63; }
 
-        /* NOTIFICAÇÕES */
         .notification {
             position: fixed;
             top: 90px;
@@ -498,7 +482,6 @@
         .notification.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .notification.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
 
-        /* TITHE OPTIONS */
         .tithe-options {
             display: flex;
             justify-content: center;
@@ -520,7 +503,6 @@
         }
         .btn-donation:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 35px rgba(13,71,161,0.3); }
 
-        /* FOOTER */
         .footer {
             background: #1a1a2e;
             color: white;
@@ -813,7 +795,7 @@
     </div>
 </footer>
 
-<!-- MODAIS -->
+<!-- MODAL BÍBLIA -->
 <div class="modal modal-bible" id="bibleModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('bibleModal')">&times;</button>
@@ -882,6 +864,7 @@
     </div>
 </div>
 
+<!-- MODAL CARROSSEL INFO -->
 <div class="modal modal-carousel" id="carouselInfoModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('carouselInfoModal')">&times;</button>
@@ -999,6 +982,7 @@ let _donationAmount = 0;
 let allMembers = [];
 let selectedMembers = new Set();
 let attendanceFilteredMembers = [];
+let statusCheckInterval = null;
 
 // ============================================
 // ===== HEADER SCROLL =====
@@ -1583,6 +1567,10 @@ function openDonationForm(type) {
 function closeModal(id) {
     document.getElementById(id).classList.remove('open');
     document.body.style.overflow = 'auto';
+    if (statusCheckInterval) {
+        clearInterval(statusCheckInterval);
+        statusCheckInterval = null;
+    }
 }
 
 function openModal(id) {
@@ -1595,6 +1583,10 @@ document.querySelectorAll('.modal').forEach(m => {
         if (e.target === m) {
             m.classList.remove('open');
             document.body.style.overflow = 'auto';
+            if (statusCheckInterval) {
+                clearInterval(statusCheckInterval);
+                statusCheckInterval = null;
+            }
         }
     });
 });
@@ -1697,43 +1689,181 @@ async function saveOrderOrDonation(name, email, phone, amount, paymentId, method
 }
 
 // ============================================
-// ===== FUNÇÃO PARA VERIFICAR STATUS =====
+// ===== FUNÇÃO PARA VERIFICAR STATUS - CORRIGIDA =====
 // ============================================
 async function checkPaymentStatus(paymentId) {
     try {
         showNotification('🔄 Verificando status do pagamento...', 'info');
         
         const response = await fetch(`/api/check-payment/${paymentId}`, {
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
         });
         
-        const data = await response.json();
-        
-        if (data.status === 'approved') {
-            showNotification('✅ Pagamento confirmado! Obrigado! 🙏', 'success');
-            await fetch('/api/update-payment-status', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    payment_id: paymentId,
-                    status: 'approved'
-                })
+        // Verifica se a resposta é JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            // Se não for JSON, tenta a rota alternativa
+            console.warn('Resposta não é JSON, tentando rota alternativa...');
+            
+            const altResponse = await fetch(`/api/payment-status/${paymentId}`, {
+                headers: { 'Accept': 'application/json' }
             });
-            localStorage.removeItem('last_payment_id');
-            closeModal('paymentModal');
-        } else if (data.status === 'pending' || data.status === 'in_process') {
-            showNotification('⏳ Pagamento ainda pendente. Aguarde...', 'info');
-        } else if (data.status === 'rejected' || data.status === 'cancelled') {
-            showNotification('❌ Pagamento recusado ou cancelado.', 'error');
-        } else {
-            showNotification(`ℹ️ Status atual: ${data.status}`, 'info');
+            
+            if (!altResponse.ok) {
+                throw new Error('Não foi possível verificar o status. Tente novamente mais tarde.');
+            }
+            
+            const altData = await altResponse.json();
+            return await processPaymentStatus(altData, paymentId);
         }
         
-        return data;
+        const data = await response.json();
+        return await processPaymentStatus(data, paymentId);
+        
     } catch (error) {
         console.error('Erro ao verificar status:', error);
         showNotification('❌ Erro ao verificar status: ' + error.message, 'error');
+        return null;
     }
+}
+
+// ============================================
+// ===== PROCESSAR STATUS DO PAGAMENTO =====
+// ============================================
+async function processPaymentStatus(data, paymentId) {
+    if (data.status === 'approved') {
+        showNotification('✅ Pagamento confirmado! Obrigado! 🙏', 'success');
+        
+        // Atualiza status no banco
+        await fetch('/api/update-payment-status', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                payment_id: paymentId,
+                status: 'approved'
+            })
+        });
+        
+        localStorage.removeItem('last_payment_id');
+        
+        // Para a verificação automática
+        if (statusCheckInterval) {
+            clearInterval(statusCheckInterval);
+            statusCheckInterval = null;
+        }
+        
+        // Fecha o modal após 2 segundos
+        setTimeout(() => {
+            closeModal('paymentModal');
+            // Limpa o carrinho se for uma compra
+            if (paymentType === 'sale') {
+                cart = [];
+                document.getElementById('cartCount').textContent = 0;
+            }
+        }, 2000);
+        
+        return true;
+        
+    } else if (data.status === 'pending' || data.status === 'in_process') {
+        showNotification('⏳ Pagamento ainda pendente. Aguarde...', 'info');
+        return false;
+        
+    } else if (data.status === 'rejected' || data.status === 'cancelled') {
+        showNotification('❌ Pagamento recusado ou cancelado.', 'error');
+        if (statusCheckInterval) {
+            clearInterval(statusCheckInterval);
+            statusCheckInterval = null;
+        }
+        return false;
+        
+    } else {
+        showNotification(`ℹ️ Status atual: ${data.status}`, 'info');
+        return false;
+    }
+}
+
+// ============================================
+// ===== VERIFICAR STATUS AUTOMATICAMENTE =====
+// ============================================
+function verificarStatusAutomatico(paymentId) {
+    let tentativas = 0;
+    const maxTentativas = 12; // 12 tentativas (60 segundos)
+    
+    showNotification('🔄 Aguardando confirmação do pagamento...', 'info');
+    
+    // Limpa intervalo anterior se existir
+    if (statusCheckInterval) {
+        clearInterval(statusCheckInterval);
+        statusCheckInterval = null;
+    }
+    
+    statusCheckInterval = setInterval(async () => {
+        tentativas++;
+        
+        try {
+            const response = await fetch(`/api/check-payment/${paymentId}`, {
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                if (tentativas >= maxTentativas) {
+                    clearInterval(statusCheckInterval);
+                    statusCheckInterval = null;
+                    showNotification('⏳ Tempo esgotado. Use o botão "Verificar Status" para checar.', 'info');
+                }
+                return;
+            }
+            
+            const data = await response.json();
+            
+            if (data.status === 'approved') {
+                clearInterval(statusCheckInterval);
+                statusCheckInterval = null;
+                showNotification('✅ Pagamento confirmado! Obrigado! 🙏', 'success');
+                
+                await fetch('/api/update-payment-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        payment_id: paymentId,
+                        status: 'approved'
+                    })
+                });
+                
+                localStorage.removeItem('last_payment_id');
+                
+                setTimeout(() => {
+                    closeModal('paymentModal');
+                    if (paymentType === 'sale') {
+                        cart = [];
+                        document.getElementById('cartCount').textContent = 0;
+                    }
+                }, 1500);
+                
+            } else if (data.status === 'rejected' || data.status === 'cancelled') {
+                clearInterval(statusCheckInterval);
+                statusCheckInterval = null;
+                showNotification('❌ Pagamento recusado ou cancelado.', 'error');
+            }
+            
+        } catch (error) {
+            console.error('Erro na verificação automática:', error);
+            if (tentativas >= maxTentativas) {
+                clearInterval(statusCheckInterval);
+                statusCheckInterval = null;
+                showNotification('⏳ Não foi possível confirmar automaticamente. Use o botão "Verificar Status".', 'info');
+            }
+        }
+    }, 5000); // Verifica a cada 5 segundos
 }
 
 // ============================================
@@ -1865,13 +1995,16 @@ async function processPayment() {
                         </button>
                     </div>
                     <p style="margin-top:0.5rem;font-size:0.7rem;color:#999;">
-                        Após pagar, clique em "Verificar Status" para confirmar.
+                        ⏳ Aguardando pagamento... A verificação é automática!
                     </p>
                 </div>
             `;
             
             resultDiv.innerHTML = qrHtml;
             localStorage.setItem('last_payment_id', payment.payment_id);
+
+            // INICIA VERIFICAÇÃO AUTOMÁTICA
+            verificarStatusAutomatico(payment.payment_id);
 
         } else {
             // ===== PAGAMENTO COM CARTÃO =====
@@ -1889,71 +2022,107 @@ async function processPayment() {
             if (!cardExpiry.includes('/') || cardExpiry.length < 5) { showNotification('Validade inválida (MM/AA)', 'error'); return; }
             if (cardCvv.length < 3) { showNotification('CVV inválido (3 dígitos)', 'error'); return; }
 
-            // Cria token do cartão usando SDK do Mercado Pago
-            const mp = new MercadoPago('APP_USR-9cbd3a18-e58d-4091-920b-ab3cd0faa588');
-            
-            const cardToken = await mp.fields.createCardToken({
-                cardNumber: cardNumber,
-                expirationMonth: cardExpiry.split('/')[0],
-                expirationYear: '20' + cardExpiry.split('/')[1],
-                securityCode: cardCvv,
-                cardholderName: name,
-                cardholderEmail: email,
-                cardholderIdentification: {
-                    type: 'CPF',
-                    number: cpf
-                }
-            });
-
-            const paymentData = {
-                amount: amount,
-                description: description,
-                email: email,
-                name: name,
-                phone: phone,
-                cpf: cpf,
-                card_token: cardToken.id,
-                installments: parseInt(installments)
-            };
-
-            const response = await fetch('/api/create-card-payment', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(paymentData)
-            });
-
-            const payment = await response.json();
-            if (payment.error) throw new Error(payment.error);
-
-            // Salva no banco
-            await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'card', description);
-
-            if (payment.status === 'approved') {
-                showNotification('✅ Pagamento aprovado! Obrigado! 🙏', 'success');
-                cart = [];
-                document.getElementById('cartCount').textContent = 0;
-                closeModal('paymentModal');
-            } else {
-                showNotification(`⏳ Pagamento ${payment.status}. Aguarde a confirmação.`, 'info');
-                closeModal('paymentModal');
+            try {
+                // Cria token do cartão usando SDK do Mercado Pago
+                const mp = new MercadoPago('APP_USR-9cbd3a18-e58d-4091-920b-ab3cd0faa588');
                 
-                // Mostra opção de verificar status
-                setTimeout(() => {
-                    if (confirm('Deseja verificar o status do pagamento?')) {
-                        checkPaymentStatus(payment.payment_id);
+                const cardToken = await mp.fields.createCardToken({
+                    cardNumber: cardNumber,
+                    expirationMonth: cardExpiry.split('/')[0],
+                    expirationYear: '20' + cardExpiry.split('/')[1],
+                    securityCode: cardCvv,
+                    cardholderName: name,
+                    cardholderEmail: email,
+                    cardholderIdentification: {
+                        type: 'CPF',
+                        number: cpf
                     }
-                }, 2000);
+                });
+
+                const paymentData = {
+                    amount: amount,
+                    description: description,
+                    email: email,
+                    name: name,
+                    phone: phone,
+                    cpf: cpf,
+                    card_token: cardToken.id,
+                    installments: parseInt(installments)
+                };
+
+                const response = await fetch('/api/create-card-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(paymentData)
+                });
+
+                const payment = await response.json();
+                if (payment.error) throw new Error(payment.error);
+
+                // Salva no banco
+                await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'card', description);
+
+                if (payment.status === 'approved') {
+                    showNotification('✅ Pagamento aprovado! Obrigado! 🙏', 'success');
+                    cart = [];
+                    document.getElementById('cartCount').textContent = 0;
+                    closeModal('paymentModal');
+                } else {
+                    showNotification(`⏳ Pagamento ${payment.status}. Aguarde a confirmação.`, 'info');
+                    closeModal('paymentModal');
+                    
+                    // Inicia verificação automática para cartão também
+                    verificarStatusAutomatico(payment.payment_id);
+                }
+
+            } catch (mpError) {
+                console.error('Erro no token do cartão:', mpError);
+                
+                // Tenta criar pagamento sem token (fallback)
+                try {
+                    const fallbackData = {
+                        amount: amount,
+                        description: description,
+                        email: email,
+                        name: name,
+                        phone: phone,
+                        cpf: cpf,
+                        card_number: cardNumber,
+                        card_expiry: cardExpiry,
+                        card_cvv: cardCvv,
+                        installments: parseInt(installments)
+                    };
+                    
+                    const fallbackResponse = await fetch('/api/create-card-payment-fallback', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(fallbackData)
+                    });
+                    
+                    const fallbackPayment = await fallbackResponse.json();
+                    if (fallbackPayment.error) throw new Error(fallbackPayment.error);
+                    
+                    await saveOrderOrDonation(name, email, phone, amount, fallbackPayment.payment_id, 'card', description);
+                    
+                    if (fallbackPayment.status === 'approved') {
+                        showNotification('✅ Pagamento aprovado! Obrigado! 🙏', 'success');
+                        cart = [];
+                        document.getElementById('cartCount').textContent = 0;
+                        closeModal('paymentModal');
+                    } else {
+                        showNotification(`⏳ Pagamento ${fallbackPayment.status}. Aguarde a confirmação.`, 'info');
+                        closeModal('paymentModal');
+                        verificarStatusAutomatico(fallbackPayment.payment_id);
+                    }
+                } catch (fallbackError) {
+                    showNotification('❌ Erro ao processar cartão: ' + mpError.message, 'error');
+                }
             }
         }
 
     } catch (error) {
         console.error('Erro no pagamento:', error);
         showNotification('❌ Erro: ' + error.message, 'error');
-        
-        // Se for erro de token do cartão, tenta novamente com fallback
-        if (error.message.includes('card_token') || error.message.includes('token')) {
-            showNotification('⚠️ Erro no cartão. Tente novamente ou use PIX.', 'error');
-        }
     }
 }
 
@@ -2349,6 +2518,10 @@ document.addEventListener('keydown', (e) => {
             m.classList.remove('open');
             document.body.style.overflow = 'auto';
         });
+        if (statusCheckInterval) {
+            clearInterval(statusCheckInterval);
+            statusCheckInterval = null;
+        }
     }
 });
 

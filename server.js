@@ -50,7 +50,6 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const BASE_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
 
-// Configuração CORS
 app.use(cors({
     origin: ['https://igrejanjcabucurj.vercel.app', 'http://localhost:3000', 'http://localhost:3001', '*'],
     credentials: true
@@ -2136,7 +2135,6 @@ app.post('/api/create-pix-payment', async (req, res) => {
         console.log('📝 Criando pagamento PIX...');
         console.log('📝 Valor:', valor);
         console.log('📝 External Reference:', externalReference);
-        console.log('📝 Notification URL:', paymentData.body.notification_url);
 
         const payment = await PaymentService.create(paymentData);
         console.log('✅ Pagamento criado:', payment.id);
@@ -2233,27 +2231,80 @@ app.post('/api/create-card-payment-fallback', async (req, res) => {
             return res.status(400).json({ error: 'Valor inválido' });
         }
 
-        // Cria um token manualmente (fallback)
+        // Validações básicas do cartão
+        if (!card_number || card_number.length < 16) {
+            return res.status(400).json({ error: 'Número do cartão inválido' });
+        }
+        if (!card_expiry || !card_expiry.includes('/')) {
+            return res.status(400).json({ error: 'Data de validade inválida' });
+        }
+        if (!card_cvv || card_cvv.length < 3) {
+            return res.status(400).json({ error: 'CVV inválido' });
+        }
+
+        // Cria um token via API do Mercado Pago
         const tokenData = {
-            cardNumber: card_number.replace(/\s/g, ''),
-            expirationMonth: card_expiry.split('/')[0],
-            expirationYear: '20' + card_expiry.split('/')[1],
-            securityCode: card_cvv,
-            cardholderName: name,
-            docType: 'CPF',
-            docNumber: cpf
+            card_number: card_number.replace(/\s/g, ''),
+            expiration_month: parseInt(card_expiry.split('/')[0]),
+            expiration_year: parseInt('20' + card_expiry.split('/')[1]),
+            security_code: card_cvv,
+            cardholder: {
+                name: name || 'Cliente',
+                identification: {
+                    type: 'CPF',
+                    number: cpf || '12345678909'
+                }
+            }
         };
 
-        // Usa o token de teste se não conseguir criar
-        const cardToken = `test_${Date.now()}`;
+        console.log('🔄 Criando token do cartão via API...');
+        
+        // Gera token usando a API do Mercado Pago
+        const tokenResponse = await fetch('https://api.mercadopago.com/v1/card_tokens', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.MP_ACCESS_TOKEN}`
+            },
+            body: JSON.stringify(tokenData)
+        });
 
+        const tokenResult = await tokenResponse.json();
+        
+        if (tokenResult.error) {
+            console.error('❌ Erro ao criar token:', tokenResult.error);
+            // Se falhar, tenta usar um token de teste
+            console.log('🔄 Usando token de teste...');
+            const testToken = 'test_' + Date.now();
+            return await processCardPayment(testToken, valor, description, email, name, phone, cpf, installments, res);
+        }
+
+        if (!tokenResult.id) {
+            throw new Error('Não foi possível gerar o token do cartão');
+        }
+
+        console.log('✅ Token criado:', tokenResult.id);
+        return await processCardPayment(tokenResult.id, valor, description, email, name, phone, cpf, installments, res);
+
+    } catch (error) {
+        console.error('❌ Erro MP cartão fallback:', error);
+        res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
+    }
+});
+
+// ============================================
+// ===== FUNÇÃO AUXILIAR PARA PROCESSAR PAGAMENTO COM CARTÃO =====
+// ============================================
+
+async function processCardPayment(token, valor, description, email, name, phone, cpf, installments, res) {
+    try {
         const paymentData = {
             body: {
                 transaction_amount: valor,
                 description: description || 'Pagamento NJ Cabuçu',
                 payment_method_id: 'credit_card',
                 installments: parseInt(installments) || 1,
-                token: cardToken,
+                token: token,
                 payer: {
                     email: email || 'cliente@email.com',
                     first_name: name || 'Cliente',
@@ -2265,9 +2316,13 @@ app.post('/api/create-card-payment-fallback', async (req, res) => {
             }
         };
 
-        console.log('📝 Criando pagamento com cartão (fallback)...');
+        console.log('📝 Criando pagamento com cartão...');
+        console.log('📝 Valor:', valor);
+        console.log('📝 Token:', token.substring(0, 10) + '...');
+        
         const payment = await PaymentService.create(paymentData);
-        console.log('✅ Pagamento criado (fallback):', payment.id);
+        console.log('✅ Pagamento criado:', payment.id);
+        console.log('✅ Status:', payment.status);
 
         res.json({
             payment_id: payment.id,
@@ -2276,10 +2331,10 @@ app.post('/api/create-card-payment-fallback', async (req, res) => {
             external_reference: payment.external_reference
         });
     } catch (error) {
-        console.error('❌ Erro MP cartão fallback:', error);
+        console.error('❌ Erro ao processar pagamento:', error);
         res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
     }
-});
+}
 
 // ============================================
 // ===== VERIFICAR STATUS DO PAGAMENTO =====

@@ -1705,7 +1705,6 @@ async function checkPaymentStatus(paymentId) {
         // Verifica se a resposta é JSON
         const contentType = response.headers.get('content-type');
         if (!contentType || !contentType.includes('application/json')) {
-            // Se não for JSON, tenta a rota alternativa
             console.warn('Resposta não é JSON, tentando rota alternativa...');
             
             const altResponse = await fetch(`/api/payment-status/${paymentId}`, {
@@ -1737,7 +1736,6 @@ async function processPaymentStatus(data, paymentId) {
     if (data.status === 'approved') {
         showNotification('✅ Pagamento confirmado! Obrigado! 🙏', 'success');
         
-        // Atualiza status no banco
         await fetch('/api/update-payment-status', {
             method: 'POST',
             headers: { 
@@ -1752,16 +1750,13 @@ async function processPaymentStatus(data, paymentId) {
         
         localStorage.removeItem('last_payment_id');
         
-        // Para a verificação automática
         if (statusCheckInterval) {
             clearInterval(statusCheckInterval);
             statusCheckInterval = null;
         }
         
-        // Fecha o modal após 2 segundos
         setTimeout(() => {
             closeModal('paymentModal');
-            // Limpa o carrinho se for uma compra
             if (paymentType === 'sale') {
                 cart = [];
                 document.getElementById('cartCount').textContent = 0;
@@ -1793,11 +1788,10 @@ async function processPaymentStatus(data, paymentId) {
 // ============================================
 function verificarStatusAutomatico(paymentId) {
     let tentativas = 0;
-    const maxTentativas = 12; // 12 tentativas (60 segundos)
+    const maxTentativas = 12;
     
     showNotification('🔄 Aguardando confirmação do pagamento...', 'info');
     
-    // Limpa intervalo anterior se existir
     if (statusCheckInterval) {
         clearInterval(statusCheckInterval);
         statusCheckInterval = null;
@@ -1863,7 +1857,7 @@ function verificarStatusAutomatico(paymentId) {
                 showNotification('⏳ Não foi possível confirmar automaticamente. Use o botão "Verificar Status".', 'info');
             }
         }
-    }, 5000); // Verifica a cada 5 segundos
+    }, 5000);
 }
 
 // ============================================
@@ -1921,7 +1915,6 @@ async function processPayment() {
 
     if (amount <= 0) { showNotification('Valor inválido!', 'error'); return; }
 
-    // Valida CPF
     if (!validarCPF(cpf)) {
         showNotification('CPF inválido! Digite um CPF válido.', 'error');
         return;
@@ -1950,10 +1943,8 @@ async function processPayment() {
             const payment = await response.json();
             if (payment.error) throw new Error(payment.error);
 
-            // Salva no banco
             await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'pix', description);
 
-            // Mostra QR Code e Link
             const resultDiv = document.getElementById('paymentResult');
             resultDiv.style.display = 'block';
             document.getElementById('paymentForm').style.display = 'none';
@@ -2002,12 +1993,10 @@ async function processPayment() {
             
             resultDiv.innerHTML = qrHtml;
             localStorage.setItem('last_payment_id', payment.payment_id);
-
-            // INICIA VERIFICAÇÃO AUTOMÁTICA
             verificarStatusAutomatico(payment.payment_id);
 
         } else {
-            // ===== PAGAMENTO COM CARTÃO =====
+            // ===== PAGAMENTO COM CARTÃO - VERSÃO SIMPLIFICADA (SEM SDK) =====
             const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
             const cardExpiry = document.getElementById('cardExpiry').value;
             const cardCvv = document.getElementById('cardCvv').value;
@@ -2023,22 +2012,8 @@ async function processPayment() {
             if (cardCvv.length < 3) { showNotification('CVV inválido (3 dígitos)', 'error'); return; }
 
             try {
-                // Cria token do cartão usando SDK do Mercado Pago
-                const mp = new MercadoPago('APP_USR-9cbd3a18-e58d-4091-920b-ab3cd0faa588');
+                showNotification('🔄 Processando cartão...', 'info');
                 
-                const cardToken = await mp.fields.createCardToken({
-                    cardNumber: cardNumber,
-                    expirationMonth: cardExpiry.split('/')[0],
-                    expirationYear: '20' + cardExpiry.split('/')[1],
-                    securityCode: cardCvv,
-                    cardholderName: name,
-                    cardholderEmail: email,
-                    cardholderIdentification: {
-                        type: 'CPF',
-                        number: cpf
-                    }
-                });
-
                 const paymentData = {
                     amount: amount,
                     description: description,
@@ -2046,22 +2021,23 @@ async function processPayment() {
                     name: name,
                     phone: phone,
                     cpf: cpf,
-                    card_token: cardToken.id,
+                    card_number: cardNumber,
+                    card_expiry: cardExpiry,
+                    card_cvv: cardCvv,
                     installments: parseInt(installments)
                 };
-
-                const response = await fetch('/api/create-card-payment', {
+                
+                const response = await fetch('/api/create-card-payment-fallback', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(paymentData)
                 });
-
+                
                 const payment = await response.json();
                 if (payment.error) throw new Error(payment.error);
-
-                // Salva no banco
+                
                 await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'card', description);
-
+                
                 if (payment.status === 'approved') {
                     showNotification('✅ Pagamento aprovado! Obrigado! 🙏', 'success');
                     cart = [];
@@ -2070,53 +2046,11 @@ async function processPayment() {
                 } else {
                     showNotification(`⏳ Pagamento ${payment.status}. Aguarde a confirmação.`, 'info');
                     closeModal('paymentModal');
-                    
-                    // Inicia verificação automática para cartão também
                     verificarStatusAutomatico(payment.payment_id);
                 }
-
-            } catch (mpError) {
-                console.error('Erro no token do cartão:', mpError);
-                
-                // Tenta criar pagamento sem token (fallback)
-                try {
-                    const fallbackData = {
-                        amount: amount,
-                        description: description,
-                        email: email,
-                        name: name,
-                        phone: phone,
-                        cpf: cpf,
-                        card_number: cardNumber,
-                        card_expiry: cardExpiry,
-                        card_cvv: cardCvv,
-                        installments: parseInt(installments)
-                    };
-                    
-                    const fallbackResponse = await fetch('/api/create-card-payment-fallback', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(fallbackData)
-                    });
-                    
-                    const fallbackPayment = await fallbackResponse.json();
-                    if (fallbackPayment.error) throw new Error(fallbackPayment.error);
-                    
-                    await saveOrderOrDonation(name, email, phone, amount, fallbackPayment.payment_id, 'card', description);
-                    
-                    if (fallbackPayment.status === 'approved') {
-                        showNotification('✅ Pagamento aprovado! Obrigado! 🙏', 'success');
-                        cart = [];
-                        document.getElementById('cartCount').textContent = 0;
-                        closeModal('paymentModal');
-                    } else {
-                        showNotification(`⏳ Pagamento ${fallbackPayment.status}. Aguarde a confirmação.`, 'info');
-                        closeModal('paymentModal');
-                        verificarStatusAutomatico(fallbackPayment.payment_id);
-                    }
-                } catch (fallbackError) {
-                    showNotification('❌ Erro ao processar cartão: ' + mpError.message, 'error');
-                }
+            } catch (error) {
+                console.error('❌ Erro no cartão:', error);
+                showNotification('❌ Erro ao processar cartão: ' + error.message, 'error');
             }
         }
 
@@ -2504,12 +2438,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Fechar modal de carrossel ao clicar fora
 document.getElementById('carouselInfoOverlay')?.addEventListener('click', function(e) {
     if (e.target === this) closeCarouselInfo();
 });
 
-// Tecla ESC para fechar modais
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         closeCarouselInfo();

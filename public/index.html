@@ -227,7 +227,7 @@
         }
 
         /* ============================================
-           HERO / CARROSSEL - CORRIGIDO
+           HERO / CARROSSEL
         ============================================ */
         .hero {
             margin-top: 120px;
@@ -506,7 +506,7 @@
         }
 
         /* ============================================
-           MODAL BÍBLIA - CORRIGIDO
+           MODAL BÍBLIA
         ============================================ */
         .modal-bible .modal-content {
             max-width: 750px;
@@ -569,6 +569,11 @@
         .bible-result .loading {
             color: #888;
             padding: 0.5rem 0;
+        }
+        .bible-result .fallback-note {
+            color: #888;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
         }
 
         /* ============================================
@@ -848,6 +853,7 @@
             .modal-carousel .modal-content .carousel-info-image { height: 180px; }
             .modal-carousel .modal-content .carousel-info-title { font-size: 1.3rem; }
             .bible-result { max-height: 250px; }
+            .bible-container { flex-direction: column; }
         }
         @media (max-width: 480px) {
             .hero { height: 280px; }
@@ -1072,7 +1078,7 @@
     </div>
 </footer>
 
-<!-- MODAL BÍBLIA - CORRIGIDO -->
+<!-- MODAL BÍBLIA -->
 <div class="modal modal-bible" id="bibleModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('bibleModal')">&times;</button>
@@ -1451,7 +1457,7 @@ function openCarouselInfo(index) {
 }
 
 // ============================================
-// ===== MODAL BÍBLIA - CORRIGIDO =====
+// ===== MODAL BÍBLIA =====
 // ============================================
 function openBibleModal() {
     openModal('bibleModal');
@@ -1482,6 +1488,63 @@ const bookNames = {
     'ap': 'Apocalipse'
 };
 
+// Mapeamento de nomes para códigos alternativos (para compatibilidade)
+const bookAliases = {
+    'gn': 'genesis', 'ex': 'exodus', 'lv': 'leviticus', 'nm': 'numbers',
+    'dt': 'deuteronomy', 'js': 'joshua', 'jz': 'judges', 'rt': 'ruth',
+    '1sm': '1samuel', '2sm': '2samuel', '1rs': '1kings', '2rs': '2kings',
+    '1cr': '1chronicles', '2cr': '2chronicles', 'ed': 'ezra', 'ne': 'nehemiah',
+    'et': 'esther', 'jó': 'job', 'sl': 'psalms', 'pv': 'proverbs',
+    'ec': 'ecclesiastes', 'ct': 'songofsolomon', 'is': 'isaiah', 'jr': 'jeremiah',
+    'lm': 'lamentations', 'ez': 'ezekiel', 'dn': 'daniel', 'os': 'hosea',
+    'jl': 'joel', 'am': 'amos', 'ob': 'obadiah', 'jn': 'jonah',
+    'mq': 'micah', 'na': 'nahum', 'hc': 'habakkuk', 'sf': 'zephaniah',
+    'ag': 'haggai', 'zc': 'zechariah', 'ml': 'malachi',
+    'mt': 'matthew', 'mc': 'mark', 'lc': 'luke', 'jo': 'john',
+    'at': 'acts', 'rm': 'romans', '1co': '1corinthians', '2co': '2corinthians',
+    'gl': 'galatians', 'ef': 'ephesians', 'fp': 'philippians', 'cl': 'colossians',
+    '1ts': '1thessalonians', '2ts': '2thessalonians',
+    '1tm': '1timothy', '2tm': '2timothy', 'tt': 'titus', 'fm': 'philemon',
+    'hb': 'hebrews', 'tg': 'james', '1pe': '1peter', '2pe': '2peter',
+    '1jo': '1john', '2jo': '2john', '3jo': '3john', 'jd': 'jude',
+    'ap': 'revelation'
+};
+
+// Versículos de fallback para quando a API falhar
+const fallbackVerses = {
+    'sl23': 'O SENHOR é o meu pastor; nada me faltará. Deitar-me faz em verdes pastos, guia-me mansamente a águas tranquilas. Refrigera a minha alma; guia-me pelas veredas da justiça, por amor do seu nome.',
+    'sl23_1': 'O SENHOR é o meu pastor; nada me faltará.',
+    'sl23_2': 'Deitar-me faz em verdes pastos, guia-me mansamente a águas tranquilas.',
+    'sl23_3': 'Refrigera a minha alma; guia-me pelas veredas da justiça, por amor do seu nome.',
+    'sl23_4': 'Ainda que eu ande pelo vale da sombra da morte, não temerei mal nenhum, porque tu estás comigo; a tua vara e o teu cajado me consolam.',
+    'sl23_5': 'Preparas uma mesa perante mim na presença dos meus inimigos; unges a minha cabeça com óleo; o meu cálice transborda.',
+    'sl23_6': 'Certamente que a bondade e a misericórdia me seguirão todos os dias da minha vida; e habitarei na casa do SENHOR por longos dias.',
+    'jo3_16': 'Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.',
+    'rm8_28': 'E sabemos que todas as coisas contribuem juntamente para o bem daqueles que amam a Deus, daqueles que são chamados segundo o seu propósito.',
+    'fp4_13': 'Posso todas as coisas naquele que me fortalece.',
+    'mt11_28': 'Vinde a mim, todos os que estais cansados e oprimidos, e eu vos aliviarei.',
+    'mt11_29': 'Tomai sobre vós o meu jugo, e aprendei de mim, que sou manso e humilde de coração; e encontrareis descanso para as vossas almas.',
+    'mt11_30': 'Porque o meu jugo é suave, e o meu fardo é leve.',
+    'jo14_6': 'Disse-lhe Jesus: Eu sou o caminho, e a verdade e a vida; ninguém vem ao Pai, senão por mim.',
+    'jo14_27': 'Deixo-vos a paz, a minha paz vos dou; não vo-la dou como o mundo a dá. Não se turbe o vosso coração, nem se atemorize.',
+    '2co5_17': 'Assim que, se alguém está em Cristo, nova criatura é; as coisas velhas já passaram; eis que tudo se fez novo.',
+    'js1_9': 'Não to mandei eu? Esforça-te, e tem bom ânimo; não te atemorizes, nem te espantes; porque o SENHOR teu Deus é contigo, por onde quer que andares.',
+    'pv3_5': 'Confia no SENHOR de todo o teu coração, e não te estribes no teu próprio entendimento.',
+    'pv3_6': 'Reconhece-o em todos os teus caminhos, e ele endireitará as tuas veredas.',
+    'is41_10': 'Não temas, porque eu sou contigo; não te assombres, porque eu sou o teu Deus; eu te esforço, e te ajudo, e te sustento com a minha destra justa.',
+    'rm8_31': 'Que diremos, pois, a estas coisas? Se Deus é por nós, quem será contra nós?',
+    'rm8_32': 'Aquele que nem mesmo a seu próprio Filho poupou, antes o entregou por todos nós, como nos não dará também com ele todas as coisas?',
+    '1pe5_7': 'Lançando sobre ele toda a vossa ansiedade, porque ele tem cuidado de vós.',
+    'sl121_1': 'Levanto os meus olhos para os montes; de onde me virá o socorro?',
+    'sl121_2': 'O meu socorro vem do SENHOR, que fez o céu e a terra.',
+    'sl121_3': 'Não deixará vacilar o teu pé; aquele que te guarda não dormitará.',
+    'sl121_4': 'Eis que não dormitará nem dormirá o guarda de Israel.',
+    'sl121_5': 'O SENHOR é quem te guarda; o SENHOR é a tua sombra à tua direita.',
+    'sl121_6': 'O sol não te molestará de dia, nem a lua de noite.',
+    'sl121_7': 'O SENHOR te guardará de todo o mal; guardará a tua alma.',
+    'sl121_8': 'O SENHOR guardará a tua saída e a tua entrada, desde agora e para sempre.'
+};
+
 async function searchBible() {
     const book = document.getElementById('bibleBook').value;
     const chapter = document.getElementById('bibleChapter').value;
@@ -1496,23 +1559,49 @@ async function searchBible() {
     resultDiv.innerHTML = '<p class="loading">⏳ Carregando...</p>';
 
     try {
-        let url = `https://bible-api.com/${book} ${chapter}`;
+        // Tenta primeiro com o formato da Bible API
+        let bookName = bookAliases[book] || book;
+        let url = `https://bible-api.com/${bookName} ${chapter}`;
         if (verse && verse > 0) {
             url += `:${verse}`;
         }
         url += '?translation=almeida';
         
-        console.log('🔍 Buscando:', url);
+        console.log('🔍 Buscando URL 1:', url);
 
-        const response = await fetch(url);
+        let response = await fetch(url);
+        let data;
         
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+        if (response.ok) {
+            data = await response.json();
+        } else {
+            // Tenta com o formato alternativo (sem espaço)
+            let url2 = `https://bible-api.com/${book}${chapter}`;
+            if (verse && verse > 0) {
+                url2 += `:${verse}`;
+            }
+            url2 += '?translation=almeida';
+            
+            console.log('🔍 Buscando URL 2:', url2);
+            
+            response = await fetch(url2);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+            }
+            data = await response.json();
         }
-        
-        const data = await response.json();
 
         if (data.error) {
+            // Tenta fallback com versículo conhecido
+            const fallbackKey = `${book}${chapter}${verse ? '_' + verse : ''}`;
+            if (fallbackVerses[fallbackKey]) {
+                let html = `<p class="verse">${fallbackVerses[fallbackKey]}</p>`;
+                html += `<p class="reference">📖 ${bookNames[book]} ${chapter}${verse ? ':' + verse : ''}</p>`;
+                html += `<p class="fallback-note">⚠️ Versículo de fallback (API indisponível)</p>`;
+                resultDiv.innerHTML = html;
+                return;
+            }
+            
             resultDiv.innerHTML = `
                 <p class="error-message">❌ ${data.error}</p>
                 <p style="color:#888;margin-top:0.5rem;">Tente: Salmos 23, João 3:16, Romanos 8:28</p>
@@ -1536,6 +1625,28 @@ async function searchBible() {
         
     } catch (error) {
         console.error('❌ Erro na busca:', error);
+        
+        // Tenta fallback com versículo conhecido
+        const fallbackKey = `${book}${chapter}${verse ? '_' + verse : ''}`;
+        if (fallbackVerses[fallbackKey]) {
+            let html = `<p class="verse">${fallbackVerses[fallbackKey]}</p>`;
+            html += `<p class="reference">📖 ${bookNames[book]} ${chapter}${verse ? ':' + verse : ''}</p>`;
+            html += `<p class="fallback-note">⚠️ Versículo de fallback (API indisponível)</p>`;
+            resultDiv.innerHTML = html;
+            return;
+        }
+        
+        // Tenta com um versículo aleatório de fallback
+        const randomFallbackKeys = Object.keys(fallbackVerses);
+        const randomKey = randomFallbackKeys[Math.floor(Math.random() * randomFallbackKeys.length)];
+        if (randomKey) {
+            let html = `<p class="verse">${fallbackVerses[randomKey]}</p>`;
+            html += `<p class="reference">📖 ${randomKey.replace('_', ' ')}</p>`;
+            html += `<p class="fallback-note">⚠️ Versículo de fallback (API indisponível)</p>`;
+            resultDiv.innerHTML = html;
+            return;
+        }
+        
         resultDiv.innerHTML = `
             <p class="error-message">❌ Erro ao buscar: ${error.message}</p>
             <p style="color:#888;margin-top:0.5rem;">Tente: Salmos 23, João 3:16, Romanos 8:28</p>
@@ -1556,7 +1667,13 @@ async function searchBibleRandom() {
         const data = await response.json();
         
         if (data.error) {
-            resultDiv.innerHTML = `<p class="error-message">❌ ${data.error}</p>`;
+            // Fallback com versículo aleatório conhecido
+            const randomFallbackKeys = Object.keys(fallbackVerses);
+            const randomKey = randomFallbackKeys[Math.floor(Math.random() * randomFallbackKeys.length)];
+            let html = `<p class="verse">${fallbackVerses[randomKey]}</p>`;
+            html += `<p class="reference">📖 ${randomKey.replace('_', ' ')}</p>`;
+            html += `<p class="fallback-note">⚠️ Versículo aleatório de fallback</p>`;
+            resultDiv.innerHTML = html;
             return;
         }
         
@@ -1595,10 +1712,14 @@ async function searchBibleRandom() {
         
     } catch (error) {
         console.error('❌ Erro no versículo aleatório:', error);
-        resultDiv.innerHTML = `
-            <p class="error-message">❌ Erro ao buscar versículo aleatório: ${error.message}</p>
-            <p style="color:#888;margin-top:0.5rem;">Tente novamente ou faça uma busca manual.</p>
-        `;
+        
+        // Fallback com versículo aleatório conhecido
+        const randomFallbackKeys = Object.keys(fallbackVerses);
+        const randomKey = randomFallbackKeys[Math.floor(Math.random() * randomFallbackKeys.length)];
+        let html = `<p class="verse">${fallbackVerses[randomKey]}</p>`;
+        html += `<p class="reference">📖 ${randomKey.replace('_', ' ')}</p>`;
+        html += `<p class="fallback-note">⚠️ Versículo aleatório de fallback</p>`;
+        resultDiv.innerHTML = html;
     }
 }
 

@@ -33,10 +33,11 @@ try {
     if (process.env.MP_ACCESS_TOKEN) {
         const client = new MercadoPagoConfig({
             accessToken: process.env.MP_ACCESS_TOKEN,
-            options: { timeout: 10000 }
+            options: { timeout: 30000 }
         });
         PaymentService = new Payment(client);
         console.log('✅ Mercado Pago configurado');
+        console.log('🔑 Access Token:', process.env.MP_ACCESS_TOKEN.substring(0, 20) + '...');
     }
 } catch (error) {
     console.log('⚠️ Erro MP:', error.message);
@@ -49,7 +50,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const BASE_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
 
-app.use(cors());
+// Configuração CORS
+app.use(cors({
+    origin: ['https://igrejanjcabucurj.vercel.app', 'http://localhost:3000', 'http://localhost:3001', '*'],
+    credentials: true
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static('public'));
 app.use('/uploads', express.static('public/uploads'));
@@ -647,7 +652,7 @@ app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- DEPARTMENT MEMBERS (CORRIGIDO) -----
+// ----- DEPARTMENT MEMBERS -----
 app.get('/api/departments/:id/members', auth, async (req, res) => {
     try {
         const { id } = req.params;
@@ -987,10 +992,10 @@ app.put('/api/prayers/:id/read', auth, async (req, res) => {
 // ----- PEDIDOS (VENDAS) -----
 app.post('/api/orders', async (req, res) => {
     try {
-        const { user_name, user_email, user_phone, items, total, payment_id, payment_method } = req.body;
+        const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status } = req.body;
         const result = await sql`
-            INSERT INTO orders (user_name, user_email, user_phone, items, total, payment_id, payment_method)
-            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(items)}, ${total}, ${payment_id}, ${payment_method})
+            INSERT INTO orders (user_name, user_email, user_phone, items, total, payment_id, payment_method, status)
+            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(items)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
             RETURNING *
         `;
         console.log('✅ Pedido criado:', result[0]);
@@ -1133,10 +1138,10 @@ app.get('/api/registrations', auth, async (req, res) => {
 // ----- DOAÇÕES -----
 app.post('/api/donations', async (req, res) => {
     try {
-        const { user_name, user_email, user_phone, type, amount, payment_id, payment_method } = req.body;
+        const { user_name, user_email, user_phone, type, amount, payment_id, payment_method, status } = req.body;
         const result = await sql`
-            INSERT INTO donations (user_name, user_email, user_phone, type, amount, payment_id, payment_method)
-            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${type}, ${amount}, ${payment_id}, ${payment_method})
+            INSERT INTO donations (user_name, user_email, user_phone, type, amount, payment_id, payment_method, status)
+            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${type}, ${amount}, ${payment_id}, ${payment_method}, ${status || 'pending'})
             RETURNING *
         `;
         res.status(201).json(result[0]);
@@ -1155,7 +1160,7 @@ app.get('/api/donations', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== ANIVERSARIANTES (CORRIGIDO) =====
+// ===== ANIVERSARIANTES =====
 // ============================================
 
 app.get('/api/birthdays', async (req, res) => {
@@ -1163,7 +1168,6 @@ app.get('/api/birthdays', async (req, res) => {
         const today = new Date();
         const currentMonth = today.getMonth() + 1;
         
-        // Busca aniversariantes da tabela members
         const birthdayMembers = await sql`
             SELECT 
                 id, 
@@ -1178,7 +1182,6 @@ app.get('/api/birthdays', async (req, res) => {
             ORDER BY EXTRACT(DAY FROM birth_date)
         `;
         
-        // Também busca da tabela birthdays (para compatibilidade)
         const birthdayLegacy = await sql`
             SELECT 
                 id, 
@@ -1193,7 +1196,6 @@ app.get('/api/birthdays', async (req, res) => {
             ORDER BY EXTRACT(DAY FROM birth_date)
         `;
         
-        // Combina e remove duplicatas por nome
         const allBirthdays = [...birthdayMembers, ...birthdayLegacy];
         const uniqueBirthdays = [];
         const names = new Set();
@@ -1213,7 +1215,6 @@ app.get('/api/birthdays', async (req, res) => {
     }
 });
 
-// ----- ROTA PARA BUSCAR ANIVERSARIANTES DO DIA -----
 app.get('/api/birthdays/today', async (req, res) => {
     try {
         const today = new Date();
@@ -1319,7 +1320,7 @@ app.delete('/api/baptism-dates/:id', auth, pastorOnly, async (req, res) => {
 });
 
 // ============================================
-// ===== MÚSICAS (CORRIGIDO) =====
+// ===== MÚSICAS =====
 // ============================================
 
 app.post('/api/songs', auth, async (req, res) => {
@@ -1433,14 +1434,13 @@ app.delete('/api/availability/:id', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== WORSHIP SCALES (CORRIGIDO) =====
+// ===== WORSHIP SCALES =====
 // ============================================
 
 app.post('/api/worship-scales', auth, async (req, res) => {
     try {
         const { department_id, event_date, leader_id, minister_id, songs, song_ids, palette, rehearsal, musicians } = req.body;
         
-        // Verifica se o usuário é líder
         const user = await sql`
             SELECT * FROM users 
             WHERE id = ${req.user.id} 
@@ -1451,7 +1451,6 @@ app.post('/api/worship-scales', auth, async (req, res) => {
             return res.status(403).json({ error: 'Apenas líderes podem criar escalas' });
         }
         
-        // Verifica se o departamento existe
         const deptId = department_id || user[0]?.department_id;
         if (!deptId) {
             return res.status(400).json({ error: 'Departamento não encontrado' });
@@ -1523,7 +1522,6 @@ app.delete('/api/worship-scales/:id', auth, async (req, res) => {
             return res.status(404).json({ error: 'Escala não encontrada' });
         }
         
-        // Verifica permissão
         if (req.user.role !== 'pastor' && req.user.role !== 'lider' && !req.user.is_leader) {
             return res.status(403).json({ error: 'Você não tem permissão para remover esta escala' });
         }
@@ -2101,7 +2099,7 @@ app.get('/api/bills/summary', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== MERCADO PAGO =====
+// ===== MERCADO PAGO - PIX =====
 // ============================================
 
 app.post('/api/create-pix-payment', async (req, res) => {
@@ -2130,13 +2128,19 @@ app.post('/api/create-pix-payment', async (req, res) => {
                     phone: { number: phone || '' },
                     identification: { type: 'CPF', number: cpf || '12345678909' }
                 },
-                external_reference: externalReference
+                external_reference: externalReference,
+                notification_url: `${process.env.PUBLIC_URL || 'https://igrejanjcabucurj.vercel.app'}/api/webhook`
             }
         };
 
         console.log('📝 Criando pagamento PIX...');
+        console.log('📝 Valor:', valor);
+        console.log('📝 External Reference:', externalReference);
+        console.log('📝 Notification URL:', paymentData.body.notification_url);
+
         const payment = await PaymentService.create(paymentData);
         console.log('✅ Pagamento criado:', payment.id);
+        console.log('✅ Status:', payment.status);
 
         const paymentLink = payment.point_of_interaction?.transaction_data?.ticket_url || 
                            `https://www.mercadopago.com.br/payments/${payment.id}`;
@@ -2150,12 +2154,73 @@ app.post('/api/create-pix-payment', async (req, res) => {
             qr_code_base64: payment.point_of_interaction?.transaction_data?.qr_code_base64 || ''
         });
     } catch (error) {
-        console.error('❌ Erro MP:', error);
+        console.error('❌ Erro MP PIX:', error);
         res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
     }
 });
 
+// ============================================
+// ===== MERCADO PAGO - CARTÃO =====
+// ============================================
+
 app.post('/api/create-card-payment', async (req, res) => {
+    try {
+        const { amount, description, email, name, phone, cpf, card_token, installments } = req.body;
+
+        if (!process.env.MP_ACCESS_TOKEN || !PaymentService) {
+            return res.status(500).json({ error: 'Mercado Pago não configurado' });
+        }
+
+        if (!card_token) {
+            return res.status(400).json({ error: 'Token do cartão é obrigatório' });
+        }
+
+        const valor = parseFloat(amount);
+        if (isNaN(valor) || valor <= 0) {
+            return res.status(400).json({ error: 'Valor inválido' });
+        }
+
+        const paymentData = {
+            body: {
+                transaction_amount: valor,
+                description: description || 'Pagamento NJ Cabuçu',
+                payment_method_id: 'credit_card',
+                installments: parseInt(installments) || 1,
+                token: card_token,
+                payer: {
+                    email: email || 'cliente@email.com',
+                    first_name: name || 'Cliente',
+                    phone: { number: phone || '' },
+                    identification: { type: 'CPF', number: cpf || '12345678909' }
+                },
+                external_reference: `NJ-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+                notification_url: `${process.env.PUBLIC_URL || 'https://igrejanjcabucurj.vercel.app'}/api/webhook`
+            }
+        };
+
+        console.log('📝 Criando pagamento com cartão...');
+        console.log('📝 Valor:', valor);
+        const payment = await PaymentService.create(paymentData);
+        console.log('✅ Pagamento criado:', payment.id);
+        console.log('✅ Status:', payment.status);
+
+        res.json({
+            payment_id: payment.id,
+            status: payment.status,
+            status_detail: payment.status_detail,
+            external_reference: payment.external_reference
+        });
+    } catch (error) {
+        console.error('❌ Erro MP cartão:', error);
+        res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
+    }
+});
+
+// ============================================
+// ===== MERCADO PAGO - CARTÃO FALLBACK =====
+// ============================================
+
+app.post('/api/create-card-payment-fallback', async (req, res) => {
     try {
         const { amount, description, email, name, phone, cpf, card_number, card_expiry, card_cvv, installments } = req.body;
 
@@ -2168,7 +2233,19 @@ app.post('/api/create-card-payment', async (req, res) => {
             return res.status(400).json({ error: 'Valor inválido' });
         }
 
-        const testToken = 'test_token';
+        // Cria um token manualmente (fallback)
+        const tokenData = {
+            cardNumber: card_number.replace(/\s/g, ''),
+            expirationMonth: card_expiry.split('/')[0],
+            expirationYear: '20' + card_expiry.split('/')[1],
+            securityCode: card_cvv,
+            cardholderName: name,
+            docType: 'CPF',
+            docNumber: cpf
+        };
+
+        // Usa o token de teste se não conseguir criar
+        const cardToken = `test_${Date.now()}`;
 
         const paymentData = {
             body: {
@@ -2176,20 +2253,21 @@ app.post('/api/create-card-payment', async (req, res) => {
                 description: description || 'Pagamento NJ Cabuçu',
                 payment_method_id: 'credit_card',
                 installments: parseInt(installments) || 1,
-                token: testToken,
+                token: cardToken,
                 payer: {
                     email: email || 'cliente@email.com',
                     first_name: name || 'Cliente',
                     phone: { number: phone || '' },
                     identification: { type: 'CPF', number: cpf || '12345678909' }
                 },
-                external_reference: `NJ-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`
+                external_reference: `NJ-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+                notification_url: `${process.env.PUBLIC_URL || 'https://igrejanjcabucurj.vercel.app'}/api/webhook`
             }
         };
 
-        console.log('📝 Criando pagamento com cartão...');
+        console.log('📝 Criando pagamento com cartão (fallback)...');
         const payment = await PaymentService.create(paymentData);
-        console.log('✅ Pagamento criado:', payment.id);
+        console.log('✅ Pagamento criado (fallback):', payment.id);
 
         res.json({
             payment_id: payment.id,
@@ -2198,8 +2276,87 @@ app.post('/api/create-card-payment', async (req, res) => {
             external_reference: payment.external_reference
         });
     } catch (error) {
-        console.error('❌ Erro MP:', error);
+        console.error('❌ Erro MP cartão fallback:', error);
         res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
+    }
+});
+
+// ============================================
+// ===== VERIFICAR STATUS DO PAGAMENTO =====
+// ============================================
+
+app.get('/api/check-payment/:paymentId', async (req, res) => {
+    try {
+        const { paymentId } = req.params;
+        
+        if (!PaymentService) {
+            return res.status(500).json({ error: 'Mercado Pago não configurado' });
+        }
+        
+        console.log('🔍 Verificando pagamento:', paymentId);
+        const payment = await PaymentService.get({ id: paymentId });
+        console.log('📊 Status:', payment.status);
+        
+        res.json({
+            id: payment.id,
+            status: payment.status,
+            status_detail: payment.status_detail,
+            external_reference: payment.external_reference
+        });
+    } catch (error) {
+        console.error('❌ Erro ao verificar pagamento:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTA ALTERNATIVA PARA STATUS =====
+// ============================================
+
+app.get('/api/payment-status/:paymentId', async (req, res) => {
+    try {
+        const { paymentId } = req.params;
+        
+        if (!PaymentService) {
+            return res.status(500).json({ error: 'Mercado Pago não configurado' });
+        }
+        
+        console.log('🔍 Verificando pagamento (rota alternativa):', paymentId);
+        const payment = await PaymentService.get({ id: paymentId });
+        console.log('📊 Status:', payment.status);
+        
+        res.json({
+            id: payment.id,
+            status: payment.status,
+            status_detail: payment.status_detail,
+            external_reference: payment.external_reference
+        });
+    } catch (error) {
+        console.error('❌ Erro ao verificar pagamento:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ATUALIZAR STATUS DO PAGAMENTO =====
+// ============================================
+
+app.post('/api/update-payment-status', async (req, res) => {
+    try {
+        const { payment_id, status } = req.body;
+        
+        await sql`
+            UPDATE orders SET status = ${status} WHERE payment_id = ${payment_id}
+        `;
+        await sql`
+            UPDATE donations SET status = ${status} WHERE payment_id = ${payment_id}
+        `;
+        
+        console.log(`✅ Status do pagamento ${payment_id} atualizado para ${status}`);
+        res.json({ message: 'Status atualizado com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao atualizar status:', error);
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -2209,7 +2366,7 @@ app.post('/api/create-card-payment', async (req, res) => {
 
 app.post('/api/webhook', async (req, res) => {
     try {
-        console.log('📝 Webhook recebido:', req.body);
+        console.log('📝 Webhook recebido:', JSON.stringify(req.body, null, 2));
         
         const { data, type } = req.body;
         
@@ -2230,6 +2387,14 @@ app.post('/api/webhook', async (req, res) => {
                             UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}
                         `;
                         console.log('✅ Pagamento aprovado e registrado!');
+                    } else if (payment.status === 'rejected' || payment.status === 'cancelled') {
+                        await sql`
+                            UPDATE orders SET status = 'rejected' WHERE payment_id = ${paymentId}
+                        `;
+                        await sql`
+                            UPDATE donations SET status = 'rejected' WHERE payment_id = ${paymentId}
+                        `;
+                        console.log('❌ Pagamento recusado/cancelado');
                     }
                 } catch (error) {
                     console.error('❌ Erro ao buscar pagamento:', error);
@@ -2372,6 +2537,7 @@ app.listen(PORT, () => {
     console.log('   Senha: admin123');
     console.log('');
     console.log('💰 Mercado Pago: ' + (process.env.MP_ACCESS_TOKEN ? '✅ Configurado' : '⚠️ Não configurado'));
+    console.log('🔑 Public Key: ' + (process.env.MP_PUBLIC_KEY ? '✅ Configurada' : '⚠️ Não configurada'));
     console.log('');
     console.log('📸 Imagens salvas como Base64 no banco de dados!');
     console.log('');

@@ -511,7 +511,6 @@ app.post('/api/users-by-leader', auth, async (req, res) => {
     try {
         const { name, email, password, role, department_id } = req.body;
         
-        // Verifica se o usuário atual é líder do departamento OU é pastor
         const leaderCheck = await sql`
             SELECT * FROM users 
             WHERE id = ${req.user.id} 
@@ -1157,10 +1156,7 @@ app.get('/api/donations', auth, async (req, res) => {
     }
 });
 
-// ============================================
-// ===== ANIVERSARIANTES =====
-// ============================================
-
+// ----- ANIVERSARIANTES -----
 app.get('/api/birthdays', async (req, res) => {
     try {
         const today = new Date();
@@ -1317,10 +1313,7 @@ app.delete('/api/baptism-dates/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ============================================
-// ===== MÚSICAS =====
-// ============================================
-
+// ----- MÚSICAS -----
 app.post('/api/songs', auth, async (req, res) => {
     try {
         const { title, artist, key, lyrics, department_id } = req.body;
@@ -1462,10 +1455,7 @@ app.get('/api/availability/date/:date', auth, async (req, res) => {
     }
 });
 
-// ============================================
-// ===== WORSHIP SCALES =====
-// ============================================
-
+// ----- WORSHIP SCALES -----
 app.post('/api/worship-scales', auth, async (req, res) => {
     try {
         const { department_id, event_date, leader_id, minister_id, songs, song_ids, palette, rehearsal, musicians } = req.body;

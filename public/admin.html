@@ -102,8 +102,11 @@
         .btn-danger:hover { background: #c82333; }
         .btn-success { background: #28a745; color: #fff; }
         .btn-success:hover { background: #218838; }
+        .btn-warning { background: #ffc107; color: #1a1a1a; }
+        .btn-warning:hover { background: #e0a800; }
         .btn-sm { padding: 0.12rem 0.5rem; font-size: 0.6rem; }
-        .btn-xs { padding: 0.08rem 0.35rem; font-size: 0.55rem; }
+        .btn-xs { padding: 0.08rem 0.35rem; font-size: 0.5rem; }
+        .btn-block { width: 100%; justify-content: center; }
 
         /* CONTAINER */
         .container {
@@ -113,7 +116,7 @@
             overflow-x: hidden;
         }
 
-        /* STATS - MINIMAL */
+        /* STATS */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -142,7 +145,7 @@
             letter-spacing: 0.3px;
         }
 
-        /* MENU - LIMPO */
+        /* MENU */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -151,7 +154,7 @@
         }
         .menu-item {
             background: var(--card-bg);
-            padding: 0.5rem 0.2rem;
+            padding: 0.4rem 0.2rem;
             border-radius: var(--radius-sm);
             text-align: center;
             border: 2px solid transparent;
@@ -164,7 +167,7 @@
             border-color: var(--primary);
             background: #E8F0FE;
         }
-        .menu-item .icon { font-size: 0.9rem; color: var(--primary); }
+        .menu-item .icon { font-size: 0.85rem; color: var(--primary); }
         .menu-item .label {
             font-size: 0.5rem;
             font-weight: 600;
@@ -172,7 +175,7 @@
             margin-top: 0.1rem;
         }
 
-        /* TAB CONTENT - SIMPLES */
+        /* TAB CONTENT */
         .tab-content {
             display: none;
             background: var(--card-bg);
@@ -191,6 +194,12 @@
             margin-bottom: 0.5rem;
             padding-bottom: 0.2rem;
             border-bottom: 2px solid var(--primary);
+        }
+        .tab-content h4 {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0.4rem 0 0.2rem 0;
         }
 
         /* TABLES */
@@ -225,6 +234,7 @@
         }
         .table tr:hover { background: #f8f9fa; }
 
+        /* BADGES */
         .status {
             padding: 0.04rem 0.35rem;
             border-radius: 50px;
@@ -235,6 +245,8 @@
         }
         .status-pending { background: #fff3cd; color: #856404; }
         .status-approved { background: #d4edda; color: #155724; }
+        .status-rejected { background: #f8d7da; color: #721c24; }
+
         .badge {
             padding: 0.04rem 0.35rem;
             border-radius: 50px;
@@ -399,6 +411,11 @@
         }
 
         /* FREQUÊNCIA */
+        .freq-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
         .freq-box {
             background: #f8f9fa;
             border-radius: var(--radius-sm);
@@ -460,6 +477,7 @@
             .container { padding: 0.8rem 1.2rem; }
             .tab-content { padding: 1rem; }
             .carousel-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+            .freq-grid { grid-template-columns: 1fr 1fr; }
         }
         @media (min-width: 900px) {
             .stats-grid { grid-template-columns: repeat(6, 1fr); }
@@ -546,13 +564,13 @@
             <div class="icon"><i class="fas fa-users"></i></div>
             <div class="label">Usuários</div>
         </div>
-        <div class="menu-item" onclick="showTab('membros')" data-tab="membros">
-            <div class="icon"><i class="fas fa-user-plus"></i></div>
-            <div class="label">Membros</div>
-        </div>
         <div class="menu-item" onclick="showTab('oracoes')" data-tab="oracoes">
             <div class="icon"><i class="fas fa-pray"></i></div>
             <div class="label">Orações</div>
+        </div>
+        <div class="menu-item" onclick="showTab('estudos')" data-tab="estudos">
+            <div class="icon"><i class="fas fa-book"></i></div>
+            <div class="label">Estudos</div>
         </div>
         <div class="menu-item" onclick="showTab('eventos')" data-tab="eventos">
             <div class="icon"><i class="fas fa-calendar"></i></div>
@@ -566,9 +584,25 @@
             <div class="icon"><i class="fas fa-images"></i></div>
             <div class="label">Carrossel</div>
         </div>
+        <div class="menu-item" onclick="showTab('doacoes')" data-tab="doacoes">
+            <div class="icon"><i class="fas fa-hand-holding-heart"></i></div>
+            <div class="label">Doações</div>
+        </div>
+        <div class="menu-item" onclick="showTab('inscricoes')" data-tab="inscricoes">
+            <div class="icon"><i class="fas fa-clipboard-list"></i></div>
+            <div class="label">Inscrições</div>
+        </div>
         <div class="menu-item" onclick="showTab('departamentos')" data-tab="departamentos">
             <div class="icon"><i class="fas fa-building"></i></div>
             <div class="label">Deptos</div>
+        </div>
+        <div class="menu-item" onclick="showTab('membros')" data-tab="membros">
+            <div class="icon"><i class="fas fa-user-plus"></i></div>
+            <div class="label">Membros</div>
+        </div>
+        <div class="menu-item" onclick="showTab('frequencia')" data-tab="frequencia">
+            <div class="icon"><i class="fas fa-calendar-check"></i></div>
+            <div class="label">Frequência</div>
         </div>
         <div class="menu-item" onclick="showTab('tesouraria')" data-tab="tesouraria">
             <div class="icon"><i class="fas fa-hand-holding-heart"></i></div>
@@ -577,6 +611,10 @@
         <div class="menu-item" onclick="showTab('contas')" data-tab="contas">
             <div class="icon"><i class="fas fa-receipt"></i></div>
             <div class="label">Contas</div>
+        </div>
+        <div class="menu-item" onclick="showTab('aniversariantes')" data-tab="aniversariantes">
+            <div class="icon"><i class="fas fa-birthday-cake"></i></div>
+            <div class="label">Aniversários</div>
         </div>
         <div class="menu-item" onclick="showTab('config')" data-tab="config">
             <div class="icon"><i class="fas fa-cog"></i></div>
@@ -606,7 +644,7 @@
         <h3>🛒 Vendas</h3>
         <div class="table-wrapper">
             <table class="table">
-                <thead><tr><th>Cliente</th><th>Produto</th><th>Valor</th><th>Status</th></tr></thead>
+                <thead><tr><th>Cliente</th><th>Produto</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
                 <tbody id="ordersList"></tbody>
             </table>
         </div>
@@ -626,20 +664,6 @@
         </div>
     </div>
 
-    <!-- MEMBROS -->
-    <div id="tab-membros" class="tab-content">
-        <div class="flex-between mb-1">
-            <h3>👥 Membros</h3>
-            <button onclick="openMemberModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
-        </div>
-        <div class="table-wrapper">
-            <table class="table">
-                <thead><tr><th>Nome</th><th>Telefone</th><th>Ações</th></tr></thead>
-                <tbody id="membersList"></tbody>
-            </table>
-        </div>
-    </div>
-
     <!-- ORAÇÕES -->
     <div id="tab-oracoes" class="tab-content">
         <h3>🙏 Orações</h3>
@@ -647,6 +671,20 @@
             <table class="table">
                 <thead><tr><th>Nome</th><th>Pedido</th><th>Status</th><th>Ações</th></tr></thead>
                 <tbody id="prayersList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ESTUDOS -->
+    <div id="tab-estudos" class="tab-content">
+        <div class="flex-between mb-1">
+            <h3>📖 Estudos</h3>
+            <button onclick="openStudyModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Título</th><th>Imagem</th><th>Ações</th></tr></thead>
+                <tbody id="studiesList"></tbody>
             </table>
         </div>
     </div>
@@ -688,6 +726,28 @@
         <div id="carouselList" class="carousel-grid"></div>
     </div>
 
+    <!-- DOAÇÕES -->
+    <div id="tab-doacoes" class="tab-content">
+        <h3>💝 Doações</h3>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Doador</th><th>Tipo</th><th>Valor</th><th>Data</th></tr></thead>
+                <tbody id="donationsList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- INSCRIÇÕES -->
+    <div id="tab-inscricoes" class="tab-content">
+        <h3>📋 Inscrições</h3>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Nome</th><th>Tipo</th><th>Evento</th><th>Status</th></tr></thead>
+                <tbody id="registrationsList"></tbody>
+            </table>
+        </div>
+    </div>
+
     <!-- DEPARTAMENTOS -->
     <div id="tab-departamentos" class="tab-content">
         <div class="flex-between mb-1">
@@ -702,12 +762,94 @@
         </div>
     </div>
 
+    <!-- MEMBROS -->
+    <div id="tab-membros" class="tab-content">
+        <div class="flex-between mb-1">
+            <h3>👥 Membros</h3>
+            <button onclick="openMemberModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Nome</th><th>Telefone</th><th>Ações</th></tr></thead>
+                <tbody id="membersList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- FREQUÊNCIA -->
+    <div id="tab-frequencia" class="tab-content">
+        <h3>📅 Frequência</h3>
+        <div class="form-row" style="grid-template-columns:1fr 1fr; gap:0.3rem;">
+            <div class="form-group">
+                <label>Data</label>
+                <input type="date" id="attendanceDate">
+            </div>
+            <div class="form-group">
+                <label>Tipo</label>
+                <select id="attendanceService">
+                    <option value="domingo">Domingo</option>
+                    <option value="quarta">Quarta</option>
+                    <option value="sabado">Sábado</option>
+                    <option value="especial">Especial</option>
+                </select>
+            </div>
+        </div>
+        <button onclick="loadAllMembersForAttendance()" class="btn btn-primary btn-block" style="margin-bottom:0.5rem; padding:0.3rem; font-size:0.65rem;">
+            <i class="fas fa-sync"></i> Carregar Membros
+        </button>
+
+        <div class="freq-grid">
+            <div class="freq-box">
+                <h4>👥 Selecionar</h4>
+                <div style="display:flex; gap:0.2rem; margin-bottom:0.2rem; flex-wrap:wrap;">
+                    <input type="text" id="memberSearch" placeholder="🔍 Buscar..." 
+                           style="flex:1; padding:0.2rem 0.4rem; border-radius:4px; border:2px solid #e0e0e0; font-size:0.6rem; min-width:60px;">
+                    <button onclick="toggleSelectAll()" class="btn btn-warning btn-xs"><i class="fas fa-check-double"></i></button>
+                    <button onclick="clearSelection()" class="btn btn-danger btn-xs"><i class="fas fa-times"></i></button>
+                </div>
+                <div style="background:#fff; border-radius:4px; border:1px solid #e8e8e8; padding:0.2rem; max-height:150px; overflow-y:auto;">
+                    <div id="membersListContainer">
+                        <p style="color:#888; text-align:center; padding:0.2rem; font-size:0.6rem;">Carregue os membros</p>
+                    </div>
+                </div>
+                <div style="display:flex; gap:0.2rem; margin-top:0.2rem; font-size:0.55rem; flex-wrap:wrap;">
+                    <span style="background:#e8e8e8; padding:0.05rem 0.4rem; border-radius:20px;">
+                        <i class="fas fa-check-circle" style="color:#28a745;"></i> <span id="selectedCount">0</span>
+                    </span>
+                    <span style="background:#e8e8e8; padding:0.05rem 0.4rem; border-radius:20px;">
+                        <i class="fas fa-users"></i> Total: <span id="totalCount">0</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="freq-box">
+                <h4>📋 Registrar</h4>
+                <div id="attendanceSummary" style="margin-bottom:0.2rem; min-height:20px;">
+                    <p style="color:#888; font-size:0.6rem;">Nenhum selecionado</p>
+                </div>
+                <button onclick="registerMultipleAttendance()" class="btn btn-success btn-block" style="padding:0.25rem; font-size:0.6rem;">
+                    <i class="fas fa-check-circle"></i> Registrar Selecionados
+                </button>
+                <button onclick="registerAllAttendance()" class="btn btn-primary btn-block" style="margin-top:0.15rem; padding:0.25rem; font-size:0.6rem;">
+                    <i class="fas fa-users"></i> Registrar Todos
+                </button>
+                <div style="margin-top:0.3rem;">
+                    <h4 style="font-size:0.6rem; margin-bottom:0.1rem;">📊 Registros</h4>
+                    <div id="attendanceList" style="max-height:100px; overflow-y:auto; font-size:0.55rem; background:#fff; border-radius:4px; padding:0.15rem;">
+                        <p style="color:#888; text-align:center;">Selecione uma data</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- TESOURARIA -->
     <div id="tab-tesouraria" class="tab-content">
         <div class="flex-between mb-1">
             <h3>💝 Dízimos</h3>
             <button onclick="openTitheModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
         </div>
+        <div id="titheSummary" style="font-size:0.6rem; margin-bottom:0.2rem;"></div>
         <div class="table-wrapper">
             <table class="table">
                 <thead><tr><th>Membro</th><th>Tipo</th><th>Valor</th><th>Data</th></tr></thead>
@@ -722,10 +864,22 @@
             <h3>📋 Contas</h3>
             <button onclick="openBillModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
         </div>
+        <div id="billSummary" style="font-size:0.6rem; margin-bottom:0.2rem;"></div>
         <div class="table-wrapper">
             <table class="table">
                 <thead><tr><th>Descrição</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead>
                 <tbody id="billsList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ANIVERSARIANTES -->
+    <div id="tab-aniversariantes" class="tab-content">
+        <h3>🎂 Aniversariantes</h3>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Nome</th><th>Data</th><th>Idade</th></tr></thead>
+                <tbody id="birthdaysList"></tbody>
             </table>
         </div>
     </div>
@@ -749,7 +903,11 @@
     </div>
 </div>
 
-<!-- MODAIS SIMPLES -->
+<!-- ============================================
+     MODAIS COMPLETOS
+============================================ -->
+
+<!-- USUÁRIO -->
 <div class="modal" id="userModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('userModal')">&times;</button>
@@ -769,24 +927,39 @@
                 <select id="userDepartmentSelect"><option value="">Nenhum</option></select>
             </div>
         </div>
-        <button onclick="saveUser()" class="btn btn-primary w-full" style="justify-content:center;padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
+        <button onclick="saveUser()" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
     </div>
 </div>
 
+<!-- MEMBRO -->
 <div class="modal" id="memberModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('memberModal')">&times;</button>
         <h3>👤 Membro</h3>
         <div class="form-group"><label>Nome</label><input type="text" id="memberName"></div>
-        <div class="form-group"><label>Telefone</label><input type="tel" id="memberPhone"></div>
         <div class="form-group"><label>Email</label><input type="email" id="memberEmail"></div>
+        <div class="form-group"><label>Telefone</label><input type="tel" id="memberPhone"></div>
+        <div class="form-row">
+            <div class="form-group"><label>Nascimento</label><input type="date" id="memberBirth"></div>
+            <div class="form-group"><label>Estado</label>
+                <select id="memberMarital">
+                    <option value="solteiro">Solteiro</option>
+                    <option value="casado">Casado</option>
+                    <option value="divorciado">Divorciado</option>
+                    <option value="viuvo">Viúvo</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group"><label>Cônjuge</label><input type="text" id="memberSpouse"></div>
         <div class="form-group"><label>Depto</label>
             <select id="memberDepartment"><option value="">Selecione</option></select>
         </div>
-        <button onclick="saveMember()" class="btn btn-primary w-full" style="justify-content:center;padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
+        <div class="form-group"><label>Obs</label><textarea id="memberNotes" rows="2"></textarea></div>
+        <button onclick="saveMember()" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
     </div>
 </div>
 
+<!-- DÍZIMO -->
 <div class="modal" id="titheModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('titheModal')">&times;</button>
@@ -804,10 +977,21 @@
             </div>
             <div class="form-group"><label>Valor</label><input type="number" id="titheAmount" step="0.01"></div>
         </div>
-        <button onclick="saveTithe()" class="btn btn-primary w-full" style="justify-content:center;padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
+        <div class="form-row">
+            <div class="form-group"><label>Data</label><input type="date" id="titheDate"></div>
+            <div class="form-group"><label>Método</label>
+                <select id="titheMethod">
+                    <option value="dinheiro">Dinheiro</option>
+                    <option value="pix">PIX</option>
+                    <option value="cartao">Cartão</option>
+                </select>
+            </div>
+        </div>
+        <button onclick="saveTithe()" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
     </div>
 </div>
 
+<!-- CONTA -->
 <div class="modal" id="billModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('billModal')">&times;</button>
@@ -817,74 +1001,101 @@
             <div class="form-group"><label>Categoria</label>
                 <select id="billCategory">
                     <option value="agua">Água</option><option value="luz">Luz</option>
-                    <option value="internet">Internet</option><option value="outros">Outros</option>
+                    <option value="internet">Internet</option><option value="aluguel">Aluguel</option>
+                    <option value="outros">Outros</option>
                 </select>
             </div>
             <div class="form-group"><label>Valor</label><input type="number" id="billAmount" step="0.01"></div>
         </div>
-        <button onclick="saveBill()" class="btn btn-primary w-full" style="justify-content:center;padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
+        <div class="form-group"><label>Vencimento</label><input type="date" id="billDueDate"></div>
+        <button onclick="saveBill()" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
     </div>
 </div>
 
+<!-- ESTUDO -->
 <div class="modal" id="studyModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('studyModal')">&times;</button>
         <h3>📖 Estudo</h3>
         <form id="studyForm" enctype="multipart/form-data">
             <div class="form-group"><label>Título</label><input type="text" name="title" required></div>
+            <div class="form-group"><label>Descrição</label><textarea name="description" rows="2"></textarea></div>
             <div class="form-group"><label>Imagem</label><input type="file" name="image" accept="image/*"></div>
-            <button type="submit" class="btn btn-primary w-full" style="justify-content:center;padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
+            <div class="form-group"><label>Link</label><input type="url" name="file_url" placeholder="https://"></div>
+            <button type="submit" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
         </form>
     </div>
 </div>
 
+<!-- EVENTO -->
 <div class="modal" id="eventModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('eventModal')">&times;</button>
         <h3>📅 Evento</h3>
         <form id="eventForm" enctype="multipart/form-data">
             <div class="form-group"><label>Título</label><input type="text" name="title" required></div>
+            <div class="form-group"><label>Descrição</label><textarea name="description" rows="2"></textarea></div>
             <div class="form-group"><label>Data</label><input type="datetime-local" name="date" required></div>
             <div class="form-group"><label>Imagem</label><input type="file" name="image" accept="image/*"></div>
-            <button type="submit" class="btn btn-primary w-full" style="justify-content:center;padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
+            <div class="form-row">
+                <div class="form-group"><label>Preço</label><input type="number" name="price" step="0.01" value="0"></div>
+                <div class="form-group"><label>Pago?</label>
+                    <select name="is_paid"><option value="false">Grátis</option><option value="true">Pago</option></select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
         </form>
     </div>
 </div>
 
+<!-- PRODUTO -->
 <div class="modal" id="productModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('productModal')">&times;</button>
         <h3>📦 Produto</h3>
         <form id="productForm" enctype="multipart/form-data">
             <div class="form-group"><label>Nome</label><input type="text" name="name" required></div>
-            <div class="form-group"><label>Preço</label><input type="number" name="price" step="0.01" required></div>
+            <div class="form-group"><label>Descrição</label><textarea name="description" rows="2"></textarea></div>
+            <div class="form-row">
+                <div class="form-group"><label>Preço</label><input type="number" name="price" step="0.01" required></div>
+                <div class="form-group"><label>Estoque</label><input type="number" name="stock" value="10"></div>
+            </div>
+            <div class="form-group"><label>Categoria</label><input type="text" name="category"></div>
             <div class="form-group"><label>Imagem</label><input type="file" name="image" accept="image/*"></div>
-            <button type="submit" class="btn btn-primary w-full" style="justify-content:center;padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
+            <button type="submit" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
         </form>
     </div>
 </div>
 
+<!-- CARROSSEL -->
 <div class="modal" id="carouselModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('carouselModal')">&times;</button>
         <h3>🖼️ Imagem</h3>
         <form id="carouselForm" enctype="multipart/form-data">
             <div class="form-group"><label>Título</label><input type="text" name="title"></div>
+            <div class="form-group"><label>Subtítulo</label><input type="text" name="subtitle"></div>
             <div class="form-group"><label>Imagem *</label><input type="file" name="image" accept="image/*" required></div>
-            <button type="submit" class="btn btn-primary w-full" style="justify-content:center;padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
+            <div class="form-group"><label>Link</label><input type="url" name="link" placeholder="https://"></div>
+            <button type="submit" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
         </form>
     </div>
 </div>
 
+<!-- DEPARTAMENTO -->
 <div class="modal" id="deptModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('deptModal')">&times;</button>
         <h3>🏢 Departamento</h3>
         <div class="form-group"><label>Nome</label><input type="text" id="deptName"></div>
-        <button onclick="saveDepartment()" class="btn btn-primary w-full" style="justify-content:center;padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
+        <div class="form-group"><label>Descrição</label><textarea id="deptDesc" rows="2"></textarea></div>
+        <button onclick="saveDepartment()" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
     </div>
 </div>
 
+<!-- ============================================
+     SCRIPT COMPLETO
+============================================ -->
 <script>
 // ============================================
 // ===== CONFIG =====
@@ -952,8 +1163,17 @@ function showTab(tab) {
     if (tab === 'carousel') loadCarouselAdmin();
     if (tab === 'departamentos') loadDepartments();
     if (tab === 'membros') loadMembers();
+    if (tab === 'frequencia') { 
+        setDefaultAttendanceDate();
+        if (allMembers.length > 0) {
+            renderMembersList();
+            const date = document.getElementById('attendanceDate').value;
+            if (date) loadAttendanceHistory(date);
+        }
+    }
     if (tab === 'tesouraria') { loadTithes(); loadTitheSummary(); }
     if (tab === 'contas') { loadBills(); loadBillSummary(); }
+    if (tab === 'aniversariantes') loadBirthdaysAdmin();
     if (tab === 'config') loadConfig();
 }
 
@@ -984,10 +1204,13 @@ async function loadDashboard() {
         loadUsers(users);
         loadPrayers(prayers);
         loadOrders(orders);
+        loadDonations(donations);
         loadStudies(studies);
         loadEvents(events);
         loadProducts();
+        loadRegistrations();
         loadMembers();
+        loadBirthdaysAdmin();
         loadSalesStats();
     } catch (e) { console.error('Erro:', e); }
 }
@@ -1055,7 +1278,7 @@ function loadPrayers(prayers) {
 
 function loadOrders(orders) {
     const tbody = document.getElementById('ordersList');
-    if (!orders?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
+    if (!orders?.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
     tbody.innerHTML = orders.slice(0, 30).map(o => {
         let items = [];
         try { items = JSON.parse(o.items || '[]'); } catch { items = []; }
@@ -1065,8 +1288,22 @@ function loadOrders(orders) {
             <td>${pn}</td>
             <td>R$ ${parseFloat(o.total||0).toFixed(2)}</td>
             <td><span class="status status-${o.status||'pending'}">${o.status||'Pendente'}</span></td>
+            <td>${new Date(o.created_at).toLocaleDateString('pt-BR')}</td>
         </tr>`;
     }).join('');
+}
+
+function loadDonations(donations) {
+    const tbody = document.getElementById('donationsList');
+    if (!donations?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
+    tbody.innerHTML = donations.slice(0, 30).map(d => `
+        <tr>
+            <td>${d.user_name||'Anônimo'}</td>
+            <td>${d.type||'-'}</td>
+            <td>R$ ${parseFloat(d.amount||0).toFixed(2)}</td>
+            <td>${new Date(d.created_at).toLocaleDateString('pt-BR')}</td>
+        </tr>
+    `).join('');
 }
 
 function loadStudies(studies) {
@@ -1109,6 +1346,24 @@ async function loadProducts() {
     } catch (e) { console.error('Erro:', e); }
 }
 
+async function loadRegistrations() {
+    try {
+        const res = await fetch('/api/registrations', { headers: getHeaders() });
+        const data = await res.json();
+        const tbody = document.getElementById('registrationsList');
+        if (!data?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
+        const typeMap = { baptism:'Batismo', volunteer:'Voluntário', event:'Evento', department:'Depto' };
+        tbody.innerHTML = data.slice(0, 30).map(r => `
+            <tr>
+                <td>${r.name}</td>
+                <td>${typeMap[r.type]||r.type}</td>
+                <td>${r.department_name||r.event_name||'-'}</td>
+                <td><span class="status status-${r.status||'pending'}">${r.status||'Pendente'}</span></td>
+            </tr>
+        `).join('');
+    } catch (e) { console.error('Erro:', e); }
+}
+
 async function loadCarouselAdmin() {
     try {
         const res = await fetch('/api/carousel', { headers: getHeaders() });
@@ -1143,75 +1398,27 @@ async function loadDepartments() {
 }
 
 // ============================================
-// ===== MEMBROS =====
+// ===== ANIVERSARIANTES =====
 // ============================================
-async function loadMembers() {
+async function loadBirthdaysAdmin() {
     try {
-        const res = await fetch('/api/members', { headers: getHeaders() });
+        const res = await fetch('/api/birthdays', { headers: getHeaders() });
         const data = await res.json();
-        const tbody = document.getElementById('membersList');
+        const tbody = document.getElementById('birthdaysList');
         if (!data?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
-        tbody.innerHTML = data.map(m => `
-            <tr>
-                <td>${m.name}</td>
-                <td>${m.phone||'-'}</td>
-                <td>
-                    <button onclick="viewMember(${m.id})" class="btn btn-primary btn-xs"><i class="fas fa-eye"></i></button>
-                    <button onclick="deleteMember(${m.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button>
-                </td>
-            </tr>
-        `).join('');
+        const today = new Date();
+        tbody.innerHTML = data.map(b => {
+            const birth = new Date(b.birth_date);
+            let idade = today.getFullYear() - birth.getFullYear();
+            if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) idade--;
+            const isToday = birth.getMonth() === today.getMonth() && birth.getDate() === today.getDate();
+            return `<tr class="${isToday ? 'birthday-today' : ''}">
+                <td>${b.name} ${isToday ? '🎉' : ''}</td>
+                <td>${birth.toLocaleDateString('pt-BR')}</td>
+                <td>${idade} anos</td>
+            </tr>`;
+        }).join('');
     } catch (e) { console.error('Erro:', e); }
-}
-
-async function openMemberModal() {
-    try {
-        const depts = await fetch('/api/departments', { headers: getHeaders() }).then(r => r.json());
-        const select = document.getElementById('memberDepartment');
-        select.innerHTML = '<option value="">Selecione</option>' + depts.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
-        document.getElementById('memberName').value = '';
-        document.getElementById('memberEmail').value = '';
-        document.getElementById('memberPhone').value = '';
-        openModal('memberModal');
-    } catch (e) { showNotification('❌ ' + e.message, 'error'); }
-}
-
-async function saveMember() {
-    const data = {
-        name: document.getElementById('memberName').value.trim(),
-        email: document.getElementById('memberEmail').value.trim(),
-        phone: document.getElementById('memberPhone').value.trim(),
-        department_id: document.getElementById('memberDepartment').value || null,
-    };
-    if (!data.name) { showNotification('Nome é obrigatório!', 'error'); return; }
-    try {
-        await fetch('/api/members', {
-            method: 'POST',
-            headers: { 'Content-Type':'application/json', ...getHeaders() },
-            body: JSON.stringify(data)
-        });
-        closeModal('memberModal');
-        loadMembers();
-        showNotification('✅ Membro cadastrado!', 'success');
-    } catch (e) { showNotification('❌ ' + e.message, 'error'); }
-}
-
-async function viewMember(id) {
-    try {
-        const res = await fetch('/api/members/' + id, { headers: getHeaders() });
-        const data = await res.json();
-        let msg = `👤 ${data.name}\n📧 ${data.email||'-'}\n📱 ${data.phone||'-'}\n🏛️ ${data.department_name||'-'}`;
-        alert(msg);
-    } catch (e) { showNotification('❌ ' + e.message, 'error'); }
-}
-
-async function deleteMember(id) {
-    if (!confirm('Remover?')) return;
-    try {
-        await fetch('/api/members/' + id, { method: 'DELETE', headers: getHeaders() });
-        loadMembers();
-        showNotification('✅ Removido!', 'success');
-    } catch (e) { showNotification('❌ ' + e.message, 'error'); }
 }
 
 // ============================================
@@ -1337,22 +1544,283 @@ async function saveUser() {
 // ============================================
 function openDeptModal() {
     document.getElementById('deptName').value = '';
+    document.getElementById('deptDesc').value = '';
     openModal('deptModal');
 }
 
 async function saveDepartment() {
     const name = document.getElementById('deptName').value.trim();
+    const desc = document.getElementById('deptDesc').value.trim();
     if (!name) { showNotification('Digite o nome!', 'error'); return; }
     try {
         await fetch('/api/departments', {
             method: 'POST',
             headers: { 'Content-Type':'application/json', ...getHeaders() },
-            body: JSON.stringify({ name, description: '' })
+            body: JSON.stringify({ name, description: desc })
         });
         closeModal('deptModal');
         loadDepartments();
         showNotification('✅ Departamento criado!', 'success');
     } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+}
+
+// ============================================
+// ===== MEMBROS =====
+// ============================================
+async function loadMembers() {
+    try {
+        const res = await fetch('/api/members', { headers: getHeaders() });
+        const data = await res.json();
+        const tbody = document.getElementById('membersList');
+        if (!data?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+        tbody.innerHTML = data.map(m => `
+            <tr>
+                <td>${m.name}</td>
+                <td>${m.phone||'-'}</td>
+                <td>
+                    <button onclick="viewMember(${m.id})" class="btn btn-primary btn-xs"><i class="fas fa-eye"></i></button>
+                    <button onclick="deleteMember(${m.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (e) { console.error('Erro:', e); }
+}
+
+async function openMemberModal() {
+    try {
+        const depts = await fetch('/api/departments', { headers: getHeaders() }).then(r => r.json());
+        const select = document.getElementById('memberDepartment');
+        select.innerHTML = '<option value="">Selecione</option>' + depts.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+        document.getElementById('memberName').value = '';
+        document.getElementById('memberEmail').value = '';
+        document.getElementById('memberPhone').value = '';
+        document.getElementById('memberBirth').value = '';
+        document.getElementById('memberMarital').value = 'solteiro';
+        document.getElementById('memberSpouse').value = '';
+        document.getElementById('memberNotes').value = '';
+        openModal('memberModal');
+    } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+}
+
+async function saveMember() {
+    const data = {
+        name: document.getElementById('memberName').value.trim(),
+        email: document.getElementById('memberEmail').value.trim(),
+        phone: document.getElementById('memberPhone').value.trim(),
+        birth_date: document.getElementById('memberBirth').value || null,
+        marital_status: document.getElementById('memberMarital').value,
+        spouse_name: document.getElementById('memberSpouse').value.trim(),
+        department_id: document.getElementById('memberDepartment').value || null,
+        notes: document.getElementById('memberNotes').value.trim()
+    };
+    if (!data.name) { showNotification('Nome é obrigatório!', 'error'); return; }
+    try {
+        await fetch('/api/members', {
+            method: 'POST',
+            headers: { 'Content-Type':'application/json', ...getHeaders() },
+            body: JSON.stringify(data)
+        });
+        closeModal('memberModal');
+        loadMembers();
+        showNotification('✅ Membro cadastrado!', 'success');
+    } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+}
+
+async function viewMember(id) {
+    try {
+        const res = await fetch('/api/members/' + id, { headers: getHeaders() });
+        const data = await res.json();
+        let msg = `👤 ${data.name}\n📧 ${data.email||'-'}\n📱 ${data.phone||'-'}\n🎂 ${data.birth_date ? new Date(data.birth_date).toLocaleDateString('pt-BR') : '-'}\n💑 ${data.marital_status||'-'}`;
+        if (data.spouse_name) msg += `\n👰 ${data.spouse_name}`;
+        if (data.department_name) msg += `\n🏛️ ${data.department_name}`;
+        alert(msg);
+    } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+}
+
+async function deleteMember(id) {
+    if (!confirm('Remover?')) return;
+    try {
+        await fetch('/api/members/' + id, { method: 'DELETE', headers: getHeaders() });
+        loadMembers();
+        showNotification('✅ Removido!', 'success');
+    } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+}
+
+// ============================================
+// ===== FREQUÊNCIA =====
+// ============================================
+let allMembers = [];
+let selectedMembers = new Set();
+let attendanceFilteredMembers = [];
+
+function setDefaultAttendanceDate() {
+    const today = new Date();
+    const dateInput = document.getElementById('attendanceDate');
+    if (dateInput) {
+        const y = today.getFullYear();
+        const m = String(today.getMonth() + 1).padStart(2,'0');
+        const d = String(today.getDate()).padStart(2,'0');
+        dateInput.value = `${y}-${m}-${d}`;
+    }
+}
+
+async function loadAllMembersForAttendance() {
+    const date = document.getElementById('attendanceDate').value;
+    if (!date) { showNotification('Selecione uma data!', 'error'); return; }
+    try {
+        showNotification('Carregando...', 'info');
+        const res = await fetch('/api/members', { headers: getHeaders() });
+        allMembers = await res.json();
+        if (!allMembers?.length) {
+            showNotification('Nenhum membro!', 'error');
+            document.getElementById('membersListContainer').innerHTML = '<p style="color:#888;text-align:center;font-size:0.6rem;">Nenhum</p>';
+            return;
+        }
+        selectedMembers.clear();
+        await checkExistingAttendance(date);
+        renderMembersList();
+        updateSummary();
+        loadAttendanceHistory(date);
+        showNotification(`✅ ${allMembers.length} membros`, 'success');
+    } catch (e) {
+        showNotification('❌ ' + e.message, 'error');
+    }
+}
+
+async function checkExistingAttendance(date) {
+    try {
+        const res = await fetch(`/api/attendance/date/${date}`, { headers: getHeaders() });
+        const existing = await res.json();
+        if (existing?.length) {
+            existing.forEach(r => { if (r.present) selectedMembers.add(r.member_id); });
+        }
+        document.getElementById('selectedCount').textContent = selectedMembers.size;
+    } catch (e) { console.error(e); }
+}
+
+function renderMembersList() {
+    const container = document.getElementById('membersListContainer');
+    const search = document.getElementById('memberSearch')?.value.toLowerCase().trim() || '';
+    let filtered = allMembers;
+    if (search) filtered = allMembers.filter(m => m.name.toLowerCase().includes(search) || (m.email && m.email.toLowerCase().includes(search)));
+    attendanceFilteredMembers = filtered;
+    document.getElementById('totalCount').textContent = filtered.length;
+    if (!filtered.length) {
+        container.innerHTML = '<p style="color:#888;text-align:center;font-size:0.6rem;">Nenhum</p>';
+        return;
+    }
+    let html = '';
+    filtered.forEach(m => {
+        const checked = selectedMembers.has(m.id) ? 'checked' : '';
+        const bg = checked ? 'background:#d4edda;' : '';
+        html += `<div class="member-row" data-id="${m.id}" style="${bg}">
+            <input type="checkbox" class="member-checkbox" value="${m.id}" ${checked} onchange="toggleMember(${m.id})">
+            <div class="member-info" onclick="toggleMember(${m.id})">
+                <div class="member-name">${m.name}</div>
+                <div class="member-dept">${m.department_name||'Sem depto'}</div>
+            </div>
+            <span style="font-size:0.5rem;color:#888;">${m.phone||''}</span>
+        </div>`;
+    });
+    container.innerHTML = html;
+    document.getElementById('selectedCount').textContent = selectedMembers.size;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('memberSearch')?.addEventListener('input', renderMembersList);
+});
+
+function toggleMember(id) {
+    if (selectedMembers.has(id)) selectedMembers.delete(id);
+    else selectedMembers.add(id);
+    const row = document.querySelector(`.member-row[data-id="${id}"]`);
+    if (row) {
+        const cb = row.querySelector('.member-checkbox');
+        if (cb) cb.checked = selectedMembers.has(id);
+        row.style.background = selectedMembers.has(id) ? '#d4edda' : '';
+    }
+    document.getElementById('selectedCount').textContent = selectedMembers.size;
+    updateSummary();
+}
+
+function toggleSelectAll() {
+    const visible = attendanceFilteredMembers.length ? attendanceFilteredMembers : allMembers;
+    if (!visible.length) { showNotification('Nenhum membro!', 'error'); return; }
+    const allSelected = visible.every(m => selectedMembers.has(m.id));
+    if (allSelected) visible.forEach(m => selectedMembers.delete(m.id));
+    else visible.forEach(m => selectedMembers.add(m.id));
+    renderMembersList();
+    updateSummary();
+}
+
+function clearSelection() {
+    selectedMembers.clear();
+    renderMembersList();
+    updateSummary();
+}
+
+function updateSummary() {
+    const container = document.getElementById('attendanceSummary');
+    const total = selectedMembers.size;
+    container.innerHTML = total ? `<div style="background:#d4edda;padding:0.15rem 0.4rem;border-radius:4px;font-size:0.6rem;"><strong>${total}</strong> selecionados</div>` 
+        : '<p style="color:#888;font-size:0.6rem;">Nenhum selecionado</p>';
+}
+
+async function registerMultipleAttendance() {
+    const date = document.getElementById('attendanceDate').value;
+    const service = document.getElementById('attendanceService').value;
+    if (!date) { showNotification('Selecione a data!', 'error'); return; }
+    if (!selectedMembers.size) { showNotification('Selecione membros!', 'error'); return; }
+    if (!confirm(`Registrar ${selectedMembers.size} membros?`)) return;
+    let success = 0, errors = 0;
+    for (const id of selectedMembers) {
+        try {
+            await fetch('/api/attendance', {
+                method: 'POST',
+                headers: { 'Content-Type':'application/json', ...getHeaders() },
+                body: JSON.stringify({ member_id: id, event_date: date, service_type: service, present: true })
+            });
+            success++;
+        } catch (e) { errors++; }
+    }
+    showNotification(`✅ ${success} registrados ${errors ? '⚠️ '+errors+' erros' : ''}`, 'success');
+    await checkExistingAttendance(date);
+    renderMembersList();
+    loadAttendanceHistory(date);
+}
+
+async function registerAllAttendance() {
+    const date = document.getElementById('attendanceDate').value;
+    if (!date) { showNotification('Selecione a data!', 'error'); return; }
+    if (!allMembers.length) { showNotification('Carregue os membros!', 'error'); return; }
+    allMembers.forEach(m => selectedMembers.add(m.id));
+    renderMembersList();
+    updateSummary();
+    await registerMultipleAttendance();
+}
+
+async function loadAttendanceHistory(date) {
+    if (!date) { document.getElementById('attendanceList').innerHTML = '<p style="color:#888;text-align:center;font-size:0.55rem;">Selecione uma data</p>'; return; }
+    try {
+        const res = await fetch(`/api/attendance/date/${date}`, { headers: getHeaders() });
+        const records = await res.json();
+        const container = document.getElementById('attendanceList');
+        if (!records?.length) {
+            container.innerHTML = `<p style="color:#888;text-align:center;font-size:0.55rem;">Nenhum registro</p>`;
+            return;
+        }
+        const presentes = records.filter(r => r.present).length;
+        let html = `<div style="font-size:0.5rem;color:#666;margin-bottom:0.1rem;"><strong>${records.length}</strong> registros ✅ ${presentes} ❌ ${records.length - presentes}</div>`;
+        records.slice(0, 15).forEach(r => {
+            const m = allMembers.find(x => x.id === r.member_id);
+            const name = m ? m.name : '#' + r.member_id;
+            html += `<div style="display:flex;justify-content:space-between;padding:0.05rem 0;border-bottom:1px solid #f0f0f0;font-size:0.5rem;">
+                <span>${name}</span>
+                <span class="status ${r.present ? 'status-approved' : 'status-pending'}">${r.present ? '✅' : '❌'}</span>
+            </div>`;
+        });
+        container.innerHTML = html;
+    } catch (e) { console.error(e); }
 }
 
 // ============================================
@@ -1364,7 +1832,9 @@ async function openTitheModal() {
         const select = document.getElementById('titheMember');
         select.innerHTML = '<option value="">Visitante</option>' + members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
         document.getElementById('titheAmount').value = '';
+        document.getElementById('titheDate').value = new Date().toISOString().split('T')[0];
         document.getElementById('titheType').value = 'dizimo';
+        document.getElementById('titheMethod').value = 'dinheiro';
         openModal('titheModal');
     } catch (e) { showNotification('❌ ' + e.message, 'error'); }
 }
@@ -1373,12 +1843,14 @@ async function saveTithe() {
     const member_id = document.getElementById('titheMember').value;
     const type = document.getElementById('titheType').value;
     const amount = parseFloat(document.getElementById('titheAmount').value);
+    const payment_date = document.getElementById('titheDate').value;
+    const payment_method = document.getElementById('titheMethod').value;
     if (!amount || amount <= 0) { showNotification('Valor inválido!', 'error'); return; }
     try {
         await fetch('/api/tithes', {
             method: 'POST',
             headers: { 'Content-Type':'application/json', ...getHeaders() },
-            body: JSON.stringify({ member_id: member_id||null, member_name: null, type, amount, payment_date: new Date().toISOString().split('T')[0], payment_method: 'dinheiro', description: '' })
+            body: JSON.stringify({ member_id: member_id||null, member_name: null, type, amount, payment_date, payment_method, description: '' })
         });
         closeModal('titheModal');
         loadTithes();
@@ -1422,6 +1894,7 @@ function openBillModal() {
     document.getElementById('billDescription').value = '';
     document.getElementById('billCategory').value = 'agua';
     document.getElementById('billAmount').value = '';
+    document.getElementById('billDueDate').value = '';
     openModal('billModal');
 }
 
@@ -1429,12 +1902,13 @@ async function saveBill() {
     const desc = document.getElementById('billDescription').value.trim();
     const cat = document.getElementById('billCategory').value;
     const amount = parseFloat(document.getElementById('billAmount').value);
-    if (!desc || !amount) { showNotification('Preencha todos os campos!', 'error'); return; }
+    const due = document.getElementById('billDueDate').value;
+    if (!desc || !amount || !due) { showNotification('Preencha todos os campos!', 'error'); return; }
     try {
         await fetch('/api/bills', {
             method: 'POST',
             headers: { 'Content-Type':'application/json', ...getHeaders() },
-            body: JSON.stringify({ description: desc, category: cat, amount, due_date: new Date().toISOString().split('T')[0], notes: '' })
+            body: JSON.stringify({ description: desc, category: cat, amount, due_date: due, notes: '' })
         });
         closeModal('billModal');
         loadBills();
@@ -1581,6 +2055,7 @@ document.getElementById('carouselForm')?.addEventListener('submit', async functi
 document.addEventListener('DOMContentLoaded', () => {
     loadDashboard();
     loadConfig();
+    setDefaultAttendanceDate();
 });
 </script>
 </body>

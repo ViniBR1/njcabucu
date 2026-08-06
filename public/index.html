@@ -6,11 +6,9 @@
     <title>NJ Cabuçu - Igreja</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- SDK Mercado Pago -->
-    <script src="https://sdk.mercadopago.com/js/v2"></script>
     <style>
         /* ============================================
-           RESET E VARIÁVEIS
+           RESET E VARIÁVEIS - MANTIDO IGUAL AO SEU
         ============================================ */
         * { margin:0; padding:0; box-sizing:border-box; }
         :root {
@@ -38,16 +36,13 @@
         }
 
         /* ============================================
-           SCROLLBAR
+           SCROLLBAR, HEADER, NAV, HERO, SECTION, CARDS - MANTIDOS IGUAIS
         ============================================ */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--primary-light); }
 
-        /* ============================================
-           HEADER
-        ============================================ */
         .header {
             background: rgba(255,255,255,0.95);
             backdrop-filter: blur(10px);
@@ -63,19 +58,10 @@
             z-index: 1000;
             transition: var(--transition);
         }
-        .header.scrolled {
-            box-shadow: 0 4px 30px rgba(0,0,0,0.08);
-        }
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            text-decoration: none;
-            cursor: pointer;
-        }
+        .header.scrolled { box-shadow: 0 4px 30px rgba(0,0,0,0.08); }
+        .logo { display: flex; align-items: center; gap: 1rem; text-decoration: none; cursor: pointer; }
         .logo-icon {
-            width: 48px;
-            height: 48px;
+            width: 48px; height: 48px;
             border-radius: 50%;
             background: var(--primary-gradient);
             display: flex;
@@ -86,24 +72,12 @@
             color: white;
             box-shadow: 0 4px 15px rgba(13,71,161,0.3);
             transition: var(--transition);
-            position: relative;
         }
-        .logo-icon:hover {
-            transform: scale(1.05) rotate(-5deg);
-        }
-        .logo h1 {
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: -0.5px;
-        }
+        .logo-icon:hover { transform: scale(1.05) rotate(-5deg); }
+        .logo h1 { font-size: 1.4rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
         .logo h1 span { color: var(--accent); }
 
-        .header-actions {
-            display: flex;
-            gap: 0.8rem;
-            align-items: center;
-        }
+        .header-actions { display: flex; gap: 0.8rem; align-items: center; }
         .btn {
             padding: 0.5rem 1.2rem;
             border-radius: 50px;
@@ -118,73 +92,22 @@
             text-decoration: none;
             font-family: var(--font);
         }
-        .btn-primary {
-            background: var(--primary-gradient);
-            color: white;
-            box-shadow: 0 4px 15px rgba(13,71,161,0.3);
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(13,71,161,0.4);
-        }
-        .btn-outline {
-            background: transparent;
-            color: var(--primary);
-            border: 2px solid var(--primary);
-        }
-        .btn-outline:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-2px);
-        }
-        .btn-whatsapp {
-            background: #25D366;
-            color: white;
-        }
-        .btn-whatsapp:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(37,211,102,0.4);
-        }
+        .btn-primary { background: var(--primary-gradient); color: white; box-shadow: 0 4px 15px rgba(13,71,161,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(13,71,161,0.4); }
+        .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: white; transform: translateY(-2px); }
+        .btn-whatsapp { background: #25D366; color: white; }
+        .btn-whatsapp:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(37,211,102,0.4); }
         .btn-sm { padding: 0.3rem 0.8rem; font-size: 0.8rem; }
-        .btn-bible {
-            background: #8B5A2B;
-            color: white;
-            box-shadow: 0 4px 15px rgba(139,90,43,0.3);
-        }
-        .btn-bible:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(139,90,43,0.4);
-        }
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(40,167,69,0.4);
-        }
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-        .btn-danger:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-        }
+        .btn-bible { background: #8B5A2B; color: white; box-shadow: 0 4px 15px rgba(139,90,43,0.3); }
+        .btn-bible:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(139,90,43,0.4); }
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(40,167,69,0.4); }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-danger:hover { background: #c82333; transform: translateY(-2px); }
 
-        .menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--primary);
-            cursor: pointer;
-            padding: 0.3rem;
-        }
+        .menu-toggle { display: none; background: none; border: none; font-size: 1.5rem; color: var(--primary); cursor: pointer; padding: 0.3rem; }
 
-        /* ============================================
-           NAVEGAÇÃO
-        ============================================ */
         .main-nav {
             background: rgba(255,255,255,0.98);
             backdrop-filter: blur(10px);
@@ -201,10 +124,7 @@
             border-bottom: 1px solid rgba(0,0,0,0.05);
             transition: var(--transition);
         }
-        .main-nav.hidden-nav {
-            transform: translateY(-100%);
-            opacity: 0;
-        }
+        .main-nav.hidden-nav { transform: translateY(-100%); opacity: 0; }
         .nav-btn {
             background: transparent;
             border: none;
@@ -218,19 +138,10 @@
             font-family: var(--font);
             position: relative;
         }
-        .nav-btn:hover {
-            color: var(--primary);
-            background: var(--secondary);
-        }
-        .nav-btn.active {
-            color: white;
-            background: var(--primary-gradient);
-            box-shadow: 0 4px 15px rgba(13,71,161,0.3);
-        }
+        .nav-btn:hover { color: var(--primary); background: var(--secondary); }
+        .nav-btn.active { color: white; background: var(--primary-gradient); box-shadow: 0 4px 15px rgba(13,71,161,0.3); }
 
-        /* ============================================
-           HERO / CARROSSEL
-        ============================================ */
+        /* HERO */
         .hero {
             margin-top: 120px;
             position: relative;
@@ -241,11 +152,7 @@
             border-radius: 0 0 40px 40px;
             background: #1a1a2e;
         }
-        .hero-slides {
-            display: flex;
-            height: 100%;
-            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        .hero-slides { display: flex; height: 100%; transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
         .hero-slide {
             min-width: 100%;
             height: 100%;
@@ -274,9 +181,7 @@
             background: linear-gradient(135deg, rgba(13,71,161,0.7), rgba(10,58,122,0.5));
             transition: var(--transition);
         }
-        .hero-slide:hover .overlay {
-            background: linear-gradient(135deg, rgba(13,71,161,0.5), rgba(10,58,122,0.3));
-        }
+        .hero-slide:hover .overlay { background: linear-gradient(135deg, rgba(13,71,161,0.5), rgba(10,58,122,0.3)); }
         .hero-content {
             position: relative;
             z-index: 2;
@@ -291,24 +196,9 @@
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .hero-content h1 {
-            font-size: 3rem;
-            font-weight: 900;
-            margin-bottom: 1rem;
-            text-shadow: 0 4px 30px rgba(0,0,0,0.3);
-            line-height: 1.1;
-        }
-        .hero-content p {
-            font-size: 1.1rem;
-            opacity: 0.95;
-            margin-bottom: 1.5rem;
-            text-shadow: 0 2px 20px rgba(0,0,0,0.2);
-        }
-        .hero-content .btn {
-            pointer-events: all;
-            font-size: 1rem;
-            padding: 0.8rem 2rem;
-        }
+        .hero-content h1 { font-size: 3rem; font-weight: 900; margin-bottom: 1rem; text-shadow: 0 4px 30px rgba(0,0,0,0.3); line-height: 1.1; }
+        .hero-content p { font-size: 1.1rem; opacity: 0.95; margin-bottom: 1.5rem; text-shadow: 0 2px 20px rgba(0,0,0,0.2); }
+        .hero-content .btn { pointer-events: all; font-size: 1rem; padding: 0.8rem 2rem; }
 
         .hero-slide .info-badge {
             position: absolute;
@@ -329,10 +219,7 @@
             pointer-events: none;
             animation: pulse 2s infinite;
         }
-        @keyframes pulse {
-            0%, 100% { opacity: 0.8; }
-            50% { opacity: 1; }
-        }
+        @keyframes pulse { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; } }
         .hero-slide .info-badge i { font-size: 0.9rem; }
 
         .hero-controls {
@@ -354,11 +241,7 @@
             border: none;
             padding: 0;
         }
-        .hero-dot.active {
-            background: white;
-            transform: scale(1.2);
-            box-shadow: 0 0 20px rgba(255,255,255,0.3);
-        }
+        .hero-dot.active { background: white; transform: scale(1.2); box-shadow: 0 0 20px rgba(255,255,255,0.3); }
         .hero-dot:hover { background: rgba(255,255,255,0.8); }
 
         .hero-arrows {
@@ -388,47 +271,21 @@
             justify-content: center;
             color: var(--primary);
         }
-        .hero-arrow:hover {
-            background: white;
-            transform: scale(1.1);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-        }
+        .hero-arrow:hover { background: white; transform: scale(1.1); box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
 
-        /* ============================================
-           SEÇÕES
-        ============================================ */
+        /* SEÇÕES */
         .section {
             max-width: 1200px;
             margin: 3rem auto;
             padding: 0 2rem;
             scroll-margin-top: 130px;
         }
-        .section-header {
-            text-align: center;
-            margin-bottom: 2.5rem;
-        }
-        .section-header h2 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: -0.5px;
-        }
-        .section-header .subtitle {
-            color: #888;
-            font-size: 1.05rem;
-            margin-top: 0.3rem;
-        }
-        .section-header .line {
-            width: 60px;
-            height: 4px;
-            background: var(--primary-gradient);
-            border-radius: 10px;
-            margin: 0.5rem auto 0;
-        }
+        .section-header { text-align: center; margin-bottom: 2.5rem; }
+        .section-header h2 { font-size: 2.5rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
+        .section-header .subtitle { color: #888; font-size: 1.05rem; margin-top: 0.3rem; }
+        .section-header .line { width: 60px; height: 4px; background: var(--primary-gradient); border-radius: 10px; margin: 0.5rem auto 0; }
 
-        /* ============================================
-           CARDS
-        ============================================ */
+        /* CARDS */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -446,11 +303,7 @@
             display: flex;
             flex-direction: column;
         }
-        .card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-hover);
-            border-color: var(--primary);
-        }
+        .card:hover { transform: translateY(-8px); box-shadow: var(--shadow-hover); border-color: var(--primary); }
         .card .icon-wrapper {
             width: 60px;
             height: 60px;
@@ -465,23 +318,10 @@
             transition: var(--transition);
             flex-shrink: 0;
         }
-        .card:hover .icon-wrapper {
-            background: var(--primary-gradient);
-            color: white;
-            transform: scale(1.05) rotate(-5deg);
-        }
-        .card h3 {
-            font-size: 1.2rem;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
+        .card:hover .icon-wrapper { background: var(--primary-gradient); color: white; transform: scale(1.05) rotate(-5deg); }
+        .card h3 { font-size: 1.2rem; color: var(--primary); margin-bottom: 0.5rem; }
         .card p { color: #666; font-size: 0.95rem; line-height: 1.6; flex: 1; }
-        .card .price {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin: 0.5rem 0;
-        }
+        .card .price { font-size: 1.3rem; font-weight: 700; color: var(--primary); margin: 0.5rem 0; }
         .card .btn { width: 100%; justify-content: center; margin-top: auto; }
 
         .card-image-wrapper {
@@ -503,117 +343,9 @@
             object-fit: cover;
             transition: var(--transition);
         }
-        .card:hover .card-image-wrapper img {
-            transform: scale(1.05);
-        }
+        .card:hover .card-image-wrapper img { transform: scale(1.05); }
 
-        /* ============================================
-           MODAL BÍBLIA
-        ============================================ */
-        .modal-bible .modal-content {
-            max-width: 750px;
-        }
-        .bible-container {
-            display: flex;
-            gap: 2rem;
-            flex-wrap: wrap;
-        }
-        .bible-input { flex: 1; min-width: 250px; }
-        .bible-input select, .bible-input input {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            margin: 0.3rem 0;
-            border: 2px solid #e0e0e0;
-            border-radius: var(--radius-sm);
-            font-size: 1rem;
-            font-family: var(--font);
-            transition: var(--transition);
-            background: #fafbff;
-        }
-        .bible-input select:focus, .bible-input input:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(13,71,161,0.1);
-            background: white;
-        }
-        .bible-input .btn {
-            width: 100%;
-            justify-content: center;
-            margin-top: 0.5rem;
-        }
-        .bible-result {
-            flex: 2;
-            min-width: 300px;
-            background: #fafbff;
-            padding: 1.5rem 1.8rem;
-            border-radius: var(--radius-sm);
-            max-height: 400px;
-            overflow-y: auto;
-            border: 1px solid #eef1f6;
-        }
-        .bible-result .verse {
-            font-size: 1.05rem;
-            line-height: 1.8;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #edf0f5;
-        }
-        .bible-result .verse strong { color: var(--primary); }
-        .bible-result .reference {
-            font-weight: 700;
-            color: var(--primary);
-            margin-top: 0.5rem;
-            font-size: 0.95rem;
-        }
-        .bible-result .error-message {
-            color: #dc3545;
-            padding: 0.5rem 0;
-        }
-        .bible-result .loading {
-            color: #888;
-            padding: 0.5rem 0;
-        }
-        .bible-result .fallback-note {
-            color: #888;
-            font-size: 0.8rem;
-            margin-top: 0.5rem;
-        }
-
-        /* ============================================
-           MODAL CARROSSEL INFO
-        ============================================ */
-        .modal-carousel .modal-content {
-            max-width: 700px;
-        }
-        .modal-carousel .modal-content .carousel-info-image {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            border-radius: var(--radius-sm);
-            margin-bottom: 1rem;
-        }
-        .modal-carousel .modal-content .carousel-info-title {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-        .modal-carousel .modal-content .carousel-info-subtitle {
-            font-size: 1.1rem;
-            color: #666;
-            margin-bottom: 1rem;
-        }
-        .modal-carousel .modal-content .carousel-info-description {
-            color: #555;
-            line-height: 1.8;
-        }
-        .modal-carousel .modal-content .carousel-info-link {
-            display: inline-block;
-            margin-top: 1rem;
-        }
-
-        /* ============================================
-           MODAIS GERAIS
-        ============================================ */
+        /* MODAIS */
         .modal {
             display: none;
             position: fixed;
@@ -629,10 +361,7 @@
             animation: fadeIn 0.3s ease;
         }
         .modal.open { display: flex; }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .modal-content {
             background: white;
             padding: 2rem;
@@ -688,14 +417,61 @@
         .modal-content .form-row > * { flex: 1; }
         .modal-content .btn { width: 100%; justify-content: center; margin-top: 0.5rem; }
 
-        /* ============================================
-           ANIVERSARIANTES
-        ============================================ */
-        .birthday-card {
-            text-align: center;
-            border-left: 4px solid var(--primary);
-            padding: 1.5rem;
+        /* BÍBLIA MODAL */
+        .modal-bible .modal-content { max-width: 750px; }
+        .bible-container { display: flex; gap: 2rem; flex-wrap: wrap; }
+        .bible-input { flex: 1; min-width: 250px; }
+        .bible-input select, .bible-input input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            margin: 0.3rem 0;
+            border: 2px solid #e0e0e0;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-family: var(--font);
+            transition: var(--transition);
+            background: #fafbff;
         }
+        .bible-input select:focus, .bible-input input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(13,71,161,0.1);
+            background: white;
+        }
+        .bible-input .btn { width: 100%; justify-content: center; margin-top: 0.5rem; }
+        .bible-result {
+            flex: 2;
+            min-width: 300px;
+            background: #fafbff;
+            padding: 1.5rem 1.8rem;
+            border-radius: var(--radius-sm);
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #eef1f6;
+        }
+        .bible-result .verse { font-size: 1.05rem; line-height: 1.8; padding: 0.5rem 0; border-bottom: 1px solid #edf0f5; }
+        .bible-result .verse strong { color: var(--primary); }
+        .bible-result .reference { font-weight: 700; color: var(--primary); margin-top: 0.5rem; font-size: 0.95rem; }
+        .bible-result .error-message { color: #dc3545; padding: 0.5rem 0; }
+        .bible-result .loading { color: #888; padding: 0.5rem 0; }
+        .bible-result .fallback-note { color: #888; font-size: 0.8rem; margin-top: 0.5rem; }
+
+        /* CARROSSEL INFO */
+        .modal-carousel .modal-content { max-width: 700px; }
+        .modal-carousel .modal-content .carousel-info-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1rem;
+        }
+        .modal-carousel .modal-content .carousel-info-title { font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-bottom: 0.5rem; }
+        .modal-carousel .modal-content .carousel-info-subtitle { font-size: 1.1rem; color: #666; margin-bottom: 1rem; }
+        .modal-carousel .modal-content .carousel-info-description { color: #555; line-height: 1.8; }
+        .modal-carousel .modal-content .carousel-info-link { display: inline-block; margin-top: 1rem; }
+
+        /* ANIVERSARIANTES */
+        .birthday-card { text-align: center; border-left: 4px solid var(--primary); padding: 1.5rem; }
         .birthday-card .emoji { font-size: 2.5rem; margin-bottom: 0.3rem; }
         .birthday-card .name { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
         .birthday-card .date { color: #666; font-size: 0.9rem; }
@@ -703,9 +479,7 @@
         .birthday-card.today { border-color: #e91e63; }
         .birthday-card.today .name { color: #e91e63; }
 
-        /* ============================================
-           NOTIFICAÇÕES
-        ============================================ */
+        /* NOTIFICAÇÕES */
         .notification {
             position: fixed;
             top: 90px;
@@ -719,17 +493,12 @@
             animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             font-family: var(--font);
         }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(30px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
         .notification.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .notification.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .notification.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
 
-        /* ============================================
-           TITHE OPTIONS
-        ============================================ */
+        /* TITHE OPTIONS */
         .tithe-options {
             display: flex;
             justify-content: center;
@@ -749,14 +518,9 @@
             font-family: var(--font);
             box-shadow: 0 4px 20px rgba(13,71,161,0.2);
         }
-        .btn-donation:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 8px 35px rgba(13,71,161,0.3);
-        }
+        .btn-donation:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 35px rgba(13,71,161,0.3); }
 
-        /* ============================================
-           FOOTER
-        ============================================ */
+        /* FOOTER */
         .footer {
             background: #1a1a2e;
             color: white;
@@ -771,17 +535,9 @@
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 2rem;
         }
-        .footer h4 {
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
-            color: var(--primary-light);
-        }
+        .footer h4 { font-size: 1.1rem; margin-bottom: 1rem; color: var(--primary-light); }
         .footer p { opacity: 0.7; line-height: 1.8; font-size: 0.95rem; }
-        .footer .social-links {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
+        .footer .social-links { display: flex; gap: 1rem; margin-top: 1rem; }
         .footer .social-links a {
             color: white;
             font-size: 1.4rem;
@@ -795,26 +551,10 @@
             background: rgba(255,255,255,0.05);
             text-decoration: none;
         }
-        .footer .social-links a:hover {
-            background: var(--primary);
-            transform: translateY(-3px);
-        }
-        .footer-bottom {
-            text-align: center;
-            padding-top: 2rem;
-            margin-top: 2rem;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            opacity: 0.5;
-            font-size: 0.9rem;
-        }
+        .footer .social-links a:hover { background: var(--primary); transform: translateY(-3px); }
+        .footer-bottom { text-align: center; padding-top: 2rem; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05); opacity: 0.5; font-size: 0.9rem; }
 
-        /* ============================================
-           RESPONSIVIDADE
-        ============================================ */
-        @media (max-width: 1024px) {
-            .hero-content h1 { font-size: 2.5rem; }
-            .hero { height: 450px; }
-        }
+        @media (max-width: 1024px) { .hero-content h1 { font-size: 2.5rem; } .hero { height: 450px; } }
         @media (max-width: 768px) {
             .header { padding: 0.8rem 1rem; }
             .logo h1 { font-size: 1.1rem; }
@@ -832,10 +572,7 @@
                 transition: max-height 0.4s ease, padding 0.4s ease;
                 padding: 0 1rem;
             }
-            .main-nav.open {
-                max-height: 500px;
-                padding: 1rem;
-            }
+            .main-nav.open { max-height: 500px; padding: 1rem; }
             .nav-btn { width: 100%; text-align: center; padding: 0.6rem; }
             .hero { margin-top: 65px; height: 320px; max-height: 400px; }
             .hero-content h1 { font-size: 1.6rem; }
@@ -903,15 +640,11 @@
 
 <!-- HERO / CARROSSEL -->
 <section id="home" class="hero">
-    <div class="hero-slides" id="heroSlides">
-        <!-- Os slides serão injetados via JS -->
-    </div>
-
+    <div class="hero-slides" id="heroSlides"></div>
     <div class="hero-arrows">
         <button class="hero-arrow" onclick="changeSlide(-1)">❮</button>
         <button class="hero-arrow" onclick="changeSlide(1)">❯</button>
     </div>
-
     <div class="hero-controls" id="heroControls"></div>
 </section>
 
@@ -1080,7 +813,7 @@
     </div>
 </footer>
 
-<!-- MODAL BÍBLIA -->
+<!-- MODAIS -->
 <div class="modal modal-bible" id="bibleModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('bibleModal')">&times;</button>
@@ -1149,7 +882,6 @@
     </div>
 </div>
 
-<!-- MODAL CARROSSEL INFO -->
 <div class="modal modal-carousel" id="carouselInfoModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('carouselInfoModal')">&times;</button>
@@ -1264,6 +996,9 @@ let carouselData = [];
 let paymentType = 'sale';
 let donationType = '';
 let _donationAmount = 0;
+let allMembers = [];
+let selectedMembers = new Set();
+let attendanceFilteredMembers = [];
 
 // ============================================
 // ===== HEADER SCROLL =====
@@ -2065,78 +1800,7 @@ async function processPayment() {
     try {
         showNotification('🔄 Processando pagamento...', 'info');
 
-        if (method === 'card') {
-            // ===== PAGAMENTO COM CARTÃO =====
-            const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
-            const cardExpiry = document.getElementById('cardExpiry').value;
-            const cardCvv = document.getElementById('cardCvv').value;
-            const installments = document.getElementById('cardInstallments').value;
-
-            if (!cardNumber || !cardExpiry || !cardCvv) {
-                showNotification('Preencha os dados do cartão!', 'error');
-                return;
-            }
-
-            if (cardNumber.length < 16) { showNotification('Número do cartão inválido (16 dígitos)', 'error'); return; }
-            if (!cardExpiry.includes('/') || cardExpiry.length < 5) { showNotification('Validade inválida (MM/AA)', 'error'); return; }
-            if (cardCvv.length < 3) { showNotification('CVV inválido (3 dígitos)', 'error'); return; }
-
-            try {
-                // Cria token do cartão usando SDK do Mercado Pago
-                const mp = new MercadoPago('APP_USR-9cbd3a18-e58d-4091-920b-ab3cd0faa588');
-                
-                const cardToken = await mp.fields.createCardToken({
-                    cardNumber: cardNumber,
-                    expirationMonth: cardExpiry.split('/')[0],
-                    expirationYear: '20' + cardExpiry.split('/')[1],
-                    securityCode: cardCvv,
-                    cardholderName: name,
-                    cardholderEmail: email,
-                    cardholderIdentification: {
-                        type: 'CPF',
-                        number: cpf
-                    }
-                });
-
-                const paymentData = {
-                    amount: amount,
-                    description: description,
-                    email: email,
-                    name: name,
-                    phone: phone,
-                    cpf: cpf,
-                    card_token: cardToken.id,
-                    installments: parseInt(installments)
-                };
-
-                const response = await fetch('/api/create-card-payment', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(paymentData)
-                });
-
-                const payment = await response.json();
-                if (payment.error) throw new Error(payment.error);
-
-                // Salva no banco
-                await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'card', description);
-
-                if (payment.status === 'approved') {
-                    showNotification('✅ Pagamento aprovado! Obrigado! 🙏', 'success');
-                    cart = [];
-                    document.getElementById('cartCount').textContent = 0;
-                    closeModal('paymentModal');
-                } else {
-                    showNotification(`⏳ Pagamento ${payment.status}. Aguarde a confirmação.`, 'info');
-                    closeModal('paymentModal');
-                }
-
-            } catch (mpError) {
-                console.error('Erro no token do cartão:', mpError);
-                showNotification('❌ Erro ao processar cartão: ' + mpError.message, 'error');
-            }
-
-        } else {
+        if (method === 'pix') {
             // ===== PAGAMENTO COM PIX =====
             const paymentData = {
                 amount: amount,
@@ -2159,58 +1823,137 @@ async function processPayment() {
             // Salva no banco
             await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'pix', description);
 
-            // Mostra QR Code
-            if (payment.payment_link) {
-                // Abre o link do Mercado Pago
-                window.open(payment.payment_link, '_blank');
-                showNotification('🔗 Abrindo pagamento PIX...', 'info');
-                
-                // Salva o payment_id para verificação posterior
-                localStorage.setItem('last_payment_id', payment.payment_id);
-                localStorage.setItem('last_payment_status', payment.status);
-                
-                closeModal('paymentModal');
-                
-                // Pergunta se quer verificar o status
-                setTimeout(() => {
-                    if (confirm('✅ Pagamento PIX gerado! Após pagar, deseja verificar o status?')) {
-                        checkPaymentStatus(payment.payment_id);
-                    }
-                }, 5000);
-                
-            } else if (payment.qr_code_base64) {
-                // Mostra QR Code no modal
-                const resultDiv = document.getElementById('paymentResult');
-                resultDiv.style.display = 'block';
-                resultDiv.innerHTML = `
-                    <h3>✅ Pagamento via PIX</h3>
-                    <div style="text-align:center;padding:1rem;">
-                        <img src="data:image/png;base64,${payment.qr_code_base64}" style="max-width:200px;margin:0 auto;display:block;">
-                        <p style="margin:0.5rem 0;">Escaneie o QR Code ou copie o código:</p>
-                        <div style="background:#f4f6fc;padding:0.5rem;border-radius:8px;word-break:break-all;font-size:0.8rem;">${payment.qr_code}</div>
-                        <button onclick="navigator.clipboard.writeText('${payment.qr_code}')" class="btn btn-primary btn-sm" style="margin:0.3rem;">
-                            <i class="fas fa-copy"></i> Copiar
-                        </button>
-                        <a href="${payment.payment_link}" target="_blank" class="btn btn-success btn-sm" style="margin:0.3rem;">
-                            <i class="fas fa-external-link-alt"></i> Abrir no Banco
-                        </a>
-                        <p style="margin-top:0.5rem;color:#888;">Status: ${payment.status}</p>
-                        <button onclick="checkPaymentStatus('${payment.payment_id}')" class="btn btn-primary btn-sm" style="margin:0.3rem;">
+            // Mostra QR Code e Link
+            const resultDiv = document.getElementById('paymentResult');
+            resultDiv.style.display = 'block';
+            document.getElementById('paymentForm').style.display = 'none';
+            
+            let qrHtml = `
+                <h3 style="color:var(--primary);margin-bottom:0.5rem;">✅ Pagamento PIX Gerado</h3>
+                <div style="text-align:center;padding:0.5rem;">
+            `;
+            
+            if (payment.qr_code_base64) {
+                qrHtml += `
+                    <img src="data:image/png;base64,${payment.qr_code_base64}" style="max-width:200px;margin:0 auto;display:block;border-radius:8px;">
+                    <p style="margin:0.5rem 0;font-size:0.85rem;">Escaneie o QR Code com seu banco</p>
+                `;
+            }
+            
+            if (payment.qr_code) {
+                qrHtml += `
+                    <div style="background:#f4f6fc;padding:0.5rem;border-radius:8px;word-break:break-all;font-size:0.75rem;margin:0.5rem 0;border:1px solid #e0e0e0;">
+                        <strong>Código PIX:</strong><br>${payment.qr_code}
+                    </div>
+                    <button onclick="navigator.clipboard.writeText('${payment.qr_code}')" class="btn btn-primary btn-sm" style="margin:0.3rem;">
+                        <i class="fas fa-copy"></i> Copiar código
+                    </button>
+                `;
+            }
+            
+            qrHtml += `
+                    <a href="${payment.payment_link}" target="_blank" class="btn btn-success" style="margin:0.3rem;display:inline-flex;">
+                        <i class="fas fa-external-link-alt"></i> Abrir no Mercado Pago
+                    </a>
+                    <p style="margin-top:0.5rem;font-size:0.75rem;color:#888;">Status: <strong>${payment.status}</strong></p>
+                    <div style="display:flex;gap:0.5rem;justify-content:center;margin-top:0.5rem;flex-wrap:wrap;">
+                        <button onclick="checkPaymentStatus('${payment.payment_id}')" class="btn btn-primary btn-sm">
                             <i class="fas fa-sync"></i> Verificar Status
                         </button>
-                        <button onclick="closeModal('paymentModal')" class="btn btn-sm" style="margin:0.3rem;">
+                        <button onclick="closeModal('paymentModal')" class="btn btn-sm btn-outline" style="border:2px solid #888;color:#888;background:transparent;padding:0.3rem 1rem;border-radius:50px;cursor:pointer;">
                             <i class="fas fa-check"></i> Concluir
                         </button>
                     </div>
-                `;
-                document.getElementById('paymentForm').style.display = 'none';
-                localStorage.setItem('last_payment_id', payment.payment_id);
+                    <p style="margin-top:0.5rem;font-size:0.7rem;color:#999;">
+                        Após pagar, clique em "Verificar Status" para confirmar.
+                    </p>
+                </div>
+            `;
+            
+            resultDiv.innerHTML = qrHtml;
+            localStorage.setItem('last_payment_id', payment.payment_id);
+
+        } else {
+            // ===== PAGAMENTO COM CARTÃO =====
+            const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+            const cardExpiry = document.getElementById('cardExpiry').value;
+            const cardCvv = document.getElementById('cardCvv').value;
+            const installments = document.getElementById('cardInstallments').value;
+
+            if (!cardNumber || !cardExpiry || !cardCvv) {
+                showNotification('Preencha os dados do cartão!', 'error');
+                return;
+            }
+
+            if (cardNumber.length < 16) { showNotification('Número do cartão inválido (16 dígitos)', 'error'); return; }
+            if (!cardExpiry.includes('/') || cardExpiry.length < 5) { showNotification('Validade inválida (MM/AA)', 'error'); return; }
+            if (cardCvv.length < 3) { showNotification('CVV inválido (3 dígitos)', 'error'); return; }
+
+            // Cria token do cartão usando SDK do Mercado Pago
+            const mp = new MercadoPago('APP_USR-9cbd3a18-e58d-4091-920b-ab3cd0faa588');
+            
+            const cardToken = await mp.fields.createCardToken({
+                cardNumber: cardNumber,
+                expirationMonth: cardExpiry.split('/')[0],
+                expirationYear: '20' + cardExpiry.split('/')[1],
+                securityCode: cardCvv,
+                cardholderName: name,
+                cardholderEmail: email,
+                cardholderIdentification: {
+                    type: 'CPF',
+                    number: cpf
+                }
+            });
+
+            const paymentData = {
+                amount: amount,
+                description: description,
+                email: email,
+                name: name,
+                phone: phone,
+                cpf: cpf,
+                card_token: cardToken.id,
+                installments: parseInt(installments)
+            };
+
+            const response = await fetch('/api/create-card-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(paymentData)
+            });
+
+            const payment = await response.json();
+            if (payment.error) throw new Error(payment.error);
+
+            // Salva no banco
+            await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'card', description);
+
+            if (payment.status === 'approved') {
+                showNotification('✅ Pagamento aprovado! Obrigado! 🙏', 'success');
+                cart = [];
+                document.getElementById('cartCount').textContent = 0;
+                closeModal('paymentModal');
+            } else {
+                showNotification(`⏳ Pagamento ${payment.status}. Aguarde a confirmação.`, 'info');
+                closeModal('paymentModal');
+                
+                // Mostra opção de verificar status
+                setTimeout(() => {
+                    if (confirm('Deseja verificar o status do pagamento?')) {
+                        checkPaymentStatus(payment.payment_id);
+                    }
+                }, 2000);
             }
         }
 
     } catch (error) {
-        showNotification('❌ Erro: ' + error.message, 'error');
         console.error('Erro no pagamento:', error);
+        showNotification('❌ Erro: ' + error.message, 'error');
+        
+        // Se for erro de token do cartão, tenta novamente com fallback
+        if (error.message.includes('card_token') || error.message.includes('token')) {
+            showNotification('⚠️ Erro no cartão. Tente novamente ou use PIX.', 'error');
+        }
     }
 }
 

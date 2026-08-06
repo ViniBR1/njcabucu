@@ -1689,7 +1689,7 @@ async function saveOrderOrDonation(name, email, phone, amount, paymentId, method
 }
 
 // ============================================
-// ===== FUNÇÃO PARA VERIFICAR STATUS - CORRIGIDA =====
+// ===== FUNÇÃO PARA VERIFICAR STATUS =====
 // ============================================
 async function checkPaymentStatus(paymentId) {
     try {
@@ -1702,7 +1702,6 @@ async function checkPaymentStatus(paymentId) {
             }
         });
         
-        // Verifica se a resposta é JSON
         const contentType = response.headers.get('content-type');
         if (!contentType || !contentType.includes('application/json')) {
             console.warn('Resposta não é JSON, tentando rota alternativa...');
@@ -1996,7 +1995,7 @@ async function processPayment() {
             verificarStatusAutomatico(payment.payment_id);
 
         } else {
-            // ===== PAGAMENTO COM CARTÃO - VERSÃO SIMPLIFICADA (SEM SDK) =====
+            // ===== PAGAMENTO COM CARTÃO - VERSÃO SIMPLIFICADA =====
             const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
             const cardExpiry = document.getElementById('cardExpiry').value;
             const cardCvv = document.getElementById('cardCvv').value;
@@ -2007,9 +2006,18 @@ async function processPayment() {
                 return;
             }
 
-            if (cardNumber.length < 16) { showNotification('Número do cartão inválido (16 dígitos)', 'error'); return; }
-            if (!cardExpiry.includes('/') || cardExpiry.length < 5) { showNotification('Validade inválida (MM/AA)', 'error'); return; }
-            if (cardCvv.length < 3) { showNotification('CVV inválido (3 dígitos)', 'error'); return; }
+            if (cardNumber.length < 16) { 
+                showNotification('Número do cartão inválido (16 dígitos)', 'error'); 
+                return; 
+            }
+            if (!cardExpiry.includes('/') || cardExpiry.length < 5) { 
+                showNotification('Validade inválida (MM/AA)', 'error'); 
+                return; 
+            }
+            if (cardCvv.length < 3) { 
+                showNotification('CVV inválido (3 dígitos)', 'error'); 
+                return; 
+            }
 
             try {
                 showNotification('🔄 Processando cartão...', 'info');
@@ -2050,7 +2058,7 @@ async function processPayment() {
                 }
             } catch (error) {
                 console.error('❌ Erro no cartão:', error);
-                showNotification('❌ Erro ao processar cartão: ' + error.message, 'error');
+                showNotification('❌ Erro: ' + error.message, 'error');
             }
         }
 

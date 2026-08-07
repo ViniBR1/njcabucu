@@ -722,7 +722,7 @@
         <p style="font-size:0.55rem;color:#888;margin-bottom:0.3rem;">Todas as compras realizadas na loja</p>
         <div class="table-wrapper">
             <table class="table">
-                <thead><tr><th>Cliente</th><th>Produto</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
+                <thead><tr><th>Cliente</th><th>Produto</th><th>Tamanho</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
                 <tbody id="ordersList"></tbody>
             </table>
         </div>
@@ -1185,7 +1185,18 @@
                 <div class="form-group"><label>Preço</label><input type="number" name="price" step="0.01" required></div>
                 <div class="form-group"><label>Estoque</label><input type="number" name="stock" value="10"></div>
             </div>
-            <div class="form-group"><label>Categoria</label><input type="text" name="category"></div>
+            <div class="form-group"><label>Categoria</label>
+                <select name="category">
+                    <option value="">Selecione...</option>
+                    <option value="camisa">Camisa</option>
+                    <option value="camiseta">Camiseta</option>
+                    <option value="calca">Calça</option>
+                    <option value="vestido">Vestido</option>
+                    <option value="acessorio">Acessório</option>
+                    <option value="livro">Livro</option>
+                    <option value="outros">Outros</option>
+                </select>
+            </div>
             <div class="form-group"><label>Imagem</label><input type="file" name="image" accept="image/*"></div>
             <button type="submit" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
         </form>
@@ -1307,6 +1318,7 @@ function showTab(tab) {
     if (tab === 'config') loadConfig();
     if (tab === 'sobre') loadAbout();
     if (tab === 'inscricoes') loadRegistrations();
+    if (tab === 'vendas') loadOrders();
     
     const el = document.getElementById('tab-' + tab);
     if (el) {
@@ -1420,14 +1432,19 @@ function loadPrayers(prayers) {
 
 function loadOrders(orders) {
     const tbody = document.getElementById('ordersList');
-    if (!orders?.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
+    if (!orders?.length) { 
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="color:#888;">Nenhuma venda</td></tr>'; 
+        return; 
+    }
     tbody.innerHTML = orders.slice(0, 30).map(o => {
         let items = [];
         try { items = JSON.parse(o.items || '[]'); } catch { items = []; }
-        const pn = items.length ? items.map(i => i.name).join(', ') : '-';
+        const productNames = items.map(i => i.name + (i.size ? ' (' + i.size + ')' : '')).join(', ');
+        const sizes = items.map(i => i.size || '-').join(', ');
         return `<tr>
             <td>${o.user_name||'Anônimo'}</td>
-            <td>${pn}</td>
+            <td>${productNames}</td>
+            <td>${sizes}</td>
             <td>R$ ${parseFloat(o.total||0).toFixed(2)}</td>
             <td><span class="status status-${o.status||'pending'}">${o.status||'Pendente'}</span></td>
             <td>${new Date(o.created_at).toLocaleDateString('pt-BR')}</td>

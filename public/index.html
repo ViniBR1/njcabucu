@@ -536,6 +536,60 @@
         .footer .social-links a:hover { background: var(--primary); transform: translateY(-3px); }
         .footer-bottom { text-align: center; padding-top: 2rem; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05); opacity: 0.5; font-size: 0.9rem; }
 
+        /* MODAL TAMANHO */
+        .size-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+        .size-modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        .size-modal-content h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        .size-modal-content .size-options {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+        .size-modal-content .size-btn {
+            padding: 0.5rem 1.2rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        .size-modal-content .size-btn:hover {
+            border-color: var(--primary);
+            background: var(--secondary);
+        }
+        .size-modal-content .size-btn.selected {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
         @media (max-width: 1024px) { .hero-content h1 { font-size: 2.5rem; } .hero { height: 450px; } }
         @media (max-width: 768px) {
             .header { padding: 0.8rem 1rem; }
@@ -983,6 +1037,7 @@ let allMembers = [];
 let selectedMembers = new Set();
 let attendanceFilteredMembers = [];
 let statusCheckInterval = null;
+let pendingProduct = null;
 
 // ============================================
 // ===== HEADER SCROLL =====
@@ -1496,21 +1551,128 @@ async function loadBirthdays() {
 }
 
 // ============================================
-// ===== CARRINHO =====
+// ===== NJ STORE - CARRINHO MELHORADO =====
 // ============================================
 
+// Função para adicionar ao carrinho com verificação de CPF e tamanho
 async function addToCart(productId) {
     try {
         const res = await fetch('/api/products');
         const products = await res.json();
         const product = products.find(p => p.id === productId);
-        if (product) {
-            cart.push(product);
-            document.getElementById('cartCount').textContent = cart.length;
-            showNotification('✅ ' + product.name + ' adicionado ao carrinho!', 'success');
+        if (!product) {
+            showNotification('❌ Produto não encontrado!', 'error');
+            return;
         }
-    } catch (e) { console.error('Erro:', e); }
+
+        // Verifica se o usuário já comprou este produto (pelo CPF)
+        const cpf = prompt('Digite seu CPF para verificar se já comprou este item:');
+        if (!cpf) return;
+        
+        const cpfClean = cpf.replace(/[^\d]/g, '');
+        if (cpfClean.length !== 11) {
+            showNotification('⚠️ CPF inválido! Digite 11 números.', 'error');
+            return;
+        }
+        
+        const checkRes = await fetch('/api/check-purchase', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cpf: cpfClean, product_id: productId })
+        });
+        const checkData = await checkRes.json();
+        
+        if (checkData.hasPurchased) {
+            const confirmar = confirm(`⚠️ Você já comprou "${product.name}" anteriormente (${checkData.count} vez(es)). Deseja comprar novamente?`);
+            if (!confirmar) return;
+        }
+
+        // Se for roupa, pergunta o tamanho
+        const clothingCategories = ['camisa', 'camiseta', 'calca', 'vestido', 'roupa', 'vestuario'];
+        const isClothing = clothingCategories.includes(product.category?.toLowerCase()) || 
+                           product.category?.toLowerCase().includes('camisa') ||
+                           product.category?.toLowerCase().includes('camiseta');
+
+        if (isClothing) {
+            pendingProduct = product;
+            showSizeModal(product);
+            return;
+        }
+
+        // Se não for roupa, adiciona direto
+        addProductToCart(product, null, null);
+        
+    } catch (e) { 
+        console.error('Erro:', e);
+        showNotification('❌ Erro ao adicionar ao carrinho', 'error');
+    }
 }
+
+// Modal de seleção de tamanho
+function showSizeModal(product) {
+    const sizes = ['P', 'M', 'G', 'GG', 'XG', '2XG'];
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'size-modal-overlay';
+    overlay.id = 'sizeModal';
+    overlay.innerHTML = `
+        <div class="size-modal-content">
+            <h3>👕 Selecione o Tamanho</h3>
+            <p style="color:#666;font-size:0.9rem;">${product.name}</p>
+            <div class="size-options">
+                ${sizes.map(s => `<button class="size-btn" data-size="${s}" onclick="selectSize('${s}')">${s}</button>`).join('')}
+            </div>
+            <button onclick="cancelSize()" class="btn btn-outline" style="width:100%;justify-content:center;margin-top:0.5rem;">
+                Cancelar
+            </button>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+}
+
+let selectedSize = null;
+
+function selectSize(size) {
+    selectedSize = size;
+    // Destaca o botão selecionado
+    document.querySelectorAll('.size-btn').forEach(b => {
+        b.classList.toggle('selected', b.dataset.size === size);
+    });
+    
+    if (pendingProduct) {
+        addProductToCart(pendingProduct, size, null);
+        closeSizeModal();
+    }
+}
+
+function cancelSize() {
+    closeSizeModal();
+    pendingProduct = null;
+    selectedSize = null;
+}
+
+function closeSizeModal() {
+    const modal = document.getElementById('sizeModal');
+    if (modal) modal.remove();
+}
+
+function addProductToCart(product, size, color) {
+    const item = {
+        ...product,
+        size: size || null,
+        color: color || null
+    };
+    
+    cart.push(item);
+    document.getElementById('cartCount').textContent = cart.length;
+    showNotification(`✅ ${product.name}${size ? ' (Tamanho: ' + size + ')' : ''} adicionado ao carrinho!`, 'success');
+    pendingProduct = null;
+    selectedSize = null;
+}
+
+// ============================================
+// ===== CARRINHO =====
+// ============================================
 
 function openCart() {
     const container = document.getElementById('cartItems');
@@ -1522,7 +1684,7 @@ function openCart() {
         let total = 0;
         container.innerHTML = cart.map((p, i) => `
             <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem;border-bottom:1px solid #eee;">
-                <span>${p.name} - R$ ${parseFloat(p.price).toFixed(2)}</span>
+                <span>${p.name}${p.size ? ' (' + p.size + ')' : ''} - R$ ${parseFloat(p.price).toFixed(2)}</span>
                 <button onclick="removeFromCart(${i})" class="btn btn-danger btn-sm"><i class="fas fa-times"></i></button>
             </div>
         `).join('');
@@ -1647,7 +1809,9 @@ async function saveOrderOrDonation(name, email, phone, amount, paymentId, method
                 id: item.id,
                 name: item.name,
                 price: parseFloat(item.price),
-                quantity: 1
+                quantity: 1,
+                size: item.size || null,
+                color: item.color || null
             }));
 
             await fetch('/api/orders', {
@@ -1661,7 +1825,8 @@ async function saveOrderOrDonation(name, email, phone, amount, paymentId, method
                     total: amount,
                     payment_id: paymentId,
                     payment_method: method,
-                    status: 'pending'
+                    status: 'pending',
+                    product_details: { cpf: document.getElementById('payCpf').value.replace(/[^\d]/g, '') }
                 })
             });
             cart = [];
@@ -1942,8 +2107,39 @@ async function processPayment() {
             const payment = await response.json();
             if (payment.error) throw new Error(payment.error);
 
-            await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'pix', description);
+            // SALVA O PEDIDO NO BANCO
+            if (paymentType === 'sale') {
+                const itemsForOrder = cart.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    price: parseFloat(item.price),
+                    quantity: 1,
+                    size: item.size || null,
+                    color: item.color || null
+                }));
 
+                await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_name: name,
+                        user_email: email,
+                        user_phone: phone,
+                        items: itemsForOrder,
+                        total: amount,
+                        payment_id: payment.payment_id,
+                        payment_method: 'pix',
+                        status: 'pending',
+                        product_details: { cpf: cpf.replace(/[^\d]/g, '') }
+                    })
+                });
+                cart = [];
+                document.getElementById('cartCount').textContent = 0;
+            } else if (paymentType === 'donation') {
+                await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'pix', description);
+            }
+
+            // Mostra QR Code
             const resultDiv = document.getElementById('paymentResult');
             resultDiv.style.display = 'block';
             document.getElementById('paymentForm').style.display = 'none';
@@ -1995,7 +2191,7 @@ async function processPayment() {
             verificarStatusAutomatico(payment.payment_id);
 
         } else {
-            // ===== PAGAMENTO COM CARTÃO - VERSÃO SIMPLIFICADA =====
+            // ===== PAGAMENTO COM CARTÃO =====
             const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
             const cardExpiry = document.getElementById('cardExpiry').value;
             const cardCvv = document.getElementById('cardCvv').value;
@@ -2006,18 +2202,9 @@ async function processPayment() {
                 return;
             }
 
-            if (cardNumber.length < 16) { 
-                showNotification('Número do cartão inválido (16 dígitos)', 'error'); 
-                return; 
-            }
-            if (!cardExpiry.includes('/') || cardExpiry.length < 5) { 
-                showNotification('Validade inválida (MM/AA)', 'error'); 
-                return; 
-            }
-            if (cardCvv.length < 3) { 
-                showNotification('CVV inválido (3 dígitos)', 'error'); 
-                return; 
-            }
+            if (cardNumber.length < 16) { showNotification('Número do cartão inválido (16 dígitos)', 'error'); return; }
+            if (!cardExpiry.includes('/') || cardExpiry.length < 5) { showNotification('Validade inválida (MM/AA)', 'error'); return; }
+            if (cardCvv.length < 3) { showNotification('CVV inválido (3 dígitos)', 'error'); return; }
 
             try {
                 showNotification('🔄 Processando cartão...', 'info');
@@ -2044,12 +2231,39 @@ async function processPayment() {
                 const payment = await response.json();
                 if (payment.error) throw new Error(payment.error);
                 
-                await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'card', description);
+                if (paymentType === 'sale') {
+                    const itemsForOrder = cart.map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        price: parseFloat(item.price),
+                        quantity: 1,
+                        size: item.size || null,
+                        color: item.color || null
+                    }));
+
+                    await fetch('/api/orders', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            user_name: name,
+                            user_email: email,
+                            user_phone: phone,
+                            items: itemsForOrder,
+                            total: amount,
+                            payment_id: payment.payment_id,
+                            payment_method: 'card',
+                            status: 'pending',
+                            product_details: { cpf: cpf.replace(/[^\d]/g, '') }
+                        })
+                    });
+                    cart = [];
+                    document.getElementById('cartCount').textContent = 0;
+                } else if (paymentType === 'donation') {
+                    await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'card', description);
+                }
                 
                 if (payment.status === 'approved') {
                     showNotification('✅ Pagamento aprovado! Obrigado! 🙏', 'success');
-                    cart = [];
-                    document.getElementById('cartCount').textContent = 0;
                     closeModal('paymentModal');
                 } else {
                     showNotification(`⏳ Pagamento ${payment.status}. Aguarde a confirmação.`, 'info');
@@ -2426,6 +2640,18 @@ async function loadSettings() {
         if (settings.site_title) { document.title = settings.site_title; }
         if (settings.whatsapp) { const btn = document.getElementById('whatsappBtn');
             btn.href = 'https://wa.me/55' + settings.whatsapp; }
+        if (settings.about_mission) {
+            const missionEl = document.querySelector('#sobre .grid .card:first-child p');
+            if (missionEl) missionEl.textContent = settings.about_mission;
+        }
+        if (settings.about_vision) {
+            const visionEl = document.querySelector('#sobre .grid .card:nth-child(2) p');
+            if (visionEl) visionEl.textContent = settings.about_vision;
+        }
+        if (settings.about_values) {
+            const valuesEl = document.querySelector('#sobre .grid .card:last-child p');
+            if (valuesEl) valuesEl.textContent = settings.about_values;
+        }
     } catch (e) { console.error('Erro ao carregar configurações:', e); }
 }
 
@@ -2446,14 +2672,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// Fechar modal de carrossel ao clicar fora
 document.getElementById('carouselInfoOverlay')?.addEventListener('click', function(e) {
     if (e.target === this) closeCarouselInfo();
 });
 
+// Tecla ESC para fechar modais
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         closeCarouselInfo();
         closeBible();
+        closeSizeModal();
         document.querySelectorAll('.modal.open').forEach(m => {
             m.classList.remove('open');
             document.body.style.overflow = 'auto';

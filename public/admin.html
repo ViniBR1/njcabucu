@@ -183,7 +183,7 @@
             letter-spacing: 0.3px;
         }
 
-        /* TABS - ESTILO ANTERIOR */
+        /* TABS */
         .tabs {
             display: flex;
             gap: 0.2rem;
@@ -240,12 +240,6 @@
             margin-bottom: 0.5rem;
             padding-bottom: 0.2rem;
             border-bottom: 2px solid var(--primary);
-        }
-        .tab-content h4 {
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: #333;
-            margin: 0.4rem 0 0.2rem 0;
         }
 
         /* TABLES */
@@ -549,7 +543,7 @@
             outline: none;
         }
 
-        /* INSCRIÇÕES POR EVENTO - FILTROS */
+        /* INSCRIÇÕES - FILTROS */
         .registration-filters {
             display: flex;
             gap: 0.3rem;
@@ -562,6 +556,31 @@
         .registration-filters .btn.active {
             background: var(--primary-gradient);
             color: white;
+        }
+
+        /* DÍZIMOS E OFERTAS */
+        .tithe-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.3rem;
+            margin-bottom: 0.5rem;
+        }
+        .tithe-summary-card {
+            background: #f8f9fa;
+            padding: 0.4rem;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            border: 1px solid #e8e8e8;
+        }
+        .tithe-summary-card .value {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .tithe-summary-card .label {
+            font-size: 0.5rem;
+            color: #888;
+            text-transform: uppercase;
         }
 
         /* RESPONSIVO */
@@ -583,6 +602,7 @@
             .tab-content { padding: 1.2rem; }
             .table { font-size: 0.7rem; }
             .tabs { justify-content: center; }
+            .tithe-summary-grid { grid-template-columns: repeat(4, 1fr); }
         }
         @media (max-width: 400px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -599,6 +619,7 @@
             .user-badge { font-size: 0.5rem; padding: 0.1rem 0.4rem; }
             .btn { font-size: 0.6rem; padding: 0.2rem 0.5rem; }
             .about-editor { grid-template-columns: 1fr; }
+            .tithe-summary-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
@@ -641,7 +662,7 @@
         </div>
         <div class="stat-card">
             <div class="number" id="totalDonations">R$0</div>
-            <div class="label">Doações</div>
+            <div class="label">Dízimos</div>
         </div>
         <div class="stat-card">
             <div class="number" id="totalStudies">0</div>
@@ -663,12 +684,11 @@
         <button class="tab-btn" onclick="showTab('eventos')"><i class="fas fa-calendar"></i> Eventos</button>
         <button class="tab-btn" onclick="showTab('produtos')"><i class="fas fa-box"></i> Produtos</button>
         <button class="tab-btn" onclick="showTab('carousel')"><i class="fas fa-images"></i> Carrossel</button>
-        <button class="tab-btn" onclick="showTab('doacoes')"><i class="fas fa-hand-holding-heart"></i> Doações</button>
         <button class="tab-btn" onclick="showTab('inscricoes')"><i class="fas fa-clipboard-list"></i> Inscrições</button>
         <button class="tab-btn" onclick="showTab('departamentos')"><i class="fas fa-building"></i> Departamentos</button>
         <button class="tab-btn" onclick="showTab('membros')"><i class="fas fa-user-plus"></i> Membros</button>
         <button class="tab-btn" onclick="showTab('frequencia')"><i class="fas fa-calendar-check"></i> Frequência</button>
-        <button class="tab-btn" onclick="showTab('tesouraria')"><i class="fas fa-hand-holding-heart"></i> Dízimos</button>
+        <button class="tab-btn" onclick="showTab('dizimos')"><i class="fas fa-hand-holding-heart"></i> Dízimos</button>
         <button class="tab-btn" onclick="showTab('contas')"><i class="fas fa-receipt"></i> Contas</button>
         <button class="tab-btn" onclick="showTab('aniversariantes')"><i class="fas fa-birthday-cake"></i> Aniversários</button>
         <button class="tab-btn" onclick="showTab('sobre')"><i class="fas fa-info-circle"></i> Sobre Nós</button>
@@ -696,9 +716,10 @@
         <div class="bar-chart" id="barChart"></div>
     </div>
 
-    <!-- VENDAS -->
+    <!-- VENDAS (NJ Store) -->
     <div id="tab-vendas" class="tab-content">
-        <h3>🛒 Vendas</h3>
+        <h3>🛒 Vendas da NJ Store</h3>
+        <p style="font-size:0.55rem;color:#888;margin-bottom:0.3rem;">Todas as compras realizadas na loja</p>
         <div class="table-wrapper">
             <table class="table">
                 <thead><tr><th>Cliente</th><th>Produto</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
@@ -783,17 +804,6 @@
         <div id="carouselList" class="carousel-grid"></div>
     </div>
 
-    <!-- DOAÇÕES -->
-    <div id="tab-doacoes" class="tab-content">
-        <h3>💝 Doações</h3>
-        <div class="table-wrapper">
-            <table class="table">
-                <thead><tr><th>Doador</th><th>Tipo</th><th>Valor</th><th>Data</th></tr></thead>
-                <tbody id="donationsList"></tbody>
-            </table>
-        </div>
-    </div>
-
     <!-- INSCRIÇÕES -->
     <div id="tab-inscricoes" class="tab-content">
         <div class="flex-between mb-1">
@@ -806,7 +816,7 @@
                 <button onclick="filterRegistrations('department')" class="btn btn-outline btn-sm" data-filter="department">Departamentos</button>
             </div>
             <div style="margin-bottom:0.3rem; font-size:0.55rem; color:#888;">
-                Clique em <strong>"Aprovar"</strong> para confirmar a inscrição
+                ✅ Inscrições são aprovadas automaticamente
             </div>
         </div>
         <div class="table-wrapper">
@@ -910,16 +920,35 @@
         </div>
     </div>
 
-    <!-- TESOURARIA -->
-    <div id="tab-tesouraria" class="tab-content">
+    <!-- DÍZIMOS E OFERTAS -->
+    <div id="tab-dizimos" class="tab-content">
         <div class="flex-between mb-1">
             <h3>💝 Dízimos e Ofertas</h3>
             <button onclick="openTitheModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Registrar</button>
         </div>
-        <div id="titheSummary" style="font-size:0.6rem; margin-bottom:0.2rem;"></div>
+        
+        <div class="tithe-summary-grid" id="titheSummaryGrid">
+            <div class="tithe-summary-card">
+                <div class="value" id="totalTithes">R$ 0</div>
+                <div class="label">Total Dízimos</div>
+            </div>
+            <div class="tithe-summary-card">
+                <div class="value" id="totalOfferings">R$ 0</div>
+                <div class="label">Total Ofertas</div>
+            </div>
+            <div class="tithe-summary-card">
+                <div class="value" id="totalMissions">R$ 0</div>
+                <div class="label">Total Missões</div>
+            </div>
+            <div class="tithe-summary-card" style="background:var(--primary-gradient);color:white;">
+                <div class="value" style="color:white;" id="totalTitheAll">R$ 0</div>
+                <div class="label" style="color:rgba(255,255,255,0.7);">Total Geral</div>
+            </div>
+        </div>
+        
         <div class="table-wrapper">
             <table class="table">
-                <thead><tr><th>Membro</th><th>Tipo</th><th>Valor</th><th>Data</th></tr></thead>
+                <thead><tr><th>Membro</th><th>Tipo</th><th>Valor</th><th>Data</th><th>Método</th></tr></thead>
                 <tbody id="tithesList"></tbody>
             </table>
         </div>
@@ -1051,14 +1080,15 @@
     </div>
 </div>
 
-<!-- DÍZIMO -->
+<!-- DÍZIMO / OFERTA -->
 <div class="modal" id="titheModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('titheModal')">&times;</button>
-        <h3>💝 Dízimo</h3>
+        <h3>💝 Registrar Dízimo/Oferta</h3>
         <div class="form-group"><label>Membro</label>
             <select id="titheMember"><option value="">Visitante</option></select>
         </div>
+        <div class="form-group"><label>Nome (visitante)</label><input type="text" id="titheName"></div>
         <div class="form-row">
             <div class="form-group"><label>Tipo</label>
                 <select id="titheType">
@@ -1067,7 +1097,7 @@
                     <option value="missoes">Missões</option>
                 </select>
             </div>
-            <div class="form-group"><label>Valor</label><input type="number" id="titheAmount" step="0.01"></div>
+            <div class="form-group"><label>Valor</label><input type="number" id="titheAmount" step="0.01" min="0.01"></div>
         </div>
         <div class="form-row">
             <div class="form-group"><label>Data</label><input type="date" id="titheDate"></div>
@@ -1076,9 +1106,11 @@
                     <option value="dinheiro">Dinheiro</option>
                     <option value="pix">PIX</option>
                     <option value="cartao">Cartão</option>
+                    <option value="transferencia">Transferência</option>
                 </select>
             </div>
         </div>
+        <div class="form-group"><label>Descrição</label><input type="text" id="titheDescription"></div>
         <button onclick="saveTithe()" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
     </div>
 </div>
@@ -1269,14 +1301,13 @@ function showTab(tab) {
             if (date) loadAttendanceHistory(date);
         }
     }
-    if (tab === 'tesouraria') { loadTithes(); loadTitheSummary(); }
+    if (tab === 'dizimos') { loadTithes(); loadTitheSummary(); }
     if (tab === 'contas') { loadBills(); loadBillSummary(); }
     if (tab === 'aniversariantes') loadBirthdaysAdmin();
     if (tab === 'config') loadConfig();
     if (tab === 'sobre') loadAbout();
     if (tab === 'inscricoes') loadRegistrations();
     
-    // Scroll para o topo
     const el = document.getElementById('tab-' + tab);
     if (el) {
         const top = el.getBoundingClientRect().top + window.pageYOffset - 70;
@@ -1320,6 +1351,7 @@ async function loadDashboard() {
         loadMembers();
         loadBirthdaysAdmin();
         loadSalesStats();
+        loadTitheSummary();
     } catch (e) { console.error('Erro:', e); }
     hideLoading();
 }
@@ -1405,7 +1437,7 @@ function loadOrders(orders) {
 
 function loadDonations(donations) {
     const tbody = document.getElementById('donationsList');
-    if (!donations?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
+    if (!donations?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
     tbody.innerHTML = donations.slice(0, 30).map(d => `
         <tr>
             <td>${d.user_name||'Anônimo'}</td>
@@ -1461,6 +1493,11 @@ async function loadProducts() {
     } catch (e) { console.error('Erro:', e); }
 }
 
+// ============================================
+// ===== INSCRIÇÕES - APROVAÇÃO AUTOMÁTICA =====
+// ============================================
+let currentFilter = 'all';
+
 async function loadRegistrations() {
     try {
         const res = await fetch('/api/registrations', { headers: getHeaders() });
@@ -1476,38 +1513,15 @@ async function loadRegistrations() {
                 <td>${r.name}</td>
                 <td>${typeMap[r.type]||r.type}</td>
                 <td>${r.department_name||r.event_name||'-'}</td>
-                <td><span class="status status-${r.status||'pending'}">${r.status||'Pendente'}</span></td>
+                <td><span class="status status-approved">✅ Aprovado</span></td>
                 <td>${new Date(r.created_at).toLocaleDateString('pt-BR')}</td>
                 <td>
-                    ${r.status !== 'approved' ? `<button onclick="approveRegistration(${r.id})" class="btn btn-success btn-xs"><i class="fas fa-check"></i> Aprovar</button>` : '<span style="color:#28a745;font-size:0.5rem;">✅ Aprovado</span>'}
                     <button onclick="deleteRegistration(${r.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>
         `).join('');
-        
-        // Aplica o filtro atual
         filterRegistrations(currentFilter || 'all');
     } catch (e) { console.error('Erro:', e); }
-}
-
-// ============================================
-// ===== INSCRIÇÕES - APROVAR =====
-// ============================================
-let currentFilter = 'all';
-
-async function approveRegistration(id) {
-    if (!confirm('Confirmar esta inscrição?')) return;
-    try {
-        const response = await fetch(`/api/registrations/${id}/approve`, {
-            method: 'PUT',
-            headers: getHeaders()
-        });
-        if (!response.ok) throw new Error('Erro ao aprovar');
-        showNotification('✅ Inscrição aprovada!', 'success');
-        loadRegistrations();
-    } catch (e) {
-        showNotification('❌ ' + e.message, 'error');
-    }
 }
 
 async function deleteRegistration(id) {
@@ -2007,33 +2021,46 @@ async function loadAttendanceHistory(date) {
 }
 
 // ============================================
-// ===== DÍZIMOS =====
+// ===== DÍZIMOS E OFERTAS =====
 // ============================================
 async function openTitheModal() {
     try {
         const members = await fetch('/api/members', { headers: getHeaders() }).then(r => r.json());
         const select = document.getElementById('titheMember');
         select.innerHTML = '<option value="">Visitante</option>' + members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+        document.getElementById('titheName').value = '';
         document.getElementById('titheAmount').value = '';
         document.getElementById('titheDate').value = new Date().toISOString().split('T')[0];
         document.getElementById('titheType').value = 'dizimo';
         document.getElementById('titheMethod').value = 'dinheiro';
+        document.getElementById('titheDescription').value = '';
         openModal('titheModal');
     } catch (e) { showNotification('❌ ' + e.message, 'error'); }
 }
 
 async function saveTithe() {
     const member_id = document.getElementById('titheMember').value;
+    const member_name = document.getElementById('titheName').value.trim();
     const type = document.getElementById('titheType').value;
     const amount = parseFloat(document.getElementById('titheAmount').value);
     const payment_date = document.getElementById('titheDate').value;
     const payment_method = document.getElementById('titheMethod').value;
+    const description = document.getElementById('titheDescription').value.trim();
+    
     if (!amount || amount <= 0) { showNotification('Valor inválido!', 'error'); return; }
     try {
         await fetch('/api/tithes', {
             method: 'POST',
             headers: { 'Content-Type':'application/json', ...getHeaders() },
-            body: JSON.stringify({ member_id: member_id||null, member_name: null, type, amount, payment_date, payment_method, description: '' })
+            body: JSON.stringify({ 
+                member_id: member_id||null, 
+                member_name: member_name || null,
+                type, 
+                amount, 
+                payment_date, 
+                payment_method, 
+                description 
+            })
         });
         closeModal('titheModal');
         loadTithes();
@@ -2047,13 +2074,14 @@ async function loadTithes() {
         const res = await fetch('/api/tithes', { headers: getHeaders() });
         const data = await res.json();
         const tbody = document.getElementById('tithesList');
-        if (!data?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+        if (!data?.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
         tbody.innerHTML = data.slice(0, 30).map(t => `
             <tr>
                 <td>${t.member_name||'Visitante'}</td>
                 <td>${t.type}</td>
                 <td>R$ ${parseFloat(t.amount).toFixed(2)}</td>
                 <td>${new Date(t.payment_date).toLocaleDateString('pt-BR')}</td>
+                <td>${t.payment_method}</td>
             </tr>
         `).join('');
     } catch (e) { console.error('Erro:', e); }
@@ -2063,10 +2091,22 @@ async function loadTitheSummary() {
     try {
         const res = await fetch('/api/tithes/summary', { headers: getHeaders() });
         const data = await res.json();
-        const div = document.getElementById('titheSummary');
-        if (!data.by_type?.length) { div.innerHTML = ''; return; }
-        div.innerHTML = data.by_type.map(t => `<span><strong>${t.type}:</strong> R$ ${parseFloat(t.total).toFixed(0)}</span> `).join('') +
-            `<span><strong>Total:</strong> R$ ${parseFloat(data.total).toFixed(0)}</span>`;
+        
+        let totalTithes = 0, totalOfferings = 0, totalMissions = 0, totalAll = 0;
+        
+        if (data.by_type) {
+            data.by_type.forEach(t => {
+                if (t.type === 'dizimo') totalTithes = parseFloat(t.total) || 0;
+                else if (t.type === 'oferta') totalOfferings = parseFloat(t.total) || 0;
+                else if (t.type === 'missoes') totalMissions = parseFloat(t.total) || 0;
+            });
+            totalAll = parseFloat(data.total) || 0;
+        }
+        
+        document.getElementById('totalTithes').textContent = 'R$ ' + totalTithes.toFixed(0);
+        document.getElementById('totalOfferings').textContent = 'R$ ' + totalOfferings.toFixed(0);
+        document.getElementById('totalMissions').textContent = 'R$ ' + totalMissions.toFixed(0);
+        document.getElementById('totalTitheAll').textContent = 'R$ ' + totalAll.toFixed(0);
     } catch (e) { console.error('Erro:', e); }
 }
 
@@ -2335,7 +2375,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Registra funções globalmente
 window.filterRegistrations = filterRegistrations;
-window.approveRegistration = approveRegistration;
 window.deleteRegistration = deleteRegistration;
 window.showTab = showTab;
 window.openModal = openModal;

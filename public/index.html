@@ -1566,7 +1566,7 @@ async function addToCart(productId) {
         }
 
         // Verifica se o usuário já comprou este produto (pelo CPF)
-        const cpf = prompt('Digite seu CPF para verificar se já comprou este item:');
+        const cpf = prompt('Digite seu CPF para verificar se já comprou este item (apenas números):');
         if (!cpf) return;
         
         const cpfClean = cpf.replace(/[^\d]/g, '');
@@ -1587,11 +1587,18 @@ async function addToCart(productId) {
             if (!confirmar) return;
         }
 
+        // Salva o CPF para enviar no pedido
+        window._cpfCompra = cpfClean;
+
         // Se for roupa, pergunta o tamanho
-        const clothingCategories = ['camisa', 'camiseta', 'calca', 'vestido', 'roupa', 'vestuario'];
-        const isClothing = clothingCategories.includes(product.category?.toLowerCase()) || 
-                           product.category?.toLowerCase().includes('camisa') ||
-                           product.category?.toLowerCase().includes('camiseta');
+        const clothingCategories = ['camisa', 'camiseta', 'calca', 'vestido', 'roupa', 'vestuario', 'blusa', 'jaqueta', 'camiseta', 'camisa'];
+        const isClothing = clothingCategories.some(cat => 
+            product.category?.toLowerCase().includes(cat) ||
+            product.name?.toLowerCase().includes('camisa') ||
+            product.name?.toLowerCase().includes('camiseta') ||
+            product.name?.toLowerCase().includes('blusa') ||
+            product.name?.toLowerCase().includes('calca')
+        );
 
         if (isClothing) {
             pendingProduct = product;
@@ -1811,8 +1818,11 @@ async function saveOrderOrDonation(name, email, phone, amount, paymentId, method
                 price: parseFloat(item.price),
                 quantity: 1,
                 size: item.size || null,
-                color: item.color || null
+                color: item.color || null,
+                category: item.category || null
             }));
+
+            const cpfClean = document.getElementById('payCpf').value.replace(/[^\d]/g, '');
 
             await fetch('/api/orders', {
                 method: 'POST',
@@ -1826,7 +1836,7 @@ async function saveOrderOrDonation(name, email, phone, amount, paymentId, method
                     payment_id: paymentId,
                     payment_method: method,
                     status: 'pending',
-                    product_details: { cpf: document.getElementById('payCpf').value.replace(/[^\d]/g, '') }
+                    product_details: { cpf: cpfClean }
                 })
             });
             cart = [];
@@ -2115,8 +2125,11 @@ async function processPayment() {
                     price: parseFloat(item.price),
                     quantity: 1,
                     size: item.size || null,
-                    color: item.color || null
+                    color: item.color || null,
+                    category: item.category || null
                 }));
+
+                const cpfClean = cpf.replace(/[^\d]/g, '');
 
                 await fetch('/api/orders', {
                     method: 'POST',
@@ -2130,7 +2143,7 @@ async function processPayment() {
                         payment_id: payment.payment_id,
                         payment_method: 'pix',
                         status: 'pending',
-                        product_details: { cpf: cpf.replace(/[^\d]/g, '') }
+                        product_details: { cpf: cpfClean }
                     })
                 });
                 cart = [];
@@ -2238,8 +2251,11 @@ async function processPayment() {
                         price: parseFloat(item.price),
                         quantity: 1,
                         size: item.size || null,
-                        color: item.color || null
+                        color: item.color || null,
+                        category: item.category || null
                     }));
+
+                    const cpfClean = cpf.replace(/[^\d]/g, '');
 
                     await fetch('/api/orders', {
                         method: 'POST',
@@ -2253,7 +2269,7 @@ async function processPayment() {
                             payment_id: payment.payment_id,
                             payment_method: 'card',
                             status: 'pending',
-                            product_details: { cpf: cpf.replace(/[^\d]/g, '') }
+                            product_details: { cpf: cpfClean }
                         })
                     });
                     cart = [];

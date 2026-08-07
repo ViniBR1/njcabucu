@@ -1908,8 +1908,7 @@ app.get('/api/members', auth, async (req, res) => {
                 WHERE is_active = true 
                 AND department_id = ${department_id}
                 AND (name ILIKE ${'%' + search + '%'} OR email ILIKE ${'%' + search + '%'} OR phone ILIKE ${'%' + search + '%'})
-                ORDER BY name
-            `;
+                ORDER BY name            `;
         } else if (department_id) {
             members = await sql`
                 SELECT * FROM members 

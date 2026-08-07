@@ -14,6 +14,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { MercadoPagoConfig, Payment } = require('mercadopago');
+const nodemailer = require('nodemailer');
 
 // ============================================
 // ===== CONEXÃO NEON =====
@@ -41,6 +42,156 @@ try {
     }
 } catch (error) {
     console.log('⚠️ Erro MP:', error.message);
+}
+
+// ============================================
+// ===== NODEMAILER - EMAIL =====
+// ============================================
+let transporter = null;
+try {
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+        transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
+        console.log('✅ Email configurado');
+    } else {
+        console.log('⚠️ Email não configurado (faltam credenciais)');
+    }
+} catch (error) {
+    console.log('⚠️ Erro ao configurar email:', error.message);
+}
+
+// ============================================
+// ===== FUNÇÃO PARA ENVIAR EMAIL =====
+// ============================================
+async function sendOrderEmail(orderData) {
+    if (!transporter) return;
+    
+    try {
+        const { user_name, user_email, user_phone, items, total, payment_id, status } = orderData;
+        
+        let itemsHtml = '';
+        let itemsText = '';
+        try {
+            const parsedItems = typeof items === 'string' ? JSON.parse(items) : items;
+            parsedItems.forEach(item => {
+                const sizeText = item.size ? ` (Tamanho: ${item.size})` : '';
+                itemsHtml += `<tr>
+                    <td style="padding:8px;border-bottom:1px solid #eee;">${item.name}${sizeText}</td>
+                    <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">1</td>
+                    <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">R$ ${parseFloat(item.price).toFixed(2)}</td>
+                </tr>`;
+                itemsText += `${item.name}${sizeText} - R$ ${parseFloat(item.price).toFixed(2)}\n`;
+            });
+        } catch (e) {
+            itemsHtml = `<tr><td colspan="3" style="padding:8px;">${items}</td></tr>`;
+            itemsText = String(items);
+        }
+
+        const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; }
+                .header { text-align: center; border-bottom: 3px solid #0D47A1; padding-bottom: 20px; margin-bottom: 20px; }
+                .header h1 { color: #0D47A1; margin: 0; }
+                .header p { color: #666; margin: 5px 0 0; }
+                .info { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+                .info-item { padding: 5px 0; border-bottom: 1px solid #eee; }
+                .info-item:last-child { border-bottom: none; }
+                .table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+                .table th { background: #0D47A1; color: white; padding: 10px; text-align: left; }
+                .table td { padding: 10px; border-bottom: 1px solid #eee; }
+                .total { text-align: right; font-size: 1.2rem; font-weight: bold; color: #0D47A1; margin-top: 10px; }
+                .status { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; }
+                .status.approved { background: #d4edda; color: #155724; }
+                .status.pending { background: #fff3cd; color: #856404; }
+                .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #888; font-size: 0.9rem; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>🙏 NJ Cabuçu</h1>
+                <p>Confirmação de Pedido</p>
+            </div>
+            
+            <div class="info">
+                <div class="info-item"><strong>Cliente:</strong> ${user_name}</div>
+                <div class="info-item"><strong>E-mail:</strong> ${user_email}</div>
+                <div class="info-item"><strong>Telefone:</strong> ${user_phone || 'Não informado'}</div>
+                <div class="info-item"><strong>Status:</strong> <span class="status ${status === 'approved' ? 'approved' : 'pending'}">${status === 'approved' ? '✅ Aprovado' : '⏳ Pendente'}</span></div>
+                <div class="info-item"><strong>ID do Pagamento:</strong> ${payment_id || '-'}</div>
+            </div>
+            
+            <h3>📦 Itens do Pedido</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th style="text-align:center;">Qtd</th>
+                        <th style="text-align:right;">Preço</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${itemsHtml}
+                </tbody>
+            </table>
+            
+            <div class="total">
+                Total: R$ ${parseFloat(total).toFixed(2)}
+            </div>
+            
+            <p style="margin-top:20px;color:#666;">
+                <strong>🕊️ "E conhecereis a verdade, e a verdade vos libertará."</strong><br>
+                João 8:32
+            </p>
+            
+            <div class="footer">
+                <p>NJ Cabuçu - © ${new Date().getFullYear()} Todos os direitos reservados</p>
+                <p style="font-size:0.8rem;">Este é um comprovante de compra. Guarde para referência.</p>
+            </div>
+        </body>
+        </html>
+        `;
+
+        const text = `
+        NJ Cabuçu - Confirmação de Pedido
+        ================================
+        
+        Cliente: ${user_name}
+        E-mail: ${user_email}
+        Telefone: ${user_phone || 'Não informado'}
+        Status: ${status === 'approved' ? '✅ Aprovado' : '⏳ Pendente'}
+        ID do Pagamento: ${payment_id || '-'}
+        
+        Itens do Pedido:
+        ${itemsText}
+        
+        Total: R$ ${parseFloat(total).toFixed(2)}
+        
+        "E conhecereis a verdade, e a verdade vos libertará." - João 8:32
+        
+        NJ Cabuçu - © ${new Date().getFullYear()}
+        `;
+
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: user_email,
+            subject: `✅ NJ Cabuçu - Confirmação de Pedido #${String(orderData.id).padStart(6, '0')}`,
+            html: html,
+            text: text
+        });
+        
+        console.log('✅ Email enviado para:', user_email);
+    } catch (error) {
+        console.error('❌ Erro ao enviar email:', error);
+    }
 }
 
 // ============================================
@@ -1008,16 +1159,29 @@ app.put('/api/prayers/:id/read', auth, async (req, res) => {
     }
 });
 
-// ----- PEDIDOS (VENDAS) -----
+// ----- PEDIDOS (VENDAS) - CORRIGIDO -----
 app.post('/api/orders', async (req, res) => {
     try {
         const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status } = req.body;
+        
+        const itemsWithDetails = items.map(item => ({
+            ...item,
+            size: item.size || null,
+            color: item.color || null
+        }));
+        
         const result = await sql`
             INSERT INTO orders (user_name, user_email, user_phone, items, total, payment_id, payment_method, status)
-            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(items)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
+            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(itemsWithDetails)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
             RETURNING *
         `;
-        console.log('✅ Pedido criado:', result[0]);
+        
+        const orderData = { ...result[0], items: itemsWithDetails };
+        
+        // Envia email de confirmação
+        await sendOrderEmail(orderData);
+        
+        console.log('✅ Pedido criado e email enviado:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar pedido:', error);
@@ -1044,6 +1208,33 @@ app.put('/api/orders/:id/status', auth, pastorOnly, async (req, res) => {
         res.json({ message: 'Status atualizado' });
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- VERIFICAR SE CPF JÁ COMPROU UM PRODUTO -----
+app.post('/api/check-purchase', async (req, res) => {
+    try {
+        const { cpf, product_id } = req.body;
+        
+        if (!cpf || !product_id) {
+            return res.json({ hasPurchased: false, count: 0 });
+        }
+        
+        const result = await sql`
+            SELECT COUNT(*) as count FROM orders 
+            WHERE items::jsonb @> ${JSON.stringify([{ id: parseInt(product_id) }])}::jsonb
+            AND status = 'approved'
+            AND user_phone LIKE ${'%' + cpf + '%'}
+        `;
+        
+        const count = parseInt(result[0]?.count || 0);
+        res.json({ 
+            hasPurchased: count > 0,
+            count: count
+        });
+    } catch (error) {
+        console.error('❌ Erro ao verificar compra:', error);
+        res.json({ hasPurchased: false, count: 0 });
     }
 });
 
@@ -1135,7 +1326,6 @@ app.post('/api/registrations', async (req, res) => {
             }
         }
 
-        // Aprova automaticamente
         const result = await sql`
             INSERT INTO registrations (type, name, email, phone, department_name, event_name, details, amount, is_paid, status)
             VALUES (${type}, ${name}, ${email || ''}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${finalDetails || ''}, ${parseFloat(amount) || 0}, ${is_paid || false}, 'approved')
@@ -2443,19 +2633,42 @@ app.post('/api/webhook', async (req, res) => {
                     console.log('📊 Status do pagamento:', payment.status);
                     
                     if (payment.status === 'approved') {
-                        await sql`
-                            UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}
+                        // Atualiza orders
+                        const orderResult = await sql`
+                            UPDATE orders 
+                            SET status = 'approved' 
+                            WHERE payment_id = ${paymentId}
+                            RETURNING *
                         `;
+                        console.log('✅ Pedido atualizado:', orderResult.length > 0 ? orderResult[0].id : 'Nenhum');
+                        
+                        // Envia email se encontrou o pedido
+                        if (orderResult.length > 0) {
+                            const order = orderResult[0];
+                            // Busca o pedido completo com os itens
+                            const orderData = await sql`SELECT * FROM orders WHERE id = ${order.id}`;
+                            if (orderData.length > 0) {
+                                await sendOrderEmail(orderData[0]);
+                            }
+                        }
+                        
+                        // Atualiza donations
                         await sql`
-                            UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}
+                            UPDATE donations 
+                            SET status = 'approved' 
+                            WHERE payment_id = ${paymentId}
                         `;
                         console.log('✅ Pagamento aprovado e registrado!');
                     } else if (payment.status === 'rejected' || payment.status === 'cancelled') {
                         await sql`
-                            UPDATE orders SET status = 'rejected' WHERE payment_id = ${paymentId}
+                            UPDATE orders 
+                            SET status = 'rejected' 
+                            WHERE payment_id = ${paymentId}
                         `;
                         await sql`
-                            UPDATE donations SET status = 'rejected' WHERE payment_id = ${paymentId}
+                            UPDATE donations 
+                            SET status = 'rejected' 
+                            WHERE payment_id = ${paymentId}
                         `;
                         console.log('❌ Pagamento recusado/cancelado');
                     }
@@ -2601,6 +2814,7 @@ app.listen(PORT, () => {
     console.log('');
     console.log('💰 Mercado Pago: ' + (process.env.MP_ACCESS_TOKEN ? '✅ Configurado' : '⚠️ Não configurado'));
     console.log('🔑 Public Key: ' + (process.env.MP_PUBLIC_KEY ? '✅ Configurada' : '⚠️ Não configurada'));
+    console.log('📧 Email: ' + (transporter ? '✅ Configurado' : '⚠️ Não configurado'));
     console.log('');
     console.log('📸 Imagens salvas como Base64 no banco de dados!');
     console.log('');

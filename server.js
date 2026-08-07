@@ -1159,29 +1159,16 @@ app.put('/api/prayers/:id/read', auth, async (req, res) => {
     }
 });
 
-// ----- PEDIDOS (VENDAS) - CORRIGIDO -----
+// ----- PEDIDOS (VENDAS) -----
 app.post('/api/orders', async (req, res) => {
     try {
         const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status } = req.body;
-        
-        const itemsWithDetails = items.map(item => ({
-            ...item,
-            size: item.size || null,
-            color: item.color || null
-        }));
-        
         const result = await sql`
             INSERT INTO orders (user_name, user_email, user_phone, items, total, payment_id, payment_method, status)
-            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(itemsWithDetails)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
+            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(items)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
             RETURNING *
         `;
-        
-        const orderData = { ...result[0], items: itemsWithDetails };
-        
-        // Envia email de confirmação
-        await sendOrderEmail(orderData);
-        
-        console.log('✅ Pedido criado e email enviado:', result[0]);
+        console.log('✅ Pedido criado:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar pedido:', error);
@@ -1326,6 +1313,7 @@ app.post('/api/registrations', async (req, res) => {
             }
         }
 
+        // Aprova automaticamente
         const result = await sql`
             INSERT INTO registrations (type, name, email, phone, department_name, event_name, details, amount, is_paid, status)
             VALUES (${type}, ${name}, ${email || ''}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${finalDetails || ''}, ${parseFloat(amount) || 0}, ${is_paid || false}, 'approved')
@@ -1908,7 +1896,8 @@ app.get('/api/members', auth, async (req, res) => {
                 WHERE is_active = true 
                 AND department_id = ${department_id}
                 AND (name ILIKE ${'%' + search + '%'} OR email ILIKE ${'%' + search + '%'} OR phone ILIKE ${'%' + search + '%'})
-                ORDER BY name            `;
+                ORDER BY name
+            `;
         } else if (department_id) {
             members = await sql`
                 SELECT * FROM members 
@@ -2644,7 +2633,6 @@ app.post('/api/webhook', async (req, res) => {
                         // Envia email se encontrou o pedido
                         if (orderResult.length > 0) {
                             const order = orderResult[0];
-                            // Busca o pedido completo com os itens
                             const orderData = await sql`SELECT * FROM orders WHERE id = ${order.id}`;
                             if (orderData.length > 0) {
                                 await sendOrderEmail(orderData[0]);

@@ -14,6 +14,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { MercadoPagoConfig, Payment } = require('mercadopago');
+const nodemailer = require('nodemailer');
 
 // ============================================
 // ===== CONEXÃO NEON =====
@@ -44,6 +45,143 @@ try {
 }
 
 // ============================================
+// ===== NODEMAILER - EMAIL =====
+// ============================================
+let transporter = null;
+try {
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+        transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
+        console.log('✅ Email configurado');
+    } else {
+        console.log('⚠️ Email não configurado (faltam credenciais)');
+    }
+} catch (error) {
+    console.log('⚠️ Erro ao configurar email:', error.message);
+}
+
+// ============================================
+// ===== FUNÇÃO PARA ENVIAR EMAIL DE CONFIRMAÇÃO =====
+// ============================================
+async function sendConfirmationEmail(orderData) {
+    try {
+        const { user_name, user_email, user_phone, items, total, payment_id, status } = orderData;
+        
+        let itemsHtml = '';
+        let itemsText = '';
+        try {
+            const parsedItems = typeof items === 'string' ? JSON.parse(items) : items;
+            if (Array.isArray(parsedItems) && parsedItems.length > 0) {
+                parsedItems.forEach(item => {
+                    const sizeText = item.size ? ` (Tamanho: ${item.size})` : '';
+                    itemsHtml += `<tr>
+                        <td style="padding:8px;border-bottom:1px solid #eee;">${item.name}${sizeText}</td>
+                        <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${item.quantity || 1}</td>
+                        <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">R$ ${parseFloat(item.price).toFixed(2)}</td>
+                    </tr>`;
+                    itemsText += `${item.name}${sizeText} - ${item.quantity || 1}x R$ ${parseFloat(item.price).toFixed(2)}\n`;
+                });
+            } else {
+                itemsHtml = `<tr><td colspan="3" style="padding:8px;">${items}</td></tr>`;
+                itemsText = String(items);
+            }
+        } catch (e) {
+            itemsHtml = `<tr><td colspan="3" style="padding:8px;">${items}</td></tr>`;
+            itemsText = String(items);
+        }
+
+        const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; }
+                .header { text-align: center; border-bottom: 3px solid #0D47A1; padding-bottom: 20px; margin-bottom: 20px; }
+                .header h1 { color: #0D47A1; margin: 0; }
+                .header p { color: #666; margin: 5px 0 0; }
+                .info { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+                .info-item { padding: 5px 0; border-bottom: 1px solid #eee; }
+                .info-item:last-child { border-bottom: none; }
+                .table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+                .table th { background: #0D47A1; color: white; padding: 10px; text-align: left; }
+                .table td { padding: 10px; border-bottom: 1px solid #eee; }
+                .total { text-align: right; font-size: 1.2rem; font-weight: bold; color: #0D47A1; margin-top: 10px; }
+                .status { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; }
+                .status.approved { background: #d4edda; color: #155724; }
+                .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #888; font-size: 0.9rem; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>🙏 NJ Cabuçu</h1>
+                <p>✅ Confirmação de Compra</p>
+            </div>
+            
+            <div class="info">
+                <div class="info-item"><strong>Cliente:</strong> ${user_name}</div>
+                <div class="info-item"><strong>E-mail:</strong> ${user_email}</div>
+                <div class="info-item"><strong>Telefone:</strong> ${user_phone || 'Não informado'}</div>
+                <div class="info-item"><strong>Status:</strong> <span class="status approved">✅ Aprovado</span></div>
+                <div class="info-item"><strong>ID do Pagamento:</strong> ${payment_id || '-'}</div>
+            </div>
+            
+            <h3>📦 Itens do Pedido</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th style="text-align:center;">Qtd</th>
+                        <th style="text-align:right;">Preço</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${itemsHtml}
+                </tbody>
+            </table>
+            
+            <div class="total">
+                Total: R$ ${parseFloat(total).toFixed(2)}
+            </div>
+            
+            <p style="margin-top:20px;color:#666;">
+                <strong>🕊️ "E conhecereis a verdade, e a verdade vos libertará."</strong><br>
+                João 8:32
+            </p>
+            
+            <div class="footer">
+                <p>NJ Cabuçu - © ${new Date().getFullYear()} Todos os direitos reservados</p>
+                <p style="font-size:0.8rem;">Este é o comprovante da sua compra. Guarde para referência.</p>
+            </div>
+        </body>
+        </html>
+        `;
+
+        if (!transporter) {
+            console.log('⚠️ Email não configurado, pulando envio...');
+            return;
+        }
+
+        await transporter.sendMail({
+            from: `"NJ Cabuçu" <${process.env.EMAIL_USER}>`,
+            to: user_email,
+            subject: `✅ NJ Cabuçu - Confirmação de Compra #${String(orderData.id).padStart(6, '0')}`,
+            html: html,
+            text: `NJ Cabuçu - Confirmação de Compra\n\nCliente: ${user_name}\nTotal: R$ ${parseFloat(total).toFixed(2)}\n\nNJ Cabuçu - © ${new Date().getFullYear()}`
+        });
+        
+        console.log('✅ Email de confirmação enviado para:', user_email);
+    } catch (error) {
+        console.error('❌ Erro ao enviar email:', error);
+    }
+}
+
+// ============================================
 // ===== APP =====
 // ============================================
 const app = express();
@@ -65,7 +203,7 @@ const storage = multer.memoryStorage();
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 50 * 1024 * 1024 }, // Aumentado para 50MB para PDFs
+    limits: { fileSize: 50 * 1024 * 1024 },
     fileFilter: function (req, file, cb) {
         const allowedTypes = /jpeg|jpg|png|gif|webp|pdf/;
         const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -511,7 +649,6 @@ app.post('/api/users', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- CRIAR USUÁRIO PELO LÍDER -----
 app.post('/api/users-by-leader', auth, async (req, res) => {
     try {
         const { name, email, password, role, department_id } = req.body;
@@ -798,16 +935,16 @@ app.post('/api/studies', auth, upload.fields([
         let image_base64 = null;
         let file_base64 = null;
 
-        if (req.files['image']) {
+        if (req.files && req.files['image']) {
             image_base64 = req.files['image'][0].buffer.toString('base64');
         }
-        if (req.files['file']) {
+        if (req.files && req.files['file']) {
             file_base64 = req.files['file'][0].buffer.toString('base64');
         }
 
         const result = await sql`
             INSERT INTO studies (title, description, file_url, image_base64, file_base64)
-            VALUES (${title}, ${description}, ${file_url || null}, ${image_base64}, ${file_base64})
+            VALUES (${title}, ${description || ''}, ${file_url || null}, ${image_base64}, ${file_base64})
             RETURNING *
         `;
         console.log('✅ Estudo criado:', result[0].id);
@@ -1023,16 +1160,39 @@ app.put('/api/prayers/:id/read', auth, async (req, res) => {
     }
 });
 
-// ----- PEDIDOS (VENDAS) -----
+// ----- PEDIDOS (VENDAS) - CORRIGIDO COM TAMANHO E CPF -----
 app.post('/api/orders', async (req, res) => {
     try {
-        const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status } = req.body;
+        const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status, product_details } = req.body;
+        
+        const itemsWithDetails = items.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: parseFloat(item.price),
+            quantity: item.quantity || 1,
+            size: item.size || null,
+            color: item.color || null,
+            category: item.category || null
+        }));
+        
+        const cpfInfo = product_details?.cpf || '';
+        const itemsJson = JSON.stringify(itemsWithDetails);
+        
         const result = await sql`
             INSERT INTO orders (user_name, user_email, user_phone, items, total, payment_id, payment_method, status)
-            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(items)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
+            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${itemsJson}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
             RETURNING *
         `;
+        
         console.log('✅ Pedido criado:', result[0]);
+        console.log('📦 Itens:', itemsWithDetails);
+        console.log('📱 CPF:', cpfInfo);
+        
+        if (status === 'approved') {
+            const orderData = { ...result[0], items: itemsWithDetails };
+            await sendConfirmationEmail(orderData);
+        }
+        
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar pedido:', error);
@@ -1059,6 +1219,33 @@ app.put('/api/orders/:id/status', auth, pastorOnly, async (req, res) => {
         res.json({ message: 'Status atualizado' });
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- VERIFICAR SE CPF JÁ COMPROU UM PRODUTO -----
+app.post('/api/check-purchase', async (req, res) => {
+    try {
+        const { cpf, product_id } = req.body;
+        
+        if (!cpf || !product_id) {
+            return res.json({ hasPurchased: false, count: 0 });
+        }
+        
+        const result = await sql`
+            SELECT COUNT(*) as count FROM orders 
+            WHERE items::jsonb @> ${JSON.stringify([{ id: parseInt(product_id) }])}::jsonb
+            AND status = 'approved'
+            AND user_phone LIKE ${'%' + cpf + '%'}
+        `;
+        
+        const count = parseInt(result[0]?.count || 0);
+        res.json({ 
+            hasPurchased: count > 0,
+            count: count
+        });
+    } catch (error) {
+        console.error('❌ Erro ao verificar compra:', error);
+        res.json({ hasPurchased: false, count: 0 });
     }
 });
 
@@ -2485,18 +2672,17 @@ app.post('/api/update-payment-status', async (req, res) => {
 });
 
 // ============================================
-// ===== WEBHOOK =====
+// ===== WEBHOOK - CORRIGIDO COM EMAIL =====
 // ============================================
 
 app.post('/api/webhook', async (req, res) => {
     try {
-        console.log('📝 Webhook recebido:', JSON.stringify(req.body, null, 2));
+        console.log('📝 Webhook recebido');
         
         const { data, type } = req.body;
         
         if (type === 'payment' && data && data.id) {
             const paymentId = data.id;
-            console.log(`✅ Pagamento ${paymentId} confirmado!`);
             
             if (PaymentService) {
                 try {
@@ -2504,13 +2690,31 @@ app.post('/api/webhook', async (req, res) => {
                     console.log('📊 Status do pagamento:', payment.status);
                     
                     if (payment.status === 'approved') {
-                        await sql`
-                            UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}
+                        // Atualiza orders
+                        const orderResult = await sql`
+                            UPDATE orders 
+                            SET status = 'approved' 
+                            WHERE payment_id = ${paymentId}
+                            RETURNING *
                         `;
+                        
+                        // Busca o pedido completo e envia email
+                        if (orderResult.length > 0) {
+                            const order = orderResult[0];
+                            const orderData = await sql`SELECT * FROM orders WHERE id = ${order.id}`;
+                            if (orderData.length > 0) {
+                                await sendConfirmationEmail(orderData[0]);
+                                console.log('✅ Email de confirmação enviado para o pedido:', order.id);
+                            }
+                        }
+                        
+                        // Atualiza donations
                         await sql`
-                            UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}
+                            UPDATE donations 
+                            SET status = 'approved' 
+                            WHERE payment_id = ${paymentId}
                         `;
-                        console.log('✅ Pagamento aprovado e registrado!');
+                        console.log('✅ Pagamento aprovado:', paymentId);
                     } else if (payment.status === 'rejected' || payment.status === 'cancelled') {
                         await sql`
                             UPDATE orders SET status = 'rejected' WHERE payment_id = ${paymentId}
@@ -2518,7 +2722,7 @@ app.post('/api/webhook', async (req, res) => {
                         await sql`
                             UPDATE donations SET status = 'rejected' WHERE payment_id = ${paymentId}
                         `;
-                        console.log('❌ Pagamento recusado/cancelado');
+                        console.log('❌ Pagamento recusado:', paymentId);
                     }
                 } catch (error) {
                     console.error('❌ Erro ao buscar pagamento:', error);
@@ -2662,6 +2866,7 @@ app.listen(PORT, () => {
     console.log('');
     console.log('💰 Mercado Pago: ' + (process.env.MP_ACCESS_TOKEN ? '✅ Configurado' : '⚠️ Não configurado'));
     console.log('🔑 Public Key: ' + (process.env.MP_PUBLIC_KEY ? '✅ Configurada' : '⚠️ Não configurada'));
+    console.log('📧 Email: ' + (transporter ? '✅ Configurado' : '⚠️ Não configurado'));
     console.log('');
     console.log('📸 Imagens salvas como Base64 no banco de dados!');
     console.log('');

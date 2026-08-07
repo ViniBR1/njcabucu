@@ -183,46 +183,43 @@
             letter-spacing: 0.3px;
         }
 
-        /* MENU - AGRUPADO */
-        .menu-group {
-            margin-bottom: 0.6rem;
-        }
-        .menu-group-title {
-            font-size: 0.55rem;
-            font-weight: 700;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.2rem;
-            padding-left: 0.2rem;
-        }
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 0.3rem;
-        }
-        .menu-item {
+        /* TABS - ESTILO ANTERIOR */
+        .tabs {
+            display: flex;
+            gap: 0.2rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
             background: var(--card-bg);
-            padding: 0.4rem 0.2rem;
-            border-radius: var(--radius-sm);
-            text-align: center;
-            border: 2px solid transparent;
+            padding: 0.4rem 0.6rem;
+            border-radius: var(--radius);
+            border: 1px solid rgba(0,0,0,0.04);
             box-shadow: var(--shadow);
+        }
+        .tab-btn {
+            padding: 0.3rem 0.8rem;
+            border: 2px solid transparent;
+            border-radius: 50px;
+            background: transparent;
             cursor: pointer;
-            transition: all 0.2s;
-        }
-        .menu-item:active { transform: scale(0.95); }
-        .menu-item.active {
-            border-color: var(--primary);
-            background: #E8F0FE;
-        }
-        .menu-item .icon { font-size: 0.85rem; color: var(--primary); }
-        .menu-item .label {
-            font-size: 0.5rem;
             font-weight: 600;
-            color: #333;
-            margin-top: 0.1rem;
+            transition: all 0.2s;
+            font-size: 0.65rem;
+            font-family: var(--font);
+            color: #666;
+            white-space: nowrap;
         }
+        .tab-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--secondary);
+        }
+        .tab-btn.active {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 2px 10px rgba(13,71,161,0.2);
+        }
+        .tab-btn i { margin-right: 0.2rem; font-size: 0.6rem; }
 
         /* TAB CONTENT */
         .tab-content {
@@ -552,7 +549,7 @@
             outline: none;
         }
 
-        /* INSCRIÇÕES POR EVENTO */
+        /* INSCRIÇÕES POR EVENTO - FILTROS */
         .registration-filters {
             display: flex;
             gap: 0.3rem;
@@ -560,14 +557,19 @@
             margin-bottom: 0.5rem;
         }
         .registration-filters .btn {
-            font-size: 0.6rem;
+            font-size: 0.55rem;
+        }
+        .registration-filters .btn.active {
+            background: var(--primary-gradient);
+            color: white;
         }
 
         /* RESPONSIVO */
         @media (min-width: 600px) {
             .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
             .stat-card .number { font-size: 1.3rem; }
-            .menu-grid { grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+            .tabs { gap: 0.3rem; padding: 0.5rem 0.8rem; }
+            .tab-btn { font-size: 0.75rem; padding: 0.3rem 1rem; }
             .container { padding: 0.8rem 1.2rem; }
             .tab-content { padding: 1rem; }
             .carousel-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
@@ -576,18 +578,17 @@
         }
         @media (min-width: 900px) {
             .stats-grid { grid-template-columns: repeat(6, 1fr); }
-            .menu-grid { grid-template-columns: repeat(4, 1fr); }
             .container { padding: 1rem 2rem; max-width: 1200px; margin: 0 auto; }
             .header { padding: 0.6rem 2rem; }
             .tab-content { padding: 1.2rem; }
             .table { font-size: 0.7rem; }
+            .tabs { justify-content: center; }
         }
         @media (max-width: 400px) {
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .stat-card .number { font-size: 0.9rem; }
-            .menu-grid { grid-template-columns: repeat(3, 1fr); gap: 0.2rem; }
-            .menu-item .icon { font-size: 0.7rem; }
-            .menu-item .label { font-size: 0.45rem; }
+            .tabs { gap: 0.15rem; padding: 0.3rem; overflow-x: auto; flex-wrap: nowrap; }
+            .tab-btn { font-size: 0.55rem; padding: 0.2rem 0.5rem; white-space: nowrap; }
             .container { padding: 0.4rem; }
             .tab-content { padding: 0.5rem; }
             .carousel-grid { grid-template-columns: repeat(2, 1fr); }
@@ -652,129 +653,65 @@
         </div>
     </div>
 
-    <!-- MENU AGRUPADO -->
-    <!-- GRUPO 1: Gestão de Membros -->
-    <div class="menu-group">
-        <div class="menu-group-title">👥 Gestão de Membros</div>
-        <div class="menu-grid">
-            <div class="menu-item active" onclick="showTab('membros')" data-tab="membros">
-                <div class="icon"><i class="fas fa-user-plus"></i></div>
-                <div class="label">Membros</div>
-            </div>
-            <div class="menu-item" onclick="showTab('usuarios')" data-tab="usuarios">
-                <div class="icon"><i class="fas fa-users"></i></div>
-                <div class="label">Usuários</div>
-            </div>
-            <div class="menu-item" onclick="showTab('aniversariantes')" data-tab="aniversariantes">
-                <div class="icon"><i class="fas fa-birthday-cake"></i></div>
-                <div class="label">Aniversários</div>
-            </div>
-            <div class="menu-item" onclick="showTab('frequencia')" data-tab="frequencia">
-                <div class="icon"><i class="fas fa-calendar-check"></i></div>
-                <div class="label">Frequência</div>
-            </div>
-        </div>
+    <!-- TABS -->
+    <div class="tabs" id="tabsContainer">
+        <button class="tab-btn active" onclick="showTab('dashboard')"><i class="fas fa-chart-pie"></i> Dashboard</button>
+        <button class="tab-btn" onclick="showTab('vendas')"><i class="fas fa-shopping-cart"></i> Vendas</button>
+        <button class="tab-btn" onclick="showTab('usuarios')"><i class="fas fa-users"></i> Usuários</button>
+        <button class="tab-btn" onclick="showTab('oracoes')"><i class="fas fa-pray"></i> Orações</button>
+        <button class="tab-btn" onclick="showTab('estudos')"><i class="fas fa-book"></i> Estudos</button>
+        <button class="tab-btn" onclick="showTab('eventos')"><i class="fas fa-calendar"></i> Eventos</button>
+        <button class="tab-btn" onclick="showTab('produtos')"><i class="fas fa-box"></i> Produtos</button>
+        <button class="tab-btn" onclick="showTab('carousel')"><i class="fas fa-images"></i> Carrossel</button>
+        <button class="tab-btn" onclick="showTab('doacoes')"><i class="fas fa-hand-holding-heart"></i> Doações</button>
+        <button class="tab-btn" onclick="showTab('inscricoes')"><i class="fas fa-clipboard-list"></i> Inscrições</button>
+        <button class="tab-btn" onclick="showTab('departamentos')"><i class="fas fa-building"></i> Departamentos</button>
+        <button class="tab-btn" onclick="showTab('membros')"><i class="fas fa-user-plus"></i> Membros</button>
+        <button class="tab-btn" onclick="showTab('frequencia')"><i class="fas fa-calendar-check"></i> Frequência</button>
+        <button class="tab-btn" onclick="showTab('tesouraria')"><i class="fas fa-hand-holding-heart"></i> Dízimos</button>
+        <button class="tab-btn" onclick="showTab('contas')"><i class="fas fa-receipt"></i> Contas</button>
+        <button class="tab-btn" onclick="showTab('aniversariantes')"><i class="fas fa-birthday-cake"></i> Aniversários</button>
+        <button class="tab-btn" onclick="showTab('sobre')"><i class="fas fa-info-circle"></i> Sobre Nós</button>
+        <button class="tab-btn" onclick="showTab('config')"><i class="fas fa-cog"></i> Config</button>
     </div>
 
-    <!-- GRUPO 2: Vendas e Financeiro -->
-    <div class="menu-group">
-        <div class="menu-group-title">💰 Vendas e Financeiro</div>
-        <div class="menu-grid">
-            <div class="menu-item" onclick="showTab('dashboard')" data-tab="dashboard">
-                <div class="icon"><i class="fas fa-chart-pie"></i></div>
-                <div class="label">Resumo</div>
+    <!-- DASHBOARD -->
+    <div id="tab-dashboard" class="tab-content active">
+        <h3>📊 Resumo Financeiro</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.4rem; margin-bottom:0.5rem;">
+            <div style="background:#f8f9fa; padding:0.4rem; border-radius:6px; text-align:center;">
+                <div style="font-size:0.5rem;color:#888;">Total Vendas</div>
+                <div style="font-size:0.9rem;font-weight:700;color:var(--primary);" id="totalSalesValue">R$ 0</div>
             </div>
-            <div class="menu-item" onclick="showTab('vendas')" data-tab="vendas">
-                <div class="icon"><i class="fas fa-shopping-cart"></i></div>
-                <div class="label">Vendas</div>
+            <div style="background:#f8f9fa; padding:0.4rem; border-radius:6px; text-align:center;">
+                <div style="font-size:0.5rem;color:#888;">Ticket Médio</div>
+                <div style="font-size:0.9rem;font-weight:700;color:var(--primary);" id="avgSalesValue">R$ 0</div>
             </div>
-            <div class="menu-item" onclick="showTab('tesouraria')" data-tab="tesouraria">
-                <div class="icon"><i class="fas fa-hand-holding-heart"></i></div>
-                <div class="label">Dízimos</div>
-            </div>
-            <div class="menu-item" onclick="showTab('contas')" data-tab="contas">
-                <div class="icon"><i class="fas fa-receipt"></i></div>
-                <div class="label">Contas</div>
+            <div style="background:#f8f9fa; padding:0.4rem; border-radius:6px; text-align:center;">
+                <div style="font-size:0.5rem;color:#888;">Total Vendas</div>
+                <div style="font-size:0.9rem;font-weight:700;color:var(--primary);" id="totalSalesCount">0</div>
             </div>
         </div>
+        <div style="font-size:0.7rem;font-weight:600;color:#333;margin-bottom:0.2rem;">📅 Vendas por Dia</div>
+        <div class="bar-chart" id="barChart"></div>
     </div>
 
-    <!-- GRUPO 3: Conteúdo e Eventos -->
-    <div class="menu-group">
-        <div class="menu-group-title">📚 Conteúdo e Eventos</div>
-        <div class="menu-grid">
-            <div class="menu-item" onclick="showTab('eventos')" data-tab="eventos">
-                <div class="icon"><i class="fas fa-calendar"></i></div>
-                <div class="label">Eventos</div>
-            </div>
-            <div class="menu-item" onclick="showTab('estudos')" data-tab="estudos">
-                <div class="icon"><i class="fas fa-book"></i></div>
-                <div class="label">Estudos</div>
-            </div>
-            <div class="menu-item" onclick="showTab('produtos')" data-tab="produtos">
-                <div class="icon"><i class="fas fa-box"></i></div>
-                <div class="label">Produtos</div>
-            </div>
-            <div class="menu-item" onclick="showTab('carousel')" data-tab="carousel">
-                <div class="icon"><i class="fas fa-images"></i></div>
-                <div class="label">Carrossel</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- GRUPO 4: Administração -->
-    <div class="menu-group">
-        <div class="menu-group-title">⚙️ Administração</div>
-        <div class="menu-grid">
-            <div class="menu-item" onclick="showTab('departamentos')" data-tab="departamentos">
-                <div class="icon"><i class="fas fa-building"></i></div>
-                <div class="label">Deptos</div>
-            </div>
-            <div class="menu-item" onclick="showTab('inscricoes')" data-tab="inscricoes">
-                <div class="icon"><i class="fas fa-clipboard-list"></i></div>
-                <div class="label">Inscrições</div>
-            </div>
-            <div class="menu-item" onclick="showTab('doacoes')" data-tab="doacoes">
-                <div class="icon"><i class="fas fa-hand-holding-heart"></i></div>
-                <div class="label">Doações</div>
-            </div>
-            <div class="menu-item" onclick="showTab('config')" data-tab="config">
-                <div class="icon"><i class="fas fa-cog"></i></div>
-                <div class="label">Config</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- GRUPO 5: Sobre Nós -->
-    <div class="menu-group">
-        <div class="menu-group-title">📝 Sobre Nós</div>
-        <div class="menu-grid">
-            <div class="menu-item" onclick="showTab('sobre')" data-tab="sobre">
-                <div class="icon"><i class="fas fa-info-circle"></i></div>
-                <div class="label">Editar Sobre</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- TAB: MEMBROS -->
-    <div id="tab-membros" class="tab-content active">
-        <div class="flex-between mb-1">
-            <h3>👥 Membros</h3>
-            <button onclick="openMemberModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
-        </div>
+    <!-- VENDAS -->
+    <div id="tab-vendas" class="tab-content">
+        <h3>🛒 Vendas</h3>
         <div class="table-wrapper">
             <table class="table">
-                <thead><tr><th>Nome</th><th>Telefone</th><th>Depto</th><th>Ações</th></tr></thead>
-                <tbody id="membersList"></tbody>
+                <thead><tr><th>Cliente</th><th>Produto</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
+                <tbody id="ordersList"></tbody>
             </table>
         </div>
     </div>
 
-    <!-- TAB: USUÁRIOS -->
+    <!-- USUÁRIOS -->
     <div id="tab-usuarios" class="tab-content">
         <div class="flex-between mb-1">
             <h3>👥 Usuários</h3>
-            <button onclick="openUserModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
+            <button onclick="openUserModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
         </div>
         <div class="table-wrapper">
             <table class="table">
@@ -784,18 +721,131 @@
         </div>
     </div>
 
-    <!-- TAB: ANIVERSARIANTES -->
-    <div id="tab-aniversariantes" class="tab-content">
-        <h3>🎂 Aniversariantes</h3>
+    <!-- ORAÇÕES -->
+    <div id="tab-oracoes" class="tab-content">
+        <h3>🙏 Pedidos de Oração</h3>
         <div class="table-wrapper">
             <table class="table">
-                <thead><tr><th>Nome</th><th>Data</th><th>Idade</th></tr></thead>
-                <tbody id="birthdaysList"></tbody>
+                <thead><tr><th>Nome</th><th>Pedido</th><th>Status</th><th>Ações</th></tr></thead>
+                <tbody id="prayersList"></tbody>
             </table>
         </div>
     </div>
 
-    <!-- TAB: FREQUÊNCIA -->
+    <!-- ESTUDOS -->
+    <div id="tab-estudos" class="tab-content">
+        <div class="flex-between mb-1">
+            <h3>📖 Estudos</h3>
+            <button onclick="openStudyModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Título</th><th>Imagem</th><th>PDF</th><th>Ações</th></tr></thead>
+                <tbody id="studiesList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- EVENTOS -->
+    <div id="tab-eventos" class="tab-content">
+        <div class="flex-between mb-1">
+            <h3>📅 Eventos</h3>
+            <button onclick="openEventModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Título</th><th>Data</th><th>Valor</th><th>Ações</th></tr></thead>
+                <tbody id="eventsList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- PRODUTOS -->
+    <div id="tab-produtos" class="tab-content">
+        <div class="flex-between mb-1">
+            <h3>📦 Produtos</h3>
+            <button onclick="openProductModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Nome</th><th>Preço</th><th>Ações</th></tr></thead>
+                <tbody id="productsList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- CARROSSEL -->
+    <div id="tab-carousel" class="tab-content">
+        <div class="flex-between mb-1">
+            <h3>🖼️ Carrossel</h3>
+            <button onclick="openCarouselModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Nova</button>
+        </div>
+        <div id="carouselList" class="carousel-grid"></div>
+    </div>
+
+    <!-- DOAÇÕES -->
+    <div id="tab-doacoes" class="tab-content">
+        <h3>💝 Doações</h3>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Doador</th><th>Tipo</th><th>Valor</th><th>Data</th></tr></thead>
+                <tbody id="donationsList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- INSCRIÇÕES -->
+    <div id="tab-inscricoes" class="tab-content">
+        <div class="flex-between mb-1">
+            <h3>📋 Inscrições</h3>
+            <div class="registration-filters">
+                <button onclick="filterRegistrations('all')" class="btn btn-primary btn-sm active-filter" data-filter="all">Todos</button>
+                <button onclick="filterRegistrations('baptism')" class="btn btn-outline btn-sm" data-filter="baptism">Batismo</button>
+                <button onclick="filterRegistrations('volunteer')" class="btn btn-outline btn-sm" data-filter="volunteer">Voluntários</button>
+                <button onclick="filterRegistrations('event')" class="btn btn-outline btn-sm" data-filter="event">Eventos</button>
+                <button onclick="filterRegistrations('department')" class="btn btn-outline btn-sm" data-filter="department">Departamentos</button>
+            </div>
+            <div style="margin-bottom:0.3rem; font-size:0.55rem; color:#888;">
+                Clique em <strong>"Aprovar"</strong> para confirmar a inscrição
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Nome</th><th>Tipo</th><th>Evento/Depto</th><th>Status</th><th>Data</th><th>Ações</th></tr></thead>
+                <tbody id="registrationsList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- DEPARTAMENTOS -->
+    <div id="tab-departamentos" class="tab-content">
+        <div class="flex-between mb-1">
+            <h3>🏢 Departamentos</h3>
+            <button onclick="openDeptModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Nome</th><th>Líder</th><th>Ações</th></tr></thead>
+                <tbody id="departmentsList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MEMBROS -->
+    <div id="tab-membros" class="tab-content">
+        <div class="flex-between mb-1">
+            <h3>👥 Membros</h3>
+            <button onclick="openMemberModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead><tr><th>Nome</th><th>Telefone</th><th>Depto</th><th>Ações</th></tr></thead>
+                <tbody id="membersList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- FREQUÊNCIA -->
     <div id="tab-frequencia" class="tab-content">
         <h3>📅 Frequência</h3>
         <div class="form-row" style="grid-template-columns:1fr 1fr; gap:0.3rem;">
@@ -860,43 +910,11 @@
         </div>
     </div>
 
-    <!-- TAB: DASHBOARD -->
-    <div id="tab-dashboard" class="tab-content">
-        <h3>📊 Resumo Financeiro</h3>
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.4rem; margin-bottom:0.5rem;">
-            <div style="background:#f8f9fa; padding:0.4rem; border-radius:6px; text-align:center;">
-                <div style="font-size:0.5rem;color:#888;">Total Vendas</div>
-                <div style="font-size:0.9rem;font-weight:700;color:var(--primary);" id="totalSalesValue">R$ 0</div>
-            </div>
-            <div style="background:#f8f9fa; padding:0.4rem; border-radius:6px; text-align:center;">
-                <div style="font-size:0.5rem;color:#888;">Ticket Médio</div>
-                <div style="font-size:0.9rem;font-weight:700;color:var(--primary);" id="avgSalesValue">R$ 0</div>
-            </div>
-            <div style="background:#f8f9fa; padding:0.4rem; border-radius:6px; text-align:center;">
-                <div style="font-size:0.5rem;color:#888;">Total Vendas</div>
-                <div style="font-size:0.9rem;font-weight:700;color:var(--primary);" id="totalSalesCount">0</div>
-            </div>
-        </div>
-        <div style="font-size:0.7rem;font-weight:600;color:#333;margin-bottom:0.2rem;">📅 Vendas por Dia</div>
-        <div class="bar-chart" id="barChart"></div>
-    </div>
-
-    <!-- TAB: VENDAS -->
-    <div id="tab-vendas" class="tab-content">
-        <h3>🛒 Vendas</h3>
-        <div class="table-wrapper">
-            <table class="table">
-                <thead><tr><th>Cliente</th><th>Produto</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
-                <tbody id="ordersList"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- TAB: TESOURARIA -->
+    <!-- TESOURARIA -->
     <div id="tab-tesouraria" class="tab-content">
         <div class="flex-between mb-1">
             <h3>💝 Dízimos e Ofertas</h3>
-            <button onclick="openTitheModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
+            <button onclick="openTitheModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Registrar</button>
         </div>
         <div id="titheSummary" style="font-size:0.6rem; margin-bottom:0.2rem;"></div>
         <div class="table-wrapper">
@@ -907,11 +925,11 @@
         </div>
     </div>
 
-    <!-- TAB: CONTAS -->
+    <!-- CONTAS -->
     <div id="tab-contas" class="tab-content">
         <div class="flex-between mb-1">
             <h3>📋 Contas a Pagar</h3>
-            <button onclick="openBillModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
+            <button onclick="openBillModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Nova</button>
         </div>
         <div id="billSummary" style="font-size:0.6rem; margin-bottom:0.2rem;"></div>
         <div class="table-wrapper">
@@ -922,124 +940,18 @@
         </div>
     </div>
 
-    <!-- TAB: EVENTOS -->
-    <div id="tab-eventos" class="tab-content">
-        <div class="flex-between mb-1">
-            <h3>📅 Eventos</h3>
-            <button onclick="openEventModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
-        </div>
+    <!-- ANIVERSARIANTES -->
+    <div id="tab-aniversariantes" class="tab-content">
+        <h3>🎂 Aniversariantes</h3>
         <div class="table-wrapper">
             <table class="table">
-                <thead><tr><th>Título</th><th>Data</th><th>Valor</th><th>Ações</th></tr></thead>
-                <tbody id="eventsList"></tbody>
+                <thead><tr><th>Nome</th><th>Data</th><th>Idade</th></tr></thead>
+                <tbody id="birthdaysList"></tbody>
             </table>
         </div>
     </div>
 
-    <!-- TAB: ESTUDOS -->
-    <div id="tab-estudos" class="tab-content">
-        <div class="flex-between mb-1">
-            <h3>📖 Estudos</h3>
-            <button onclick="openStudyModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
-        </div>
-        <div class="table-wrapper">
-            <table class="table">
-                <thead><tr><th>Título</th><th>Imagem</th><th>PDF</th><th>Ações</th></tr></thead>
-                <tbody id="studiesList"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- TAB: PRODUTOS -->
-    <div id="tab-produtos" class="tab-content">
-        <div class="flex-between mb-1">
-            <h3>📦 Produtos</h3>
-            <button onclick="openProductModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
-        </div>
-        <div class="table-wrapper">
-            <table class="table">
-                <thead><tr><th>Nome</th><th>Preço</th><th>Ações</th></tr></thead>
-                <tbody id="productsList"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- TAB: CARROSSEL -->
-    <div id="tab-carousel" class="tab-content">
-        <div class="flex-between mb-1">
-            <h3>🖼️ Carrossel</h3>
-            <button onclick="openCarouselModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
-        </div>
-        <div id="carouselList" class="carousel-grid"></div>
-    </div>
-
-    <!-- TAB: DEPARTAMENTOS -->
-    <div id="tab-departamentos" class="tab-content">
-        <div class="flex-between mb-1">
-            <h3>🏢 Departamentos</h3>
-            <button onclick="openDeptModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i></button>
-        </div>
-        <div class="table-wrapper">
-            <table class="table">
-                <thead><tr><th>Nome</th><th>Líder</th><th>Ações</th></tr></thead>
-                <tbody id="departmentsList"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- TAB: INSCRIÇÕES -->
-    <div id="tab-inscricoes" class="tab-content">
-        <div class="flex-between mb-1">
-            <h3>📋 Inscrições</h3>
-            <div class="registration-filters">
-                <button onclick="filterRegistrations('all')" class="btn btn-primary btn-sm active-filter" data-filter="all">Todos</button>
-                <button onclick="filterRegistrations('baptism')" class="btn btn-outline btn-sm" data-filter="baptism">Batismo</button>
-                <button onclick="filterRegistrations('volunteer')" class="btn btn-outline btn-sm" data-filter="volunteer">Voluntários</button>
-                <button onclick="filterRegistrations('event')" class="btn btn-outline btn-sm" data-filter="event">Eventos</button>
-                <button onclick="filterRegistrations('department')" class="btn btn-outline btn-sm" data-filter="department">Departamentos</button>
-            </div>
-            <div style="margin-bottom:0.3rem; font-size:0.6rem; color:#888;">
-                Clique em <strong>"Aprovar"</strong> para confirmar a inscrição
-            </div>
-        </div>
-        <div class="table-wrapper">
-            <table class="table">
-                <thead><tr><th>Nome</th><th>Tipo</th><th>Evento/Depto</th><th>Status</th><th>Data</th><th>Ações</th></tr></thead>
-                <tbody id="registrationsList"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- TAB: DOAÇÕES -->
-    <div id="tab-doacoes" class="tab-content">
-        <h3>💝 Doações</h3>
-        <div class="table-wrapper">
-            <table class="table">
-                <thead><tr><th>Doador</th><th>Tipo</th><th>Valor</th><th>Data</th></tr></thead>
-                <tbody id="donationsList"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- TAB: CONFIG -->
-    <div id="tab-config" class="tab-content">
-        <h3>⚙️ Configurações</h3>
-        <div class="form-group">
-            <label>Cor Primária</label>
-            <input type="color" id="configPrimary" value="#0D47A1" onchange="saveConfig('primary_color', this.value)">
-        </div>
-        <div class="form-group">
-            <label>Título do Site</label>
-            <input type="text" id="configTitle" value="NJ Cabuçu" onchange="saveConfig('site_title', this.value)">
-        </div>
-        <div class="form-group">
-            <label>WhatsApp</label>
-            <input type="text" id="configWhatsapp" value="5521985345627" onchange="saveConfig('whatsapp', this.value)">
-        </div>
-        <button onclick="loadConfig()" class="btn btn-primary btn-sm">Recarregar</button>
-    </div>
-
-    <!-- TAB: SOBRE NÓS - EDITOR -->
+    <!-- SOBRE NÓS -->
     <div id="tab-sobre" class="tab-content">
         <div class="flex-between mb-1">
             <h3>📝 Editar Sobre Nós</h3>
@@ -1063,9 +975,30 @@
             </div>
         </div>
     </div>
+
+    <!-- CONFIG -->
+    <div id="tab-config" class="tab-content">
+        <h3>⚙️ Configurações</h3>
+        <div class="form-group">
+            <label>Cor Primária</label>
+            <input type="color" id="configPrimary" value="#0D47A1" onchange="saveConfig('primary_color', this.value)">
+        </div>
+        <div class="form-group">
+            <label>Título do Site</label>
+            <input type="text" id="configTitle" value="NJ Cabuçu" onchange="saveConfig('site_title', this.value)">
+        </div>
+        <div class="form-group">
+            <label>WhatsApp</label>
+            <input type="text" id="configWhatsapp" value="5521985345627" onchange="saveConfig('whatsapp', this.value)">
+        </div>
+        <button onclick="loadConfig()" class="btn btn-primary btn-sm">Recarregar</button>
+    </div>
 </div>
 
-<!-- MODAIS -->
+<!-- ============================================
+     MODAIS
+============================================ -->
+
 <!-- USUÁRIO -->
 <div class="modal" id="userModal">
     <div class="modal-content">
@@ -1321,9 +1254,9 @@ function logout() {
 // ============================================
 function showTab(tab) {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    document.querySelectorAll('.menu-item').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(c => c.classList.remove('active'));
     document.getElementById('tab-' + tab).classList.add('active');
-    document.querySelector(`.menu-item[data-tab="${tab}"]`)?.classList.add('active');
+    document.querySelector(`.tab-btn[onclick*="${tab}"]`)?.classList.add('active');
     
     if (tab === 'carousel') loadCarouselAdmin();
     if (tab === 'departamentos') loadDepartments();
@@ -1342,6 +1275,13 @@ function showTab(tab) {
     if (tab === 'config') loadConfig();
     if (tab === 'sobre') loadAbout();
     if (tab === 'inscricoes') loadRegistrations();
+    
+    // Scroll para o topo
+    const el = document.getElementById('tab-' + tab);
+    if (el) {
+        const top = el.getBoundingClientRect().top + window.pageYOffset - 70;
+        window.scrollTo({ top, behavior: 'smooth' });
+    }
 }
 
 // ============================================
@@ -1483,8 +1423,11 @@ function loadStudies(studies) {
         <tr>
             <td>${s.title}</td>
             <td>${s.image_base64 ? '✅' : '-'}</td>
-            <td>${s.file_url ? '✅' : '-'}</td>
-            <td><button onclick="deleteStudy(${s.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button></td>
+            <td>${s.file_url || s.file_base64 ? '✅' : '-'}</td>
+            <td>
+                ${s.file_base64 ? `<a href="/api/studies/${s.id}/download" target="_blank" class="btn btn-primary btn-xs"><i class="fas fa-download"></i></a>` : ''}
+                <button onclick="deleteStudy(${s.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button>
+            </td>
         </tr>
     `).join('');
 }
@@ -1529,24 +1472,29 @@ async function loadRegistrations() {
         }
         const typeMap = { baptism:'Batismo', volunteer:'Voluntário', event:'Evento', department:'Depto' };
         tbody.innerHTML = data.slice(0, 30).map(r => `
-            <tr>
+            <tr data-type="${r.type}">
                 <td>${r.name}</td>
                 <td>${typeMap[r.type]||r.type}</td>
                 <td>${r.department_name||r.event_name||'-'}</td>
                 <td><span class="status status-${r.status||'pending'}">${r.status||'Pendente'}</span></td>
                 <td>${new Date(r.created_at).toLocaleDateString('pt-BR')}</td>
                 <td>
-                    ${r.status !== 'approved' ? `<button onclick="approveRegistration(${r.id})" class="btn btn-success btn-xs"><i class="fas fa-check"></i></button>` : ''}
+                    ${r.status !== 'approved' ? `<button onclick="approveRegistration(${r.id})" class="btn btn-success btn-xs"><i class="fas fa-check"></i> Aprovar</button>` : '<span style="color:#28a745;font-size:0.5rem;">✅ Aprovado</span>'}
                     <button onclick="deleteRegistration(${r.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>
         `).join('');
+        
+        // Aplica o filtro atual
+        filterRegistrations(currentFilter || 'all');
     } catch (e) { console.error('Erro:', e); }
 }
 
 // ============================================
 // ===== INSCRIÇÕES - APROVAR =====
 // ============================================
+let currentFilter = 'all';
+
 async function approveRegistration(id) {
     if (!confirm('Confirmar esta inscrição?')) return;
     try {
@@ -1576,20 +1524,14 @@ async function deleteRegistration(id) {
     }
 }
 
-// Filtro de inscrições
-let currentFilter = 'all';
-
 function filterRegistrations(type) {
     currentFilter = type;
     document.querySelectorAll('.registration-filters .btn').forEach(b => {
-        b.classList.remove('active');
+        b.classList.remove('active', 'btn-primary');
+        b.classList.add('btn-outline');
         if (b.dataset.filter === type) {
-            b.classList.add('active');
+            b.classList.add('active', 'btn-primary');
             b.classList.remove('btn-outline');
-            b.classList.add('btn-primary');
-        } else {
-            b.classList.remove('btn-primary');
-            b.classList.add('btn-outline');
         }
     });
     
@@ -2391,10 +2333,14 @@ document.addEventListener('DOMContentLoaded', () => {
     loadAbout();
 });
 
-// Registra a função filterRegistrations globalmente
+// Registra funções globalmente
 window.filterRegistrations = filterRegistrations;
 window.approveRegistration = approveRegistration;
 window.deleteRegistration = deleteRegistration;
+window.showTab = showTab;
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.logout = logout;
 </script>
 </body>
 </html>

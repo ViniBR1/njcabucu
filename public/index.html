@@ -1033,11 +1033,11 @@ let carouselData = [];
 let paymentType = 'sale';
 let donationType = '';
 let _donationAmount = 0;
-let allMembers = [];
-let selectedMembers = new Set();
-let attendanceFilteredMembers = [];
 let statusCheckInterval = null;
 let pendingProduct = null;
+let selectedSize = null;
+let baptismDatesList = [];
+let eventsList = [];
 
 // ============================================
 // ===== HEADER SCROLL =====
@@ -1059,6 +1059,36 @@ function toggleMobileMenu() {
 document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.getElementById('mainNav').classList.remove('open');
+    });
+});
+
+// ============================================
+// ===== MODAIS =====
+// ============================================
+function openModal(id) {
+    document.getElementById(id).classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+    document.body.style.overflow = 'auto';
+    if (statusCheckInterval) {
+        clearInterval(statusCheckInterval);
+        statusCheckInterval = null;
+    }
+}
+
+document.querySelectorAll('.modal').forEach(m => {
+    m.addEventListener('click', (e) => {
+        if (e.target === m) {
+            m.classList.remove('open');
+            document.body.style.overflow = 'auto';
+            if (statusCheckInterval) {
+                clearInterval(statusCheckInterval);
+                statusCheckInterval = null;
+            }
+        }
     });
 });
 
@@ -1364,7 +1394,6 @@ async function searchBibleRandom() {
     }
 }
 
-// Enter para buscar
 document.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         const active = document.activeElement;
@@ -1551,10 +1580,9 @@ async function loadBirthdays() {
 }
 
 // ============================================
-// ===== NJ STORE - CARRINHO MELHORADO =====
+// ===== NJ STORE - CARRINHO =====
 // ============================================
 
-// Função para adicionar ao carrinho com verificação de CPF e tamanho
 async function addToCart(productId) {
     try {
         const res = await fetch('/api/products');
@@ -1565,7 +1593,6 @@ async function addToCart(productId) {
             return;
         }
 
-        // Verifica se o usuário já comprou este produto (pelo CPF)
         const cpf = prompt('Digite seu CPF para verificar se já comprou este item (apenas números):');
         if (!cpf) return;
         
@@ -1587,11 +1614,9 @@ async function addToCart(productId) {
             if (!confirmar) return;
         }
 
-        // Salva o CPF para enviar no pedido
         window._cpfCompra = cpfClean;
 
-        // Se for roupa, pergunta o tamanho
-        const clothingCategories = ['camisa', 'camiseta', 'calca', 'vestido', 'roupa', 'vestuario', 'blusa', 'jaqueta', 'camiseta', 'camisa'];
+        const clothingCategories = ['camisa', 'camiseta', 'calca', 'vestido', 'roupa', 'vestuario', 'blusa', 'jaqueta'];
         const isClothing = clothingCategories.some(cat => 
             product.category?.toLowerCase().includes(cat) ||
             product.name?.toLowerCase().includes('camisa') ||
@@ -1606,7 +1631,6 @@ async function addToCart(productId) {
             return;
         }
 
-        // Se não for roupa, adiciona direto
         addProductToCart(product, null, null);
         
     } catch (e) { 
@@ -1615,7 +1639,6 @@ async function addToCart(productId) {
     }
 }
 
-// Modal de seleção de tamanho
 function showSizeModal(product) {
     const sizes = ['P', 'M', 'G', 'GG', 'XG', '2XG'];
     
@@ -1637,11 +1660,8 @@ function showSizeModal(product) {
     document.body.appendChild(overlay);
 }
 
-let selectedSize = null;
-
 function selectSize(size) {
     selectedSize = size;
-    // Destaca o botão selecionado
     document.querySelectorAll('.size-btn').forEach(b => {
         b.classList.toggle('selected', b.dataset.size === size);
     });
@@ -1676,10 +1696,6 @@ function addProductToCart(product, size, color) {
     pendingProduct = null;
     selectedSize = null;
 }
-
-// ============================================
-// ===== CARRINHO =====
-// ============================================
 
 function openCart() {
     const container = document.getElementById('cartItems');
@@ -1724,41 +1740,14 @@ function checkout() {
 // ============================================
 
 function openDonationForm(type) {
-    document.getElementById('donationModal').classList.add('open');
     document.getElementById('donationType').value = type;
     document.getElementById('donationTypeLabel').textContent = '💳 ' + type;
     document.getElementById('donationName').value = '';
     document.getElementById('donationEmail').value = '';
     document.getElementById('donationPhone').value = '';
     document.getElementById('donationAmount').value = '';
+    openModal('donationModal');
 }
-
-function closeModal(id) {
-    document.getElementById(id).classList.remove('open');
-    document.body.style.overflow = 'auto';
-    if (statusCheckInterval) {
-        clearInterval(statusCheckInterval);
-        statusCheckInterval = null;
-    }
-}
-
-function openModal(id) {
-    document.getElementById(id).classList.add('open');
-    document.body.style.overflow = 'hidden';
-}
-
-document.querySelectorAll('.modal').forEach(m => {
-    m.addEventListener('click', (e) => {
-        if (e.target === m) {
-            m.classList.remove('open');
-            document.body.style.overflow = 'auto';
-            if (statusCheckInterval) {
-                clearInterval(statusCheckInterval);
-                statusCheckInterval = null;
-            }
-        }
-    });
-});
 
 async function submitDonation() {
     const type = document.getElementById('donationType').value;
@@ -1800,7 +1789,6 @@ function togglePaymentMethod() {
     const cardFields = document.getElementById('cardFields');
     if (method === 'card') {
         cardFields.style.display = 'block';
-        cardFields.style.animation = 'modalIn 0.3s ease';
     } else {
         cardFields.style.display = 'none';
     }
@@ -2062,7 +2050,7 @@ function validarCPF(cpf) {
 }
 
 // ============================================
-// ===== PROCESSAR PAGAMENTO - CORRIGIDO =====
+// ===== PROCESSAR PAGAMENTO =====
 // ============================================
 async function processPayment() {
     const name = document.getElementById('payName').value.trim();
@@ -2098,7 +2086,6 @@ async function processPayment() {
         showNotification('🔄 Processando pagamento...', 'info');
 
         if (method === 'pix') {
-            // ===== PAGAMENTO COM PIX =====
             const paymentData = {
                 amount: amount,
                 description: description,
@@ -2117,7 +2104,6 @@ async function processPayment() {
             const payment = await response.json();
             if (payment.error) throw new Error(payment.error);
 
-            // SALVA O PEDIDO NO BANCO
             if (paymentType === 'sale') {
                 const itemsForOrder = cart.map(item => ({
                     id: item.id,
@@ -2152,7 +2138,6 @@ async function processPayment() {
                 await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'pix', description);
             }
 
-            // Mostra QR Code
             const resultDiv = document.getElementById('paymentResult');
             resultDiv.style.display = 'block';
             document.getElementById('paymentForm').style.display = 'none';
@@ -2204,7 +2189,6 @@ async function processPayment() {
             verificarStatusAutomatico(payment.payment_id);
 
         } else {
-            // ===== PAGAMENTO COM CARTÃO =====
             const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
             const cardExpiry = document.getElementById('cardExpiry').value;
             const cardCvv = document.getElementById('cardCvv').value;
@@ -2578,10 +2562,6 @@ async function submitRegistration(type) {
     }
 }
 
-// ============================================
-// ===== INSCRIÇÃO EM EVENTOS (via cards) =====
-// ============================================
-
 async function registerForEvent(eventId, eventName, price) {
     const name = prompt('Seu nome completo:');
     if (!name) return;
@@ -2672,45 +2652,6 @@ async function loadSettings() {
 }
 
 // ============================================
-// ===== INICIALIZAÇÃO =====
-// ============================================
-
-document.addEventListener('DOMContentLoaded', () => {
-    showReturnPage();
-    if (document.getElementById('paymentReturnPage').style.display !== 'block') {
-        loadSettings();
-        loadCarouselFromServer();
-        loadStudies();
-        loadEvents();
-        loadProducts();
-        loadBirthdays();
-        document.getElementById('cartCount').textContent = 0;
-    }
-});
-
-// Fechar modal de carrossel ao clicar fora
-document.getElementById('carouselInfoOverlay')?.addEventListener('click', function(e) {
-    if (e.target === this) closeCarouselInfo();
-});
-
-// Tecla ESC para fechar modais
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        closeCarouselInfo();
-        closeBible();
-        closeSizeModal();
-        document.querySelectorAll('.modal.open').forEach(m => {
-            m.classList.remove('open');
-            document.body.style.overflow = 'auto';
-        });
-        if (statusCheckInterval) {
-            clearInterval(statusCheckInterval);
-            statusCheckInterval = null;
-        }
-    }
-});
-
-// ============================================
 // ===== PÁGINA DE RETORNO =====
 // ============================================
 
@@ -2755,6 +2696,37 @@ function showReturnPage() {
         document.getElementById('returnPaymentId').textContent = paymentId || '-';
     }
 }
+
+// ============================================
+// ===== INICIALIZAÇÃO =====
+// ============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    showReturnPage();
+    if (document.getElementById('paymentReturnPage').style.display !== 'block') {
+        loadSettings();
+        loadCarouselFromServer();
+        loadStudies();
+        loadEvents();
+        loadProducts();
+        loadBirthdays();
+        document.getElementById('cartCount').textContent = 0;
+    }
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeSizeModal();
+        document.querySelectorAll('.modal.open').forEach(m => {
+            m.classList.remove('open');
+            document.body.style.overflow = 'auto';
+        });
+        if (statusCheckInterval) {
+            clearInterval(statusCheckInterval);
+            statusCheckInterval = null;
+        }
+    }
+});
 </script>
 </body>
 </html>

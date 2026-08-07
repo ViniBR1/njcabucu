@@ -65,7 +65,7 @@ const storage = multer.memoryStorage();
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 50 * 1024 * 1024 }, // Aumentado para 50MB para PDFs
+    limits: { fileSize: 50 * 1024 * 1024 },
     fileFilter: function (req, file, cb) {
         const allowedTypes = /jpeg|jpg|png|gif|webp|pdf/;
         const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -109,7 +109,6 @@ async function initDB() {
     console.log('📝 Criando tabelas...');
     
     try {
-        // USERS
         await sql`CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -124,7 +123,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // DEPARTMENTS
         await sql`CREATE TABLE IF NOT EXISTS departments (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -135,7 +133,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // DEPARTMENT MEMBERS
         await sql`CREATE TABLE IF NOT EXISTS department_members (
             department_id INTEGER,
             user_id INTEGER,
@@ -144,7 +141,6 @@ async function initDB() {
             PRIMARY KEY (department_id, user_id)
         )`;
 
-        // STUDIES
         await sql`CREATE TABLE IF NOT EXISTS studies (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -156,7 +152,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // PRODUCTS
         await sql`CREATE TABLE IF NOT EXISTS products (
             id SERIAL PRIMARY KEY,
             name VARCHAR(200) NOT NULL,
@@ -169,7 +164,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // EVENTS
         await sql`CREATE TABLE IF NOT EXISTS events (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -181,7 +175,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // PRAYERS
         await sql`CREATE TABLE IF NOT EXISTS prayers (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100),
@@ -190,7 +183,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // ORDERS (VENDAS)
         await sql`CREATE TABLE IF NOT EXISTS orders (
             id SERIAL PRIMARY KEY,
             user_name VARCHAR(100),
@@ -204,7 +196,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // REGISTRATIONS
         await sql`CREATE TABLE IF NOT EXISTS registrations (
             id SERIAL PRIMARY KEY,
             type VARCHAR(50) NOT NULL,
@@ -220,7 +211,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // WORSHIP SCALES
         await sql`CREATE TABLE IF NOT EXISTS worship_scales (
             id SERIAL PRIMARY KEY,
             department_id INTEGER,
@@ -235,7 +225,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // DONATIONS
         await sql`CREATE TABLE IF NOT EXISTS donations (
             id SERIAL PRIMARY KEY,
             user_name VARCHAR(100),
@@ -249,7 +238,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // CAROUSEL
         await sql`CREATE TABLE IF NOT EXISTS carousel_images (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200),
@@ -262,7 +250,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // SITE SETTINGS
         await sql`CREATE TABLE IF NOT EXISTS site_settings (
             id SERIAL PRIMARY KEY,
             key VARCHAR(100) UNIQUE NOT NULL,
@@ -270,7 +257,6 @@ async function initDB() {
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // ===== TABELAS DE MEMBROS E SECRETARIA =====
         await sql`CREATE TABLE IF NOT EXISTS members (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -361,7 +347,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // ===== TABELAS PARA DEPARTAMENTOS =====
         await sql`CREATE TABLE IF NOT EXISTS songs (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -461,7 +446,7 @@ app.post('/api/change-password', async (req, res) => {
     }
 });
 
-// ----- USUÁRIOS E COLABORADORES -----
+// ----- USUÁRIOS -----
 app.post('/api/users', auth, pastorOnly, async (req, res) => {
     try {
         const { name, email, password, role, department_name, phone, is_leader, department_id } = req.body;
@@ -511,7 +496,6 @@ app.post('/api/users', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- CRIAR USUÁRIO PELO LÍDER -----
 app.post('/api/users-by-leader', auth, async (req, res) => {
     try {
         const { name, email, password, role, department_id } = req.body;
@@ -789,6 +773,7 @@ app.delete('/api/departments/:department_id/members/:user_id', auth, async (req,
 // ============================================
 // ===== ESTUDOS - COM PDF =====
 // ============================================
+
 app.post('/api/studies', auth, upload.fields([
     { name: 'image', maxCount: 1 },
     { name: 'file', maxCount: 1 }
@@ -798,16 +783,16 @@ app.post('/api/studies', auth, upload.fields([
         let image_base64 = null;
         let file_base64 = null;
 
-        if (req.files['image']) {
+        if (req.files && req.files['image']) {
             image_base64 = req.files['image'][0].buffer.toString('base64');
         }
-        if (req.files['file']) {
+        if (req.files && req.files['file']) {
             file_base64 = req.files['file'][0].buffer.toString('base64');
         }
 
         const result = await sql`
             INSERT INTO studies (title, description, file_url, image_base64, file_base64)
-            VALUES (${title}, ${description}, ${file_url || null}, ${image_base64}, ${file_base64})
+            VALUES (${title}, ${description || ''}, ${file_url || null}, ${image_base64}, ${file_base64})
             RETURNING *
         `;
         console.log('✅ Estudo criado:', result[0].id);
@@ -1124,7 +1109,10 @@ app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- INSCRIÇÕES -----
+// ============================================
+// ===== INSCRIÇÕES - APROVAÇÃO AUTOMÁTICA =====
+// ============================================
+
 app.post('/api/registrations', async (req, res) => {
     try {
         const { type, name, email, phone, department_name, event_name, details, amount, is_paid, birth_date, baptism_date, baptism_date_id } = req.body;
@@ -1147,12 +1135,13 @@ app.post('/api/registrations', async (req, res) => {
             }
         }
 
+        // Aprova automaticamente
         const result = await sql`
             INSERT INTO registrations (type, name, email, phone, department_name, event_name, details, amount, is_paid, status)
-            VALUES (${type}, ${name}, ${email || ''}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${finalDetails || ''}, ${parseFloat(amount) || 0}, ${is_paid || false}, 'pending')
+            VALUES (${type}, ${name}, ${email || ''}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${finalDetails || ''}, ${parseFloat(amount) || 0}, ${is_paid || false}, 'approved')
             RETURNING *
         `;
-        console.log('✅ Inscrição criada:', result[0]);
+        console.log('✅ Inscrição criada e aprovada:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro inscrição:', error);
@@ -1169,51 +1158,9 @@ app.get('/api/registrations', auth, async (req, res) => {
     }
 });
 
-// ===== ROTAS PARA APROVAR/REJEITAR INSCRIÇÕES =====
-app.put('/api/registrations/:id/approve', auth, pastorOnly, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const result = await sql`
-            UPDATE registrations 
-            SET status = 'approved' 
-            WHERE id = ${id}
-            RETURNING *
-        `;
-        if (result.length === 0) {
-            return res.status(404).json({ error: 'Inscrição não encontrada' });
-        }
-        console.log('✅ Inscrição aprovada:', id);
-        res.json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao aprovar inscrição:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.put('/api/registrations/:id/reject', auth, pastorOnly, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const result = await sql`
-            UPDATE registrations 
-            SET status = 'rejected' 
-            WHERE id = ${id}
-            RETURNING *
-        `;
-        if (result.length === 0) {
-            return res.status(404).json({ error: 'Inscrição não encontrada' });
-        }
-        console.log('❌ Inscrição rejeitada:', id);
-        res.json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao rejeitar inscrição:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
 app.delete('/api/registrations/:id', auth, pastorOnly, async (req, res) => {
     try {
-        const { id } = req.params;
-        await sql`DELETE FROM registrations WHERE id = ${id}`;
+        await sql`DELETE FROM registrations WHERE id = ${req.params.id}`;
         res.json({ message: 'Inscrição removida' });
     } catch (error) {
         console.error('❌ Erro ao remover inscrição:', error);
@@ -2185,7 +2132,7 @@ app.get('/api/bills/summary', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== MERCADO PAGO - PIX =====
+// ===== MERCADO PAGO =====
 // ============================================
 
 app.post('/api/create-pix-payment', async (req, res) => {
@@ -2244,10 +2191,6 @@ app.post('/api/create-pix-payment', async (req, res) => {
     }
 });
 
-// ============================================
-// ===== MERCADO PAGO - CARTÃO =====
-// ============================================
-
 app.post('/api/create-card-payment', async (req, res) => {
     try {
         const { amount, description, email, name, phone, cpf, card_token, installments } = req.body;
@@ -2300,10 +2243,6 @@ app.post('/api/create-card-payment', async (req, res) => {
         res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
     }
 });
-
-// ============================================
-// ===== MERCADO PAGO - CARTÃO FALLBACK =====
-// ============================================
 
 app.post('/api/create-card-payment-fallback', async (req, res) => {
     try {

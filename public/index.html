@@ -1040,6 +1040,7 @@ let pendingProduct = null;
 let selectedSize = null;
 let baptismDatesList = [];
 let eventsList = [];
+let _pendingCpf = null;
 
 // ============================================
 // ===== HEADER SCROLL =====
@@ -1464,7 +1465,8 @@ async function loadStudies() {
                 ${s.image_base64 ? createCardImage(s.image_base64, s.title) : ''}
                 <h3>${s.title}</h3>
                 <p>${s.description || ''}</p>
-                ${s.file_url ? '<a href="' + s.file_url + '" target="_blank" class="btn btn-primary btn-sm" style="margin-top:0.5rem;width:auto;"><i class="fas fa-download"></i> Baixar</a>' : ''}
+                ${s.has_pdf ? `<a href="/api/studies/${s.id}/download" target="_blank" class="btn btn-primary btn-sm" style="margin-top:0.5rem;width:auto;"><i class="fas fa-download"></i> Baixar PDF</a>` : ''}
+                ${s.file_url ? `<a href="${s.file_url}" target="_blank" class="btn btn-primary btn-sm" style="margin-top:0.5rem;width:auto;"><i class="fas fa-download"></i> Baixar</a>` : ''}
             </div>
         `).join('');
     } catch (e) { console.error('Erro:', e); }
@@ -1616,7 +1618,7 @@ async function addToCart(productId) {
             if (!confirmar) return;
         }
 
-        window._cpfCompra = cpfClean;
+        _pendingCpf = cpfClean;
 
         const clothingCategories = ['camisa', 'camiseta', 'calca', 'vestido', 'roupa', 'vestuario', 'blusa', 'jaqueta'];
         const isClothing = clothingCategories.some(cat => 
@@ -1678,6 +1680,7 @@ function cancelSize() {
     closeSizeModal();
     pendingProduct = null;
     selectedSize = null;
+    _pendingCpf = null;
 }
 
 function closeSizeModal() {
@@ -1689,7 +1692,8 @@ function addProductToCart(product, size, color) {
     const item = {
         ...product,
         size: size || null,
-        color: color || null
+        color: color || null,
+        cpf: _pendingCpf || null
     };
     
     cart.push(item);
@@ -1697,6 +1701,7 @@ function addProductToCart(product, size, color) {
     showNotification(`✅ ${product.name}${size ? ' (Tamanho: ' + size + ')' : ''} adicionado ao carrinho!`, 'success');
     pendingProduct = null;
     selectedSize = null;
+    _pendingCpf = null;
 }
 
 function openCart() {
@@ -1812,8 +1817,6 @@ async function saveOrderOrDonation(name, email, phone, amount, paymentId, method
                 category: item.category || null
             }));
 
-            const cpfClean = document.getElementById('payCpf').value.replace(/[^\d]/g, '');
-
             await fetch('/api/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1825,8 +1828,7 @@ async function saveOrderOrDonation(name, email, phone, amount, paymentId, method
                     total: amount,
                     payment_id: paymentId,
                     payment_method: method,
-                    status: 'pending',
-                    product_details: { cpf: cpfClean }
+                    status: 'pending'
                 })
             });
             cart = [];
@@ -1867,20 +1869,8 @@ async function checkPaymentStatus(paymentId) {
             }
         });
         
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-            console.warn('Resposta não é JSON, tentando rota alternativa...');
-            
-            const altResponse = await fetch(`/api/payment-status/${paymentId}`, {
-                headers: { 'Accept': 'application/json' }
-            });
-            
-            if (!altResponse.ok) {
-                throw new Error('Não foi possível verificar o status. Tente novamente mais tarde.');
-            }
-            
-            const altData = await altResponse.json();
-            return await processPaymentStatus(altData, paymentId);
+        if (!response.ok) {
+            throw new Error('Não foi possível verificar o status');
         }
         
         const data = await response.json();
@@ -2117,8 +2107,6 @@ async function processPayment() {
                     category: item.category || null
                 }));
 
-                const cpfClean = cpf.replace(/[^\d]/g, '');
-
                 await fetch('/api/orders', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2130,8 +2118,7 @@ async function processPayment() {
                         total: amount,
                         payment_id: payment.payment_id,
                         payment_method: 'pix',
-                        status: 'pending',
-                        product_details: { cpf: cpfClean }
+                        status: 'pending'
                     })
                 });
                 cart = [];
@@ -2241,8 +2228,6 @@ async function processPayment() {
                         category: item.category || null
                     }));
 
-                    const cpfClean = cpf.replace(/[^\d]/g, '');
-
                     await fetch('/api/orders', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -2254,8 +2239,7 @@ async function processPayment() {
                             total: amount,
                             payment_id: payment.payment_id,
                             payment_method: 'card',
-                            status: 'pending',
-                            product_details: { cpf: cpfClean }
+                            status: 'pending'
                         })
                     });
                     cart = [];

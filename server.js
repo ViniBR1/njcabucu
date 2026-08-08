@@ -66,34 +66,31 @@ try {
 }
 
 // ============================================
-// ===== FUNÇÃO PARA ENVIAR EMAIL DE CONFIRMAÇÃO =====
+// ===== FUNÇÃO PARA ENVIAR EMAIL =====
 // ============================================
-async function sendConfirmationEmail(orderData) {
+async function sendOrderEmail(orderData) {
+    if (!transporter) return;
+    
     try {
-        const { user_name, user_email, user_phone, items, total, payment_id, status, user_cpf, id } = orderData;
+        const { user_name, user_email, user_phone, items, total, payment_id, status } = orderData;
         
         let itemsHtml = '';
         let itemsText = '';
         try {
             const parsedItems = typeof items === 'string' ? JSON.parse(items) : items;
-            if (Array.isArray(parsedItems) && parsedItems.length > 0) {
-                parsedItems.forEach(item => {
-                    const sizeText = item.size ? ` (Tamanho: ${item.size})` : '';
-                    const qtd = item.quantity || 1;
-                    itemsHtml += `<tr>
-                        <td style="padding:8px;border-bottom:1px solid #eee;">${item.name}${sizeText}</td>
-                        <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${qtd}</td>
-                        <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">R$ ${(parseFloat(item.price) * qtd).toFixed(2)}</td>
-                    </tr>`;
-                    itemsText += `${item.name}${sizeText} - ${qtd}x R$ ${(parseFloat(item.price) * qtd).toFixed(2)}\n`;
-                });
-            }
+            parsedItems.forEach(item => {
+                const sizeText = item.size ? ` (Tamanho: ${item.size})` : '';
+                itemsHtml += `<tr>
+                    <td style="padding:8px;border-bottom:1px solid #eee;">${item.name}${sizeText}</td>
+                    <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">1</td>
+                    <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">R$ ${parseFloat(item.price).toFixed(2)}</td>
+                </tr>`;
+                itemsText += `${item.name}${sizeText} - R$ ${parseFloat(item.price).toFixed(2)}\n`;
+            });
         } catch (e) {
             itemsHtml = `<tr><td colspan="3" style="padding:8px;">${items}</td></tr>`;
             itemsText = String(items);
         }
-
-        const totalValue = total || items.reduce((sum, item) => sum + (parseFloat(item.price) * (item.quantity || 1)), 0);
 
         const html = `
         <!DOCTYPE html>
@@ -112,24 +109,24 @@ async function sendConfirmationEmail(orderData) {
                 .table th { background: #0D47A1; color: white; padding: 10px; text-align: left; }
                 .table td { padding: 10px; border-bottom: 1px solid #eee; }
                 .total { text-align: right; font-size: 1.2rem; font-weight: bold; color: #0D47A1; margin-top: 10px; }
-                .status-approved { color: #28a745; font-weight: bold; }
+                .status { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; }
+                .status.approved { background: #d4edda; color: #155724; }
+                .status.pending { background: #fff3cd; color: #856404; }
                 .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #888; font-size: 0.9rem; }
             </style>
         </head>
         <body>
             <div class="header">
                 <h1>🙏 NJ Cabuçu</h1>
-                <p>✅ Confirmação de Compra</p>
+                <p>Confirmação de Pedido</p>
             </div>
             
             <div class="info">
                 <div class="info-item"><strong>Cliente:</strong> ${user_name}</div>
                 <div class="info-item"><strong>E-mail:</strong> ${user_email}</div>
                 <div class="info-item"><strong>Telefone:</strong> ${user_phone || 'Não informado'}</div>
-                ${user_cpf ? `<div class="info-item"><strong>CPF:</strong> ${user_cpf}</div>` : ''}
-                <div class="info-item"><strong>Status:</strong> <span class="status-approved">✅ Aprovado</span></div>
+                <div class="info-item"><strong>Status:</strong> <span class="status ${status === 'approved' ? 'approved' : 'pending'}">${status === 'approved' ? '✅ Aprovado' : '⏳ Pendente'}</span></div>
                 <div class="info-item"><strong>ID do Pagamento:</strong> ${payment_id || '-'}</div>
-                <div class="info-item"><strong>Nº do Pedido:</strong> #${String(id || '').padStart(6, '0')}</div>
             </div>
             
             <h3>📦 Itens do Pedido</h3>
@@ -147,7 +144,7 @@ async function sendConfirmationEmail(orderData) {
             </table>
             
             <div class="total">
-                Total: R$ ${parseFloat(totalValue).toFixed(2)}
+                Total: R$ ${parseFloat(total).toFixed(2)}
             </div>
             
             <p style="margin-top:20px;color:#666;">
@@ -157,26 +154,41 @@ async function sendConfirmationEmail(orderData) {
             
             <div class="footer">
                 <p>NJ Cabuçu - © ${new Date().getFullYear()} Todos os direitos reservados</p>
-                <p style="font-size:0.8rem;">Este é o comprovante da sua compra. Guarde para referência.</p>
+                <p style="font-size:0.8rem;">Este é um comprovante de compra. Guarde para referência.</p>
             </div>
         </body>
         </html>
         `;
 
-        if (!transporter) {
-            console.log('⚠️ Email não configurado, pulando envio...');
-            return;
-        }
+        const text = `
+        NJ Cabuçu - Confirmação de Pedido
+        ================================
+        
+        Cliente: ${user_name}
+        E-mail: ${user_email}
+        Telefone: ${user_phone || 'Não informado'}
+        Status: ${status === 'approved' ? '✅ Aprovado' : '⏳ Pendente'}
+        ID do Pagamento: ${payment_id || '-'}
+        
+        Itens do Pedido:
+        ${itemsText}
+        
+        Total: R$ ${parseFloat(total).toFixed(2)}
+        
+        "E conhecereis a verdade, e a verdade vos libertará." - João 8:32
+        
+        NJ Cabuçu - © ${new Date().getFullYear()}
+        `;
 
         await transporter.sendMail({
-            from: `"NJ Cabuçu" <${process.env.EMAIL_USER}>`,
+            from: process.env.EMAIL_USER,
             to: user_email,
-            subject: `✅ NJ Cabuçu - Confirmação de Compra #${String(id || '').padStart(6, '0')}`,
+            subject: `✅ NJ Cabuçu - Confirmação de Pedido #${String(orderData.id).padStart(6, '0')}`,
             html: html,
-            text: `NJ Cabuçu - Confirmação de Compra\n\nCliente: ${user_name}\nTotal: R$ ${parseFloat(totalValue).toFixed(2)}\n\nNJ Cabuçu - © ${new Date().getFullYear()}`
+            text: text
         });
         
-        console.log('✅ Email de confirmação enviado para:', user_email);
+        console.log('✅ Email enviado para:', user_email);
     } catch (error) {
         console.error('❌ Erro ao enviar email:', error);
     }
@@ -322,20 +334,17 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // TABELA ORDERS COM CPF
         await sql`CREATE TABLE IF NOT EXISTS orders (
             id SERIAL PRIMARY KEY,
             user_name VARCHAR(100),
             user_email VARCHAR(100),
             user_phone VARCHAR(20),
-            user_cpf VARCHAR(14),
             items TEXT,
             total DECIMAL(10,2) NOT NULL,
             status VARCHAR(50) DEFAULT 'pending',
             payment_id VARCHAR(100),
             payment_method VARCHAR(50),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
         await sql`CREATE TABLE IF NOT EXISTS registrations (
@@ -347,7 +356,7 @@ async function initDB() {
             department_name VARCHAR(100),
             event_name VARCHAR(200),
             details TEXT,
-            status VARCHAR(50) DEFAULT 'approved',
+            status VARCHAR(50) DEFAULT 'pending',
             amount DECIMAL(10,2) DEFAULT 0,
             is_paid BOOLEAN DEFAULT false,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -507,9 +516,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(user_id, date)
         )`;
-
-        // Cria índice para busca por CPF
-        await sql`CREATE INDEX IF NOT EXISTS idx_orders_user_cpf ON orders(user_cpf)`;
 
         console.log('✅ Tabelas criadas');
 
@@ -1153,91 +1159,29 @@ app.put('/api/prayers/:id/read', auth, async (req, res) => {
     }
 });
 
-// ============================================
-// ===== VERIFICAR SE CPF JÁ COMPROU =====
-// ============================================
-app.post('/api/check-purchase', async (req, res) => {
-    try {
-        const { cpf, product_id } = req.body;
-        
-        if (!cpf || !product_id) {
-            return res.json({ hasPurchased: false, count: 0 });
-        }
-        
-        const result = await sql`
-            SELECT COUNT(*) as count 
-            FROM orders 
-            WHERE status = 'approved'
-            AND user_cpf = ${cpf}
-            AND items::jsonb @> ${JSON.stringify([{ id: parseInt(product_id) }])}::jsonb
-        `;
-        
-        const count = parseInt(result[0]?.count || 0);
-        res.json({ 
-            hasPurchased: count > 0,
-            count: count
-        });
-    } catch (error) {
-        console.error('❌ Erro ao verificar compra:', error);
-        res.json({ hasPurchased: false, count: 0 });
-    }
-});
-
-// ============================================
-// ===== PEDIDOS (VENDAS) =====
-// ============================================
+// ----- PEDIDOS (VENDAS) - CORRIGIDO -----
 app.post('/api/orders', async (req, res) => {
     try {
-        const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status, product_details } = req.body;
+        const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status } = req.body;
         
         const itemsWithDetails = items.map(item => ({
-            id: item.id,
-            name: item.name,
-            price: parseFloat(item.price),
-            quantity: item.quantity || 1,
+            ...item,
             size: item.size || null,
-            color: item.color || null,
-            category: item.category || null
+            color: item.color || null
         }));
         
-        const cpfInfo = product_details?.cpf || '';
-        const itemsJson = JSON.stringify(itemsWithDetails);
-        
         const result = await sql`
-            INSERT INTO orders (
-                user_name, 
-                user_email, 
-                user_phone, 
-                user_cpf,
-                items, 
-                total, 
-                payment_id, 
-                payment_method, 
-                status
-            )
-            VALUES (
-                ${user_name}, 
-                ${user_email}, 
-                ${user_phone || ''}, 
-                ${cpfInfo},
-                ${itemsJson}, 
-                ${total}, 
-                ${payment_id}, 
-                ${payment_method}, 
-                ${status || 'pending'}
-            )
+            INSERT INTO orders (user_name, user_email, user_phone, items, total, payment_id, payment_method, status)
+            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(itemsWithDetails)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
             RETURNING *
         `;
         
-        console.log('✅ Pedido criado:', result[0]);
-        console.log('📦 Itens:', itemsWithDetails);
-        console.log('📱 CPF:', cpfInfo);
+        const orderData = { ...result[0], items: itemsWithDetails };
         
-        if (status === 'approved') {
-            const orderData = { ...result[0], items: itemsWithDetails };
-            await sendConfirmationEmail(orderData);
-        }
+        // Envia email de confirmação
+        await sendOrderEmail(orderData);
         
+        console.log('✅ Pedido criado e email enviado:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar pedido:', error);
@@ -1256,21 +1200,6 @@ app.get('/api/orders', auth, async (req, res) => {
     }
 });
 
-app.get('/api/orders/by-cpf/:cpf', auth, async (req, res) => {
-    try {
-        const { cpf } = req.params;
-        const orders = await sql`
-            SELECT * FROM orders 
-            WHERE user_cpf = ${cpf}
-            ORDER BY created_at DESC
-        `;
-        res.json(orders);
-    } catch (error) {
-        console.error('❌ Erro ao buscar pedidos por CPF:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
 app.put('/api/orders/:id/status', auth, pastorOnly, async (req, res) => {
     try {
         const { id } = req.params;
@@ -1279,6 +1208,33 @@ app.put('/api/orders/:id/status', auth, pastorOnly, async (req, res) => {
         res.json({ message: 'Status atualizado' });
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- VERIFICAR SE CPF JÁ COMPROU UM PRODUTO -----
+app.post('/api/check-purchase', async (req, res) => {
+    try {
+        const { cpf, product_id } = req.body;
+        
+        if (!cpf || !product_id) {
+            return res.json({ hasPurchased: false, count: 0 });
+        }
+        
+        const result = await sql`
+            SELECT COUNT(*) as count FROM orders 
+            WHERE items::jsonb @> ${JSON.stringify([{ id: parseInt(product_id) }])}::jsonb
+            AND status = 'approved'
+            AND user_phone LIKE ${'%' + cpf + '%'}
+        `;
+        
+        const count = parseInt(result[0]?.count || 0);
+        res.json({ 
+            hasPurchased: count > 0,
+            count: count
+        });
+    } catch (error) {
+        console.error('❌ Erro ao verificar compra:', error);
+        res.json({ hasPurchased: false, count: 0 });
     }
 });
 
@@ -1322,7 +1278,7 @@ app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
         `;
         
         const recentOrders = await sql`
-            SELECT id, user_name, user_email, user_cpf, items, total, status, payment_method, created_at
+            SELECT id, user_name, user_email, items, total, status, payment_method, created_at
             FROM orders 
             ORDER BY created_at DESC 
             LIMIT 10
@@ -1344,7 +1300,10 @@ app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- INSCRIÇÕES -----
+// ============================================
+// ===== INSCRIÇÕES - APROVAÇÃO AUTOMÁTICA =====
+// ============================================
+
 app.post('/api/registrations', async (req, res) => {
     try {
         const { type, name, email, phone, department_name, event_name, details, amount, is_paid, birth_date, baptism_date, baptism_date_id } = req.body;
@@ -2677,23 +2636,19 @@ app.post('/api/webhook', async (req, res) => {
                         // Atualiza orders
                         const orderResult = await sql`
                             UPDATE orders 
-                            SET status = 'approved', updated_at = NOW()
+                            SET status = 'approved' 
                             WHERE payment_id = ${paymentId}
                             RETURNING *
                         `;
+                        console.log('✅ Pedido atualizado:', orderResult.length > 0 ? orderResult[0].id : 'Nenhum');
                         
-                        // Busca o pedido completo e envia email
+                        // Envia email se encontrou o pedido
                         if (orderResult.length > 0) {
                             const order = orderResult[0];
-                            // Busca os itens
-                            const itemsResult = await sql`SELECT items FROM orders WHERE id = ${order.id}`;
-                            if (itemsResult.length > 0) {
-                                const orderData = {
-                                    ...order,
-                                    items: itemsResult[0].items
-                                };
-                                await sendConfirmationEmail(orderData);
-                                console.log('✅ Email de confirmação enviado para o pedido:', order.id);
+                            // Busca o pedido completo com os itens
+                            const orderData = await sql`SELECT * FROM orders WHERE id = ${order.id}`;
+                            if (orderData.length > 0) {
+                                await sendOrderEmail(orderData[0]);
                             }
                         }
                         
@@ -2703,13 +2658,17 @@ app.post('/api/webhook', async (req, res) => {
                             SET status = 'approved' 
                             WHERE payment_id = ${paymentId}
                         `;
-                        console.log('✅ Pagamento aprovado:', paymentId);
+                        console.log('✅ Pagamento aprovado e registrado!');
                     } else if (payment.status === 'rejected' || payment.status === 'cancelled') {
                         await sql`
-                            UPDATE orders SET status = 'rejected' WHERE payment_id = ${paymentId}
+                            UPDATE orders 
+                            SET status = 'rejected' 
+                            WHERE payment_id = ${paymentId}
                         `;
                         await sql`
-                            UPDATE donations SET status = 'rejected' WHERE payment_id = ${paymentId}
+                            UPDATE donations 
+                            SET status = 'rejected' 
+                            WHERE payment_id = ${paymentId}
                         `;
                         console.log('❌ Pagamento recusado/cancelado');
                     }

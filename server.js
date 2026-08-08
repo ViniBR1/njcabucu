@@ -42,6 +42,15 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+// Verifica se o transporte está funcionando
+transporter.verify(function(error, success) {
+    if (error) {
+        console.log('❌ Erro na configuração do e-mail:', error);
+    } else {
+        console.log('✅ Servidor de e-mail configurado com sucesso!');
+    }
+});
+
 // ============================================
 // ===== FUNÇÃO PARA ENVIAR E-MAIL =====
 // ============================================
@@ -56,9 +65,12 @@ async function sendPaymentConfirmationEmail(paymentData) {
         type 
     } = paymentData;
 
+    console.log('📧 Tentando enviar e-mail para:', email);
+    console.log('📧 Dados:', { email, name, payment_id, amount, status, type });
+
     if (!email) {
         console.log('⚠️ Email não informado, não é possível enviar confirmação');
-        return;
+        return null;
     }
 
     const statusText = status === 'approved' ? '✅ APROVADO' : '⏳ PENDENTE';
@@ -189,6 +201,7 @@ async function sendPaymentConfirmationEmail(paymentData) {
         return info;
     } catch (error) {
         console.error('❌ Erro ao enviar e-mail:', error.message);
+        console.error('❌ Detalhes do erro:', error);
         return null;
     }
 }
@@ -2303,21 +2316,27 @@ app.post('/api/create-pix-payment', async (req, res) => {
         console.log('📝 Criando pagamento PIX...');
         console.log('📝 Valor:', valor);
         console.log('📝 External Reference:', externalReference);
+        console.log('📝 Email:', email);
 
         const payment = await PaymentService.create(paymentData);
         console.log('✅ Pagamento criado:', payment.id);
         console.log('✅ Status:', payment.status);
 
         // ===== ENVIA E-MAIL DE CONFIRMAÇÃO =====
-        await sendPaymentConfirmationEmail({
-            email: email,
-            name: name,
-            payment_id: payment.id,
-            amount: valor,
-            description: description || 'Pagamento NJ Cabuçu',
-            status: payment.status,
-            type: req.body.paymentType || 'donation'
-        });
+        try {
+            await sendPaymentConfirmationEmail({
+                email: email,
+                name: name,
+                payment_id: payment.id,
+                amount: valor,
+                description: description || 'Pagamento NJ Cabuçu',
+                status: payment.status,
+                type: req.body.paymentType || 'donation'
+            });
+        } catch (emailError) {
+            console.error('❌ Erro ao enviar e-mail:', emailError);
+            // Não bloqueia o fluxo principal
+        }
 
         const paymentLink = payment.point_of_interaction?.transaction_data?.ticket_url || 
                            `https://www.mercadopago.com.br/payments/${payment.id}`;
@@ -2572,6 +2591,66 @@ app.get('/api/payment-status/:paymentId', async (req, res) => {
 });
 
 // ============================================
+// ===== VERIFICAR PAGAMENTO MANUALMENTE =====
+// ============================================
+
+app.get('/api/verify-payment/:paymentId', async (req, res) => {
+    try {
+        const { paymentId } = req.params;
+        
+        if (!PaymentService) {
+            return res.status(500).json({ error: 'Mercado Pago não configurado' });
+        }
+        
+        console.log('🔍 Verificando pagamento manualmente:', paymentId);
+        const payment = await PaymentService.get({ id: paymentId });
+        console.log('📊 Status:', payment.status);
+        
+        // Atualiza o status no banco
+        if (payment.status === 'approved') {
+            await sql`
+                UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}
+            `;
+            await sql`
+                UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}
+            `;
+            console.log('✅ Pagamento aprovado e registrado manualmente!');
+            
+            // Envia e-mail de confirmação
+            const order = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
+            const donation = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
+            const record = order[0] || donation[0];
+            
+            if (record) {
+                await sendPaymentConfirmationEmail({
+                    email: record.user_email || 'cliente@email.com',
+                    name: record.user_name || 'Cliente',
+                    payment_id: paymentId,
+                    amount: record.total || record.amount || 0,
+                    description: record.type || 'Pagamento NJ Cabuçu',
+                    status: 'approved',
+                    type: order[0] ? 'sale' : 'donation'
+                });
+            }
+        } else if (payment.status === 'pending') {
+            console.log('⏳ Pagamento ainda pendente');
+        } else {
+            console.log('❌ Pagamento status:', payment.status);
+        }
+        
+        res.json({
+            payment_id: payment.id,
+            status: payment.status,
+            status_detail: payment.status_detail,
+            updated: payment.status === 'approved'
+        });
+    } catch (error) {
+        console.error('❌ Erro ao verificar pagamento:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
 // ===== ATUALIZAR STATUS DO PAGAMENTO =====
 // ============================================
 
@@ -2630,15 +2709,19 @@ app.post('/api/webhook', async (req, res) => {
                         
                         // ===== ENVIA E-MAIL DE CONFIRMAÇÃO =====
                         if (record) {
-                            await sendPaymentConfirmationEmail({
-                                email: record.user_email || 'cliente@email.com',
-                                name: record.user_name || 'Cliente',
-                                payment_id: paymentId,
-                                amount: record.total || record.amount || 0,
-                                description: record.type || 'Pagamento NJ Cabuçu',
-                                status: 'approved',
-                                type: order[0] ? 'sale' : 'donation'
-                            });
+                            try {
+                                await sendPaymentConfirmationEmail({
+                                    email: record.user_email || 'cliente@email.com',
+                                    name: record.user_name || 'Cliente',
+                                    payment_id: paymentId,
+                                    amount: record.total || record.amount || 0,
+                                    description: record.type || 'Pagamento NJ Cabuçu',
+                                    status: 'approved',
+                                    type: order[0] ? 'sale' : 'donation'
+                                });
+                            } catch (emailError) {
+                                console.error('❌ Erro ao enviar e-mail do webhook:', emailError);
+                            }
                         }
                     } else if (payment.status === 'rejected' || payment.status === 'cancelled') {
                         await sql`
@@ -2653,6 +2736,8 @@ app.post('/api/webhook', async (req, res) => {
                     console.error('❌ Erro ao buscar pagamento:', error);
                 }
             }
+        } else {
+            console.log('⚠️ Evento ignorado:', type);
         }
         
         res.json({ received: true });
@@ -2764,6 +2849,8 @@ app.post('/api/test-email', async (req, res) => {
     try {
         const { email, name } = req.body;
         
+        console.log('🧪 Testando envio de e-mail para:', email || 'mvini440@gmail.com');
+        
         const result = await sendPaymentConfirmationEmail({
             email: email || 'mvini440@gmail.com',
             name: name || 'Cliente Teste',
@@ -2774,13 +2861,15 @@ app.post('/api/test-email', async (req, res) => {
             type: 'donation'
         });
         
+        console.log('📧 Resultado do envio:', result);
+        
         res.json({ 
             message: 'E-mail enviado com sucesso!', 
             messageId: result?.messageId 
         });
     } catch (error) {
-        console.error('❌ Erro:', error);
-        res.status(500).json({ error: error.message });
+        console.error('❌ Erro no teste:', error);
+        res.status(500).json({ error: error.message, stack: error.stack });
     }
 });
 

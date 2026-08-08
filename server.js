@@ -1163,7 +1163,7 @@ app.put('/api/prayers/:id/read', auth, async (req, res) => {
 // ----- PEDIDOS (VENDAS) - CORRIGIDO COM TAMANHO E CPF -----
 app.post('/api/orders', async (req, res) => {
     try {
-        const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status, product_details } = req.body;
+        const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status } = req.body;
         
         const itemsWithDetails = items.map(item => ({
             id: item.id,
@@ -1175,7 +1175,6 @@ app.post('/api/orders', async (req, res) => {
             category: item.category || null
         }));
         
-        const cpfInfo = product_details?.cpf || '';
         const itemsJson = JSON.stringify(itemsWithDetails);
         
         const result = await sql`
@@ -1186,7 +1185,6 @@ app.post('/api/orders', async (req, res) => {
         
         console.log('✅ Pedido criado:', result[0]);
         console.log('📦 Itens:', itemsWithDetails);
-        console.log('📱 CPF:', cpfInfo);
         
         if (status === 'approved') {
             const orderData = { ...result[0], items: itemsWithDetails };
@@ -1231,10 +1229,12 @@ app.post('/api/check-purchase', async (req, res) => {
             return res.json({ hasPurchased: false, count: 0 });
         }
         
+        // Verifica se existe algum pedido com este CPF e produto
         const result = await sql`
-            SELECT COUNT(*) as count FROM orders 
-            WHERE items::jsonb @> ${JSON.stringify([{ id: parseInt(product_id) }])}::jsonb
-            AND status = 'approved'
+            SELECT COUNT(*) as count 
+            FROM orders 
+            WHERE status = 'approved'
+            AND items ILIKE ${'%' + product_id + '%'}
             AND user_phone LIKE ${'%' + cpf + '%'}
         `;
         
@@ -1356,7 +1356,6 @@ app.get('/api/registrations', auth, async (req, res) => {
     }
 });
 
-// ===== ROTAS PARA APROVAR/REJEITAR INSCRIÇÕES =====
 app.put('/api/registrations/:id/approve', auth, pastorOnly, async (req, res) => {
     try {
         const { id } = req.params;

@@ -92,6 +92,12 @@ async function sendPaymentConfirmationEmail(paymentData) {
             .btn:hover { background: #0A3A7A; }
             .social { margin-top: 20px; }
             .social a { color: #0D47A1; text-decoration: none; margin: 0 10px; font-size: 20px; }
+            @media (max-width: 600px) {
+                .container { padding: 15px; }
+                .header h1 { font-size: 20px; }
+                .info-row { flex-direction: column; padding: 6px 0; }
+                .info-label { margin-bottom: 2px; }
+            }
         </style>
     </head>
     <body>
@@ -199,6 +205,7 @@ try {
         });
         PaymentService = new Payment(client);
         console.log('✅ Mercado Pago configurado');
+        console.log('🔑 Access Token:', process.env.MP_ACCESS_TOKEN.substring(0, 20) + '...');
     }
 } catch (error) {
     console.log('⚠️ Erro MP:', error.message);
@@ -209,7 +216,7 @@ try {
 // ============================================
 const app = express();
 const PORT = process.env.PORT || 3000;
-const BASE_URL = process.env.PUBLIC_URL || `https://igrejanjcabucurj.vercel.app`;
+const BASE_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
 
 app.use(cors({
     origin: ['https://igrejanjcabucurj.vercel.app', 'http://localhost:3000', 'http://localhost:3001', '*'],
@@ -270,6 +277,7 @@ async function initDB() {
     console.log('📝 Criando tabelas...');
     
     try {
+        // USERS
         await sql`CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -284,6 +292,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // DEPARTMENTS
         await sql`CREATE TABLE IF NOT EXISTS departments (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -294,6 +303,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // DEPARTMENT MEMBERS
         await sql`CREATE TABLE IF NOT EXISTS department_members (
             department_id INTEGER,
             user_id INTEGER,
@@ -302,6 +312,7 @@ async function initDB() {
             PRIMARY KEY (department_id, user_id)
         )`;
 
+        // STUDIES
         await sql`CREATE TABLE IF NOT EXISTS studies (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -312,6 +323,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // PRODUCTS
         await sql`CREATE TABLE IF NOT EXISTS products (
             id SERIAL PRIMARY KEY,
             name VARCHAR(200) NOT NULL,
@@ -324,6 +336,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // EVENTS
         await sql`CREATE TABLE IF NOT EXISTS events (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -335,6 +348,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // PRAYERS
         await sql`CREATE TABLE IF NOT EXISTS prayers (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100),
@@ -343,6 +357,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // ORDERS (VENDAS)
         await sql`CREATE TABLE IF NOT EXISTS orders (
             id SERIAL PRIMARY KEY,
             user_name VARCHAR(100),
@@ -356,6 +371,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // REGISTRATIONS
         await sql`CREATE TABLE IF NOT EXISTS registrations (
             id SERIAL PRIMARY KEY,
             type VARCHAR(50) NOT NULL,
@@ -371,6 +387,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // WORSHIP SCALES
         await sql`CREATE TABLE IF NOT EXISTS worship_scales (
             id SERIAL PRIMARY KEY,
             department_id INTEGER,
@@ -385,6 +402,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // DONATIONS
         await sql`CREATE TABLE IF NOT EXISTS donations (
             id SERIAL PRIMARY KEY,
             user_name VARCHAR(100),
@@ -398,6 +416,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // CAROUSEL
         await sql`CREATE TABLE IF NOT EXISTS carousel_images (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200),
@@ -410,6 +429,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // SITE SETTINGS
         await sql`CREATE TABLE IF NOT EXISTS site_settings (
             id SERIAL PRIMARY KEY,
             key VARCHAR(100) UNIQUE NOT NULL,
@@ -417,6 +437,7 @@ async function initDB() {
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // ===== TABELAS DE MEMBROS E SECRETARIA =====
         await sql`CREATE TABLE IF NOT EXISTS members (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -507,6 +528,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // ===== TABELAS PARA DEPARTAMENTOS =====
         await sql`CREATE TABLE IF NOT EXISTS songs (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -547,9 +569,10 @@ async function initDB() {
 initDB();
 
 // ============================================
-// ===== ROTAS DE AUTENTICAÇÃO =====
+// ===== ROTAS =====
 // ============================================
 
+// ----- LOGIN -----
 app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -605,10 +628,7 @@ app.post('/api/change-password', async (req, res) => {
     }
 });
 
-// ============================================
-// ===== ROTAS DE USUÁRIOS =====
-// ============================================
-
+// ----- USUÁRIOS E COLABORADORES -----
 app.post('/api/users', auth, pastorOnly, async (req, res) => {
     try {
         const { name, email, password, role, department_name, phone, is_leader, department_id } = req.body;
@@ -658,6 +678,50 @@ app.post('/api/users', auth, pastorOnly, async (req, res) => {
     }
 });
 
+// ----- CRIAR USUÁRIO PELO LÍDER -----
+app.post('/api/users-by-leader', auth, async (req, res) => {
+    try {
+        const { name, email, password, role, department_id } = req.body;
+        
+        const leaderCheck = await sql`
+            SELECT * FROM users 
+            WHERE id = ${req.user.id} AND is_leader = true AND department_id = ${department_id}
+        `;
+        
+        if (leaderCheck.length === 0 && req.user.role !== 'pastor') {
+            return res.status(403).json({ error: 'Apenas líderes podem criar usuários no departamento' });
+        }
+        
+        const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
+        if (existing.length > 0) {
+            return res.status(400).json({ error: 'Usuário já existe' });
+        }
+
+        const hash = await hashPassword(password || '123456');
+        const userRole = role || 'membro';
+        
+        const result = await sql`
+            INSERT INTO users (name, email, password_hash, role, department_id, department_name, phone, first_login, is_leader)
+            VALUES (${name}, ${email}, ${hash}, ${userRole}, ${department_id}, ${null}, ${''}, true, ${userRole === 'lider' ? true : false})
+            RETURNING id, name, email, role, department_id, is_leader
+        `;
+        
+        await sql`
+            INSERT INTO department_members (department_id, user_id, role)
+            VALUES (${department_id}, ${result[0].id}, ${userRole})
+        `;
+        
+        if (userRole === 'lider') {
+            await sql`UPDATE departments SET leader_id = ${result[0].id} WHERE id = ${department_id}`;
+        }
+        
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar usuário pelo líder:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.get('/api/users', auth, async (req, res) => {
     try {
         let users;
@@ -701,10 +765,7 @@ app.post('/api/reset-password', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ============================================
-// ===== ROTAS DE DEPARTAMENTOS =====
-// ============================================
-
+// ----- DEPARTAMENTOS -----
 app.post('/api/departments', auth, pastorOnly, async (req, res) => {
     try {
         const { name, description } = req.body;
@@ -758,10 +819,141 @@ app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ============================================
-// ===== ROTAS DE ESTUDOS =====
-// ============================================
+// ----- DEPARTMENT MEMBERS -----
+app.get('/api/departments/:id/members', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const members = await sql`
+            SELECT 
+                u.id, 
+                u.name, 
+                u.email, 
+                u.role, 
+                u.is_leader,
+                COALESCE(dm.role, 'membro') as member_role
+            FROM users u
+            INNER JOIN department_members dm ON u.id = dm.user_id
+            WHERE dm.department_id = ${id}
+            ORDER BY dm.role DESC, u.name
+        `;
+        
+        res.json(members || []);
+    } catch (error) {
+        console.error('❌ Erro ao buscar membros:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
 
+app.post('/api/departments/:id/members', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { user_id, role } = req.body;
+        
+        const user = await sql`SELECT * FROM users WHERE id = ${user_id}`;
+        if (user.length === 0) {
+            return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+        
+        const memberRole = role || 'membro';
+        
+        await sql`
+            INSERT INTO department_members (department_id, user_id, role)
+            VALUES (${id}, ${user_id}, ${memberRole})
+            ON CONFLICT (department_id, user_id) 
+            DO UPDATE SET role = ${memberRole}
+        `;
+        
+        await sql`
+            UPDATE users 
+            SET department_id = ${id}, 
+                is_leader = ${memberRole === 'lider' ? true : false},
+                role = ${memberRole}
+            WHERE id = ${user_id}
+        `;
+        
+        if (memberRole === 'lider') {
+            await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${id}`;
+        }
+        
+        res.json({ message: 'Membro adicionado com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao adicionar membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/departments/:department_id/members/:user_id', auth, async (req, res) => {
+    try {
+        const { department_id, user_id } = req.params;
+        const { role } = req.body;
+
+        const member = await sql`
+            SELECT * FROM department_members 
+            WHERE department_id = ${department_id} AND user_id = ${user_id}
+        `;
+        
+        if (member.length === 0) {
+            return res.status(404).json({ error: 'Membro não encontrado neste departamento' });
+        }
+
+        await sql`
+            UPDATE department_members 
+            SET role = ${role} 
+            WHERE department_id = ${department_id} AND user_id = ${user_id}
+        `;
+
+        await sql`
+            UPDATE users 
+            SET is_leader = ${role === 'lider' ? true : false},
+                role = ${role}
+            WHERE id = ${user_id}
+        `;
+
+        if (role === 'lider') {
+            await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${department_id}`;
+        } else {
+            await sql`UPDATE departments SET leader_id = NULL WHERE id = ${department_id} AND leader_id = ${user_id}`;
+        }
+
+        res.json({ message: 'Função atualizada com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao atualizar função:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/departments/:department_id/members/:user_id', auth, async (req, res) => {
+    try {
+        const { department_id, user_id } = req.params;
+        
+        await sql`
+            DELETE FROM department_members 
+            WHERE department_id = ${department_id} AND user_id = ${user_id}
+        `;
+        
+        await sql`
+            UPDATE users 
+            SET department_id = NULL, 
+                is_leader = false,
+                role = 'colaborador'
+            WHERE id = ${user_id}
+        `;
+        
+        await sql`
+            UPDATE departments 
+            SET leader_id = NULL 
+            WHERE id = ${department_id} AND leader_id = ${user_id}
+        `;
+        
+        res.json({ message: 'Membro removido com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao remover membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- ESTUDOS -----
 app.post('/api/studies', auth, upload.single('image'), async (req, res) => {
     try {
         const { title, description, file_url } = req.body;
@@ -802,10 +994,7 @@ app.delete('/api/studies/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ============================================
-// ===== ROTAS DE PRODUTOS =====
-// ============================================
-
+// ----- PRODUTOS -----
 app.post('/api/products', auth, upload.single('image'), async (req, res) => {
     try {
         const { name, description, price, stock, category } = req.body;
@@ -837,6 +1026,22 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
+app.put('/api/products/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, description, price, stock, category } = req.body;
+        const result = await sql`
+            UPDATE products SET name = ${name}, description = ${description}, price = ${parseFloat(price)}, 
+                stock = ${parseInt(stock) || 0}, category = ${category || ''}
+            WHERE id = ${id}
+            RETURNING *
+        `;
+        res.json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.delete('/api/products/:id', auth, pastorOnly, async (req, res) => {
     try {
         await sql`DELETE FROM products WHERE id = ${req.params.id}`;
@@ -846,10 +1051,7 @@ app.delete('/api/products/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ============================================
-// ===== ROTAS DE EVENTOS =====
-// ============================================
-
+// ----- EVENTOS -----
 app.post('/api/events', auth, upload.single('image'), async (req, res) => {
     try {
         const { title, description, date, price } = req.body;
@@ -896,6 +1098,22 @@ app.get('/api/events/active', async (req, res) => {
     }
 });
 
+app.put('/api/events/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, description, date, price } = req.body;
+        const result = await sql`
+            UPDATE events SET title = ${title}, description = ${description}, 
+                date = ${date}, price = ${parseFloat(price) || 0}
+            WHERE id = ${id}
+            RETURNING *
+        `;
+        res.json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.delete('/api/events/:id', auth, pastorOnly, async (req, res) => {
     try {
         await sql`DELETE FROM events WHERE id = ${req.params.id}`;
@@ -905,10 +1123,7 @@ app.delete('/api/events/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ============================================
-// ===== ROTAS DE ORAÇÕES =====
-// ============================================
-
+// ----- ORAÇÕES -----
 app.post('/api/prayers', async (req, res) => {
     try {
         const { name, request } = req.body;
@@ -941,10 +1156,7 @@ app.put('/api/prayers/:id/read', auth, async (req, res) => {
     }
 });
 
-// ============================================
-// ===== ROTAS DE PEDIDOS =====
-// ============================================
-
+// ----- PEDIDOS (VENDAS) -----
 app.post('/api/orders', async (req, res) => {
     try {
         const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status } = req.body;
@@ -964,12 +1176,26 @@ app.post('/api/orders', async (req, res) => {
 app.get('/api/orders', auth, async (req, res) => {
     try {
         const orders = await sql`SELECT * FROM orders ORDER BY created_at DESC`;
+        console.log('📦 Total de vendas:', orders.length);
         res.json(orders);
+    } catch (error) {
+        console.error('❌ Erro ao buscar vendas:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/orders/:id/status', auth, pastorOnly, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        await sql`UPDATE orders SET status = ${status} WHERE id = ${id}`;
+        res.json({ message: 'Status atualizado' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
+// ----- ESTATÍSTICAS DE VENDAS -----
 app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
     try {
         const totalSales = await sql`
@@ -987,22 +1213,51 @@ app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
             ORDER BY date DESC
         `;
         
+        const topProducts = await sql`
+            SELECT 
+                items::json->0->>'name' as product_name,
+                COUNT(*) as total_sales,
+                COALESCE(SUM(total), 0) as total_revenue
+            FROM orders 
+            WHERE items IS NOT NULL AND items != '' AND items != 'null' AND items != '[]'
+            GROUP BY items::json->0->>'name'
+            ORDER BY total_sales DESC
+            LIMIT 10
+        `;
+        
+        const salesByMethod = await sql`
+            SELECT 
+                COALESCE(payment_method, 'PIX') as payment_method,
+                COUNT(*) as count,
+                COALESCE(SUM(total), 0) as total
+            FROM orders 
+            GROUP BY payment_method
+        `;
+        
+        const recentOrders = await sql`
+            SELECT id, user_name, user_email, items, total, status, payment_method, created_at
+            FROM orders 
+            ORDER BY created_at DESC 
+            LIMIT 10
+        `;
+
         const result = {
             total: totalSales[0] || { count: 0, total: 0 },
-            byDay: salesByDay || []
+            byDay: salesByDay || [],
+            topProducts: topProducts || [],
+            byMethod: salesByMethod || [],
+            recent: recentOrders || []
         };
         
+        console.log('📊 Estatísticas completas:', result);
         res.json(result);
     } catch (error) {
         console.error('❌ Erro nas estatísticas:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: error.message, stack: error.stack });
     }
 });
 
-// ============================================
-// ===== ROTAS DE INSCRIÇÕES =====
-// ============================================
-
+// ----- INSCRIÇÕES -----
 app.post('/api/registrations', async (req, res) => {
     try {
         const { type, name, email, phone, department_name, event_name, details, amount, is_paid, birth_date, baptism_date, baptism_date_id } = req.body;
@@ -1066,10 +1321,7 @@ app.delete('/api/registrations/:id', auth, async (req, res) => {
     }
 });
 
-// ============================================
-// ===== ROTAS DE DOAÇÕES =====
-// ============================================
-
+// ----- DOAÇÕES -----
 app.post('/api/donations', async (req, res) => {
     try {
         const { user_name, user_email, user_phone, type, amount, payment_id, payment_method, status } = req.body;
@@ -1094,7 +1346,7 @@ app.get('/api/donations', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== ROTAS DE ANIVERSARIANTES =====
+// ===== ANIVERSARIANTES =====
 // ============================================
 
 app.get('/api/birthdays', async (req, res) => {
@@ -1141,6 +1393,7 @@ app.get('/api/birthdays', async (req, res) => {
             }
         });
         
+        console.log(`🎂 Aniversariantes do mês ${currentMonth}:`, uniqueBirthdays.length);
         res.json(uniqueBirthdays);
     } catch (error) {
         console.error('❌ Erro ao buscar aniversariantes:', error);
@@ -1175,8 +1428,404 @@ app.get('/api/birthdays/today', async (req, res) => {
     }
 });
 
+// ----- CASAMENTOS -----
+app.get('/api/weddings', async (req, res) => {
+    try {
+        const today = new Date();
+        const weddings = await sql`
+            SELECT * FROM weddings 
+            WHERE is_active = true 
+            ORDER BY 
+                EXTRACT(MONTH FROM wedding_date) = ${today.getMonth() + 1} DESC,
+                EXTRACT(DAY FROM wedding_date) = ${today.getDate()} DESC,
+                EXTRACT(MONTH FROM wedding_date),
+                EXTRACT(DAY FROM wedding_date)
+            LIMIT 50
+        `;
+        res.json(weddings);
+    } catch (error) {
+        console.error('❌ Erro ao buscar casamentos:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/weddings', auth, pastorOnly, async (req, res) => {
+    try {
+        const { name, spouse_name, wedding_date, phone } = req.body;
+        const result = await sql`
+            INSERT INTO weddings (name, spouse_name, wedding_date, phone)
+            VALUES (${name}, ${spouse_name}, ${wedding_date}, ${phone || ''})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar casamento:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- BATISMO DATAS -----
+app.get('/api/baptism-dates', async (req, res) => {
+    try {
+        const dates = await sql`
+            SELECT id, date, title, description, max_participants, current_participants, is_active
+            FROM baptism_dates 
+            WHERE is_active = true
+            ORDER BY date ASC
+        `;
+        res.json(dates);
+    } catch (error) {
+        console.error('❌ Erro ao buscar datas de batismo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/baptism-dates', auth, pastorOnly, async (req, res) => {
+    try {
+        const { date, title, description, max_participants } = req.body;
+        const result = await sql`
+            INSERT INTO baptism_dates (date, title, description, max_participants, created_by)
+            VALUES (${date}, ${title || 'Batismo'}, ${description || ''}, ${max_participants || 20}, ${req.user.id})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar data de batismo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/baptism-dates/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`UPDATE baptism_dates SET is_active = false WHERE id = ${req.params.id}`;
+        res.json({ message: 'Data de batismo removida' });
+    } catch (error) {
+        console.error('❌ Erro ao remover data de batismo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // ============================================
-// ===== ROTAS DE MEMBROS =====
+// ===== MÚSICAS =====
+// ============================================
+
+app.post('/api/songs', auth, async (req, res) => {
+    try {
+        const { title, artist, key, lyrics, department_id } = req.body;
+        
+        const deptId = department_id || req.user.department_id;
+        if (!deptId) {
+            return res.status(400).json({ error: 'Departamento não encontrado' });
+        }
+        
+        const result = await sql`
+            INSERT INTO songs (title, artist, key, lyrics, department_id, created_by)
+            VALUES (${title}, ${artist || ''}, ${key || 'C'}, ${lyrics}, ${deptId}, ${req.user.id})
+            RETURNING *
+        `;
+        
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar música:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/songs', auth, async (req, res) => {
+    try {
+        const { department_id } = req.query;
+        let songs;
+        
+        if (department_id) {
+            songs = await sql`
+                SELECT * FROM songs 
+                WHERE department_id = ${department_id}
+                ORDER BY title
+            `;
+        } else if (req.user.department_id) {
+            songs = await sql`
+                SELECT * FROM songs 
+                WHERE department_id = ${req.user.department_id}
+                ORDER BY title
+            `;
+        } else {
+            songs = await sql`
+                SELECT * FROM songs 
+                ORDER BY title
+            `;
+        }
+        
+        res.json(songs || []);
+    } catch (error) {
+        console.error('❌ Erro ao buscar músicas:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/songs/:id', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const song = await sql`SELECT * FROM songs WHERE id = ${id}`;
+        if (song.length === 0) {
+            return res.status(404).json({ error: 'Música não encontrada' });
+        }
+        
+        await sql`DELETE FROM songs WHERE id = ${id}`;
+        res.json({ message: 'Música removida com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao remover música:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- DISPONIBILIDADE -----
+app.post('/api/availability', auth, async (req, res) => {
+    try {
+        const { user_id, date } = req.body;
+        const result = await sql`
+            INSERT INTO availability (user_id, date)
+            VALUES (${user_id || req.user.id}, ${date})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao adicionar disponibilidade:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/availability/:user_id', auth, async (req, res) => {
+    try {
+        const { user_id } = req.params;
+        const availability = await sql`
+            SELECT * FROM availability 
+            WHERE user_id = ${user_id} 
+            ORDER BY date ASC
+        `;
+        res.json(availability);
+    } catch (error) {
+        console.error('❌ Erro ao buscar disponibilidade:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/availability/:id', auth, async (req, res) => {
+    try {
+        await sql`DELETE FROM availability WHERE id = ${req.params.id}`;
+        res.json({ message: 'Disponibilidade removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== WORSHIP SCALES =====
+// ============================================
+
+app.post('/api/worship-scales', auth, async (req, res) => {
+    try {
+        const { department_id, event_date, leader_id, minister_id, songs, song_ids, palette, rehearsal, musicians } = req.body;
+        
+        const user = await sql`
+            SELECT * FROM users 
+            WHERE id = ${req.user.id} 
+            AND (is_leader = true OR role = 'lider' OR role = 'pastor')
+        `;
+        
+        if (user.length === 0 && req.user.role !== 'pastor') {
+            return res.status(403).json({ error: 'Apenas líderes podem criar escalas' });
+        }
+        
+        const deptId = department_id || user[0]?.department_id;
+        if (!deptId) {
+            return res.status(400).json({ error: 'Departamento não encontrado' });
+        }
+        
+        const songsArray = songs || [];
+        const songIdsArray = song_ids || [];
+        const musiciansArray = musicians || [];
+        
+        const result = await sql`
+            INSERT INTO worship_scales (
+                department_id, 
+                event_date, 
+                leader_id, 
+                minister_id, 
+                songs, 
+                song_ids, 
+                palette, 
+                rehearsal, 
+                musician_ids
+            ) VALUES (
+                ${deptId}, 
+                ${event_date}, 
+                ${leader_id || req.user.id}, 
+                ${minister_id || null}, 
+                ${songsArray}, 
+                ${JSON.stringify(songIdsArray)}, 
+                ${palette || 'Azul, Prata, Branco, Dourado'}, 
+                ${rehearsal || false}, 
+                ${JSON.stringify(musiciansArray)}
+            ) RETURNING *
+        `;
+        
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar escala:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/worship-scales', auth, async (req, res) => {
+    try {
+        const scales = await sql`
+            SELECT 
+                ws.*, 
+                d.name as department_name, 
+                u.name as leader_name,
+                m.name as minister_name
+            FROM worship_scales ws
+            LEFT JOIN departments d ON ws.department_id = d.id
+            LEFT JOIN users u ON ws.leader_id = u.id
+            LEFT JOIN users m ON ws.minister_id = m.id
+            ORDER BY ws.event_date DESC
+        `;
+        
+        res.json(scales || []);
+    } catch (error) {
+        console.error('❌ Erro ao buscar escalas:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/worship-scales/:id', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const scale = await sql`SELECT * FROM worship_scales WHERE id = ${id}`;
+        if (scale.length === 0) {
+            return res.status(404).json({ error: 'Escala não encontrada' });
+        }
+        
+        if (req.user.role !== 'pastor' && req.user.role !== 'lider' && !req.user.is_leader) {
+            return res.status(403).json({ error: 'Você não tem permissão para remover esta escala' });
+        }
+        
+        await sql`DELETE FROM worship_scales WHERE id = ${id}`;
+        res.json({ message: 'Escala removida com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao remover escala:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- CARROSSEL -----
+app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, res) => {
+    try {
+        const { title, subtitle, link } = req.body;
+        
+        if (!req.file) {
+            return res.status(400).json({ error: 'Imagem é obrigatória' });
+        }
+
+        const image_base64 = req.file.buffer.toString('base64');
+
+        const result = await sql`
+            INSERT INTO carousel_images (title, subtitle, image_base64, link, order_position)
+            VALUES (${title || ''}, ${subtitle || ''}, ${image_base64}, ${link || ''}, 
+                (SELECT COALESCE(MAX(order_position), 0) + 1 FROM carousel_images))
+            RETURNING *
+        `;
+        console.log('✅ Carrossel criado:', result[0]);
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar carrossel:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/carousel', async (req, res) => {
+    try {
+        const images = await sql`
+            SELECT * FROM carousel_images WHERE active = true ORDER BY order_position, created_at
+        `;
+        console.log('🖼️ Carrossel imagens:', images.length);
+        res.json(images);
+    } catch (error) {
+        console.error('❌ Erro carrossel:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/carousel/:id', auth, pastorOnly, upload.single('image'), async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, subtitle, link, active } = req.body;
+        
+        const current = await sql`SELECT * FROM carousel_images WHERE id = ${id}`;
+        if (current.length === 0) {
+            return res.status(404).json({ error: 'Imagem não encontrada' });
+        }
+        
+        let image_base64 = current[0].image_base64;
+        if (req.file) {
+            image_base64 = req.file.buffer.toString('base64');
+        }
+
+        const result = await sql`
+            UPDATE carousel_images 
+            SET title = ${title || current[0].title},
+                subtitle = ${subtitle || current[0].subtitle},
+                link = ${link || current[0].link},
+                image_base64 = ${image_base64},
+                active = ${active !== undefined ? active : current[0].active}
+            WHERE id = ${id}
+            RETURNING *
+        `;
+        res.json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao atualizar carrossel:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/carousel/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM carousel_images WHERE id = ${req.params.id}`;
+        res.json({ message: 'Imagem removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- CONFIGURAÇÕES -----
+app.get('/api/settings', async (req, res) => {
+    try {
+        const settings = await sql`SELECT * FROM site_settings`;
+        const obj = {};
+        settings.forEach(s => obj[s.key] = s.value);
+        res.json(obj);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/settings', auth, pastorOnly, async (req, res) => {
+    try {
+        const { key, value } = req.body;
+        await sql`
+            INSERT INTO site_settings (key, value) VALUES (${key}, ${value})
+            ON CONFLICT (key) DO UPDATE SET value = ${value}
+        `;
+        res.json({ message: 'Configuração atualizada' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== MEMBROS =====
 // ============================================
 
 app.post('/api/members', auth, async (req, res) => {
@@ -1212,11 +1861,40 @@ app.post('/api/members', auth, async (req, res) => {
 
 app.get('/api/members', auth, async (req, res) => {
     try {
-        const members = await sql`
-            SELECT * FROM members 
-            WHERE is_active = true 
-            ORDER BY name
-        `;
+        const { department_id, search } = req.query;
+        
+        let members;
+        
+        if (department_id && search) {
+            members = await sql`
+                SELECT * FROM members 
+                WHERE is_active = true 
+                AND department_id = ${department_id}
+                AND (name ILIKE ${'%' + search + '%'} OR email ILIKE ${'%' + search + '%'} OR phone ILIKE ${'%' + search + '%'})
+                ORDER BY name
+            `;
+        } else if (department_id) {
+            members = await sql`
+                SELECT * FROM members 
+                WHERE is_active = true 
+                AND department_id = ${department_id}
+                ORDER BY name
+            `;
+        } else if (search) {
+            members = await sql`
+                SELECT * FROM members 
+                WHERE is_active = true 
+                AND (name ILIKE ${'%' + search + '%'} OR email ILIKE ${'%' + search + '%'} OR phone ILIKE ${'%' + search + '%'})
+                ORDER BY name
+            `;
+        } else {
+            members = await sql`
+                SELECT * FROM members 
+                WHERE is_active = true 
+                ORDER BY name
+            `;
+        }
+
         res.json(members);
     } catch (error) {
         console.error('❌ Erro ao listar membros:', error);
@@ -1250,9 +1928,50 @@ app.get('/api/members/:id', auth, async (req, res) => {
     }
 });
 
+app.put('/api/members/:id', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { 
+            name, email, phone, birth_date, marital_status, spouse_name,
+            children, baptism_date, baptism_place, address,
+            department_id, department_name, notes, is_active
+        } = req.body;
+
+        const result = await sql`
+            UPDATE members SET 
+                name = COALESCE(${name}, name),
+                email = COALESCE(${email}, email),
+                phone = COALESCE(${phone}, phone),
+                birth_date = COALESCE(${birth_date}, birth_date),
+                marital_status = COALESCE(${marital_status}, marital_status),
+                spouse_name = COALESCE(${spouse_name}, spouse_name),
+                children = COALESCE(${children}, children),
+                baptism_date = COALESCE(${baptism_date}, baptism_date),
+                baptism_place = COALESCE(${baptism_place}, baptism_place),
+                address = COALESCE(${address}, address),
+                department_id = COALESCE(${department_id}, department_id),
+                department_name = COALESCE(${department_name}, department_name),
+                notes = COALESCE(${notes}, notes),
+                is_active = COALESCE(${is_active}, is_active)
+            WHERE id = ${id}
+            RETURNING *
+        `;
+
+        if (result.length === 0) {
+            return res.status(404).json({ error: 'Membro não encontrado' });
+        }
+
+        res.json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao atualizar membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.delete('/api/members/:id', auth, async (req, res) => {
     try {
-        await sql`UPDATE members SET is_active = false WHERE id = ${req.params.id}`;
+        const { id } = req.params;
+        await sql`UPDATE members SET is_active = false WHERE id = ${id}`;
         res.json({ message: 'Membro removido com sucesso' });
     } catch (error) {
         console.error('❌ Erro ao remover membro:', error);
@@ -1261,7 +1980,7 @@ app.delete('/api/members/:id', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== ROTAS DE FREQUÊNCIA =====
+// ===== FREQUÊNCIA =====
 // ============================================
 
 app.post('/api/attendance', auth, async (req, res) => {
@@ -1287,6 +2006,46 @@ app.post('/api/attendance', auth, async (req, res) => {
     }
 });
 
+app.get('/api/attendance/:member_id', auth, async (req, res) => {
+    try {
+        const { member_id } = req.params;
+        const { limit = 10 } = req.query;
+
+        const result = await sql`
+            SELECT * FROM attendance 
+            WHERE member_id = ${member_id} 
+            ORDER BY event_date DESC 
+            LIMIT ${limit}
+        `;
+
+        res.json(result);
+    } catch (error) {
+        console.error('❌ Erro ao buscar frequência:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/attendance/stats/:member_id', auth, async (req, res) => {
+    try {
+        const { member_id } = req.params;
+
+        const result = await sql`
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN present = true THEN 1 ELSE 0 END) as present,
+                SUM(CASE WHEN present = false THEN 1 ELSE 0 END) as absent,
+                ROUND((SUM(CASE WHEN present = true THEN 1 ELSE 0 END)::DECIMAL / COUNT(*) * 100), 2) as percentage
+            FROM attendance 
+            WHERE member_id = ${member_id}
+        `;
+
+        res.json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao buscar estatísticas:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.get('/api/attendance/date/:date', auth, async (req, res) => {
     try {
         const { date } = req.params;
@@ -1307,7 +2066,7 @@ app.get('/api/attendance/date/:date', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== ROTAS DE DÍZIMOS =====
+// ===== DÍZIMOS E OFERTAS =====
 // ============================================
 
 app.post('/api/tithes', auth, async (req, res) => {
@@ -1333,10 +2092,35 @@ app.post('/api/tithes', auth, async (req, res) => {
 
 app.get('/api/tithes', auth, async (req, res) => {
     try {
-        const tithes = await sql`
-            SELECT * FROM tithes 
-            ORDER BY payment_date DESC
-        `;
+        const { type, start_date, end_date, member_id } = req.query;
+        
+        let tithes;
+        
+        if (type && member_id) {
+            tithes = await sql`
+                SELECT * FROM tithes 
+                WHERE type = ${type} AND member_id = ${member_id}
+                ORDER BY payment_date DESC
+            `;
+        } else if (type) {
+            tithes = await sql`
+                SELECT * FROM tithes 
+                WHERE type = ${type}
+                ORDER BY payment_date DESC
+            `;
+        } else if (member_id) {
+            tithes = await sql`
+                SELECT * FROM tithes 
+                WHERE member_id = ${member_id}
+                ORDER BY payment_date DESC
+            `;
+        } else {
+            tithes = await sql`
+                SELECT * FROM tithes 
+                ORDER BY payment_date DESC
+            `;
+        }
+
         res.json(tithes);
     } catch (error) {
         console.error('❌ Erro ao listar dízimos:', error);
@@ -1369,7 +2153,7 @@ app.get('/api/tithes/summary', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== ROTAS DE CONTAS =====
+// ===== CONTAS A PAGAR =====
 // ============================================
 
 app.post('/api/bills', auth, async (req, res) => {
@@ -1395,10 +2179,35 @@ app.post('/api/bills', auth, async (req, res) => {
 
 app.get('/api/bills', auth, async (req, res) => {
     try {
-        const bills = await sql`
-            SELECT * FROM bills 
-            ORDER BY due_date ASC, paid ASC
-        `;
+        const { paid, category } = req.query;
+        
+        let bills;
+        
+        if (paid !== undefined && category) {
+            bills = await sql`
+                SELECT * FROM bills 
+                WHERE paid = ${paid === 'true'} AND category = ${category}
+                ORDER BY due_date ASC, paid ASC
+            `;
+        } else if (paid !== undefined) {
+            bills = await sql`
+                SELECT * FROM bills 
+                WHERE paid = ${paid === 'true'}
+                ORDER BY due_date ASC, paid ASC
+            `;
+        } else if (category) {
+            bills = await sql`
+                SELECT * FROM bills 
+                WHERE category = ${category}
+                ORDER BY due_date ASC, paid ASC
+            `;
+        } else {
+            bills = await sql`
+                SELECT * FROM bills 
+                ORDER BY due_date ASC, paid ASC
+            `;
+        }
+
         res.json(bills);
     } catch (error) {
         console.error('❌ Erro ao listar contas:', error);
@@ -1433,7 +2242,8 @@ app.put('/api/bills/:id/pay', auth, async (req, res) => {
 
 app.delete('/api/bills/:id', auth, async (req, res) => {
     try {
-        await sql`DELETE FROM bills WHERE id = ${req.params.id}`;
+        const { id } = req.params;
+        await sql`DELETE FROM bills WHERE id = ${id}`;
         res.json({ message: 'Conta removida com sucesso' });
     } catch (error) {
         console.error('❌ Erro ao remover conta:', error);
@@ -1453,88 +2263,23 @@ app.get('/api/bills/summary', auth, async (req, res) => {
             FROM bills
         `;
 
+        const categories = await sql`
+            SELECT 
+                category,
+                COUNT(*) as count,
+                SUM(CASE WHEN paid = false THEN amount ELSE 0 END) as pending,
+                SUM(CASE WHEN paid = true THEN amount ELSE 0 END) as paid_total
+            FROM bills
+            GROUP BY category
+            ORDER BY category
+        `;
+
         res.json({
-            summary: summary[0]
+            summary: summary[0],
+            by_category: categories
         });
     } catch (error) {
         console.error('❌ Erro ao buscar resumo:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE CARROSSEL =====
-// ============================================
-
-app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, res) => {
-    try {
-        const { title, subtitle, link } = req.body;
-        
-        if (!req.file) {
-            return res.status(400).json({ error: 'Imagem é obrigatória' });
-        }
-
-        const image_base64 = req.file.buffer.toString('base64');
-
-        const result = await sql`
-            INSERT INTO carousel_images (title, subtitle, image_base64, link, order_position)
-            VALUES (${title || ''}, ${subtitle || ''}, ${image_base64}, ${link || ''}, 
-                (SELECT COALESCE(MAX(order_position), 0) + 1 FROM carousel_images))
-            RETURNING *
-        `;
-        console.log('✅ Carrossel criado:', result[0]);
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao criar carrossel:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/carousel', async (req, res) => {
-    try {
-        const images = await sql`
-            SELECT * FROM carousel_images WHERE active = true ORDER BY order_position, created_at
-        `;
-        res.json(images);
-    } catch (error) {
-        console.error('❌ Erro carrossel:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/carousel/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        await sql`DELETE FROM carousel_images WHERE id = ${req.params.id}`;
-        res.json({ message: 'Imagem removida' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE CONFIGURAÇÕES =====
-// ============================================
-
-app.get('/api/settings', async (req, res) => {
-    try {
-        const settings = await sql`SELECT * FROM site_settings`;
-        const obj = {};
-        settings.forEach(s => obj[s.key] = s.value);
-        res.json(obj);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/settings', auth, pastorOnly, async (req, res) => {
-    try {
-        const { key, value } = req.body;
-        await sql`
-            INSERT INTO site_settings (key, value) VALUES (${key}, ${value})
-            ON CONFLICT (key) DO UPDATE SET value = ${value}
-        `;
-        res.json({ message: 'Configuração atualizada' });
-    } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
@@ -1575,10 +2320,14 @@ app.post('/api/create-pix-payment', async (req, res) => {
         };
 
         console.log('📝 Criando pagamento PIX...');
+        console.log('📝 Valor:', valor);
+        console.log('📝 External Reference:', externalReference);
+
         const payment = await PaymentService.create(paymentData);
         console.log('✅ Pagamento criado:', payment.id);
+        console.log('✅ Status:', payment.status);
 
-        // ENVIA E-MAIL DE CONFIRMAÇÃO
+        // ===== ENVIA E-MAIL DE CONFIRMAÇÃO =====
         await sendPaymentConfirmationEmail({
             email: email,
             name: name,
@@ -1608,6 +2357,74 @@ app.post('/api/create-pix-payment', async (req, res) => {
 
 // ============================================
 // ===== MERCADO PAGO - CARTÃO =====
+// ============================================
+
+app.post('/api/create-card-payment', async (req, res) => {
+    try {
+        const { amount, description, email, name, phone, cpf, card_token, installments } = req.body;
+
+        if (!process.env.MP_ACCESS_TOKEN || !PaymentService) {
+            return res.status(500).json({ error: 'Mercado Pago não configurado' });
+        }
+
+        if (!card_token) {
+            return res.status(400).json({ error: 'Token do cartão é obrigatório' });
+        }
+
+        const valor = parseFloat(amount);
+        if (isNaN(valor) || valor <= 0) {
+            return res.status(400).json({ error: 'Valor inválido' });
+        }
+
+        const paymentData = {
+            body: {
+                transaction_amount: valor,
+                description: description || 'Pagamento NJ Cabuçu',
+                payment_method_id: 'credit_card',
+                installments: parseInt(installments) || 1,
+                token: card_token,
+                payer: {
+                    email: email || 'cliente@email.com',
+                    first_name: name || 'Cliente',
+                    phone: { number: phone || '' },
+                    identification: { type: 'CPF', number: cpf || '12345678909' }
+                },
+                external_reference: `NJ-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+                notification_url: `${process.env.PUBLIC_URL || 'https://igrejanjcabucurj.vercel.app'}/api/webhook`
+            }
+        };
+
+        console.log('📝 Criando pagamento com cartão...');
+        console.log('📝 Valor:', valor);
+        const payment = await PaymentService.create(paymentData);
+        console.log('✅ Pagamento criado:', payment.id);
+        console.log('✅ Status:', payment.status);
+
+        // ===== ENVIA E-MAIL DE CONFIRMAÇÃO =====
+        await sendPaymentConfirmationEmail({
+            email: email,
+            name: name,
+            payment_id: payment.id,
+            amount: valor,
+            description: description || 'Pagamento NJ Cabuçu',
+            status: payment.status,
+            type: req.body.paymentType || 'sale'
+        });
+
+        res.json({
+            payment_id: payment.id,
+            status: payment.status,
+            status_detail: payment.status_detail,
+            external_reference: payment.external_reference
+        });
+    } catch (error) {
+        console.error('❌ Erro MP cartão:', error);
+        res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
+    }
+});
+
+// ============================================
+// ===== MERCADO PAGO - CARTÃO FALLBACK =====
 // ============================================
 
 app.post('/api/create-card-payment-fallback', async (req, res) => {
@@ -1647,7 +2464,7 @@ app.post('/api/create-card-payment-fallback', async (req, res) => {
             }
         };
 
-        console.log('🔄 Criando token do cartão...');
+        console.log('🔄 Criando token do cartão via API...');
         
         const tokenResponse = await fetch('https://api.mercadopago.com/v1/card_tokens', {
             method: 'POST',
@@ -1693,7 +2510,7 @@ app.post('/api/create-card-payment-fallback', async (req, res) => {
         const payment = await PaymentService.create(paymentData);
         console.log('✅ Pagamento criado:', payment.id);
 
-        // ENVIA E-MAIL DE CONFIRMAÇÃO
+        // ===== ENVIA E-MAIL DE CONFIRMAÇÃO =====
         await sendPaymentConfirmationEmail({
             email: email,
             name: name,
@@ -1711,75 +2528,8 @@ app.post('/api/create-card-payment-fallback', async (req, res) => {
             external_reference: payment.external_reference
         });
     } catch (error) {
-        console.error('❌ Erro MP cartão:', error);
+        console.error('❌ Erro MP cartão fallback:', error);
         res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
-    }
-});
-
-// ============================================
-// ===== WEBHOOK - ATUALIZA STATUS E ENVIA E-MAIL =====
-// ============================================
-
-app.post('/api/webhook', async (req, res) => {
-    try {
-        console.log('📝 Webhook recebido:', JSON.stringify(req.body, null, 2));
-        
-        const { data, type } = req.body;
-        
-        if (type === 'payment' && data && data.id) {
-            const paymentId = data.id;
-            console.log(`✅ Pagamento ${paymentId} confirmado!`);
-            
-            if (PaymentService) {
-                try {
-                    const payment = await PaymentService.get({ id: paymentId });
-                    console.log('📊 Status do pagamento:', payment.status);
-                    
-                    const order = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
-                    const donation = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
-                    
-                    const record = order[0] || donation[0];
-                    
-                    if (payment.status === 'approved') {
-                        await sql`
-                            UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}
-                        `;
-                        await sql`
-                            UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}
-                        `;
-                        console.log('✅ Pagamento aprovado e registrado!');
-                        
-                        // ENVIA E-MAIL DE CONFIRMAÇÃO
-                        if (record) {
-                            await sendPaymentConfirmationEmail({
-                                email: record.user_email || 'cliente@email.com',
-                                name: record.user_name || 'Cliente',
-                                payment_id: paymentId,
-                                amount: record.total || record.amount || 0,
-                                description: record.type || 'Pagamento NJ Cabuçu',
-                                status: 'approved',
-                                type: order[0] ? 'sale' : 'donation'
-                            });
-                        }
-                    } else if (payment.status === 'rejected' || payment.status === 'cancelled') {
-                        await sql`
-                            UPDATE orders SET status = 'rejected' WHERE payment_id = ${paymentId}
-                        `;
-                        await sql`
-                            UPDATE donations SET status = 'rejected' WHERE payment_id = ${paymentId}
-                        `;
-                        console.log('❌ Pagamento recusado/cancelado');
-                    }
-                } catch (error) {
-                    console.error('❌ Erro ao buscar pagamento:', error);
-                }
-            }
-        }
-        
-        res.json({ received: true });
-    } catch (error) {
-        console.error('❌ Erro webhook:', error);
-        res.status(500).json({ error: error.message });
     }
 });
 
@@ -1835,6 +2585,10 @@ app.get('/api/payment-status/:paymentId', async (req, res) => {
     }
 });
 
+// ============================================
+// ===== ATUALIZAR STATUS DO PAGAMENTO =====
+// ============================================
+
 app.post('/api/update-payment-status', async (req, res) => {
     try {
         const { payment_id, status } = req.body;
@@ -1850,6 +2604,167 @@ app.post('/api/update-payment-status', async (req, res) => {
         res.json({ message: 'Status atualizado com sucesso' });
     } catch (error) {
         console.error('❌ Erro ao atualizar status:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== WEBHOOK =====
+// ============================================
+
+app.post('/api/webhook', async (req, res) => {
+    try {
+        console.log('📝 Webhook recebido:', JSON.stringify(req.body, null, 2));
+        
+        const { data, type } = req.body;
+        
+        if (type === 'payment' && data && data.id) {
+            const paymentId = data.id;
+            console.log(`✅ Pagamento ${paymentId} confirmado!`);
+            
+            if (PaymentService) {
+                try {
+                    const payment = await PaymentService.get({ id: paymentId });
+                    console.log('📊 Status do pagamento:', payment.status);
+                    
+                    const order = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
+                    const donation = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
+                    
+                    const record = order[0] || donation[0];
+                    
+                    if (payment.status === 'approved') {
+                        await sql`
+                            UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}
+                        `;
+                        await sql`
+                            UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}
+                        `;
+                        console.log('✅ Pagamento aprovado e registrado!');
+                        
+                        // ===== ENVIA E-MAIL DE CONFIRMAÇÃO =====
+                        if (record) {
+                            await sendPaymentConfirmationEmail({
+                                email: record.user_email || 'cliente@email.com',
+                                name: record.user_name || 'Cliente',
+                                payment_id: paymentId,
+                                amount: record.total || record.amount || 0,
+                                description: record.type || 'Pagamento NJ Cabuçu',
+                                status: 'approved',
+                                type: order[0] ? 'sale' : 'donation'
+                            });
+                        }
+                    } else if (payment.status === 'rejected' || payment.status === 'cancelled') {
+                        await sql`
+                            UPDATE orders SET status = 'rejected' WHERE payment_id = ${paymentId}
+                        `;
+                        await sql`
+                            UPDATE donations SET status = 'rejected' WHERE payment_id = ${paymentId}
+                        `;
+                        console.log('❌ Pagamento recusado/cancelado');
+                    }
+                } catch (error) {
+                    console.error('❌ Erro ao buscar pagamento:', error);
+                }
+            }
+        }
+        
+        res.json({ received: true });
+    } catch (error) {
+        console.error('❌ Erro webhook:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== PDF DE CONFIRMAÇÃO =====
+// ============================================
+
+app.get('/api/registration-pdf/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const registrations = await sql`SELECT * FROM registrations WHERE id = ${id}`;
+        
+        if (registrations.length === 0) {
+            return res.status(404).json({ error: 'Inscrição não encontrada' });
+        }
+        
+        const reg = registrations[0];
+        
+        const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Comprovante de Inscrição</title>
+            <style>
+                body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 2rem; }
+                .header { text-align: center; border-bottom: 3px solid #0D47A1; padding-bottom: 1rem; margin-bottom: 1.5rem; }
+                .header h1 { color: #0D47A1; margin: 0; }
+                .header p { color: #666; margin: 0; }
+                .info { margin: 1rem 0; }
+                .info-item { display: flex; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
+                .info-item .label { font-weight: bold; width: 120px; }
+                .info-item .value { flex: 1; }
+                .status { display: inline-block; padding: 0.3rem 1rem; border-radius: 20px; font-weight: bold; }
+                .status.pending { background: #fff3cd; color: #856404; }
+                .status.confirmed { background: #d4edda; color: #155724; }
+                .footer { text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; color: #888; font-size: 0.9rem; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>🙏 NJ Cabuçu</h1>
+                <p>Comprovante de Inscrição</p>
+            </div>
+            
+            <div class="info">
+                <div class="info-item">
+                    <span class="label">Protocolo:</span>
+                    <span class="value">#${String(reg.id).padStart(6, '0')}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Data:</span>
+                    <span class="value">${new Date(reg.created_at).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Tipo:</span>
+                    <span class="value">${reg.type === 'baptism' ? 'Batismo' : reg.type === 'volunteer' ? 'Voluntário' : reg.type === 'event' ? 'Evento' : 'Departamento'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Nome:</span>
+                    <span class="value">${reg.name}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">E-mail:</span>
+                    <span class="value">${reg.email || '-'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Telefone:</span>
+                    <span class="value">${reg.phone || '-'}</span>
+                </div>
+                ${reg.event_name ? `<div class="info-item"><span class="label">Evento:</span><span class="value">${reg.event_name}</span></div>` : ''}
+                ${reg.department_name ? `<div class="info-item"><span class="label">Departamento:</span><span class="value">${reg.department_name}</span></div>` : ''}
+                ${reg.details ? `<div class="info-item"><span class="label">Detalhes:</span><span class="value">${reg.details}</span></div>` : ''}
+                <div class="info-item">
+                    <span class="label">Status:</span>
+                    <span class="value"><span class="status ${reg.status === 'approved' ? 'confirmed' : 'pending'}">${reg.status === 'approved' ? '✅ Confirmado' : '⏳ Pendente'}</span></span>
+                </div>
+                ${reg.amount > 0 ? `<div class="info-item"><span class="label">Valor:</span><span class="value">R$ ${parseFloat(reg.amount).toFixed(2)}</span></div>` : ''}
+                ${reg.is_paid ? `<div class="info-item"><span class="label">Pagamento:</span><span class="value">✅ Pago</span></div>` : ''}
+            </div>
+            
+            <div class="footer">
+                <p>NJ Cabuçu - "E conhecereis a verdade, e a verdade vos libertará." João 8:32</p>
+                <p>© ${new Date().getFullYear()} NJ Cabuçu - Todos os direitos reservados</p>
+            </div>
+        </body>
+        </html>
+        `;
+        
+        res.setHeader('Content-Type', 'text/html');
+        res.send(html);
+    } catch (error) {
+        console.error('❌ Erro ao gerar PDF:', error);
         res.status(500).json({ error: error.message });
     }
 });

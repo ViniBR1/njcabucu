@@ -54,7 +54,7 @@ app.use(cors({
     origin: ['https://igrejanjcabucurj.vercel.app', 'http://localhost:3000', 'http://localhost:3001', '*'],
     credentials: true
 }));
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ limit: '10mb' }));
 app.use(express.static('public'));
 app.use('/uploads', express.static('public/uploads'));
 
@@ -65,15 +65,15 @@ const storage = multer.memoryStorage();
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 50 * 1024 * 1024 }, // Aumentado para 50MB para PDFs
+    limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: function (req, file, cb) {
-        const allowedTypes = /jpeg|jpg|png|gif|webp|pdf/;
+        const allowedTypes = /jpeg|jpg|png|gif|webp/;
         const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
         const mimetype = allowedTypes.test(file.mimetype);
         if (mimetype && extname) {
             return cb(null, true);
         } else {
-            cb(new Error('Apenas imagens e PDFs são permitidos!'));
+            cb(new Error('Apenas imagens são permitidas!'));
         }
     }
 });
@@ -152,7 +152,6 @@ async function initDB() {
             file_url VARCHAR(500),
             image_url VARCHAR(500),
             image_base64 TEXT,
-            file_base64 TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
@@ -786,31 +785,22 @@ app.delete('/api/departments/:department_id/members/:user_id', auth, async (req,
     }
 });
 
-// ============================================
-// ===== ESTUDOS - COM PDF =====
-// ============================================
-app.post('/api/studies', auth, upload.fields([
-    { name: 'image', maxCount: 1 },
-    { name: 'file', maxCount: 1 }
-]), async (req, res) => {
+// ----- ESTUDOS -----
+app.post('/api/studies', auth, upload.single('image'), async (req, res) => {
     try {
         const { title, description, file_url } = req.body;
         let image_base64 = null;
-        let file_base64 = null;
 
-        if (req.files['image']) {
-            image_base64 = req.files['image'][0].buffer.toString('base64');
-        }
-        if (req.files['file']) {
-            file_base64 = req.files['file'][0].buffer.toString('base64');
+        if (req.file) {
+            image_base64 = req.file.buffer.toString('base64');
         }
 
         const result = await sql`
-            INSERT INTO studies (title, description, file_url, image_base64, file_base64)
-            VALUES (${title}, ${description}, ${file_url || null}, ${image_base64}, ${file_base64})
+            INSERT INTO studies (title, description, file_url, image_base64)
+            VALUES (${title}, ${description}, ${file_url}, ${image_base64})
             RETURNING *
         `;
-        console.log('✅ Estudo criado:', result[0].id);
+        console.log('✅ Estudo criado:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar estudo:', error);
@@ -820,34 +810,9 @@ app.post('/api/studies', auth, upload.fields([
 
 app.get('/api/studies', async (req, res) => {
     try {
-        const studies = await sql`
-            SELECT id, title, description, file_url, image_base64, 
-                   CASE WHEN file_base64 IS NOT NULL THEN true ELSE false END as has_pdf,
-                   created_at 
-            FROM studies 
-            ORDER BY created_at DESC
-        `;
+        const studies = await sql`SELECT * FROM studies ORDER BY created_at DESC`;
         res.json(studies);
     } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/studies/:id/download', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const studies = await sql`SELECT file_base64, title FROM studies WHERE id = ${id}`;
-        
-        if (studies.length === 0 || !studies[0].file_base64) {
-            return res.status(404).json({ error: 'PDF não encontrado' });
-        }
-        
-        const pdfBuffer = Buffer.from(studies[0].file_base64, 'base64');
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename="${studies[0].title || 'estudo'}.pdf"`);
-        res.send(pdfBuffer);
-    } catch (error) {
-        console.error('❌ Erro ao baixar PDF:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1148,8 +1113,8 @@ app.post('/api/registrations', async (req, res) => {
         }
 
         const result = await sql`
-            INSERT INTO registrations (type, name, email, phone, department_name, event_name, details, amount, is_paid, status)
-            VALUES (${type}, ${name}, ${email || ''}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${finalDetails || ''}, ${parseFloat(amount) || 0}, ${is_paid || false}, 'pending')
+            INSERT INTO registrations (type, name, email, phone, department_name, event_name, details, amount, is_paid)
+            VALUES (${type}, ${name}, ${email || ''}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${finalDetails || ''}, ${parseFloat(amount) || 0}, ${is_paid || false})
             RETURNING *
         `;
         console.log('✅ Inscrição criada:', result[0]);
@@ -1165,58 +1130,6 @@ app.get('/api/registrations', auth, async (req, res) => {
         const registrations = await sql`SELECT * FROM registrations ORDER BY created_at DESC`;
         res.json(registrations);
     } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ===== ROTAS PARA APROVAR/REJEITAR INSCRIÇÕES =====
-app.put('/api/registrations/:id/approve', auth, pastorOnly, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const result = await sql`
-            UPDATE registrations 
-            SET status = 'approved' 
-            WHERE id = ${id}
-            RETURNING *
-        `;
-        if (result.length === 0) {
-            return res.status(404).json({ error: 'Inscrição não encontrada' });
-        }
-        console.log('✅ Inscrição aprovada:', id);
-        res.json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao aprovar inscrição:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.put('/api/registrations/:id/reject', auth, pastorOnly, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const result = await sql`
-            UPDATE registrations 
-            SET status = 'rejected' 
-            WHERE id = ${id}
-            RETURNING *
-        `;
-        if (result.length === 0) {
-            return res.status(404).json({ error: 'Inscrição não encontrada' });
-        }
-        console.log('❌ Inscrição rejeitada:', id);
-        res.json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao rejeitar inscrição:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/registrations/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        const { id } = req.params;
-        await sql`DELETE FROM registrations WHERE id = ${id}`;
-        res.json({ message: 'Inscrição removida' });
-    } catch (error) {
-        console.error('❌ Erro ao remover inscrição:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -2318,6 +2231,7 @@ app.post('/api/create-card-payment-fallback', async (req, res) => {
             return res.status(400).json({ error: 'Valor inválido' });
         }
 
+        // Validações básicas do cartão
         if (!card_number || card_number.length < 16) {
             return res.status(400).json({ error: 'Número do cartão inválido' });
         }
@@ -2328,6 +2242,7 @@ app.post('/api/create-card-payment-fallback', async (req, res) => {
             return res.status(400).json({ error: 'CVV inválido' });
         }
 
+        // Cria um token via API do Mercado Pago
         const tokenData = {
             card_number: card_number.replace(/\s/g, ''),
             expiration_month: parseInt(card_expiry.split('/')[0]),
@@ -2344,6 +2259,7 @@ app.post('/api/create-card-payment-fallback', async (req, res) => {
 
         console.log('🔄 Criando token do cartão via API...');
         
+        // Gera token usando a API do Mercado Pago
         const tokenResponse = await fetch('https://api.mercadopago.com/v1/card_tokens', {
             method: 'POST',
             headers: {
@@ -2357,6 +2273,8 @@ app.post('/api/create-card-payment-fallback', async (req, res) => {
         
         if (tokenResult.error) {
             console.error('❌ Erro ao criar token:', tokenResult.error);
+            // Se falhar, tenta usar um token de teste
+            console.log('🔄 Usando token de teste...');
             const testToken = 'test_' + Date.now();
             return await processCardPayment(testToken, valor, description, email, name, phone, cpf, installments, res);
         }
@@ -2373,6 +2291,10 @@ app.post('/api/create-card-payment-fallback', async (req, res) => {
         res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
     }
 });
+
+// ============================================
+// ===== FUNÇÃO AUXILIAR PARA PROCESSAR PAGAMENTO COM CARTÃO =====
+// ============================================
 
 async function processCardPayment(token, valor, description, email, name, phone, cpf, installments, res) {
     try {
@@ -2396,6 +2318,7 @@ async function processCardPayment(token, valor, description, email, name, phone,
 
         console.log('📝 Criando pagamento com cartão...');
         console.log('📝 Valor:', valor);
+        console.log('📝 Token:', token.substring(0, 10) + '...');
         
         const payment = await PaymentService.create(paymentData);
         console.log('✅ Pagamento criado:', payment.id);
@@ -2441,6 +2364,10 @@ app.get('/api/check-payment/:paymentId', async (req, res) => {
     }
 });
 
+// ============================================
+// ===== ROTA ALTERNATIVA PARA STATUS =====
+// ============================================
+
 app.get('/api/payment-status/:paymentId', async (req, res) => {
     try {
         const { paymentId } = req.params;
@@ -2464,6 +2391,10 @@ app.get('/api/payment-status/:paymentId', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+// ============================================
+// ===== ATUALIZAR STATUS DO PAGAMENTO =====
+// ============================================
 
 app.post('/api/update-payment-status', async (req, res) => {
     try {

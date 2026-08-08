@@ -14,7 +14,6 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { MercadoPagoConfig, Payment } = require('mercadopago');
-const nodemailer = require('nodemailer');
 
 // ============================================
 // ===== CONEXÃO NEON =====
@@ -38,147 +37,10 @@ try {
         });
         PaymentService = new Payment(client);
         console.log('✅ Mercado Pago configurado');
+        console.log('🔑 Access Token:', process.env.MP_ACCESS_TOKEN.substring(0, 20) + '...');
     }
 } catch (error) {
     console.log('⚠️ Erro MP:', error.message);
-}
-
-// ============================================
-// ===== NODEMAILER - EMAIL =====
-// ============================================
-let transporter = null;
-try {
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-        transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            }
-        });
-        console.log('✅ Email configurado');
-    } else {
-        console.log('⚠️ Email não configurado (faltam credenciais)');
-    }
-} catch (error) {
-    console.log('⚠️ Erro ao configurar email:', error.message);
-}
-
-// ============================================
-// ===== FUNÇÃO PARA ENVIAR EMAIL DE CONFIRMAÇÃO =====
-// ============================================
-async function sendConfirmationEmail(orderData) {
-    try {
-        const { user_name, user_email, user_phone, items, total, payment_id, status, user_cpf, id } = orderData;
-        
-        let itemsHtml = '';
-        let itemsText = '';
-        try {
-            const parsedItems = typeof items === 'string' ? JSON.parse(items) : items;
-            if (Array.isArray(parsedItems) && parsedItems.length > 0) {
-                parsedItems.forEach(item => {
-                    const sizeText = item.size ? ` (Tamanho: ${item.size})` : '';
-                    const qtd = item.quantity || 1;
-                    itemsHtml += `<tr>
-                        <td style="padding:8px;border-bottom:1px solid #eee;">${item.name}${sizeText}</td>
-                        <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${qtd}</td>
-                        <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">R$ ${(parseFloat(item.price) * qtd).toFixed(2)}</td>
-                    </tr>`;
-                    itemsText += `${item.name}${sizeText} - ${qtd}x R$ ${(parseFloat(item.price) * qtd).toFixed(2)}\n`;
-                });
-            }
-        } catch (e) {
-            itemsHtml = `<tr><td colspan="3" style="padding:8px;">${items}</td></tr>`;
-            itemsText = String(items);
-        }
-
-        const totalValue = total || items.reduce((sum, item) => sum + (parseFloat(item.price) * (item.quantity || 1)), 0);
-
-        const html = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; }
-                .header { text-align: center; border-bottom: 3px solid #0D47A1; padding-bottom: 20px; margin-bottom: 20px; }
-                .header h1 { color: #0D47A1; margin: 0; }
-                .header p { color: #666; margin: 5px 0 0; }
-                .info { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-                .info-item { padding: 5px 0; border-bottom: 1px solid #eee; }
-                .info-item:last-child { border-bottom: none; }
-                .table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-                .table th { background: #0D47A1; color: white; padding: 10px; text-align: left; }
-                .table td { padding: 10px; border-bottom: 1px solid #eee; }
-                .total { text-align: right; font-size: 1.2rem; font-weight: bold; color: #0D47A1; margin-top: 10px; }
-                .status-approved { color: #28a745; font-weight: bold; }
-                .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #888; font-size: 0.9rem; }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h1>🙏 NJ Cabuçu</h1>
-                <p>✅ Confirmação de Compra</p>
-            </div>
-            
-            <div class="info">
-                <div class="info-item"><strong>Cliente:</strong> ${user_name}</div>
-                <div class="info-item"><strong>E-mail:</strong> ${user_email}</div>
-                <div class="info-item"><strong>Telefone:</strong> ${user_phone || 'Não informado'}</div>
-                ${user_cpf ? `<div class="info-item"><strong>CPF:</strong> ${user_cpf}</div>` : ''}
-                <div class="info-item"><strong>Status:</strong> <span class="status-approved">✅ Aprovado</span></div>
-                <div class="info-item"><strong>ID do Pagamento:</strong> ${payment_id || '-'}</div>
-                <div class="info-item"><strong>Nº do Pedido:</strong> #${String(id || '').padStart(6, '0')}</div>
-            </div>
-            
-            <h3>📦 Itens do Pedido</h3>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Produto</th>
-                        <th style="text-align:center;">Qtd</th>
-                        <th style="text-align:right;">Preço</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${itemsHtml}
-                </tbody>
-            </table>
-            
-            <div class="total">
-                Total: R$ ${parseFloat(totalValue).toFixed(2)}
-            </div>
-            
-            <p style="margin-top:20px;color:#666;">
-                <strong>🕊️ "E conhecereis a verdade, e a verdade vos libertará."</strong><br>
-                João 8:32
-            </p>
-            
-            <div class="footer">
-                <p>NJ Cabuçu - © ${new Date().getFullYear()} Todos os direitos reservados</p>
-                <p style="font-size:0.8rem;">Este é o comprovante da sua compra. Guarde para referência.</p>
-            </div>
-        </body>
-        </html>
-        `;
-
-        if (!transporter) {
-            console.log('⚠️ Email não configurado, pulando envio...');
-            return;
-        }
-
-        await transporter.sendMail({
-            from: `"NJ Cabuçu" <${process.env.EMAIL_USER}>`,
-            to: user_email,
-            subject: `✅ NJ Cabuçu - Confirmação de Compra #${String(id || '').padStart(6, '0')}`,
-            html: html,
-            text: `NJ Cabuçu - Confirmação de Compra\n\nCliente: ${user_name}\nTotal: R$ ${parseFloat(totalValue).toFixed(2)}\n\nNJ Cabuçu - © ${new Date().getFullYear()}`
-        });
-        
-        console.log('✅ Email de confirmação enviado para:', user_email);
-    } catch (error) {
-        console.error('❌ Erro ao enviar email:', error);
-    }
 }
 
 // ============================================
@@ -247,7 +109,6 @@ async function initDB() {
     console.log('📝 Criando tabelas...');
     
     try {
-        // USERS
         await sql`CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -262,7 +123,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // DEPARTMENTS
         await sql`CREATE TABLE IF NOT EXISTS departments (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -273,7 +133,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // DEPARTMENT MEMBERS
         await sql`CREATE TABLE IF NOT EXISTS department_members (
             department_id INTEGER,
             user_id INTEGER,
@@ -282,7 +141,6 @@ async function initDB() {
             PRIMARY KEY (department_id, user_id)
         )`;
 
-        // STUDIES
         await sql`CREATE TABLE IF NOT EXISTS studies (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -294,7 +152,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // PRODUCTS
         await sql`CREATE TABLE IF NOT EXISTS products (
             id SERIAL PRIMARY KEY,
             name VARCHAR(200) NOT NULL,
@@ -307,7 +164,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // EVENTS
         await sql`CREATE TABLE IF NOT EXISTS events (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -319,7 +175,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // PRAYERS
         await sql`CREATE TABLE IF NOT EXISTS prayers (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100),
@@ -328,23 +183,19 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // ORDERS (VENDAS)
         await sql`CREATE TABLE IF NOT EXISTS orders (
             id SERIAL PRIMARY KEY,
             user_name VARCHAR(100),
             user_email VARCHAR(100),
             user_phone VARCHAR(20),
-            user_cpf VARCHAR(14),
             items TEXT,
             total DECIMAL(10,2) NOT NULL,
             status VARCHAR(50) DEFAULT 'pending',
             payment_id VARCHAR(100),
             payment_method VARCHAR(50),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // REGISTRATIONS
         await sql`CREATE TABLE IF NOT EXISTS registrations (
             id SERIAL PRIMARY KEY,
             type VARCHAR(50) NOT NULL,
@@ -360,7 +211,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // WORSHIP SCALES
         await sql`CREATE TABLE IF NOT EXISTS worship_scales (
             id SERIAL PRIMARY KEY,
             department_id INTEGER,
@@ -375,7 +225,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // DONATIONS
         await sql`CREATE TABLE IF NOT EXISTS donations (
             id SERIAL PRIMARY KEY,
             user_name VARCHAR(100),
@@ -389,7 +238,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // CAROUSEL
         await sql`CREATE TABLE IF NOT EXISTS carousel_images (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200),
@@ -402,7 +250,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // SITE SETTINGS
         await sql`CREATE TABLE IF NOT EXISTS site_settings (
             id SERIAL PRIMARY KEY,
             key VARCHAR(100) UNIQUE NOT NULL,
@@ -410,7 +257,6 @@ async function initDB() {
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // MEMBERS
         await sql`CREATE TABLE IF NOT EXISTS members (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -432,7 +278,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // ATTENDANCE
         await sql`CREATE TABLE IF NOT EXISTS attendance (
             id SERIAL PRIMARY KEY,
             member_id INTEGER REFERENCES members(id) ON DELETE CASCADE,
@@ -444,7 +289,6 @@ async function initDB() {
             UNIQUE(member_id, event_date, service_type)
         )`;
 
-        // TITHES
         await sql`CREATE TABLE IF NOT EXISTS tithes (
             id SERIAL PRIMARY KEY,
             member_id INTEGER REFERENCES members(id) ON DELETE SET NULL,
@@ -458,7 +302,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // BILLS
         await sql`CREATE TABLE IF NOT EXISTS bills (
             id SERIAL PRIMARY KEY,
             description VARCHAR(200) NOT NULL,
@@ -473,7 +316,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // BIRTHDAYS
         await sql`CREATE TABLE IF NOT EXISTS birthdays (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -483,7 +325,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // WEDDINGS
         await sql`CREATE TABLE IF NOT EXISTS weddings (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -494,7 +335,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // BAPTISM DATES
         await sql`CREATE TABLE IF NOT EXISTS baptism_dates (
             id SERIAL PRIMARY KEY,
             date TIMESTAMP NOT NULL,
@@ -507,7 +347,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // SONGS
         await sql`CREATE TABLE IF NOT EXISTS songs (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -519,7 +358,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // AVAILABILITY
         await sql`CREATE TABLE IF NOT EXISTS availability (
             id SERIAL PRIMARY KEY,
             user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -658,6 +496,49 @@ app.post('/api/users', auth, pastorOnly, async (req, res) => {
     }
 });
 
+app.post('/api/users-by-leader', auth, async (req, res) => {
+    try {
+        const { name, email, password, role, department_id } = req.body;
+        
+        const leaderCheck = await sql`
+            SELECT * FROM users 
+            WHERE id = ${req.user.id} AND is_leader = true AND department_id = ${department_id}
+        `;
+        
+        if (leaderCheck.length === 0 && req.user.role !== 'pastor') {
+            return res.status(403).json({ error: 'Apenas líderes podem criar usuários no departamento' });
+        }
+        
+        const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
+        if (existing.length > 0) {
+            return res.status(400).json({ error: 'Usuário já existe' });
+        }
+
+        const hash = await hashPassword(password || '123456');
+        const userRole = role || 'membro';
+        
+        const result = await sql`
+            INSERT INTO users (name, email, password_hash, role, department_id, department_name, phone, first_login, is_leader)
+            VALUES (${name}, ${email}, ${hash}, ${userRole}, ${department_id}, ${null}, ${''}, true, ${userRole === 'lider' ? true : false})
+            RETURNING id, name, email, role, department_id, is_leader
+        `;
+        
+        await sql`
+            INSERT INTO department_members (department_id, user_id, role)
+            VALUES (${department_id}, ${result[0].id}, ${userRole})
+        `;
+        
+        if (userRole === 'lider') {
+            await sql`UPDATE departments SET leader_id = ${result[0].id} WHERE id = ${department_id}`;
+        }
+        
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar usuário pelo líder:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.get('/api/users', auth, async (req, res) => {
     try {
         let users;
@@ -755,9 +636,144 @@ app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
+// ----- DEPARTMENT MEMBERS -----
+app.get('/api/departments/:id/members', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const members = await sql`
+            SELECT 
+                u.id, 
+                u.name, 
+                u.email, 
+                u.role, 
+                u.is_leader,
+                COALESCE(dm.role, 'membro') as member_role
+            FROM users u
+            INNER JOIN department_members dm ON u.id = dm.user_id
+            WHERE dm.department_id = ${id}
+            ORDER BY dm.role DESC, u.name
+        `;
+        
+        res.json(members || []);
+    } catch (error) {
+        console.error('❌ Erro ao buscar membros:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/departments/:id/members', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { user_id, role } = req.body;
+        
+        const user = await sql`SELECT * FROM users WHERE id = ${user_id}`;
+        if (user.length === 0) {
+            return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+        
+        const memberRole = role || 'membro';
+        
+        await sql`
+            INSERT INTO department_members (department_id, user_id, role)
+            VALUES (${id}, ${user_id}, ${memberRole})
+            ON CONFLICT (department_id, user_id) 
+            DO UPDATE SET role = ${memberRole}
+        `;
+        
+        await sql`
+            UPDATE users 
+            SET department_id = ${id}, 
+                is_leader = ${memberRole === 'lider' ? true : false},
+                role = ${memberRole}
+            WHERE id = ${user_id}
+        `;
+        
+        if (memberRole === 'lider') {
+            await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${id}`;
+        }
+        
+        res.json({ message: 'Membro adicionado com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao adicionar membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/departments/:department_id/members/:user_id', auth, async (req, res) => {
+    try {
+        const { department_id, user_id } = req.params;
+        const { role } = req.body;
+
+        const member = await sql`
+            SELECT * FROM department_members 
+            WHERE department_id = ${department_id} AND user_id = ${user_id}
+        `;
+        
+        if (member.length === 0) {
+            return res.status(404).json({ error: 'Membro não encontrado neste departamento' });
+        }
+
+        await sql`
+            UPDATE department_members 
+            SET role = ${role} 
+            WHERE department_id = ${department_id} AND user_id = ${user_id}
+        `;
+
+        await sql`
+            UPDATE users 
+            SET is_leader = ${role === 'lider' ? true : false},
+                role = ${role}
+            WHERE id = ${user_id}
+        `;
+
+        if (role === 'lider') {
+            await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${department_id}`;
+        } else {
+            await sql`UPDATE departments SET leader_id = NULL WHERE id = ${department_id} AND leader_id = ${user_id}`;
+        }
+
+        res.json({ message: 'Função atualizada com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao atualizar função:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/departments/:department_id/members/:user_id', auth, async (req, res) => {
+    try {
+        const { department_id, user_id } = req.params;
+        
+        await sql`
+            DELETE FROM department_members 
+            WHERE department_id = ${department_id} AND user_id = ${user_id}
+        `;
+        
+        await sql`
+            UPDATE users 
+            SET department_id = NULL, 
+                is_leader = false,
+                role = 'colaborador'
+            WHERE id = ${user_id}
+        `;
+        
+        await sql`
+            UPDATE departments 
+            SET leader_id = NULL 
+            WHERE id = ${department_id} AND leader_id = ${user_id}
+        `;
+        
+        res.json({ message: 'Membro removido com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao remover membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // ============================================
-// ===== ESTUDOS =====
+// ===== ESTUDOS - COM PDF =====
 // ============================================
+
 app.post('/api/studies', auth, upload.fields([
     { name: 'image', maxCount: 1 },
     { name: 'file', maxCount: 1 }
@@ -992,91 +1008,16 @@ app.put('/api/prayers/:id/read', auth, async (req, res) => {
     }
 });
 
-// ============================================
-// ===== VERIFICAR SE CPF JÁ COMPROU =====
-// ============================================
-app.post('/api/check-purchase', async (req, res) => {
-    try {
-        const { cpf, product_id } = req.body;
-        
-        if (!cpf || !product_id) {
-            return res.json({ hasPurchased: false, count: 0 });
-        }
-        
-        const result = await sql`
-            SELECT COUNT(*) as count 
-            FROM orders 
-            WHERE status = 'approved'
-            AND user_cpf = ${cpf}
-            AND items::jsonb @> ${JSON.stringify([{ id: parseInt(product_id) }])}::jsonb
-        `;
-        
-        const count = parseInt(result[0]?.count || 0);
-        res.json({ 
-            hasPurchased: count > 0,
-            count: count
-        });
-    } catch (error) {
-        console.error('❌ Erro ao verificar compra:', error);
-        res.json({ hasPurchased: false, count: 0 });
-    }
-});
-
-// ============================================
-// ===== PEDIDOS (VENDAS) =====
-// ============================================
+// ----- PEDIDOS (VENDAS) -----
 app.post('/api/orders', async (req, res) => {
     try {
-        const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status, product_details } = req.body;
-        
-        const itemsWithDetails = items.map(item => ({
-            id: item.id,
-            name: item.name,
-            price: parseFloat(item.price),
-            quantity: item.quantity || 1,
-            size: item.size || null,
-            color: item.color || null,
-            category: item.category || null
-        }));
-        
-        const cpfInfo = product_details?.cpf || '';
-        const itemsJson = JSON.stringify(itemsWithDetails);
-        
+        const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status } = req.body;
         const result = await sql`
-            INSERT INTO orders (
-                user_name, 
-                user_email, 
-                user_phone, 
-                user_cpf,
-                items, 
-                total, 
-                payment_id, 
-                payment_method, 
-                status
-            )
-            VALUES (
-                ${user_name}, 
-                ${user_email}, 
-                ${user_phone || ''}, 
-                ${cpfInfo},
-                ${itemsJson}, 
-                ${total}, 
-                ${payment_id}, 
-                ${payment_method}, 
-                ${status || 'pending'}
-            )
+            INSERT INTO orders (user_name, user_email, user_phone, items, total, payment_id, payment_method, status)
+            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(items)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
             RETURNING *
         `;
-        
         console.log('✅ Pedido criado:', result[0]);
-        console.log('📦 Itens:', itemsWithDetails);
-        console.log('📱 CPF:', cpfInfo);
-        
-        if (status === 'approved') {
-            const orderData = { ...result[0], items: itemsWithDetails };
-            await sendConfirmationEmail(orderData);
-        }
-        
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar pedido:', error);
@@ -1106,24 +1047,7 @@ app.put('/api/orders/:id/status', auth, pastorOnly, async (req, res) => {
     }
 });
 
-app.get('/api/orders/by-cpf/:cpf', auth, async (req, res) => {
-    try {
-        const { cpf } = req.params;
-        const orders = await sql`
-            SELECT * FROM orders 
-            WHERE user_cpf = ${cpf}
-            ORDER BY created_at DESC
-        `;
-        res.json(orders);
-    } catch (error) {
-        console.error('❌ Erro ao buscar pedidos por CPF:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ESTATÍSTICAS DE VENDAS =====
-// ============================================
+// ----- ESTATÍSTICAS DE VENDAS -----
 app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
     try {
         const totalSales = await sql`
@@ -1163,7 +1087,7 @@ app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
         `;
         
         const recentOrders = await sql`
-            SELECT id, user_name, user_email, user_cpf, items, total, status, payment_method, created_at
+            SELECT id, user_name, user_email, items, total, status, payment_method, created_at
             FROM orders 
             ORDER BY created_at DESC 
             LIMIT 10
@@ -1185,7 +1109,10 @@ app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- INSCRIÇÕES -----
+// ============================================
+// ===== INSCRIÇÕES - APROVAÇÃO AUTOMÁTICA =====
+// ============================================
+
 app.post('/api/registrations', async (req, res) => {
     try {
         const { type, name, email, phone, department_name, event_name, details, amount, is_paid, birth_date, baptism_date, baptism_date_id } = req.body;
@@ -1208,12 +1135,13 @@ app.post('/api/registrations', async (req, res) => {
             }
         }
 
+        // Aprova automaticamente
         const result = await sql`
             INSERT INTO registrations (type, name, email, phone, department_name, event_name, details, amount, is_paid, status)
-            VALUES (${type}, ${name}, ${email || ''}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${finalDetails || ''}, ${parseFloat(amount) || 0}, ${is_paid || false}, 'pending')
+            VALUES (${type}, ${name}, ${email || ''}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${finalDetails || ''}, ${parseFloat(amount) || 0}, ${is_paid || false}, 'approved')
             RETURNING *
         `;
-        console.log('✅ Inscrição criada:', result[0]);
+        console.log('✅ Inscrição criada e aprovada:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro inscrição:', error);
@@ -1230,50 +1158,9 @@ app.get('/api/registrations', auth, async (req, res) => {
     }
 });
 
-app.put('/api/registrations/:id/approve', auth, pastorOnly, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const result = await sql`
-            UPDATE registrations 
-            SET status = 'approved' 
-            WHERE id = ${id}
-            RETURNING *
-        `;
-        if (result.length === 0) {
-            return res.status(404).json({ error: 'Inscrição não encontrada' });
-        }
-        console.log('✅ Inscrição aprovada:', id);
-        res.json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao aprovar inscrição:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.put('/api/registrations/:id/reject', auth, pastorOnly, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const result = await sql`
-            UPDATE registrations 
-            SET status = 'rejected' 
-            WHERE id = ${id}
-            RETURNING *
-        `;
-        if (result.length === 0) {
-            return res.status(404).json({ error: 'Inscrição não encontrada' });
-        }
-        console.log('❌ Inscrição rejeitada:', id);
-        res.json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao rejeitar inscrição:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
 app.delete('/api/registrations/:id', auth, pastorOnly, async (req, res) => {
     try {
-        const { id } = req.params;
-        await sql`DELETE FROM registrations WHERE id = ${id}`;
+        await sql`DELETE FROM registrations WHERE id = ${req.params.id}`;
         res.json({ message: 'Inscrição removida' });
     } catch (error) {
         console.error('❌ Erro ao remover inscrição:', error);
@@ -1308,6 +1195,7 @@ app.get('/api/donations', auth, async (req, res) => {
 // ============================================
 // ===== ANIVERSARIANTES =====
 // ============================================
+
 app.get('/api/birthdays', async (req, res) => {
     try {
         const today = new Date();
@@ -1387,6 +1275,42 @@ app.get('/api/birthdays/today', async (req, res) => {
     }
 });
 
+// ----- CASAMENTOS -----
+app.get('/api/weddings', async (req, res) => {
+    try {
+        const today = new Date();
+        const weddings = await sql`
+            SELECT * FROM weddings 
+            WHERE is_active = true 
+            ORDER BY 
+                EXTRACT(MONTH FROM wedding_date) = ${today.getMonth() + 1} DESC,
+                EXTRACT(DAY FROM wedding_date) = ${today.getDate()} DESC,
+                EXTRACT(MONTH FROM wedding_date),
+                EXTRACT(DAY FROM wedding_date)
+            LIMIT 50
+        `;
+        res.json(weddings);
+    } catch (error) {
+        console.error('❌ Erro ao buscar casamentos:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/weddings', auth, pastorOnly, async (req, res) => {
+    try {
+        const { name, spouse_name, wedding_date, phone } = req.body;
+        const result = await sql`
+            INSERT INTO weddings (name, spouse_name, wedding_date, phone)
+            VALUES (${name}, ${spouse_name}, ${wedding_date}, ${phone || ''})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar casamento:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // ----- BATISMO DATAS -----
 app.get('/api/baptism-dates', async (req, res) => {
     try {
@@ -1399,6 +1323,246 @@ app.get('/api/baptism-dates', async (req, res) => {
         res.json(dates);
     } catch (error) {
         console.error('❌ Erro ao buscar datas de batismo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/baptism-dates', auth, pastorOnly, async (req, res) => {
+    try {
+        const { date, title, description, max_participants } = req.body;
+        const result = await sql`
+            INSERT INTO baptism_dates (date, title, description, max_participants, created_by)
+            VALUES (${date}, ${title || 'Batismo'}, ${description || ''}, ${max_participants || 20}, ${req.user.id})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar data de batismo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/baptism-dates/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`UPDATE baptism_dates SET is_active = false WHERE id = ${req.params.id}`;
+        res.json({ message: 'Data de batismo removida' });
+    } catch (error) {
+        console.error('❌ Erro ao remover data de batismo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== MÚSICAS =====
+// ============================================
+
+app.post('/api/songs', auth, async (req, res) => {
+    try {
+        const { title, artist, key, lyrics, department_id } = req.body;
+        
+        const deptId = department_id || req.user.department_id;
+        if (!deptId) {
+            return res.status(400).json({ error: 'Departamento não encontrado' });
+        }
+        
+        const result = await sql`
+            INSERT INTO songs (title, artist, key, lyrics, department_id, created_by)
+            VALUES (${title}, ${artist || ''}, ${key || 'C'}, ${lyrics}, ${deptId}, ${req.user.id})
+            RETURNING *
+        `;
+        
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar música:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/songs', auth, async (req, res) => {
+    try {
+        const { department_id } = req.query;
+        let songs;
+        
+        if (department_id) {
+            songs = await sql`
+                SELECT * FROM songs 
+                WHERE department_id = ${department_id}
+                ORDER BY title
+            `;
+        } else if (req.user.department_id) {
+            songs = await sql`
+                SELECT * FROM songs 
+                WHERE department_id = ${req.user.department_id}
+                ORDER BY title
+            `;
+        } else {
+            songs = await sql`
+                SELECT * FROM songs 
+                ORDER BY title
+            `;
+        }
+        
+        res.json(songs || []);
+    } catch (error) {
+        console.error('❌ Erro ao buscar músicas:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/songs/:id', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const song = await sql`SELECT * FROM songs WHERE id = ${id}`;
+        if (song.length === 0) {
+            return res.status(404).json({ error: 'Música não encontrada' });
+        }
+        
+        await sql`DELETE FROM songs WHERE id = ${id}`;
+        res.json({ message: 'Música removida com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao remover música:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- DISPONIBILIDADE -----
+app.post('/api/availability', auth, async (req, res) => {
+    try {
+        const { user_id, date } = req.body;
+        const result = await sql`
+            INSERT INTO availability (user_id, date)
+            VALUES (${user_id || req.user.id}, ${date})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao adicionar disponibilidade:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/availability/:user_id', auth, async (req, res) => {
+    try {
+        const { user_id } = req.params;
+        const availability = await sql`
+            SELECT * FROM availability 
+            WHERE user_id = ${user_id} 
+            ORDER BY date ASC
+        `;
+        res.json(availability);
+    } catch (error) {
+        console.error('❌ Erro ao buscar disponibilidade:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/availability/:id', auth, async (req, res) => {
+    try {
+        await sql`DELETE FROM availability WHERE id = ${req.params.id}`;
+        res.json({ message: 'Disponibilidade removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== WORSHIP SCALES =====
+// ============================================
+
+app.post('/api/worship-scales', auth, async (req, res) => {
+    try {
+        const { department_id, event_date, leader_id, minister_id, songs, song_ids, palette, rehearsal, musicians } = req.body;
+        
+        const user = await sql`
+            SELECT * FROM users 
+            WHERE id = ${req.user.id} 
+            AND (is_leader = true OR role = 'lider' OR role = 'pastor')
+        `;
+        
+        if (user.length === 0 && req.user.role !== 'pastor') {
+            return res.status(403).json({ error: 'Apenas líderes podem criar escalas' });
+        }
+        
+        const deptId = department_id || user[0]?.department_id;
+        if (!deptId) {
+            return res.status(400).json({ error: 'Departamento não encontrado' });
+        }
+        
+        const songsArray = songs || [];
+        const songIdsArray = song_ids || [];
+        const musiciansArray = musicians || [];
+        
+        const result = await sql`
+            INSERT INTO worship_scales (
+                department_id, 
+                event_date, 
+                leader_id, 
+                minister_id, 
+                songs, 
+                song_ids, 
+                palette, 
+                rehearsal, 
+                musician_ids
+            ) VALUES (
+                ${deptId}, 
+                ${event_date}, 
+                ${leader_id || req.user.id}, 
+                ${minister_id || null}, 
+                ${songsArray}, 
+                ${JSON.stringify(songIdsArray)}, 
+                ${palette || 'Azul, Prata, Branco, Dourado'}, 
+                ${rehearsal || false}, 
+                ${JSON.stringify(musiciansArray)}
+            ) RETURNING *
+        `;
+        
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar escala:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/worship-scales', auth, async (req, res) => {
+    try {
+        const scales = await sql`
+            SELECT 
+                ws.*, 
+                d.name as department_name, 
+                u.name as leader_name,
+                m.name as minister_name
+            FROM worship_scales ws
+            LEFT JOIN departments d ON ws.department_id = d.id
+            LEFT JOIN users u ON ws.leader_id = u.id
+            LEFT JOIN users m ON ws.minister_id = m.id
+            ORDER BY ws.event_date DESC
+        `;
+        
+        res.json(scales || []);
+    } catch (error) {
+        console.error('❌ Erro ao buscar escalas:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/worship-scales/:id', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const scale = await sql`SELECT * FROM worship_scales WHERE id = ${id}`;
+        if (scale.length === 0) {
+            return res.status(404).json({ error: 'Escala não encontrada' });
+        }
+        
+        if (req.user.role !== 'pastor' && req.user.role !== 'lider' && !req.user.is_leader) {
+            return res.status(403).json({ error: 'Você não tem permissão para remover esta escala' });
+        }
+        
+        await sql`DELETE FROM worship_scales WHERE id = ${id}`;
+        res.json({ message: 'Escala removida com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao remover escala:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1507,7 +1671,10 @@ app.post('/api/settings', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- MEMBROS -----
+// ============================================
+// ===== MEMBROS =====
+// ============================================
+
 app.post('/api/members', auth, async (req, res) => {
     try {
         const { 
@@ -1659,7 +1826,10 @@ app.delete('/api/members/:id', auth, async (req, res) => {
     }
 });
 
-// ----- FREQUÊNCIA -----
+// ============================================
+// ===== FREQUÊNCIA =====
+// ============================================
+
 app.post('/api/attendance', auth, async (req, res) => {
     try {
         const { member_id, event_date, service_type, present } = req.body;
@@ -1742,7 +1912,10 @@ app.get('/api/attendance/date/:date', auth, async (req, res) => {
     }
 });
 
-// ----- DÍZIMOS E OFERTAS -----
+// ============================================
+// ===== DÍZIMOS E OFERTAS =====
+// ============================================
+
 app.post('/api/tithes', auth, async (req, res) => {
     try {
         const { member_id, member_name, type, amount, payment_method, payment_date, description } = req.body;
@@ -1826,7 +1999,10 @@ app.get('/api/tithes/summary', auth, async (req, res) => {
     }
 });
 
-// ----- CONTAS A PAGAR -----
+// ============================================
+// ===== CONTAS A PAGAR =====
+// ============================================
+
 app.post('/api/bills', auth, async (req, res) => {
     try {
         const { description, category, amount, due_date, notes } = req.body;
@@ -1939,7 +2115,8 @@ app.get('/api/bills/summary', auth, async (req, res) => {
                 category,
                 COUNT(*) as count,
                 SUM(CASE WHEN paid = false THEN amount ELSE 0 END) as pending,
-                SUM(CASE WHEN paid = true THEN amount ELSE 0 END) as paid_total            FROM bills
+                SUM(CASE WHEN paid = true THEN amount ELSE 0 END) as paid_total
+            FROM bills
             GROUP BY category
             ORDER BY category
         `;
@@ -1955,8 +2132,9 @@ app.get('/api/bills/summary', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== MERCADO PAGO - PIX =====
+// ===== MERCADO PAGO =====
 // ============================================
+
 app.post('/api/create-pix-payment', async (req, res) => {
     try {
         const { amount, description, email, name, phone, cpf } = req.body;
@@ -2013,9 +2191,59 @@ app.post('/api/create-pix-payment', async (req, res) => {
     }
 });
 
-// ============================================
-// ===== MERCADO PAGO - CARTÃO FALLBACK =====
-// ============================================
+app.post('/api/create-card-payment', async (req, res) => {
+    try {
+        const { amount, description, email, name, phone, cpf, card_token, installments } = req.body;
+
+        if (!process.env.MP_ACCESS_TOKEN || !PaymentService) {
+            return res.status(500).json({ error: 'Mercado Pago não configurado' });
+        }
+
+        if (!card_token) {
+            return res.status(400).json({ error: 'Token do cartão é obrigatório' });
+        }
+
+        const valor = parseFloat(amount);
+        if (isNaN(valor) || valor <= 0) {
+            return res.status(400).json({ error: 'Valor inválido' });
+        }
+
+        const paymentData = {
+            body: {
+                transaction_amount: valor,
+                description: description || 'Pagamento NJ Cabuçu',
+                payment_method_id: 'credit_card',
+                installments: parseInt(installments) || 1,
+                token: card_token,
+                payer: {
+                    email: email || 'cliente@email.com',
+                    first_name: name || 'Cliente',
+                    phone: { number: phone || '' },
+                    identification: { type: 'CPF', number: cpf || '12345678909' }
+                },
+                external_reference: `NJ-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+                notification_url: `${process.env.PUBLIC_URL || 'https://igrejanjcabucurj.vercel.app'}/api/webhook`
+            }
+        };
+
+        console.log('📝 Criando pagamento com cartão...');
+        console.log('📝 Valor:', valor);
+        const payment = await PaymentService.create(paymentData);
+        console.log('✅ Pagamento criado:', payment.id);
+        console.log('✅ Status:', payment.status);
+
+        res.json({
+            payment_id: payment.id,
+            status: payment.status,
+            status_detail: payment.status_detail,
+            external_reference: payment.external_reference
+        });
+    } catch (error) {
+        console.error('❌ Erro MP cartão:', error);
+        res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
+    }
+});
+
 app.post('/api/create-card-payment-fallback', async (req, res) => {
     try {
         const { amount, description, email, name, phone, cpf, card_number, card_expiry, card_cvv, installments } = req.body;
@@ -2127,6 +2355,7 @@ async function processCardPayment(token, valor, description, email, name, phone,
 // ============================================
 // ===== VERIFICAR STATUS DO PAGAMENTO =====
 // ============================================
+
 app.get('/api/check-payment/:paymentId', async (req, res) => {
     try {
         const { paymentId } = req.params;
@@ -2197,6 +2426,7 @@ app.post('/api/update-payment-status', async (req, res) => {
 // ============================================
 // ===== WEBHOOK =====
 // ============================================
+
 app.post('/api/webhook', async (req, res) => {
     try {
         console.log('📝 Webhook recebido:', JSON.stringify(req.body, null, 2));
@@ -2205,6 +2435,7 @@ app.post('/api/webhook', async (req, res) => {
         
         if (type === 'payment' && data && data.id) {
             const paymentId = data.id;
+            console.log(`✅ Pagamento ${paymentId} confirmado!`);
             
             if (PaymentService) {
                 try {
@@ -2212,36 +2443,13 @@ app.post('/api/webhook', async (req, res) => {
                     console.log('📊 Status do pagamento:', payment.status);
                     
                     if (payment.status === 'approved') {
-                        // Atualiza orders
-                        const orderResult = await sql`
-                            UPDATE orders 
-                            SET status = 'approved', updated_at = NOW()
-                            WHERE payment_id = ${paymentId}
-                            RETURNING *
-                        `;
-                        
-                        // Busca o pedido completo e envia email
-                        if (orderResult.length > 0) {
-                            const order = orderResult[0];
-                            // Busca os itens
-                            const itemsResult = await sql`SELECT items FROM orders WHERE id = ${order.id}`;
-                            if (itemsResult.length > 0) {
-                                const orderData = {
-                                    ...order,
-                                    items: itemsResult[0].items
-                                };
-                                await sendConfirmationEmail(orderData);
-                                console.log('✅ Email de confirmação enviado para o pedido:', order.id);
-                            }
-                        }
-                        
-                        // Atualiza donations
                         await sql`
-                            UPDATE donations 
-                            SET status = 'approved' 
-                            WHERE payment_id = ${paymentId}
+                            UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}
                         `;
-                        console.log('✅ Pagamento aprovado:', paymentId);
+                        await sql`
+                            UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}
+                        `;
+                        console.log('✅ Pagamento aprovado e registrado!');
                     } else if (payment.status === 'rejected' || payment.status === 'cancelled') {
                         await sql`
                             UPDATE orders SET status = 'rejected' WHERE payment_id = ${paymentId}
@@ -2267,6 +2475,7 @@ app.post('/api/webhook', async (req, res) => {
 // ============================================
 // ===== PDF DE CONFIRMAÇÃO =====
 // ============================================
+
 app.get('/api/registration-pdf/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -2360,6 +2569,7 @@ app.get('/api/registration-pdf/:id', async (req, res) => {
 // ============================================
 // ===== SERVE HTML =====
 // ============================================
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -2379,6 +2589,7 @@ app.get('/departamento', (req, res) => {
 // ============================================
 // ===== INICIAR =====
 // ============================================
+
 app.listen(PORT, () => {
     console.log('');
     console.log('🔥 NJ Cabuçu rodando na porta ' + PORT);
@@ -2390,7 +2601,6 @@ app.listen(PORT, () => {
     console.log('');
     console.log('💰 Mercado Pago: ' + (process.env.MP_ACCESS_TOKEN ? '✅ Configurado' : '⚠️ Não configurado'));
     console.log('🔑 Public Key: ' + (process.env.MP_PUBLIC_KEY ? '✅ Configurada' : '⚠️ Não configurada'));
-    console.log('📧 Email: ' + (transporter ? '✅ Configurado' : '⚠️ Não configurado'));
     console.log('');
     console.log('📸 Imagens salvas como Base64 no banco de dados!');
     console.log('');

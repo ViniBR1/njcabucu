@@ -14,7 +14,6 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { MercadoPagoConfig, Payment } = require('mercadopago');
-const nodemailer = require('nodemailer');
 
 // ============================================
 // ===== CONEXÃO NEON =====
@@ -45,156 +44,6 @@ try {
 }
 
 // ============================================
-// ===== NODEMAILER - EMAIL =====
-// ============================================
-let transporter = null;
-try {
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-        transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            }
-        });
-        console.log('✅ Email configurado');
-    } else {
-        console.log('⚠️ Email não configurado (faltam credenciais)');
-    }
-} catch (error) {
-    console.log('⚠️ Erro ao configurar email:', error.message);
-}
-
-// ============================================
-// ===== FUNÇÃO PARA ENVIAR EMAIL =====
-// ============================================
-async function sendOrderEmail(orderData) {
-    if (!transporter) return;
-    
-    try {
-        const { user_name, user_email, user_phone, items, total, payment_id, status } = orderData;
-        
-        let itemsHtml = '';
-        let itemsText = '';
-        try {
-            const parsedItems = typeof items === 'string' ? JSON.parse(items) : items;
-            parsedItems.forEach(item => {
-                const sizeText = item.size ? ` (Tamanho: ${item.size})` : '';
-                itemsHtml += `<tr>
-                    <td style="padding:8px;border-bottom:1px solid #eee;">${item.name}${sizeText}</td>
-                    <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">1</td>
-                    <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">R$ ${parseFloat(item.price).toFixed(2)}</td>
-                </tr>`;
-                itemsText += `${item.name}${sizeText} - R$ ${parseFloat(item.price).toFixed(2)}\n`;
-            });
-        } catch (e) {
-            itemsHtml = `<tr><td colspan="3" style="padding:8px;">${items}</td></tr>`;
-            itemsText = String(items);
-        }
-
-        const html = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; }
-                .header { text-align: center; border-bottom: 3px solid #0D47A1; padding-bottom: 20px; margin-bottom: 20px; }
-                .header h1 { color: #0D47A1; margin: 0; }
-                .header p { color: #666; margin: 5px 0 0; }
-                .info { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-                .info-item { padding: 5px 0; border-bottom: 1px solid #eee; }
-                .info-item:last-child { border-bottom: none; }
-                .table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-                .table th { background: #0D47A1; color: white; padding: 10px; text-align: left; }
-                .table td { padding: 10px; border-bottom: 1px solid #eee; }
-                .total { text-align: right; font-size: 1.2rem; font-weight: bold; color: #0D47A1; margin-top: 10px; }
-                .status { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; }
-                .status.approved { background: #d4edda; color: #155724; }
-                .status.pending { background: #fff3cd; color: #856404; }
-                .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #888; font-size: 0.9rem; }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h1>🙏 NJ Cabuçu</h1>
-                <p>Confirmação de Pedido</p>
-            </div>
-            
-            <div class="info">
-                <div class="info-item"><strong>Cliente:</strong> ${user_name}</div>
-                <div class="info-item"><strong>E-mail:</strong> ${user_email}</div>
-                <div class="info-item"><strong>Telefone:</strong> ${user_phone || 'Não informado'}</div>
-                <div class="info-item"><strong>Status:</strong> <span class="status ${status === 'approved' ? 'approved' : 'pending'}">${status === 'approved' ? '✅ Aprovado' : '⏳ Pendente'}</span></div>
-                <div class="info-item"><strong>ID do Pagamento:</strong> ${payment_id || '-'}</div>
-            </div>
-            
-            <h3>📦 Itens do Pedido</h3>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Produto</th>
-                        <th style="text-align:center;">Qtd</th>
-                        <th style="text-align:right;">Preço</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${itemsHtml}
-                </tbody>
-            </table>
-            
-            <div class="total">
-                Total: R$ ${parseFloat(total).toFixed(2)}
-            </div>
-            
-            <p style="margin-top:20px;color:#666;">
-                <strong>🕊️ "E conhecereis a verdade, e a verdade vos libertará."</strong><br>
-                João 8:32
-            </p>
-            
-            <div class="footer">
-                <p>NJ Cabuçu - © ${new Date().getFullYear()} Todos os direitos reservados</p>
-                <p style="font-size:0.8rem;">Este é um comprovante de compra. Guarde para referência.</p>
-            </div>
-        </body>
-        </html>
-        `;
-
-        const text = `
-        NJ Cabuçu - Confirmação de Pedido
-        ================================
-        
-        Cliente: ${user_name}
-        E-mail: ${user_email}
-        Telefone: ${user_phone || 'Não informado'}
-        Status: ${status === 'approved' ? '✅ Aprovado' : '⏳ Pendente'}
-        ID do Pagamento: ${payment_id || '-'}
-        
-        Itens do Pedido:
-        ${itemsText}
-        
-        Total: R$ ${parseFloat(total).toFixed(2)}
-        
-        "E conhecereis a verdade, e a verdade vos libertará." - João 8:32
-        
-        NJ Cabuçu - © ${new Date().getFullYear()}
-        `;
-
-        await transporter.sendMail({
-            from: process.env.EMAIL_USER,
-            to: user_email,
-            subject: `✅ NJ Cabuçu - Confirmação de Pedido #${String(orderData.id).padStart(6, '0')}`,
-            html: html,
-            text: text
-        });
-        
-        console.log('✅ Email enviado para:', user_email);
-    } catch (error) {
-        console.error('❌ Erro ao enviar email:', error);
-    }
-}
-
-// ============================================
 // ===== APP =====
 // ============================================
 const app = express();
@@ -216,7 +65,7 @@ const storage = multer.memoryStorage();
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 50 * 1024 * 1024 },
+    limits: { fileSize: 50 * 1024 * 1024 }, // Aumentado para 50MB para PDFs
     fileFilter: function (req, file, cb) {
         const allowedTypes = /jpeg|jpg|png|gif|webp|pdf/;
         const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -260,6 +109,7 @@ async function initDB() {
     console.log('📝 Criando tabelas...');
     
     try {
+        // USERS
         await sql`CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -274,6 +124,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // DEPARTMENTS
         await sql`CREATE TABLE IF NOT EXISTS departments (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -284,6 +135,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // DEPARTMENT MEMBERS
         await sql`CREATE TABLE IF NOT EXISTS department_members (
             department_id INTEGER,
             user_id INTEGER,
@@ -292,6 +144,7 @@ async function initDB() {
             PRIMARY KEY (department_id, user_id)
         )`;
 
+        // STUDIES
         await sql`CREATE TABLE IF NOT EXISTS studies (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -303,6 +156,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // PRODUCTS
         await sql`CREATE TABLE IF NOT EXISTS products (
             id SERIAL PRIMARY KEY,
             name VARCHAR(200) NOT NULL,
@@ -315,6 +169,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // EVENTS
         await sql`CREATE TABLE IF NOT EXISTS events (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -326,6 +181,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // PRAYERS
         await sql`CREATE TABLE IF NOT EXISTS prayers (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100),
@@ -334,6 +190,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // ORDERS (VENDAS)
         await sql`CREATE TABLE IF NOT EXISTS orders (
             id SERIAL PRIMARY KEY,
             user_name VARCHAR(100),
@@ -347,6 +204,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // REGISTRATIONS
         await sql`CREATE TABLE IF NOT EXISTS registrations (
             id SERIAL PRIMARY KEY,
             type VARCHAR(50) NOT NULL,
@@ -362,6 +220,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // WORSHIP SCALES
         await sql`CREATE TABLE IF NOT EXISTS worship_scales (
             id SERIAL PRIMARY KEY,
             department_id INTEGER,
@@ -376,6 +235,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // DONATIONS
         await sql`CREATE TABLE IF NOT EXISTS donations (
             id SERIAL PRIMARY KEY,
             user_name VARCHAR(100),
@@ -389,6 +249,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // CAROUSEL
         await sql`CREATE TABLE IF NOT EXISTS carousel_images (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200),
@@ -401,6 +262,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // SITE SETTINGS
         await sql`CREATE TABLE IF NOT EXISTS site_settings (
             id SERIAL PRIMARY KEY,
             key VARCHAR(100) UNIQUE NOT NULL,
@@ -408,6 +270,7 @@ async function initDB() {
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // ===== TABELAS DE MEMBROS E SECRETARIA =====
         await sql`CREATE TABLE IF NOT EXISTS members (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -498,6 +361,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // ===== TABELAS PARA DEPARTAMENTOS =====
         await sql`CREATE TABLE IF NOT EXISTS songs (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -597,7 +461,7 @@ app.post('/api/change-password', async (req, res) => {
     }
 });
 
-// ----- USUÁRIOS -----
+// ----- USUÁRIOS E COLABORADORES -----
 app.post('/api/users', auth, pastorOnly, async (req, res) => {
     try {
         const { name, email, password, role, department_name, phone, is_leader, department_id } = req.body;
@@ -647,6 +511,7 @@ app.post('/api/users', auth, pastorOnly, async (req, res) => {
     }
 });
 
+// ----- CRIAR USUÁRIO PELO LÍDER -----
 app.post('/api/users-by-leader', auth, async (req, res) => {
     try {
         const { name, email, password, role, department_id } = req.body;
@@ -924,7 +789,6 @@ app.delete('/api/departments/:department_id/members/:user_id', auth, async (req,
 // ============================================
 // ===== ESTUDOS - COM PDF =====
 // ============================================
-
 app.post('/api/studies', auth, upload.fields([
     { name: 'image', maxCount: 1 },
     { name: 'file', maxCount: 1 }
@@ -934,16 +798,16 @@ app.post('/api/studies', auth, upload.fields([
         let image_base64 = null;
         let file_base64 = null;
 
-        if (req.files && req.files['image']) {
+        if (req.files['image']) {
             image_base64 = req.files['image'][0].buffer.toString('base64');
         }
-        if (req.files && req.files['file']) {
+        if (req.files['file']) {
             file_base64 = req.files['file'][0].buffer.toString('base64');
         }
 
         const result = await sql`
             INSERT INTO studies (title, description, file_url, image_base64, file_base64)
-            VALUES (${title}, ${description || ''}, ${file_url || null}, ${image_base64}, ${file_base64})
+            VALUES (${title}, ${description}, ${file_url || null}, ${image_base64}, ${file_base64})
             RETURNING *
         `;
         console.log('✅ Estudo criado:', result[0].id);
@@ -1159,29 +1023,16 @@ app.put('/api/prayers/:id/read', auth, async (req, res) => {
     }
 });
 
-// ----- PEDIDOS (VENDAS) - CORRIGIDO -----
+// ----- PEDIDOS (VENDAS) -----
 app.post('/api/orders', async (req, res) => {
     try {
         const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status } = req.body;
-        
-        const itemsWithDetails = items.map(item => ({
-            ...item,
-            size: item.size || null,
-            color: item.color || null
-        }));
-        
         const result = await sql`
             INSERT INTO orders (user_name, user_email, user_phone, items, total, payment_id, payment_method, status)
-            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(itemsWithDetails)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
+            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(items)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
             RETURNING *
         `;
-        
-        const orderData = { ...result[0], items: itemsWithDetails };
-        
-        // Envia email de confirmação
-        await sendOrderEmail(orderData);
-        
-        console.log('✅ Pedido criado e email enviado:', result[0]);
+        console.log('✅ Pedido criado:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar pedido:', error);
@@ -1208,33 +1059,6 @@ app.put('/api/orders/:id/status', auth, pastorOnly, async (req, res) => {
         res.json({ message: 'Status atualizado' });
     } catch (error) {
         res.status(500).json({ error: error.message });
-    }
-});
-
-// ----- VERIFICAR SE CPF JÁ COMPROU UM PRODUTO -----
-app.post('/api/check-purchase', async (req, res) => {
-    try {
-        const { cpf, product_id } = req.body;
-        
-        if (!cpf || !product_id) {
-            return res.json({ hasPurchased: false, count: 0 });
-        }
-        
-        const result = await sql`
-            SELECT COUNT(*) as count FROM orders 
-            WHERE items::jsonb @> ${JSON.stringify([{ id: parseInt(product_id) }])}::jsonb
-            AND status = 'approved'
-            AND user_phone LIKE ${'%' + cpf + '%'}
-        `;
-        
-        const count = parseInt(result[0]?.count || 0);
-        res.json({ 
-            hasPurchased: count > 0,
-            count: count
-        });
-    } catch (error) {
-        console.error('❌ Erro ao verificar compra:', error);
-        res.json({ hasPurchased: false, count: 0 });
     }
 });
 
@@ -1300,10 +1124,7 @@ app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ============================================
-// ===== INSCRIÇÕES - APROVAÇÃO AUTOMÁTICA =====
-// ============================================
-
+// ----- INSCRIÇÕES -----
 app.post('/api/registrations', async (req, res) => {
     try {
         const { type, name, email, phone, department_name, event_name, details, amount, is_paid, birth_date, baptism_date, baptism_date_id } = req.body;
@@ -1328,10 +1149,10 @@ app.post('/api/registrations', async (req, res) => {
 
         const result = await sql`
             INSERT INTO registrations (type, name, email, phone, department_name, event_name, details, amount, is_paid, status)
-            VALUES (${type}, ${name}, ${email || ''}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${finalDetails || ''}, ${parseFloat(amount) || 0}, ${is_paid || false}, 'approved')
+            VALUES (${type}, ${name}, ${email || ''}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${finalDetails || ''}, ${parseFloat(amount) || 0}, ${is_paid || false}, 'pending')
             RETURNING *
         `;
-        console.log('✅ Inscrição criada e aprovada:', result[0]);
+        console.log('✅ Inscrição criada:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro inscrição:', error);
@@ -1348,9 +1169,51 @@ app.get('/api/registrations', auth, async (req, res) => {
     }
 });
 
+// ===== ROTAS PARA APROVAR/REJEITAR INSCRIÇÕES =====
+app.put('/api/registrations/:id/approve', auth, pastorOnly, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await sql`
+            UPDATE registrations 
+            SET status = 'approved' 
+            WHERE id = ${id}
+            RETURNING *
+        `;
+        if (result.length === 0) {
+            return res.status(404).json({ error: 'Inscrição não encontrada' });
+        }
+        console.log('✅ Inscrição aprovada:', id);
+        res.json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao aprovar inscrição:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/registrations/:id/reject', auth, pastorOnly, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await sql`
+            UPDATE registrations 
+            SET status = 'rejected' 
+            WHERE id = ${id}
+            RETURNING *
+        `;
+        if (result.length === 0) {
+            return res.status(404).json({ error: 'Inscrição não encontrada' });
+        }
+        console.log('❌ Inscrição rejeitada:', id);
+        res.json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao rejeitar inscrição:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.delete('/api/registrations/:id', auth, pastorOnly, async (req, res) => {
     try {
-        await sql`DELETE FROM registrations WHERE id = ${req.params.id}`;
+        const { id } = req.params;
+        await sql`DELETE FROM registrations WHERE id = ${id}`;
         res.json({ message: 'Inscrição removida' });
     } catch (error) {
         console.error('❌ Erro ao remover inscrição:', error);
@@ -2322,7 +2185,7 @@ app.get('/api/bills/summary', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== MERCADO PAGO =====
+// ===== MERCADO PAGO - PIX =====
 // ============================================
 
 app.post('/api/create-pix-payment', async (req, res) => {
@@ -2381,6 +2244,10 @@ app.post('/api/create-pix-payment', async (req, res) => {
     }
 });
 
+// ============================================
+// ===== MERCADO PAGO - CARTÃO =====
+// ============================================
+
 app.post('/api/create-card-payment', async (req, res) => {
     try {
         const { amount, description, email, name, phone, cpf, card_token, installments } = req.body;
@@ -2433,6 +2300,10 @@ app.post('/api/create-card-payment', async (req, res) => {
         res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
     }
 });
+
+// ============================================
+// ===== MERCADO PAGO - CARTÃO FALLBACK =====
+// ============================================
 
 app.post('/api/create-card-payment-fallback', async (req, res) => {
     try {
@@ -2633,42 +2504,19 @@ app.post('/api/webhook', async (req, res) => {
                     console.log('📊 Status do pagamento:', payment.status);
                     
                     if (payment.status === 'approved') {
-                        // Atualiza orders
-                        const orderResult = await sql`
-                            UPDATE orders 
-                            SET status = 'approved' 
-                            WHERE payment_id = ${paymentId}
-                            RETURNING *
-                        `;
-                        console.log('✅ Pedido atualizado:', orderResult.length > 0 ? orderResult[0].id : 'Nenhum');
-                        
-                        // Envia email se encontrou o pedido
-                        if (orderResult.length > 0) {
-                            const order = orderResult[0];
-                            // Busca o pedido completo com os itens
-                            const orderData = await sql`SELECT * FROM orders WHERE id = ${order.id}`;
-                            if (orderData.length > 0) {
-                                await sendOrderEmail(orderData[0]);
-                            }
-                        }
-                        
-                        // Atualiza donations
                         await sql`
-                            UPDATE donations 
-                            SET status = 'approved' 
-                            WHERE payment_id = ${paymentId}
+                            UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}
+                        `;
+                        await sql`
+                            UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}
                         `;
                         console.log('✅ Pagamento aprovado e registrado!');
                     } else if (payment.status === 'rejected' || payment.status === 'cancelled') {
                         await sql`
-                            UPDATE orders 
-                            SET status = 'rejected' 
-                            WHERE payment_id = ${paymentId}
+                            UPDATE orders SET status = 'rejected' WHERE payment_id = ${paymentId}
                         `;
                         await sql`
-                            UPDATE donations 
-                            SET status = 'rejected' 
-                            WHERE payment_id = ${paymentId}
+                            UPDATE donations SET status = 'rejected' WHERE payment_id = ${paymentId}
                         `;
                         console.log('❌ Pagamento recusado/cancelado');
                     }
@@ -2814,7 +2662,6 @@ app.listen(PORT, () => {
     console.log('');
     console.log('💰 Mercado Pago: ' + (process.env.MP_ACCESS_TOKEN ? '✅ Configurado' : '⚠️ Não configurado'));
     console.log('🔑 Public Key: ' + (process.env.MP_PUBLIC_KEY ? '✅ Configurada' : '⚠️ Não configurada'));
-    console.log('📧 Email: ' + (transporter ? '✅ Configurado' : '⚠️ Não configurado'));
     console.log('');
     console.log('📸 Imagens salvas como Base64 no banco de dados!');
     console.log('');

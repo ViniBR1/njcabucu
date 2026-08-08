@@ -1,6 +1,3 @@
-Aqui está seu index.html completo e atualizado com todas as alterações (verificação de CPF, seleção de tamanho para roupas, etc.):
-
-```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -539,60 +536,6 @@ Aqui está seu index.html completo e atualizado com todas as alterações (verif
         .footer .social-links a:hover { background: var(--primary); transform: translateY(-3px); }
         .footer-bottom { text-align: center; padding-top: 2rem; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05); opacity: 0.5; font-size: 0.9rem; }
 
-        /* MODAL TAMANHO */
-        .size-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(4px);
-            z-index: 99999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.3s ease;
-        }
-        .size-modal-content {
-            background: white;
-            padding: 2rem;
-            border-radius: var(--radius);
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-        }
-        .size-modal-content h3 {
-            color: var(--primary);
-            margin-bottom: 1rem;
-        }
-        .size-modal-content .size-options {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin: 1rem 0;
-        }
-        .size-modal-content .size-btn {
-            padding: 0.5rem 1.2rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            background: white;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: var(--transition);
-        }
-        .size-modal-content .size-btn:hover {
-            border-color: var(--primary);
-            background: var(--secondary);
-        }
-        .size-modal-content .size-btn.selected {
-            border-color: var(--primary);
-            background: var(--primary);
-            color: white;
-        }
-
         @media (max-width: 1024px) { .hero-content h1 { font-size: 2.5rem; } .hero { height: 450px; } }
         @media (max-width: 768px) {
             .header { padding: 0.8rem 1rem; }
@@ -852,8 +795,6 @@ Aqui está seu index.html completo e atualizado com todas as alterações (verif
     </div>
 </footer>
 
-<!-- MODAIS -->
-
 <!-- MODAL BÍBLIA -->
 <div class="modal modal-bible" id="bibleModal">
     <div class="modal-content">
@@ -1038,12 +979,10 @@ let carouselData = [];
 let paymentType = 'sale';
 let donationType = '';
 let _donationAmount = 0;
+let allMembers = [];
+let selectedMembers = new Set();
+let attendanceFilteredMembers = [];
 let statusCheckInterval = null;
-let pendingProduct = null;
-let selectedSize = null;
-let baptismDatesList = [];
-let eventsList = [];
-let _pendingCpf = null;
 
 // ============================================
 // ===== HEADER SCROLL =====
@@ -1065,36 +1004,6 @@ function toggleMobileMenu() {
 document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.getElementById('mainNav').classList.remove('open');
-    });
-});
-
-// ============================================
-// ===== MODAIS =====
-// ============================================
-function openModal(id) {
-    document.getElementById(id).classList.add('open');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeModal(id) {
-    document.getElementById(id).classList.remove('open');
-    document.body.style.overflow = 'auto';
-    if (statusCheckInterval) {
-        clearInterval(statusCheckInterval);
-        statusCheckInterval = null;
-    }
-}
-
-document.querySelectorAll('.modal').forEach(m => {
-    m.addEventListener('click', (e) => {
-        if (e.target === m) {
-            m.classList.remove('open');
-            document.body.style.overflow = 'auto';
-            if (statusCheckInterval) {
-                clearInterval(statusCheckInterval);
-                statusCheckInterval = null;
-            }
-        }
     });
 });
 
@@ -1400,6 +1309,7 @@ async function searchBibleRandom() {
     }
 }
 
+// Enter para buscar
 document.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         const active = document.activeElement;
@@ -1468,8 +1378,7 @@ async function loadStudies() {
                 ${s.image_base64 ? createCardImage(s.image_base64, s.title) : ''}
                 <h3>${s.title}</h3>
                 <p>${s.description || ''}</p>
-                ${s.has_pdf ? `<a href="/api/studies/${s.id}/download" target="_blank" class="btn btn-primary btn-sm" style="margin-top:0.5rem;width:auto;"><i class="fas fa-download"></i> Baixar PDF</a>` : ''}
-                ${s.file_url ? `<a href="${s.file_url}" target="_blank" class="btn btn-primary btn-sm" style="margin-top:0.5rem;width:auto;"><i class="fas fa-download"></i> Baixar</a>` : ''}
+                ${s.file_url ? '<a href="' + s.file_url + '" target="_blank" class="btn btn-primary btn-sm" style="margin-top:0.5rem;width:auto;"><i class="fas fa-download"></i> Baixar</a>' : ''}
             </div>
         `).join('');
     } catch (e) { console.error('Erro:', e); }
@@ -1587,136 +1496,21 @@ async function loadBirthdays() {
 }
 
 // ============================================
-// ===== NJ STORE - CARRINHO MELHORADO =====
+// ===== CARRINHO =====
 // ============================================
 
-// Função para adicionar ao carrinho com verificação de CPF e tamanho
 async function addToCart(productId) {
     try {
         const res = await fetch('/api/products');
         const products = await res.json();
         const product = products.find(p => p.id === productId);
-        if (!product) {
-            showNotification('❌ Produto não encontrado!', 'error');
-            return;
+        if (product) {
+            cart.push(product);
+            document.getElementById('cartCount').textContent = cart.length;
+            showNotification('✅ ' + product.name + ' adicionado ao carrinho!', 'success');
         }
-
-        // Verifica se o usuário já comprou este produto (pelo CPF)
-        const cpf = prompt('Digite seu CPF para verificar se já comprou este item (apenas números):');
-        if (!cpf) return;
-        
-        const cpfClean = cpf.replace(/[^\d]/g, '');
-        if (cpfClean.length !== 11) {
-            showNotification('⚠️ CPF inválido! Digite 11 números.', 'error');
-            return;
-        }
-        
-        // Verifica se já comprou
-        const checkRes = await fetch('/api/check-purchase', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cpf: cpfClean, product_id: productId })
-        });
-        const checkData = await checkRes.json();
-        
-        if (checkData.hasPurchased) {
-            const confirmar = confirm(`⚠️ Você já comprou "${product.name}" anteriormente (${checkData.count} vez(es)). Deseja comprar novamente?`);
-            if (!confirmar) return;
-        }
-
-        // Salva o CPF para usar depois
-        _pendingCpf = cpfClean;
-
-        // Verifica se é roupa (camisa, camiseta, blusa, calça)
-        const clothingCategories = ['camisa', 'camiseta', 'calca', 'vestido', 'roupa', 'vestuario', 'blusa', 'jaqueta'];
-        const isClothing = clothingCategories.some(cat => 
-            product.category?.toLowerCase().includes(cat) ||
-            product.name?.toLowerCase().includes('camisa') ||
-            product.name?.toLowerCase().includes('camiseta') ||
-            product.name?.toLowerCase().includes('blusa') ||
-            product.name?.toLowerCase().includes('calca')
-        );
-
-        if (isClothing) {
-            pendingProduct = product;
-            showSizeModal(product);
-            return;
-        }
-
-        // Se não for roupa, adiciona direto
-        addProductToCart(product, null, null);
-        
-    } catch (e) { 
-        console.error('Erro:', e);
-        showNotification('❌ Erro ao adicionar ao carrinho', 'error');
-    }
+    } catch (e) { console.error('Erro:', e); }
 }
-
-// Modal de seleção de tamanho
-function showSizeModal(product) {
-    const sizes = ['P', 'M', 'G', 'GG', 'XG', '2XG'];
-    
-    const overlay = document.createElement('div');
-    overlay.className = 'size-modal-overlay';
-    overlay.id = 'sizeModal';
-    overlay.innerHTML = `
-        <div class="size-modal-content">
-            <h3>👕 Selecione o Tamanho</h3>
-            <p style="color:#666;font-size:0.9rem;">${product.name}</p>
-            <div class="size-options">
-                ${sizes.map(s => `<button class="size-btn" data-size="${s}" onclick="selectSize('${s}')">${s}</button>`).join('')}
-            </div>
-            <button onclick="cancelSize()" class="btn btn-outline" style="width:100%;justify-content:center;margin-top:0.5rem;">
-                Cancelar
-            </button>
-        </div>
-    `;
-    document.body.appendChild(overlay);
-}
-
-function selectSize(size) {
-    selectedSize = size;
-    document.querySelectorAll('.size-btn').forEach(b => {
-        b.classList.toggle('selected', b.dataset.size === size);
-    });
-    
-    if (pendingProduct) {
-        addProductToCart(pendingProduct, size, null);
-        closeSizeModal();
-    }
-}
-
-function cancelSize() {
-    closeSizeModal();
-    pendingProduct = null;
-    selectedSize = null;
-    _pendingCpf = null;
-}
-
-function closeSizeModal() {
-    const modal = document.getElementById('sizeModal');
-    if (modal) modal.remove();
-}
-
-function addProductToCart(product, size, color) {
-    const item = {
-        ...product,
-        size: size || null,
-        color: color || null,
-        cpf: _pendingCpf || null
-    };
-    
-    cart.push(item);
-    document.getElementById('cartCount').textContent = cart.length;
-    showNotification(`✅ ${product.name}${size ? ' (Tamanho: ' + size + ')' : ''} adicionado ao carrinho!`, 'success');
-    pendingProduct = null;
-    selectedSize = null;
-    _pendingCpf = null;
-}
-
-// ============================================
-// ===== CARRINHO =====
-// ============================================
 
 function openCart() {
     const container = document.getElementById('cartItems');
@@ -1728,7 +1522,7 @@ function openCart() {
         let total = 0;
         container.innerHTML = cart.map((p, i) => `
             <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem;border-bottom:1px solid #eee;">
-                <span>${p.name}${p.size ? ' (' + p.size + ')' : ''} - R$ ${parseFloat(p.price).toFixed(2)}</span>
+                <span>${p.name} - R$ ${parseFloat(p.price).toFixed(2)}</span>
                 <button onclick="removeFromCart(${i})" class="btn btn-danger btn-sm"><i class="fas fa-times"></i></button>
             </div>
         `).join('');
@@ -1753,12 +1547,6 @@ function checkout() {
     document.getElementById('paymentTotal').textContent = 'Total: R$ ' + total.toFixed(2);
     document.getElementById('paymentForm').style.display = 'block';
     document.getElementById('paymentResult').style.display = 'none';
-    
-    // Preenche o CPF se já tiver sido digitado
-    if (_pendingCpf) {
-        document.getElementById('payCpf').value = _pendingCpf;
-    }
-    
     openModal('paymentModal');
 }
 
@@ -1767,14 +1555,41 @@ function checkout() {
 // ============================================
 
 function openDonationForm(type) {
+    document.getElementById('donationModal').classList.add('open');
     document.getElementById('donationType').value = type;
     document.getElementById('donationTypeLabel').textContent = '💳 ' + type;
     document.getElementById('donationName').value = '';
     document.getElementById('donationEmail').value = '';
     document.getElementById('donationPhone').value = '';
     document.getElementById('donationAmount').value = '';
-    openModal('donationModal');
 }
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+    document.body.style.overflow = 'auto';
+    if (statusCheckInterval) {
+        clearInterval(statusCheckInterval);
+        statusCheckInterval = null;
+    }
+}
+
+function openModal(id) {
+    document.getElementById(id).classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+document.querySelectorAll('.modal').forEach(m => {
+    m.addEventListener('click', (e) => {
+        if (e.target === m) {
+            m.classList.remove('open');
+            document.body.style.overflow = 'auto';
+            if (statusCheckInterval) {
+                clearInterval(statusCheckInterval);
+                statusCheckInterval = null;
+            }
+        }
+    });
+});
 
 async function submitDonation() {
     const type = document.getElementById('donationType').value;
@@ -1816,6 +1631,7 @@ function togglePaymentMethod() {
     const cardFields = document.getElementById('cardFields');
     if (method === 'card') {
         cardFields.style.display = 'block';
+        cardFields.style.animation = 'modalIn 0.3s ease';
     } else {
         cardFields.style.display = 'none';
     }
@@ -1831,13 +1647,8 @@ async function saveOrderOrDonation(name, email, phone, amount, paymentId, method
                 id: item.id,
                 name: item.name,
                 price: parseFloat(item.price),
-                quantity: 1,
-                size: item.size || null,
-                color: item.color || null,
-                category: item.category || null
+                quantity: 1
             }));
-
-            const cpfClean = document.getElementById('payCpf').value.replace(/[^\d]/g, '');
 
             await fetch('/api/orders', {
                 method: 'POST',
@@ -1850,8 +1661,7 @@ async function saveOrderOrDonation(name, email, phone, amount, paymentId, method
                     total: amount,
                     payment_id: paymentId,
                     payment_method: method,
-                    status: 'pending',
-                    product_details: { cpf: cpfClean }
+                    status: 'pending'
                 })
             });
             cart = [];
@@ -1892,8 +1702,20 @@ async function checkPaymentStatus(paymentId) {
             }
         });
         
-        if (!response.ok) {
-            throw new Error('Não foi possível verificar o status');
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            console.warn('Resposta não é JSON, tentando rota alternativa...');
+            
+            const altResponse = await fetch(`/api/payment-status/${paymentId}`, {
+                headers: { 'Accept': 'application/json' }
+            });
+            
+            if (!altResponse.ok) {
+                throw new Error('Não foi possível verificar o status. Tente novamente mais tarde.');
+            }
+            
+            const altData = await altResponse.json();
+            return await processPaymentStatus(altData, paymentId);
         }
         
         const data = await response.json();
@@ -2065,7 +1887,7 @@ function validarCPF(cpf) {
 }
 
 // ============================================
-// ===== PROCESSAR PAGAMENTO =====
+// ===== PROCESSAR PAGAMENTO - CORRIGIDO =====
 // ============================================
 async function processPayment() {
     const name = document.getElementById('payName').value.trim();
@@ -2101,6 +1923,7 @@ async function processPayment() {
         showNotification('🔄 Processando pagamento...', 'info');
 
         if (method === 'pix') {
+            // ===== PAGAMENTO COM PIX =====
             const paymentData = {
                 amount: amount,
                 description: description,
@@ -2119,39 +1942,7 @@ async function processPayment() {
             const payment = await response.json();
             if (payment.error) throw new Error(payment.error);
 
-            if (paymentType === 'sale') {
-                const itemsForOrder = cart.map(item => ({
-                    id: item.id,
-                    name: item.name,
-                    price: parseFloat(item.price),
-                    quantity: 1,
-                    size: item.size || null,
-                    color: item.color || null,
-                    category: item.category || null
-                }));
-
-                const cpfClean = cpf.replace(/[^\d]/g, '');
-
-                await fetch('/api/orders', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        user_name: name,
-                        user_email: email,
-                        user_phone: phone,
-                        items: itemsForOrder,
-                        total: amount,
-                        payment_id: payment.payment_id,
-                        payment_method: 'pix',
-                        status: 'pending',
-                        product_details: { cpf: cpfClean }
-                    })
-                });
-                cart = [];
-                document.getElementById('cartCount').textContent = 0;
-            } else if (paymentType === 'donation') {
-                await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'pix', description);
-            }
+            await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'pix', description);
 
             const resultDiv = document.getElementById('paymentResult');
             resultDiv.style.display = 'block';
@@ -2204,6 +1995,7 @@ async function processPayment() {
             verificarStatusAutomatico(payment.payment_id);
 
         } else {
+            // ===== PAGAMENTO COM CARTÃO - VERSÃO SIMPLIFICADA =====
             const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
             const cardExpiry = document.getElementById('cardExpiry').value;
             const cardCvv = document.getElementById('cardCvv').value;
@@ -2214,9 +2006,18 @@ async function processPayment() {
                 return;
             }
 
-            if (cardNumber.length < 16) { showNotification('Número do cartão inválido (16 dígitos)', 'error'); return; }
-            if (!cardExpiry.includes('/') || cardExpiry.length < 5) { showNotification('Validade inválida (MM/AA)', 'error'); return; }
-            if (cardCvv.length < 3) { showNotification('CVV inválido (3 dígitos)', 'error'); return; }
+            if (cardNumber.length < 16) { 
+                showNotification('Número do cartão inválido (16 dígitos)', 'error'); 
+                return; 
+            }
+            if (!cardExpiry.includes('/') || cardExpiry.length < 5) { 
+                showNotification('Validade inválida (MM/AA)', 'error'); 
+                return; 
+            }
+            if (cardCvv.length < 3) { 
+                showNotification('CVV inválido (3 dígitos)', 'error'); 
+                return; 
+            }
 
             try {
                 showNotification('🔄 Processando cartão...', 'info');
@@ -2243,42 +2044,12 @@ async function processPayment() {
                 const payment = await response.json();
                 if (payment.error) throw new Error(payment.error);
                 
-                if (paymentType === 'sale') {
-                    const itemsForOrder = cart.map(item => ({
-                        id: item.id,
-                        name: item.name,
-                        price: parseFloat(item.price),
-                        quantity: 1,
-                        size: item.size || null,
-                        color: item.color || null,
-                        category: item.category || null
-                    }));
-
-                    const cpfClean = cpf.replace(/[^\d]/g, '');
-
-                    await fetch('/api/orders', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            user_name: name,
-                            user_email: email,
-                            user_phone: phone,
-                            items: itemsForOrder,
-                            total: amount,
-                            payment_id: payment.payment_id,
-                            payment_method: 'card',
-                            status: 'pending',
-                            product_details: { cpf: cpfClean }
-                        })
-                    });
-                    cart = [];
-                    document.getElementById('cartCount').textContent = 0;
-                } else if (paymentType === 'donation') {
-                    await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'card', description);
-                }
+                await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'card', description);
                 
                 if (payment.status === 'approved') {
                     showNotification('✅ Pagamento aprovado! Obrigado! 🙏', 'success');
+                    cart = [];
+                    document.getElementById('cartCount').textContent = 0;
                     closeModal('paymentModal');
                 } else {
                     showNotification(`⏳ Pagamento ${payment.status}. Aguarde a confirmação.`, 'info');
@@ -2577,6 +2348,10 @@ async function submitRegistration(type) {
     }
 }
 
+// ============================================
+// ===== INSCRIÇÃO EM EVENTOS (via cards) =====
+// ============================================
+
 async function registerForEvent(eventId, eventName, price) {
     const name = prompt('Seu nome completo:');
     if (!name) return;
@@ -2651,20 +2426,44 @@ async function loadSettings() {
         if (settings.site_title) { document.title = settings.site_title; }
         if (settings.whatsapp) { const btn = document.getElementById('whatsappBtn');
             btn.href = 'https://wa.me/55' + settings.whatsapp; }
-        if (settings.about_mission) {
-            const missionEl = document.querySelector('#sobre .grid .card:first-child p');
-            if (missionEl) missionEl.textContent = settings.about_mission;
-        }
-        if (settings.about_vision) {
-            const visionEl = document.querySelector('#sobre .grid .card:nth-child(2) p');
-            if (visionEl) visionEl.textContent = settings.about_vision;
-        }
-        if (settings.about_values) {
-            const valuesEl = document.querySelector('#sobre .grid .card:last-child p');
-            if (valuesEl) valuesEl.textContent = settings.about_values;
-        }
     } catch (e) { console.error('Erro ao carregar configurações:', e); }
 }
+
+// ============================================
+// ===== INICIALIZAÇÃO =====
+// ============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    showReturnPage();
+    if (document.getElementById('paymentReturnPage').style.display !== 'block') {
+        loadSettings();
+        loadCarouselFromServer();
+        loadStudies();
+        loadEvents();
+        loadProducts();
+        loadBirthdays();
+        document.getElementById('cartCount').textContent = 0;
+    }
+});
+
+document.getElementById('carouselInfoOverlay')?.addEventListener('click', function(e) {
+    if (e.target === this) closeCarouselInfo();
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeCarouselInfo();
+        closeBible();
+        document.querySelectorAll('.modal.open').forEach(m => {
+            m.classList.remove('open');
+            document.body.style.overflow = 'auto';
+        });
+        if (statusCheckInterval) {
+            clearInterval(statusCheckInterval);
+            statusCheckInterval = null;
+        }
+    }
+});
 
 // ============================================
 // ===== PÁGINA DE RETORNO =====
@@ -2711,38 +2510,6 @@ function showReturnPage() {
         document.getElementById('returnPaymentId').textContent = paymentId || '-';
     }
 }
-
-// ============================================
-// ===== INICIALIZAÇÃO =====
-// ============================================
-
-document.addEventListener('DOMContentLoaded', () => {
-    showReturnPage();
-    if (document.getElementById('paymentReturnPage').style.display !== 'block') {
-        loadSettings();
-        loadCarouselFromServer();
-        loadStudies();
-        loadEvents();
-        loadProducts();
-        loadBirthdays();
-        document.getElementById('cartCount').textContent = 0;
-    }
-});
-
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        closeSizeModal();
-        document.querySelectorAll('.modal.open').forEach(m => {
-            m.classList.remove('open');
-            document.body.style.overflow = 'auto';
-        });
-        if (statusCheckInterval) {
-            clearInterval(statusCheckInterval);
-            statusCheckInterval = null;
-        }
-    }
-});
 </script>
 </body>
 </html>
-```

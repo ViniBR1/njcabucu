@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         /* ============================================
-           RESET & ROOT
+           ROOT
         ============================================ */
         * {
             margin: 0;
@@ -22,15 +22,18 @@
             --primary-gradient: linear-gradient(135deg, #0D47A1, #1565C0);
             --secondary: #E8F0FE;
             --accent: #F5A623;
-            --bg: #f5f7fc;
+            --bg: #f0f4f8;
             --card-bg: #ffffff;
-            --shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
-            --shadow-hover: 0 8px 40px rgba(0, 0, 0, 0.10);
+            --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.04);
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.10);
             --radius: 16px;
             --radius-sm: 10px;
+            --radius-full: 50px;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             --header-h: 68px;
+            --max-width: 1200px;
         }
         html {
             scroll-behavior: smooth;
@@ -58,7 +61,7 @@
         ============================================ */
         .header {
             background: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(14px);
             padding: 0 2rem;
             display: flex;
             justify-content: space-between;
@@ -73,7 +76,7 @@
             height: var(--header-h);
         }
         .header.scrolled {
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 2px 24px rgba(0, 0, 0, 0.06);
         }
         .logo {
             display: flex;
@@ -93,11 +96,11 @@
             font-weight: 800;
             font-size: 1rem;
             color: #fff;
-            box-shadow: 0 3px 12px rgba(13, 71, 161, 0.25);
+            box-shadow: 0 3px 12px rgba(13, 71, 161, 0.2);
             transition: var(--transition);
         }
         .logo-icon:hover {
-            transform: scale(1.05);
+            transform: scale(1.05) rotate(-3deg);
         }
         .logo h1 {
             font-size: 1.2rem;
@@ -116,7 +119,7 @@
         }
         .btn {
             padding: 0.4rem 1rem;
-            border-radius: 50px;
+            border-radius: var(--radius-full);
             border: none;
             font-weight: 600;
             cursor: pointer;
@@ -167,6 +170,14 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(139, 90, 43, 0.3);
         }
+        .btn-donation-header {
+            background: var(--accent);
+            color: #1a1a2e;
+        }
+        .btn-donation-header:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(245, 166, 35, 0.4);
+        }
 
         .menu-toggle {
             display: none;
@@ -183,11 +194,11 @@
         ============================================ */
         .main-nav {
             background: rgba(255, 255, 255, 0.97);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(14px);
             padding: 0.4rem 2rem;
             display: flex;
             justify-content: center;
-            gap: 0.2rem;
+            gap: 0.3rem;
             flex-wrap: wrap;
             position: fixed;
             top: var(--header-h);
@@ -205,7 +216,7 @@
             background: transparent;
             border: none;
             padding: 0.35rem 1rem;
-            border-radius: 50px;
+            border-radius: var(--radius-full);
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
@@ -230,10 +241,10 @@
             margin-top: calc(var(--header-h) + 48px);
             position: relative;
             width: 100%;
-            height: 480px;
-            max-height: 560px;
+            height: 520px;
+            max-height: 600px;
             overflow: hidden;
-            border-radius: 0 0 32px 32px;
+            border-radius: 0 0 40px 40px;
             background: #1a1a2e;
         }
         .hero-slides {
@@ -266,7 +277,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(13, 71, 161, 0.7), rgba(10, 58, 122, 0.5));
+            background: linear-gradient(135deg, rgba(13, 71, 161, 0.75), rgba(10, 58, 122, 0.55));
             transition: var(--transition);
         }
         .hero-slide:hover .overlay {
@@ -276,7 +287,7 @@
             position: relative;
             z-index: 2;
             color: #fff;
-            max-width: 680px;
+            max-width: 700px;
             padding: 2rem;
             text-align: center;
             animation: fadeUp 1s ease;
@@ -293,27 +304,27 @@
             }
         }
         .hero-content h1 {
-            font-size: 2.8rem;
+            font-size: 3rem;
             font-weight: 900;
             margin-bottom: 0.6rem;
             text-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
             line-height: 1.1;
         }
         .hero-content p {
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             opacity: 0.92;
             margin-bottom: 1.2rem;
             text-shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
         }
         .hero-content .btn {
             pointer-events: all;
-            font-size: 0.95rem;
-            padding: 0.7rem 1.8rem;
+            font-size: 1rem;
+            padding: 0.7rem 2rem;
         }
 
         .hero-controls {
             position: absolute;
-            bottom: 1.2rem;
+            bottom: 1.5rem;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
@@ -321,8 +332,8 @@
             z-index: 3;
         }
         .hero-dot {
-            width: 9px;
-            height: 9px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.35);
             cursor: pointer;
@@ -333,7 +344,7 @@
         .hero-dot.active {
             background: #fff;
             transform: scale(1.3);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 24px rgba(255, 255, 255, 0.2);
         }
         .hero-dot:hover {
             background: rgba(255, 255, 255, 0.7);
@@ -346,18 +357,18 @@
             width: 100%;
             display: flex;
             justify-content: space-between;
-            padding: 0 1.2rem;
+            padding: 0 1.5rem;
             z-index: 3;
             pointer-events: none;
         }
         .hero-arrow {
             pointer-events: all;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.92);
             border: none;
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
-            font-size: 1rem;
+            font-size: 1.1rem;
             cursor: pointer;
             transition: var(--transition);
             box-shadow: 0 3px 15px rgba(0, 0, 0, 0.06);
@@ -376,17 +387,29 @@
            SEÇÕES
         ============================================ */
         .section {
-            max-width: 1200px;
-            margin: 2.5rem auto;
+            max-width: var(--max-width);
+            margin: 3rem auto;
             padding: 0 2rem;
             scroll-margin-top: 130px;
         }
         .section-header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
+        }
+        .section-header .tag {
+            display: inline-block;
+            background: var(--secondary);
+            color: var(--primary);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0.2rem 1rem;
+            border-radius: var(--radius-full);
+            margin-bottom: 0.5rem;
         }
         .section-header h2 {
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: 800;
             color: var(--primary);
             letter-spacing: -0.3px;
@@ -401,32 +424,48 @@
             height: 3px;
             background: var(--primary-gradient);
             border-radius: 10px;
-            margin: 0.4rem auto 0;
+            margin: 0.5rem auto 0;
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
             gap: 1.5rem;
         }
         .card {
             background: var(--card-bg);
             border-radius: var(--radius);
-            padding: 1.5rem;
+            padding: 1.8rem;
             border: 1px solid rgba(0, 0, 0, 0.04);
             transition: var(--transition);
             cursor: default;
             display: flex;
             flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary-gradient);
+            opacity: 0;
+            transition: var(--transition);
+        }
+        .card:hover::before {
+            opacity: 1;
         }
         .card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-hover);
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-lg);
             border-color: var(--primary);
         }
         .card .icon-wrapper {
-            width: 50px;
-            height: 50px;
+            width: 52px;
+            height: 52px;
             border-radius: 50%;
             background: var(--secondary);
             display: flex;
@@ -451,7 +490,7 @@
         .card p {
             color: #666;
             font-size: 0.9rem;
-            line-height: 1.6;
+            line-height: 1.7;
             flex: 1;
         }
         .card .price {
@@ -472,7 +511,7 @@
             position: relative;
             overflow: hidden;
             border-radius: var(--radius-sm);
-            margin-bottom: 0.7rem;
+            margin-bottom: 0.8rem;
             background: #e8e8e8;
             flex-shrink: 0;
         }
@@ -486,65 +525,104 @@
             transition: var(--transition);
         }
         .card:hover .card-image-wrapper img {
-            transform: scale(1.03);
+            transform: scale(1.04);
         }
 
         /* ============================================
-           ENDEREÇO - SEM TEXTO, APENAS ÍCONE
+           ENDEREÇO
         ============================================ */
-        .address-wrapper {
-            display: flex;
-            justify-content: center;
-            margin-top: 1.5rem;
+        .address-section {
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
         }
-        .address-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.6rem 1.5rem;
-            border-radius: 50px;
+        .address-card {
             background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 1.8rem 2rem;
+            text-align: center;
+            max-width: 650px;
+            margin: 0 auto;
             border: 1px solid rgba(13, 71, 161, 0.08);
             box-shadow: var(--shadow);
             transition: var(--transition);
-            text-decoration: none;
-            color: var(--primary);
-            font-weight: 500;
-            font-size: 0.85rem;
             cursor: pointer;
         }
-        .address-link:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-hover);
+        .address-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
             border-color: var(--primary);
         }
-        .address-link i {
-            font-size: 1.1rem;
+        .address-card .address-icon {
+            font-size: 2rem;
             color: var(--primary);
+            margin-bottom: 0.3rem;
+        }
+        .address-card .address-text {
+            font-size: 1rem;
+            color: #333;
+            font-weight: 500;
+        }
+        .address-card .address-sub {
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 0.1rem;
+        }
+        .address-card .address-actions {
+            display: flex;
+            gap: 0.6rem;
+            justify-content: center;
+            margin-top: 0.8rem;
+            flex-wrap: wrap;
+        }
+        .address-card .btn-map {
+            padding: 0.3rem 1.2rem;
+            border-radius: var(--radius-full);
+            border: none;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-family: var(--font);
+            background: var(--primary-gradient);
+            color: #fff;
+        }
+        .address-card .btn-map:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(13, 71, 161, 0.3);
+        }
+        .address-card .btn-map.waze {
+            background: #1a1a2e;
+        }
+        .address-card .btn-map.waze:hover {
+            box-shadow: 0 4px 15px rgba(26, 26, 46, 0.3);
         }
 
         /* ============================================
-           BOTÃO DE DOAÇÃO - COR ÚNICA
+           BOTÕES DE DOAÇÃO
         ============================================ */
         .btn-donation {
             background: var(--primary-gradient);
             color: #fff;
             border: none;
-            padding: 0.9rem 2.2rem;
+            padding: 1rem 2.5rem;
             font-size: 1rem;
-            border-radius: 50px;
+            border-radius: var(--radius-full);
             cursor: pointer;
             transition: var(--transition);
             font-weight: 700;
             font-family: var(--font);
-            box-shadow: 0 4px 15px rgba(13, 71, 161, 0.2);
+            box-shadow: 0 4px 20px rgba(13, 71, 161, 0.2);
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.6rem;
         }
         .btn-donation:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 30px rgba(13, 71, 161, 0.3);
+            box-shadow: 0 8px 32px rgba(13, 71, 161, 0.3);
         }
         .tithe-options {
             display: flex;
@@ -615,14 +693,14 @@
         }
         .modal-content {
             background: #fff;
-            padding: 1.8rem;
+            padding: 2rem;
             border-radius: var(--radius);
-            max-width: 500px;
+            max-width: 520px;
             width: 92%;
             max-height: 90vh;
             overflow-y: auto;
             animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
         }
         @keyframes slideUp {
             from {
@@ -637,7 +715,7 @@
         .modal-close {
             float: right;
             cursor: pointer;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             color: #888;
             background: none;
             border: none;
@@ -648,7 +726,7 @@
             transform: rotate(90deg);
         }
         .modal-content .form-group {
-            margin: 0.6rem 0;
+            margin: 0.7rem 0;
         }
         .modal-content .form-group label {
             display: block;
@@ -690,7 +768,7 @@
         }
 
         .modal-bible .modal-content {
-            max-width: 720px;
+            max-width: 740px;
         }
         .bible-container {
             display: flex;
@@ -770,7 +848,7 @@
             font-weight: 500;
             z-index: 99999;
             max-width: 380px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
             animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             font-family: var(--font);
         }
@@ -806,16 +884,16 @@
         .footer {
             background: #1a1a2e;
             color: #fff;
-            padding: 2.5rem 2rem 1.5rem;
-            margin-top: 2.5rem;
+            padding: 3rem 2rem 1.5rem;
+            margin-top: 3rem;
             border-top: 4px solid var(--primary);
         }
         .footer-content {
-            max-width: 1200px;
+            max-width: var(--max-width);
             margin: 0 auto;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
+            gap: 2.5rem;
         }
         .footer h4 {
             font-size: 1rem;
@@ -837,29 +915,20 @@
             color: #fff;
             font-size: 1.2rem;
             transition: var(--transition);
-            width: 38px;
-            height: 38px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.06);
             text-decoration: none;
         }
         .footer .social-links a:hover {
             background: var(--primary);
             transform: translateY(-3px);
         }
-        .footer-bottom {
-            text-align: center;
-            padding-top: 1.5rem;
-            margin-top: 1.5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            opacity: 0.4;
-            font-size: 0.8rem;
-        }
-
-        .footer .address-link-footer {
+        .footer .address-link {
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
@@ -870,12 +939,20 @@
             cursor: pointer;
             padding: 0.2rem 0;
         }
-        .footer .address-link-footer:hover {
+        .footer .address-link:hover {
             color: #fff;
             opacity: 1;
         }
-        .footer .address-link-footer i {
+        .footer .address-link i {
             font-size: 0.9rem;
+        }
+        .footer-bottom {
+            text-align: center;
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            opacity: 0.4;
+            font-size: 0.8rem;
         }
 
         /* ============================================
@@ -883,10 +960,10 @@
         ============================================ */
         @media (max-width: 1024px) {
             .hero-content h1 {
-                font-size: 2.2rem;
+                font-size: 2.4rem;
             }
             .hero {
-                height: 400px;
+                height: 440px;
             }
         }
         @media (max-width: 768px) {
@@ -933,29 +1010,29 @@
             }
             .hero {
                 margin-top: calc(var(--header-h) + 40px);
-                height: 280px;
-                border-radius: 0 0 20px 20px;
+                height: 300px;
+                border-radius: 0 0 24px 24px;
             }
             .hero-content h1 {
-                font-size: 1.4rem;
+                font-size: 1.6rem;
             }
             .hero-content p {
-                font-size: 0.8rem;
+                font-size: 0.85rem;
             }
             .hero-arrows .hero-arrow {
-                width: 32px;
-                height: 32px;
-                font-size: 0.75rem;
+                width: 34px;
+                height: 34px;
+                font-size: 0.8rem;
             }
             .hero-arrows {
-                padding: 0 0.5rem;
+                padding: 0 0.6rem;
             }
             .section {
                 padding: 0 1rem;
-                margin: 1.5rem auto;
+                margin: 2rem auto;
             }
             .section-header h2 {
-                font-size: 1.5rem;
+                font-size: 1.6rem;
             }
             .grid {
                 grid-template-columns: 1fr;
@@ -968,10 +1045,10 @@
                 flex-direction: column;
             }
             .tithe-options {
-                gap: 0.5rem;
+                gap: 0.6rem;
             }
             .btn-donation {
-                padding: 0.6rem 1.5rem;
+                padding: 0.7rem 1.5rem;
                 font-size: 0.9rem;
             }
             .footer-content {
@@ -981,12 +1058,14 @@
             .footer .social-links {
                 justify-content: center;
             }
-            .address-link {
-                padding: 0.4rem 1.2rem;
-                font-size: 0.75rem;
+            .address-card {
+                padding: 1.2rem 1rem;
+            }
+            .address-card .address-text {
+                font-size: 0.9rem;
             }
             .bible-result {
-                max-height: 180px;
+                max-height: 200px;
             }
             .bible-container {
                 flex-direction: column;
@@ -994,15 +1073,19 @@
         }
         @media (max-width: 480px) {
             .hero {
-                height: 240px;
+                height: 260px;
             }
             .hero-content h1 {
-                font-size: 1.2rem;
+                font-size: 1.3rem;
             }
             .hero-arrows .hero-arrow {
-                width: 28px;
-                height: 28px;
-                font-size: 0.65rem;
+                width: 30px;
+                height: 30px;
+                font-size: 0.7rem;
+            }
+            .address-card .address-actions {
+                flex-direction: column;
+                align-items: center;
             }
         }
     </style>
@@ -1025,6 +1108,9 @@
                 <i class="fab fa-whatsapp"></i> <span>WhatsApp</span>
             </a>
             <a href="/login" class="btn btn-primary btn-sm"><i class="fas fa-user"></i> <span>Área Interna</span></a>
+            <a href="#dizimos" class="btn btn-donation-header btn-sm" onclick="scrollToSection('dizimos')">
+                <i class="fas fa-hand-holding-heart"></i> <span>Doar</span>
+            </a>
             <button class="menu-toggle" onclick="toggleMobileMenu()" aria-label="Menu">
                 <i class="fas fa-bars"></i>
             </button>
@@ -1063,6 +1149,7 @@
     ============================================ -->
     <section id="sobre" class="section">
         <div class="section-header">
+            <span class="tag">Quem Somos</span>
             <h2>Sobre Nós</h2>
             <div class="line"></div>
             <p class="subtitle">Conheça a história e missão da NJ Cabuçu</p>
@@ -1085,13 +1172,21 @@
             </div>
         </div>
 
-        <!-- ENDEREÇO - APENAS ÍCONE CLICÁVEL -->
-        <div class="address-wrapper">
-            <a class="address-link" onclick="openMaps()" title="Clique para abrir no Maps">
-                <i class="fas fa-map-pin"></i>
-                Av. Abílio Augusto Távora, Lote 01, Quadra 03 – Cabuçu, Nova Iguaçu - RJ
-                <i class="fas fa-external-link-alt" style="font-size:0.7rem; opacity:0.6;"></i>
-            </a>
+        <!-- ENDEREÇO -->
+        <div class="address-section">
+            <div class="address-card" onclick="openMaps()">
+                <div class="address-icon">📍</div>
+                <div class="address-text">Av. Abílio Augusto Távora, Lote 01, Quadra 03</div>
+                <div class="address-sub">Cabuçu, Nova Iguaçu - RJ</div>
+                <div class="address-actions">
+                    <button class="btn-map" onclick="event.stopPropagation(); openMaps();">
+                        <i class="fas fa-map-marked-alt"></i> Google Maps
+                    </button>
+                    <button class="btn-map waze" onclick="event.stopPropagation(); openWaze();">
+                        <i class="fas fa-location-dot"></i> Waze
+                    </button>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -1100,6 +1195,7 @@
     ============================================ -->
     <section id="aniversariantes" class="section">
         <div class="section-header">
+            <span class="tag">Celebração</span>
             <h2>🎂 Aniversariantes do Mês</h2>
             <div class="line"></div>
             <p class="subtitle">Celebre com nossos irmãos que estão fazendo aniversário</p>
@@ -1112,6 +1208,7 @@
     ============================================ -->
     <section id="eventos" class="section">
         <div class="section-header">
+            <span class="tag">Agenda</span>
             <h2>📅 Eventos</h2>
             <div class="line"></div>
             <p class="subtitle">Confira nossa agenda de eventos</p>
@@ -1124,6 +1221,7 @@
     ============================================ -->
     <section id="estudos" class="section">
         <div class="section-header">
+            <span class="tag">Aprofunde-se</span>
             <h2>📖 Estudos Bíblicos</h2>
             <div class="line"></div>
             <p class="subtitle">Materiais para edificação da sua fé</p>
@@ -1136,12 +1234,13 @@
     ============================================ -->
     <section id="loja" class="section">
         <div class="section-header">
+            <span class="tag">Loja</span>
             <h2>🛍️ NJ Store</h2>
             <div class="line"></div>
             <p class="subtitle">Adquira produtos exclusivos da nossa igreja</p>
         </div>
         <div class="grid" id="productsList"></div>
-        <div style="text-align:center;margin-top:1.2rem;">
+        <div style="text-align:center;margin-top:1.5rem;">
             <button onclick="openCart()" class="btn btn-primary">
                 <i class="fas fa-shopping-cart"></i> Ver Carrinho (<span id="cartCount">0</span>)
             </button>
@@ -1153,9 +1252,10 @@
     ============================================ -->
     <section id="dizimos" class="section">
         <div class="section-header">
+            <span class="tag">Contribuição</span>
             <h2>💝 Dízimos e Ofertas</h2>
             <div class="line"></div>
-            <p class="subtitle">"Honra ao Senhor com os teus bens" - Provérbios 3:9</p>
+            <p class="subtitle">"Honra ao Senhor com os teus bens" — Provérbios 3:9</p>
         </div>
         <div class="tithe-options">
             <button onclick="openDonationForm('Dízimo')" class="btn-donation">
@@ -1176,6 +1276,7 @@
     ============================================ -->
     <section id="oracao" class="section">
         <div class="section-header">
+            <span class="tag">Comunicação com Deus</span>
             <h2>🙏 Pedidos de Oração</h2>
             <div class="line"></div>
             <p class="subtitle">Compartilhe seu pedido de oração conosco</p>
@@ -1201,6 +1302,7 @@
     ============================================ -->
     <section id="inscricoes" class="section">
         <div class="section-header">
+            <span class="tag">Participe</span>
             <h2>📋 Inscrições</h2>
             <div class="line"></div>
             <p class="subtitle">Participe das nossas atividades</p>
@@ -1222,7 +1324,7 @@
         <div class="footer-content">
             <div>
                 <h4>🙏 NJ Cabuçu</h4>
-                <p>"E conhecereis a verdade, e a verdade vos libertará." - João 8:32</p>
+                <p>"E conhecereis a verdade, e a verdade vos libertará." — João 8:32</p>
                 <div class="social-links">
                     <a href="https://www.instagram.com/novajerusalemcabucu/" target="_blank"><i class="fab fa-instagram"></i></a>
                     <a href="https://wa.me/5521985345627" target="_blank"><i class="fab fa-whatsapp"></i></a>
@@ -1232,7 +1334,7 @@
             </div>
             <div>
                 <h4>📍 Localização</h4>
-                <a class="address-link-footer" onclick="openMaps()">
+                <a class="address-link" onclick="openMaps()">
                     <i class="fas fa-map-pin"></i> Av. Abílio Augusto Távora, Lote 01, Quadra 03
                 </a>
                 <p style="margin-top:0.2rem;">Cabuçu, Nova Iguaçu - RJ</p>
@@ -1249,7 +1351,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>© 2026 NJ Cabuçu - Todos os direitos reservados</p>
+            <p>© 2026 NJ Cabuçu — Todos os direitos reservados</p>
         </div>
     </footer>
 
@@ -1429,23 +1531,19 @@
     </div>
 
     <!-- ============================================
-    SCRIPTS
+    SCRIPTS (MANTIDOS DO SEU SERVER)
     ============================================ -->
     <script>
         // ============================================
         // ===== FUNÇÕES DE MAPAS =====
         // ============================================
         function openMaps() {
-            const endereco = encodeURIComponent(
-                'Av. Abílio Augusto Távora, Lote 01, Quadra 03, Cabuçu, Nova Iguaçu - RJ'
-                );
+            const endereco = encodeURIComponent('Av. Abílio Augusto Távora, Lote 01, Quadra 03, Cabuçu, Nova Iguaçu - RJ');
             window.open(`https://www.google.com/maps/search/?api=1&query=${endereco}`, '_blank');
         }
 
         function openWaze() {
-            const endereco = encodeURIComponent(
-                'Av. Abílio Augusto Távora, Lote 01, Quadra 03, Cabuçu, Nova Iguaçu - RJ'
-                );
+            const endereco = encodeURIComponent('Av. Abílio Augusto Távora, Lote 01, Quadra 03, Cabuçu, Nova Iguaçu - RJ');
             window.open(`https://waze.com/ul?q=${endereco}`, '_blank');
         }
 
@@ -1462,6 +1560,8 @@
         let donationType = '';
         let _donationAmount = 0;
         let statusCheckInterval = null;
+        let baptismDatesList = [];
+        let eventsList = [];
 
         // ============================================
         // ===== HEADER SCROLL =====
@@ -1910,7 +2010,7 @@
                                 <p>${e.description || ''}</p>
                                 <p style="font-size:0.85rem;color:#666;margin:0.2rem 0;"><strong>Data:</strong> ${new Date(e.date).toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' })}</p>
                                 <p style="font-size:0.85rem;color:#666;"><strong>Valor:</strong> ${parseFloat(e.price || 0) > 0 ? 'R$ ' + parseFloat(e.price).toFixed(2) : 'Grátis'}</p>
-                                <button onclick="registerForEvent(${e.id}, '${e.title}', ${e.price})" class="btn btn-success" style="margin-top:0.5rem;">
+                                <button onclick="registerForEvent(${e.id}, '${e.title}', ${e.price})" class="btn btn-primary" style="margin-top:0.5rem; background:#28a745;">
                                     <i class="fas fa-ticket-alt"></i> Inscrever-se
                                 </button>
                             </div>
@@ -3026,6 +3126,5 @@
             }
         });
     </script>
-
 </body>
 </html>

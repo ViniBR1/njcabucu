@@ -27,8 +27,12 @@ const sql = neon(process.env.DATABASE_URL);
 console.log('✅ Conectado ao Neon Database');
 
 // ============================================
-// ===== NODEMAILER - CONFIGURAÇÃO SIMPLES =====
+// ===== NODEMAILER - CONFIGURAÇÃO =====
 // ============================================
+console.log('📧 Configurando Nodemailer...');
+console.log('📧 EMAIL_USER:', process.env.EMAIL_USER || 'mvini440@gmail.com');
+console.log('📧 EMAIL_PASS:', process.env.EMAIL_PASS ? '✅ Configurado' : '❌ Não configurado');
+
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
@@ -42,16 +46,39 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+// Verifica se o transporte está funcionando
+transporter.verify(function(error, success) {
+    if (error) {
+        console.log('❌ Erro na configuração do e-mail:', error);
+    } else {
+        console.log('✅ Servidor de e-mail configurado com sucesso!');
+    }
+});
+
 // ============================================
-// ===== FUNÇÃO PARA ENVIAR E-MAIL (TEXTO PURO) =====
+// ===== FUNÇÃO PARA ENVIAR E-MAIL (COM LOGS) =====
 // ============================================
 async function enviarEmail(email, nome, payment_id, valor, tipo, status) {
+    console.log('========================================');
+    console.log('📧 TENTANDO ENVIAR E-MAIL');
+    console.log('📧 Para:', email);
+    console.log('📧 Nome:', nome);
+    console.log('📧 Payment ID:', payment_id);
+    console.log('📧 Valor:', valor);
+    console.log('📧 Tipo:', tipo);
+    console.log('📧 Status:', status);
+    console.log('========================================');
+
     if (!email) {
-        console.log('⚠️ Email não informado');
+        console.log('⚠️ Email não informado, não é possível enviar');
         return null;
     }
 
-    console.log(`📧 Enviando e-mail para: ${email}`);
+    // Verifica se é um email válido
+    if (!email.includes('@')) {
+        console.log('⚠️ Email inválido:', email);
+        return null;
+    }
 
     const statusText = status === 'approved' ? 'APROVADO ✅' : 'PENDENTE ⏳';
     const tipoTexto = tipo === 'donation' ? 'Doação' : 'Compra';
@@ -79,17 +106,25 @@ NJ Cabuçu - "E conhecereis a verdade, e a verdade vos libertará." João 8:32
     `;
 
     try {
-        const info = await transporter.sendMail({
+        const mailOptions = {
             from: `"NJ Cabuçu" <${process.env.EMAIL_USER || 'mvini440@gmail.com'}>`,
             to: email,
             subject: `✅ Confirmação de ${tipoTexto} - NJ Cabuçu`,
             text: mensagem,
             html: mensagem.replace(/\n/g, '<br>')
-        });
-        console.log(`✅ E-mail enviado: ${info.messageId}`);
+        };
+
+        console.log('📧 Enviando e-mail...');
+        const info = await transporter.sendMail(mailOptions);
+        console.log('✅ E-mail enviado com sucesso!');
+        console.log('📧 Message ID:', info.messageId);
+        console.log('📧 Response:', info.response);
         return info;
     } catch (error) {
-        console.error('❌ Erro ao enviar e-mail:', error.message);
+        console.error('❌ Erro ao enviar e-mail:');
+        console.error('❌ Mensagem:', error.message);
+        console.error('❌ Código:', error.code);
+        console.error('❌ Detalhes:', error);
         return null;
     }
 }
@@ -2167,11 +2202,16 @@ app.get('/api/bills/summary', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== MERCADO PAGO - PIX =====
+// ===== MERCADO PAGO - PIX (COM LOGS) =====
 // ============================================
 
 app.post('/api/create-pix-payment', async (req, res) => {
     try {
+        console.log('========================================');
+        console.log('💳 RECEBENDO REQUISIÇÃO PIX');
+        console.log('📝 Dados recebidos:', req.body);
+        console.log('========================================');
+
         const { amount, description, email, name, phone, cpf } = req.body;
 
         if (!process.env.MP_ACCESS_TOKEN || !PaymentService) {
@@ -2182,6 +2222,11 @@ app.post('/api/create-pix-payment', async (req, res) => {
         if (isNaN(valor) || valor <= 0) {
             return res.status(400).json({ error: 'Valor inválido' });
         }
+
+        console.log('📝 Criando pagamento PIX...');
+        console.log('📝 Email do comprador:', email);
+        console.log('📝 Nome do comprador:', name);
+        console.log('📝 Valor:', valor);
 
         const externalReference = `NJ-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
 
@@ -2201,27 +2246,25 @@ app.post('/api/create-pix-payment', async (req, res) => {
             }
         };
 
-        console.log('📝 Criando pagamento PIX...');
-        console.log('📝 Valor:', valor);
-        console.log('📝 External Reference:', externalReference);
-        console.log('📝 Email:', email);
-
         const payment = await PaymentService.create(paymentData);
         console.log('✅ Pagamento criado:', payment.id);
         console.log('✅ Status:', payment.status);
 
-        // ===== ENVIA E-MAIL DE CONFIRMAÇÃO =====
-        try {
-            await enviarEmail(
-                email,
-                name,
-                payment.id,
-                valor,
-                req.body.paymentType || 'donation',
-                payment.status
-            );
-        } catch (emailError) {
-            console.error('❌ Erro ao enviar e-mail:', emailError);
+        // ===== TENTA ENVIAR E-MAIL =====
+        console.log('📧 Tentando enviar e-mail de confirmação...');
+        const emailResult = await enviarEmail(
+            email,
+            name,
+            payment.id,
+            valor,
+            req.body.paymentType || 'donation',
+            payment.status
+        );
+
+        if (emailResult) {
+            console.log('✅ E-mail enviado com sucesso!');
+        } else {
+            console.log('❌ Falha ao enviar e-mail');
         }
 
         const paymentLink = payment.point_of_interaction?.transaction_data?.ticket_url || 
@@ -2233,7 +2276,8 @@ app.post('/api/create-pix-payment', async (req, res) => {
             payment_link: paymentLink,
             external_reference: externalReference,
             qr_code: payment.point_of_interaction?.transaction_data?.qr_code || '',
-            qr_code_base64: payment.point_of_interaction?.transaction_data?.qr_code_base64 || ''
+            qr_code_base64: payment.point_of_interaction?.transaction_data?.qr_code_base64 || '',
+            email_sent: !!emailResult
         });
     } catch (error) {
         console.error('❌ Erro MP PIX:', error);
@@ -2471,22 +2515,40 @@ app.get('/api/payment-status/:paymentId', async (req, res) => {
 });
 
 // ============================================
-// ===== VERIFICAR PAGAMENTO MANUALMENTE =====
+// ===== VERIFICAR PAGAMENTO MANUALMENTE (COM LOGS) =====
 // ============================================
 
 app.get('/api/verify-payment/:paymentId', async (req, res) => {
     try {
         const { paymentId } = req.params;
         
+        console.log('========================================');
+        console.log('🔍 VERIFICANDO PAGAMENTO MANUALMENTE');
+        console.log('📝 Payment ID:', paymentId);
+        console.log('========================================');
+        
         if (!PaymentService) {
             return res.status(500).json({ error: 'Mercado Pago não configurado' });
         }
         
-        console.log('🔍 Verificando pagamento manualmente:', paymentId);
         const payment = await PaymentService.get({ id: paymentId });
-        console.log('📊 Status:', payment.status);
+        console.log('📊 Status do MP:', payment.status);
         
-        if (payment.status === 'approved') {
+        // Busca no banco
+        const order = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
+        const donation = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
+        const record = order[0] || donation[0];
+        
+        console.log('📊 Registro encontrado:', record ? 'Sim' : 'Não');
+        if (record) {
+            console.log('📊 Email:', record.user_email);
+            console.log('📊 Nome:', record.user_name);
+            console.log('📊 Valor:', record.total || record.amount);
+        }
+        
+        let emailSent = false;
+        
+        if (payment.status === 'approved' && record) {
             await sql`
                 UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}
             `;
@@ -2495,29 +2557,40 @@ app.get('/api/verify-payment/:paymentId', async (req, res) => {
             `;
             console.log('✅ Pagamento aprovado e registrado manualmente!');
             
-            const order = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
-            const donation = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
-            const record = order[0] || donation[0];
+            console.log('📧 Enviando e-mail de confirmação...');
+            const emailResult = await enviarEmail(
+                record.user_email || 'cliente@email.com',
+                record.user_name || 'Cliente',
+                paymentId,
+                record.total || record.amount || 0,
+                order[0] ? 'sale' : 'donation',
+                'approved'
+            );
+            emailSent = !!emailResult;
             
-            if (record) {
-                await enviarEmail(
-                    record.user_email || 'cliente@email.com',
-                    record.user_name || 'Cliente',
-                    paymentId,
-                    record.total || record.amount || 0,
-                    order[0] ? 'sale' : 'donation',
-                    'approved'
-                );
+            if (emailSent) {
+                console.log('✅ E-mail enviado com sucesso!');
+            } else {
+                console.log('❌ Falha ao enviar e-mail');
             }
         } else if (payment.status === 'pending') {
             console.log('⏳ Pagamento ainda pendente');
+        } else {
+            console.log('⚠️ Status:', payment.status);
         }
         
         res.json({
             payment_id: payment.id,
             status: payment.status,
             status_detail: payment.status_detail,
-            updated: payment.status === 'approved'
+            record_found: !!record,
+            email_sent: emailSent,
+            record: record ? {
+                email: record.user_email,
+                name: record.user_name,
+                amount: record.total || record.amount,
+                type: order[0] ? 'sale' : 'donation'
+            } : null
         });
     } catch (error) {
         console.error('❌ Erro ao verificar pagamento:', error);
@@ -2549,12 +2622,16 @@ app.post('/api/update-payment-status', async (req, res) => {
 });
 
 // ============================================
-// ===== WEBHOOK =====
+// ===== WEBHOOK (COM LOGS) =====
 // ============================================
 
 app.post('/api/webhook', async (req, res) => {
     try {
-        console.log('📝 Webhook recebido:', JSON.stringify(req.body, null, 2));
+        console.log('========================================');
+        console.log('📝 WEBHOOK RECEBIDO');
+        console.log('📝 Data:', new Date().toISOString());
+        console.log('📝 Body:', JSON.stringify(req.body, null, 2));
+        console.log('========================================');
         
         const { data, type } = req.body;
         
@@ -2571,6 +2648,13 @@ app.post('/api/webhook', async (req, res) => {
                     const donation = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
                     
                     const record = order[0] || donation[0];
+                    console.log('📊 Registro encontrado:', record ? 'Sim' : 'Não');
+                    
+                    if (record) {
+                        console.log('📊 Email do comprador:', record.user_email);
+                        console.log('📊 Nome do comprador:', record.user_name);
+                        console.log('📊 Valor:', record.total || record.amount);
+                    }
                     
                     if (payment.status === 'approved') {
                         await sql`
@@ -2582,19 +2666,23 @@ app.post('/api/webhook', async (req, res) => {
                         console.log('✅ Pagamento aprovado e registrado!');
                         
                         if (record) {
-                            console.log(`📧 Enviando e-mail para: ${record.user_email}`);
-                            try {
-                                await enviarEmail(
-                                    record.user_email || 'cliente@email.com',
-                                    record.user_name || 'Cliente',
-                                    paymentId,
-                                    record.total || record.amount || 0,
-                                    order[0] ? 'sale' : 'donation',
-                                    'approved'
-                                );
-                            } catch (emailError) {
-                                console.error('❌ Erro ao enviar e-mail:', emailError);
+                            console.log('📧 Enviando e-mail de confirmação...');
+                            const emailResult = await enviarEmail(
+                                record.user_email || 'cliente@email.com',
+                                record.user_name || 'Cliente',
+                                paymentId,
+                                record.total || record.amount || 0,
+                                order[0] ? 'sale' : 'donation',
+                                'approved'
+                            );
+                            
+                            if (emailResult) {
+                                console.log('✅ E-mail enviado com sucesso!');
+                            } else {
+                                console.log('❌ Falha ao enviar e-mail');
                             }
+                        } else {
+                            console.log('⚠️ Nenhum registro encontrado para enviar e-mail');
                         }
                     } else if (payment.status === 'rejected' || payment.status === 'cancelled') {
                         await sql`
@@ -2604,11 +2692,15 @@ app.post('/api/webhook', async (req, res) => {
                             UPDATE donations SET status = 'rejected' WHERE payment_id = ${paymentId}
                         `;
                         console.log('❌ Pagamento recusado/cancelado');
+                    } else {
+                        console.log('⏳ Status:', payment.status);
                     }
                 } catch (error) {
                     console.error('❌ Erro ao buscar pagamento:', error);
                 }
             }
+        } else {
+            console.log('⚠️ Evento ignorado:', type);
         }
         
         res.json({ received: true });
@@ -2720,7 +2812,11 @@ app.post('/api/test-email', async (req, res) => {
     try {
         const { email, name } = req.body;
         
-        console.log('🧪 Testando envio de e-mail para:', email || 'mvini440@gmail.com');
+        console.log('========================================');
+        console.log('🧪 TESTE DE E-MAIL');
+        console.log('📧 Para:', email || 'mvini440@gmail.com');
+        console.log('👤 Nome:', name || 'Cliente Teste');
+        console.log('========================================');
         
         const result = await enviarEmail(
             email || 'mvini440@gmail.com',
@@ -2732,12 +2828,17 @@ app.post('/api/test-email', async (req, res) => {
         );
         
         res.json({ 
-            message: 'E-mail enviado com sucesso!', 
-            messageId: result?.messageId 
+            success: !!result,
+            message: result ? 'E-mail enviado com sucesso!' : 'Falha ao enviar e-mail',
+            messageId: result?.messageId,
+            error: result ? null : 'Verifique os logs para mais detalhes'
         });
     } catch (error) {
         console.error('❌ Erro no teste:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
     }
 });
 

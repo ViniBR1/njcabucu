@@ -10,11 +10,7 @@
         /* ============================================
            RESET & ROOT
         ============================================ */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin:0; padding:0; box-sizing:border-box; }
         :root {
             --primary: #0D47A1;
             --primary-light: #1565C0;
@@ -24,9 +20,8 @@
             --accent: #F5A623;
             --bg: #f0f4f8;
             --card-bg: #ffffff;
-            --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.04);
-            --shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.10);
+            --shadow: 0 4px 24px rgba(0,0,0,0.06);
+            --shadow-lg: 0 12px 48px rgba(0,0,0,0.10);
             --radius: 16px;
             --radius-sm: 10px;
             --radius-full: 50px;
@@ -51,13 +46,13 @@
            HEADER
         ============================================ */
         .header {
-            background: rgba(255, 255, 255, 0.96);
+            background: rgba(255,255,255,0.96);
             backdrop-filter: blur(14px);
             padding: 0 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(13, 71, 161, 0.06);
+            border-bottom: 1px solid rgba(13,71,161,0.06);
             position: fixed;
             top: 0;
             left: 0;
@@ -66,7 +61,7 @@
             transition: var(--transition);
             height: var(--header-h);
         }
-        .header.scrolled { box-shadow: 0 2px 24px rgba(0, 0, 0, 0.06); }
+        .header.scrolled { box-shadow: 0 2px 24px rgba(0,0,0,0.06); }
         .logo {
             display: flex;
             align-items: center;
@@ -85,7 +80,7 @@
             font-weight: 800;
             font-size: 1rem;
             color: #fff;
-            box-shadow: 0 3px 12px rgba(13, 71, 161, 0.2);
+            box-shadow: 0 3px 12px rgba(13,71,161,0.2);
             transition: var(--transition);
         }
         .logo-icon:hover { transform: scale(1.05) rotate(-3deg); }
@@ -120,9 +115,9 @@
         .btn-primary {
             background: var(--primary-gradient);
             color: #fff;
-            box-shadow: 0 3px 12px rgba(13, 71, 161, 0.2);
+            box-shadow: 0 3px 12px rgba(13,71,161,0.2);
         }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(13, 71, 161, 0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(13,71,161,0.3); }
         .btn-outline {
             background: transparent;
             color: var(--primary);
@@ -130,15 +125,15 @@
         }
         .btn-outline:hover { background: var(--primary); color: #fff; transform: translateY(-2px); }
         .btn-whatsapp { background: #25D366; color: #fff; }
-        .btn-whatsapp:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(37, 211, 102, 0.35); }
+        .btn-whatsapp:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(37,211,102,0.35); }
         .btn-sm { padding: 0.25rem 0.8rem; font-size: 0.7rem; }
         .btn-bible { background: #8B5A2B; color: #fff; }
-        .btn-bible:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(139, 90, 43, 0.3); }
+        .btn-bible:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(139,90,43,0.3); }
         .btn-donation-header {
             background: var(--accent);
             color: #1a1a2e;
         }
-        .btn-donation-header:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(245, 166, 35, 0.4); }
+        .btn-donation-header:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(245,166,35,0.4); }
 
         .menu-toggle {
             display: none;
@@ -154,7 +149,7 @@
            NAVEGAÇÃO
         ============================================ */
         .main-nav {
-            background: rgba(255, 255, 255, 0.97);
+            background: rgba(255,255,255,0.97);
             backdrop-filter: blur(14px);
             padding: 0.4rem 2rem;
             display: flex;
@@ -166,7 +161,7 @@
             left: 0;
             right: 0;
             z-index: 999;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+            border-bottom: 1px solid rgba(0,0,0,0.04);
             transition: var(--transition);
         }
         .main-nav.hidden-nav { transform: translateY(-100%); opacity: 0; }
@@ -186,7 +181,7 @@
         .nav-btn.active {
             color: #fff;
             background: var(--primary-gradient);
-            box-shadow: 0 3px 12px rgba(13, 71, 161, 0.2);
+            box-shadow: 0 3px 12px rgba(13,71,161,0.2);
         }
 
         /* ============================================
@@ -205,7 +200,7 @@
         .hero-slides {
             display: flex;
             height: 100%;
-            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.8s cubic-bezier(0.4,0,0.2,1);
         }
         .hero-slide {
             min-width: 100%;
@@ -232,11 +227,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(13, 71, 161, 0.75), rgba(10, 58, 122, 0.55));
+            background: linear-gradient(135deg, rgba(13,71,161,0.75), rgba(10,58,122,0.55));
             transition: var(--transition);
         }
         .hero-slide:hover .overlay {
-            background: linear-gradient(135deg, rgba(13, 71, 161, 0.55), rgba(10, 58, 122, 0.35));
+            background: linear-gradient(135deg, rgba(13,71,161,0.55), rgba(10,58,122,0.35));
         }
         .hero-content {
             position: relative;
@@ -256,14 +251,14 @@
             font-size: 3rem;
             font-weight: 900;
             margin-bottom: 0.6rem;
-            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
+            text-shadow: 0 4px 30px rgba(0,0,0,0.25);
             line-height: 1.1;
         }
         .hero-content p {
             font-size: 1.1rem;
             opacity: 0.92;
             margin-bottom: 1.2rem;
-            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
+            text-shadow: 0 2px 20px rgba(0,0,0,0.15);
         }
         .hero-content .btn {
             pointer-events: all;
@@ -284,7 +279,7 @@
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.35);
+            background: rgba(255,255,255,0.35);
             cursor: pointer;
             transition: var(--transition);
             border: none;
@@ -293,9 +288,9 @@
         .hero-dot.active {
             background: #fff;
             transform: scale(1.3);
-            box-shadow: 0 0 24px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 24px rgba(255,255,255,0.2);
         }
-        .hero-dot:hover { background: rgba(255, 255, 255, 0.7); }
+        .hero-dot:hover { background: rgba(255,255,255,0.7); }
 
         .hero-arrows {
             position: absolute;
@@ -310,7 +305,7 @@
         }
         .hero-arrow {
             pointer-events: all;
-            background: rgba(255, 255, 255, 0.92);
+            background: rgba(255,255,255,0.92);
             border: none;
             width: 44px;
             height: 44px;
@@ -318,13 +313,114 @@
             font-size: 1.1rem;
             cursor: pointer;
             transition: var(--transition);
-            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 3px 15px rgba(0,0,0,0.06);
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--primary);
         }
-        .hero-arrow:hover { background: #fff; transform: scale(1.08); box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1); }
+        .hero-arrow:hover { background: #fff; transform: scale(1.08); box-shadow: 0 6px 25px rgba(0,0,0,0.1); }
+
+        /* ============================================
+           LIVE PLAYER
+        ============================================ */
+        .live-container {
+            background: #1a1a2e;
+            border-radius: var(--radius);
+            overflow: hidden;
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+            box-shadow: var(--shadow-lg);
+        }
+        .live-player {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            background: #0a0a1a;
+            position: relative;
+        }
+        .live-player .live-offline {
+            color: #888;
+            text-align: center;
+            padding: 2rem;
+        }
+        .live-player .live-offline i {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 0.5rem;
+            opacity: 0.3;
+        }
+        .live-player .live-offline span { font-size: 0.9rem; }
+        .live-player .live-offline p { font-size: 0.7rem; margin-top: 0.3rem; opacity: 0.6; }
+        .live-player video {
+            width: 100%;
+            height: 100%;
+            max-height: 500px;
+            object-fit: contain;
+            background: #000;
+            display: none;
+        }
+        .live-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: #ff0000;
+            color: #fff;
+            padding: 0.2rem 0.8rem;
+            border-radius: var(--radius-full);
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: none;
+            z-index: 10;
+            animation: livePulse 1.5s infinite;
+        }
+        .live-badge i {
+            font-size: 0.4rem;
+            margin-right: 0.3rem;
+            vertical-align: middle;
+        }
+        @keyframes livePulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .live-info-box {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            right: 15px;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            padding: 0.6rem 1rem;
+            border-radius: var(--radius-sm);
+            display: none;
+            z-index: 10;
+        }
+        .live-info-box .live-info-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+        }
+        .live-info-box .live-title {
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+        .live-info-box .live-desc {
+            color: #aaa;
+            font-size: 0.65rem;
+        }
+        .live-info-box .live-viewers {
+            color: #aaa;
+            font-size: 0.65rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .live-info-box .live-viewers i { color: #ff0000; font-size: 0.5rem; }
 
         /* ============================================
            SEÇÕES
@@ -379,7 +475,7 @@
             background: var(--card-bg);
             border-radius: var(--radius);
             padding: 1.8rem;
-            border: 1px solid rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0,0,0,0.04);
             transition: var(--transition);
             cursor: default;
             display: flex;
@@ -478,7 +574,7 @@
         .address-section {
             margin-top: 2.5rem;
             padding-top: 2rem;
-            border-top: 1px solid rgba(0, 0, 0, 0.06);
+            border-top: 1px solid rgba(0,0,0,0.06);
         }
         .address-card {
             background: var(--card-bg);
@@ -487,7 +583,7 @@
             text-align: center;
             max-width: 650px;
             margin: 0 auto;
-            border: 1px solid rgba(13, 71, 161, 0.08);
+            border: 1px solid rgba(13,71,161,0.08);
             box-shadow: var(--shadow);
             transition: var(--transition);
             cursor: pointer;
@@ -534,57 +630,12 @@
             background: var(--primary-gradient);
             color: #fff;
         }
-        .address-card .btn-map:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(13, 71, 161, 0.3); }
+        .address-card .btn-map:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(13,71,161,0.3); }
         .address-card .btn-map.waze { background: #1a1a2e; }
-        .address-card .btn-map.waze:hover { box-shadow: 0 4px 15px rgba(26, 26, 46, 0.3); }
+        .address-card .btn-map.waze:hover { box-shadow: 0 4px 15px rgba(26,26,46,0.3); }
 
         /* ============================================
-           BOTÕES DE DOAÇÃO
-        ============================================ */
-        .btn-donation {
-            background: var(--primary-gradient);
-            color: #fff;
-            border: none;
-            padding: 1rem 2.5rem;
-            font-size: 1rem;
-            border-radius: var(--radius-full);
-            cursor: pointer;
-            transition: var(--transition);
-            font-weight: 700;
-            font-family: var(--font);
-            box-shadow: 0 4px 20px rgba(13, 71, 161, 0.2);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.6rem;
-        }
-        .btn-donation:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 32px rgba(13, 71, 161, 0.3);
-        }
-        .tithe-options {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        /* ============================================
-           BIRTHDAY CARD
-        ============================================ */
-        .birthday-card {
-            text-align: center;
-            border-left: 4px solid var(--primary);
-            padding: 1.2rem;
-        }
-        .birthday-card .emoji { font-size: 2.2rem; margin-bottom: 0.2rem; }
-        .birthday-card .name { font-size: 1rem; font-weight: 700; color: var(--primary); }
-        .birthday-card .date { color: #666; font-size: 0.85rem; }
-        .birthday-card .age { color: #888; font-size: 0.8rem; }
-        .birthday-card.today { border-color: #e91e63; }
-        .birthday-card.today .name { color: #e91e63; }
-
-        /* ============================================
-           CÉLULAS - CARDS ESPECIAIS
+           CÉLULAS
         ============================================ */
         .celula-card .celula-icon {
             background: var(--primary-gradient);
@@ -618,6 +669,51 @@
         }
 
         /* ============================================
+           BOTÕES DE DOAÇÃO
+        ============================================ */
+        .btn-donation {
+            background: var(--primary-gradient);
+            color: #fff;
+            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 700;
+            font-family: var(--font);
+            box-shadow: 0 4px 20px rgba(13,71,161,0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .btn-donation:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 32px rgba(13,71,161,0.3);
+        }
+        .tithe-options {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        /* ============================================
+           BIRTHDAY CARD
+        ============================================ */
+        .birthday-card {
+            text-align: center;
+            border-left: 4px solid var(--primary);
+            padding: 1.2rem;
+        }
+        .birthday-card .emoji { font-size: 2.2rem; margin-bottom: 0.2rem; }
+        .birthday-card .name { font-size: 1rem; font-weight: 700; color: var(--primary); }
+        .birthday-card .date { color: #666; font-size: 0.85rem; }
+        .birthday-card .age { color: #888; font-size: 0.8rem; }
+        .birthday-card.today { border-color: #e91e63; }
+        .birthday-card.today .name { color: #e91e63; }
+
+        /* ============================================
            MODAIS
         ============================================ */
         .modal {
@@ -627,7 +723,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0,0,0,0.5);
             backdrop-filter: blur(6px);
             z-index: 9999;
             align-items: center;
@@ -647,8 +743,8 @@
             width: 92%;
             max-height: 90vh;
             overflow-y: auto;
-            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s cubic-bezier(0.4,0,0.2,1);
+            box-shadow: 0 24px 64px rgba(0,0,0,0.2);
         }
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(25px) scale(0.97); }
@@ -689,7 +785,7 @@
         .modal-content .form-group select:focus {
             border-color: var(--primary);
             outline: none;
-            box-shadow: 0 0 0 4px rgba(13, 71, 161, 0.06);
+            box-shadow: 0 0 0 4px rgba(13,71,161,0.06);
         }
         .modal-content .form-row { display: flex; gap: 0.8rem; }
         .modal-content .form-row>* { flex: 1; }
@@ -721,7 +817,7 @@
         .bible-input input:focus {
             border-color: var(--primary);
             outline: none;
-            box-shadow: 0 0 0 4px rgba(13, 71, 161, 0.06);
+            box-shadow: 0 0 0 4px rgba(13,71,161,0.06);
         }
         .bible-input .btn { width: 100%; justify-content: center; margin-top: 0.3rem; }
         .bible-result {
@@ -762,8 +858,8 @@
             font-weight: 500;
             z-index: 99999;
             max-width: 380px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            animation: slideIn 0.4s cubic-bezier(0.4,0,0.2,1);
             font-family: var(--font);
         }
         @keyframes slideIn {
@@ -817,7 +913,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(255,255,255,0.06);
             text-decoration: none;
         }
         .footer .social-links a:hover { background: var(--primary); transform: translateY(-3px); }
@@ -825,7 +921,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
-            color: rgba(255, 255, 255, 0.65);
+            color: rgba(255,255,255,0.65);
             text-decoration: none;
             font-size: 0.85rem;
             transition: var(--transition);
@@ -838,7 +934,7 @@
             text-align: center;
             padding-top: 1.5rem;
             margin-top: 1.5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(255,255,255,0.05);
             opacity: 0.4;
             font-size: 0.8rem;
         }
@@ -878,6 +974,8 @@
             .hero-content p { font-size: 0.85rem; }
             .hero-arrows .hero-arrow { width: 34px; height: 34px; font-size: 0.8rem; }
             .hero-arrows { padding: 0 0.6rem; }
+            .live-player { min-height: 250px; }
+            .live-player video { max-height: 300px; }
             .section { padding: 0 1rem; margin: 2rem auto; }
             .section-header h2 { font-size: 1.6rem; }
             .grid { grid-template-columns: 1fr; gap: 1rem; }
@@ -891,12 +989,17 @@
             .address-card .address-text { font-size: 0.9rem; }
             .bible-result { max-height: 200px; }
             .bible-container { flex-direction: column; }
+            .live-info-box .live-title { font-size: 0.7rem; }
+            .live-info-box .live-desc { font-size: 0.55rem; }
+            .live-info-box .live-viewers { font-size: 0.55rem; }
         }
         @media (max-width: 480px) {
             .hero { height: 260px; }
             .hero-content h1 { font-size: 1.3rem; }
             .hero-arrows .hero-arrow { width: 30px; height: 30px; font-size: 0.7rem; }
             .address-card .address-actions { flex-direction: column; align-items: center; }
+            .live-player { min-height: 200px; }
+            .live-player video { max-height: 220px; }
         }
     </style>
 </head>
@@ -932,6 +1035,7 @@
     ============================================ -->
     <nav class="main-nav" id="mainNav">
         <button onclick="scrollToSection('home')" class="nav-btn active"><i class="fas fa-home"></i> Início</button>
+        <button onclick="scrollToSection('live')" class="nav-btn"><i class="fas fa-broadcast-tower"></i> Ao Vivo</button>
         <button onclick="scrollToSection('sobre')" class="nav-btn"><i class="fas fa-info-circle"></i> Sobre</button>
         <button onclick="scrollToSection('eventos')" class="nav-btn"><i class="fas fa-calendar"></i> Eventos</button>
         <button onclick="scrollToSection('estudos')" class="nav-btn"><i class="fas fa-book"></i> Estudos</button>
@@ -953,6 +1057,46 @@
             <button class="hero-arrow" onclick="changeSlide(1)">❯</button>
         </div>
         <div class="hero-controls" id="heroControls"></div>
+    </section>
+
+    <!-- ============================================
+    LIVE
+    ============================================ -->
+    <section id="live" class="section">
+        <div class="section-header">
+            <span class="tag">Ao Vivo</span>
+            <h2>📺 Transmissão ao Vivo</h2>
+            <div class="line"></div>
+            <p class="subtitle">Assista agora a transmissão ao vivo da NJ Cabuçu</p>
+        </div>
+        <div class="live-container">
+            <div class="live-player" id="livePlayer">
+                <div id="liveOffline" class="live-offline">
+                    <i class="fas fa-broadcast-tower"></i>
+                    <span>Nenhuma transmissão ao vivo no momento</span>
+                    <p>Fique ligado, em breve começaremos!</p>
+                </div>
+                <video id="remoteVideo" autoplay playsinline></video>
+                <div class="live-badge" id="liveBadge">
+                    <i class="fas fa-circle"></i> AO VIVO
+                </div>
+                <div class="live-info-box" id="liveInfoBox">
+                    <div class="live-info-content">
+                        <div>
+                            <div class="live-title" id="liveTitleDisplay">Live NJ Cabuçu</div>
+                            <div class="live-desc" id="liveDescDisplay">Transmissão ao vivo</div>
+                        </div>
+                        <div class="live-viewers">
+                            <span id="liveViewerCount"><i class="fas fa-eye"></i> 0</span>
+                            <span style="color:#ff0000; font-size:0.5rem;">●</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="text-align:center; margin-top:0.5rem;">
+            <span style="font-size:0.6rem; color:#888;">Clique no player para expandir</span>
+        </div>
     </section>
 
     <!-- ============================================
@@ -1386,6 +1530,7 @@
         let statusCheckInterval = null;
         let baptismDatesList = [];
         let eventsList = [];
+        let liveIntervalCheck = null;
 
         // ============================================
         // ===== HEADER SCROLL =====
@@ -1411,8 +1556,7 @@
         });
 
         // ============================================
-        // ===== NAVEGAÇÃO =====
-        // ============================================
+        // ===== NAVEGAÇÃO =====        // ============================================
         function scrollToSection(id) {
             const el = document.getElementById(id);
             if (el) {
@@ -1423,6 +1567,7 @@
                 document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
                 const map = {
                     'home': 'Início',
+                    'live': 'Ao Vivo',
                     'sobre': 'Sobre',
                     'eventos': 'Eventos',
                     'estudos': 'Estudos',
@@ -1777,6 +1922,68 @@
                 if (active && (active.id === 'bibleChapter' || active.id === 'bibleVerse' || active.id ===
                         'bibleBook')) {
                     searchBible();
+                }
+            }
+        });
+
+        // ============================================
+        // ===== LIVE =====
+        // ============================================
+        async function checkLiveStatusIndex() {
+            try {
+                const res = await fetch('/api/lives/active');
+                const data = await res.json();
+
+                if (data.status === 'live') {
+                    document.getElementById('liveOffline').style.display = 'none';
+                    document.getElementById('remoteVideo').style.display = 'block';
+                    document.getElementById('liveBadge').style.display = 'flex';
+                    document.getElementById('liveInfoBox').style.display = 'flex';
+                    document.getElementById('liveTitleDisplay').textContent = data.titulo || 'Live NJ Cabuçu';
+                    document.getElementById('liveDescDisplay').textContent = data.descricao || '';
+                    document.getElementById('liveViewerCount').innerHTML = `<i class="fas fa-eye"></i> ${data.viewers || 0}`;
+
+                    const viewerId = 'viewer_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
+                    await fetch(`/api/lives/${data.id}/viewer`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ viewer_id: viewerId })
+                    });
+
+                    if (liveIntervalCheck) clearInterval(liveIntervalCheck);
+                    liveIntervalCheck = setInterval(async () => {
+                        try {
+                            const res2 = await fetch('/api/lives/active');
+                            const data2 = await res2.json();
+                            if (data2.status === 'live') {
+                                document.getElementById('liveViewerCount').innerHTML =
+                                    `<i class="fas fa-eye"></i> ${data2.viewers || 0}`;
+                            }
+                        } catch (e) {}
+                    }, 15000);
+
+                } else {
+                    document.getElementById('liveOffline').style.display = 'flex';
+                    document.getElementById('remoteVideo').style.display = 'none';
+                    document.getElementById('liveBadge').style.display = 'none';
+                    document.getElementById('liveInfoBox').style.display = 'none';
+                    if (liveIntervalCheck) {
+                        clearInterval(liveIntervalCheck);
+                        liveIntervalCheck = null;
+                    }
+                }
+            } catch (e) {
+                console.error('Erro ao verificar live:', e);
+            }
+        }
+
+        document.getElementById('livePlayer')?.addEventListener('click', () => {
+            const video = document.getElementById('remoteVideo');
+            if (video.style.display !== 'none') {
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                } else {
+                    video.requestFullscreen?.();
                 }
             }
         });
@@ -2997,6 +3204,7 @@
                 loadProducts();
                 loadBirthdays();
                 loadCelulasIndex();
+                checkLiveStatusIndex();
                 document.getElementById('cartCount').textContent = 0;
             }
         });
@@ -3014,6 +3222,5 @@
             }
         });
     </script>
-
 </body>
 </html>

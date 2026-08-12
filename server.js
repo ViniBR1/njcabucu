@@ -14,7 +14,6 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { MercadoPagoConfig, Payment } = require('mercadopago');
-const nodemailer = require('nodemailer');
 
 // ============================================
 // ===== CONEXÃO NEON =====
@@ -25,109 +24,6 @@ if (!process.env.DATABASE_URL) {
 }
 const sql = neon(process.env.DATABASE_URL);
 console.log('✅ Conectado ao Neon Database');
-
-// ============================================
-// ===== NODEMAILER - CONFIGURAÇÃO =====
-// ============================================
-console.log('📧 Configurando Nodemailer...');
-console.log('📧 EMAIL_USER:', process.env.EMAIL_USER || 'mvini440@gmail.com');
-console.log('📧 EMAIL_PASS:', process.env.EMAIL_PASS ? '✅ Configurado' : '❌ Não configurado');
-
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    auth: {
-        user: process.env.EMAIL_USER || 'mvini440@gmail.com',
-        pass: process.env.EMAIL_PASS || '26588772'
-    },
-    tls: {
-        rejectUnauthorized: false
-    }
-});
-
-// Verifica se o transporte está funcionando
-transporter.verify(function(error, success) {
-    if (error) {
-        console.log('❌ Erro na configuração do e-mail:', error);
-    } else {
-        console.log('✅ Servidor de e-mail configurado com sucesso!');
-    }
-});
-
-// ============================================
-// ===== FUNÇÃO PARA ENVIAR E-MAIL (COM LOGS) =====
-// ============================================
-async function enviarEmail(email, nome, payment_id, valor, tipo, status) {
-    console.log('========================================');
-    console.log('📧 TENTANDO ENVIAR E-MAIL');
-    console.log('📧 Para:', email);
-    console.log('📧 Nome:', nome);
-    console.log('📧 Payment ID:', payment_id);
-    console.log('📧 Valor:', valor);
-    console.log('📧 Tipo:', tipo);
-    console.log('📧 Status:', status);
-    console.log('========================================');
-
-    if (!email) {
-        console.log('⚠️ Email não informado, não é possível enviar');
-        return null;
-    }
-
-    // Verifica se é um email válido
-    if (!email.includes('@')) {
-        console.log('⚠️ Email inválido:', email);
-        return null;
-    }
-
-    const statusText = status === 'approved' ? 'APROVADO ✅' : 'PENDENTE ⏳';
-    const tipoTexto = tipo === 'donation' ? 'Doação' : 'Compra';
-
-    const mensagem = `
-====================================
-🙏 NJ Cabuçu
-====================================
-
-Olá ${nome || 'Cliente'},
-
-Seu pagamento foi ${statusText}!
-
-📋 Detalhes:
-Tipo: ${tipoTexto}
-Valor: R$ ${parseFloat(valor).toFixed(2)}
-ID: ${payment_id}
-Data: ${new Date().toLocaleDateString('pt-BR')}
-
-${status === 'approved' ? '🙌 Obrigado pela sua contribuição! Deus abençoe!' : '⏳ Aguardando confirmação...'}
-
-====================================
-NJ Cabuçu - "E conhecereis a verdade, e a verdade vos libertará." João 8:32
-====================================
-    `;
-
-    try {
-        const mailOptions = {
-            from: `"NJ Cabuçu" <${process.env.EMAIL_USER || 'mvini440@gmail.com'}>`,
-            to: email,
-            subject: `✅ Confirmação de ${tipoTexto} - NJ Cabuçu`,
-            text: mensagem,
-            html: mensagem.replace(/\n/g, '<br>')
-        };
-
-        console.log('📧 Enviando e-mail...');
-        const info = await transporter.sendMail(mailOptions);
-        console.log('✅ E-mail enviado com sucesso!');
-        console.log('📧 Message ID:', info.messageId);
-        console.log('📧 Response:', info.response);
-        return info;
-    } catch (error) {
-        console.error('❌ Erro ao enviar e-mail:');
-        console.error('❌ Mensagem:', error.message);
-        console.error('❌ Código:', error.code);
-        console.error('❌ Detalhes:', error);
-        return null;
-    }
-}
 
 // ============================================
 // ===== MERCADO PAGO =====
@@ -484,6 +380,54 @@ async function initDB() {
             UNIQUE(user_id, date)
         )`;
 
+        // ============================================
+        // ===== TABELAS DE CÉLULAS =====
+        // ============================================
+        await sql`CREATE TABLE IF NOT EXISTS celulas (
+            id SERIAL PRIMARY KEY,
+            nome VARCHAR(100) NOT NULL,
+            lider_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            endereco TEXT,
+            dias_reuniao VARCHAR(100),
+            horario VARCHAR(50),
+            descricao TEXT,
+            is_active BOOLEAN DEFAULT true,
+            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS celula_membros (
+            id SERIAL PRIMARY KEY,
+            celula_id INTEGER REFERENCES celulas(id) ON DELETE CASCADE,
+            membro_id INTEGER REFERENCES members(id) ON DELETE CASCADE,
+            data_entrada DATE DEFAULT CURRENT_DATE,
+            is_active BOOLEAN DEFAULT true,
+            UNIQUE(celula_id, membro_id)
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS celula_estatisticas (
+            id SERIAL PRIMARY KEY,
+            celula_id INTEGER REFERENCES celulas(id) ON DELETE CASCADE,
+            data_registro DATE DEFAULT CURRENT_DATE,
+            total_membros INTEGER DEFAULT 0,
+            batizados INTEGER DEFAULT 0,
+            aceitaram_jesus INTEGER DEFAULT 0,
+            visitantes INTEGER DEFAULT 0,
+            novo_membros INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(celula_id, data_registro)
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS celula_decisoes (
+            id SERIAL PRIMARY KEY,
+            celula_id INTEGER REFERENCES celulas(id) ON DELETE CASCADE,
+            membro_id INTEGER REFERENCES members(id) ON DELETE SET NULL,
+            tipo VARCHAR(20) NOT NULL,
+            data_decisao DATE DEFAULT CURRENT_DATE,
+            observacao TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
         console.log('✅ Tabelas criadas');
 
         const existing = await sql`SELECT * FROM users WHERE email = 'pastor@njcabucu.com'`;
@@ -614,50 +558,6 @@ app.post('/api/users', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- CRIAR USUÁRIO PELO LÍDER -----
-app.post('/api/users-by-leader', auth, async (req, res) => {
-    try {
-        const { name, email, password, role, department_id } = req.body;
-        
-        const leaderCheck = await sql`
-            SELECT * FROM users 
-            WHERE id = ${req.user.id} AND is_leader = true AND department_id = ${department_id}
-        `;
-        
-        if (leaderCheck.length === 0 && req.user.role !== 'pastor') {
-            return res.status(403).json({ error: 'Apenas líderes podem criar usuários no departamento' });
-        }
-        
-        const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
-        if (existing.length > 0) {
-            return res.status(400).json({ error: 'Usuário já existe' });
-        }
-
-        const hash = await hashPassword(password || '123456');
-        const userRole = role || 'membro';
-        
-        const result = await sql`
-            INSERT INTO users (name, email, password_hash, role, department_id, department_name, phone, first_login, is_leader)
-            VALUES (${name}, ${email}, ${hash}, ${userRole}, ${department_id}, ${null}, ${''}, true, ${userRole === 'lider' ? true : false})
-            RETURNING id, name, email, role, department_id, is_leader
-        `;
-        
-        await sql`
-            INSERT INTO department_members (department_id, user_id, role)
-            VALUES (${department_id}, ${result[0].id}, ${userRole})
-        `;
-        
-        if (userRole === 'lider') {
-            await sql`UPDATE departments SET leader_id = ${result[0].id} WHERE id = ${department_id}`;
-        }
-        
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao criar usuário pelo líder:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
 app.get('/api/users', auth, async (req, res) => {
     try {
         let users;
@@ -755,140 +655,6 @@ app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- DEPARTMENT MEMBERS -----
-app.get('/api/departments/:id/members', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        
-        const members = await sql`
-            SELECT 
-                u.id, 
-                u.name, 
-                u.email, 
-                u.role, 
-                u.is_leader,
-                COALESCE(dm.role, 'membro') as member_role
-            FROM users u
-            INNER JOIN department_members dm ON u.id = dm.user_id
-            WHERE dm.department_id = ${id}
-            ORDER BY dm.role DESC, u.name
-        `;
-        
-        res.json(members || []);
-    } catch (error) {
-        console.error('❌ Erro ao buscar membros:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/departments/:id/members', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { user_id, role } = req.body;
-        
-        const user = await sql`SELECT * FROM users WHERE id = ${user_id}`;
-        if (user.length === 0) {
-            return res.status(404).json({ error: 'Usuário não encontrado' });
-        }
-        
-        const memberRole = role || 'membro';
-        
-        await sql`
-            INSERT INTO department_members (department_id, user_id, role)
-            VALUES (${id}, ${user_id}, ${memberRole})
-            ON CONFLICT (department_id, user_id) 
-            DO UPDATE SET role = ${memberRole}
-        `;
-        
-        await sql`
-            UPDATE users 
-            SET department_id = ${id}, 
-                is_leader = ${memberRole === 'lider' ? true : false},
-                role = ${memberRole}
-            WHERE id = ${user_id}
-        `;
-        
-        if (memberRole === 'lider') {
-            await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${id}`;
-        }
-        
-        res.json({ message: 'Membro adicionado com sucesso' });
-    } catch (error) {
-        console.error('❌ Erro ao adicionar membro:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.put('/api/departments/:department_id/members/:user_id', auth, async (req, res) => {
-    try {
-        const { department_id, user_id } = req.params;
-        const { role } = req.body;
-
-        const member = await sql`
-            SELECT * FROM department_members 
-            WHERE department_id = ${department_id} AND user_id = ${user_id}
-        `;
-        
-        if (member.length === 0) {
-            return res.status(404).json({ error: 'Membro não encontrado neste departamento' });
-        }
-
-        await sql`
-            UPDATE department_members 
-            SET role = ${role} 
-            WHERE department_id = ${department_id} AND user_id = ${user_id}
-        `;
-
-        await sql`
-            UPDATE users 
-            SET is_leader = ${role === 'lider' ? true : false},
-                role = ${role}
-            WHERE id = ${user_id}
-        `;
-
-        if (role === 'lider') {
-            await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${department_id}`;
-        } else {
-            await sql`UPDATE departments SET leader_id = NULL WHERE id = ${department_id} AND leader_id = ${user_id}`;
-        }
-
-        res.json({ message: 'Função atualizada com sucesso' });
-    } catch (error) {
-        console.error('❌ Erro ao atualizar função:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/departments/:department_id/members/:user_id', auth, async (req, res) => {
-    try {
-        const { department_id, user_id } = req.params;
-        
-        await sql`
-            DELETE FROM department_members 
-            WHERE department_id = ${department_id} AND user_id = ${user_id}
-        `;
-        
-        await sql`
-            UPDATE users 
-            SET department_id = NULL, 
-                is_leader = false,
-                role = 'colaborador'
-            WHERE id = ${user_id}
-        `;
-        
-        await sql`
-            UPDATE departments 
-            SET leader_id = NULL 
-            WHERE id = ${department_id} AND leader_id = ${user_id}
-        `;
-        
-        res.json({ message: 'Membro removido com sucesso' });
-    } catch (error) {
-        console.error('❌ Erro ao remover membro:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
 // ----- ESTUDOS -----
 app.post('/api/studies', auth, upload.single('image'), async (req, res) => {
     try {
@@ -962,22 +728,6 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
-app.put('/api/products/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { name, description, price, stock, category } = req.body;
-        const result = await sql`
-            UPDATE products SET name = ${name}, description = ${description}, price = ${parseFloat(price)}, 
-                stock = ${parseInt(stock) || 0}, category = ${category || ''}
-            WHERE id = ${id}
-            RETURNING *
-        `;
-        res.json(result[0]);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
 app.delete('/api/products/:id', auth, pastorOnly, async (req, res) => {
     try {
         await sql`DELETE FROM products WHERE id = ${req.params.id}`;
@@ -1030,22 +780,6 @@ app.get('/api/events/active', async (req, res) => {
         res.json(events);
     } catch (error) {
         console.error('❌ Erro ao buscar eventos ativos:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.put('/api/events/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { title, description, date, price } = req.body;
-        const result = await sql`
-            UPDATE events SET title = ${title}, description = ${description}, 
-                date = ${date}, price = ${parseFloat(price) || 0}
-            WHERE id = ${id}
-            RETURNING *
-        `;
-        res.json(result[0]);
-    } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
@@ -1120,18 +854,6 @@ app.get('/api/orders', auth, async (req, res) => {
     }
 });
 
-app.put('/api/orders/:id/status', auth, pastorOnly, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { status } = req.body;
-        await sql`UPDATE orders SET status = ${status} WHERE id = ${id}`;
-        res.json({ message: 'Status atualizado' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ----- ESTATÍSTICAS DE VENDAS -----
 app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
     try {
         const totalSales = await sql`
@@ -1149,47 +871,15 @@ app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
             ORDER BY date DESC
         `;
         
-        const topProducts = await sql`
-            SELECT 
-                items::json->0->>'name' as product_name,
-                COUNT(*) as total_sales,
-                COALESCE(SUM(total), 0) as total_revenue
-            FROM orders 
-            WHERE items IS NOT NULL AND items != '' AND items != 'null' AND items != '[]'
-            GROUP BY items::json->0->>'name'
-            ORDER BY total_sales DESC
-            LIMIT 10
-        `;
-        
-        const salesByMethod = await sql`
-            SELECT 
-                COALESCE(payment_method, 'PIX') as payment_method,
-                COUNT(*) as count,
-                COALESCE(SUM(total), 0) as total
-            FROM orders 
-            GROUP BY payment_method
-        `;
-        
-        const recentOrders = await sql`
-            SELECT id, user_name, user_email, items, total, status, payment_method, created_at
-            FROM orders 
-            ORDER BY created_at DESC 
-            LIMIT 10
-        `;
-
         const result = {
             total: totalSales[0] || { count: 0, total: 0 },
-            byDay: salesByDay || [],
-            topProducts: topProducts || [],
-            byMethod: salesByMethod || [],
-            recent: recentOrders || []
+            byDay: salesByDay || []
         };
         
-        console.log('📊 Estatísticas completas:', result);
         res.json(result);
     } catch (error) {
         console.error('❌ Erro nas estatísticas:', error);
-        res.status(500).json({ error: error.message, stack: error.stack });
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -1233,6 +923,25 @@ app.get('/api/registrations', auth, async (req, res) => {
     try {
         const registrations = await sql`SELECT * FROM registrations ORDER BY created_at DESC`;
         res.json(registrations);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/registrations/:id/approve', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        await sql`UPDATE registrations SET status = 'approved' WHERE id = ${id}`;
+        res.json({ message: 'Inscrição aprovada' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/registrations/:id', auth, async (req, res) => {
+    try {
+        await sql`DELETE FROM registrations WHERE id = ${req.params.id}`;
+        res.json({ message: 'Inscrição removida' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -1671,38 +1380,6 @@ app.get('/api/carousel', async (req, res) => {
         res.json(images);
     } catch (error) {
         console.error('❌ Erro carrossel:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.put('/api/carousel/:id', auth, pastorOnly, upload.single('image'), async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { title, subtitle, link, active } = req.body;
-        
-        const current = await sql`SELECT * FROM carousel_images WHERE id = ${id}`;
-        if (current.length === 0) {
-            return res.status(404).json({ error: 'Imagem não encontrada' });
-        }
-        
-        let image_base64 = current[0].image_base64;
-        if (req.file) {
-            image_base64 = req.file.buffer.toString('base64');
-        }
-
-        const result = await sql`
-            UPDATE carousel_images 
-            SET title = ${title || current[0].title},
-                subtitle = ${subtitle || current[0].subtitle},
-                link = ${link || current[0].link},
-                image_base64 = ${image_base64},
-                active = ${active !== undefined ? active : current[0].active}
-            WHERE id = ${id}
-            RETURNING *
-        `;
-        res.json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao atualizar carrossel:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -2202,16 +1879,11 @@ app.get('/api/bills/summary', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== MERCADO PAGO - PIX (COM LOGS) =====
+// ===== MERCADO PAGO - PIX =====
 // ============================================
 
 app.post('/api/create-pix-payment', async (req, res) => {
     try {
-        console.log('========================================');
-        console.log('💳 RECEBENDO REQUISIÇÃO PIX');
-        console.log('📝 Dados recebidos:', req.body);
-        console.log('========================================');
-
         const { amount, description, email, name, phone, cpf } = req.body;
 
         if (!process.env.MP_ACCESS_TOKEN || !PaymentService) {
@@ -2222,11 +1894,6 @@ app.post('/api/create-pix-payment', async (req, res) => {
         if (isNaN(valor) || valor <= 0) {
             return res.status(400).json({ error: 'Valor inválido' });
         }
-
-        console.log('📝 Criando pagamento PIX...');
-        console.log('📝 Email do comprador:', email);
-        console.log('📝 Nome do comprador:', name);
-        console.log('📝 Valor:', valor);
 
         const externalReference = `NJ-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
 
@@ -2246,26 +1913,14 @@ app.post('/api/create-pix-payment', async (req, res) => {
             }
         };
 
+        console.log('📝 Criando pagamento PIX...');
+        console.log('📝 Valor:', valor);
+        console.log('📝 External Reference:', externalReference);
+        console.log('📝 Email:', email);
+
         const payment = await PaymentService.create(paymentData);
         console.log('✅ Pagamento criado:', payment.id);
         console.log('✅ Status:', payment.status);
-
-        // ===== TENTA ENVIAR E-MAIL =====
-        console.log('📧 Tentando enviar e-mail de confirmação...');
-        const emailResult = await enviarEmail(
-            email,
-            name,
-            payment.id,
-            valor,
-            req.body.paymentType || 'donation',
-            payment.status
-        );
-
-        if (emailResult) {
-            console.log('✅ E-mail enviado com sucesso!');
-        } else {
-            console.log('❌ Falha ao enviar e-mail');
-        }
 
         const paymentLink = payment.point_of_interaction?.transaction_data?.ticket_url || 
                            `https://www.mercadopago.com.br/payments/${payment.id}`;
@@ -2276,8 +1931,7 @@ app.post('/api/create-pix-payment', async (req, res) => {
             payment_link: paymentLink,
             external_reference: externalReference,
             qr_code: payment.point_of_interaction?.transaction_data?.qr_code || '',
-            qr_code_base64: payment.point_of_interaction?.transaction_data?.qr_code_base64 || '',
-            email_sent: !!emailResult
+            qr_code_base64: payment.point_of_interaction?.transaction_data?.qr_code_base64 || ''
         });
     } catch (error) {
         console.error('❌ Erro MP PIX:', error);
@@ -2415,10 +2069,6 @@ app.post('/api/create-card-payment-fallback', async (req, res) => {
     }
 });
 
-// ============================================
-// ===== FUNÇÃO AUXILIAR PARA PROCESSAR PAGAMENTO COM CARTÃO =====
-// ============================================
-
 async function processCardPayment(token, valor, description, email, name, phone, cpf, installments, res) {
     try {
         const paymentData = {
@@ -2486,10 +2136,6 @@ app.get('/api/check-payment/:paymentId', async (req, res) => {
     }
 });
 
-// ============================================
-// ===== ROTA ALTERNATIVA PARA STATUS =====
-// ============================================
-
 app.get('/api/payment-status/:paymentId', async (req, res) => {
     try {
         const { paymentId } = req.params;
@@ -2514,94 +2160,6 @@ app.get('/api/payment-status/:paymentId', async (req, res) => {
     }
 });
 
-// ============================================
-// ===== VERIFICAR PAGAMENTO MANUALMENTE (COM LOGS) =====
-// ============================================
-
-app.get('/api/verify-payment/:paymentId', async (req, res) => {
-    try {
-        const { paymentId } = req.params;
-        
-        console.log('========================================');
-        console.log('🔍 VERIFICANDO PAGAMENTO MANUALMENTE');
-        console.log('📝 Payment ID:', paymentId);
-        console.log('========================================');
-        
-        if (!PaymentService) {
-            return res.status(500).json({ error: 'Mercado Pago não configurado' });
-        }
-        
-        const payment = await PaymentService.get({ id: paymentId });
-        console.log('📊 Status do MP:', payment.status);
-        
-        // Busca no banco
-        const order = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
-        const donation = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
-        const record = order[0] || donation[0];
-        
-        console.log('📊 Registro encontrado:', record ? 'Sim' : 'Não');
-        if (record) {
-            console.log('📊 Email:', record.user_email);
-            console.log('📊 Nome:', record.user_name);
-            console.log('📊 Valor:', record.total || record.amount);
-        }
-        
-        let emailSent = false;
-        
-        if (payment.status === 'approved' && record) {
-            await sql`
-                UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}
-            `;
-            await sql`
-                UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}
-            `;
-            console.log('✅ Pagamento aprovado e registrado manualmente!');
-            
-            console.log('📧 Enviando e-mail de confirmação...');
-            const emailResult = await enviarEmail(
-                record.user_email || 'cliente@email.com',
-                record.user_name || 'Cliente',
-                paymentId,
-                record.total || record.amount || 0,
-                order[0] ? 'sale' : 'donation',
-                'approved'
-            );
-            emailSent = !!emailResult;
-            
-            if (emailSent) {
-                console.log('✅ E-mail enviado com sucesso!');
-            } else {
-                console.log('❌ Falha ao enviar e-mail');
-            }
-        } else if (payment.status === 'pending') {
-            console.log('⏳ Pagamento ainda pendente');
-        } else {
-            console.log('⚠️ Status:', payment.status);
-        }
-        
-        res.json({
-            payment_id: payment.id,
-            status: payment.status,
-            status_detail: payment.status_detail,
-            record_found: !!record,
-            email_sent: emailSent,
-            record: record ? {
-                email: record.user_email,
-                name: record.user_name,
-                amount: record.total || record.amount,
-                type: order[0] ? 'sale' : 'donation'
-            } : null
-        });
-    } catch (error) {
-        console.error('❌ Erro ao verificar pagamento:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ATUALIZAR STATUS DO PAGAMENTO =====
-// ============================================
-
 app.post('/api/update-payment-status', async (req, res) => {
     try {
         const { payment_id, status } = req.body;
@@ -2622,16 +2180,12 @@ app.post('/api/update-payment-status', async (req, res) => {
 });
 
 // ============================================
-// ===== WEBHOOK (COM LOGS) =====
+// ===== WEBHOOK =====
 // ============================================
 
 app.post('/api/webhook', async (req, res) => {
     try {
-        console.log('========================================');
-        console.log('📝 WEBHOOK RECEBIDO');
-        console.log('📝 Data:', new Date().toISOString());
-        console.log('📝 Body:', JSON.stringify(req.body, null, 2));
-        console.log('========================================');
+        console.log('📝 Webhook recebido:', JSON.stringify(req.body, null, 2));
         
         const { data, type } = req.body;
         
@@ -2644,18 +2198,6 @@ app.post('/api/webhook', async (req, res) => {
                     const payment = await PaymentService.get({ id: paymentId });
                     console.log('📊 Status do pagamento:', payment.status);
                     
-                    const order = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
-                    const donation = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
-                    
-                    const record = order[0] || donation[0];
-                    console.log('📊 Registro encontrado:', record ? 'Sim' : 'Não');
-                    
-                    if (record) {
-                        console.log('📊 Email do comprador:', record.user_email);
-                        console.log('📊 Nome do comprador:', record.user_name);
-                        console.log('📊 Valor:', record.total || record.amount);
-                    }
-                    
                     if (payment.status === 'approved') {
                         await sql`
                             UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}
@@ -2664,26 +2206,6 @@ app.post('/api/webhook', async (req, res) => {
                             UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}
                         `;
                         console.log('✅ Pagamento aprovado e registrado!');
-                        
-                        if (record) {
-                            console.log('📧 Enviando e-mail de confirmação...');
-                            const emailResult = await enviarEmail(
-                                record.user_email || 'cliente@email.com',
-                                record.user_name || 'Cliente',
-                                paymentId,
-                                record.total || record.amount || 0,
-                                order[0] ? 'sale' : 'donation',
-                                'approved'
-                            );
-                            
-                            if (emailResult) {
-                                console.log('✅ E-mail enviado com sucesso!');
-                            } else {
-                                console.log('❌ Falha ao enviar e-mail');
-                            }
-                        } else {
-                            console.log('⚠️ Nenhum registro encontrado para enviar e-mail');
-                        }
                     } else if (payment.status === 'rejected' || payment.status === 'cancelled') {
                         await sql`
                             UPDATE orders SET status = 'rejected' WHERE payment_id = ${paymentId}
@@ -2692,15 +2214,11 @@ app.post('/api/webhook', async (req, res) => {
                             UPDATE donations SET status = 'rejected' WHERE payment_id = ${paymentId}
                         `;
                         console.log('❌ Pagamento recusado/cancelado');
-                    } else {
-                        console.log('⏳ Status:', payment.status);
                     }
                 } catch (error) {
                     console.error('❌ Erro ao buscar pagamento:', error);
                 }
             }
-        } else {
-            console.log('⚠️ Evento ignorado:', type);
         }
         
         res.json({ received: true });
@@ -2805,40 +2323,331 @@ app.get('/api/registration-pdf/:id', async (req, res) => {
 });
 
 // ============================================
-// ===== ROTA DE TESTE DE E-MAIL =====
+// ===== ROTAS DE CÉLULAS =====
 // ============================================
 
-app.post('/api/test-email', async (req, res) => {
+// ---- CRIAR CÉLULA ----
+app.post('/api/celulas', auth, pastorOnly, async (req, res) => {
     try {
-        const { email, name } = req.body;
+        const { nome, lider_id, endereco, dias_reuniao, horario, descricao } = req.body;
         
-        console.log('========================================');
-        console.log('🧪 TESTE DE E-MAIL');
-        console.log('📧 Para:', email || 'mvini440@gmail.com');
-        console.log('👤 Nome:', name || 'Cliente Teste');
-        console.log('========================================');
+        if (!nome) {
+            return res.status(400).json({ error: 'Nome da célula é obrigatório' });
+        }
+
+        const result = await sql`
+            INSERT INTO celulas (nome, lider_id, endereco, dias_reuniao, horario, descricao, created_by)
+            VALUES (${nome}, ${lider_id || null}, ${endereco || ''}, ${dias_reuniao || ''}, ${horario || ''}, ${descricao || ''}, ${req.user.id})
+            RETURNING *
+        `;
         
-        const result = await enviarEmail(
-            email || 'mvini440@gmail.com',
-            name || 'Cliente Teste',
-            'TEST-' + Date.now(),
-            10.00,
-            'donation',
-            'approved'
-        );
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar célula:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ---- LISTAR CÉLULAS ----
+app.get('/api/celulas', async (req, res) => {
+    try {
+        const celulas = await sql`
+            SELECT 
+                c.*,
+                u.name as lider_nome,
+                COUNT(cm.id) as total_membros,
+                (
+                    SELECT COUNT(*) FROM celula_membros cm2 
+                    WHERE cm2.celula_id = c.id AND cm2.is_active = true
+                ) as membros_ativos,
+                (
+                    SELECT COUNT(*) FROM celula_decisoes cd 
+                    WHERE cd.celula_id = c.id AND cd.tipo = 'batismo'
+                ) as batizados,
+                (
+                    SELECT COUNT(*) FROM celula_decisoes cd 
+                    WHERE cd.celula_id = c.id AND cd.tipo = 'decisao'
+                ) as decisoes
+            FROM celulas c
+            LEFT JOIN users u ON c.lider_id = u.id
+            LEFT JOIN celula_membros cm ON c.id = cm.celula_id AND cm.is_active = true
+            WHERE c.is_active = true
+            GROUP BY c.id, u.name
+            ORDER BY c.nome
+        `;
         
-        res.json({ 
-            success: !!result,
-            message: result ? 'E-mail enviado com sucesso!' : 'Falha ao enviar e-mail',
-            messageId: result?.messageId,
-            error: result ? null : 'Verifique os logs para mais detalhes'
+        res.json(celulas);
+    } catch (error) {
+        console.error('❌ Erro ao listar células:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ---- BUSCAR CÉLULA POR ID ----
+app.get('/api/celulas/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const celula = await sql`
+            SELECT 
+                c.*,
+                u.name as lider_nome,
+                u.phone as lider_telefone,
+                u.email as lider_email
+            FROM celulas c
+            LEFT JOIN users u ON c.lider_id = u.id
+            WHERE c.id = ${id} AND c.is_active = true
+        `;
+        
+        if (celula.length === 0) {
+            return res.status(404).json({ error: 'Célula não encontrada' });
+        }
+        
+        // Buscar membros da célula
+        const membros = await sql`
+            SELECT 
+                m.id,
+                m.name,
+                m.phone,
+                m.email,
+                cm.data_entrada
+            FROM celula_membros cm
+            JOIN members m ON cm.membro_id = m.id
+            WHERE cm.celula_id = ${id} AND cm.is_active = true
+            ORDER BY m.name
+        `;
+        
+        // Buscar estatísticas
+        const estatisticas = await sql`
+            SELECT * FROM celula_estatisticas 
+            WHERE celula_id = ${id} 
+            ORDER BY data_registro DESC 
+            LIMIT 10
+        `;
+        
+        // Buscar decisões recentes
+        const decisoes = await sql`
+            SELECT 
+                cd.*,
+                m.name as membro_nome
+            FROM celula_decisoes cd
+            LEFT JOIN members m ON cd.membro_id = m.id
+            WHERE cd.celula_id = ${id}
+            ORDER BY cd.data_decisao DESC
+            LIMIT 20
+        `;
+        
+        res.json({
+            ...celula[0],
+            membros,
+            estatisticas,
+            decisoes
         });
     } catch (error) {
-        console.error('❌ Erro no teste:', error);
-        res.status(500).json({ 
-            success: false,
-            error: error.message 
+        console.error('❌ Erro ao buscar célula:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ---- ATUALIZAR CÉLULA ----
+app.put('/api/celulas/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { nome, lider_id, endereco, dias_reuniao, horario, descricao } = req.body;
+        
+        const result = await sql`
+            UPDATE celulas 
+            SET 
+                nome = COALESCE(${nome}, nome),
+                lider_id = COALESCE(${lider_id}, lider_id),
+                endereco = COALESCE(${endereco}, endereco),
+                dias_reuniao = COALESCE(${dias_reuniao}, dias_reuniao),
+                horario = COALESCE(${horario}, horario),
+                descricao = COALESCE(${descricao}, descricao)
+            WHERE id = ${id}
+            RETURNING *
+        `;
+        
+        if (result.length === 0) {
+            return res.status(404).json({ error: 'Célula não encontrada' });
+        }
+        
+        res.json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao atualizar célula:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ---- DELETAR CÉLULA ----
+app.delete('/api/celulas/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        const { id } = req.params;
+        await sql`UPDATE celulas SET is_active = false WHERE id = ${id}`;
+        res.json({ message: 'Célula removida com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao remover célula:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ---- ADICIONAR MEMBRO À CÉLULA ----
+app.post('/api/celulas/:id/membros', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { membro_id } = req.body;
+        
+        if (!membro_id) {
+            return res.status(400).json({ error: 'Membro é obrigatório' });
+        }
+        
+        // Verifica se o membro já está na célula
+        const exists = await sql`
+            SELECT * FROM celula_membros 
+            WHERE celula_id = ${id} AND membro_id = ${membro_id}
+        `;
+        
+        if (exists.length > 0) {
+            // Reativar se estiver inativo
+            await sql`
+                UPDATE celula_membros 
+                SET is_active = true, data_entrada = CURRENT_DATE
+                WHERE celula_id = ${id} AND membro_id = ${membro_id}
+            `;
+        } else {
+            await sql`
+                INSERT INTO celula_membros (celula_id, membro_id)
+                VALUES (${id}, ${membro_id})
+            `;
+        }
+        
+        // Atualizar estatísticas
+        await atualizarEstatisticasCelula(id);
+        
+        res.json({ message: 'Membro adicionado à célula com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao adicionar membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ---- REMOVER MEMBRO DA CÉLULA ----
+app.delete('/api/celulas/:id/membros/:membro_id', auth, async (req, res) => {
+    try {
+        const { id, membro_id } = req.params;
+        
+        await sql`
+            UPDATE celula_membros 
+            SET is_active = false 
+            WHERE celula_id = ${id} AND membro_id = ${membro_id}
+        `;
+        
+        await atualizarEstatisticasCelula(id);
+        
+        res.json({ message: 'Membro removido da célula' });
+    } catch (error) {
+        console.error('❌ Erro ao remover membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ---- REGISTRAR DECISÃO (BATISMO OU ACEITOU JESUS) ----
+app.post('/api/celulas/:id/decisoes', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { membro_id, tipo, observacao } = req.body;
+        
+        if (!tipo || !['batismo', 'decisao'].includes(tipo)) {
+            return res.status(400).json({ error: 'Tipo inválido. Use "batismo" ou "decisao"' });
+        }
+        
+        const result = await sql`
+            INSERT INTO celula_decisoes (celula_id, membro_id, tipo, observacao)
+            VALUES (${id}, ${membro_id || null}, ${tipo}, ${observacao || ''})
+            RETURNING *
+        `;
+        
+        await atualizarEstatisticasCelula(id);
+        
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao registrar decisão:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ---- FUNÇÃO PARA ATUALIZAR ESTATÍSTICAS ----
+async function atualizarEstatisticasCelula(celula_id) {
+    try {
+        const hoje = new Date().toISOString().split('T')[0];
+        
+        // Contar membros ativos
+        const membros = await sql`
+            SELECT COUNT(*) as total FROM celula_membros 
+            WHERE celula_id = ${celula_id} AND is_active = true
+        `;
+        
+        // Contar batizados nos últimos 30 dias
+        const batizados = await sql`
+            SELECT COUNT(*) as total FROM celula_decisoes 
+            WHERE celula_id = ${celula_id} 
+            AND tipo = 'batismo' 
+            AND data_decisao >= CURRENT_DATE - INTERVAL '30 days'
+        `;
+        
+        // Contar decisões (aceitaram Jesus) nos últimos 30 dias
+        const decisoes = await sql`
+            SELECT COUNT(*) as total FROM celula_decisoes 
+            WHERE celula_id = ${celula_id} 
+            AND tipo = 'decisao' 
+            AND data_decisao >= CURRENT_DATE - INTERVAL '30 days'
+        `;
+        
+        // Inserir ou atualizar estatísticas do dia
+        await sql`
+            INSERT INTO celula_estatisticas (celula_id, data_registro, total_membros, batizados, aceitaram_jesus)
+            VALUES (${celula_id}, ${hoje}, ${membros[0].total}, ${batizados[0].total}, ${decisoes[0].total})
+            ON CONFLICT (celula_id, data_registro) 
+            DO UPDATE SET 
+                total_membros = ${membros[0].total},
+                batizados = ${batizados[0].total},
+                aceitaram_jesus = ${decisoes[0].total}
+        `;
+        
+        console.log(`📊 Estatísticas da célula ${celula_id} atualizadas`);
+    } catch (error) {
+        console.error('❌ Erro ao atualizar estatísticas:', error);
+    }
+}
+
+// ---- ROTA PARA ESTATÍSTICAS DETALHADAS ----
+app.get('/api/celulas/:id/estatisticas', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const estatisticas = await sql`
+            SELECT * FROM celula_estatisticas 
+            WHERE celula_id = ${id} 
+            ORDER BY data_registro DESC 
+            LIMIT 30
+        `;
+        
+        const resumo = await sql`
+            SELECT 
+                SUM(total_membros) as total_membros,
+                SUM(batizados) as total_batizados,
+                SUM(aceitaram_jesus) as total_decisoes
+            FROM celula_estatisticas 
+            WHERE celula_id = ${id}
+        `;
+        
+        res.json({
+            historico: estatisticas,
+            resumo: resumo[0] || { total_membros: 0, total_batizados: 0, total_decisoes: 0 }
         });
+    } catch (error) {
+        console.error('❌ Erro ao buscar estatísticas:', error);
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -2877,7 +2686,6 @@ app.listen(PORT, () => {
     console.log('');
     console.log('💰 Mercado Pago: ' + (process.env.MP_ACCESS_TOKEN ? '✅ Configurado' : '⚠️ Não configurado'));
     console.log('🔑 Public Key: ' + (process.env.MP_PUBLIC_KEY ? '✅ Configurada' : '⚠️ Não configurada'));
-    console.log('📧 E-mail: ' + (process.env.EMAIL_USER ? '✅ Configurado' : '⚠️ Não configurado'));
     console.log('');
     console.log('📸 Imagens salvas como Base64 no banco de dados!');
     console.log('');

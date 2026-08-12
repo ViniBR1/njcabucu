@@ -18,6 +18,8 @@
             --shadow-lg: 0 8px 30px rgba(0,0,0,0.08);
             --radius: 14px;
             --radius-sm: 8px;
+            --radius-full: 50px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             --header-h: 60px;
         }
@@ -78,7 +80,8 @@
         }
         .logo { display: flex; align-items: center; gap: 0.6rem; }
         .logo-icon {
-            width: 36px; height: 36px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: var(--primary-gradient);
             display: flex;
@@ -89,18 +92,14 @@
             color: #fff;
             flex-shrink: 0;
         }
-        .logo h1 {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: var(--primary);
-        }
+        .logo h1 { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
         .logo h1 span { color: #F5A623; }
 
-        .header-right { display: flex; align-items: center; gap: 0.6rem; }
+        .header-right { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
         .user-badge {
             background: #E8F0FE;
             padding: 0.2rem 0.8rem;
-            border-radius: 50px;
+            border-radius: var(--radius-full);
             font-weight: 600;
             font-size: 0.65rem;
             color: var(--primary);
@@ -112,7 +111,7 @@
 
         .btn {
             padding: 0.3rem 0.8rem;
-            border-radius: 50px;
+            border-radius: var(--radius-full);
             border: none;
             font-weight: 600;
             cursor: pointer;
@@ -139,18 +138,12 @@
         .btn-block { width: 100%; justify-content: center; }
 
         /* CONTAINER */
-        .container {
-            width: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0.8rem 1rem;
-            overflow-x: hidden;
-        }
+        .container { width: 100%; max-width: 1400px; margin: 0 auto; padding: 0.8rem 1rem; overflow-x: hidden; }
 
-        /* STATS GRID */
+        /* STATS */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
             gap: 0.6rem;
             margin-bottom: 1rem;
         }
@@ -164,19 +157,8 @@
             transition: var(--transition);
         }
         .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
-        .stat-card .number {
-            font-size: 1.2rem;
-            font-weight: 800;
-            color: var(--primary);
-            line-height: 1.2;
-        }
-        .stat-card .label {
-            font-size: 0.5rem;
-            color: #888;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
+        .stat-card .number { font-size: 1.2rem; font-weight: 800; color: var(--primary); line-height: 1.2; }
+        .stat-card .label { font-size: 0.5rem; color: #888; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
         .stat-card .icon { font-size: 1rem; color: var(--primary-light); margin-bottom: 0.1rem; }
 
         /* TABS */
@@ -203,7 +185,7 @@
         .tab-btn {
             padding: 0.25rem 0.7rem;
             border: none;
-            border-radius: 50px;
+            border-radius: var(--radius-full);
             background: transparent;
             cursor: pointer;
             font-weight: 600;
@@ -282,7 +264,7 @@
         /* BADGES */
         .status {
             padding: 0.04rem 0.35rem;
-            border-radius: 50px;
+            border-radius: var(--radius-full);
             font-size: 0.45rem;
             font-weight: 600;
             display: inline-block;
@@ -294,7 +276,7 @@
 
         .badge {
             padding: 0.04rem 0.35rem;
-            border-radius: 50px;
+            border-radius: var(--radius-full);
             font-size: 0.45rem;
             font-weight: 600;
             text-transform: uppercase;
@@ -315,13 +297,7 @@
         }
         .card:hover { box-shadow: var(--shadow-lg); }
 
-        .flex-between {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 0.3rem;
-            flex-wrap: wrap;
-        }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; gap: 0.3rem; flex-wrap: wrap; }
         .mt-1 { margin-top: 0.5rem; }
         .mb-1 { margin-bottom: 0.5rem; }
         .hidden { display: none !important; }
@@ -358,11 +334,7 @@
             outline: none;
             box-shadow: 0 0 0 3px rgba(13,71,161,0.08);
         }
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.4rem;
-        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
         .form-group textarea { min-height: 50px; resize: vertical; }
 
         /* MODAL */
@@ -406,12 +378,7 @@
             transition: var(--transition);
         }
         .modal-close:hover { color: #333; transform: rotate(90deg); }
-        .modal-content h3 {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 0.6rem;
-        }
+        .modal-content h3 { font-size: 0.95rem; font-weight: 700; color: var(--primary); margin-bottom: 0.6rem; }
         .modal-content h3 i { margin-right: 0.3rem; }
 
         /* NOTIFICATION */
@@ -453,26 +420,11 @@
             padding: 0.2rem;
             background: #f8f9fa;
         }
-        .carousel-item img {
-            width: 100%;
-            height: 55px;
-            object-fit: cover;
-            border-radius: 4px;
-        }
-        .carousel-item .title {
-            font-size: 0.5rem;
-            font-weight: 600;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+        .carousel-item img { width: 100%; height: 55px; object-fit: cover; border-radius: 4px; }
+        .carousel-item .title { font-size: 0.5rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
         /* FREQUÊNCIA */
-        .freq-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.5rem;
-        }
+        .freq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
         .freq-box {
             background: #f8f9fa;
             border-radius: var(--radius-sm);
@@ -494,23 +446,14 @@
         .member-row .member-dept { font-size: 0.5rem; color: #888; }
 
         /* SOBRE - EDITOR */
-        .about-editor {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 0.5rem;
-        }
+        .about-editor { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; }
         .about-card {
             background: #f8f9fa;
             padding: 0.6rem;
             border-radius: var(--radius-sm);
             border: 1px solid #e8e8e8;
         }
-        .about-card .title {
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 0.2rem;
-        }
+        .about-card .title { font-size: 0.7rem; font-weight: 700; color: var(--primary); margin-bottom: 0.2rem; }
         .about-card textarea {
             width: 100%;
             padding: 0.3rem 0.4rem;
@@ -525,12 +468,7 @@
         .about-card textarea:focus { border-color: var(--primary); outline: none; }
 
         /* INSCRIÇÕES FILTROS */
-        .registration-filters {
-            display: flex;
-            gap: 0.3rem;
-            flex-wrap: wrap;
-            margin-bottom: 0.5rem;
-        }
+        .registration-filters { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
         .registration-filters .btn { font-size: 0.55rem; }
 
         /* BAR CHART */
@@ -555,6 +493,46 @@
         .bar-label { font-size: 0.4rem; color: #888; }
         .bar-value { font-size: 0.4rem; font-weight: 600; color: var(--primary); }
 
+        /* LIVE */
+        .live-indicator {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            font-size: 0.7rem;
+            background: #dc3545;
+            color: #fff;
+        }
+        .live-indicator.live { background: #28a745; animation: pulse 1.5s infinite; }
+        .live-indicator i { font-size: 0.5rem; margin-right: 0.3rem; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        #captureArea {
+            background: #1a1a2e;
+            border-radius: var(--radius-sm);
+            padding: 0.5rem;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: relative;
+        }
+        #captureArea video {
+            width: 100%;
+            max-height: 300px;
+            border-radius: 4px;
+            background: #000;
+        }
+        #captureArea .placeholder {
+            color: #888;
+            text-align: center;
+            padding: 2rem;
+        }
+        #captureArea .placeholder i { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
+        #captureArea .placeholder span { font-size: 0.8rem; }
+
         /* RESPONSIVO */
         @media (max-width: 768px) {
             .header { padding: 0 0.8rem; }
@@ -573,13 +551,15 @@
             .about-editor { grid-template-columns: 1fr; }
             .modal-content { padding: 0.8rem; max-width: 100%; margin: 0.5rem; }
             .notification { font-size: 0.65rem; padding: 0.4rem 0.8rem; top: calc(var(--header-h) + 4px); }
+            #captureArea { min-height: 150px; }
+            #captureArea video { max-height: 200px; }
         }
         @media (min-width: 769px) and (max-width: 1024px) {
             .stats-grid { grid-template-columns: repeat(3, 1fr); }
             .about-editor { grid-template-columns: 1fr 1fr; }
         }
         @media (min-width: 1025px) {
-            .stats-grid { grid-template-columns: repeat(6, 1fr); }
+            .stats-grid { grid-template-columns: repeat(7, 1fr); }
             .container { padding: 1rem 2rem; }
             .tab-content { padding: 1.2rem; }
             .table { font-size: 0.65rem; }
@@ -590,7 +570,7 @@
 </head>
 <body>
 
-<!-- LOADING OVERLAY -->
+<!-- LOADING -->
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-spinner"></div>
     <div class="loading-text">Carregando...</div>
@@ -613,42 +593,20 @@
 
     <!-- STATS -->
     <div class="stats-grid" id="statsGrid">
-        <div class="stat-card">
-            <div class="icon"><i class="fas fa-users"></i></div>
-            <div class="number" id="totalUsers">0</div>
-            <div class="label">Membros</div>
-        </div>
-        <div class="stat-card">
-            <div class="icon"><i class="fas fa-pray"></i></div>
-            <div class="number" id="totalPrayers">0</div>
-            <div class="label">Orações</div>
-        </div>
-        <div class="stat-card">
-            <div class="icon"><i class="fas fa-shopping-cart"></i></div>
-            <div class="number" id="totalOrders">0</div>
-            <div class="label">Vendas</div>
-        </div>
-        <div class="stat-card">
-            <div class="icon"><i class="fas fa-hand-holding-heart"></i></div>
-            <div class="number" id="totalDonations">R$0</div>
-            <div class="label">Doações</div>
-        </div>
-        <div class="stat-card">
-            <div class="icon"><i class="fas fa-book"></i></div>
-            <div class="number" id="totalStudies">0</div>
-            <div class="label">Estudos</div>
-        </div>
-        <div class="stat-card">
-            <div class="icon"><i class="fas fa-home"></i></div>
-            <div class="number" id="totalCelulas">0</div>
-            <div class="label">Células</div>
-        </div>
+        <div class="stat-card"><div class="icon"><i class="fas fa-users"></i></div><div class="number" id="totalUsers">0</div><div class="label">Membros</div></div>
+        <div class="stat-card"><div class="icon"><i class="fas fa-pray"></i></div><div class="number" id="totalPrayers">0</div><div class="label">Orações</div></div>
+        <div class="stat-card"><div class="icon"><i class="fas fa-shopping-cart"></i></div><div class="number" id="totalOrders">0</div><div class="label">Vendas</div></div>
+        <div class="stat-card"><div class="icon"><i class="fas fa-hand-holding-heart"></i></div><div class="number" id="totalDonations">R$0</div><div class="label">Doações</div></div>
+        <div class="stat-card"><div class="icon"><i class="fas fa-book"></i></div><div class="number" id="totalStudies">0</div><div class="label">Estudos</div></div>
+        <div class="stat-card"><div class="icon"><i class="fas fa-home"></i></div><div class="number" id="totalCelulas">0</div><div class="label">Células</div></div>
+        <div class="stat-card"><div class="icon"><i class="fas fa-broadcast-tower"></i></div><div class="number" id="totalLives">0</div><div class="label">Lives</div></div>
     </div>
 
     <!-- TABS -->
     <div class="tabs-wrapper">
         <div class="tabs" id="tabsContainer">
             <button class="tab-btn active" onclick="showTab('dashboard')"><i class="fas fa-chart-pie"></i> Dashboard</button>
+            <button class="tab-btn" onclick="showTab('live')"><i class="fas fa-broadcast-tower"></i> Live</button>
             <button class="tab-btn" onclick="showTab('vendas')"><i class="fas fa-shopping-cart"></i> Vendas</button>
             <button class="tab-btn" onclick="showTab('usuarios')"><i class="fas fa-users"></i> Usuários</button>
             <button class="tab-btn" onclick="showTab('oracoes')"><i class="fas fa-pray"></i> Orações</button>
@@ -690,6 +648,67 @@
             </div>
             <div style="font-size:0.7rem;font-weight:600;color:#333;margin-bottom:0.2rem;">📅 Vendas por Dia</div>
             <div class="bar-chart" id="barChart"></div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- LIVE -->
+        <!-- ========================================================== -->
+        <div id="tab-live" class="tab-content">
+            <div class="section-title"><i class="fas fa-broadcast-tower"></i> Transmissão ao Vivo</div>
+            
+            <div id="liveStatus" style="margin-bottom:1rem; padding:0.8rem; border-radius:8px; text-align:center; background:#f8f9fa;">
+                <span id="liveIndicator" class="live-indicator"><i class="fas fa-circle"></i> OFFLINE</span>
+                <div id="liveInfo" style="margin-top:0.3rem; font-size:0.7rem; color:#888;">Nenhuma live ativa no momento</div>
+            </div>
+
+            <div class="card" style="margin-bottom:1rem;">
+                <div class="flex-between mb-1">
+                    <h4 style="font-size:0.8rem;">🎥 Controles da Live</h4>
+                    <span id="liveViewers" style="font-size:0.7rem; color:#888;"><i class="fas fa-eye"></i> 0 espectadores</span>
+                </div>
+                
+                <!-- Área de captura -->
+                <div id="captureArea">
+                    <video id="localVideo" autoplay muted playsinline style="display:none;"></video>
+                    <div id="placeholderMessage" class="placeholder">
+                        <i class="fas fa-video"></i>
+                        <span>Clique em "Iniciar Live" para começar a transmissão</span>
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.5rem;">
+                    <div style="flex:1; min-width:120px;">
+                        <input type="text" id="liveTitle" placeholder="Título da Live" value="Culto NJ Cabuçu" style="width:100%; padding:0.3rem 0.5rem; border:2px solid #e0e0e0; border-radius:6px; font-size:0.7rem;">
+                    </div>
+                    <div style="flex:1; min-width:120px;">
+                        <input type="text" id="liveDesc" placeholder="Descrição" value="Transmissão ao vivo" style="width:100%; padding:0.3rem 0.5rem; border:2px solid #e0e0e0; border-radius:6px; font-size:0.7rem;">
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:0.5rem; margin-top:0.5rem; flex-wrap:wrap;">
+                    <button onclick="startLive()" id="startLiveBtn" class="btn btn-success" style="flex:1; padding:0.5rem;">
+                        <i class="fas fa-play"></i> Iniciar Live
+                    </button>
+                    <button onclick="stopLive()" id="stopLiveBtn" class="btn btn-danger" style="flex:1; padding:0.5rem; display:none;">
+                        <i class="fas fa-stop"></i> Encerrar Live
+                    </button>
+                    <button onclick="toggleCamera()" id="toggleCamBtn" class="btn btn-warning" style="flex:1; padding:0.5rem;">
+                        <i class="fas fa-camera"></i> Câmera
+                    </button>
+                    <button onclick="toggleScreenShare()" id="screenShareBtn" class="btn btn-primary" style="flex:1; padding:0.5rem;">
+                        <i class="fas fa-desktop"></i> Compartilhar Tela
+                    </button>
+                </div>
+            </div>
+
+            <!-- Histórico -->
+            <div class="section-title" style="margin-top:1rem;"><i class="fas fa-history"></i> Histórico de Lives</div>
+            <div class="table-wrapper">
+                <table class="table">
+                    <thead><tr><th>Título</th><th>Iniciada por</th><th>Data</th><th>Duração</th><th>Espectadores</th></tr></thead>
+                    <tbody id="liveHistoryList"></tbody>
+                </table>
+            </div>
         </div>
 
         <!-- ========================================================== -->
@@ -820,9 +839,7 @@
                     <button onclick="filterRegistrations('department')" class="btn btn-outline btn-sm" data-filter="department">Departamentos</button>
                 </div>
             </div>
-            <div style="margin-bottom:0.3rem; font-size:0.5rem; color:#888;">
-                Clique em <strong>"Aprovar"</strong> para confirmar a inscrição
-            </div>
+            <div style="margin-bottom:0.3rem; font-size:0.5rem; color:#888;">Clique em <strong>"Aprovar"</strong> para confirmar a inscrição</div>
             <div class="table-wrapper">
                 <table class="table">
                     <thead><tr><th>Nome</th><th>Tipo</th><th>Evento/Depto</th><th>Status</th><th>Data</th><th>Ações</th></tr></thead>
@@ -869,12 +886,8 @@
         <div id="tab-frequencia" class="tab-content">
             <div class="section-title"><i class="fas fa-calendar-check"></i> Frequência</div>
             <div class="form-row" style="grid-template-columns:1fr 1fr; gap:0.3rem;">
-                <div class="form-group">
-                    <label>Data</label>
-                    <input type="date" id="attendanceDate">
-                </div>
-                <div class="form-group">
-                    <label>Tipo</label>
+                <div class="form-group"><label>Data</label><input type="date" id="attendanceDate"></div>
+                <div class="form-group"><label>Tipo</label>
                     <select id="attendanceService">
                         <option value="domingo">Domingo</option>
                         <option value="quarta">Quarta</option>
@@ -896,9 +909,7 @@
                         <button onclick="clearSelection()" class="btn btn-danger btn-xs"><i class="fas fa-times"></i></button>
                     </div>
                     <div style="background:#fff; border-radius:4px; border:1px solid #e8e8e8; padding:0.2rem; max-height:150px; overflow-y:auto;">
-                        <div id="membersListContainer">
-                            <p style="color:#888; text-align:center; padding:0.2rem; font-size:0.6rem;">Carregue os membros</p>
-                        </div>
+                        <div id="membersListContainer"><p style="color:#888; text-align:center; padding:0.2rem; font-size:0.6rem;">Carregue os membros</p></div>
                     </div>
                     <div style="display:flex; gap:0.2rem; margin-top:0.2rem; font-size:0.55rem; flex-wrap:wrap;">
                         <span style="background:#e8e8e8; padding:0.05rem 0.4rem; border-radius:20px;">
@@ -911,9 +922,7 @@
                 </div>
                 <div class="freq-box">
                     <h4>📋 Registrar</h4>
-                    <div id="attendanceSummary" style="margin-bottom:0.2rem; min-height:20px;">
-                        <p style="color:#888; font-size:0.6rem;">Nenhum selecionado</p>
-                    </div>
+                    <div id="attendanceSummary" style="margin-bottom:0.2rem; min-height:20px;"><p style="color:#888; font-size:0.6rem;">Nenhum selecionado</p></div>
                     <button onclick="registerMultipleAttendance()" class="btn btn-success btn-block" style="padding:0.25rem; font-size:0.6rem;">
                         <i class="fas fa-check-circle"></i> Registrar Selecionados
                     </button>
@@ -972,34 +981,14 @@
                 <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-users"></i> Células</div>
                 <button onclick="openCelulaModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Nova Célula</button>
             </div>
-            
-            <!-- Estatísticas das Células -->
             <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom:0.8rem;">
-                <div class="stat-card">
-                    <div class="number" id="totalCelulasStats">0</div>
-                    <div class="label">Total de Células</div>
-                </div>
-                <div class="stat-card">
-                    <div class="number" id="totalMembrosCelulaStats">0</div>
-                    <div class="label">Membros em Células</div>
-                </div>
-                <div class="stat-card">
-                    <div class="number" id="totalBatizadosCelulaStats">0</div>
-                    <div class="label">Batizados</div>
-                </div>
+                <div class="stat-card"><div class="number" id="totalCelulasStats">0</div><div class="label">Total de Células</div></div>
+                <div class="stat-card"><div class="number" id="totalMembrosCelulaStats">0</div><div class="label">Membros em Células</div></div>
+                <div class="stat-card"><div class="number" id="totalBatizadosCelulaStats">0</div><div class="label">Batizados</div></div>
             </div>
-
-            <!-- Lista de Células -->
             <div class="table-wrapper">
                 <table class="table">
-                    <thead><tr>
-                        <th style="width:20%;">Nome</th>
-                        <th style="width:15%;">Líder</th>
-                        <th style="width:10%;">Membros</th>
-                        <th style="width:10%;">Batizados</th>
-                        <th style="width:10%;">Decisões</th>
-                        <th style="width:35%;">Ações</th>
-                    </tr></thead>
+                    <thead><tr><th style="width:20%;">Nome</th><th style="width:15%;">Líder</th><th style="width:10%;">Membros</th><th style="width:10%;">Batizados</th><th style="width:10%;">Decisões</th><th style="width:35%;">Ações</th></tr></thead>
                     <tbody id="celulasList"></tbody>
                 </table>
             </div>
@@ -1026,9 +1015,7 @@
                 <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-info-circle"></i> Editar Sobre Nós</div>
                 <button onclick="saveAbout()" class="btn btn-success btn-sm"><i class="fas fa-save"></i> Salvar</button>
             </div>
-            <p style="font-size:0.6rem; color:#888; margin-bottom:0.5rem;">
-                Edite os textos que aparecem na seção "Sobre Nós" do site.
-            </p>
+            <p style="font-size:0.6rem; color:#888; margin-bottom:0.5rem;">Edite os textos que aparecem na seção "Sobre Nós" do site.</p>
             <div class="about-editor">
                 <div class="about-card">
                     <div class="title">❤️ Nossa Missão</div>
@@ -1050,18 +1037,9 @@
         <!-- ========================================================== -->
         <div id="tab-config" class="tab-content">
             <div class="section-title"><i class="fas fa-cog"></i> Configurações</div>
-            <div class="form-group">
-                <label>Cor Primária</label>
-                <input type="color" id="configPrimary" value="#0D47A1" onchange="saveConfig('primary_color', this.value)">
-            </div>
-            <div class="form-group">
-                <label>Título do Site</label>
-                <input type="text" id="configTitle" value="NJ Cabuçu" onchange="saveConfig('site_title', this.value)">
-            </div>
-            <div class="form-group">
-                <label>WhatsApp</label>
-                <input type="text" id="configWhatsapp" value="5521985345627" onchange="saveConfig('whatsapp', this.value)">
-            </div>
+            <div class="form-group"><label>Cor Primária</label><input type="color" id="configPrimary" value="#0D47A1" onchange="saveConfig('primary_color', this.value)"></div>
+            <div class="form-group"><label>Título do Site</label><input type="text" id="configTitle" value="NJ Cabuçu" onchange="saveConfig('site_title', this.value)"></div>
+            <div class="form-group"><label>WhatsApp</label><input type="text" id="configWhatsapp" value="5521985345627" onchange="saveConfig('whatsapp', this.value)"></div>
             <button onclick="loadConfig()" class="btn btn-primary btn-sm"><i class="fas fa-sync"></i> Recarregar</button>
         </div>
     </div>
@@ -1289,7 +1267,7 @@
     </div>
 </div>
 
-<!-- REGISTRAR DECISÃO NA CÉLULA -->
+<!-- REGISTRAR DECISÃO -->
 <div class="modal" id="decisaoCelulaModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('decisaoCelulaModal')">&times;</button>
@@ -1388,7 +1366,8 @@ function showTab(tab) {
     if (tab === 'carousel') loadCarouselAdmin();
     if (tab === 'departamentos') loadDepartments();
     if (tab === 'membros') loadMembers();
-    if (tab === 'celulas') { loadCelulas(); }
+    if (tab === 'celulas') loadCelulas();
+    if (tab === 'live') { checkLiveStatus(); loadLiveHistory(); }
     if (tab === 'frequencia') { 
         setDefaultAttendanceDate();
         if (allMembers.length > 0) {
@@ -1417,14 +1396,15 @@ function showTab(tab) {
 async function loadDashboard() {
     showLoading();
     try {
-        const [users, prayers, orders, donations, studies, events, celulas] = await Promise.all([
+        const [users, prayers, orders, donations, studies, events, celulas, lives] = await Promise.all([
             fetch('/api/users', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
             fetch('/api/prayers', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
             fetch('/api/orders', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
             fetch('/api/donations', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
             fetch('/api/studies', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
             fetch('/api/events', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
-            fetch('/api/celulas', { headers: getHeaders() }).then(r => r.json()).catch(() => [])
+            fetch('/api/celulas', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
+            fetch('/api/lives/history', { headers: getHeaders() }).then(r => r.json()).catch(() => [])
         ]);
 
         const unreadPrayers = prayers.filter(p => !p.is_read).length;
@@ -1436,6 +1416,7 @@ async function loadDashboard() {
         document.getElementById('totalDonations').textContent = 'R$' + totalDonations.toFixed(0);
         document.getElementById('totalStudies').textContent = studies.length;
         document.getElementById('totalCelulas').textContent = celulas.length;
+        document.getElementById('totalLives').textContent = lives.length;
 
         loadUsers(users);
         loadPrayers(prayers);
@@ -1449,6 +1430,7 @@ async function loadDashboard() {
         loadBirthdaysAdmin();
         loadSalesStats();
         loadCelulas();
+        loadLiveHistory();
     } catch (e) { console.error('Erro:', e); }
     hideLoading();
 }
@@ -1618,7 +1600,7 @@ async function loadRegistrations() {
 }
 
 // ============================================
-// ===== INSCRIÇÕES - APROVAR =====
+// ===== INSCRIÇÕES =====
 // ============================================
 let currentFilter = 'all';
 
@@ -1706,7 +1688,7 @@ async function loadDepartments() {
 }
 
 // ============================================
-// ===== CÉLULAS (ADMIN) =====
+// ===== CÉLULAS =====
 // ============================================
 let celulaAtual = null;
 let celulaAddMembroId = null;
@@ -1918,6 +1900,234 @@ async function saveDecisaoCelula() {
         showNotification('✅ Decisão registrada!', 'success');
     } catch (e) {
         showNotification('❌ ' + e.message, 'error');
+    }
+}
+
+// ============================================
+// ===== LIVE =====
+// ============================================
+let localStream = null;
+let isLiveActive = false;
+let liveId = null;
+let liveInterval = null;
+
+async function checkLiveStatus() {
+    try {
+        const res = await fetch('/api/lives/active');
+        const data = await res.json();
+        
+        if (data.status === 'live') {
+            isLiveActive = true;
+            liveId = data.id;
+            const indicator = document.getElementById('liveIndicator');
+            indicator.className = 'live-indicator live';
+            indicator.innerHTML = '<i class="fas fa-circle"></i> AO VIVO';
+            document.getElementById('liveInfo').textContent = `📺 ${data.titulo} - Iniciada por ${data.iniciada_por_nome || 'Pastor'}`;
+            document.getElementById('startLiveBtn').style.display = 'none';
+            document.getElementById('stopLiveBtn').style.display = 'inline-flex';
+            document.getElementById('liveViewers').innerHTML = `<i class="fas fa-eye"></i> ${data.viewers || 0} espectadores`;
+            
+            if (liveInterval) clearInterval(liveInterval);
+            liveInterval = setInterval(updateViewers, 10000);
+        } else {
+            const indicator = document.getElementById('liveIndicator');
+            indicator.className = 'live-indicator';
+            indicator.innerHTML = '<i class="fas fa-circle"></i> OFFLINE';
+            document.getElementById('liveInfo').textContent = 'Nenhuma live ativa no momento';
+            document.getElementById('startLiveBtn').style.display = 'inline-flex';
+            document.getElementById('stopLiveBtn').style.display = 'none';
+        }
+    } catch (e) {
+        console.error('Erro ao verificar live:', e);
+    }
+}
+
+async function updateViewers() {
+    if (!liveId) return;
+    try {
+        const res = await fetch(`/api/lives/${liveId}/viewer`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ viewer_id: 'admin_' + Date.now() })
+        });
+        const data = await res.json();
+        document.getElementById('liveViewers').innerHTML = `<i class="fas fa-eye"></i> ${data.viewers || 0} espectadores`;
+    } catch (e) { console.error(e); }
+}
+
+async function startLive() {
+    const titulo = document.getElementById('liveTitle').value.trim() || 'Live NJ Cabuçu';
+    const descricao = document.getElementById('liveDesc').value.trim() || '';
+
+    try {
+        await startMediaCapture();
+
+        const res = await fetch('/api/lives/start', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...getHeaders() },
+            body: JSON.stringify({ titulo, descricao })
+        });
+
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        liveId = data.id;
+        isLiveActive = true;
+
+        const indicator = document.getElementById('liveIndicator');
+        indicator.className = 'live-indicator live';
+        indicator.innerHTML = '<i class="fas fa-circle"></i> AO VIVO';
+        document.getElementById('liveInfo').textContent = `📺 ${titulo} - Ao vivo!`;
+        document.getElementById('startLiveBtn').style.display = 'none';
+        document.getElementById('stopLiveBtn').style.display = 'inline-flex';
+
+        document.getElementById('localVideo').style.display = 'block';
+        document.getElementById('placeholderMessage').style.display = 'none';
+
+        showNotification('✅ Live iniciada com sucesso!', 'success');
+        
+        if (liveInterval) clearInterval(liveInterval);
+        liveInterval = setInterval(updateViewers, 10000);
+
+    } catch (e) {
+        console.error('Erro:', e);
+        showNotification('❌ ' + e.message, 'error');
+    }
+}
+
+async function stopLive() {
+    if (!liveId) return;
+    if (!confirm('Deseja encerrar a transmissão ao vivo?')) return;
+
+    try {
+        await fetch(`/api/lives/end/${liveId}`, {
+            method: 'POST',
+            headers: getHeaders()
+        });
+
+        isLiveActive = false;
+        const indicator = document.getElementById('liveIndicator');
+        indicator.className = 'live-indicator';
+        indicator.innerHTML = '<i class="fas fa-circle"></i> OFFLINE';
+        document.getElementById('liveInfo').textContent = 'Live encerrada';
+        document.getElementById('startLiveBtn').style.display = 'inline-flex';
+        document.getElementById('stopLiveBtn').style.display = 'none';
+        document.getElementById('localVideo').style.display = 'none';
+        document.getElementById('placeholderMessage').style.display = 'flex';
+
+        if (localStream) {
+            localStream.getTracks().forEach(track => track.stop());
+            localStream = null;
+        }
+
+        if (liveInterval) {
+            clearInterval(liveInterval);
+            liveInterval = null;
+        }
+
+        showNotification('✅ Live encerrada!', 'success');
+        loadLiveHistory();
+
+    } catch (e) {
+        showNotification('❌ ' + e.message, 'error');
+    }
+}
+
+async function startMediaCapture() {
+    try {
+        const constraints = {
+            video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+            audio: true
+        };
+
+        localStream = await navigator.mediaDevices.getUserMedia(constraints);
+        const video = document.getElementById('localVideo');
+        video.srcObject = localStream;
+        video.style.display = 'block';
+        document.getElementById('placeholderMessage').style.display = 'none';
+
+        return localStream;
+    } catch (e) {
+        console.error('Erro ao acessar câmera:', e);
+        throw new Error('Não foi possível acessar a câmera/microfone. Verifique as permissões.');
+    }
+}
+
+function toggleCamera() {
+    if (!localStream) {
+        showNotification('Inicie a live primeiro!', 'error');
+        return;
+    }
+    const videoTrack = localStream.getVideoTracks()[0];
+    if (videoTrack) {
+        videoTrack.enabled = !videoTrack.enabled;
+        showNotification(videoTrack.enabled ? '📷 Câmera ativada' : '📷 Câmera desativada', 'info');
+    }
+}
+
+async function toggleScreenShare() {
+    if (!localStream) {
+        showNotification('Inicie a live primeiro!', 'error');
+        return;
+    }
+
+    try {
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({
+            video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+            audio: true
+        });
+
+        const videoTrack = screenStream.getVideoTracks()[0];
+        const oldVideoTrack = localStream.getVideoTracks()[0];
+        
+        if (oldVideoTrack) {
+            localStream.removeTrack(oldVideoTrack);
+            oldVideoTrack.stop();
+        }
+
+        localStream.addTrack(videoTrack);
+        const video = document.getElementById('localVideo');
+        video.srcObject = localStream;
+
+        videoTrack.onended = () => {
+            startMediaCapture();
+        };
+
+        showNotification('📺 Compartilhando tela!', 'success');
+    } catch (e) {
+        if (e.name !== 'AbortError') {
+            showNotification('❌ Erro ao compartilhar tela: ' + e.message, 'error');
+        }
+    }
+}
+
+async function loadLiveHistory() {
+    try {
+        const res = await fetch('/api/lives/history', { headers: getHeaders() });
+        const data = await res.json();
+        const tbody = document.getElementById('liveHistoryList');
+        
+        if (!data?.length) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhuma transmissão realizada</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = data.map(l => {
+            const duracao = l.started_at && l.ended_at ? 
+                Math.floor((new Date(l.ended_at) - new Date(l.started_at)) / 60000) + 'min' : 
+                'Em andamento';
+            return `
+                <tr>
+                    <td>${l.titulo}</td>
+                    <td>${l.iniciada_por_nome || 'Pastor'}</td>
+                    <td>${new Date(l.started_at).toLocaleDateString('pt-BR')}</td>
+                    <td>${duracao}</td>
+                    <td>${l.viewers || 0}</td>
+                </tr>
+            `;
+        }).join('');
+    } catch (e) {
+        console.error('Erro:', e);
     }
 }
 
@@ -2673,6 +2883,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadConfig();
     setDefaultAttendanceDate();
     loadAbout();
+    checkLiveStatus();
 });
 
 // Registra funções globalmente
@@ -2726,6 +2937,12 @@ window.openStudyModal = openStudyModal;
 window.openEventModal = openEventModal;
 window.openProductModal = openProductModal;
 window.openCarouselModal = openCarouselModal;
+window.startLive = startLive;
+window.stopLive = stopLive;
+window.toggleCamera = toggleCamera;
+window.toggleScreenShare = toggleScreenShare;
+window.checkLiveStatus = checkLiveStatus;
+window.loadLiveHistory = loadLiveHistory;
 </script>
 </body>
 </html>

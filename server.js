@@ -2403,7 +2403,6 @@ app.get('/api/celulas/:id', async (req, res) => {
             return res.status(404).json({ error: 'Célula não encontrada' });
         }
         
-        // Buscar membros da célula
         const membros = await sql`
             SELECT 
                 m.id,
@@ -2417,7 +2416,6 @@ app.get('/api/celulas/:id', async (req, res) => {
             ORDER BY m.name
         `;
         
-        // Buscar estatísticas
         const estatisticas = await sql`
             SELECT * FROM celula_estatisticas 
             WHERE celula_id = ${id} 
@@ -2425,7 +2423,6 @@ app.get('/api/celulas/:id', async (req, res) => {
             LIMIT 10
         `;
         
-        // Buscar decisões recentes
         const decisoes = await sql`
             SELECT 
                 cd.*,
@@ -2501,14 +2498,12 @@ app.post('/api/celulas/:id/membros', auth, async (req, res) => {
             return res.status(400).json({ error: 'Membro é obrigatório' });
         }
         
-        // Verifica se o membro já está na célula
         const exists = await sql`
             SELECT * FROM celula_membros 
             WHERE celula_id = ${id} AND membro_id = ${membro_id}
         `;
         
         if (exists.length > 0) {
-            // Reativar se estiver inativo
             await sql`
                 UPDATE celula_membros 
                 SET is_active = true, data_entrada = CURRENT_DATE
@@ -2521,7 +2516,6 @@ app.post('/api/celulas/:id/membros', auth, async (req, res) => {
             `;
         }
         
-        // Atualizar estatísticas
         await atualizarEstatisticasCelula(id);
         
         res.json({ message: 'Membro adicionado à célula com sucesso' });
@@ -2551,7 +2545,7 @@ app.delete('/api/celulas/:id/membros/:membro_id', auth, async (req, res) => {
     }
 });
 
-// ---- REGISTRAR DECISÃO (BATISMO OU ACEITOU JESUS) ----
+// ---- REGISTRAR DECISÃO ----
 app.post('/api/celulas/:id/decisoes', auth, async (req, res) => {
     try {
         const { id } = req.params;
@@ -2576,51 +2570,7 @@ app.post('/api/celulas/:id/decisoes', auth, async (req, res) => {
     }
 });
 
-// ---- FUNÇÃO PARA ATUALIZAR ESTATÍSTICAS ----
-async function atualizarEstatisticasCelula(celula_id) {
-    try {
-        const hoje = new Date().toISOString().split('T')[0];
-        
-        // Contar membros ativos
-        const membros = await sql`
-            SELECT COUNT(*) as total FROM celula_membros 
-            WHERE celula_id = ${celula_id} AND is_active = true
-        `;
-        
-        // Contar batizados nos últimos 30 dias
-        const batizados = await sql`
-            SELECT COUNT(*) as total FROM celula_decisoes 
-            WHERE celula_id = ${celula_id} 
-            AND tipo = 'batismo' 
-            AND data_decisao >= CURRENT_DATE - INTERVAL '30 days'
-        `;
-        
-        // Contar decisões (aceitaram Jesus) nos últimos 30 dias
-        const decisoes = await sql`
-            SELECT COUNT(*) as total FROM celula_decisoes 
-            WHERE celula_id = ${celula_id} 
-            AND tipo = 'decisao' 
-            AND data_decisao >= CURRENT_DATE - INTERVAL '30 days'
-        `;
-        
-        // Inserir ou atualizar estatísticas do dia
-        await sql`
-            INSERT INTO celula_estatisticas (celula_id, data_registro, total_membros, batizados, aceitaram_jesus)
-            VALUES (${celula_id}, ${hoje}, ${membros[0].total}, ${batizados[0].total}, ${decisoes[0].total})
-            ON CONFLICT (celula_id, data_registro) 
-            DO UPDATE SET 
-                total_membros = ${membros[0].total},
-                batizados = ${batizados[0].total},
-                aceitaram_jesus = ${decisoes[0].total}
-        `;
-        
-        console.log(`📊 Estatísticas da célula ${celula_id} atualizadas`);
-    } catch (error) {
-        console.error('❌ Erro ao atualizar estatísticas:', error);
-    }
-}
-
-// ---- ROTA PARA ESTATÍSTICAS DETALHADAS ----
+// ---- ESTATÍSTICAS DA CÉLULA ----
 app.get('/api/celulas/:id/estatisticas', async (req, res) => {
     try {
         const { id } = req.params;
@@ -2650,6 +2600,46 @@ app.get('/api/celulas/:id/estatisticas', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+// ---- FUNÇÃO PARA ATUALIZAR ESTATÍSTICAS ----
+async function atualizarEstatisticasCelula(celula_id) {
+    try {
+        const hoje = new Date().toISOString().split('T')[0];
+        
+        const membros = await sql`
+            SELECT COUNT(*) as total FROM celula_membros 
+            WHERE celula_id = ${celula_id} AND is_active = true
+        `;
+        
+        const batizados = await sql`
+            SELECT COUNT(*) as total FROM celula_decisoes 
+            WHERE celula_id = ${celula_id} 
+            AND tipo = 'batismo' 
+            AND data_decisao >= CURRENT_DATE - INTERVAL '30 days'
+        `;
+        
+        const decisoes = await sql`
+            SELECT COUNT(*) as total FROM celula_decisoes 
+            WHERE celula_id = ${celula_id} 
+            AND tipo = 'decisao' 
+            AND data_decisao >= CURRENT_DATE - INTERVAL '30 days'
+        `;
+        
+        await sql`
+            INSERT INTO celula_estatisticas (celula_id, data_registro, total_membros, batizados, aceitaram_jesus)
+            VALUES (${celula_id}, ${hoje}, ${membros[0].total}, ${batizados[0].total}, ${decisoes[0].total})
+            ON CONFLICT (celula_id, data_registro) 
+            DO UPDATE SET 
+                total_membros = ${membros[0].total},
+                batizados = ${batizados[0].total},
+                aceitaram_jesus = ${decisoes[0].total}
+        `;
+        
+        console.log(`📊 Estatísticas da célula ${celula_id} atualizadas`);
+    } catch (error) {
+        console.error('❌ Erro ao atualizar estatísticas:', error);
+    }
+}
 
 // ============================================
 // ===== SERVE HTML =====

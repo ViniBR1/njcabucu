@@ -37,7 +37,6 @@ try {
         });
         PaymentService = new Payment(client);
         console.log('✅ Mercado Pago configurado');
-        console.log('🔑 Access Token:', process.env.MP_ACCESS_TOKEN.substring(0, 20) + '...');
     }
 } catch (error) {
     console.log('⚠️ Erro MP:', error.message);
@@ -109,7 +108,6 @@ async function initDB() {
     console.log('📝 Criando tabelas...');
     
     try {
-        // USERS
         await sql`CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -124,7 +122,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // DEPARTMENTS
         await sql`CREATE TABLE IF NOT EXISTS departments (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -135,7 +132,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // DEPARTMENT MEMBERS
         await sql`CREATE TABLE IF NOT EXISTS department_members (
             department_id INTEGER,
             user_id INTEGER,
@@ -144,7 +140,6 @@ async function initDB() {
             PRIMARY KEY (department_id, user_id)
         )`;
 
-        // STUDIES
         await sql`CREATE TABLE IF NOT EXISTS studies (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -155,7 +150,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // PRODUCTS
         await sql`CREATE TABLE IF NOT EXISTS products (
             id SERIAL PRIMARY KEY,
             name VARCHAR(200) NOT NULL,
@@ -168,7 +162,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // EVENTS
         await sql`CREATE TABLE IF NOT EXISTS events (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -180,7 +173,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // PRAYERS
         await sql`CREATE TABLE IF NOT EXISTS prayers (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100),
@@ -189,7 +181,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // ORDERS (VENDAS)
         await sql`CREATE TABLE IF NOT EXISTS orders (
             id SERIAL PRIMARY KEY,
             user_name VARCHAR(100),
@@ -203,7 +194,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // REGISTRATIONS
         await sql`CREATE TABLE IF NOT EXISTS registrations (
             id SERIAL PRIMARY KEY,
             type VARCHAR(50) NOT NULL,
@@ -219,7 +209,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // WORSHIP SCALES
         await sql`CREATE TABLE IF NOT EXISTS worship_scales (
             id SERIAL PRIMARY KEY,
             department_id INTEGER,
@@ -234,7 +223,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // DONATIONS
         await sql`CREATE TABLE IF NOT EXISTS donations (
             id SERIAL PRIMARY KEY,
             user_name VARCHAR(100),
@@ -248,7 +236,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // CAROUSEL
         await sql`CREATE TABLE IF NOT EXISTS carousel_images (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200),
@@ -261,7 +248,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // SITE SETTINGS
         await sql`CREATE TABLE IF NOT EXISTS site_settings (
             id SERIAL PRIMARY KEY,
             key VARCHAR(100) UNIQUE NOT NULL,
@@ -269,7 +255,6 @@ async function initDB() {
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // ===== TABELAS DE MEMBROS E SECRETARIA =====
         await sql`CREATE TABLE IF NOT EXISTS members (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -360,7 +345,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // ===== TABELAS PARA DEPARTAMENTOS =====
         await sql`CREATE TABLE IF NOT EXISTS songs (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -380,9 +364,7 @@ async function initDB() {
             UNIQUE(user_id, date)
         )`;
 
-        // ============================================
         // ===== TABELAS DE CÉLULAS =====
-        // ============================================
         await sql`CREATE TABLE IF NOT EXISTS celulas (
             id SERIAL PRIMARY KEY,
             nome VARCHAR(100) NOT NULL,
@@ -425,6 +407,38 @@ async function initDB() {
             tipo VARCHAR(20) NOT NULL,
             data_decisao DATE DEFAULT CURRENT_DATE,
             observacao TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // ===== TABELAS DE LIVES =====
+        await sql`CREATE TABLE IF NOT EXISTS lives (
+            id SERIAL PRIMARY KEY,
+            titulo VARCHAR(200) NOT NULL,
+            descricao TEXT,
+            status VARCHAR(20) DEFAULT 'offline',
+            stream_key VARCHAR(100) UNIQUE,
+            iniciada_por INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            started_at TIMESTAMP,
+            ended_at TIMESTAMP,
+            viewers INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS live_viewers (
+            id SERIAL PRIMARY KEY,
+            live_id INTEGER REFERENCES lives(id) ON DELETE CASCADE,
+            viewer_id VARCHAR(100),
+            joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            left_at TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS notifications (
+            id SERIAL PRIMARY KEY,
+            type VARCHAR(50),
+            title VARCHAR(200),
+            message TEXT,
+            link VARCHAR(500),
+            is_read BOOLEAN DEFAULT false,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
@@ -508,7 +522,7 @@ app.post('/api/change-password', async (req, res) => {
     }
 });
 
-// ----- USUÁRIOS E COLABORADORES -----
+// ----- USUÁRIOS -----
 app.post('/api/users', auth, pastorOnly, async (req, res) => {
     try {
         const { name, email, password, role, department_name, phone, is_leader, department_id } = req.body;
@@ -641,7 +655,6 @@ app.get('/api/departments/active', async (req, res) => {
         `;
         res.json(depts);
     } catch (error) {
-        console.error('❌ Erro ao buscar departamentos:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -779,7 +792,6 @@ app.get('/api/events/active', async (req, res) => {
         `;
         res.json(events);
     } catch (error) {
-        console.error('❌ Erro ao buscar eventos ativos:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -826,7 +838,7 @@ app.put('/api/prayers/:id/read', auth, async (req, res) => {
     }
 });
 
-// ----- PEDIDOS (VENDAS) -----
+// ----- PEDIDOS -----
 app.post('/api/orders', async (req, res) => {
     try {
         const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status } = req.body;
@@ -835,10 +847,8 @@ app.post('/api/orders', async (req, res) => {
             VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(items)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
             RETURNING *
         `;
-        console.log('✅ Pedido criado:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
-        console.error('❌ Erro ao criar pedido:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -846,10 +856,8 @@ app.post('/api/orders', async (req, res) => {
 app.get('/api/orders', auth, async (req, res) => {
     try {
         const orders = await sql`SELECT * FROM orders ORDER BY created_at DESC`;
-        console.log('📦 Total de vendas:', orders.length);
         res.json(orders);
     } catch (error) {
-        console.error('❌ Erro ao buscar vendas:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -871,14 +879,11 @@ app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
             ORDER BY date DESC
         `;
         
-        const result = {
+        res.json({
             total: totalSales[0] || { count: 0, total: 0 },
             byDay: salesByDay || []
-        };
-        
-        res.json(result);
+        });
     } catch (error) {
-        console.error('❌ Erro nas estatísticas:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -911,10 +916,8 @@ app.post('/api/registrations', async (req, res) => {
             VALUES (${type}, ${name}, ${email || ''}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${finalDetails || ''}, ${parseFloat(amount) || 0}, ${is_paid || false})
             RETURNING *
         `;
-        console.log('✅ Inscrição criada:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
-        console.error('❌ Erro inscrição:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -930,8 +933,7 @@ app.get('/api/registrations', auth, async (req, res) => {
 
 app.put('/api/registrations/:id/approve', auth, async (req, res) => {
     try {
-        const { id } = req.params;
-        await sql`UPDATE registrations SET status = 'approved' WHERE id = ${id}`;
+        await sql`UPDATE registrations SET status = 'approved' WHERE id = ${req.params.id}`;
         res.json({ message: 'Inscrição aprovada' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -971,377 +973,228 @@ app.get('/api/donations', auth, async (req, res) => {
     }
 });
 
-// ============================================
-// ===== ANIVERSARIANTES =====
-// ============================================
-
+// ----- ANIVERSARIANTES -----
 app.get('/api/birthdays', async (req, res) => {
     try {
         const today = new Date();
         const currentMonth = today.getMonth() + 1;
         
         const birthdayMembers = await sql`
-            SELECT 
-                id, 
-                name, 
-                birth_date,
-                phone,
-                department_name,
-                'member' as source
+            SELECT id, name, birth_date, phone, department_name
             FROM members 
             WHERE is_active = true 
             AND EXTRACT(MONTH FROM birth_date) = ${currentMonth}
             ORDER BY EXTRACT(DAY FROM birth_date)
-        `;
-        
-        const birthdayLegacy = await sql`
-            SELECT 
-                id, 
-                name, 
-                birth_date,
-                phone,
-                NULL as department_name,
-                'legacy' as source
-            FROM birthdays 
-            WHERE is_active = true 
-            AND EXTRACT(MONTH FROM birth_date) = ${currentMonth}
-            ORDER BY EXTRACT(DAY FROM birth_date)
-        `;
-        
-        const allBirthdays = [...birthdayMembers, ...birthdayLegacy];
-        const uniqueBirthdays = [];
-        const names = new Set();
-        
-        allBirthdays.forEach(b => {
-            if (!names.has(b.name)) {
-                names.add(b.name);
-                uniqueBirthdays.push(b);
-            }
-        });
-        
-        console.log(`🎂 Aniversariantes do mês ${currentMonth}:`, uniqueBirthdays.length);
-        res.json(uniqueBirthdays);
-    } catch (error) {
-        console.error('❌ Erro ao buscar aniversariantes:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/birthdays/today', async (req, res) => {
-    try {
-        const today = new Date();
-        const currentMonth = today.getMonth() + 1;
-        const currentDay = today.getDate();
-        
-        const birthdayMembers = await sql`
-            SELECT 
-                id, 
-                name, 
-                birth_date,
-                phone,
-                department_name
-            FROM members 
-            WHERE is_active = true 
-            AND EXTRACT(MONTH FROM birth_date) = ${currentMonth}
-            AND EXTRACT(DAY FROM birth_date) = ${currentDay}
-            ORDER BY name
         `;
         
         res.json(birthdayMembers);
     } catch (error) {
-        console.error('❌ Erro ao buscar aniversariantes do dia:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// ----- CASAMENTOS -----
-app.get('/api/weddings', async (req, res) => {
+// ----- MEMBROS -----
+app.post('/api/members', auth, async (req, res) => {
     try {
-        const today = new Date();
-        const weddings = await sql`
-            SELECT * FROM weddings 
+        const { name, email, phone, birth_date, marital_status, spouse_name, children, baptism_date, baptism_place, address, department_id, department_name, notes } = req.body;
+
+        if (!name) {
+            return res.status(400).json({ error: 'Nome é obrigatório' });
+        }
+
+        const result = await sql`
+            INSERT INTO members (name, email, phone, birth_date, marital_status, spouse_name, children, baptism_date, baptism_place, address, department_id, department_name, notes, created_by)
+            VALUES (${name}, ${email}, ${phone}, ${birth_date}, ${marital_status}, ${spouse_name}, ${children}, ${baptism_date}, ${baptism_place}, ${address}, ${department_id}, ${department_name}, ${notes}, ${req.user.id})
+            RETURNING *
+        `;
+
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/members', auth, async (req, res) => {
+    try {
+        const members = await sql`
+            SELECT * FROM members 
             WHERE is_active = true 
-            ORDER BY 
-                EXTRACT(MONTH FROM wedding_date) = ${today.getMonth() + 1} DESC,
-                EXTRACT(DAY FROM wedding_date) = ${today.getDate()} DESC,
-                EXTRACT(MONTH FROM wedding_date),
-                EXTRACT(DAY FROM wedding_date)
-            LIMIT 50
+            ORDER BY name
         `;
-        res.json(weddings);
+        res.json(members);
     } catch (error) {
-        console.error('❌ Erro ao buscar casamentos:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-app.post('/api/weddings', auth, pastorOnly, async (req, res) => {
+app.delete('/api/members/:id', auth, async (req, res) => {
     try {
-        const { name, spouse_name, wedding_date, phone } = req.body;
-        const result = await sql`
-            INSERT INTO weddings (name, spouse_name, wedding_date, phone)
-            VALUES (${name}, ${spouse_name}, ${wedding_date}, ${phone || ''})
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
+        await sql`UPDATE members SET is_active = false WHERE id = ${req.params.id}`;
+        res.json({ message: 'Membro removido' });
     } catch (error) {
-        console.error('❌ Erro ao criar casamento:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// ----- BATISMO DATAS -----
-app.get('/api/baptism-dates', async (req, res) => {
+// ----- FREQUÊNCIA -----
+app.post('/api/attendance', auth, async (req, res) => {
     try {
-        const dates = await sql`
-            SELECT id, date, title, description, max_participants, current_participants, is_active
-            FROM baptism_dates 
-            WHERE is_active = true
-            ORDER BY date ASC
-        `;
-        res.json(dates);
-    } catch (error) {
-        console.error('❌ Erro ao buscar datas de batismo:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
+        const { member_id, event_date, service_type, present } = req.body;
 
-app.post('/api/baptism-dates', auth, pastorOnly, async (req, res) => {
-    try {
-        const { date, title, description, max_participants } = req.body;
-        const result = await sql`
-            INSERT INTO baptism_dates (date, title, description, max_participants, created_by)
-            VALUES (${date}, ${title || 'Batismo'}, ${description || ''}, ${max_participants || 20}, ${req.user.id})
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao criar data de batismo:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/baptism-dates/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        await sql`UPDATE baptism_dates SET is_active = false WHERE id = ${req.params.id}`;
-        res.json({ message: 'Data de batismo removida' });
-    } catch (error) {
-        console.error('❌ Erro ao remover data de batismo:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== MÚSICAS =====
-// ============================================
-
-app.post('/api/songs', auth, async (req, res) => {
-    try {
-        const { title, artist, key, lyrics, department_id } = req.body;
-        
-        const deptId = department_id || req.user.department_id;
-        if (!deptId) {
-            return res.status(400).json({ error: 'Departamento não encontrado' });
+        if (!member_id || !event_date) {
+            return res.status(400).json({ error: 'Membro e data são obrigatórios' });
         }
-        
+
         const result = await sql`
-            INSERT INTO songs (title, artist, key, lyrics, department_id, created_by)
-            VALUES (${title}, ${artist || ''}, ${key || 'C'}, ${lyrics}, ${deptId}, ${req.user.id})
+            INSERT INTO attendance (member_id, event_date, service_type, present, check_in_time)
+            VALUES (${member_id}, ${event_date}, ${service_type || 'domingo'}, ${present || false}, ${present ? new Date() : null})
+            ON CONFLICT (member_id, event_date, service_type) 
+            DO UPDATE SET present = ${present || false}, check_in_time = ${present ? new Date() : null}
             RETURNING *
         `;
-        
+
         res.status(201).json(result[0]);
     } catch (error) {
-        console.error('❌ Erro ao criar música:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-app.get('/api/songs', auth, async (req, res) => {
+app.get('/api/attendance/date/:date', auth, async (req, res) => {
     try {
-        const { department_id } = req.query;
-        let songs;
-        
-        if (department_id) {
-            songs = await sql`
-                SELECT * FROM songs 
-                WHERE department_id = ${department_id}
-                ORDER BY title
-            `;
-        } else if (req.user.department_id) {
-            songs = await sql`
-                SELECT * FROM songs 
-                WHERE department_id = ${req.user.department_id}
-                ORDER BY title
-            `;
-        } else {
-            songs = await sql`
-                SELECT * FROM songs 
-                ORDER BY title
-            `;
-        }
-        
-        res.json(songs || []);
+        const { date } = req.params;
+        const records = await sql`
+            SELECT a.*, m.name as member_name
+            FROM attendance a
+            LEFT JOIN members m ON a.member_id = m.id
+            WHERE a.event_date = ${date}
+            ORDER BY a.created_at DESC
+        `;
+        res.json(records);
     } catch (error) {
-        console.error('❌ Erro ao buscar músicas:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-app.delete('/api/songs/:id', auth, async (req, res) => {
+// ----- DÍZIMOS -----
+app.post('/api/tithes', auth, async (req, res) => {
+    try {
+        const { member_id, member_name, type, amount, payment_method, payment_date, description } = req.body;
+
+        if (!type || !amount) {
+            return res.status(400).json({ error: 'Tipo e valor são obrigatórios' });
+        }
+
+        const result = await sql`
+            INSERT INTO tithes (member_id, member_name, type, amount, payment_method, payment_date, description, received_by)
+            VALUES (${member_id || null}, ${member_name || ''}, ${type}, ${amount}, ${payment_method || 'dinheiro'}, ${payment_date || new Date()}, ${description || ''}, ${req.user.id})
+            RETURNING *
+        `;
+
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/tithes', auth, async (req, res) => {
+    try {
+        const tithes = await sql`SELECT * FROM tithes ORDER BY payment_date DESC`;
+        res.json(tithes);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/tithes/summary', auth, async (req, res) => {
+    try {
+        const result = await sql`
+            SELECT type, COUNT(*) as count, SUM(amount) as total
+            FROM tithes
+            GROUP BY type
+        `;
+
+        const total = result.reduce((sum, r) => sum + parseFloat(r.total), 0);
+
+        res.json({ by_type: result, total });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- CONTAS -----
+app.post('/api/bills', auth, async (req, res) => {
+    try {
+        const { description, category, amount, due_date, notes } = req.body;
+
+        if (!description || !category || !amount || !due_date) {
+            return res.status(400).json({ error: 'Preencha todos os campos obrigatórios' });
+        }
+
+        const result = await sql`
+            INSERT INTO bills (description, category, amount, due_date, notes, created_by)
+            VALUES (${description}, ${category}, ${amount}, ${due_date}, ${notes || ''}, ${req.user.id})
+            RETURNING *
+        `;
+
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/bills', auth, async (req, res) => {
+    try {
+        const bills = await sql`SELECT * FROM bills ORDER BY due_date ASC, paid ASC`;
+        res.json(bills);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/bills/:id/pay', auth, async (req, res) => {
     try {
         const { id } = req.params;
-        
-        const song = await sql`SELECT * FROM songs WHERE id = ${id}`;
-        if (song.length === 0) {
-            return res.status(404).json({ error: 'Música não encontrada' });
-        }
-        
-        await sql`DELETE FROM songs WHERE id = ${id}`;
-        res.json({ message: 'Música removida com sucesso' });
-    } catch (error) {
-        console.error('❌ Erro ao remover música:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
+        const { payment_date, payment_method } = req.body;
 
-// ----- DISPONIBILIDADE -----
-app.post('/api/availability', auth, async (req, res) => {
-    try {
-        const { user_id, date } = req.body;
         const result = await sql`
-            INSERT INTO availability (user_id, date)
-            VALUES (${user_id || req.user.id}, ${date})
+            UPDATE bills SET paid = true, payment_date = ${payment_date || new Date()}, payment_method = ${payment_method || 'dinheiro'}
+            WHERE id = ${id}
             RETURNING *
         `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao adicionar disponibilidade:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
 
-app.get('/api/availability/:user_id', auth, async (req, res) => {
-    try {
-        const { user_id } = req.params;
-        const availability = await sql`
-            SELECT * FROM availability 
-            WHERE user_id = ${user_id} 
-            ORDER BY date ASC
-        `;
-        res.json(availability);
-    } catch (error) {
-        console.error('❌ Erro ao buscar disponibilidade:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/availability/:id', auth, async (req, res) => {
-    try {
-        await sql`DELETE FROM availability WHERE id = ${req.params.id}`;
-        res.json({ message: 'Disponibilidade removida' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== WORSHIP SCALES =====
-// ============================================
-
-app.post('/api/worship-scales', auth, async (req, res) => {
-    try {
-        const { department_id, event_date, leader_id, minister_id, songs, song_ids, palette, rehearsal, musicians } = req.body;
-        
-        const user = await sql`
-            SELECT * FROM users 
-            WHERE id = ${req.user.id} 
-            AND (is_leader = true OR role = 'lider' OR role = 'pastor')
-        `;
-        
-        if (user.length === 0 && req.user.role !== 'pastor') {
-            return res.status(403).json({ error: 'Apenas líderes podem criar escalas' });
+        if (result.length === 0) {
+            return res.status(404).json({ error: 'Conta não encontrada' });
         }
-        
-        const deptId = department_id || user[0]?.department_id;
-        if (!deptId) {
-            return res.status(400).json({ error: 'Departamento não encontrado' });
-        }
-        
-        const songsArray = songs || [];
-        const songIdsArray = song_ids || [];
-        const musiciansArray = musicians || [];
-        
-        const result = await sql`
-            INSERT INTO worship_scales (
-                department_id, 
-                event_date, 
-                leader_id, 
-                minister_id, 
-                songs, 
-                song_ids, 
-                palette, 
-                rehearsal, 
-                musician_ids
-            ) VALUES (
-                ${deptId}, 
-                ${event_date}, 
-                ${leader_id || req.user.id}, 
-                ${minister_id || null}, 
-                ${songsArray}, 
-                ${JSON.stringify(songIdsArray)}, 
-                ${palette || 'Azul, Prata, Branco, Dourado'}, 
-                ${rehearsal || false}, 
-                ${JSON.stringify(musiciansArray)}
-            ) RETURNING *
-        `;
-        
-        res.status(201).json(result[0]);
+
+        res.json(result[0]);
     } catch (error) {
-        console.error('❌ Erro ao criar escala:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-app.get('/api/worship-scales', auth, async (req, res) => {
+app.delete('/api/bills/:id', auth, async (req, res) => {
     try {
-        const scales = await sql`
+        await sql`DELETE FROM bills WHERE id = ${req.params.id}`;
+        res.json({ message: 'Conta removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/bills/summary', auth, async (req, res) => {
+    try {
+        const summary = await sql`
             SELECT 
-                ws.*, 
-                d.name as department_name, 
-                u.name as leader_name,
-                m.name as minister_name
-            FROM worship_scales ws
-            LEFT JOIN departments d ON ws.department_id = d.id
-            LEFT JOIN users u ON ws.leader_id = u.id
-            LEFT JOIN users m ON ws.minister_id = m.id
-            ORDER BY ws.event_date DESC
+                COUNT(*) as total,
+                SUM(CASE WHEN paid = false THEN amount ELSE 0 END) as pending,
+                SUM(CASE WHEN paid = true THEN amount ELSE 0 END) as paid_total,
+                COUNT(CASE WHEN paid = false THEN 1 ELSE 0 END) as pending_count,
+                COUNT(CASE WHEN paid = true THEN 1 ELSE 0 END) as paid_count
+            FROM bills
         `;
-        
-        res.json(scales || []);
-    } catch (error) {
-        console.error('❌ Erro ao buscar escalas:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
 
-app.delete('/api/worship-scales/:id', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        
-        const scale = await sql`SELECT * FROM worship_scales WHERE id = ${id}`;
-        if (scale.length === 0) {
-            return res.status(404).json({ error: 'Escala não encontrada' });
-        }
-        
-        if (req.user.role !== 'pastor' && req.user.role !== 'lider' && !req.user.is_leader) {
-            return res.status(403).json({ error: 'Você não tem permissão para remover esta escala' });
-        }
-        
-        await sql`DELETE FROM worship_scales WHERE id = ${id}`;
-        res.json({ message: 'Escala removida com sucesso' });
+        res.json({ summary: summary[0] });
     } catch (error) {
-        console.error('❌ Erro ao remover escala:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1363,10 +1216,8 @@ app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, 
                 (SELECT COALESCE(MAX(order_position), 0) + 1 FROM carousel_images))
             RETURNING *
         `;
-        console.log('✅ Carrossel criado:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
-        console.error('❌ Erro ao criar carrossel:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1376,10 +1227,8 @@ app.get('/api/carousel', async (req, res) => {
         const images = await sql`
             SELECT * FROM carousel_images WHERE active = true ORDER BY order_position, created_at
         `;
-        console.log('🖼️ Carrossel imagens:', images.length);
         res.json(images);
     } catch (error) {
-        console.error('❌ Erro carrossel:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1418,470 +1267,7 @@ app.post('/api/settings', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ============================================
-// ===== MEMBROS =====
-// ============================================
-
-app.post('/api/members', auth, async (req, res) => {
-    try {
-        const { 
-            name, email, phone, birth_date, marital_status, spouse_name, 
-            children, baptism_date, baptism_place, address, 
-            department_id, department_name, notes 
-        } = req.body;
-
-        if (!name) {
-            return res.status(400).json({ error: 'Nome é obrigatório' });
-        }
-
-        const result = await sql`
-            INSERT INTO members (
-                name, email, phone, birth_date, marital_status, spouse_name,
-                children, baptism_date, baptism_place, address,
-                department_id, department_name, notes, created_by
-            ) VALUES (
-                ${name}, ${email}, ${phone}, ${birth_date}, ${marital_status}, ${spouse_name},
-                ${children}, ${baptism_date}, ${baptism_place}, ${address},
-                ${department_id}, ${department_name}, ${notes}, ${req.user.id}
-            ) RETURNING *
-        `;
-
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao criar membro:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/members', auth, async (req, res) => {
-    try {
-        const { department_id, search } = req.query;
-        
-        let members;
-        
-        if (department_id && search) {
-            members = await sql`
-                SELECT * FROM members 
-                WHERE is_active = true 
-                AND department_id = ${department_id}
-                AND (name ILIKE ${'%' + search + '%'} OR email ILIKE ${'%' + search + '%'} OR phone ILIKE ${'%' + search + '%'})
-                ORDER BY name
-            `;
-        } else if (department_id) {
-            members = await sql`
-                SELECT * FROM members 
-                WHERE is_active = true 
-                AND department_id = ${department_id}
-                ORDER BY name
-            `;
-        } else if (search) {
-            members = await sql`
-                SELECT * FROM members 
-                WHERE is_active = true 
-                AND (name ILIKE ${'%' + search + '%'} OR email ILIKE ${'%' + search + '%'} OR phone ILIKE ${'%' + search + '%'})
-                ORDER BY name
-            `;
-        } else {
-            members = await sql`
-                SELECT * FROM members 
-                WHERE is_active = true 
-                ORDER BY name
-            `;
-        }
-
-        res.json(members);
-    } catch (error) {
-        console.error('❌ Erro ao listar membros:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/members/:id', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const member = await sql`SELECT * FROM members WHERE id = ${id}`;
-        
-        if (member.length === 0) {
-            return res.status(404).json({ error: 'Membro não encontrado' });
-        }
-
-        const attendance = await sql`
-            SELECT * FROM attendance 
-            WHERE member_id = ${id} 
-            ORDER BY event_date DESC 
-            LIMIT 10
-        `;
-
-        res.json({
-            ...member[0],
-            attendance: attendance
-        });
-    } catch (error) {
-        console.error('❌ Erro ao buscar membro:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.put('/api/members/:id', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { 
-            name, email, phone, birth_date, marital_status, spouse_name,
-            children, baptism_date, baptism_place, address,
-            department_id, department_name, notes, is_active
-        } = req.body;
-
-        const result = await sql`
-            UPDATE members SET 
-                name = COALESCE(${name}, name),
-                email = COALESCE(${email}, email),
-                phone = COALESCE(${phone}, phone),
-                birth_date = COALESCE(${birth_date}, birth_date),
-                marital_status = COALESCE(${marital_status}, marital_status),
-                spouse_name = COALESCE(${spouse_name}, spouse_name),
-                children = COALESCE(${children}, children),
-                baptism_date = COALESCE(${baptism_date}, baptism_date),
-                baptism_place = COALESCE(${baptism_place}, baptism_place),
-                address = COALESCE(${address}, address),
-                department_id = COALESCE(${department_id}, department_id),
-                department_name = COALESCE(${department_name}, department_name),
-                notes = COALESCE(${notes}, notes),
-                is_active = COALESCE(${is_active}, is_active)
-            WHERE id = ${id}
-            RETURNING *
-        `;
-
-        if (result.length === 0) {
-            return res.status(404).json({ error: 'Membro não encontrado' });
-        }
-
-        res.json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao atualizar membro:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/members/:id', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        await sql`UPDATE members SET is_active = false WHERE id = ${id}`;
-        res.json({ message: 'Membro removido com sucesso' });
-    } catch (error) {
-        console.error('❌ Erro ao remover membro:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== FREQUÊNCIA =====
-// ============================================
-
-app.post('/api/attendance', auth, async (req, res) => {
-    try {
-        const { member_id, event_date, service_type, present } = req.body;
-
-        if (!member_id || !event_date) {
-            return res.status(400).json({ error: 'Membro e data são obrigatórios' });
-        }
-
-        const result = await sql`
-            INSERT INTO attendance (member_id, event_date, service_type, present, check_in_time)
-            VALUES (${member_id}, ${event_date}, ${service_type || 'domingo'}, ${present || false}, ${present ? new Date() : null})
-            ON CONFLICT (member_id, event_date, service_type) 
-            DO UPDATE SET present = ${present || false}, check_in_time = ${present ? new Date() : null}
-            RETURNING *
-        `;
-
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao registrar frequência:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/attendance/:member_id', auth, async (req, res) => {
-    try {
-        const { member_id } = req.params;
-        const { limit = 10 } = req.query;
-
-        const result = await sql`
-            SELECT * FROM attendance 
-            WHERE member_id = ${member_id} 
-            ORDER BY event_date DESC 
-            LIMIT ${limit}
-        `;
-
-        res.json(result);
-    } catch (error) {
-        console.error('❌ Erro ao buscar frequência:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/attendance/stats/:member_id', auth, async (req, res) => {
-    try {
-        const { member_id } = req.params;
-
-        const result = await sql`
-            SELECT 
-                COUNT(*) as total,
-                SUM(CASE WHEN present = true THEN 1 ELSE 0 END) as present,
-                SUM(CASE WHEN present = false THEN 1 ELSE 0 END) as absent,
-                ROUND((SUM(CASE WHEN present = true THEN 1 ELSE 0 END)::DECIMAL / COUNT(*) * 100), 2) as percentage
-            FROM attendance 
-            WHERE member_id = ${member_id}
-        `;
-
-        res.json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao buscar estatísticas:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/attendance/date/:date', auth, async (req, res) => {
-    try {
-        const { date } = req.params;
-        
-        const records = await sql`
-            SELECT a.*, m.name as member_name
-            FROM attendance a
-            LEFT JOIN members m ON a.member_id = m.id
-            WHERE a.event_date = ${date}
-            ORDER BY a.created_at DESC
-        `;
-        
-        res.json(records);
-    } catch (error) {
-        console.error('❌ Erro ao buscar frequência por data:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== DÍZIMOS E OFERTAS =====
-// ============================================
-
-app.post('/api/tithes', auth, async (req, res) => {
-    try {
-        const { member_id, member_name, type, amount, payment_method, payment_date, description } = req.body;
-
-        if (!type || !amount) {
-            return res.status(400).json({ error: 'Tipo e valor são obrigatórios' });
-        }
-
-        const result = await sql`
-            INSERT INTO tithes (member_id, member_name, type, amount, payment_method, payment_date, description, received_by)
-            VALUES (${member_id || null}, ${member_name || ''}, ${type}, ${amount}, ${payment_method || 'dinheiro'}, ${payment_date || new Date()}, ${description || ''}, ${req.user.id})
-            RETURNING *
-        `;
-
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao registrar dízimo:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/tithes', auth, async (req, res) => {
-    try {
-        const { type, start_date, end_date, member_id } = req.query;
-        
-        let tithes;
-        
-        if (type && member_id) {
-            tithes = await sql`
-                SELECT * FROM tithes 
-                WHERE type = ${type} AND member_id = ${member_id}
-                ORDER BY payment_date DESC
-            `;
-        } else if (type) {
-            tithes = await sql`
-                SELECT * FROM tithes 
-                WHERE type = ${type}
-                ORDER BY payment_date DESC
-            `;
-        } else if (member_id) {
-            tithes = await sql`
-                SELECT * FROM tithes 
-                WHERE member_id = ${member_id}
-                ORDER BY payment_date DESC
-            `;
-        } else {
-            tithes = await sql`
-                SELECT * FROM tithes 
-                ORDER BY payment_date DESC
-            `;
-        }
-
-        res.json(tithes);
-    } catch (error) {
-        console.error('❌ Erro ao listar dízimos:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/tithes/summary', auth, async (req, res) => {
-    try {
-        const result = await sql`
-            SELECT 
-                type,
-                COUNT(*) as count,
-                SUM(amount) as total
-            FROM tithes
-            GROUP BY type
-            ORDER BY type
-        `;
-
-        const total = result.reduce((sum, r) => sum + parseFloat(r.total), 0);
-
-        res.json({
-            by_type: result,
-            total: total
-        });
-    } catch (error) {
-        console.error('❌ Erro ao buscar resumo:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== CONTAS A PAGAR =====
-// ============================================
-
-app.post('/api/bills', auth, async (req, res) => {
-    try {
-        const { description, category, amount, due_date, notes } = req.body;
-
-        if (!description || !category || !amount || !due_date) {
-            return res.status(400).json({ error: 'Preencha todos os campos obrigatórios' });
-        }
-
-        const result = await sql`
-            INSERT INTO bills (description, category, amount, due_date, notes, created_by)
-            VALUES (${description}, ${category}, ${amount}, ${due_date}, ${notes || ''}, ${req.user.id})
-            RETURNING *
-        `;
-
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao criar conta:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/bills', auth, async (req, res) => {
-    try {
-        const { paid, category } = req.query;
-        
-        let bills;
-        
-        if (paid !== undefined && category) {
-            bills = await sql`
-                SELECT * FROM bills 
-                WHERE paid = ${paid === 'true'} AND category = ${category}
-                ORDER BY due_date ASC, paid ASC
-            `;
-        } else if (paid !== undefined) {
-            bills = await sql`
-                SELECT * FROM bills 
-                WHERE paid = ${paid === 'true'}
-                ORDER BY due_date ASC, paid ASC
-            `;
-        } else if (category) {
-            bills = await sql`
-                SELECT * FROM bills 
-                WHERE category = ${category}
-                ORDER BY due_date ASC, paid ASC
-            `;
-        } else {
-            bills = await sql`
-                SELECT * FROM bills 
-                ORDER BY due_date ASC, paid ASC
-            `;
-        }
-
-        res.json(bills);
-    } catch (error) {
-        console.error('❌ Erro ao listar contas:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.put('/api/bills/:id/pay', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { payment_date, payment_method } = req.body;
-
-        const result = await sql`
-            UPDATE bills SET 
-                paid = true,
-                payment_date = ${payment_date || new Date()},
-                payment_method = ${payment_method || 'dinheiro'}
-            WHERE id = ${id}
-            RETURNING *
-        `;
-
-        if (result.length === 0) {
-            return res.status(404).json({ error: 'Conta não encontrada' });
-        }
-
-        res.json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao pagar conta:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/bills/:id', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        await sql`DELETE FROM bills WHERE id = ${id}`;
-        res.json({ message: 'Conta removida com sucesso' });
-    } catch (error) {
-        console.error('❌ Erro ao remover conta:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/bills/summary', auth, async (req, res) => {
-    try {
-        const summary = await sql`
-            SELECT 
-                COUNT(*) as total,
-                SUM(CASE WHEN paid = false THEN amount ELSE 0 END) as pending,
-                SUM(CASE WHEN paid = true THEN amount ELSE 0 END) as paid_total,
-                COUNT(CASE WHEN paid = false THEN 1 ELSE 0 END) as pending_count,
-                COUNT(CASE WHEN paid = true THEN 1 ELSE 0 END) as paid_count
-            FROM bills
-        `;
-
-        const categories = await sql`
-            SELECT 
-                category,
-                COUNT(*) as count,
-                SUM(CASE WHEN paid = false THEN amount ELSE 0 END) as pending,
-                SUM(CASE WHEN paid = true THEN amount ELSE 0 END) as paid_total
-            FROM bills
-            GROUP BY category
-            ORDER BY category
-        `;
-
-        res.json({
-            summary: summary[0],
-            by_category: categories
-        });
-    } catch (error) {
-        console.error('❌ Erro ao buscar resumo:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== MERCADO PAGO - PIX =====
-// ============================================
-
+// ----- MERCADO PAGO - PIX -----
 app.post('/api/create-pix-payment', async (req, res) => {
     try {
         const { amount, description, email, name, phone, cpf } = req.body;
@@ -1914,13 +1300,8 @@ app.post('/api/create-pix-payment', async (req, res) => {
         };
 
         console.log('📝 Criando pagamento PIX...');
-        console.log('📝 Valor:', valor);
-        console.log('📝 External Reference:', externalReference);
-        console.log('📝 Email:', email);
-
         const payment = await PaymentService.create(paymentData);
         console.log('✅ Pagamento criado:', payment.id);
-        console.log('✅ Status:', payment.status);
 
         const paymentLink = payment.point_of_interaction?.transaction_data?.ticket_url || 
                            `https://www.mercadopago.com.br/payments/${payment.id}`;
@@ -1939,67 +1320,7 @@ app.post('/api/create-pix-payment', async (req, res) => {
     }
 });
 
-// ============================================
-// ===== MERCADO PAGO - CARTÃO =====
-// ============================================
-
-app.post('/api/create-card-payment', async (req, res) => {
-    try {
-        const { amount, description, email, name, phone, cpf, card_token, installments } = req.body;
-
-        if (!process.env.MP_ACCESS_TOKEN || !PaymentService) {
-            return res.status(500).json({ error: 'Mercado Pago não configurado' });
-        }
-
-        if (!card_token) {
-            return res.status(400).json({ error: 'Token do cartão é obrigatório' });
-        }
-
-        const valor = parseFloat(amount);
-        if (isNaN(valor) || valor <= 0) {
-            return res.status(400).json({ error: 'Valor inválido' });
-        }
-
-        const paymentData = {
-            body: {
-                transaction_amount: valor,
-                description: description || 'Pagamento NJ Cabuçu',
-                payment_method_id: 'credit_card',
-                installments: parseInt(installments) || 1,
-                token: card_token,
-                payer: {
-                    email: email || 'cliente@email.com',
-                    first_name: name || 'Cliente',
-                    phone: { number: phone || '' },
-                    identification: { type: 'CPF', number: cpf || '12345678909' }
-                },
-                external_reference: `NJ-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-                notification_url: `${process.env.PUBLIC_URL || 'https://igrejanjcabucurj.vercel.app'}/api/webhook`
-            }
-        };
-
-        console.log('📝 Criando pagamento com cartão...');
-        console.log('📝 Valor:', valor);
-        const payment = await PaymentService.create(paymentData);
-        console.log('✅ Pagamento criado:', payment.id);
-        console.log('✅ Status:', payment.status);
-
-        res.json({
-            payment_id: payment.id,
-            status: payment.status,
-            status_detail: payment.status_detail,
-            external_reference: payment.external_reference
-        });
-    } catch (error) {
-        console.error('❌ Erro MP cartão:', error);
-        res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
-    }
-});
-
-// ============================================
-// ===== MERCADO PAGO - CARTÃO FALLBACK =====
-// ============================================
-
+// ----- MERCADO PAGO - CARTÃO FALLBACK -----
 app.post('/api/create-card-payment-fallback', async (req, res) => {
     try {
         const { amount, description, email, name, phone, cpf, card_number, card_expiry, card_cvv, installments } = req.body;
@@ -2030,15 +1351,10 @@ app.post('/api/create-card-payment-fallback', async (req, res) => {
             security_code: card_cvv,
             cardholder: {
                 name: name || 'Cliente',
-                identification: {
-                    type: 'CPF',
-                    number: cpf || '12345678909'
-                }
+                identification: { type: 'CPF', number: cpf || '12345678909' }
             }
         };
 
-        console.log('🔄 Criando token do cartão via API...');
-        
         const tokenResponse = await fetch('https://api.mercadopago.com/v1/card_tokens', {
             method: 'POST',
             headers: {
@@ -2051,20 +1367,13 @@ app.post('/api/create-card-payment-fallback', async (req, res) => {
         const tokenResult = await tokenResponse.json();
         
         if (tokenResult.error) {
-            console.error('❌ Erro ao criar token:', tokenResult.error);
             const testToken = 'test_' + Date.now();
             return await processCardPayment(testToken, valor, description, email, name, phone, cpf, installments, res);
         }
 
-        if (!tokenResult.id) {
-            throw new Error('Não foi possível gerar o token do cartão');
-        }
-
-        console.log('✅ Token criado:', tokenResult.id);
         return await processCardPayment(tokenResult.id, valor, description, email, name, phone, cpf, installments, res);
-
     } catch (error) {
-        console.error('❌ Erro MP cartão fallback:', error);
+        console.error('❌ Erro MP cartão:', error);
         res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
     }
 });
@@ -2089,13 +1398,7 @@ async function processCardPayment(token, valor, description, email, name, phone,
             }
         };
 
-        console.log('📝 Criando pagamento com cartão...');
-        console.log('📝 Valor:', valor);
-        
         const payment = await PaymentService.create(paymentData);
-        console.log('✅ Pagamento criado:', payment.id);
-        console.log('✅ Status:', payment.status);
-
         res.json({
             payment_id: payment.id,
             status: payment.status,
@@ -2108,81 +1411,7 @@ async function processCardPayment(token, valor, description, email, name, phone,
     }
 }
 
-// ============================================
-// ===== VERIFICAR STATUS DO PAGAMENTO =====
-// ============================================
-
-app.get('/api/check-payment/:paymentId', async (req, res) => {
-    try {
-        const { paymentId } = req.params;
-        
-        if (!PaymentService) {
-            return res.status(500).json({ error: 'Mercado Pago não configurado' });
-        }
-        
-        console.log('🔍 Verificando pagamento:', paymentId);
-        const payment = await PaymentService.get({ id: paymentId });
-        console.log('📊 Status:', payment.status);
-        
-        res.json({
-            id: payment.id,
-            status: payment.status,
-            status_detail: payment.status_detail,
-            external_reference: payment.external_reference
-        });
-    } catch (error) {
-        console.error('❌ Erro ao verificar pagamento:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/payment-status/:paymentId', async (req, res) => {
-    try {
-        const { paymentId } = req.params;
-        
-        if (!PaymentService) {
-            return res.status(500).json({ error: 'Mercado Pago não configurado' });
-        }
-        
-        console.log('🔍 Verificando pagamento (rota alternativa):', paymentId);
-        const payment = await PaymentService.get({ id: paymentId });
-        console.log('📊 Status:', payment.status);
-        
-        res.json({
-            id: payment.id,
-            status: payment.status,
-            status_detail: payment.status_detail,
-            external_reference: payment.external_reference
-        });
-    } catch (error) {
-        console.error('❌ Erro ao verificar pagamento:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/update-payment-status', async (req, res) => {
-    try {
-        const { payment_id, status } = req.body;
-        
-        await sql`
-            UPDATE orders SET status = ${status} WHERE payment_id = ${payment_id}
-        `;
-        await sql`
-            UPDATE donations SET status = ${status} WHERE payment_id = ${payment_id}
-        `;
-        
-        console.log(`✅ Status do pagamento ${payment_id} atualizado para ${status}`);
-        res.json({ message: 'Status atualizado com sucesso' });
-    } catch (error) {
-        console.error('❌ Erro ao atualizar status:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== WEBHOOK =====
-// ============================================
-
+// ----- WEBHOOK -----
 app.post('/api/webhook', async (req, res) => {
     try {
         console.log('📝 Webhook recebido:', JSON.stringify(req.body, null, 2));
@@ -2196,7 +1425,7 @@ app.post('/api/webhook', async (req, res) => {
             if (PaymentService) {
                 try {
                     const payment = await PaymentService.get({ id: paymentId });
-                    console.log('📊 Status do pagamento:', payment.status);
+                    console.log('📊 Status:', payment.status);
                     
                     if (payment.status === 'approved') {
                         await sql`
@@ -2205,18 +1434,10 @@ app.post('/api/webhook', async (req, res) => {
                         await sql`
                             UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}
                         `;
-                        console.log('✅ Pagamento aprovado e registrado!');
-                    } else if (payment.status === 'rejected' || payment.status === 'cancelled') {
-                        await sql`
-                            UPDATE orders SET status = 'rejected' WHERE payment_id = ${paymentId}
-                        `;
-                        await sql`
-                            UPDATE donations SET status = 'rejected' WHERE payment_id = ${paymentId}
-                        `;
-                        console.log('❌ Pagamento recusado/cancelado');
+                        console.log('✅ Pagamento aprovado!');
                     }
                 } catch (error) {
-                    console.error('❌ Erro ao buscar pagamento:', error);
+                    console.error('❌ Erro:', error);
                 }
             }
         }
@@ -2228,96 +1449,68 @@ app.post('/api/webhook', async (req, res) => {
     }
 });
 
-// ============================================
-// ===== PDF DE CONFIRMAÇÃO =====
-// ============================================
+// ----- CHECK PAYMENT -----
+app.get('/api/check-payment/:paymentId', async (req, res) => {
+    try {
+        const { paymentId } = req.params;
+        if (!PaymentService) {
+            return res.status(500).json({ error: 'Mercado Pago não configurado' });
+        }
+        const payment = await PaymentService.get({ id: paymentId });
+        res.json({
+            id: payment.id,
+            status: payment.status,
+            status_detail: payment.status_detail
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
+app.post('/api/update-payment-status', async (req, res) => {
+    try {
+        const { payment_id, status } = req.body;
+        await sql`
+            UPDATE orders SET status = ${status} WHERE payment_id = ${payment_id}
+        `;
+        await sql`
+            UPDATE donations SET status = ${status} WHERE payment_id = ${payment_id}
+        `;
+        res.json({ message: 'Status atualizado' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- PDF -----
 app.get('/api/registration-pdf/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const registrations = await sql`SELECT * FROM registrations WHERE id = ${id}`;
-        
-        if (registrations.length === 0) {
-            return res.status(404).json({ error: 'Inscrição não encontrada' });
-        }
-        
-        const reg = registrations[0];
+        const reg = await sql`SELECT * FROM registrations WHERE id = ${id}`;
+        if (reg.length === 0) return res.status(404).json({ error: 'Não encontrado' });
         
         const html = `
         <!DOCTYPE html>
         <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>Comprovante de Inscrição</title>
-            <style>
-                body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 2rem; }
-                .header { text-align: center; border-bottom: 3px solid #0D47A1; padding-bottom: 1rem; margin-bottom: 1.5rem; }
-                .header h1 { color: #0D47A1; margin: 0; }
-                .header p { color: #666; margin: 0; }
-                .info { margin: 1rem 0; }
-                .info-item { display: flex; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
-                .info-item .label { font-weight: bold; width: 120px; }
-                .info-item .value { flex: 1; }
-                .status { display: inline-block; padding: 0.3rem 1rem; border-radius: 20px; font-weight: bold; }
-                .status.pending { background: #fff3cd; color: #856404; }
-                .status.confirmed { background: #d4edda; color: #155724; }
-                .footer { text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; color: #888; font-size: 0.9rem; }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h1>🙏 NJ Cabuçu</h1>
-                <p>Comprovante de Inscrição</p>
-            </div>
-            
-            <div class="info">
-                <div class="info-item">
-                    <span class="label">Protocolo:</span>
-                    <span class="value">#${String(reg.id).padStart(6, '0')}</span>
-                </div>
-                <div class="info-item">
-                    <span class="label">Data:</span>
-                    <span class="value">${new Date(reg.created_at).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })}</span>
-                </div>
-                <div class="info-item">
-                    <span class="label">Tipo:</span>
-                    <span class="value">${reg.type === 'baptism' ? 'Batismo' : reg.type === 'volunteer' ? 'Voluntário' : reg.type === 'event' ? 'Evento' : 'Departamento'}</span>
-                </div>
-                <div class="info-item">
-                    <span class="label">Nome:</span>
-                    <span class="value">${reg.name}</span>
-                </div>
-                <div class="info-item">
-                    <span class="label">E-mail:</span>
-                    <span class="value">${reg.email || '-'}</span>
-                </div>
-                <div class="info-item">
-                    <span class="label">Telefone:</span>
-                    <span class="value">${reg.phone || '-'}</span>
-                </div>
-                ${reg.event_name ? `<div class="info-item"><span class="label">Evento:</span><span class="value">${reg.event_name}</span></div>` : ''}
-                ${reg.department_name ? `<div class="info-item"><span class="label">Departamento:</span><span class="value">${reg.department_name}</span></div>` : ''}
-                ${reg.details ? `<div class="info-item"><span class="label">Detalhes:</span><span class="value">${reg.details}</span></div>` : ''}
-                <div class="info-item">
-                    <span class="label">Status:</span>
-                    <span class="value"><span class="status ${reg.status === 'approved' ? 'confirmed' : 'pending'}">${reg.status === 'approved' ? '✅ Confirmado' : '⏳ Pendente'}</span></span>
-                </div>
-                ${reg.amount > 0 ? `<div class="info-item"><span class="label">Valor:</span><span class="value">R$ ${parseFloat(reg.amount).toFixed(2)}</span></div>` : ''}
-                ${reg.is_paid ? `<div class="info-item"><span class="label">Pagamento:</span><span class="value">✅ Pago</span></div>` : ''}
-            </div>
-            
-            <div class="footer">
-                <p>NJ Cabuçu - "E conhecereis a verdade, e a verdade vos libertará." João 8:32</p>
-                <p>© ${new Date().getFullYear()} NJ Cabuçu - Todos os direitos reservados</p>
-            </div>
+        <head><meta charset="UTF-8"><title>Comprovante</title></head>
+        <body style="font-family:Arial;max-width:600px;margin:2rem auto;padding:2rem;">
+            <h1 style="color:#0D47A1;">🙏 NJ Cabuçu</h1>
+            <h2>Comprovante de Inscrição</h2>
+            <p><strong>Protocolo:</strong> #${String(reg[0].id).padStart(6, '0')}</p>
+            <p><strong>Nome:</strong> ${reg[0].name}</p>
+            <p><strong>Email:</strong> ${reg[0].email || '-'}</p>
+            <p><strong>Telefone:</strong> ${reg[0].phone || '-'}</p>
+            ${reg[0].event_name ? `<p><strong>Evento:</strong> ${reg[0].event_name}</p>` : ''}
+            ${reg[0].department_name ? `<p><strong>Departamento:</strong> ${reg[0].department_name}</p>` : ''}
+            <p><strong>Status:</strong> ${reg[0].status === 'approved' ? '✅ Confirmado' : '⏳ Pendente'}</p>
+            <hr>
+            <p style="color:#888;font-size:0.8rem;">NJ Cabuçu - João 8:32</p>
         </body>
         </html>
         `;
-        
         res.setHeader('Content-Type', 'text/html');
         res.send(html);
     } catch (error) {
-        console.error('❌ Erro ao gerar PDF:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -2326,29 +1519,22 @@ app.get('/api/registration-pdf/:id', async (req, res) => {
 // ===== ROTAS DE CÉLULAS =====
 // ============================================
 
-// ---- CRIAR CÉLULA ----
 app.post('/api/celulas', auth, pastorOnly, async (req, res) => {
     try {
         const { nome, lider_id, endereco, dias_reuniao, horario, descricao } = req.body;
-        
-        if (!nome) {
-            return res.status(400).json({ error: 'Nome da célula é obrigatório' });
-        }
+        if (!nome) return res.status(400).json({ error: 'Nome da célula é obrigatório' });
 
         const result = await sql`
             INSERT INTO celulas (nome, lider_id, endereco, dias_reuniao, horario, descricao, created_by)
             VALUES (${nome}, ${lider_id || null}, ${endereco || ''}, ${dias_reuniao || ''}, ${horario || ''}, ${descricao || ''}, ${req.user.id})
             RETURNING *
         `;
-        
         res.status(201).json(result[0]);
     } catch (error) {
-        console.error('❌ Erro ao criar célula:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// ---- LISTAR CÉLULAS ----
 app.get('/api/celulas', async (req, res) => {
     try {
         const celulas = await sql`
@@ -2356,18 +1542,9 @@ app.get('/api/celulas', async (req, res) => {
                 c.*,
                 u.name as lider_nome,
                 COUNT(cm.id) as total_membros,
-                (
-                    SELECT COUNT(*) FROM celula_membros cm2 
-                    WHERE cm2.celula_id = c.id AND cm2.is_active = true
-                ) as membros_ativos,
-                (
-                    SELECT COUNT(*) FROM celula_decisoes cd 
-                    WHERE cd.celula_id = c.id AND cd.tipo = 'batismo'
-                ) as batizados,
-                (
-                    SELECT COUNT(*) FROM celula_decisoes cd 
-                    WHERE cd.celula_id = c.id AND cd.tipo = 'decisao'
-                ) as decisoes
+                (SELECT COUNT(*) FROM celula_membros cm2 WHERE cm2.celula_id = c.id AND cm2.is_active = true) as membros_ativos,
+                (SELECT COUNT(*) FROM celula_decisoes cd WHERE cd.celula_id = c.id AND cd.tipo = 'batismo') as batizados,
+                (SELECT COUNT(*) FROM celula_decisoes cd WHERE cd.celula_id = c.id AND cd.tipo = 'decisao') as decisoes
             FROM celulas c
             LEFT JOIN users u ON c.lider_id = u.id
             LEFT JOIN celula_membros cm ON c.id = cm.celula_id AND cm.is_active = true
@@ -2375,58 +1552,33 @@ app.get('/api/celulas', async (req, res) => {
             GROUP BY c.id, u.name
             ORDER BY c.nome
         `;
-        
         res.json(celulas);
     } catch (error) {
-        console.error('❌ Erro ao listar células:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// ---- BUSCAR CÉLULA POR ID ----
 app.get('/api/celulas/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        
         const celula = await sql`
-            SELECT 
-                c.*,
-                u.name as lider_nome,
-                u.phone as lider_telefone,
-                u.email as lider_email
+            SELECT c.*, u.name as lider_nome, u.phone as lider_telefone, u.email as lider_email
             FROM celulas c
             LEFT JOIN users u ON c.lider_id = u.id
             WHERE c.id = ${id} AND c.is_active = true
         `;
-        
-        if (celula.length === 0) {
-            return res.status(404).json({ error: 'Célula não encontrada' });
-        }
+        if (celula.length === 0) return res.status(404).json({ error: 'Célula não encontrada' });
         
         const membros = await sql`
-            SELECT 
-                m.id,
-                m.name,
-                m.phone,
-                m.email,
-                cm.data_entrada
+            SELECT m.id, m.name, m.phone, m.email, cm.data_entrada
             FROM celula_membros cm
             JOIN members m ON cm.membro_id = m.id
             WHERE cm.celula_id = ${id} AND cm.is_active = true
             ORDER BY m.name
         `;
         
-        const estatisticas = await sql`
-            SELECT * FROM celula_estatisticas 
-            WHERE celula_id = ${id} 
-            ORDER BY data_registro DESC 
-            LIMIT 10
-        `;
-        
         const decisoes = await sql`
-            SELECT 
-                cd.*,
-                m.name as membro_nome
+            SELECT cd.*, m.name as membro_nome
             FROM celula_decisoes cd
             LEFT JOIN members m ON cd.membro_id = m.id
             WHERE cd.celula_id = ${id}
@@ -2434,19 +1586,12 @@ app.get('/api/celulas/:id', async (req, res) => {
             LIMIT 20
         `;
         
-        res.json({
-            ...celula[0],
-            membros,
-            estatisticas,
-            decisoes
-        });
+        res.json({ ...celula[0], membros, decisoes });
     } catch (error) {
-        console.error('❌ Erro ao buscar célula:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// ---- ATUALIZAR CÉLULA ----
 app.put('/api/celulas/:id', auth, pastorOnly, async (req, res) => {
     try {
         const { id } = req.params;
@@ -2454,103 +1599,65 @@ app.put('/api/celulas/:id', auth, pastorOnly, async (req, res) => {
         
         const result = await sql`
             UPDATE celulas 
-            SET 
-                nome = COALESCE(${nome}, nome),
-                lider_id = COALESCE(${lider_id}, lider_id),
-                endereco = COALESCE(${endereco}, endereco),
-                dias_reuniao = COALESCE(${dias_reuniao}, dias_reuniao),
-                horario = COALESCE(${horario}, horario),
-                descricao = COALESCE(${descricao}, descricao)
+            SET nome = COALESCE(${nome}, nome), lider_id = COALESCE(${lider_id}, lider_id),
+                endereco = COALESCE(${endereco}, endereco), dias_reuniao = COALESCE(${dias_reuniao}, dias_reuniao),
+                horario = COALESCE(${horario}, horario), descricao = COALESCE(${descricao}, descricao)
             WHERE id = ${id}
             RETURNING *
         `;
-        
-        if (result.length === 0) {
-            return res.status(404).json({ error: 'Célula não encontrada' });
-        }
-        
+        if (result.length === 0) return res.status(404).json({ error: 'Célula não encontrada' });
         res.json(result[0]);
     } catch (error) {
-        console.error('❌ Erro ao atualizar célula:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// ---- DELETAR CÉLULA ----
 app.delete('/api/celulas/:id', auth, pastorOnly, async (req, res) => {
     try {
-        const { id } = req.params;
-        await sql`UPDATE celulas SET is_active = false WHERE id = ${id}`;
-        res.json({ message: 'Célula removida com sucesso' });
+        await sql`UPDATE celulas SET is_active = false WHERE id = ${req.params.id}`;
+        res.json({ message: 'Célula removida' });
     } catch (error) {
-        console.error('❌ Erro ao remover célula:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// ---- ADICIONAR MEMBRO À CÉLULA ----
 app.post('/api/celulas/:id/membros', auth, async (req, res) => {
     try {
         const { id } = req.params;
         const { membro_id } = req.body;
+        if (!membro_id) return res.status(400).json({ error: 'Membro é obrigatório' });
         
-        if (!membro_id) {
-            return res.status(400).json({ error: 'Membro é obrigatório' });
-        }
-        
-        const exists = await sql`
-            SELECT * FROM celula_membros 
-            WHERE celula_id = ${id} AND membro_id = ${membro_id}
+        await sql`
+            INSERT INTO celula_membros (celula_id, membro_id)
+            VALUES (${id}, ${membro_id})
+            ON CONFLICT (celula_id, membro_id) DO UPDATE SET is_active = true, data_entrada = CURRENT_DATE
         `;
         
-        if (exists.length > 0) {
-            await sql`
-                UPDATE celula_membros 
-                SET is_active = true, data_entrada = CURRENT_DATE
-                WHERE celula_id = ${id} AND membro_id = ${membro_id}
-            `;
-        } else {
-            await sql`
-                INSERT INTO celula_membros (celula_id, membro_id)
-                VALUES (${id}, ${membro_id})
-            `;
-        }
-        
         await atualizarEstatisticasCelula(id);
-        
-        res.json({ message: 'Membro adicionado à célula com sucesso' });
+        res.json({ message: 'Membro adicionado à célula' });
     } catch (error) {
-        console.error('❌ Erro ao adicionar membro:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// ---- REMOVER MEMBRO DA CÉLULA ----
 app.delete('/api/celulas/:id/membros/:membro_id', auth, async (req, res) => {
     try {
         const { id, membro_id } = req.params;
-        
         await sql`
-            UPDATE celula_membros 
-            SET is_active = false 
+            UPDATE celula_membros SET is_active = false 
             WHERE celula_id = ${id} AND membro_id = ${membro_id}
         `;
-        
         await atualizarEstatisticasCelula(id);
-        
         res.json({ message: 'Membro removido da célula' });
     } catch (error) {
-        console.error('❌ Erro ao remover membro:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// ---- REGISTRAR DECISÃO ----
 app.post('/api/celulas/:id/decisoes', auth, async (req, res) => {
     try {
         const { id } = req.params;
         const { membro_id, tipo, observacao } = req.body;
-        
         if (!tipo || !['batismo', 'decisao'].includes(tipo)) {
             return res.status(400).json({ error: 'Tipo inválido. Use "batismo" ou "decisao"' });
         }
@@ -2560,28 +1667,16 @@ app.post('/api/celulas/:id/decisoes', auth, async (req, res) => {
             VALUES (${id}, ${membro_id || null}, ${tipo}, ${observacao || ''})
             RETURNING *
         `;
-        
         await atualizarEstatisticasCelula(id);
-        
         res.status(201).json(result[0]);
     } catch (error) {
-        console.error('❌ Erro ao registrar decisão:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// ---- ESTATÍSTICAS DA CÉLULA ----
 app.get('/api/celulas/:id/estatisticas', async (req, res) => {
     try {
         const { id } = req.params;
-        
-        const estatisticas = await sql`
-            SELECT * FROM celula_estatisticas 
-            WHERE celula_id = ${id} 
-            ORDER BY data_registro DESC 
-            LIMIT 30
-        `;
-        
         const resumo = await sql`
             SELECT 
                 SUM(total_membros) as total_membros,
@@ -2590,18 +1685,12 @@ app.get('/api/celulas/:id/estatisticas', async (req, res) => {
             FROM celula_estatisticas 
             WHERE celula_id = ${id}
         `;
-        
-        res.json({
-            historico: estatisticas,
-            resumo: resumo[0] || { total_membros: 0, total_batizados: 0, total_decisoes: 0 }
-        });
+        res.json({ resumo: resumo[0] || { total_membros: 0, total_batizados: 0, total_decisoes: 0 } });
     } catch (error) {
-        console.error('❌ Erro ao buscar estatísticas:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// ---- FUNÇÃO PARA ATUALIZAR ESTATÍSTICAS ----
 async function atualizarEstatisticasCelula(celula_id) {
     try {
         const hoje = new Date().toISOString().split('T')[0];
@@ -2613,15 +1702,13 @@ async function atualizarEstatisticasCelula(celula_id) {
         
         const batizados = await sql`
             SELECT COUNT(*) as total FROM celula_decisoes 
-            WHERE celula_id = ${celula_id} 
-            AND tipo = 'batismo' 
+            WHERE celula_id = ${celula_id} AND tipo = 'batismo' 
             AND data_decisao >= CURRENT_DATE - INTERVAL '30 days'
         `;
         
         const decisoes = await sql`
             SELECT COUNT(*) as total FROM celula_decisoes 
-            WHERE celula_id = ${celula_id} 
-            AND tipo = 'decisao' 
+            WHERE celula_id = ${celula_id} AND tipo = 'decisao' 
             AND data_decisao >= CURRENT_DATE - INTERVAL '30 days'
         `;
         
@@ -2629,17 +1716,140 @@ async function atualizarEstatisticasCelula(celula_id) {
             INSERT INTO celula_estatisticas (celula_id, data_registro, total_membros, batizados, aceitaram_jesus)
             VALUES (${celula_id}, ${hoje}, ${membros[0].total}, ${batizados[0].total}, ${decisoes[0].total})
             ON CONFLICT (celula_id, data_registro) 
-            DO UPDATE SET 
-                total_membros = ${membros[0].total},
-                batizados = ${batizados[0].total},
-                aceitaram_jesus = ${decisoes[0].total}
+            DO UPDATE SET total_membros = ${membros[0].total}, batizados = ${batizados[0].total}, aceitaram_jesus = ${decisoes[0].total}
         `;
-        
-        console.log(`📊 Estatísticas da célula ${celula_id} atualizadas`);
     } catch (error) {
         console.error('❌ Erro ao atualizar estatísticas:', error);
     }
 }
+
+// ============================================
+// ===== ROTAS DE LIVES =====
+// ============================================
+
+app.post('/api/lives/start', auth, async (req, res) => {
+    try {
+        const { titulo, descricao } = req.body;
+        
+        if (req.user.role !== 'pastor' && req.user.role !== 'midia') {
+            return res.status(403).json({ error: 'Apenas pastor ou equipe de mídia podem iniciar uma live' });
+        }
+
+        const activeLive = await sql`SELECT * FROM lives WHERE status = 'live'`;
+        if (activeLive.length > 0) {
+            return res.status(400).json({ error: 'Já existe uma live ativa' });
+        }
+
+        const streamKey = 'live_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+
+        const result = await sql`
+            INSERT INTO lives (titulo, descricao, status, stream_key, iniciada_por, started_at)
+            VALUES (${titulo || 'Live NJ Cabuçu'}, ${descricao || ''}, 'live', ${streamKey}, ${req.user.id}, NOW())
+            RETURNING *
+        `;
+
+        await sql`
+            INSERT INTO notifications (type, title, message, link)
+            VALUES ('live', ${titulo || 'Live NJ Cabuçu'}, 'Transmissão ao vivo iniciada! Clique para assistir', '/')
+        `;
+
+        res.status(201).json({ ...result[0], message: 'Live iniciada com sucesso!' });
+    } catch (error) {
+        console.error('❌ Erro ao iniciar live:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/lives/end/:id', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const live = await sql`SELECT * FROM lives WHERE id = ${id}`;
+        if (live.length === 0) return res.status(404).json({ error: 'Live não encontrada' });
+        if (live[0].status === 'ended') return res.status(400).json({ error: 'Live já foi encerrada' });
+
+        await sql`UPDATE lives SET status = 'ended', ended_at = NOW() WHERE id = ${id}`;
+        res.json({ message: 'Live encerrada com sucesso' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/lives/active', async (req, res) => {
+    try {
+        const live = await sql`
+            SELECT l.*, u.name as iniciada_por_nome
+            FROM lives l
+            LEFT JOIN users u ON l.iniciada_por = u.id
+            WHERE l.status = 'live'
+            ORDER BY l.started_at DESC
+            LIMIT 1
+        `;
+        if (live.length === 0) return res.json({ status: 'offline', message: 'Nenhuma live ativa' });
+        res.json(live[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/lives/history', auth, async (req, res) => {
+    try {
+        const lives = await sql`
+            SELECT l.*, u.name as iniciada_por_nome
+            FROM lives l
+            LEFT JOIN users u ON l.iniciada_por = u.id
+            WHERE l.status != 'offline'
+            ORDER BY l.created_at DESC
+            LIMIT 50
+        `;
+        res.json(lives);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/lives/:id/viewer', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { viewer_id } = req.body;
+
+        await sql`
+            INSERT INTO live_viewers (live_id, viewer_id)
+            VALUES (${id}, ${viewer_id || 'anonymous_' + Date.now()})
+            ON CONFLICT (live_id, viewer_id) DO NOTHING
+        `;
+
+        const count = await sql`
+            SELECT COUNT(*) as total FROM live_viewers 
+            WHERE live_id = ${id} AND left_at IS NULL
+        `;
+
+        await sql`UPDATE lives SET viewers = ${count[0].total} WHERE id = ${id}`;
+        res.json({ viewers: count[0].total });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/notify-live', async (req, res) => {
+    try {
+        const { live_id, titulo, status } = req.body;
+        console.log(`📢 Live ${status}: ${titulo} (ID: ${live_id})`);
+        res.json({ message: 'Notificação enviada' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/notifications', auth, async (req, res) => {
+    try {
+        const notificacoes = await sql`
+            SELECT * FROM notifications ORDER BY created_at DESC LIMIT 20
+        `;
+        res.json(notificacoes);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 // ============================================
 // ===== SERVE HTML =====
@@ -2670,13 +1880,6 @@ app.listen(PORT, () => {
     console.log('🔥 NJ Cabuçu rodando na porta ' + PORT);
     console.log('🌐 ' + BASE_URL);
     console.log('');
-    console.log('📋 Credenciais:');
-    console.log('   Email: pastor@njcabucu.com');
-    console.log('   Senha: admin123');
-    console.log('');
-    console.log('💰 Mercado Pago: ' + (process.env.MP_ACCESS_TOKEN ? '✅ Configurado' : '⚠️ Não configurado'));
-    console.log('🔑 Public Key: ' + (process.env.MP_PUBLIC_KEY ? '✅ Configurada' : '⚠️ Não configurada'));
-    console.log('');
-    console.log('📸 Imagens salvas como Base64 no banco de dados!');
+    console.log('📋 Credenciais: pastor@njcabucu.com / admin123');
     console.log('');
 });

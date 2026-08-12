@@ -37,6 +37,7 @@ try {
         });
         PaymentService = new Payment(client);
         console.log('✅ Mercado Pago configurado');
+        console.log('🔑 Access Token:', process.env.MP_ACCESS_TOKEN.substring(0, 20) + '...');
     }
 } catch (error) {
     console.log('⚠️ Erro MP:', error.message);
@@ -108,6 +109,7 @@ async function initDB() {
     console.log('📝 Criando tabelas...');
     
     try {
+        // USERS
         await sql`CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -122,6 +124,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // DEPARTMENTS
         await sql`CREATE TABLE IF NOT EXISTS departments (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -132,6 +135,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // DEPARTMENT MEMBERS
         await sql`CREATE TABLE IF NOT EXISTS department_members (
             department_id INTEGER,
             user_id INTEGER,
@@ -140,6 +144,7 @@ async function initDB() {
             PRIMARY KEY (department_id, user_id)
         )`;
 
+        // STUDIES
         await sql`CREATE TABLE IF NOT EXISTS studies (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -150,6 +155,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // PRODUCTS
         await sql`CREATE TABLE IF NOT EXISTS products (
             id SERIAL PRIMARY KEY,
             name VARCHAR(200) NOT NULL,
@@ -162,6 +168,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // EVENTS
         await sql`CREATE TABLE IF NOT EXISTS events (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -173,6 +180,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // PRAYERS
         await sql`CREATE TABLE IF NOT EXISTS prayers (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100),
@@ -181,6 +189,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // ORDERS (VENDAS)
         await sql`CREATE TABLE IF NOT EXISTS orders (
             id SERIAL PRIMARY KEY,
             user_name VARCHAR(100),
@@ -194,6 +203,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // REGISTRATIONS
         await sql`CREATE TABLE IF NOT EXISTS registrations (
             id SERIAL PRIMARY KEY,
             type VARCHAR(50) NOT NULL,
@@ -209,6 +219,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // WORSHIP SCALES
         await sql`CREATE TABLE IF NOT EXISTS worship_scales (
             id SERIAL PRIMARY KEY,
             department_id INTEGER,
@@ -223,6 +234,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // DONATIONS
         await sql`CREATE TABLE IF NOT EXISTS donations (
             id SERIAL PRIMARY KEY,
             user_name VARCHAR(100),
@@ -236,6 +248,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // CAROUSEL
         await sql`CREATE TABLE IF NOT EXISTS carousel_images (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200),
@@ -248,6 +261,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // SITE SETTINGS
         await sql`CREATE TABLE IF NOT EXISTS site_settings (
             id SERIAL PRIMARY KEY,
             key VARCHAR(100) UNIQUE NOT NULL,
@@ -255,6 +269,7 @@ async function initDB() {
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // MEMBERS
         await sql`CREATE TABLE IF NOT EXISTS members (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -276,6 +291,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // ATTENDANCE
         await sql`CREATE TABLE IF NOT EXISTS attendance (
             id SERIAL PRIMARY KEY,
             member_id INTEGER REFERENCES members(id) ON DELETE CASCADE,
@@ -287,6 +303,7 @@ async function initDB() {
             UNIQUE(member_id, event_date, service_type)
         )`;
 
+        // TITHES
         await sql`CREATE TABLE IF NOT EXISTS tithes (
             id SERIAL PRIMARY KEY,
             member_id INTEGER REFERENCES members(id) ON DELETE SET NULL,
@@ -300,6 +317,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // BILLS
         await sql`CREATE TABLE IF NOT EXISTS bills (
             id SERIAL PRIMARY KEY,
             description VARCHAR(200) NOT NULL,
@@ -314,6 +332,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // BIRTHDAYS
         await sql`CREATE TABLE IF NOT EXISTS birthdays (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -323,6 +342,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // WEDDINGS
         await sql`CREATE TABLE IF NOT EXISTS weddings (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -333,6 +353,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // BAPTISM DATES
         await sql`CREATE TABLE IF NOT EXISTS baptism_dates (
             id SERIAL PRIMARY KEY,
             date TIMESTAMP NOT NULL,
@@ -345,6 +366,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // SONGS
         await sql`CREATE TABLE IF NOT EXISTS songs (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -356,6 +378,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // AVAILABILITY
         await sql`CREATE TABLE IF NOT EXISTS availability (
             id SERIAL PRIMARY KEY,
             user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -364,7 +387,9 @@ async function initDB() {
             UNIQUE(user_id, date)
         )`;
 
+        // ============================================
         // ===== TABELAS DE CÉLULAS =====
+        // ============================================
         await sql`CREATE TABLE IF NOT EXISTS celulas (
             id SERIAL PRIMARY KEY,
             nome VARCHAR(100) NOT NULL,
@@ -410,7 +435,9 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // ============================================
         // ===== TABELAS DE LIVES =====
+        // ============================================
         await sql`CREATE TABLE IF NOT EXISTS lives (
             id SERIAL PRIMARY KEY,
             titulo VARCHAR(200) NOT NULL,
@@ -655,6 +682,7 @@ app.get('/api/departments/active', async (req, res) => {
         `;
         res.json(depts);
     } catch (error) {
+        console.error('❌ Erro ao buscar departamentos:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -792,6 +820,7 @@ app.get('/api/events/active', async (req, res) => {
         `;
         res.json(events);
     } catch (error) {
+        console.error('❌ Erro ao buscar eventos ativos:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -847,8 +876,10 @@ app.post('/api/orders', async (req, res) => {
             VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(items)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
             RETURNING *
         `;
+        console.log('✅ Pedido criado:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
+        console.error('❌ Erro ao criar pedido:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -856,8 +887,10 @@ app.post('/api/orders', async (req, res) => {
 app.get('/api/orders', auth, async (req, res) => {
     try {
         const orders = await sql`SELECT * FROM orders ORDER BY created_at DESC`;
+        console.log('📦 Total de vendas:', orders.length);
         res.json(orders);
     } catch (error) {
+        console.error('❌ Erro ao buscar vendas:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -884,6 +917,7 @@ app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
             byDay: salesByDay || []
         });
     } catch (error) {
+        console.error('❌ Erro nas estatísticas:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -916,8 +950,10 @@ app.post('/api/registrations', async (req, res) => {
             VALUES (${type}, ${name}, ${email || ''}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${finalDetails || ''}, ${parseFloat(amount) || 0}, ${is_paid || false})
             RETURNING *
         `;
+        console.log('✅ Inscrição criada:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
+        console.error('❌ Erro inscrição:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1881,5 +1917,8 @@ app.listen(PORT, () => {
     console.log('🌐 ' + BASE_URL);
     console.log('');
     console.log('📋 Credenciais: pastor@njcabucu.com / admin123');
+    console.log('');
+    console.log('💰 Mercado Pago: ' + (process.env.MP_ACCESS_TOKEN ? '✅ Configurado' : '⚠️ Não configurado'));
+    console.log('📹 Sistema de Live: ✅ Configurado');
     console.log('');
 });

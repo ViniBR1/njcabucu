@@ -1,3130 +1,2884 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>NJ Cabuçu - Igreja</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-        /* ============================================
-           ROOT
-        ============================================ */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        :root {
-            --primary: #0D47A1;
-            --primary-light: #1565C0;
-            --primary-dark: #0A3A7A;
-            --primary-gradient: linear-gradient(135deg, #0D47A1, #1565C0);
-            --secondary: #E8F0FE;
-            --accent: #F5A623;
-            --bg: #f0f4f8;
-            --card-bg: #ffffff;
-            --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.04);
-            --shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.10);
-            --radius: 16px;
-            --radius-sm: 10px;
-            --radius-full: 50px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            --header-h: 68px;
-            --max-width: 1200px;
-        }
-        html {
-            scroll-behavior: smooth;
-        }
-        body {
-            font-family: var(--font);
-            background: var(--bg);
-            color: #1a1a2e;
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-        }
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 10px;
-        }
-
-        /* ============================================
-           HEADER
-        ============================================ */
-        .header {
-            background: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(14px);
-            padding: 0 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(13, 71, 161, 0.06);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            transition: var(--transition);
-            height: var(--header-h);
-        }
-        .header.scrolled {
-            box-shadow: 0 2px 24px rgba(0, 0, 0, 0.06);
-        }
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.7rem;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--primary-gradient);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 1rem;
-            color: #fff;
-            box-shadow: 0 3px 12px rgba(13, 71, 161, 0.2);
-            transition: var(--transition);
-        }
-        .logo-icon:hover {
-            transform: scale(1.05) rotate(-3deg);
-        }
-        .logo h1 {
-            font-size: 1.2rem;
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: -0.3px;
-        }
-        .logo h1 span {
-            color: var(--accent);
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-        .btn {
-            padding: 0.4rem 1rem;
-            border-radius: var(--radius-full);
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.8rem;
-            text-decoration: none;
-            font-family: var(--font);
-        }
-        .btn-primary {
-            background: var(--primary-gradient);
-            color: #fff;
-            box-shadow: 0 3px 12px rgba(13, 71, 161, 0.2);
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(13, 71, 161, 0.3);
-        }
-        .btn-outline {
-            background: transparent;
-            color: var(--primary);
-            border: 2px solid var(--primary);
-        }
-        .btn-outline:hover {
-            background: var(--primary);
-            color: #fff;
-            transform: translateY(-2px);
-        }
-        .btn-whatsapp {
-            background: #25D366;
-            color: #fff;
-        }
-        .btn-whatsapp:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.35);
-        }
-        .btn-sm {
-            padding: 0.25rem 0.8rem;
-            font-size: 0.7rem;
-        }
-        .btn-bible {
-            background: #8B5A2B;
-            color: #fff;
-        }
-        .btn-bible:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(139, 90, 43, 0.3);
-        }
-        .btn-donation-header {
-            background: var(--accent);
-            color: #1a1a2e;
-        }
-        .btn-donation-header:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(245, 166, 35, 0.4);
-        }
-
-        .menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.3rem;
-            color: var(--primary);
-            cursor: pointer;
-            padding: 0.2rem;
-        }
-
-        /* ============================================
-           NAVEGAÇÃO
-        ============================================ */
-        .main-nav {
-            background: rgba(255, 255, 255, 0.97);
-            backdrop-filter: blur(14px);
-            padding: 0.4rem 2rem;
-            display: flex;
-            justify-content: center;
-            gap: 0.3rem;
-            flex-wrap: wrap;
-            position: fixed;
-            top: var(--header-h);
-            left: 0;
-            right: 0;
-            z-index: 999;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-            transition: var(--transition);
-        }
-        .main-nav.hidden-nav {
-            transform: translateY(-100%);
-            opacity: 0;
-        }
-        .nav-btn {
-            background: transparent;
-            border: none;
-            padding: 0.35rem 1rem;
-            border-radius: var(--radius-full);
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            font-size: 0.75rem;
-            color: #555;
-            font-family: var(--font);
-        }
-        .nav-btn:hover {
-            color: var(--primary);
-            background: var(--secondary);
-        }
-        .nav-btn.active {
-            color: #fff;
-            background: var(--primary-gradient);
-            box-shadow: 0 3px 12px rgba(13, 71, 161, 0.2);
-        }
-
-        /* ============================================
-           HERO
-        ============================================ */
-        .hero {
-            margin-top: calc(var(--header-h) + 48px);
-            position: relative;
-            width: 100%;
-            height: 520px;
-            max-height: 600px;
-            overflow: hidden;
-            border-radius: 0 0 40px 40px;
-            background: #1a1a2e;
-        }
-        .hero-slides {
-            display: flex;
-            height: 100%;
-            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .hero-slide {
-            min-width: 100%;
-            height: 100%;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-        .hero-slide .bg-image {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center;
-        }
-        .hero-slide .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(13, 71, 161, 0.75), rgba(10, 58, 122, 0.55));
-            transition: var(--transition);
-        }
-        .hero-slide:hover .overlay {
-            background: linear-gradient(135deg, rgba(13, 71, 161, 0.55), rgba(10, 58, 122, 0.35));
-        }
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            color: #fff;
-            max-width: 700px;
-            padding: 2rem;
-            text-align: center;
-            animation: fadeUp 1s ease;
-            pointer-events: none;
-        }
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .hero-content h1 {
-            font-size: 3rem;
-            font-weight: 900;
-            margin-bottom: 0.6rem;
-            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
-            line-height: 1.1;
-        }
-        .hero-content p {
-            font-size: 1.1rem;
-            opacity: 0.92;
-            margin-bottom: 1.2rem;
-            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
-        }
-        .hero-content .btn {
-            pointer-events: all;
-            font-size: 1rem;
-            padding: 0.7rem 2rem;
-        }
-
-        .hero-controls {
-            position: absolute;
-            bottom: 1.5rem;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 0.6rem;
-            z-index: 3;
-        }
-        .hero-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.35);
-            cursor: pointer;
-            transition: var(--transition);
-            border: none;
-            padding: 0;
-        }
-        .hero-dot.active {
-            background: #fff;
-            transform: scale(1.3);
-            box-shadow: 0 0 24px rgba(255, 255, 255, 0.2);
-        }
-        .hero-dot:hover {
-            background: rgba(255, 255, 255, 0.7);
-        }
-
-        .hero-arrows {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 1.5rem;
-            z-index: 3;
-            pointer-events: none;
-        }
-        .hero-arrow {
-            pointer-events: all;
-            background: rgba(255, 255, 255, 0.92);
-            border: none;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.06);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
-        }
-        .hero-arrow:hover {
-            background: #fff;
-            transform: scale(1.08);
-            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        /* ============================================
-           SEÇÕES
-        ============================================ */
-        .section {
-            max-width: var(--max-width);
-            margin: 3rem auto;
-            padding: 0 2rem;
-            scroll-margin-top: 130px;
-        }
-        .section-header {
-            text-align: center;
-            margin-bottom: 2.5rem;
-        }
-        .section-header .tag {
-            display: inline-block;
-            background: var(--secondary);
-            color: var(--primary);
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 0.2rem 1rem;
-            border-radius: var(--radius-full);
-            margin-bottom: 0.5rem;
-        }
-        .section-header h2 {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: -0.3px;
-        }
-        .section-header .subtitle {
-            color: #888;
-            font-size: 1rem;
-            margin-top: 0.2rem;
-        }
-        .section-header .line {
-            width: 50px;
-            height: 3px;
-            background: var(--primary-gradient);
-            border-radius: 10px;
-            margin: 0.5rem auto 0;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
-            gap: 1.5rem;
-        }
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 1.8rem;
-            border: 1px solid rgba(0, 0, 0, 0.04);
-            transition: var(--transition);
-            cursor: default;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
-        }
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: var(--primary-gradient);
-            opacity: 0;
-            transition: var(--transition);
-        }
-        .card:hover::before {
-            opacity: 1;
-        }
-        .card:hover {
-            transform: translateY(-6px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--primary);
-        }
-        .card .icon-wrapper {
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: var(--secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            color: var(--primary);
-            margin-bottom: 0.8rem;
-            transition: var(--transition);
-            flex-shrink: 0;
-        }
-        .card:hover .icon-wrapper {
-            background: var(--primary-gradient);
-            color: #fff;
-            transform: scale(1.05);
-        }
-        .card h3 {
-            font-size: 1.1rem;
-            color: var(--primary);
-            margin-bottom: 0.3rem;
-        }
-        .card p {
-            color: #666;
-            font-size: 0.9rem;
-            line-height: 1.7;
-            flex: 1;
-        }
-        .card .price {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin: 0.4rem 0;
-        }
-        .card .btn {
-            width: 100%;
-            justify-content: center;
-            margin-top: auto;
-        }
-
-        .card-image-wrapper {
-            width: 100%;
-            padding-bottom: 58%;
-            position: relative;
-            overflow: hidden;
-            border-radius: var(--radius-sm);
-            margin-bottom: 0.8rem;
-            background: #e8e8e8;
-            flex-shrink: 0;
-        }
-        .card-image-wrapper img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: var(--transition);
-        }
-        .card:hover .card-image-wrapper img {
-            transform: scale(1.04);
-        }
-
-        /* ============================================
-           ENDEREÇO
-        ============================================ */
-        .address-section {
-            margin-top: 2.5rem;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(0, 0, 0, 0.06);
-        }
-        .address-card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 1.8rem 2rem;
-            text-align: center;
-            max-width: 650px;
-            margin: 0 auto;
-            border: 1px solid rgba(13, 71, 161, 0.08);
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-            cursor: pointer;
-        }
-        .address-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--primary);
-        }
-        .address-card .address-icon {
-            font-size: 2rem;
-            color: var(--primary);
-            margin-bottom: 0.3rem;
-        }
-        .address-card .address-text {
-            font-size: 1rem;
-            color: #333;
-            font-weight: 500;
-        }
-        .address-card .address-sub {
-            font-size: 0.85rem;
-            color: #888;
-            margin-top: 0.1rem;
-        }
-        .address-card .address-actions {
-            display: flex;
-            gap: 0.6rem;
-            justify-content: center;
-            margin-top: 0.8rem;
-            flex-wrap: wrap;
-        }
-        .address-card .btn-map {
-            padding: 0.3rem 1.2rem;
-            border-radius: var(--radius-full);
-            border: none;
-            font-weight: 600;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-family: var(--font);
-            background: var(--primary-gradient);
-            color: #fff;
-        }
-        .address-card .btn-map:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(13, 71, 161, 0.3);
-        }
-        .address-card .btn-map.waze {
-            background: #1a1a2e;
-        }
-        .address-card .btn-map.waze:hover {
-            box-shadow: 0 4px 15px rgba(26, 26, 46, 0.3);
-        }
-
-        /* ============================================
-           BOTÕES DE DOAÇÃO
-        ============================================ */
-        .btn-donation {
-            background: var(--primary-gradient);
-            color: #fff;
-            border: none;
-            padding: 1rem 2.5rem;
-            font-size: 1rem;
-            border-radius: var(--radius-full);
-            cursor: pointer;
-            transition: var(--transition);
-            font-weight: 700;
-            font-family: var(--font);
-            box-shadow: 0 4px 20px rgba(13, 71, 161, 0.2);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.6rem;
-        }
-        .btn-donation:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 32px rgba(13, 71, 161, 0.3);
-        }
-        .tithe-options {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        /* ============================================
-           BIRTHDAY CARD
-        ============================================ */
-        .birthday-card {
-            text-align: center;
-            border-left: 4px solid var(--primary);
-            padding: 1.2rem;
-        }
-        .birthday-card .emoji {
-            font-size: 2.2rem;
-            margin-bottom: 0.2rem;
-        }
-        .birthday-card .name {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-        .birthday-card .date {
-            color: #666;
-            font-size: 0.85rem;
-        }
-        .birthday-card .age {
-            color: #888;
-            font-size: 0.8rem;
-        }
-        .birthday-card.today {
-            border-color: #e91e63;
-        }
-        .birthday-card.today .name {
-            color: #e91e63;
-        }
-
-        /* ============================================
-           MODAIS
-        ============================================ */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(6px);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.25s ease;
-        }
-        .modal.open {
-            display: flex;
-        }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-        .modal-content {
-            background: #fff;
-            padding: 2rem;
-            border-radius: var(--radius);
-            max-width: 520px;
-            width: 92%;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
-        }
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(25px) scale(0.97);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-        .modal-close {
-            float: right;
-            cursor: pointer;
-            font-size: 1.4rem;
-            color: #888;
-            background: none;
-            border: none;
-            transition: var(--transition);
-        }
-        .modal-close:hover {
-            color: #333;
-            transform: rotate(90deg);
-        }
-        .modal-content .form-group {
-            margin: 0.7rem 0;
-        }
-        .modal-content .form-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 0.2rem;
-            font-size: 0.85rem;
-            color: #333;
-        }
-        .modal-content .form-group input,
-        .modal-content .form-group textarea,
-        .modal-content .form-group select {
-            width: 100%;
-            padding: 0.6rem 0.9rem;
-            border: 2px solid #e0e0e0;
-            border-radius: var(--radius-sm);
-            font-size: 0.9rem;
-            font-family: var(--font);
-            transition: var(--transition);
-            background: #fafbff;
-        }
-        .modal-content .form-group input:focus,
-        .modal-content .form-group textarea:focus,
-        .modal-content .form-group select:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(13, 71, 161, 0.06);
-        }
-        .modal-content .form-row {
-            display: flex;
-            gap: 0.8rem;
-        }
-        .modal-content .form-row>* {
-            flex: 1;
-        }
-        .modal-content .btn {
-            width: 100%;
-            justify-content: center;
-            margin-top: 0.4rem;
-        }
-
-        .modal-bible .modal-content {
-            max-width: 740px;
-        }
-        .bible-container {
-            display: flex;
-            gap: 1.5rem;
-            flex-wrap: wrap;
-        }
-        .bible-input {
-            flex: 1;
-            min-width: 220px;
-        }
-        .bible-input select,
-        .bible-input input {
-            width: 100%;
-            padding: 0.6rem 0.9rem;
-            margin: 0.2rem 0;
-            border: 2px solid #e0e0e0;
-            border-radius: var(--radius-sm);
-            font-size: 0.9rem;
-            font-family: var(--font);
-            transition: var(--transition);
-            background: #fafbff;
-        }
-        .bible-input select:focus,
-        .bible-input input:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(13, 71, 161, 0.06);
-        }
-        .bible-input .btn {
-            width: 100%;
-            justify-content: center;
-            margin-top: 0.3rem;
-        }
-        .bible-result {
-            flex: 2;
-            min-width: 260px;
-            background: #fafbff;
-            padding: 1rem 1.3rem;
-            border-radius: var(--radius-sm);
-            max-height: 350px;
-            overflow-y: auto;
-            border: 1px solid #eef1f6;
-        }
-        .bible-result .verse {
-            font-size: 0.95rem;
-            line-height: 1.7;
-            padding: 0.3rem 0;
-            border-bottom: 1px solid #edf0f5;
-        }
-        .bible-result .verse strong {
-            color: var(--primary);
-        }
-        .bible-result .reference {
-            font-weight: 700;
-            color: var(--primary);
-            margin-top: 0.4rem;
-            font-size: 0.85rem;
-        }
-        .bible-result .error-message {
-            color: #dc3545;
-            padding: 0.3rem 0;
-        }
-        .bible-result .loading {
-            color: #888;
-            padding: 0.3rem 0;
-        }
-
-        /* ============================================
-           NOTIFICAÇÃO
-        ============================================ */
-        .notification {
-            position: fixed;
-            top: calc(var(--header-h) + 55px);
-            right: 20px;
-            padding: 0.7rem 1.3rem;
-            border-radius: var(--radius-sm);
-            font-weight: 500;
-            z-index: 99999;
-            max-width: 380px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            font-family: var(--font);
-        }
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        .notification.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .notification.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .notification.info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-
-        /* ============================================
-           FOOTER
-        ============================================ */
-        .footer {
-            background: #1a1a2e;
-            color: #fff;
-            padding: 3rem 2rem 1.5rem;
-            margin-top: 3rem;
-            border-top: 4px solid var(--primary);
-        }
-        .footer-content {
-            max-width: var(--max-width);
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2.5rem;
-        }
-        .footer h4 {
-            font-size: 1rem;
-            margin-bottom: 0.6rem;
-            color: var(--primary-light);
-        }
-        .footer p {
-            opacity: 0.65;
-            line-height: 1.7;
-            font-size: 0.9rem;
-        }
-        .footer .social-links {
-            display: flex;
-            gap: 0.6rem;
-            margin-top: 0.6rem;
-            flex-wrap: wrap;
-        }
-        .footer .social-links a {
-            color: #fff;
-            font-size: 1.2rem;
-            transition: var(--transition);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.06);
-            text-decoration: none;
-        }
-        .footer .social-links a:hover {
-            background: var(--primary);
-            transform: translateY(-3px);
-        }
-        .footer .address-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            color: rgba(255, 255, 255, 0.65);
-            text-decoration: none;
-            font-size: 0.85rem;
-            transition: var(--transition);
-            cursor: pointer;
-            padding: 0.2rem 0;
-        }
-        .footer .address-link:hover {
-            color: #fff;
-            opacity: 1;
-        }
-        .footer .address-link i {
-            font-size: 0.9rem;
-        }
-        .footer-bottom {
-            text-align: center;
-            padding-top: 1.5rem;
-            margin-top: 1.5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            opacity: 0.4;
-            font-size: 0.8rem;
-        }
-
-        /* ============================================
-           RESPONSIVO
-        ============================================ */
-        @media (max-width: 1024px) {
-            .hero-content h1 {
-                font-size: 2.4rem;
-            }
-            .hero {
-                height: 440px;
-            }
-        }
-        @media (max-width: 768px) {
-            .header {
-                padding: 0 1rem;
-            }
-            .logo h1 {
-                font-size: 1rem;
-            }
-            .logo-icon {
-                width: 34px;
-                height: 34px;
-                font-size: 0.85rem;
-            }
-            .header-actions .btn span {
-                display: none;
-            }
-            .header-actions .btn {
-                padding: 0.25rem 0.6rem;
-                font-size: 0.7rem;
-            }
-            .menu-toggle {
-                display: block;
-            }
-            .main-nav {
-                top: var(--header-h);
-                padding: 0.3rem 1rem;
-                flex-direction: column;
-                align-items: center;
-                max-height: 0;
-                overflow: hidden;
-                transition: max-height 0.4s ease, padding 0.4s ease;
-                padding: 0 1rem;
-            }
-            .main-nav.open {
-                max-height: 450px;
-                padding: 0.6rem 1rem;
-            }
-            .nav-btn {
-                width: 100%;
-                text-align: center;
-                padding: 0.4rem;
-                font-size: 0.7rem;
-            }
-            .hero {
-                margin-top: calc(var(--header-h) + 40px);
-                height: 300px;
-                border-radius: 0 0 24px 24px;
-            }
-            .hero-content h1 {
-                font-size: 1.6rem;
-            }
-            .hero-content p {
-                font-size: 0.85rem;
-            }
-            .hero-arrows .hero-arrow {
-                width: 34px;
-                height: 34px;
-                font-size: 0.8rem;
-            }
-            .hero-arrows {
-                padding: 0 0.6rem;
-            }
-            .section {
-                padding: 0 1rem;
-                margin: 2rem auto;
-            }
-            .section-header h2 {
-                font-size: 1.6rem;
-            }
-            .grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            .modal-content {
-                padding: 1.2rem;
-            }
-            .modal-content .form-row {
-                flex-direction: column;
-            }
-            .tithe-options {
-                gap: 0.6rem;
-            }
-            .btn-donation {
-                padding: 0.7rem 1.5rem;
-                font-size: 0.9rem;
-            }
-            .footer-content {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-            .footer .social-links {
-                justify-content: center;
-            }
-            .address-card {
-                padding: 1.2rem 1rem;
-            }
-            .address-card .address-text {
-                font-size: 0.9rem;
-            }
-            .bible-result {
-                max-height: 200px;
-            }
-            .bible-container {
-                flex-direction: column;
-            }
-        }
-        @media (max-width: 480px) {
-            .hero {
-                height: 260px;
-            }
-            .hero-content h1 {
-                font-size: 1.3rem;
-            }
-            .hero-arrows .hero-arrow {
-                width: 30px;
-                height: 30px;
-                font-size: 0.7rem;
-            }
-            .address-card .address-actions {
-                flex-direction: column;
-                align-items: center;
-            }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- ============================================
-    HEADER
-    ============================================ -->
-    <header class="header" id="mainHeader">
-        <a href="/" class="logo">
-            <div class="logo-icon">NJ</div>
-            <h1>NJ <span>Cabuçu</span></h1>
-        </a>
-        <div class="header-actions">
-            <button onclick="openBibleModal()" class="btn btn-bible btn-sm" title="Abrir Bíblia">
-                <i class="fas fa-bible"></i> <span>Bíblia</span>
-            </button>
-            <a href="https://wa.me/5521985345627" target="_blank" class="btn btn-whatsapp btn-sm" id="whatsappBtn">
-                <i class="fab fa-whatsapp"></i> <span>WhatsApp</span>
-            </a>
-            <a href="/login" class="btn btn-primary btn-sm"><i class="fas fa-user"></i> <span>Área Interna</span></a>
-            <a href="#dizimos" class="btn btn-donation-header btn-sm" onclick="scrollToSection('dizimos')">
-                <i class="fas fa-hand-holding-heart"></i> <span>Doar</span>
-            </a>
-            <button class="menu-toggle" onclick="toggleMobileMenu()" aria-label="Menu">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-    </header>
-
-    <!-- ============================================
-    NAVEGAÇÃO
-    ============================================ -->
-    <nav class="main-nav" id="mainNav">
-        <button onclick="scrollToSection('home')" class="nav-btn active"><i class="fas fa-home"></i> Início</button>
-        <button onclick="scrollToSection('sobre')" class="nav-btn"><i class="fas fa-info-circle"></i> Sobre</button>
-        <button onclick="scrollToSection('eventos')" class="nav-btn"><i class="fas fa-calendar"></i> Eventos</button>
-        <button onclick="scrollToSection('estudos')" class="nav-btn"><i class="fas fa-book"></i> Estudos</button>
-        <button onclick="scrollToSection('loja')" class="nav-btn"><i class="fas fa-store"></i> NJ Store</button>
-        <button onclick="scrollToSection('dizimos')" class="nav-btn"><i class="fas fa-hand-holding-heart"></i> Dízimos</button>
-        <button onclick="scrollToSection('oracao')" class="nav-btn"><i class="fas fa-pray"></i> Oração</button>
-        <button onclick="scrollToSection('inscricoes')" class="nav-btn"><i class="fas fa-clipboard-list"></i> Inscrições</button>
-        <button onclick="scrollToSection('aniversariantes')" class="nav-btn"><i class="fas fa-birthday-cake"></i> Aniversários</button>
-    </nav>
-
-    <!-- ============================================
-    HERO
-    ============================================ -->
-    <section id="home" class="hero">
-        <div class="hero-slides" id="heroSlides"></div>
-        <div class="hero-arrows">
-            <button class="hero-arrow" onclick="changeSlide(-1)">❮</button>
-            <button class="hero-arrow" onclick="changeSlide(1)">❯</button>
-        </div>
-        <div class="hero-controls" id="heroControls"></div>
-    </section>
-
-    <!-- ============================================
-    SOBRE NÓS
-    ============================================ -->
-    <section id="sobre" class="section">
-        <div class="section-header">
-            <span class="tag">Quem Somos</span>
-            <h2>Sobre Nós</h2>
-            <div class="line"></div>
-            <p class="subtitle">Conheça a história e missão da NJ Cabuçu</p>
-        </div>
-        <div class="grid">
-            <div class="card">
-                <div class="icon-wrapper"><i class="fas fa-heart"></i></div>
-                <h3>Nossa Missão</h3>
-                <p>Levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.</p>
-            </div>
-            <div class="card">
-                <div class="icon-wrapper"><i class="fas fa-bible"></i></div>
-                <h3>Nossa Visão</h3>
-                <p>Ser uma igreja relevante, que transforma vidas e impacta a comunidade com o evangelho.</p>
-            </div>
-            <div class="card">
-                <div class="icon-wrapper"><i class="fas fa-hand-holding-heart"></i></div>
-                <h3>Nossos Valores</h3>
-                <p>Amor, fé, esperança, serviço e comunhão. Vivemos os valores do Reino de Deus.</p>
-            </div>
-        </div>
-
-        <!-- ENDEREÇO -->
-        <div class="address-section">
-            <div class="address-card" onclick="openMaps()">
-                <div class="address-icon">📍</div>
-                <div class="address-text">Av. Abílio Augusto Távora, Lote 01, Quadra 03</div>
-                <div class="address-sub">Cabuçu, Nova Iguaçu - RJ</div>
-                <div class="address-actions">
-                    <button class="btn-map" onclick="event.stopPropagation(); openMaps();">
-                        <i class="fas fa-map-marked-alt"></i> Google Maps
-                    </button>
-                    <button class="btn-map waze" onclick="event.stopPropagation(); openWaze();">
-                        <i class="fas fa-location-dot"></i> Waze
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ============================================
-    ANIVERSARIANTES
-    ============================================ -->
-    <section id="aniversariantes" class="section">
-        <div class="section-header">
-            <span class="tag">Celebração</span>
-            <h2>🎂 Aniversariantes do Mês</h2>
-            <div class="line"></div>
-            <p class="subtitle">Celebre com nossos irmãos que estão fazendo aniversário</p>
-        </div>
-        <div id="birthdayList" class="grid"></div>
-    </section>
-
-    <!-- ============================================
-    EVENTOS
-    ============================================ -->
-    <section id="eventos" class="section">
-        <div class="section-header">
-            <span class="tag">Agenda</span>
-            <h2>📅 Eventos</h2>
-            <div class="line"></div>
-            <p class="subtitle">Confira nossa agenda de eventos</p>
-        </div>
-        <div class="grid" id="eventsList"></div>
-    </section>
-
-    <!-- ============================================
-    ESTUDOS
-    ============================================ -->
-    <section id="estudos" class="section">
-        <div class="section-header">
-            <span class="tag">Aprofunde-se</span>
-            <h2>📖 Estudos Bíblicos</h2>
-            <div class="line"></div>
-            <p class="subtitle">Materiais para edificação da sua fé</p>
-        </div>
-        <div class="grid" id="studiesList"></div>
-    </section>
-
-    <!-- ============================================
-    NJ STORE
-    ============================================ -->
-    <section id="loja" class="section">
-        <div class="section-header">
-            <span class="tag">Loja</span>
-            <h2>🛍️ NJ Store</h2>
-            <div class="line"></div>
-            <p class="subtitle">Adquira produtos exclusivos da nossa igreja</p>
-        </div>
-        <div class="grid" id="productsList"></div>
-        <div style="text-align:center;margin-top:1.5rem;">
-            <button onclick="openCart()" class="btn btn-primary">
-                <i class="fas fa-shopping-cart"></i> Ver Carrinho (<span id="cartCount">0</span>)
-            </button>
-        </div>
-    </section>
-
-    <!-- ============================================
-    DÍZIMOS E OFERTAS
-    ============================================ -->
-    <section id="dizimos" class="section">
-        <div class="section-header">
-            <span class="tag">Contribuição</span>
-            <h2>💝 Dízimos e Ofertas</h2>
-            <div class="line"></div>
-            <p class="subtitle">"Honra ao Senhor com os teus bens" — Provérbios 3:9</p>
-        </div>
-        <div class="tithe-options">
-            <button onclick="openDonationForm('Dízimo')" class="btn-donation">
-                <i class="fas fa-percent"></i> Dízimo
-            </button>
-            <button onclick="openDonationForm('Oferta')" class="btn-donation">
-                <i class="fas fa-hand-holding-heart"></i> Oferta
-            </button>
-            <button onclick="openDonationForm('Missões')" class="btn-donation">
-                <i class="fas fa-globe-americas"></i> Missões
-            </button>
-        </div>
-        <div id="donationResult" style="display:none;" class="text-center mt-1"></div>
-    </section>
-
-    <!-- ============================================
-    ORAÇÃO
-    ============================================ -->
-    <section id="oracao" class="section">
-        <div class="section-header">
-            <span class="tag">Comunicação com Deus</span>
-            <h2>🙏 Pedidos de Oração</h2>
-            <div class="line"></div>
-            <p class="subtitle">Compartilhe seu pedido de oração conosco</p>
-        </div>
-        <div style="max-width:560px;margin:0 auto;">
-            <div class="form-group">
-                <label>Seu nome (opcional)</label>
-                <input type="text" id="prayerName" placeholder="Ex: João">
-            </div>
-            <div class="form-group">
-                <label>Seu pedido de oração *</label>
-                <textarea id="prayerRequest" rows="4" placeholder="Digite seu pedido aqui..."></textarea>
-            </div>
-            <button onclick="submitPrayer()" class="btn btn-primary" style="width:100%;justify-content:center;">
-                <i class="fas fa-paper-plane"></i> Enviar Pedido
-            </button>
-            <div id="prayerMessage" style="display:none;" class="mt-1"></div>
-        </div>
-    </section>
-
-    <!-- ============================================
-    INSCRIÇÕES
-    ============================================ -->
-    <section id="inscricoes" class="section">
-        <div class="section-header">
-            <span class="tag">Participe</span>
-            <h2>📋 Inscrições</h2>
-            <div class="line"></div>
-            <p class="subtitle">Participe das nossas atividades</p>
-        </div>
-        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;margin-bottom:1.2rem;">
-            <button onclick="showRegistration('baptism')" class="btn btn-primary"><i class="fas fa-water"></i> Batismo</button>
-            <button onclick="showRegistration('volunteer')" class="btn btn-primary"><i class="fas fa-hands-helping"></i> Voluntário</button>
-            <button onclick="showRegistration('event')" class="btn btn-primary"><i class="fas fa-calendar-plus"></i> Evento</button>
-            <button onclick="showRegistration('department')" class="btn btn-primary"><i class="fas fa-users"></i> Departamento</button>
-        </div>
-        <div id="registrationForm" style="display:none; max-width:560px; margin:0 auto;"></div>
-        <div id="registrationResult" style="display:none;" class="text-center mt-1"></div>
-    </section>
-
-    <!-- ============================================
-    FOOTER
-    ============================================ -->
-    <footer class="footer">
-        <div class="footer-content">
-            <div>
-                <h4>🙏 NJ Cabuçu</h4>
-                <p>"E conhecereis a verdade, e a verdade vos libertará." — João 8:32</p>
-                <div class="social-links">
-                    <a href="https://www.instagram.com/novajerusalemcabucu/" target="_blank"><i class="fab fa-instagram"></i></a>
-                    <a href="https://wa.me/5521985345627" target="_blank"><i class="fab fa-whatsapp"></i></a>
-                    <a href="#" target="_blank"><i class="fab fa-youtube"></i></a>
-                    <a href="#" target="_blank"><i class="fab fa-facebook"></i></a>
-                </div>
-            </div>
-            <div>
-                <h4>📍 Localização</h4>
-                <a class="address-link" onclick="openMaps()">
-                    <i class="fas fa-map-pin"></i> Av. Abílio Augusto Távora, Lote 01, Quadra 03
-                </a>
-                <p style="margin-top:0.2rem;">Cabuçu, Nova Iguaçu - RJ</p>
-            </div>
-            <div>
-                <h4>📞 Contato</h4>
-                <p>(21) 98534-5627<br>contato@njcabucu.com</p>
-            </div>
-            <div>
-                <h4>🕊️ Horários</h4>
-                <p><strong>Domingo:</strong> 18h<br>
-                    <strong>Quarta:</strong> 19h30<br>
-                    <strong>Sábado:</strong> 17h</p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>© 2026 NJ Cabuçu — Todos os direitos reservados</p>
-        </div>
-    </footer>
-
-    <!-- ============================================
-    MODAIS
-    ============================================ -->
-
-    <!-- BÍBLIA -->
-    <div class="modal modal-bible" id="bibleModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal('bibleModal')">&times;</button>
-            <h2 style="color:var(--primary);margin-bottom:0.8rem;">📖 Bíblia Online</h2>
-            <div class="bible-container">
-                <div class="bible-input">
-                    <div class="form-group">
-                        <label>📚 Livro</label>
-                        <select id="bibleBook">
-                            <option value="gn">Gênesis</option><option value="ex">Êxodo</option>
-                            <option value="lv">Levítico</option><option value="nm">Números</option>
-                            <option value="dt">Deuteronômio</option><option value="js">Josué</option>
-                            <option value="jz">Juízes</option><option value="rt">Rute</option>
-                            <option value="1sm">1 Samuel</option><option value="2sm">2 Samuel</option>
-                            <option value="1rs">1 Reis</option><option value="2rs">2 Reis</option>
-                            <option value="1cr">1 Crônicas</option><option value="2cr">2 Crônicas</option>
-                            <option value="ed">Esdras</option><option value="ne">Neemias</option>
-                            <option value="et">Ester</option><option value="jó">Jó</option>
-                            <option value="sl" selected>Salmos</option><option value="pv">Provérbios</option>
-                            <option value="ec">Eclesiastes</option><option value="ct">Cânticos</option>
-                            <option value="is">Isaías</option><option value="jr">Jeremias</option>
-                            <option value="lm">Lamentações</option><option value="ez">Ezequiel</option>
-                            <option value="dn">Daniel</option><option value="os">Oseias</option>
-                            <option value="jl">Joel</option><option value="am">Amós</option>
-                            <option value="ob">Obadias</option><option value="jn">Jonas</option>
-                            <option value="mq">Miqueias</option><option value="na">Naum</option>
-                            <option value="hc">Habacuque</option><option value="sf">Sofonias</option>
-                            <option value="ag">Ageu</option><option value="zc">Zacarias</option>
-                            <option value="ml">Malaquias</option>
-                            <option value="mt">Mateus</option><option value="mc">Marcos</option>
-                            <option value="lc">Lucas</option><option value="jo">João</option>
-                            <option value="at">Atos</option><option value="rm">Romanos</option>
-                            <option value="1co">1 Coríntios</option><option value="2co">2 Coríntios</option>
-                            <option value="gl">Gálatas</option><option value="ef">Efésios</option>
-                            <option value="fp">Filipenses</option><option value="cl">Colossenses</option>
-                            <option value="1ts">1 Tessalonicenses</option><option value="2ts">2 Tessalonicenses</option>
-                            <option value="1tm">1 Timóteo</option><option value="2tm">2 Timóteo</option>
-                            <option value="tt">Tito</option><option value="fm">Filemom</option>
-                            <option value="hb">Hebreus</option><option value="tg">Tiago</option>
-                            <option value="1pe">1 Pedro</option><option value="2pe">2 Pedro</option>
-                            <option value="1jo">1 João</option><option value="2jo">2 João</option>
-                            <option value="3jo">3 João</option><option value="jd">Judas</option>
-                            <option value="ap">Apocalipse</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>📖 Capítulo</label>
-                        <input type="number" id="bibleChapter" value="23" min="1" step="1">
-                    </div>
-                    <div class="form-group">
-                        <label>✏️ Versículo (opcional)</label>
-                        <input type="number" id="bibleVerse" placeholder="Ex: 1" min="1" step="1">
-                    </div>
-                    <button onclick="searchBible()" class="btn btn-primary" style="width:100%;justify-content:center;">
-                        <i class="fas fa-search"></i> Buscar
-                    </button>
-                    <button onclick="searchBibleRandom()" class="btn btn-outline" style="width:100%;justify-content:center;margin-top:0.3rem;">
-                        <i class="fas fa-random"></i> Versículo Aleatório
-                    </button>
-                </div>
-                <div class="bible-result" id="bibleResult">
-                    <p style="color:#888;">Selecione um livro e capítulo para buscar</p>
-                    <p style="color:#ccc;font-size:0.8rem;margin-top:0.4rem;">Ex: Salmos 23, João 3:16, Romanos 8:28</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- CARROSSEL INFO -->
-    <div class="modal modal-carousel" id="carouselInfoModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal('carouselInfoModal')">&times;</button>
-            <div id="carouselInfoContent">
-                <img id="carouselInfoImage" src="" alt="" style="width:100%;height:240px;object-fit:cover;border-radius:var(--radius-sm);margin-bottom:0.8rem;">
-                <h2 id="carouselInfoTitle" style="font-size:1.5rem;font-weight:800;color:var(--primary);margin-bottom:0.3rem;"></h2>
-                <p id="carouselInfoSubtitle" style="color:#666;font-size:1rem;margin-bottom:0.8rem;"></p>
-                <div id="carouselInfoDescription" style="color:#555;line-height:1.7;"></div>
-                <a id="carouselInfoLink" href="#" target="_blank" class="btn btn-primary" style="margin-top:1rem;display:inline-flex;">
-                    <i class="fas fa-external-link-alt"></i> Saiba Mais
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- DOAÇÃO -->
-    <div class="modal" id="donationModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal('donationModal')">&times;</button>
-            <h3 id="donationTypeLabel">💳 Dízimo</h3>
-            <div class="form-group"><label>Nome Completo *</label><input type="text" id="donationName"></div>
-            <div class="form-group"><label>E-mail *</label><input type="email" id="donationEmail"></div>
-            <div class="form-group"><label>Telefone *</label><input type="tel" id="donationPhone"></div>
-            <div class="form-group"><label>Valor (R$) *</label><input type="number" id="donationAmount" step="0.01" min="0.01" placeholder="10.00"></div>
-            <input type="hidden" id="donationType">
-            <button onclick="submitDonation()" class="btn btn-primary" style="justify-content:center;">
-                <i class="fas fa-credit-card"></i> Continuar para Pagamento
-            </button>
-        </div>
-    </div>
-
-    <!-- PAGAMENTO -->
-    <div class="modal" id="paymentModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal('paymentModal')">&times;</button>
-            <h3 id="paymentTitle">💳 Pagamento</h3>
-            <div id="paymentForm">
-                <div class="form-group"><label>Nome Completo *</label><input type="text" id="payName"></div>
-                <div class="form-group"><label>E-mail *</label><input type="email" id="payEmail"></div>
-                <div class="form-group"><label>Telefone *</label><input type="tel" id="payPhone"></div>
-                <div class="form-group"><label>CPF *</label><input type="text" id="payCpf" placeholder="000.000.000-00"></div>
-                <div class="form-group">
-                    <label>Forma de Pagamento</label>
-                    <select id="payMethod" onchange="togglePaymentMethod()">
-                        <option value="pix">PIX</option>
-                        <option value="card">Cartão de Crédito</option>
-                    </select>
-                </div>
-                <div id="cardFields" style="display:none;">
-                    <div class="form-group"><label>Número do Cartão</label><input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19"></div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Validade</label><input type="text" id="cardExpiry" placeholder="MM/AA"></div>
-                        <div class="form-group"><label>CVV</label><input type="text" id="cardCvv" placeholder="123" maxlength="4"></div>
-                    </div>
-                    <div class="form-group"><label>Parcelas</label>
-                        <select id="cardInstallments">
-                            <option value="1">1x</option><option value="2">2x</option>
-                            <option value="3">3x</option><option value="4">4x</option>
-                            <option value="5">5x</option><option value="6">6x</option>
-                        </select>
-                    </div>
-                </div>
-                <div id="paymentTotal" style="text-align:center;font-size:1.4rem;font-weight:700;color:var(--primary);margin:0.8rem 0;"></div>
-                <button onclick="processPayment()" class="btn btn-primary" style="justify-content:center;">
-                    <i class="fas fa-credit-card"></i> Pagar
-                </button>
-            </div>
-            <div id="paymentResult" style="display:none;" class="text-center"></div>
-        </div>
-    </div>
-
-    <!-- CARRINHO -->
-    <div class="modal" id="cartModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal('cartModal')">&times;</button>
-            <h3><i class="fas fa-shopping-cart"></i> Carrinho</h3>
-            <div id="cartItems"><p style="text-align:center;color:#888;">Carrinho vazio</p></div>
-            <div id="cartTotal" style="text-align:center;font-size:1.2rem;font-weight:700;color:var(--primary);margin:0.8rem 0;"></div>
-            <button onclick="checkout()" class="btn btn-primary" style="justify-content:center;">
-                <i class="fas fa-credit-card"></i> Finalizar Compra
-            </button>
-        </div>
-    </div>
-
-    <!-- PÁGINA DE RETORNO -->
-    <div id="paymentReturnPage" style="display:none;max-width:560px;margin:2rem auto;padding:2rem;background:#fff;border-radius:20px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.06);">
-        <div class="icon" id="returnIcon" style="font-size:3.5rem;margin-bottom:0.8rem;color:#c9a84c;">⏳</div>
-        <h2 id="returnTitle" style="font-size:1.8rem;color:var(--primary);margin-bottom:0.6rem;">Aguardando Confirmação</h2>
-        <div class="message-box" id="returnMessageBox" style="padding:0.8rem;border-radius:10px;margin:0.8rem 0;background:#fef7e0;color:#7a6100;border:1px solid #f5e3b0;">
-            <span id="returnMessage">Seu pagamento está sendo processado. Aguarde a confirmação.</span>
-        </div>
-        <div style="background:#f8f9fe;padding:1rem 1.3rem;border-radius:10px;margin:1rem 0;text-align:left;border:1px solid #eef1f6;">
-            <p><span style="font-weight:600;">Status:</span> <span id="returnStatusText">Pendente</span></p>
-            <p><span style="font-weight:600;">ID do Pagamento:</span> <span id="returnPaymentId">-</span></p>
-        </div>
-        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;">
-            <a href="/" class="btn btn-primary"><i class="fas fa-home"></i> Voltar ao Site</a>
-        </div>
-        <p style="margin-top:1rem;font-size:0.75rem;color:#8a8a9a;">NJ Cabuçu — "E conhecereis a verdade, e a verdade vos libertará."</p>
-    </div>
-
-    <!-- ============================================
-    SCRIPTS (MANTIDOS DO SEU SERVER)
-    ============================================ -->
-    <script>
-        // ============================================
-        // ===== FUNÇÕES DE MAPAS =====
-        // ============================================
-        function openMaps() {
-            const endereco = encodeURIComponent('Av. Abílio Augusto Távora, Lote 01, Quadra 03, Cabuçu, Nova Iguaçu - RJ');
-            window.open(`https://www.google.com/maps/search/?api=1&query=${endereco}`, '_blank');
-        }
-
-        function openWaze() {
-            const endereco = encodeURIComponent('Av. Abílio Augusto Távora, Lote 01, Quadra 03, Cabuçu, Nova Iguaçu - RJ');
-            window.open(`https://waze.com/ul?q=${endereco}`, '_blank');
-        }
-
-        // ============================================
-        // ===== VARIÁVEIS =====
-        // ============================================
-        let cart = [];
-        let currentSlide = 0;
-        let slideInterval;
-        let slideCount = 0;
-        let departmentsList = [];
-        let carouselData = [];
-        let paymentType = 'sale';
-        let donationType = '';
-        let _donationAmount = 0;
-        let statusCheckInterval = null;
-        let baptismDatesList = [];
-        let eventsList = [];
-
-        // ============================================
-        // ===== HEADER SCROLL =====
-        // ============================================
-        window.addEventListener('scroll', () => {
-            const header = document.getElementById('mainHeader');
-            if (header) {
-                header.classList.toggle('scrolled', window.scrollY > 50);
-            }
-        });
-
-        // ============================================
-        // ===== MENU MOBILE =====
-        // ============================================
-        function toggleMobileMenu() {
-            document.getElementById('mainNav').classList.toggle('open');
-        }
-
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.getElementById('mainNav').classList.remove('open');
-            });
-        });
-
-        // ============================================
-        // ===== CARROSSEL =====
-        // ============================================
-        async function loadCarouselFromServer() {
-            try {
-                const res = await fetch('/api/carousel');
-                const data = await res.json();
-
-                if (data && data.length > 0) {
-                    carouselData = data;
-                } else {
-                    carouselData = [{
-                        title: '🙏 Bem-Vindo à NJ Cabuçu',
-                        subtitle: 'Uma comunidade que ama a Deus e ao próximo',
-                        image_url: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1200&h=500&fit=crop&crop=center',
-                        link: '#sobre',
-                        description: 'A NJ Cabuçu é uma comunidade cristã dedicada a levar o amor de Deus a todas as pessoas.'
-                    }, {
-                        title: '🎶 Venha nos Louvar',
-                        subtitle: 'Nossos cultos são cheios de adoração',
-                        image_url: 'https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1200&h=500&fit=crop&crop=center',
-                        link: '#eventos',
-                        description: 'Nossos cultos são marcados por louvores vibrantes e adoração sincera.'
-                    }, {
-                        title: '🤝 Faça Parte',
-                        subtitle: 'Junte-se a nós e faça a diferença',
-                        image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1200&h=500&fit=crop&crop=center',
-                        link: '#inscricoes',
-                        description: 'Acreditamos que a igreja não é um lugar, mas um povo. Venha fazer parte!'
-                    }];
-                }
-
-                renderCarousel();
-            } catch (e) {
-                console.error('Erro ao carregar carrossel:', e);
-                carouselData = [{
-                    title: '🙏 Bem-Vindo à NJ Cabuçu',
-                    subtitle: 'Uma comunidade que ama a Deus e ao próximo',
-                    image_url: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1200&h=500&fit=crop&crop=center',
-                    link: '#sobre',
-                    description: 'A NJ Cabuçu é uma comunidade cristã dedicada a levar o amor de Deus a todas as pessoas.'
-                }, {
-                    title: '🎶 Venha nos Louvar',
-                    subtitle: 'Nossos cultos são cheios de adoração',
-                    image_url: 'https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1200&h=500&fit=crop&crop=center',
-                    link: '#eventos',
-                    description: 'Nossos cultos são marcados por louvores vibrantes e adoração sincera.'
-                }, {
-                    title: '🤝 Faça Parte',
-                    subtitle: 'Junte-se a nós e faça a diferença',
-                    image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1200&h=500&fit=crop&crop=center',
-                    link: '#inscricoes',
-                    description: 'Acreditamos que a igreja não é um lugar, mas um povo. Venha fazer parte!'
-                }];
-                renderCarousel();
-            }
-        }
-
-        function renderCarousel() {
-            const slidesContainer = document.getElementById('heroSlides');
-            const controlsContainer = document.getElementById('heroControls');
-
-            if (!slidesContainer) return;
-
-            slidesContainer.innerHTML = '';
-            controlsContainer.innerHTML = '';
-
-            carouselData.forEach((item, index) => {
-                const slide = document.createElement('div');
-                slide.className = 'hero-slide';
-                slide.dataset.index = index;
-
-                let imgSrc = item.image_url ||
-                    (item.image_base64 ? `data:image/jpeg;base64,${item.image_base64}` :
-                        'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1200&h=500&fit=crop&crop=center');
-
-                slide.innerHTML = `
-                            <img src="${imgSrc}" alt="${item.title || 'Slide'}" class="bg-image" loading="lazy">
-                            <div class="overlay"></div>
-                            <div class="hero-content">
-                                <h1>${item.title || ''}</h1>
-                                <p>${item.subtitle || ''}</p>
-                                ${item.link ? `<a href="${item.link}" class="btn btn-primary" onclick="event.stopPropagation(); scrollToSection('${item.link.replace('#', '')}')">
-                                    <i class="fas fa-chevron-right"></i> Saiba Mais
-                                </a>` : ''}
-                            </div>
-                        `;
-
-                slide.addEventListener('click', () => openCarouselInfo(index));
-                slidesContainer.appendChild(slide);
-
-                const dot = document.createElement('button');
-                dot.className = 'hero-dot' + (index === 0 ? ' active' : '');
-                dot.onclick = () => goToSlide(index);
-                controlsContainer.appendChild(dot);
-            });
-
-            slideCount = carouselData.length;
-            currentSlide = 0;
-            startCarousel();
-        }
-
-        function goToSlide(index) {
-            const slides = document.querySelector('.hero-slides');
-            const dots = document.querySelectorAll('.hero-dot');
-            if (!slides || index < 0 || index >= slideCount) return;
-
-            currentSlide = index;
-            slides.style.transform = `translateX(-${currentSlide * 100}%)`;
-
-            dots.forEach((dot, i) => {
-                dot.classList.toggle('active', i === currentSlide);
-            });
-        }
-
-        function changeSlide(direction) {
-            if (slideCount === 0) return;
-            let newIndex = (currentSlide + direction + slideCount) % slideCount;
-            goToSlide(newIndex);
-        }
-
-        function startCarousel() {
-            if (slideInterval) clearInterval(slideInterval);
-            if (slideCount > 1) {
-                slideInterval = setInterval(() => changeSlide(1), 6000);
-            }
-        }
-
-        document.querySelector('.hero')?.addEventListener('mouseenter', () => {
-            clearInterval(slideInterval);
-        });
-
-        document.querySelector('.hero')?.addEventListener('mouseleave', startCarousel);
-
-        function openCarouselInfo(index) {
-            const item = carouselData[index];
-            if (!item) return;
-
-            let imgSrc = item.image_url ||
-                (item.image_base64 ? `data:image/jpeg;base64,${item.image_base64}` :
-                    'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=800&h=400&fit=crop&crop=center');
-
-            document.getElementById('carouselInfoImage').src = imgSrc;
-            document.getElementById('carouselInfoImage').alt = item.title || 'Slide';
-            document.getElementById('carouselInfoTitle').textContent = item.title || 'Sem título';
-            document.getElementById('carouselInfoSubtitle').textContent = item.subtitle || '';
-            document.getElementById('carouselInfoDescription').innerHTML = item.description ||
-                'Sem descrição disponível.';
-
-            const link = document.getElementById('carouselInfoLink');
-            if (item.link) {
-                link.href = item.link;
-                link.style.display = 'inline-flex';
-            } else {
-                link.style.display = 'none';
-            }
-
-            openModal('carouselInfoModal');
-        }
-
-        // ============================================
-        // ===== BÍBLIA =====
-        // ============================================
-        function openBibleModal() {
-            openModal('bibleModal');
-            setTimeout(() => searchBible(), 300);
-        }
-
-        const bookNames = {
-            'gn': 'Gênesis',
-            'ex': 'Êxodo',
-            'lv': 'Levítico',
-            'nm': 'Números',
-            'dt': 'Deuteronômio',
-            'js': 'Josué',
-            'jz': 'Juízes',
-            'rt': 'Rute',
-            '1sm': '1 Samuel',
-            '2sm': '2 Samuel',
-            '1rs': '1 Reis',
-            '2rs': '2 Reis',
-            '1cr': '1 Crônicas',
-            '2cr': '2 Crônicas',
-            'ed': 'Esdras',
-            'ne': 'Neemias',
-            'et': 'Ester',
-            'jó': 'Jó',
-            'sl': 'Salmos',
-            'pv': 'Provérbios',
-            'ec': 'Eclesiastes',
-            'ct': 'Cânticos',
-            'is': 'Isaías',
-            'jr': 'Jeremias',
-            'lm': 'Lamentações',
-            'ez': 'Ezequiel',
-            'dn': 'Daniel',
-            'os': 'Oseias',
-            'jl': 'Joel',
-            'am': 'Amós',
-            'ob': 'Obadias',
-            'jn': 'Jonas',
-            'mq': 'Miqueias',
-            'na': 'Naum',
-            'hc': 'Habacuque',
-            'sf': 'Sofonias',
-            'ag': 'Ageu',
-            'zc': 'Zacarias',
-            'ml': 'Malaquias',
-            'mt': 'Mateus',
-            'mc': 'Marcos',
-            'lc': 'Lucas',
-            'jo': 'João',
-            'at': 'Atos',
-            'rm': 'Romanos',
-            '1co': '1 Coríntios',
-            '2co': '2 Coríntios',
-            'gl': 'Gálatas',
-            'ef': 'Efésios',
-            'fp': 'Filipenses',
-            'cl': 'Colossenses',
-            '1ts': '1 Tessalonicenses',
-            '2ts': '2 Tessalonicenses',
-            '1tm': '1 Timóteo',
-            '2tm': '2 Timóteo',
-            'tt': 'Tito',
-            'fm': 'Filemom',
-            'hb': 'Hebreus',
-            'tg': 'Tiago',
-            '1pe': '1 Pedro',
-            '2pe': '2 Pedro',
-            '1jo': '1 João',
-            '2jo': '2 João',
-            '3jo': '3 João',
-            'jd': 'Judas',
-            'ap': 'Apocalipse'
+// ============================================
+// ===== NJ CABUÇU - SERVIDOR COMPLETO =====
+// =========================================
+
+require('dotenv').config();
+console.log('🚀 Iniciando NJ Cabuçu...');
+
+const express = require('express');
+const cors = require('cors');
+const { neon } = require('@neondatabase/serverless');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const { MercadoPagoConfig, Payment } = require('mercadopago');
+const nodemailer = require('nodemailer');
+
+// ============================================
+// ===== CONEXÃO NEON =====
+// ============================================
+if (!process.env.DATABASE_URL) {
+    console.error('❌ DATABASE_URL não encontrada!');
+    process.exit(1);
+}
+const sql = neon(process.env.DATABASE_URL);
+console.log('✅ Conectado ao Neon Database');
+
+// ============================================
+// ===== NODEMAILER - CONFIGURAÇÃO =====
+// ============================================
+console.log('📧 Configurando Nodemailer...');
+console.log('📧 EMAIL_USER:', process.env.EMAIL_USER || 'mvini440@gmail.com');
+console.log('📧 EMAIL_PASS:', process.env.EMAIL_PASS ? '✅ Configurado' : '❌ Não configurado');
+
+const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    auth: {
+        user: process.env.EMAIL_USER || 'mvini440@gmail.com',
+        pass: process.env.EMAIL_PASS || '26588772'
+    },
+    tls: {
+        rejectUnauthorized: false
+    }
+});
+
+// Verifica se o transporte está funcionando
+transporter.verify(function(error, success) {
+    if (error) {
+        console.log('❌ Erro na configuração do e-mail:', error);
+    } else {
+        console.log('✅ Servidor de e-mail configurado com sucesso!');
+    }
+});
+
+// ============================================
+// ===== FUNÇÃO PARA ENVIAR E-MAIL (COM LOGS) =====
+// ============================================
+async function enviarEmail(email, nome, payment_id, valor, tipo, status) {
+    console.log('========================================');
+    console.log('📧 TENTANDO ENVIAR E-MAIL');
+    console.log('📧 Para:', email);
+    console.log('📧 Nome:', nome);
+    console.log('📧 Payment ID:', payment_id);
+    console.log('📧 Valor:', valor);
+    console.log('📧 Tipo:', tipo);
+    console.log('📧 Status:', status);
+    console.log('========================================');
+
+    if (!email) {
+        console.log('⚠️ Email não informado, não é possível enviar');
+        return null;
+    }
+
+    // Verifica se é um email válido
+    if (!email.includes('@')) {
+        console.log('⚠️ Email inválido:', email);
+        return null;
+    }
+
+    const statusText = status === 'approved' ? 'APROVADO ✅' : 'PENDENTE ⏳';
+    const tipoTexto = tipo === 'donation' ? 'Doação' : 'Compra';
+
+    const mensagem = `
+====================================
+🙏 NJ Cabuçu
+====================================
+
+Olá ${nome || 'Cliente'},
+
+Seu pagamento foi ${statusText}!
+
+📋 Detalhes:
+Tipo: ${tipoTexto}
+Valor: R$ ${parseFloat(valor).toFixed(2)}
+ID: ${payment_id}
+Data: ${new Date().toLocaleDateString('pt-BR')}
+
+${status === 'approved' ? '🙌 Obrigado pela sua contribuição! Deus abençoe!' : '⏳ Aguardando confirmação...'}
+
+====================================
+NJ Cabuçu - "E conhecereis a verdade, e a verdade vos libertará." João 8:32
+====================================
+    `;
+
+    try {
+        const mailOptions = {
+            from: `"NJ Cabuçu" <${process.env.EMAIL_USER || 'mvini440@gmail.com'}>`,
+            to: email,
+            subject: `✅ Confirmação de ${tipoTexto} - NJ Cabuçu`,
+            text: mensagem,
+            html: mensagem.replace(/\n/g, '<br>')
         };
 
-        async function searchBible() {
-            const book = document.getElementById('bibleBook').value;
-            const chapter = document.getElementById('bibleChapter').value;
-            const verse = document.getElementById('bibleVerse').value;
-            const resultDiv = document.getElementById('bibleResult');
+        console.log('📧 Enviando e-mail...');
+        const info = await transporter.sendMail(mailOptions);
+        console.log('✅ E-mail enviado com sucesso!');
+        console.log('📧 Message ID:', info.messageId);
+        console.log('📧 Response:', info.response);
+        return info;
+    } catch (error) {
+        console.error('❌ Erro ao enviar e-mail:');
+        console.error('❌ Mensagem:', error.message);
+        console.error('❌ Código:', error.code);
+        console.error('❌ Detalhes:', error);
+        return null;
+    }
+}
 
-            if (!chapter || chapter < 1) {
-                resultDiv.innerHTML = '<p style="color:#dc3545;">⚠️ Digite um capítulo válido (mínimo 1).</p>';
-                return;
-            }
+// ============================================
+// ===== MERCADO PAGO =====
+// ============================================
+let PaymentService = null;
+try {
+    if (process.env.MP_ACCESS_TOKEN) {
+        const client = new MercadoPagoConfig({
+            accessToken: process.env.MP_ACCESS_TOKEN,
+            options: { timeout: 30000 }
+        });
+        PaymentService = new Payment(client);
+        console.log('✅ Mercado Pago configurado');
+        console.log('🔑 Access Token:', process.env.MP_ACCESS_TOKEN.substring(0, 20) + '...');
+    }
+} catch (error) {
+    console.log('⚠️ Erro MP:', error.message);
+}
 
-            resultDiv.innerHTML = '<p class="loading">⏳ Carregando...</p>';
+// ============================================
+// ===== APP =====
+// ============================================
+const app = express();
+const PORT = process.env.PORT || 3000;
+const BASE_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
 
-            try {
-                let url = `https://bible-api.com/${book}+${chapter}`;
-                if (verse && verse > 0) {
-                    url += `:${verse}`;
-                }
-                url += '?translation=almeida';
+app.use(cors({
+    origin: ['https://igrejanjcabucurj.vercel.app', 'http://localhost:3000', 'http://localhost:3001', '*'],
+    credentials: true
+}));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.static('public'));
+app.use('/uploads', express.static('public/uploads'));
 
-                const response = await fetch(url);
+// ============================================
+// ===== MULTER =====
+// ============================================
+const storage = multer.memoryStorage();
 
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status} - ${response.statusText}`);
-                }
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: function (req, file, cb) {
+        const allowedTypes = /jpeg|jpg|png|gif|webp/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype);
+        if (mimetype && extname) {
+            return cb(null, true);
+        } else {
+            cb(new Error('Apenas imagens são permitidas!'));
+        }
+    }
+});
 
-                const data = await response.json();
+// ============================================
+// ===== FUNÇÕES =====
+// ============================================
+const hashPassword = async (pwd) => await bcrypt.hash(pwd, 10);
+const verifyPassword = async (pwd, hash) => await bcrypt.compare(pwd, hash);
 
-                if (data.error) {
-                    resultDiv.innerHTML = `
-                                <p class="error-message">❌ ${data.error}</p>
-                                <p style="color:#888;margin-top:0.5rem;">Tente: Salmos 23, João 3:16, Romanos 8:28</p>
-                            `;
-                    return;
-                }
+const auth = (req, res, next) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'Não autorizado' });
+    try {
+        req.user = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+        next();
+    } catch {
+        res.status(401).json({ error: 'Token inválido' });
+    }
+};
 
-                let html = '';
-                if (data.verses && data.verses.length > 0) {
-                    data.verses.forEach(v => {
-                        html += `<p class="verse"><strong>${v.verse}</strong> ${v.text}</p>`;
-                    });
-                } else if (data.text) {
-                    html = `<p class="verse">${data.text}</p>`;
-                } else {
-                    html = '<p style="color:#888;">Nenhum texto encontrado para esta referência.</p>';
-                }
+const pastorOnly = (req, res, next) => {
+    if (req.user?.role !== 'pastor') {
+        return res.status(403).json({ error: 'Apenas o pastor' });
+    }
+    next();
+};
 
-                html += `<p class="reference">📖 ${data.reference || bookNames[book] + ' ' + chapter}</p>`;
-                resultDiv.innerHTML = html;
+// ============================================
+// ===== INICIALIZAR BANCO =====
+// ============================================
+async function initDB() {
+    console.log('📝 Criando tabelas...');
+    
+    try {
+        // USERS
+        await sql`CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            email VARCHAR(100) UNIQUE NOT NULL,
+            password_hash VARCHAR(255) NOT NULL,
+            role VARCHAR(50) DEFAULT 'colaborador',
+            department_id INTEGER,
+            department_name VARCHAR(100),
+            first_login BOOLEAN DEFAULT true,
+            phone VARCHAR(20),
+            is_leader BOOLEAN DEFAULT false,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
 
-            } catch (error) {
-                console.error('❌ Erro na busca:', error);
-                resultDiv.innerHTML = `
-                            <p class="error-message">❌ Erro ao buscar: ${error.message}</p>
-                            <p style="color:#888;margin-top:0.5rem;">Tente: Salmos 23, João 3:16, Romanos 8:28</p>
-                        `;
-            }
+        // DEPARTMENTS
+        await sql`CREATE TABLE IF NOT EXISTS departments (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            leader_id INTEGER,
+            description TEXT,
+            is_active BOOLEAN DEFAULT true,
+            created_by INTEGER,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // DEPARTMENT MEMBERS
+        await sql`CREATE TABLE IF NOT EXISTS department_members (
+            department_id INTEGER,
+            user_id INTEGER,
+            role VARCHAR(50) DEFAULT 'membro',
+            joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (department_id, user_id)
+        )`;
+
+        // STUDIES
+        await sql`CREATE TABLE IF NOT EXISTS studies (
+            id SERIAL PRIMARY KEY,
+            title VARCHAR(200) NOT NULL,
+            description TEXT,
+            file_url VARCHAR(500),
+            image_url VARCHAR(500),
+            image_base64 TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // PRODUCTS
+        await sql`CREATE TABLE IF NOT EXISTS products (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(200) NOT NULL,
+            description TEXT,
+            price DECIMAL(10,2) NOT NULL,
+            image_url VARCHAR(500),
+            image_base64 TEXT,
+            stock INTEGER DEFAULT 0,
+            category VARCHAR(100),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // EVENTS
+        await sql`CREATE TABLE IF NOT EXISTS events (
+            id SERIAL PRIMARY KEY,
+            title VARCHAR(200) NOT NULL,
+            description TEXT,
+            date TIMESTAMP NOT NULL,
+            image_url VARCHAR(500),
+            image_base64 TEXT,
+            price DECIMAL(10,2) DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // PRAYERS
+        await sql`CREATE TABLE IF NOT EXISTS prayers (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100),
+            request TEXT NOT NULL,
+            is_read BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // ORDERS (VENDAS)
+        await sql`CREATE TABLE IF NOT EXISTS orders (
+            id SERIAL PRIMARY KEY,
+            user_name VARCHAR(100),
+            user_email VARCHAR(100),
+            user_phone VARCHAR(20),
+            items TEXT,
+            total DECIMAL(10,2) NOT NULL,
+            status VARCHAR(50) DEFAULT 'pending',
+            payment_id VARCHAR(100),
+            payment_method VARCHAR(50),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // REGISTRATIONS
+        await sql`CREATE TABLE IF NOT EXISTS registrations (
+            id SERIAL PRIMARY KEY,
+            type VARCHAR(50) NOT NULL,
+            name VARCHAR(100) NOT NULL,
+            email VARCHAR(100),
+            phone VARCHAR(20),
+            department_name VARCHAR(100),
+            event_name VARCHAR(200),
+            details TEXT,
+            status VARCHAR(50) DEFAULT 'pending',
+            amount DECIMAL(10,2) DEFAULT 0,
+            is_paid BOOLEAN DEFAULT false,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // WORSHIP SCALES
+        await sql`CREATE TABLE IF NOT EXISTS worship_scales (
+            id SERIAL PRIMARY KEY,
+            department_id INTEGER,
+            event_date TIMESTAMP NOT NULL,
+            leader_id INTEGER,
+            minister_id INTEGER,
+            songs TEXT[],
+            song_ids TEXT,
+            musician_ids TEXT,
+            palette TEXT,
+            rehearsal BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // DONATIONS
+        await sql`CREATE TABLE IF NOT EXISTS donations (
+            id SERIAL PRIMARY KEY,
+            user_name VARCHAR(100),
+            user_email VARCHAR(100),
+            user_phone VARCHAR(20),
+            type VARCHAR(50) NOT NULL,
+            amount DECIMAL(10,2) NOT NULL,
+            payment_id VARCHAR(100),
+            payment_method VARCHAR(50),
+            status VARCHAR(50) DEFAULT 'pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // CAROUSEL
+        await sql`CREATE TABLE IF NOT EXISTS carousel_images (
+            id SERIAL PRIMARY KEY,
+            title VARCHAR(200),
+            subtitle VARCHAR(200),
+            image_url VARCHAR(500),
+            image_base64 TEXT,
+            link VARCHAR(500),
+            order_position INTEGER DEFAULT 0,
+            active BOOLEAN DEFAULT true,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // SITE SETTINGS
+        await sql`CREATE TABLE IF NOT EXISTS site_settings (
+            id SERIAL PRIMARY KEY,
+            key VARCHAR(100) UNIQUE NOT NULL,
+            value TEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // ===== TABELAS DE MEMBROS E SECRETARIA =====
+        await sql`CREATE TABLE IF NOT EXISTS members (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            email VARCHAR(100),
+            phone VARCHAR(20),
+            birth_date DATE,
+            marital_status VARCHAR(20) DEFAULT 'solteiro',
+            spouse_name VARCHAR(100),
+            children TEXT,
+            baptism_date DATE,
+            baptism_place VARCHAR(100),
+            address TEXT,
+            department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
+            department_name VARCHAR(100),
+            is_active BOOLEAN DEFAULT true,
+            joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            notes TEXT,
+            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS attendance (
+            id SERIAL PRIMARY KEY,
+            member_id INTEGER REFERENCES members(id) ON DELETE CASCADE,
+            event_date DATE NOT NULL,
+            service_type VARCHAR(50) DEFAULT 'domingo',
+            present BOOLEAN DEFAULT false,
+            check_in_time TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(member_id, event_date, service_type)
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS tithes (
+            id SERIAL PRIMARY KEY,
+            member_id INTEGER REFERENCES members(id) ON DELETE SET NULL,
+            member_name VARCHAR(100),
+            type VARCHAR(20) NOT NULL,
+            amount DECIMAL(10,2) NOT NULL,
+            payment_method VARCHAR(20) DEFAULT 'dinheiro',
+            payment_date DATE DEFAULT CURRENT_DATE,
+            description TEXT,
+            received_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS bills (
+            id SERIAL PRIMARY KEY,
+            description VARCHAR(200) NOT NULL,
+            category VARCHAR(50) NOT NULL,
+            amount DECIMAL(10,2) NOT NULL,
+            due_date DATE NOT NULL,
+            paid BOOLEAN DEFAULT false,
+            payment_date DATE,
+            payment_method VARCHAR(20),
+            notes TEXT,
+            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS birthdays (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            birth_date DATE NOT NULL,
+            phone VARCHAR(20),
+            is_active BOOLEAN DEFAULT true,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS weddings (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            spouse_name VARCHAR(100) NOT NULL,
+            wedding_date DATE NOT NULL,
+            phone VARCHAR(20),
+            is_active BOOLEAN DEFAULT true,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS baptism_dates (
+            id SERIAL PRIMARY KEY,
+            date TIMESTAMP NOT NULL,
+            title VARCHAR(200) DEFAULT 'Batismo',
+            description TEXT,
+            max_participants INTEGER DEFAULT 20,
+            current_participants INTEGER DEFAULT 0,
+            is_active BOOLEAN DEFAULT true,
+            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // ===== TABELAS PARA DEPARTAMENTOS =====
+        await sql`CREATE TABLE IF NOT EXISTS songs (
+            id SERIAL PRIMARY KEY,
+            title VARCHAR(200) NOT NULL,
+            artist VARCHAR(100),
+            key VARCHAR(10) DEFAULT 'C',
+            lyrics TEXT,
+            department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE,
+            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS availability (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            date TIMESTAMP NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, date)
+        )`;
+
+        console.log('✅ Tabelas criadas');
+
+        const existing = await sql`SELECT * FROM users WHERE email = 'pastor@njcabucu.com'`;
+        if (existing.length === 0) {
+            const hash = await hashPassword('admin123');
+            await sql`
+                INSERT INTO users (name, email, password_hash, role, department_name, first_login, is_leader)
+                VALUES ('Pastor', 'pastor@njcabucu.com', ${hash}, 'pastor', 'Administração', false, true)
+            `;
+            console.log('✅ Pastor criado: pastor@njcabucu.com / admin123');
         }
 
-        async function searchBibleRandom() {
-            const resultDiv = document.getElementById('bibleResult');
-            resultDiv.innerHTML = '<p class="loading">⏳ Buscando versículo aleatório...</p>';
+        console.log('🎉 Sistema pronto!');
+    } catch (error) {
+        console.error('❌ Erro:', error.message);
+    }
+}
 
-            try {
-                const response = await fetch('https://bible-api.com/?random=1&translation=almeida');
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+initDB();
 
-                const data = await response.json();
+// ============================================
+// ===== ROTAS =====
+// ============================================
 
-                if (data.error) {
-                    resultDiv.innerHTML = `<p class="error-message">❌ ${data.error}</p>`;
-                    return;
-                }
+// ----- LOGIN -----
+app.post('/api/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const users = await sql`SELECT * FROM users WHERE email = ${email}`;
+        if (users.length === 0) return res.status(401).json({ error: 'Usuário não encontrado' });
+        
+        const user = users[0];
+        const valid = await verifyPassword(password, user.password_hash);
+        if (!valid) return res.status(401).json({ error: 'Senha incorreta' });
 
-                let html = '';
-                if (data.verses && data.verses.length > 0) {
-                    data.verses.forEach(v => {
-                        html += `<p class="verse"><strong>${v.verse}</strong> ${v.text}</p>`;
-                    });
-                } else if (data.text) {
-                    html = `<p class="verse">${data.text}</p>`;
-                }
+        const token = jwt.sign(
+            { id: user.id, email: user.email, role: user.role },
+            process.env.JWT_SECRET || 'secret',
+            { expiresIn: '7d' }
+        );
 
-                html += `<p class="reference">📖 ${data.reference || 'Versículo aleatório'}</p>`;
-                resultDiv.innerHTML = html;
-
-            } catch (error) {
-                console.error('❌ Erro no versículo aleatório:', error);
-                resultDiv.innerHTML = `
-                            <p class="error-message">❌ Erro ao buscar versículo aleatório: ${error.message}</p>
-                            <p style="color:#888;margin-top:0.5rem;">Tente novamente ou faça uma busca manual.</p>
-                        `;
-            }
-        }
-
-        document.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const active = document.activeElement;
-                if (active && (active.id === 'bibleChapter' || active.id === 'bibleVerse' || active.id ===
-                        'bibleBook')) {
-                    searchBible();
-                }
+        res.json({
+            token,
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                department_id: user.department_id,
+                department_name: user.department_name,
+                first_login: user.first_login || false,
+                phone: user.phone || '',
+                is_leader: user.is_leader || false
             }
         });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
-        // ============================================
-        // ===== NAVEGAÇÃO =====
-        // ============================================
-        function scrollToSection(id) {
-            const el = document.getElementById(id);
-            if (el) {
-                const offset = 130;
-                const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
-                window.scrollTo({ top, behavior: 'smooth' });
+app.post('/api/change-password', async (req, res) => {
+    try {
+        const { email, currentPassword, newPassword } = req.body;
+        const users = await sql`SELECT * FROM users WHERE email = ${email}`;
+        if (users.length === 0) return res.status(404).json({ error: 'Usuário não encontrado' });
 
-                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                const map = {
-                    'home': 'Início',
-                    'sobre': 'Sobre',
-                    'eventos': 'Eventos',
-                    'estudos': 'Estudos',
-                    'loja': 'NJ Store',
-                    'dizimos': 'Dízimos',
-                    'oracao': 'Oração',
-                    'inscricoes': 'Inscrições',
-                    'aniversariantes': 'Aniversários'
-                };
-                document.querySelectorAll('.nav-btn').forEach(b => {
-                    if (b.textContent.includes(map[id])) b.classList.add('active');
-                });
+        const user = users[0];
+        if (!user.first_login && currentPassword) {
+            const valid = await verifyPassword(currentPassword, user.password_hash);
+            if (!valid) return res.status(401).json({ error: 'Senha atual incorreta' });
+        }
+
+        const hash = await hashPassword(newPassword);
+        await sql`UPDATE users SET password_hash = ${hash}, first_login = false WHERE id = ${user.id}`;
+        res.json({ message: 'Senha alterada com sucesso!' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- USUÁRIOS E COLABORADORES -----
+app.post('/api/users', auth, pastorOnly, async (req, res) => {
+    try {
+        const { name, email, password, role, department_name, phone, is_leader, department_id } = req.body;
+        
+        const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
+        if (existing.length > 0) {
+            return res.status(400).json({ error: 'Usuário já existe' });
+        }
+
+        const hash = await hashPassword(password || '123456');
+        
+        let deptId = department_id || null;
+        let deptName = department_name || null;
+        
+        if (deptId) {
+            const dept = await sql`SELECT name FROM departments WHERE id = ${deptId}`;
+            if (dept.length > 0) {
+                deptName = dept[0].name;
             }
         }
 
-        // ============================================
-        // ===== CARREGAR DADOS =====
-        // ============================================
-        function createCardImage(imageData, alt) {
-            if (!imageData) return '';
-            let src = imageData;
-            if (imageData.startsWith('/uploads')) {
-                src = imageData;
-            } else if (imageData.startsWith('data:image')) {
-                src = imageData;
-            } else if (imageData.length > 100 && !imageData.startsWith('http')) {
-                src = `data:image/jpeg;base64,${imageData}`;
-            }
-            return `<div class="card-image-wrapper"><img src="${src}" alt="${alt}" loading="lazy"></div>`;
-        }
-
-        async function loadStudies() {
-            try {
-                const res = await fetch('/api/studies');
-                const data = await res.json();
-                const container = document.getElementById('studiesList');
-                if (!data || data.length === 0) {
-                    container.innerHTML =
-                        '<p style="text-align:center;color:#888;grid-column:1/-1;">Nenhum estudo disponível.</p>';
-                    return;
-                }
-                container.innerHTML = data.map(s => `
-                            <div class="card">
-                                ${s.image_base64 ? createCardImage(s.image_base64, s.title) : ''}
-                                <h3>${s.title}</h3>
-                                <p>${s.description || ''}</p>
-                                ${s.file_url ? '<a href="' + s.file_url + '" target="_blank" class="btn btn-primary btn-sm" style="margin-top:0.5rem;width:auto;"><i class="fas fa-download"></i> Baixar</a>' : ''}
-                            </div>
-                        `).join('');
-            } catch (e) { console.error('Erro:', e); }
-        }
-
-        async function loadEvents() {
-            try {
-                const res = await fetch('/api/events');
-                const data = await res.json();
-                const container = document.getElementById('eventsList');
-                if (!data || data.length === 0) {
-                    container.innerHTML =
-                        '<p style="text-align:center;color:#888;grid-column:1/-1;">Nenhum evento disponível.</p>';
-                    return;
-                }
-                container.innerHTML = data.map(e => `
-                            <div class="card">
-                                ${e.image_base64 ? createCardImage(e.image_base64, e.title) : ''}
-                                <h3>${e.title}</h3>
-                                <p>${e.description || ''}</p>
-                                <p style="font-size:0.85rem;color:#666;margin:0.2rem 0;"><strong>Data:</strong> ${new Date(e.date).toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' })}</p>
-                                <p style="font-size:0.85rem;color:#666;"><strong>Valor:</strong> ${parseFloat(e.price || 0) > 0 ? 'R$ ' + parseFloat(e.price).toFixed(2) : 'Grátis'}</p>
-                                <button onclick="registerForEvent(${e.id}, '${e.title}', ${e.price})" class="btn btn-primary" style="margin-top:0.5rem; background:#28a745;">
-                                    <i class="fas fa-ticket-alt"></i> Inscrever-se
-                                </button>
-                            </div>
-                        `).join('');
-            } catch (e) { console.error('Erro:', e); }
-        }
-
-        async function loadProducts() {
-            try {
-                const res = await fetch('/api/products');
-                const data = await res.json();
-                const container = document.getElementById('productsList');
-                if (!data || data.length === 0) {
-                    container.innerHTML =
-                        '<p style="text-align:center;color:#888;grid-column:1/-1;">Nenhum produto disponível.</p>';
-                    return;
-                }
-                container.innerHTML = data.map(p => `
-                            <div class="card">
-                                ${p.image_base64 ? createCardImage(p.image_base64, p.name) : ''}
-                                <h3>${p.name}</h3>
-                                <p>${p.description || ''}</p>
-                                <div class="price">R$ ${parseFloat(p.price).toFixed(2)}</div>
-                                <button onclick="addToCart(${p.id})" class="btn btn-primary"><i class="fas fa-cart-plus"></i> Comprar</button>
-                            </div>
-                        `).join('');
-            } catch (e) { console.error('Erro:', e); }
-        }
-
-        // ============================================
-        // ===== ANIVERSARIANTES =====
-        // ============================================
-        async function loadBirthdays() {
-            try {
-                const res = await fetch('/api/birthdays');
-                const data = await res.json();
-                const container = document.getElementById('birthdayList');
-
-                if (!data || data.length === 0) {
-                    container.innerHTML = `
-                                <div style="text-align:center;padding:1.5rem;color:#888;grid-column:1/-1;">
-                                    <i class="fas fa-birthday-cake" style="font-size:2rem;color:#ccc;display:block;margin-bottom:0.4rem;"></i>
-                                    Nenhum aniversariante este mês 🎉
-                                </div>
-                            `;
-                    return;
-                }
-
-                const sortedData = [...data].sort((a, b) => {
-                    const dayA = new Date(a.birth_date).getDate();
-                    const dayB = new Date(b.birth_date).getDate();
-                    return dayA - dayB;
-                });
-
-                const today = new Date();
-                const todayMonth = today.getMonth();
-                const todayDay = today.getDate();
-
-                container.innerHTML = sortedData.map(person => {
-                    const birth = new Date(person.birth_date);
-                    let idade = today.getFullYear() - birth.getFullYear();
-
-                    const mesNiver = birth.getMonth();
-                    const diaNiver = birth.getDate();
-                    if (today.getMonth() < mesNiver || (today.getMonth() === mesNiver && today.getDate() <
-                            diaNiver)) {
-                        idade--;
-                    }
-
-                    const emojis = ['🎂', '🎈', '🎉', '🎊', '✨', '🌟', '💫', '🥳'];
-                    const emoji = emojis[person.id % emojis.length];
-                    const isToday = mesNiver === todayMonth && diaNiver === todayDay;
-
-                    return `
-                                <div class="card birthday-card ${isToday ? 'today' : ''}">
-                                    <div class="emoji">${emoji}</div>
-                                    <div class="name">${person.name}</div>
-                                    <div class="date">${birth.toLocaleDateString('pt-BR', { day:'numeric', month:'long' })}</div>
-                                    <div class="age">🎯 ${idade} anos ${isToday ? '🎉 HOJE!' : ''}</div>
-                                    ${person.phone ? `<div style="font-size:0.75rem;color:#888;margin-top:0.2rem;"><i class="fas fa-phone"></i> ${person.phone}</div>` : ''}
-                                    ${person.department_name ? `<div style="font-size:0.75rem;color:#888;"><i class="fas fa-building"></i> ${person.department_name}</div>` : ''}
-                                </div>
-                            `;
-                }).join('');
-            } catch (e) {
-                console.error('Erro:', e);
-                document.getElementById('birthdayList').innerHTML = `
-                            <div style="text-align:center;padding:1.5rem;color:#dc3545;grid-column:1/-1;">
-                                <i class="fas fa-exclamation-circle" style="font-size:2rem;display:block;margin-bottom:0.4rem;"></i>
-                                Erro ao carregar aniversariantes
-                            </div>
-                        `;
+        const result = await sql`
+            INSERT INTO users (name, email, password_hash, role, department_id, department_name, phone, first_login, is_leader)
+            VALUES (${name}, ${email}, ${hash}, ${role || 'colaborador'}, ${deptId}, ${deptName}, ${phone || ''}, true, ${is_leader || false})
+            RETURNING id, name, email, role, department_id, department_name, is_leader
+        `;
+        
+        if (deptId) {
+            const memberRole = is_leader ? 'lider' : 'membro';
+            await sql`
+                INSERT INTO department_members (department_id, user_id, role)
+                VALUES (${deptId}, ${result[0].id}, ${memberRole})
+                ON CONFLICT (department_id, user_id) DO UPDATE SET role = ${memberRole}
+            `;
+            
+            if (is_leader) {
+                await sql`
+                    UPDATE departments SET leader_id = ${result[0].id} WHERE id = ${deptId}
+                `;
             }
         }
+        
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar usuário:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
 
-        // ============================================
-        // ===== CARRINHO =====
-        // ============================================
-        async function addToCart(productId) {
-            try {
-                const res = await fetch('/api/products');
-                const products = await res.json();
-                const product = products.find(p => p.id === productId);
-                if (product) {
-                    cart.push(product);
-                    document.getElementById('cartCount').textContent = cart.length;
-                    showNotification('✅ ' + product.name + ' adicionado ao carrinho!', 'success');
-                }
-            } catch (e) { console.error('Erro:', e); }
+// ----- CRIAR USUÁRIO PELO LÍDER -----
+app.post('/api/users-by-leader', auth, async (req, res) => {
+    try {
+        const { name, email, password, role, department_id } = req.body;
+        
+        const leaderCheck = await sql`
+            SELECT * FROM users 
+            WHERE id = ${req.user.id} AND is_leader = true AND department_id = ${department_id}
+        `;
+        
+        if (leaderCheck.length === 0 && req.user.role !== 'pastor') {
+            return res.status(403).json({ error: 'Apenas líderes podem criar usuários no departamento' });
+        }
+        
+        const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
+        if (existing.length > 0) {
+            return res.status(400).json({ error: 'Usuário já existe' });
         }
 
-        function openCart() {
-            const container = document.getElementById('cartItems');
-            const totalDiv = document.getElementById('cartTotal');
-            if (cart.length === 0) {
-                container.innerHTML = '<p style="text-align:center;color:#888;">Carrinho vazio</p>';
-                totalDiv.textContent = '';
-            } else {
-                let total = 0;
-                container.innerHTML = cart.map((p, i) => `
-                            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.4rem;border-bottom:1px solid #eee;">
-                                <span>${p.name} - R$ ${parseFloat(p.price).toFixed(2)}</span>
-                                <button onclick="removeFromCart(${i})" class="btn btn-danger btn-sm"><i class="fas fa-times"></i></button>
-                            </div>
-                        `).join('');
-                total = cart.reduce((sum, p) => sum + parseFloat(p.price), 0);
-                totalDiv.textContent = 'Total: R$ ' + total.toFixed(2);
+        const hash = await hashPassword(password || '123456');
+        const userRole = role || 'membro';
+        
+        const result = await sql`
+            INSERT INTO users (name, email, password_hash, role, department_id, department_name, phone, first_login, is_leader)
+            VALUES (${name}, ${email}, ${hash}, ${userRole}, ${department_id}, ${null}, ${''}, true, ${userRole === 'lider' ? true : false})
+            RETURNING id, name, email, role, department_id, is_leader
+        `;
+        
+        await sql`
+            INSERT INTO department_members (department_id, user_id, role)
+            VALUES (${department_id}, ${result[0].id}, ${userRole})
+        `;
+        
+        if (userRole === 'lider') {
+            await sql`UPDATE departments SET leader_id = ${result[0].id} WHERE id = ${department_id}`;
+        }
+        
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar usuário pelo líder:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/users', auth, async (req, res) => {
+    try {
+        let users;
+        if (req.user.role === 'pastor') {
+            users = await sql`
+                SELECT id, name, email, role, department_id, department_name, phone, first_login, is_leader, created_at
+                FROM users ORDER BY name
+            `;
+        } else {
+            const deptId = req.user.department_id;
+            if (!deptId) return res.json([]);
+            users = await sql`
+                SELECT id, name, email, role, department_id, department_name, phone, first_login, is_leader, created_at
+                FROM users WHERE department_id = ${deptId}
+                ORDER BY name
+            `;
+        }
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/users/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM users WHERE id = ${req.params.id}`;
+        res.json({ message: 'Usuário removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/reset-password', auth, pastorOnly, async (req, res) => {
+    try {
+        const { email } = req.body;
+        const hash = await hashPassword('123456');
+        await sql`UPDATE users SET password_hash = ${hash}, first_login = true WHERE email = ${email}`;
+        res.json({ message: 'Senha resetada para 123456' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- DEPARTAMENTOS -----
+app.post('/api/departments', auth, pastorOnly, async (req, res) => {
+    try {
+        const { name, description } = req.body;
+        const result = await sql`
+            INSERT INTO departments (name, description, created_by)
+            VALUES (${name}, ${description || ''}, ${req.user.id})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/departments', auth, async (req, res) => {
+    try {
+        const depts = await sql`
+            SELECT d.*, u.name as leader_name
+            FROM departments d
+            LEFT JOIN users u ON d.leader_id = u.id
+            WHERE d.is_active = true
+            ORDER BY d.name
+        `;
+        res.json(depts);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/departments/active', async (req, res) => {
+    try {
+        const depts = await sql`
+            SELECT id, name, description, leader_id
+            FROM departments 
+            WHERE is_active = true 
+            ORDER BY name
+        `;
+        res.json(depts);
+    } catch (error) {
+        console.error('❌ Erro ao buscar departamentos:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`UPDATE departments SET is_active = false WHERE id = ${req.params.id}`;
+        res.json({ message: 'Departamento removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- DEPARTMENT MEMBERS -----
+app.get('/api/departments/:id/members', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const members = await sql`
+            SELECT 
+                u.id, 
+                u.name, 
+                u.email, 
+                u.role, 
+                u.is_leader,
+                COALESCE(dm.role, 'membro') as member_role
+            FROM users u
+            INNER JOIN department_members dm ON u.id = dm.user_id
+            WHERE dm.department_id = ${id}
+            ORDER BY dm.role DESC, u.name
+        `;
+        
+        res.json(members || []);
+    } catch (error) {
+        console.error('❌ Erro ao buscar membros:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/departments/:id/members', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { user_id, role } = req.body;
+        
+        const user = await sql`SELECT * FROM users WHERE id = ${user_id}`;
+        if (user.length === 0) {
+            return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+        
+        const memberRole = role || 'membro';
+        
+        await sql`
+            INSERT INTO department_members (department_id, user_id, role)
+            VALUES (${id}, ${user_id}, ${memberRole})
+            ON CONFLICT (department_id, user_id) 
+            DO UPDATE SET role = ${memberRole}
+        `;
+        
+        await sql`
+            UPDATE users 
+            SET department_id = ${id}, 
+                is_leader = ${memberRole === 'lider' ? true : false},
+                role = ${memberRole}
+            WHERE id = ${user_id}
+        `;
+        
+        if (memberRole === 'lider') {
+            await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${id}`;
+        }
+        
+        res.json({ message: 'Membro adicionado com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao adicionar membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/departments/:department_id/members/:user_id', auth, async (req, res) => {
+    try {
+        const { department_id, user_id } = req.params;
+        const { role } = req.body;
+
+        const member = await sql`
+            SELECT * FROM department_members 
+            WHERE department_id = ${department_id} AND user_id = ${user_id}
+        `;
+        
+        if (member.length === 0) {
+            return res.status(404).json({ error: 'Membro não encontrado neste departamento' });
+        }
+
+        await sql`
+            UPDATE department_members 
+            SET role = ${role} 
+            WHERE department_id = ${department_id} AND user_id = ${user_id}
+        `;
+
+        await sql`
+            UPDATE users 
+            SET is_leader = ${role === 'lider' ? true : false},
+                role = ${role}
+            WHERE id = ${user_id}
+        `;
+
+        if (role === 'lider') {
+            await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${department_id}`;
+        } else {
+            await sql`UPDATE departments SET leader_id = NULL WHERE id = ${department_id} AND leader_id = ${user_id}`;
+        }
+
+        res.json({ message: 'Função atualizada com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao atualizar função:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/departments/:department_id/members/:user_id', auth, async (req, res) => {
+    try {
+        const { department_id, user_id } = req.params;
+        
+        await sql`
+            DELETE FROM department_members 
+            WHERE department_id = ${department_id} AND user_id = ${user_id}
+        `;
+        
+        await sql`
+            UPDATE users 
+            SET department_id = NULL, 
+                is_leader = false,
+                role = 'colaborador'
+            WHERE id = ${user_id}
+        `;
+        
+        await sql`
+            UPDATE departments 
+            SET leader_id = NULL 
+            WHERE id = ${department_id} AND leader_id = ${user_id}
+        `;
+        
+        res.json({ message: 'Membro removido com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao remover membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- ESTUDOS -----
+app.post('/api/studies', auth, upload.single('image'), async (req, res) => {
+    try {
+        const { title, description, file_url } = req.body;
+        let image_base64 = null;
+
+        if (req.file) {
+            image_base64 = req.file.buffer.toString('base64');
+        }
+
+        const result = await sql`
+            INSERT INTO studies (title, description, file_url, image_base64)
+            VALUES (${title}, ${description}, ${file_url}, ${image_base64})
+            RETURNING *
+        `;
+        console.log('✅ Estudo criado:', result[0]);
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar estudo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/studies', async (req, res) => {
+    try {
+        const studies = await sql`SELECT * FROM studies ORDER BY created_at DESC`;
+        res.json(studies);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/studies/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM studies WHERE id = ${req.params.id}`;
+        res.json({ message: 'Estudo removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- PRODUTOS -----
+app.post('/api/products', auth, upload.single('image'), async (req, res) => {
+    try {
+        const { name, description, price, stock, category } = req.body;
+        let image_base64 = null;
+
+        if (req.file) {
+            image_base64 = req.file.buffer.toString('base64');
+        }
+
+        const result = await sql`
+            INSERT INTO products (name, description, price, image_base64, stock, category)
+            VALUES (${name}, ${description}, ${parseFloat(price)}, ${image_base64}, ${parseInt(stock) || 0}, ${category || ''})
+            RETURNING *
+        `;
+        console.log('✅ Produto criado:', result[0]);
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar produto:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/products', async (req, res) => {
+    try {
+        const products = await sql`SELECT * FROM products ORDER BY name`;
+        res.json(products);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/products/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, description, price, stock, category } = req.body;
+        const result = await sql`
+            UPDATE products SET name = ${name}, description = ${description}, price = ${parseFloat(price)}, 
+                stock = ${parseInt(stock) || 0}, category = ${category || ''}
+            WHERE id = ${id}
+            RETURNING *
+        `;
+        res.json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/products/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM products WHERE id = ${req.params.id}`;
+        res.json({ message: 'Produto removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- EVENTOS -----
+app.post('/api/events', auth, upload.single('image'), async (req, res) => {
+    try {
+        const { title, description, date, price } = req.body;
+        let image_base64 = null;
+
+        if (req.file) {
+            image_base64 = req.file.buffer.toString('base64');
+        }
+
+        const result = await sql`
+            INSERT INTO events (title, description, date, image_base64, price)
+            VALUES (${title}, ${description}, ${date || new Date()}, ${image_base64}, ${parseFloat(price) || 0})
+            RETURNING *
+        `;
+        console.log('✅ Evento criado:', result[0]);
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar evento:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/events', async (req, res) => {
+    try {
+        const events = await sql`SELECT * FROM events ORDER BY date DESC`;
+        res.json(events);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/events/active', async (req, res) => {
+    try {
+        const events = await sql`
+            SELECT id, title, description, date, price, image_base64
+            FROM events 
+            WHERE date >= NOW() 
+            ORDER BY date ASC
+        `;
+        res.json(events);
+    } catch (error) {
+        console.error('❌ Erro ao buscar eventos ativos:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/events/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, description, date, price } = req.body;
+        const result = await sql`
+            UPDATE events SET title = ${title}, description = ${description}, 
+                date = ${date}, price = ${parseFloat(price) || 0}
+            WHERE id = ${id}
+            RETURNING *
+        `;
+        res.json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/events/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM events WHERE id = ${req.params.id}`;
+        res.json({ message: 'Evento removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- ORAÇÕES -----
+app.post('/api/prayers', async (req, res) => {
+    try {
+        const { name, request } = req.body;
+        const result = await sql`
+            INSERT INTO prayers (name, request)
+            VALUES (${name || 'Anônimo'}, ${request})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/prayers', auth, async (req, res) => {
+    try {
+        const prayers = await sql`SELECT * FROM prayers ORDER BY created_at DESC`;
+        res.json(prayers);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/prayers/:id/read', auth, async (req, res) => {
+    try {
+        await sql`UPDATE prayers SET is_read = TRUE WHERE id = ${req.params.id}`;
+        res.json({ message: 'Marcado como lido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- PEDIDOS (VENDAS) -----
+app.post('/api/orders', async (req, res) => {
+    try {
+        const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status } = req.body;
+        const result = await sql`
+            INSERT INTO orders (user_name, user_email, user_phone, items, total, payment_id, payment_method, status)
+            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(items)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
+            RETURNING *
+        `;
+        console.log('✅ Pedido criado:', result[0]);
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar pedido:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/orders', auth, async (req, res) => {
+    try {
+        const orders = await sql`SELECT * FROM orders ORDER BY created_at DESC`;
+        console.log('📦 Total de vendas:', orders.length);
+        res.json(orders);
+    } catch (error) {
+        console.error('❌ Erro ao buscar vendas:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/orders/:id/status', auth, pastorOnly, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        await sql`UPDATE orders SET status = ${status} WHERE id = ${id}`;
+        res.json({ message: 'Status atualizado' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- ESTATÍSTICAS DE VENDAS -----
+app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
+    try {
+        const totalSales = await sql`
+            SELECT COUNT(*) as count, COALESCE(SUM(total), 0) as total FROM orders
+        `;
+        
+        const salesByDay = await sql`
+            SELECT 
+                DATE(created_at) as date, 
+                COUNT(*) as count, 
+                COALESCE(SUM(total), 0) as total 
+            FROM orders 
+            WHERE created_at >= NOW() - INTERVAL '7 days'
+            GROUP BY DATE(created_at)
+            ORDER BY date DESC
+        `;
+        
+        const topProducts = await sql`
+            SELECT 
+                items::json->0->>'name' as product_name,
+                COUNT(*) as total_sales,
+                COALESCE(SUM(total), 0) as total_revenue
+            FROM orders 
+            WHERE items IS NOT NULL AND items != '' AND items != 'null' AND items != '[]'
+            GROUP BY items::json->0->>'name'
+            ORDER BY total_sales DESC
+            LIMIT 10
+        `;
+        
+        const salesByMethod = await sql`
+            SELECT 
+                COALESCE(payment_method, 'PIX') as payment_method,
+                COUNT(*) as count,
+                COALESCE(SUM(total), 0) as total
+            FROM orders 
+            GROUP BY payment_method
+        `;
+        
+        const recentOrders = await sql`
+            SELECT id, user_name, user_email, items, total, status, payment_method, created_at
+            FROM orders 
+            ORDER BY created_at DESC 
+            LIMIT 10
+        `;
+
+        const result = {
+            total: totalSales[0] || { count: 0, total: 0 },
+            byDay: salesByDay || [],
+            topProducts: topProducts || [],
+            byMethod: salesByMethod || [],
+            recent: recentOrders || []
+        };
+        
+        console.log('📊 Estatísticas completas:', result);
+        res.json(result);
+    } catch (error) {
+        console.error('❌ Erro nas estatísticas:', error);
+        res.status(500).json({ error: error.message, stack: error.stack });
+    }
+});
+
+// ----- INSCRIÇÕES -----
+app.post('/api/registrations', async (req, res) => {
+    try {
+        const { type, name, email, phone, department_name, event_name, details, amount, is_paid, birth_date, baptism_date, baptism_date_id } = req.body;
+        
+        let finalDetails = details || '';
+        
+        if (type === 'baptism' && birth_date) {
+            finalDetails = `Data de Nascimento: ${new Date(birth_date).toLocaleDateString('pt-BR')}\n`;
+            if (baptism_date) {
+                finalDetails += `Data do Batismo: ${new Date(baptism_date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}\n`;
             }
-            openModal('cartModal');
-        }
-
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            document.getElementById('cartCount').textContent = cart.length;
-            openCart();
-        }
-
-        function checkout() {
-            if (cart.length === 0) { showNotification('Carrinho vazio!', 'error'); return; }
-            closeModal('cartModal');
-            paymentType = 'sale';
-            const total = cart.reduce((sum, p) => sum + parseFloat(p.price), 0);
-            document.getElementById('paymentTitle').textContent = '💳 NJ Store - Pagamento';
-            document.getElementById('paymentTotal').textContent = 'Total: R$ ' + total.toFixed(2);
-            document.getElementById('paymentForm').style.display = 'block';
-            document.getElementById('paymentResult').style.display = 'none';
-            openModal('paymentModal');
-        }
-
-        // ============================================
-        // ===== DÍZIMOS =====
-        // ============================================
-        function openDonationForm(type) {
-            document.getElementById('donationModal').classList.add('open');
-            document.getElementById('donationType').value = type;
-            document.getElementById('donationTypeLabel').textContent = '💳 ' + type;
-            document.getElementById('donationName').value = '';
-            document.getElementById('donationEmail').value = '';
-            document.getElementById('donationPhone').value = '';
-            document.getElementById('donationAmount').value = '';
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('open');
-            document.body.style.overflow = 'auto';
-            if (statusCheckInterval) {
-                clearInterval(statusCheckInterval);
-                statusCheckInterval = null;
+            finalDetails += details || '';
+            
+            if (baptism_date_id) {
+                await sql`
+                    UPDATE baptism_dates 
+                    SET current_participants = current_participants + 1 
+                    WHERE id = ${baptism_date_id}
+                `;
             }
         }
 
-        function openModal(id) {
-            document.getElementById(id).classList.add('open');
-            document.body.style.overflow = 'hidden';
+        const result = await sql`
+            INSERT INTO registrations (type, name, email, phone, department_name, event_name, details, amount, is_paid)
+            VALUES (${type}, ${name}, ${email || ''}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${finalDetails || ''}, ${parseFloat(amount) || 0}, ${is_paid || false})
+            RETURNING *
+        `;
+        console.log('✅ Inscrição criada:', result[0]);
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro inscrição:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/registrations', auth, async (req, res) => {
+    try {
+        const registrations = await sql`SELECT * FROM registrations ORDER BY created_at DESC`;
+        res.json(registrations);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- DOAÇÕES -----
+app.post('/api/donations', async (req, res) => {
+    try {
+        const { user_name, user_email, user_phone, type, amount, payment_id, payment_method, status } = req.body;
+        const result = await sql`
+            INSERT INTO donations (user_name, user_email, user_phone, type, amount, payment_id, payment_method, status)
+            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${type}, ${amount}, ${payment_id}, ${payment_method}, ${status || 'pending'})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/donations', auth, async (req, res) => {
+    try {
+        const donations = await sql`SELECT * FROM donations ORDER BY created_at DESC`;
+        res.json(donations);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ANIVERSARIANTES =====
+// ============================================
+
+app.get('/api/birthdays', async (req, res) => {
+    try {
+        const today = new Date();
+        const currentMonth = today.getMonth() + 1;
+        
+        const birthdayMembers = await sql`
+            SELECT 
+                id, 
+                name, 
+                birth_date,
+                phone,
+                department_name,
+                'member' as source
+            FROM members 
+            WHERE is_active = true 
+            AND EXTRACT(MONTH FROM birth_date) = ${currentMonth}
+            ORDER BY EXTRACT(DAY FROM birth_date)
+        `;
+        
+        const birthdayLegacy = await sql`
+            SELECT 
+                id, 
+                name, 
+                birth_date,
+                phone,
+                NULL as department_name,
+                'legacy' as source
+            FROM birthdays 
+            WHERE is_active = true 
+            AND EXTRACT(MONTH FROM birth_date) = ${currentMonth}
+            ORDER BY EXTRACT(DAY FROM birth_date)
+        `;
+        
+        const allBirthdays = [...birthdayMembers, ...birthdayLegacy];
+        const uniqueBirthdays = [];
+        const names = new Set();
+        
+        allBirthdays.forEach(b => {
+            if (!names.has(b.name)) {
+                names.add(b.name);
+                uniqueBirthdays.push(b);
+            }
+        });
+        
+        console.log(`🎂 Aniversariantes do mês ${currentMonth}:`, uniqueBirthdays.length);
+        res.json(uniqueBirthdays);
+    } catch (error) {
+        console.error('❌ Erro ao buscar aniversariantes:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/birthdays/today', async (req, res) => {
+    try {
+        const today = new Date();
+        const currentMonth = today.getMonth() + 1;
+        const currentDay = today.getDate();
+        
+        const birthdayMembers = await sql`
+            SELECT 
+                id, 
+                name, 
+                birth_date,
+                phone,
+                department_name
+            FROM members 
+            WHERE is_active = true 
+            AND EXTRACT(MONTH FROM birth_date) = ${currentMonth}
+            AND EXTRACT(DAY FROM birth_date) = ${currentDay}
+            ORDER BY name
+        `;
+        
+        res.json(birthdayMembers);
+    } catch (error) {
+        console.error('❌ Erro ao buscar aniversariantes do dia:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- CASAMENTOS -----
+app.get('/api/weddings', async (req, res) => {
+    try {
+        const today = new Date();
+        const weddings = await sql`
+            SELECT * FROM weddings 
+            WHERE is_active = true 
+            ORDER BY 
+                EXTRACT(MONTH FROM wedding_date) = ${today.getMonth() + 1} DESC,
+                EXTRACT(DAY FROM wedding_date) = ${today.getDate()} DESC,
+                EXTRACT(MONTH FROM wedding_date),
+                EXTRACT(DAY FROM wedding_date)
+            LIMIT 50
+        `;
+        res.json(weddings);
+    } catch (error) {
+        console.error('❌ Erro ao buscar casamentos:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/weddings', auth, pastorOnly, async (req, res) => {
+    try {
+        const { name, spouse_name, wedding_date, phone } = req.body;
+        const result = await sql`
+            INSERT INTO weddings (name, spouse_name, wedding_date, phone)
+            VALUES (${name}, ${spouse_name}, ${wedding_date}, ${phone || ''})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar casamento:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- BATISMO DATAS -----
+app.get('/api/baptism-dates', async (req, res) => {
+    try {
+        const dates = await sql`
+            SELECT id, date, title, description, max_participants, current_participants, is_active
+            FROM baptism_dates 
+            WHERE is_active = true
+            ORDER BY date ASC
+        `;
+        res.json(dates);
+    } catch (error) {
+        console.error('❌ Erro ao buscar datas de batismo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/baptism-dates', auth, pastorOnly, async (req, res) => {
+    try {
+        const { date, title, description, max_participants } = req.body;
+        const result = await sql`
+            INSERT INTO baptism_dates (date, title, description, max_participants, created_by)
+            VALUES (${date}, ${title || 'Batismo'}, ${description || ''}, ${max_participants || 20}, ${req.user.id})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar data de batismo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/baptism-dates/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`UPDATE baptism_dates SET is_active = false WHERE id = ${req.params.id}`;
+        res.json({ message: 'Data de batismo removida' });
+    } catch (error) {
+        console.error('❌ Erro ao remover data de batismo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== MÚSICAS =====
+// ============================================
+
+app.post('/api/songs', auth, async (req, res) => {
+    try {
+        const { title, artist, key, lyrics, department_id } = req.body;
+        
+        const deptId = department_id || req.user.department_id;
+        if (!deptId) {
+            return res.status(400).json({ error: 'Departamento não encontrado' });
+        }
+        
+        const result = await sql`
+            INSERT INTO songs (title, artist, key, lyrics, department_id, created_by)
+            VALUES (${title}, ${artist || ''}, ${key || 'C'}, ${lyrics}, ${deptId}, ${req.user.id})
+            RETURNING *
+        `;
+        
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar música:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/songs', auth, async (req, res) => {
+    try {
+        const { department_id } = req.query;
+        let songs;
+        
+        if (department_id) {
+            songs = await sql`
+                SELECT * FROM songs 
+                WHERE department_id = ${department_id}
+                ORDER BY title
+            `;
+        } else if (req.user.department_id) {
+            songs = await sql`
+                SELECT * FROM songs 
+                WHERE department_id = ${req.user.department_id}
+                ORDER BY title
+            `;
+        } else {
+            songs = await sql`
+                SELECT * FROM songs 
+                ORDER BY title
+            `;
+        }
+        
+        res.json(songs || []);
+    } catch (error) {
+        console.error('❌ Erro ao buscar músicas:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/songs/:id', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const song = await sql`SELECT * FROM songs WHERE id = ${id}`;
+        if (song.length === 0) {
+            return res.status(404).json({ error: 'Música não encontrada' });
+        }
+        
+        await sql`DELETE FROM songs WHERE id = ${id}`;
+        res.json({ message: 'Música removida com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao remover música:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- DISPONIBILIDADE -----
+app.post('/api/availability', auth, async (req, res) => {
+    try {
+        const { user_id, date } = req.body;
+        const result = await sql`
+            INSERT INTO availability (user_id, date)
+            VALUES (${user_id || req.user.id}, ${date})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao adicionar disponibilidade:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/availability/:user_id', auth, async (req, res) => {
+    try {
+        const { user_id } = req.params;
+        const availability = await sql`
+            SELECT * FROM availability 
+            WHERE user_id = ${user_id} 
+            ORDER BY date ASC
+        `;
+        res.json(availability);
+    } catch (error) {
+        console.error('❌ Erro ao buscar disponibilidade:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/availability/:id', auth, async (req, res) => {
+    try {
+        await sql`DELETE FROM availability WHERE id = ${req.params.id}`;
+        res.json({ message: 'Disponibilidade removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== WORSHIP SCALES =====
+// ============================================
+
+app.post('/api/worship-scales', auth, async (req, res) => {
+    try {
+        const { department_id, event_date, leader_id, minister_id, songs, song_ids, palette, rehearsal, musicians } = req.body;
+        
+        const user = await sql`
+            SELECT * FROM users 
+            WHERE id = ${req.user.id} 
+            AND (is_leader = true OR role = 'lider' OR role = 'pastor')
+        `;
+        
+        if (user.length === 0 && req.user.role !== 'pastor') {
+            return res.status(403).json({ error: 'Apenas líderes podem criar escalas' });
+        }
+        
+        const deptId = department_id || user[0]?.department_id;
+        if (!deptId) {
+            return res.status(400).json({ error: 'Departamento não encontrado' });
+        }
+        
+        const songsArray = songs || [];
+        const songIdsArray = song_ids || [];
+        const musiciansArray = musicians || [];
+        
+        const result = await sql`
+            INSERT INTO worship_scales (
+                department_id, 
+                event_date, 
+                leader_id, 
+                minister_id, 
+                songs, 
+                song_ids, 
+                palette, 
+                rehearsal, 
+                musician_ids
+            ) VALUES (
+                ${deptId}, 
+                ${event_date}, 
+                ${leader_id || req.user.id}, 
+                ${minister_id || null}, 
+                ${songsArray}, 
+                ${JSON.stringify(songIdsArray)}, 
+                ${palette || 'Azul, Prata, Branco, Dourado'}, 
+                ${rehearsal || false}, 
+                ${JSON.stringify(musiciansArray)}
+            ) RETURNING *
+        `;
+        
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar escala:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/worship-scales', auth, async (req, res) => {
+    try {
+        const scales = await sql`
+            SELECT 
+                ws.*, 
+                d.name as department_name, 
+                u.name as leader_name,
+                m.name as minister_name
+            FROM worship_scales ws
+            LEFT JOIN departments d ON ws.department_id = d.id
+            LEFT JOIN users u ON ws.leader_id = u.id
+            LEFT JOIN users m ON ws.minister_id = m.id
+            ORDER BY ws.event_date DESC
+        `;
+        
+        res.json(scales || []);
+    } catch (error) {
+        console.error('❌ Erro ao buscar escalas:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/worship-scales/:id', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const scale = await sql`SELECT * FROM worship_scales WHERE id = ${id}`;
+        if (scale.length === 0) {
+            return res.status(404).json({ error: 'Escala não encontrada' });
+        }
+        
+        if (req.user.role !== 'pastor' && req.user.role !== 'lider' && !req.user.is_leader) {
+            return res.status(403).json({ error: 'Você não tem permissão para remover esta escala' });
+        }
+        
+        await sql`DELETE FROM worship_scales WHERE id = ${id}`;
+        res.json({ message: 'Escala removida com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao remover escala:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- CARROSSEL -----
+app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, res) => {
+    try {
+        const { title, subtitle, link } = req.body;
+        
+        if (!req.file) {
+            return res.status(400).json({ error: 'Imagem é obrigatória' });
         }
 
-        document.querySelectorAll('.modal').forEach(m => {
-            m.addEventListener('click', (e) => {
-                if (e.target === m) {
-                    m.classList.remove('open');
-                    document.body.style.overflow = 'auto';
-                    if (statusCheckInterval) {
-                        clearInterval(statusCheckInterval);
-                        statusCheckInterval = null;
-                    }
+        const image_base64 = req.file.buffer.toString('base64');
+
+        const result = await sql`
+            INSERT INTO carousel_images (title, subtitle, image_base64, link, order_position)
+            VALUES (${title || ''}, ${subtitle || ''}, ${image_base64}, ${link || ''}, 
+                (SELECT COALESCE(MAX(order_position), 0) + 1 FROM carousel_images))
+            RETURNING *
+        `;
+        console.log('✅ Carrossel criado:', result[0]);
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar carrossel:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/carousel', async (req, res) => {
+    try {
+        const images = await sql`
+            SELECT * FROM carousel_images WHERE active = true ORDER BY order_position, created_at
+        `;
+        console.log('🖼️ Carrossel imagens:', images.length);
+        res.json(images);
+    } catch (error) {
+        console.error('❌ Erro carrossel:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/carousel/:id', auth, pastorOnly, upload.single('image'), async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, subtitle, link, active } = req.body;
+        
+        const current = await sql`SELECT * FROM carousel_images WHERE id = ${id}`;
+        if (current.length === 0) {
+            return res.status(404).json({ error: 'Imagem não encontrada' });
+        }
+        
+        let image_base64 = current[0].image_base64;
+        if (req.file) {
+            image_base64 = req.file.buffer.toString('base64');
+        }
+
+        const result = await sql`
+            UPDATE carousel_images 
+            SET title = ${title || current[0].title},
+                subtitle = ${subtitle || current[0].subtitle},
+                link = ${link || current[0].link},
+                image_base64 = ${image_base64},
+                active = ${active !== undefined ? active : current[0].active}
+            WHERE id = ${id}
+            RETURNING *
+        `;
+        res.json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao atualizar carrossel:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/carousel/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM carousel_images WHERE id = ${req.params.id}`;
+        res.json({ message: 'Imagem removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- CONFIGURAÇÕES -----
+app.get('/api/settings', async (req, res) => {
+    try {
+        const settings = await sql`SELECT * FROM site_settings`;
+        const obj = {};
+        settings.forEach(s => obj[s.key] = s.value);
+        res.json(obj);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/settings', auth, pastorOnly, async (req, res) => {
+    try {
+        const { key, value } = req.body;
+        await sql`
+            INSERT INTO site_settings (key, value) VALUES (${key}, ${value})
+            ON CONFLICT (key) DO UPDATE SET value = ${value}
+        `;
+        res.json({ message: 'Configuração atualizada' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== MEMBROS =====
+// ============================================
+
+app.post('/api/members', auth, async (req, res) => {
+    try {
+        const { 
+            name, email, phone, birth_date, marital_status, spouse_name, 
+            children, baptism_date, baptism_place, address, 
+            department_id, department_name, notes 
+        } = req.body;
+
+        if (!name) {
+            return res.status(400).json({ error: 'Nome é obrigatório' });
+        }
+
+        const result = await sql`
+            INSERT INTO members (
+                name, email, phone, birth_date, marital_status, spouse_name,
+                children, baptism_date, baptism_place, address,
+                department_id, department_name, notes, created_by
+            ) VALUES (
+                ${name}, ${email}, ${phone}, ${birth_date}, ${marital_status}, ${spouse_name},
+                ${children}, ${baptism_date}, ${baptism_place}, ${address},
+                ${department_id}, ${department_name}, ${notes}, ${req.user.id}
+            ) RETURNING *
+        `;
+
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/members', auth, async (req, res) => {
+    try {
+        const { department_id, search } = req.query;
+        
+        let members;
+        
+        if (department_id && search) {
+            members = await sql`
+                SELECT * FROM members 
+                WHERE is_active = true 
+                AND department_id = ${department_id}
+                AND (name ILIKE ${'%' + search + '%'} OR email ILIKE ${'%' + search + '%'} OR phone ILIKE ${'%' + search + '%'})
+                ORDER BY name
+            `;
+        } else if (department_id) {
+            members = await sql`
+                SELECT * FROM members 
+                WHERE is_active = true 
+                AND department_id = ${department_id}
+                ORDER BY name
+            `;
+        } else if (search) {
+            members = await sql`
+                SELECT * FROM members 
+                WHERE is_active = true 
+                AND (name ILIKE ${'%' + search + '%'} OR email ILIKE ${'%' + search + '%'} OR phone ILIKE ${'%' + search + '%'})
+                ORDER BY name
+            `;
+        } else {
+            members = await sql`
+                SELECT * FROM members 
+                WHERE is_active = true 
+                ORDER BY name
+            `;
+        }
+
+        res.json(members);
+    } catch (error) {
+        console.error('❌ Erro ao listar membros:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/members/:id', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const member = await sql`SELECT * FROM members WHERE id = ${id}`;
+        
+        if (member.length === 0) {
+            return res.status(404).json({ error: 'Membro não encontrado' });
+        }
+
+        const attendance = await sql`
+            SELECT * FROM attendance 
+            WHERE member_id = ${id} 
+            ORDER BY event_date DESC 
+            LIMIT 10
+        `;
+
+        res.json({
+            ...member[0],
+            attendance: attendance
+        });
+    } catch (error) {
+        console.error('❌ Erro ao buscar membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/members/:id', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { 
+            name, email, phone, birth_date, marital_status, spouse_name,
+            children, baptism_date, baptism_place, address,
+            department_id, department_name, notes, is_active
+        } = req.body;
+
+        const result = await sql`
+            UPDATE members SET 
+                name = COALESCE(${name}, name),
+                email = COALESCE(${email}, email),
+                phone = COALESCE(${phone}, phone),
+                birth_date = COALESCE(${birth_date}, birth_date),
+                marital_status = COALESCE(${marital_status}, marital_status),
+                spouse_name = COALESCE(${spouse_name}, spouse_name),
+                children = COALESCE(${children}, children),
+                baptism_date = COALESCE(${baptism_date}, baptism_date),
+                baptism_place = COALESCE(${baptism_place}, baptism_place),
+                address = COALESCE(${address}, address),
+                department_id = COALESCE(${department_id}, department_id),
+                department_name = COALESCE(${department_name}, department_name),
+                notes = COALESCE(${notes}, notes),
+                is_active = COALESCE(${is_active}, is_active)
+            WHERE id = ${id}
+            RETURNING *
+        `;
+
+        if (result.length === 0) {
+            return res.status(404).json({ error: 'Membro não encontrado' });
+        }
+
+        res.json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao atualizar membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/members/:id', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        await sql`UPDATE members SET is_active = false WHERE id = ${id}`;
+        res.json({ message: 'Membro removido com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao remover membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== FREQUÊNCIA =====
+// ============================================
+
+app.post('/api/attendance', auth, async (req, res) => {
+    try {
+        const { member_id, event_date, service_type, present } = req.body;
+
+        if (!member_id || !event_date) {
+            return res.status(400).json({ error: 'Membro e data são obrigatórios' });
+        }
+
+        const result = await sql`
+            INSERT INTO attendance (member_id, event_date, service_type, present, check_in_time)
+            VALUES (${member_id}, ${event_date}, ${service_type || 'domingo'}, ${present || false}, ${present ? new Date() : null})
+            ON CONFLICT (member_id, event_date, service_type) 
+            DO UPDATE SET present = ${present || false}, check_in_time = ${present ? new Date() : null}
+            RETURNING *
+        `;
+
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao registrar frequência:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/attendance/:member_id', auth, async (req, res) => {
+    try {
+        const { member_id } = req.params;
+        const { limit = 10 } = req.query;
+
+        const result = await sql`
+            SELECT * FROM attendance 
+            WHERE member_id = ${member_id} 
+            ORDER BY event_date DESC 
+            LIMIT ${limit}
+        `;
+
+        res.json(result);
+    } catch (error) {
+        console.error('❌ Erro ao buscar frequência:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/attendance/stats/:member_id', auth, async (req, res) => {
+    try {
+        const { member_id } = req.params;
+
+        const result = await sql`
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN present = true THEN 1 ELSE 0 END) as present,
+                SUM(CASE WHEN present = false THEN 1 ELSE 0 END) as absent,
+                ROUND((SUM(CASE WHEN present = true THEN 1 ELSE 0 END)::DECIMAL / COUNT(*) * 100), 2) as percentage
+            FROM attendance 
+            WHERE member_id = ${member_id}
+        `;
+
+        res.json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao buscar estatísticas:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/attendance/date/:date', auth, async (req, res) => {
+    try {
+        const { date } = req.params;
+        
+        const records = await sql`
+            SELECT a.*, m.name as member_name
+            FROM attendance a
+            LEFT JOIN members m ON a.member_id = m.id
+            WHERE a.event_date = ${date}
+            ORDER BY a.created_at DESC
+        `;
+        
+        res.json(records);
+    } catch (error) {
+        console.error('❌ Erro ao buscar frequência por data:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== DÍZIMOS E OFERTAS =====
+// ============================================
+
+app.post('/api/tithes', auth, async (req, res) => {
+    try {
+        const { member_id, member_name, type, amount, payment_method, payment_date, description } = req.body;
+
+        if (!type || !amount) {
+            return res.status(400).json({ error: 'Tipo e valor são obrigatórios' });
+        }
+
+        const result = await sql`
+            INSERT INTO tithes (member_id, member_name, type, amount, payment_method, payment_date, description, received_by)
+            VALUES (${member_id || null}, ${member_name || ''}, ${type}, ${amount}, ${payment_method || 'dinheiro'}, ${payment_date || new Date()}, ${description || ''}, ${req.user.id})
+            RETURNING *
+        `;
+
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao registrar dízimo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/tithes', auth, async (req, res) => {
+    try {
+        const { type, start_date, end_date, member_id } = req.query;
+        
+        let tithes;
+        
+        if (type && member_id) {
+            tithes = await sql`
+                SELECT * FROM tithes 
+                WHERE type = ${type} AND member_id = ${member_id}
+                ORDER BY payment_date DESC
+            `;
+        } else if (type) {
+            tithes = await sql`
+                SELECT * FROM tithes 
+                WHERE type = ${type}
+                ORDER BY payment_date DESC
+            `;
+        } else if (member_id) {
+            tithes = await sql`
+                SELECT * FROM tithes 
+                WHERE member_id = ${member_id}
+                ORDER BY payment_date DESC
+            `;
+        } else {
+            tithes = await sql`
+                SELECT * FROM tithes 
+                ORDER BY payment_date DESC
+            `;
+        }
+
+        res.json(tithes);
+    } catch (error) {
+        console.error('❌ Erro ao listar dízimos:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/tithes/summary', auth, async (req, res) => {
+    try {
+        const result = await sql`
+            SELECT 
+                type,
+                COUNT(*) as count,
+                SUM(amount) as total
+            FROM tithes
+            GROUP BY type
+            ORDER BY type
+        `;
+
+        const total = result.reduce((sum, r) => sum + parseFloat(r.total), 0);
+
+        res.json({
+            by_type: result,
+            total: total
+        });
+    } catch (error) {
+        console.error('❌ Erro ao buscar resumo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== CONTAS A PAGAR =====
+// ============================================
+
+app.post('/api/bills', auth, async (req, res) => {
+    try {
+        const { description, category, amount, due_date, notes } = req.body;
+
+        if (!description || !category || !amount || !due_date) {
+            return res.status(400).json({ error: 'Preencha todos os campos obrigatórios' });
+        }
+
+        const result = await sql`
+            INSERT INTO bills (description, category, amount, due_date, notes, created_by)
+            VALUES (${description}, ${category}, ${amount}, ${due_date}, ${notes || ''}, ${req.user.id})
+            RETURNING *
+        `;
+
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar conta:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/bills', auth, async (req, res) => {
+    try {
+        const { paid, category } = req.query;
+        
+        let bills;
+        
+        if (paid !== undefined && category) {
+            bills = await sql`
+                SELECT * FROM bills 
+                WHERE paid = ${paid === 'true'} AND category = ${category}
+                ORDER BY due_date ASC, paid ASC
+            `;
+        } else if (paid !== undefined) {
+            bills = await sql`
+                SELECT * FROM bills 
+                WHERE paid = ${paid === 'true'}
+                ORDER BY due_date ASC, paid ASC
+            `;
+        } else if (category) {
+            bills = await sql`
+                SELECT * FROM bills 
+                WHERE category = ${category}
+                ORDER BY due_date ASC, paid ASC
+            `;
+        } else {
+            bills = await sql`
+                SELECT * FROM bills 
+                ORDER BY due_date ASC, paid ASC
+            `;
+        }
+
+        res.json(bills);
+    } catch (error) {
+        console.error('❌ Erro ao listar contas:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/bills/:id/pay', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { payment_date, payment_method } = req.body;
+
+        const result = await sql`
+            UPDATE bills SET 
+                paid = true,
+                payment_date = ${payment_date || new Date()},
+                payment_method = ${payment_method || 'dinheiro'}
+            WHERE id = ${id}
+            RETURNING *
+        `;
+
+        if (result.length === 0) {
+            return res.status(404).json({ error: 'Conta não encontrada' });
+        }
+
+        res.json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao pagar conta:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/bills/:id', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        await sql`DELETE FROM bills WHERE id = ${id}`;
+        res.json({ message: 'Conta removida com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao remover conta:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/bills/summary', auth, async (req, res) => {
+    try {
+        const summary = await sql`
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN paid = false THEN amount ELSE 0 END) as pending,
+                SUM(CASE WHEN paid = true THEN amount ELSE 0 END) as paid_total,
+                COUNT(CASE WHEN paid = false THEN 1 ELSE 0 END) as pending_count,
+                COUNT(CASE WHEN paid = true THEN 1 ELSE 0 END) as paid_count
+            FROM bills
+        `;
+
+        const categories = await sql`
+            SELECT 
+                category,
+                COUNT(*) as count,
+                SUM(CASE WHEN paid = false THEN amount ELSE 0 END) as pending,
+                SUM(CASE WHEN paid = true THEN amount ELSE 0 END) as paid_total
+            FROM bills
+            GROUP BY category
+            ORDER BY category
+        `;
+
+        res.json({
+            summary: summary[0],
+            by_category: categories
+        });
+    } catch (error) {
+        console.error('❌ Erro ao buscar resumo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== MERCADO PAGO - PIX (COM LOGS) =====
+// ============================================
+
+app.post('/api/create-pix-payment', async (req, res) => {
+    try {
+        console.log('========================================');
+        console.log('💳 RECEBENDO REQUISIÇÃO PIX');
+        console.log('📝 Dados recebidos:', req.body);
+        console.log('========================================');
+
+        const { amount, description, email, name, phone, cpf } = req.body;
+
+        if (!process.env.MP_ACCESS_TOKEN || !PaymentService) {
+            return res.status(500).json({ error: 'Mercado Pago não configurado' });
+        }
+
+        const valor = parseFloat(amount);
+        if (isNaN(valor) || valor <= 0) {
+            return res.status(400).json({ error: 'Valor inválido' });
+        }
+
+        console.log('📝 Criando pagamento PIX...');
+        console.log('📝 Email do comprador:', email);
+        console.log('📝 Nome do comprador:', name);
+        console.log('📝 Valor:', valor);
+
+        const externalReference = `NJ-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+
+        const paymentData = {
+            body: {
+                transaction_amount: valor,
+                description: description || 'Pagamento NJ Cabuçu',
+                payment_method_id: 'pix',
+                payer: {
+                    email: email || 'cliente@email.com',
+                    first_name: name || 'Cliente',
+                    phone: { number: phone || '' },
+                    identification: { type: 'CPF', number: cpf || '12345678909' }
+                },
+                external_reference: externalReference,
+                notification_url: `${process.env.PUBLIC_URL || 'https://igrejanjcabucurj.vercel.app'}/api/webhook`
+            }
+        };
+
+        const payment = await PaymentService.create(paymentData);
+        console.log('✅ Pagamento criado:', payment.id);
+        console.log('✅ Status:', payment.status);
+
+        // ===== TENTA ENVIAR E-MAIL =====
+        console.log('📧 Tentando enviar e-mail de confirmação...');
+        const emailResult = await enviarEmail(
+            email,
+            name,
+            payment.id,
+            valor,
+            req.body.paymentType || 'donation',
+            payment.status
+        );
+
+        if (emailResult) {
+            console.log('✅ E-mail enviado com sucesso!');
+        } else {
+            console.log('❌ Falha ao enviar e-mail');
+        }
+
+        const paymentLink = payment.point_of_interaction?.transaction_data?.ticket_url || 
+                           `https://www.mercadopago.com.br/payments/${payment.id}`;
+
+        res.json({
+            payment_id: payment.id,
+            status: payment.status,
+            payment_link: paymentLink,
+            external_reference: externalReference,
+            qr_code: payment.point_of_interaction?.transaction_data?.qr_code || '',
+            qr_code_base64: payment.point_of_interaction?.transaction_data?.qr_code_base64 || '',
+            email_sent: !!emailResult
+        });
+    } catch (error) {
+        console.error('❌ Erro MP PIX:', error);
+        res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
+    }
+});
+
+// ============================================
+// ===== MERCADO PAGO - CARTÃO =====
+// ============================================
+
+app.post('/api/create-card-payment', async (req, res) => {
+    try {
+        const { amount, description, email, name, phone, cpf, card_token, installments } = req.body;
+
+        if (!process.env.MP_ACCESS_TOKEN || !PaymentService) {
+            return res.status(500).json({ error: 'Mercado Pago não configurado' });
+        }
+
+        if (!card_token) {
+            return res.status(400).json({ error: 'Token do cartão é obrigatório' });
+        }
+
+        const valor = parseFloat(amount);
+        if (isNaN(valor) || valor <= 0) {
+            return res.status(400).json({ error: 'Valor inválido' });
+        }
+
+        const paymentData = {
+            body: {
+                transaction_amount: valor,
+                description: description || 'Pagamento NJ Cabuçu',
+                payment_method_id: 'credit_card',
+                installments: parseInt(installments) || 1,
+                token: card_token,
+                payer: {
+                    email: email || 'cliente@email.com',
+                    first_name: name || 'Cliente',
+                    phone: { number: phone || '' },
+                    identification: { type: 'CPF', number: cpf || '12345678909' }
+                },
+                external_reference: `NJ-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+                notification_url: `${process.env.PUBLIC_URL || 'https://igrejanjcabucurj.vercel.app'}/api/webhook`
+            }
+        };
+
+        console.log('📝 Criando pagamento com cartão...');
+        console.log('📝 Valor:', valor);
+        const payment = await PaymentService.create(paymentData);
+        console.log('✅ Pagamento criado:', payment.id);
+        console.log('✅ Status:', payment.status);
+
+        res.json({
+            payment_id: payment.id,
+            status: payment.status,
+            status_detail: payment.status_detail,
+            external_reference: payment.external_reference
+        });
+    } catch (error) {
+        console.error('❌ Erro MP cartão:', error);
+        res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
+    }
+});
+
+// ============================================
+// ===== MERCADO PAGO - CARTÃO FALLBACK =====
+// ============================================
+
+app.post('/api/create-card-payment-fallback', async (req, res) => {
+    try {
+        const { amount, description, email, name, phone, cpf, card_number, card_expiry, card_cvv, installments } = req.body;
+
+        if (!process.env.MP_ACCESS_TOKEN || !PaymentService) {
+            return res.status(500).json({ error: 'Mercado Pago não configurado' });
+        }
+
+        const valor = parseFloat(amount);
+        if (isNaN(valor) || valor <= 0) {
+            return res.status(400).json({ error: 'Valor inválido' });
+        }
+
+        if (!card_number || card_number.length < 16) {
+            return res.status(400).json({ error: 'Número do cartão inválido' });
+        }
+        if (!card_expiry || !card_expiry.includes('/')) {
+            return res.status(400).json({ error: 'Data de validade inválida' });
+        }
+        if (!card_cvv || card_cvv.length < 3) {
+            return res.status(400).json({ error: 'CVV inválido' });
+        }
+
+        const tokenData = {
+            card_number: card_number.replace(/\s/g, ''),
+            expiration_month: parseInt(card_expiry.split('/')[0]),
+            expiration_year: parseInt('20' + card_expiry.split('/')[1]),
+            security_code: card_cvv,
+            cardholder: {
+                name: name || 'Cliente',
+                identification: {
+                    type: 'CPF',
+                    number: cpf || '12345678909'
                 }
-            });
+            }
+        };
+
+        console.log('🔄 Criando token do cartão via API...');
+        
+        const tokenResponse = await fetch('https://api.mercadopago.com/v1/card_tokens', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.MP_ACCESS_TOKEN}`
+            },
+            body: JSON.stringify(tokenData)
         });
 
-        async function submitDonation() {
-            const type = document.getElementById('donationType').value;
-            const name = document.getElementById('donationName').value.trim();
-            const email = document.getElementById('donationEmail').value.trim();
-            const phone = document.getElementById('donationPhone').value.trim();
-            const amount = document.getElementById('donationAmount').value.trim();
-
-            if (!name || !email || !phone || !amount) {
-                showNotification('Preencha todos os campos!', 'error');
-                return;
-            }
-            if (parseFloat(amount) <= 0) {
-                showNotification('Valor inválido!', 'error');
-                return;
-            }
-
-            donationType = type;
-            paymentType = 'donation';
-            _donationAmount = parseFloat(amount);
-            closeModal('donationModal');
-
-            document.getElementById('paymentTitle').textContent = '💳 ' + type;
-            document.getElementById('paymentTotal').textContent = 'Valor: R$ ' + parseFloat(amount).toFixed(2);
-            document.getElementById('paymentForm').style.display = 'block';
-            document.getElementById('paymentResult').style.display = 'none';
-            document.getElementById('payName').value = name;
-            document.getElementById('payEmail').value = email;
-            document.getElementById('payPhone').value = phone;
-            openModal('paymentModal');
+        const tokenResult = await tokenResponse.json();
+        
+        if (tokenResult.error) {
+            console.error('❌ Erro ao criar token:', tokenResult.error);
+            const testToken = 'test_' + Date.now();
+            return await processCardPayment(testToken, valor, description, email, name, phone, cpf, installments, res);
         }
 
-        function togglePaymentMethod() {
-            const method = document.getElementById('payMethod').value;
-            const cardFields = document.getElementById('cardFields');
-            if (method === 'card') {
-                cardFields.style.display = 'block';
+        if (!tokenResult.id) {
+            throw new Error('Não foi possível gerar o token do cartão');
+        }
+
+        console.log('✅ Token criado:', tokenResult.id);
+        return await processCardPayment(tokenResult.id, valor, description, email, name, phone, cpf, installments, res);
+
+    } catch (error) {
+        console.error('❌ Erro MP cartão fallback:', error);
+        res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
+    }
+});
+
+// ============================================
+// ===== FUNÇÃO AUXILIAR PARA PROCESSAR PAGAMENTO COM CARTÃO =====
+// ============================================
+
+async function processCardPayment(token, valor, description, email, name, phone, cpf, installments, res) {
+    try {
+        const paymentData = {
+            body: {
+                transaction_amount: valor,
+                description: description || 'Pagamento NJ Cabuçu',
+                payment_method_id: 'credit_card',
+                installments: parseInt(installments) || 1,
+                token: token,
+                payer: {
+                    email: email || 'cliente@email.com',
+                    first_name: name || 'Cliente',
+                    phone: { number: phone || '' },
+                    identification: { type: 'CPF', number: cpf || '12345678909' }
+                },
+                external_reference: `NJ-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+                notification_url: `${process.env.PUBLIC_URL || 'https://igrejanjcabucurj.vercel.app'}/api/webhook`
+            }
+        };
+
+        console.log('📝 Criando pagamento com cartão...');
+        console.log('📝 Valor:', valor);
+        
+        const payment = await PaymentService.create(paymentData);
+        console.log('✅ Pagamento criado:', payment.id);
+        console.log('✅ Status:', payment.status);
+
+        res.json({
+            payment_id: payment.id,
+            status: payment.status,
+            status_detail: payment.status_detail,
+            external_reference: payment.external_reference
+        });
+    } catch (error) {
+        console.error('❌ Erro ao processar pagamento:', error);
+        res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
+    }
+}
+
+// ============================================
+// ===== VERIFICAR STATUS DO PAGAMENTO =====
+// ============================================
+
+app.get('/api/check-payment/:paymentId', async (req, res) => {
+    try {
+        const { paymentId } = req.params;
+        
+        if (!PaymentService) {
+            return res.status(500).json({ error: 'Mercado Pago não configurado' });
+        }
+        
+        console.log('🔍 Verificando pagamento:', paymentId);
+        const payment = await PaymentService.get({ id: paymentId });
+        console.log('📊 Status:', payment.status);
+        
+        res.json({
+            id: payment.id,
+            status: payment.status,
+            status_detail: payment.status_detail,
+            external_reference: payment.external_reference
+        });
+    } catch (error) {
+        console.error('❌ Erro ao verificar pagamento:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTA ALTERNATIVA PARA STATUS =====
+// ============================================
+
+app.get('/api/payment-status/:paymentId', async (req, res) => {
+    try {
+        const { paymentId } = req.params;
+        
+        if (!PaymentService) {
+            return res.status(500).json({ error: 'Mercado Pago não configurado' });
+        }
+        
+        console.log('🔍 Verificando pagamento (rota alternativa):', paymentId);
+        const payment = await PaymentService.get({ id: paymentId });
+        console.log('📊 Status:', payment.status);
+        
+        res.json({
+            id: payment.id,
+            status: payment.status,
+            status_detail: payment.status_detail,
+            external_reference: payment.external_reference
+        });
+    } catch (error) {
+        console.error('❌ Erro ao verificar pagamento:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== VERIFICAR PAGAMENTO MANUALMENTE (COM LOGS) =====
+// ============================================
+
+app.get('/api/verify-payment/:paymentId', async (req, res) => {
+    try {
+        const { paymentId } = req.params;
+        
+        console.log('========================================');
+        console.log('🔍 VERIFICANDO PAGAMENTO MANUALMENTE');
+        console.log('📝 Payment ID:', paymentId);
+        console.log('========================================');
+        
+        if (!PaymentService) {
+            return res.status(500).json({ error: 'Mercado Pago não configurado' });
+        }
+        
+        const payment = await PaymentService.get({ id: paymentId });
+        console.log('📊 Status do MP:', payment.status);
+        
+        // Busca no banco
+        const order = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
+        const donation = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
+        const record = order[0] || donation[0];
+        
+        console.log('📊 Registro encontrado:', record ? 'Sim' : 'Não');
+        if (record) {
+            console.log('📊 Email:', record.user_email);
+            console.log('📊 Nome:', record.user_name);
+            console.log('📊 Valor:', record.total || record.amount);
+        }
+        
+        let emailSent = false;
+        
+        if (payment.status === 'approved' && record) {
+            await sql`
+                UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}
+            `;
+            await sql`
+                UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}
+            `;
+            console.log('✅ Pagamento aprovado e registrado manualmente!');
+            
+            console.log('📧 Enviando e-mail de confirmação...');
+            const emailResult = await enviarEmail(
+                record.user_email || 'cliente@email.com',
+                record.user_name || 'Cliente',
+                paymentId,
+                record.total || record.amount || 0,
+                order[0] ? 'sale' : 'donation',
+                'approved'
+            );
+            emailSent = !!emailResult;
+            
+            if (emailSent) {
+                console.log('✅ E-mail enviado com sucesso!');
             } else {
-                cardFields.style.display = 'none';
+                console.log('❌ Falha ao enviar e-mail');
             }
+        } else if (payment.status === 'pending') {
+            console.log('⏳ Pagamento ainda pendente');
+        } else {
+            console.log('⚠️ Status:', payment.status);
         }
+        
+        res.json({
+            payment_id: payment.id,
+            status: payment.status,
+            status_detail: payment.status_detail,
+            record_found: !!record,
+            email_sent: emailSent,
+            record: record ? {
+                email: record.user_email,
+                name: record.user_name,
+                amount: record.total || record.amount,
+                type: order[0] ? 'sale' : 'donation'
+            } : null
+        });
+    } catch (error) {
+        console.error('❌ Erro ao verificar pagamento:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
 
-        // ============================================
-        // ===== SALVAR PEDIDO/DOAÇÃO =====
-        // ============================================
-        async function saveOrderOrDonation(name, email, phone, amount, paymentId, method, description) {
-            try {
-                if (paymentType === 'sale') {
-                    const itemsForOrder = cart.map(item => ({
-                        id: item.id,
-                        name: item.name,
-                        price: parseFloat(item.price),
-                        quantity: 1
-                    }));
+// ============================================
+// ===== ATUALIZAR STATUS DO PAGAMENTO =====
+// ============================================
 
-                    await fetch('/api/orders', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            user_name: name,
-                            user_email: email,
-                            user_phone: phone,
-                            items: itemsForOrder,
-                            total: amount,
-                            payment_id: paymentId,
-                            payment_method: method,
-                            status: 'pending'
-                        })
-                    });
-                    cart = [];
-                    document.getElementById('cartCount').textContent = 0;
-                } else if (paymentType === 'donation') {
-                    await fetch('/api/donations', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            user_name: name,
-                            user_email: email,
-                            user_phone: phone,
-                            type: donationType,
-                            amount: amount,
-                            payment_id: paymentId,
-                            payment_method: method,
-                            status: 'pending'
-                        })
-                    });
-                }
-                console.log('✅ Registro salvo com sucesso!');
-            } catch (error) {
-                console.error('❌ Erro ao salvar:', error);
-            }
-        }
+app.post('/api/update-payment-status', async (req, res) => {
+    try {
+        const { payment_id, status } = req.body;
+        
+        await sql`
+            UPDATE orders SET status = ${status} WHERE payment_id = ${payment_id}
+        `;
+        await sql`
+            UPDATE donations SET status = ${status} WHERE payment_id = ${payment_id}
+        `;
+        
+        console.log(`✅ Status do pagamento ${payment_id} atualizado para ${status}`);
+        res.json({ message: 'Status atualizado com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao atualizar status:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
 
-        // ============================================
-        // ===== VERIFICAR STATUS =====
-        // ============================================
-        async function checkPaymentStatus(paymentId) {
-            try {
-                showNotification('🔄 Verificando status do pagamento...', 'info');
+// ============================================
+// ===== WEBHOOK (COM LOGS) =====
+// ============================================
 
-                const response = await fetch(`/api/check-payment/${paymentId}`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    }
-                });
-
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    const altResponse = await fetch(`/api/payment-status/${paymentId}`, {
-                        headers: { 'Accept': 'application/json' }
-                    });
-
-                    if (!altResponse.ok) {
-                        throw new Error('Não foi possível verificar o status.');
-                    }
-
-                    const altData = await altResponse.json();
-                    return await processPaymentStatus(altData, paymentId);
-                }
-
-                const data = await response.json();
-                return await processPaymentStatus(data, paymentId);
-
-            } catch (error) {
-                console.error('Erro ao verificar status:', error);
-                showNotification('❌ Erro ao verificar status: ' + error.message, 'error');
-                return null;
-            }
-        }
-
-        async function processPaymentStatus(data, paymentId) {
-            if (data.status === 'approved') {
-                showNotification('✅ Pagamento confirmado! Obrigado! 🙏', 'success');
-
-                await fetch('/api/update-payment-status', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        payment_id: paymentId,
-                        status: 'approved'
-                    })
-                });
-
-                localStorage.removeItem('last_payment_id');
-
-                if (statusCheckInterval) {
-                    clearInterval(statusCheckInterval);
-                    statusCheckInterval = null;
-                }
-
-                setTimeout(() => {
-                    closeModal('paymentModal');
-                    if (paymentType === 'sale') {
-                        cart = [];
-                        document.getElementById('cartCount').textContent = 0;
-                    }
-                }, 2000);
-
-                return true;
-
-            } else if (data.status === 'pending' || data.status === 'in_process') {
-                showNotification('⏳ Pagamento ainda pendente. Aguarde...', 'info');
-                return false;
-
-            } else if (data.status === 'rejected' || data.status === 'cancelled') {
-                showNotification('❌ Pagamento recusado ou cancelado.', 'error');
-                if (statusCheckInterval) {
-                    clearInterval(statusCheckInterval);
-                    statusCheckInterval = null;
-                }
-                return false;
-
-            } else {
-                showNotification(`ℹ️ Status atual: ${data.status}`, 'info');
-                return false;
-            }
-        }
-
-        function verificarStatusAutomatico(paymentId) {
-            let tentativas = 0;
-            const maxTentativas = 12;
-
-            showNotification('🔄 Aguardando confirmação do pagamento...', 'info');
-
-            if (statusCheckInterval) {
-                clearInterval(statusCheckInterval);
-                statusCheckInterval = null;
-            }
-
-            statusCheckInterval = setInterval(async () => {
-                tentativas++;
-
+app.post('/api/webhook', async (req, res) => {
+    try {
+        console.log('========================================');
+        console.log('📝 WEBHOOK RECEBIDO');
+        console.log('📝 Data:', new Date().toISOString());
+        console.log('📝 Body:', JSON.stringify(req.body, null, 2));
+        console.log('========================================');
+        
+        const { data, type } = req.body;
+        
+        if (type === 'payment' && data && data.id) {
+            const paymentId = data.id;
+            console.log(`✅ Pagamento ${paymentId} confirmado!`);
+            
+            if (PaymentService) {
                 try {
-                    const response = await fetch(`/api/check-payment/${paymentId}`, {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        }
-                    });
-
-                    if (!response.ok) {
-                        if (tentativas >= maxTentativas) {
-                            clearInterval(statusCheckInterval);
-                            statusCheckInterval = null;
-                            showNotification('⏳ Tempo esgotado. Use o botão "Verificar Status" para checar.',
-                                'info');
-                        }
-                        return;
+                    const payment = await PaymentService.get({ id: paymentId });
+                    console.log('📊 Status do pagamento:', payment.status);
+                    
+                    const order = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
+                    const donation = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
+                    
+                    const record = order[0] || donation[0];
+                    console.log('📊 Registro encontrado:', record ? 'Sim' : 'Não');
+                    
+                    if (record) {
+                        console.log('📊 Email do comprador:', record.user_email);
+                        console.log('📊 Nome do comprador:', record.user_name);
+                        console.log('📊 Valor:', record.total || record.amount);
                     }
-
-                    const data = await response.json();
-
-                    if (data.status === 'approved') {
-                        clearInterval(statusCheckInterval);
-                        statusCheckInterval = null;
-                        showNotification('✅ Pagamento confirmado! Obrigado! 🙏', 'success');
-
-                        await fetch('/api/update-payment-status', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                payment_id: paymentId,
-                                status: 'approved'
-                            })
-                        });
-
-                        localStorage.removeItem('last_payment_id');
-
-                        setTimeout(() => {
-                            closeModal('paymentModal');
-                            if (paymentType === 'sale') {
-                                cart = [];
-                                document.getElementById('cartCount').textContent = 0;
-                            }
-                        }, 1500);
-
-                    } else if (data.status === 'rejected' || data.status === 'cancelled') {
-                        clearInterval(statusCheckInterval);
-                        statusCheckInterval = null;
-                        showNotification('❌ Pagamento recusado ou cancelado.', 'error');
-                    }
-
-                } catch (error) {
-                    console.error('Erro na verificação automática:', error);
-                    if (tentativas >= maxTentativas) {
-                        clearInterval(statusCheckInterval);
-                        statusCheckInterval = null;
-                        showNotification(
-                            '⏳ Não foi possível confirmar automaticamente. Use o botão "Verificar Status".',
-                            'info');
-                    }
-                }
-            }, 5000);
-        }
-
-        // ============================================
-        // ===== VALIDAR CPF =====
-        // ============================================
-        function validarCPF(cpf) {
-            cpf = cpf.replace(/[^\d]/g, '');
-            if (cpf.length !== 11) return false;
-            if (/^(\d)\1{10}$/.test(cpf)) return false;
-
-            let soma = 0;
-            for (let i = 0; i < 9; i++) {
-                soma += parseInt(cpf.charAt(i)) * (10 - i);
-            }
-            let resto = 11 - (soma % 11);
-            if (resto === 10 || resto === 11) resto = 0;
-            if (resto !== parseInt(cpf.charAt(9))) return false;
-
-            soma = 0;
-            for (let i = 0; i < 10; i++) {
-                soma += parseInt(cpf.charAt(i)) * (11 - i);
-            }
-            resto = 11 - (soma % 11);
-            if (resto === 10 || resto === 11) resto = 0;
-            if (resto !== parseInt(cpf.charAt(10))) return false;
-
-            return true;
-        }
-
-        // ============================================
-        // ===== PROCESSAR PAGAMENTO =====
-        // ============================================
-        async function processPayment() {
-            const name = document.getElementById('payName').value.trim();
-            const email = document.getElementById('payEmail').value.trim();
-            const phone = document.getElementById('payPhone').value.trim();
-            const cpf = document.getElementById('payCpf').value.trim();
-            const method = document.getElementById('payMethod').value;
-
-            if (!name || !email || !phone || !cpf) {
-                showNotification('Preencha todos os dados!', 'error');
-                return;
-            }
-
-            let amount = 0;
-            let description = '';
-
-            if (paymentType === 'sale') {
-                amount = cart.reduce((sum, p) => sum + parseFloat(p.price), 0);
-                description = 'Compra NJ Store';
-            } else if (paymentType === 'donation') {
-                amount = _donationAmount || 0;
-                description = donationType + ' - NJ Cabuçu';
-            }
-
-            if (amount <= 0) { showNotification('Valor inválido!', 'error'); return; }
-
-            if (!validarCPF(cpf)) {
-                showNotification('CPF inválido! Digite um CPF válido.', 'error');
-                return;
-            }
-
-            try {
-                showNotification('🔄 Processando pagamento...', 'info');
-
-                if (method === 'pix') {
-                    const paymentData = {
-                        amount: amount,
-                        description: description,
-                        email: email,
-                        name: name,
-                        phone: phone,
-                        cpf: cpf,
-                        paymentType: paymentType
-                    };
-
-                    const response = await fetch('/api/create-pix-payment', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(paymentData)
-                    });
-
-                    const payment = await response.json();
-                    if (payment.error) throw new Error(payment.error);
-
-                    await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'pix', description);
-
-                    const resultDiv = document.getElementById('paymentResult');
-                    resultDiv.style.display = 'block';
-                    document.getElementById('paymentForm').style.display = 'none';
-
-                    let qrHtml = `
-                                <h3 style="color:var(--primary);margin-bottom:0.5rem;">✅ Pagamento PIX Gerado</h3>
-                                <div style="text-align:center;padding:0.5rem;">
-                            `;
-
-                    if (payment.qr_code_base64) {
-                        qrHtml += `
-                                    <img src="data:image/png;base64,${payment.qr_code_base64}" style="max-width:180px;margin:0 auto;display:block;border-radius:8px;">
-                                    <p style="margin:0.4rem 0;font-size:0.8rem;">Escaneie o QR Code com seu banco</p>
-                                `;
-                    }
-
-                    if (payment.qr_code) {
-                        qrHtml += `
-                                    <div style="background:#f4f6fc;padding:0.4rem;border-radius:8px;word-break:break-all;font-size:0.7rem;margin:0.4rem 0;border:1px solid #e0e0e0;">
-                                        <strong>Código PIX:</strong><br>${payment.qr_code}
-                                    </div>
-                                    <button onclick="navigator.clipboard.writeText('${payment.qr_code}')" class="btn btn-primary btn-sm" style="margin:0.2rem;">
-                                        <i class="fas fa-copy"></i> Copiar código
-                                    </button>
-                                `;
-                    }
-
-                    qrHtml += `
-                                    <a href="${payment.payment_link}" target="_blank" class="btn btn-success" style="margin:0.2rem;display:inline-flex;">
-                                        <i class="fas fa-external-link-alt"></i> Abrir no Mercado Pago
-                                    </a>
-                                    <p style="margin-top:0.4rem;font-size:0.7rem;color:#888;">Status: <strong>${payment.status}</strong></p>
-                                    <div style="display:flex;gap:0.5rem;justify-content:center;margin-top:0.4rem;flex-wrap:wrap;">
-                                        <button onclick="checkPaymentStatus('${payment.payment_id}')" class="btn btn-primary btn-sm">
-                                            <i class="fas fa-sync"></i> Verificar Status
-                                        </button>
-                                        <button onclick="closeModal('paymentModal')" class="btn btn-sm btn-outline" style="border:2px solid #888;color:#888;background:transparent;padding:0.2rem 0.8rem;border-radius:50px;cursor:pointer;">
-                                            <i class="fas fa-check"></i> Concluir
-                                        </button>
-                                    </div>
-                                    <p style="margin-top:0.4rem;font-size:0.65rem;color:#999;">
-                                        ⏳ Aguardando pagamento... A verificação é automática!
-                                    </p>
-                                </div>
-                            `;
-
-                    resultDiv.innerHTML = qrHtml;
-                    localStorage.setItem('last_payment_id', payment.payment_id);
-                    verificarStatusAutomatico(payment.payment_id);
-
-                } else {
-                    // CARTÃO
-                    const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
-                    const cardExpiry = document.getElementById('cardExpiry').value;
-                    const cardCvv = document.getElementById('cardCvv').value;
-                    const installments = document.getElementById('cardInstallments').value;
-
-                    if (!cardNumber || !cardExpiry || !cardCvv) {
-                        showNotification('Preencha os dados do cartão!', 'error');
-                        return;
-                    }
-
-                    if (cardNumber.length < 16) {
-                        showNotification('Número do cartão inválido (16 dígitos)', 'error');
-                        return;
-                    }
-                    if (!cardExpiry.includes('/') || cardExpiry.length < 5) {
-                        showNotification('Validade inválida (MM/AA)', 'error');
-                        return;
-                    }
-                    if (cardCvv.length < 3) {
-                        showNotification('CVV inválido (3 dígitos)', 'error');
-                        return;
-                    }
-
-                    const paymentData = {
-                        amount: amount,
-                        description: description,
-                        email: email,
-                        name: name,
-                        phone: phone,
-                        cpf: cpf,
-                        card_number: cardNumber,
-                        card_expiry: cardExpiry,
-                        card_cvv: cardCvv,
-                        installments: parseInt(installments)
-                    };
-
-                    const response = await fetch('/api/create-card-payment-fallback', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(paymentData)
-                    });
-
-                    const payment = await response.json();
-                    if (payment.error) throw new Error(payment.error);
-
-                    await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'card', description);
-
+                    
                     if (payment.status === 'approved') {
-                        showNotification('✅ Pagamento aprovado! Obrigado! 🙏', 'success');
-                        cart = [];
-                        document.getElementById('cartCount').textContent = 0;
-                        closeModal('paymentModal');
-                    } else {
-                        showNotification(`⏳ Pagamento ${payment.status}. Aguarde a confirmação.`, 'info');
-                        closeModal('paymentModal');
-                        verificarStatusAutomatico(payment.payment_id);
-                    }
-                }
-
-            } catch (error) {
-                console.error('Erro no pagamento:', error);
-                showNotification('❌ Erro: ' + error.message, 'error');
-            }
-        }
-
-        // ============================================
-        // ===== ORAÇÃO =====
-        // ============================================
-        async function submitPrayer() {
-            const name = document.getElementById('prayerName').value || 'Anônimo';
-            const request = document.getElementById('prayerRequest').value.trim();
-            const messageDiv = document.getElementById('prayerMessage');
-
-            if (!request) {
-                showNotification('Digite seu pedido de oração!', 'error');
-                return;
-            }
-
-            try {
-                const response = await fetch('/api/prayers', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, request })
-                });
-                if (!response.ok) throw new Error('Erro ao enviar');
-
-                messageDiv.className = 'notification success';
-                messageDiv.textContent = '✅ Pedido de oração enviado com sucesso! Deus te abençoe! 🙏';
-                messageDiv.style.display = 'block';
-                document.getElementById('prayerRequest').value = '';
-                setTimeout(() => { messageDiv.style.display = 'none'; }, 5000);
-            } catch (error) {
-                showNotification('❌ Erro: ' + error.message, 'error');
-            }
-        }
-
-        // ============================================
-        // ===== INSCRIÇÕES =====
-        // ============================================
-        async function loadDepartmentsForRegistration() {
-            try {
-                const res = await fetch('/api/departments/active');
-                departmentsList = await res.json();
-                return departmentsList;
-            } catch (e) {
-                console.error('Erro ao carregar departamentos:', e);
-                return [];
-            }
-        }
-
-        async function loadEventsForRegistration() {
-            try {
-                const res = await fetch('/api/events/active');
-                eventsList = await res.json();
-                return eventsList;
-            } catch (e) {
-                console.error('Erro ao carregar eventos:', e);
-                return [];
-            }
-        }
-
-        async function loadBaptismDatesForRegistration() {
-            try {
-                const res = await fetch('/api/baptism-dates');
-                baptismDatesList = await res.json();
-                return baptismDatesList;
-            } catch (e) {
-                console.error('Erro ao carregar datas de batismo:', e);
-                return [];
-            }
-        }
-
-        async function showRegistration(type) {
-            const container = document.getElementById('registrationForm');
-            const resultDiv = document.getElementById('registrationResult');
-            resultDiv.style.display = 'none';
-            resultDiv.innerHTML = '';
-            container.style.display = 'block';
-            container.innerHTML = '<p style="text-align:center;color:#8a8a9a;">⏳ Carregando...</p>';
-
-            if (type === 'department' || type === 'volunteer') await loadDepartmentsForRegistration();
-            if (type === 'event') await loadEventsForRegistration();
-            if (type === 'baptism') await loadBaptismDatesForRegistration();
-
-            const types = {
-                baptism: {
-                    title: '✝️ Inscrição para Batismo',
-                    labels: { name: 'Nome Completo *', email: 'E-mail *', phone: 'Telefone *',
-                        birth_date: 'Data de Nascimento *',
-                        baptism_date: 'Selecione a Data do Batismo *', notes: 'Observações (opcional)' }
-                },
-                volunteer: {
-                    title: '🙋 Cadastro de Voluntário',
-                    labels: { name: 'Nome Completo *', email: 'E-mail *', phone: 'Telefone *',
-                        department_select: 'Departamento que deseja atuar *',
-                        availability: 'Disponibilidade (dias/horários)',
-                        notes: 'Habilidades/Experiência (opcional)' }
-                },
-                event: {
-                    title: '🎯 Inscrição para Evento',
-                    labels: { name: 'Nome Completo *', email: 'E-mail *', phone: 'Telefone *',
-                        event_select: 'Selecione o Evento *', notes: 'Observações (opcional)' }
-                },
-                department: {
-                    title: '📋 Entrar em um Departamento',
-                    labels: { name: 'Nome Completo *', email: 'E-mail *', phone: 'Telefone *',
-                        department_select: 'Selecione o Departamento *',
-                        notes: 'Por que deseja participar? (opcional)' }
-                }
-            };
-
-            const t = types[type] || types.baptism;
-            let html =
-                `<h3 style="text-align:center;color:#0a2b5c;margin-bottom:0.8rem;">${t.title}</h3><div class="prayer-form">`;
-            html +=
-                `<div class="form-group"><label>${t.labels.name}</label><input type="text" id="regName" placeholder="Digite seu nome completo" required /></div>`;
-            html +=
-                `<div class="form-group"><label>${t.labels.email}</label><input type="email" id="regEmail" placeholder="seu@email.com" required /></div>`;
-            html +=
-                `<div class="form-group"><label>${t.labels.phone}</label><input type="tel" id="regPhone" placeholder="(11) 99999-9999" required /></div>`;
-
-            if (type === 'baptism') {
-                html +=
-                    `<div class="form-group"><label>${t.labels.birth_date}</label><input type="date" id="regBirthDate" required /></div>`;
-                html +=
-                    `<div class="form-group"><label>${t.labels.baptism_date}</label><select id="regBaptismDate" required><option value="">Selecione uma data para o Batismo</option>`;
-                if (baptismDatesList && baptismDatesList.length > 0) {
-                    baptismDatesList.forEach(d => {
-                        const dateFormatted = new Date(d.date).toLocaleDateString('pt-BR', { day: 'numeric',
-                            month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-                        const participantes = d.current_participants || 0;
-                        const max = d.max_participants || 20;
-                        const disponivel = participantes < max;
-                        html +=
-                            `<option value="${d.id}" ${!disponivel ? 'disabled' : ''}>${d.title || 'Batismo'} — ${dateFormatted} (${participantes}/${max}) ${disponivel ? '✅ Disponível' : '❌ Esgotado'}</option>`;
-                    });
-                } else {
-                    html += `<option value="" disabled>Nenhuma data de batismo disponível</option>`;
-                }
-                html += `</select></div>`;
-                html +=
-                    `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Observações adicionais..."></textarea></div>`;
-            }
-
-            if (type === 'volunteer') {
-                html +=
-                    `<div class="form-group"><label>${t.labels.department_select}</label><select id="regDepartmentSelect" required><option value="">Selecione um departamento</option>`;
-                if (departmentsList && departmentsList.length > 0) {
-                    departmentsList.forEach(d => { html += `<option value="${d.id}">${d.name}</option>`; });
-                } else { html += `<option value="" disabled>Nenhum departamento disponível</option>`; }
-                html += `</select></div>`;
-                html +=
-                    `<div class="form-group"><label>${t.labels.availability}</label><input type="text" id="regAvailability" placeholder="Ex: Finais de semana, Terças e Quintas à noite" /></div>`;
-                html +=
-                    `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Conte-nos sobre suas habilidades e experiência..."></textarea></div>`;
-            }
-
-            if (type === 'event') {
-                html +=
-                    `<div class="form-group"><label>${t.labels.event_select}</label><select id="regEventSelect" required><option value="">Selecione um evento</option>`;
-                if (eventsList && eventsList.length > 0) {
-                    eventsList.forEach(e => {
-                        const dateFormatted = new Date(e.date).toLocaleDateString('pt-BR', { day: 'numeric',
-                            month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-                        const priceText = parseFloat(e.price || 0) > 0 ? `R$ ${parseFloat(e.price).toFixed(2)}` :
-                            'Grátis';
-                        html +=
-                            `<option value="${e.id}" data-price="${e.price || 0}">${e.title} — ${dateFormatted} (${priceText})</option>`;
-                    });
-                } else { html += `<option value="" disabled>Nenhum evento disponível</option>`; }
-                html += `</select></div>`;
-                html +=
-                    `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Observações adicionais..."></textarea></div>`;
-            }
-
-            if (type === 'department') {
-                html +=
-                    `<div class="form-group"><label>${t.labels.department_select}</label><select id="regDepartmentSelect" required><option value="">Selecione um departamento</option>`;
-                if (departmentsList && departmentsList.length > 0) {
-                    departmentsList.forEach(d => { html += `<option value="${d.id}">${d.name}</option>`; });
-                } else { html += `<option value="" disabled>Nenhum departamento disponível</option>`; }
-                html += `</select></div>`;
-                html +=
-                    `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Por que deseja participar? (opcional)"></textarea></div>`;
-            }
-
-            html +=
-                `<button onclick="submitRegistration('${type}')" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.4rem;">
-                    <i class="fas fa-paper-plane"></i> Inscrever-se
-                </button></div>`;
-            container.innerHTML = html;
-            container.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        async function submitRegistration(type) {
-            const name = document.getElementById('regName').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
-            const phone = document.getElementById('regPhone').value.trim();
-            const notes = document.getElementById('regNotes')?.value.trim() || '';
-            const resultDiv = document.getElementById('registrationResult');
-
-            if (!name || !email || !phone) { showNotification('⚠️ Preencha todos os campos obrigatórios!', 'error');
-                return; }
-            if (!email.includes('@')) { showNotification('⚠️ Digite um e-mail válido!', 'error'); return; }
-
-            let registrationData = { type, name, email, phone, details: notes };
-
-            try {
-                if (type === 'baptism') {
-                    const birthDate = document.getElementById('regBirthDate')?.value;
-                    const baptismDateId = document.getElementById('regBaptismDate')?.value;
-                    if (!birthDate) { showNotification('⚠️ Informe sua data de nascimento!', 'error'); return; }
-                    if (!baptismDateId) { showNotification('⚠️ Selecione uma data para o batismo!', 'error'); return; }
-                    const selectedDate = baptismDatesList.find(d => d.id == baptismDateId);
-                    if (!selectedDate) { showNotification('⚠️ Data de batismo não encontrada!', 'error'); return; }
-                    registrationData.birth_date = birthDate;
-                    registrationData.baptism_date = selectedDate.date;
-                    registrationData.baptism_date_id = baptismDateId;
-                    registrationData.event_name = selectedDate.title || 'Batismo';
-                    registrationData.details =
-                        `Data de Nascimento: ${new Date(birthDate).toLocaleDateString('pt-BR')}\nData do Batismo: ${new Date(selectedDate.date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}\n${notes}`;
-                }
-
-                if (type === 'volunteer') {
-                    const deptId = document.getElementById('regDepartmentSelect')?.value;
-                    const availability = document.getElementById('regAvailability')?.value.trim() || '';
-                    if (!deptId) { showNotification('⚠️ Selecione um departamento!', 'error'); return; }
-                    const dept = departmentsList.find(d => d.id == deptId);
-                    registrationData.department_name = dept ? dept.name : '';
-                    registrationData.department_id = deptId;
-                    registrationData.details = `Disponibilidade: ${availability || 'Não informada'}\n${notes}`;
-                }
-
-                if (type === 'department') {
-                    const deptId = document.getElementById('regDepartmentSelect')?.value;
-                    if (!deptId) { showNotification('⚠️ Selecione um departamento!', 'error'); return; }
-                    const dept = departmentsList.find(d => d.id == deptId);
-                    registrationData.department_name = dept ? dept.name : '';
-                    registrationData.department_id = deptId;
-                    registrationData.details = notes || 'Deseja participar deste departamento.';
-                }
-
-                if (type === 'event') {
-                    const eventId = document.getElementById('regEventSelect')?.value;
-                    if (!eventId) { showNotification('⚠️ Selecione um evento!', 'error'); return; }
-                    const event = eventsList.find(e => e.id == eventId);
-                    if (!event) { showNotification('⚠️ Evento não encontrado!', 'error'); return; }
-                    registrationData.event_name = event.title;
-                    registrationData.event_id = eventId;
-                    registrationData.amount = parseFloat(event.price || 0);
-                    registrationData.is_paid = parseFloat(event.price || 0) > 0 ? false : true;
-                    registrationData.details =
-                        `Evento: ${event.title}\nData: ${new Date(event.date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}\n${notes}`;
-                }
-
-                console.log('📤 Enviando inscrição:', registrationData);
-
-                const response = await fetch('/api/registrations', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(registrationData)
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error || 'Erro ao realizar inscrição');
-
-                resultDiv.className = 'notification success';
-                resultDiv.innerHTML =
-                    `<i class="fas fa-check-circle" style="font-size:1.3rem;display:block;margin-bottom:0.3rem;"></i><strong>✅ Inscrição realizada com sucesso!</strong><p style="margin-top:0.3rem;font-size:0.85rem;">Protocolo: #${String(data.id).padStart(6, '0')}</p>`;
-                resultDiv.style.display = 'block';
-                document.getElementById('registrationForm').style.display = 'none';
-
-                if (type === 'event' && parseFloat(registrationData.amount || 0) > 0) {
-                    if (confirm(
-                            `✅ Inscrição realizada! O evento é pago (R$ ${parseFloat(registrationData.amount).toFixed(2)}). Deseja fazer o pagamento agora?`
-                            )) {
-                        paymentType = 'donation';
-                        donationType = 'Inscrição Evento - ' + registrationData.event_name;
-                        document.getElementById('paymentTitle').textContent = '💳 Inscrição - ' + registrationData
-                            .event_name;
-                        document.getElementById('paymentTotal').textContent = 'Valor: R$ ' + parseFloat(
-                            registrationData.amount).toFixed(2);
-                        document.getElementById('paymentForm').style.display = 'block';
-                        document.getElementById('paymentResult').style.display = 'none';
-                        _donationAmount = parseFloat(registrationData.amount);
-                        document.getElementById('payName').value = name;
-                        document.getElementById('payEmail').value = email;
-                        document.getElementById('payPhone').value = phone;
-                        openModal('paymentModal');
-                    }
-                } else {
-                    setTimeout(() => {
-                        if (confirm('✅ Deseja baixar o comprovante em PDF?')) {
-                            window.open(`/api/registration-pdf/${data.id}`, '_blank');
+                        await sql`
+                            UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}
+                        `;
+                        await sql`
+                            UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}
+                        `;
+                        console.log('✅ Pagamento aprovado e registrado!');
+                        
+                        if (record) {
+                            console.log('📧 Enviando e-mail de confirmação...');
+                            const emailResult = await enviarEmail(
+                                record.user_email || 'cliente@email.com',
+                                record.user_name || 'Cliente',
+                                paymentId,
+                                record.total || record.amount || 0,
+                                order[0] ? 'sale' : 'donation',
+                                'approved'
+                            );
+                            
+                            if (emailResult) {
+                                console.log('✅ E-mail enviado com sucesso!');
+                            } else {
+                                console.log('❌ Falha ao enviar e-mail');
+                            }
+                        } else {
+                            console.log('⚠️ Nenhum registro encontrado para enviar e-mail');
                         }
-                    }, 500);
-                }
-
-                setTimeout(() => {
-                    resultDiv.style.display = 'none';
-                    document.getElementById('registrationForm').style.display = 'block';
-                    document.getElementById('registrationForm').innerHTML =
-                        `<p style="text-align:center;color:#28a745;padding:0.8rem;">✅ Inscrição concluída! Obrigado!</p>`;
-                }, 8000);
-
-            } catch (error) {
-                console.error('❌ Erro na inscrição:', error);
-                showNotification('❌ Erro: ' + error.message, 'error');
-                resultDiv.className = 'notification error';
-                resultDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message}`;
-                resultDiv.style.display = 'block';
-            }
-        }
-
-        async function registerForEvent(eventId, eventName, price) {
-            const name = prompt('Seu nome completo:');
-            if (!name) return;
-            const email = prompt('Seu e-mail:');
-            if (!email) return;
-            const phone = prompt('Seu telefone (WhatsApp):');
-            if (!phone) return;
-
-            try {
-                const res = await fetch('/api/registrations', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        type: 'event',
-                        name: name,
-                        email: email,
-                        phone: phone,
-                        event_name: eventName,
-                        details: 'Inscrição para evento: ' + eventName,
-                        amount: parseFloat(price) || 0,
-                        is_paid: parseFloat(price) > 0 ? false : true
-                    })
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error || 'Erro ao inscrever');
-
-                if (parseFloat(price) > 0) {
-                    alert('✅ Inscrição realizada! O evento é pago. Por favor, faça o pagamento para confirmar.');
-                    paymentType = 'donation';
-                    donationType = 'Inscrição Evento - ' + eventName;
-                    document.getElementById('paymentTitle').textContent = '💳 Inscrição - ' + eventName;
-                    document.getElementById('paymentTotal').textContent = 'Valor: R$ ' + parseFloat(price).toFixed(2);
-                    document.getElementById('paymentForm').style.display = 'block';
-                    document.getElementById('paymentResult').style.display = 'none';
-                    _donationAmount = parseFloat(price);
-                    document.getElementById('payName').value = name;
-                    document.getElementById('payEmail').value = email;
-                    document.getElementById('payPhone').value = phone;
-                    openModal('paymentModal');
-                } else {
-                    const pdfUrl = `/api/registration-pdf/${data.id}`;
-                    if (confirm('✅ Inscrição realizada com sucesso! Deseja baixar o comprovante em PDF?')) {
-                        window.open(pdfUrl, '_blank');
+                    } else if (payment.status === 'rejected' || payment.status === 'cancelled') {
+                        await sql`
+                            UPDATE orders SET status = 'rejected' WHERE payment_id = ${paymentId}
+                        `;
+                        await sql`
+                            UPDATE donations SET status = 'rejected' WHERE payment_id = ${paymentId}
+                        `;
+                        console.log('❌ Pagamento recusado/cancelado');
+                    } else {
+                        console.log('⏳ Status:', payment.status);
                     }
+                } catch (error) {
+                    console.error('❌ Erro ao buscar pagamento:', error);
                 }
-            } catch (e) {
-                alert('❌ Erro: ' + e.message);
             }
+        } else {
+            console.log('⚠️ Evento ignorado:', type);
         }
+        
+        res.json({ received: true });
+    } catch (error) {
+        console.error('❌ Erro webhook:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
 
-        // ============================================
-        // ===== NOTIFICAÇÕES =====
-        // ============================================
-        function showNotification(message, type = 'info') {
-            const div = document.createElement('div');
-            div.className = 'notification ' + type;
-            div.textContent = message;
-            document.body.appendChild(div);
-            setTimeout(() => { div.style.opacity = '0';
-                div.style.transition = 'opacity 0.4s';
-                setTimeout(() => div.remove(), 400); }, 4000);
+// ============================================
+// ===== PDF DE CONFIRMAÇÃO =====
+// ============================================
+
+app.get('/api/registration-pdf/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const registrations = await sql`SELECT * FROM registrations WHERE id = ${id}`;
+        
+        if (registrations.length === 0) {
+            return res.status(404).json({ error: 'Inscrição não encontrada' });
         }
+        
+        const reg = registrations[0];
+        
+        const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Comprovante de Inscrição</title>
+            <style>
+                body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 2rem; }
+                .header { text-align: center; border-bottom: 3px solid #0D47A1; padding-bottom: 1rem; margin-bottom: 1.5rem; }
+                .header h1 { color: #0D47A1; margin: 0; }
+                .header p { color: #666; margin: 0; }
+                .info { margin: 1rem 0; }
+                .info-item { display: flex; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
+                .info-item .label { font-weight: bold; width: 120px; }
+                .info-item .value { flex: 1; }
+                .status { display: inline-block; padding: 0.3rem 1rem; border-radius: 20px; font-weight: bold; }
+                .status.pending { background: #fff3cd; color: #856404; }
+                .status.confirmed { background: #d4edda; color: #155724; }
+                .footer { text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; color: #888; font-size: 0.9rem; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>🙏 NJ Cabuçu</h1>
+                <p>Comprovante de Inscrição</p>
+            </div>
+            
+            <div class="info">
+                <div class="info-item">
+                    <span class="label">Protocolo:</span>
+                    <span class="value">#${String(reg.id).padStart(6, '0')}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Data:</span>
+                    <span class="value">${new Date(reg.created_at).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Tipo:</span>
+                    <span class="value">${reg.type === 'baptism' ? 'Batismo' : reg.type === 'volunteer' ? 'Voluntário' : reg.type === 'event' ? 'Evento' : 'Departamento'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Nome:</span>
+                    <span class="value">${reg.name}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">E-mail:</span>
+                    <span class="value">${reg.email || '-'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Telefone:</span>
+                    <span class="value">${reg.phone || '-'}</span>
+                </div>
+                ${reg.event_name ? `<div class="info-item"><span class="label">Evento:</span><span class="value">${reg.event_name}</span></div>` : ''}
+                ${reg.department_name ? `<div class="info-item"><span class="label">Departamento:</span><span class="value">${reg.department_name}</span></div>` : ''}
+                ${reg.details ? `<div class="info-item"><span class="label">Detalhes:</span><span class="value">${reg.details}</span></div>` : ''}
+                <div class="info-item">
+                    <span class="label">Status:</span>
+                    <span class="value"><span class="status ${reg.status === 'approved' ? 'confirmed' : 'pending'}">${reg.status === 'approved' ? '✅ Confirmado' : '⏳ Pendente'}</span></span>
+                </div>
+                ${reg.amount > 0 ? `<div class="info-item"><span class="label">Valor:</span><span class="value">R$ ${parseFloat(reg.amount).toFixed(2)}</span></div>` : ''}
+                ${reg.is_paid ? `<div class="info-item"><span class="label">Pagamento:</span><span class="value">✅ Pago</span></div>` : ''}
+            </div>
+            
+            <div class="footer">
+                <p>NJ Cabuçu - "E conhecereis a verdade, e a verdade vos libertará." João 8:32</p>
+                <p>© ${new Date().getFullYear()} NJ Cabuçu - Todos os direitos reservados</p>
+            </div>
+        </body>
+        </html>
+        `;
+        
+        res.setHeader('Content-Type', 'text/html');
+        res.send(html);
+    } catch (error) {
+        console.error('❌ Erro ao gerar PDF:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
 
-        // ============================================
-        // ===== CONFIGURAÇÕES =====
-        // ============================================
-        async function loadSettings() {
-            try {
-                const res = await fetch('/api/settings');
-                const settings = await res.json();
-                if (settings.primary_color) document.documentElement.style.setProperty('--primary', settings
-                .primary_color);
-                if (settings.site_title) { document.title = settings.site_title; }
-                if (settings.whatsapp) {
-                    const btn = document.getElementById('whatsappBtn');
-                    btn.href = 'https://wa.me/55' + settings.whatsapp;
-                }
-            } catch (e) { console.error('Erro ao carregar configurações:', e); }
-        }
+// ============================================
+// ===== ROTA DE TESTE DE E-MAIL =====
+// ============================================
 
-        // ============================================
-        // ===== PÁGINA DE RETORNO =====
-        // ============================================
-        function showReturnPage() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const status = urlParams.get('status');
-            const paymentId = urlParams.get('payment_id');
-
-            if (status || paymentId) {
-                document.getElementById('mainHeader').style.display = 'none';
-                document.getElementById('mainNav').style.display = 'none';
-                document.querySelector('.hero').style.display = 'none';
-                document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-                document.querySelector('.footer').style.display = 'none';
-
-                const returnPage = document.getElementById('paymentReturnPage');
-                returnPage.style.display = 'block';
-
-                let icon = '⏳',
-                    title = 'Aguardando Confirmação',
-                    message = 'Seu pagamento está sendo processado. Aguarde a confirmação.';
-                let msgClass = 'pending',
-                    statusText = 'Pendente';
-
-                if (status === 'approved') {
-                    icon = '✅';
-                    title = 'Pagamento Confirmado!';
-                    message = 'Obrigado pela sua contribuição! Deus abençoe! 🙏';
-                    msgClass = 'success';
-                    statusText = 'Aprovado';
-                } else if (status === 'rejected') {
-                    icon = '❌';
-                    title = 'Pagamento Recusado';
-                    message = 'Infelizmente seu pagamento não foi aprovado. Tente novamente.';
-                    msgClass = 'error';
-                    statusText = 'Recusado';
-                }
-
-                document.getElementById('returnIcon').textContent = icon;
-                document.getElementById('returnIcon').style.color = msgClass === 'success' ? '#28a745' : msgClass ===
-                    'error' ? '#dc3545' : '#c9a84c';
-                document.getElementById('returnTitle').textContent = title;
-                document.getElementById('returnMessage').textContent = message;
-                document.getElementById('returnMessageBox').className = 'message-box ' + msgClass;
-                document.getElementById('returnStatusText').textContent = statusText;
-                document.getElementById('returnPaymentId').textContent = paymentId || '-';
-            }
-        }
-
-        // ============================================
-        // ===== INICIALIZAÇÃO =====
-        // ============================================
-        document.addEventListener('DOMContentLoaded', () => {
-            showReturnPage();
-            if (document.getElementById('paymentReturnPage').style.display !== 'block') {
-                loadSettings();
-                loadCarouselFromServer();
-                loadStudies();
-                loadEvents();
-                loadProducts();
-                loadBirthdays();
-                document.getElementById('cartCount').textContent = 0;
-            }
+app.post('/api/test-email', async (req, res) => {
+    try {
+        const { email, name } = req.body;
+        
+        console.log('========================================');
+        console.log('🧪 TESTE DE E-MAIL');
+        console.log('📧 Para:', email || 'mvini440@gmail.com');
+        console.log('👤 Nome:', name || 'Cliente Teste');
+        console.log('========================================');
+        
+        const result = await enviarEmail(
+            email || 'mvini440@gmail.com',
+            name || 'Cliente Teste',
+            'TEST-' + Date.now(),
+            10.00,
+            'donation',
+            'approved'
+        );
+        
+        res.json({ 
+            success: !!result,
+            message: result ? 'E-mail enviado com sucesso!' : 'Falha ao enviar e-mail',
+            messageId: result?.messageId,
+            error: result ? null : 'Verifique os logs para mais detalhes'
         });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                document.querySelectorAll('.modal.open').forEach(m => {
-                    m.classList.remove('open');
-                    document.body.style.overflow = 'auto';
-                });
-                if (statusCheckInterval) {
-                    clearInterval(statusCheckInterval);
-                    statusCheckInterval = null;
-                }
-            }
+    } catch (error) {
+        console.error('❌ Erro no teste:', error);
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
         });
-    </script>
-</body>
-</html>
+    }
+});
+
+// ============================================
+// ===== SERVE HTML =====
+// ============================================
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+app.get('/departamento', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'departamento.html'));
+});
+
+// ============================================
+// ===== INICIAR =====
+// ============================================
+
+app.listen(PORT, () => {
+    console.log('');
+    console.log('🔥 NJ Cabuçu rodando na porta ' + PORT);
+    console.log('🌐 ' + BASE_URL);
+    console.log('');
+    console.log('📋 Credenciais:');
+    console.log('   Email: pastor@njcabucu.com');
+    console.log('   Senha: admin123');
+    console.log('');
+    console.log('💰 Mercado Pago: ' + (process.env.MP_ACCESS_TOKEN ? '✅ Configurado' : '⚠️ Não configurado'));
+    console.log('🔑 Public Key: ' + (process.env.MP_PUBLIC_KEY ? '✅ Configurada' : '⚠️ Não configurada'));
+    console.log('📧 E-mail: ' + (process.env.EMAIL_USER ? '✅ Configurado' : '⚠️ Não configurado'));
+    console.log('');
+    console.log('📸 Imagens salvas como Base64 no banco de dados!');
+    console.log('');
+});

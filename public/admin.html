@@ -693,7 +693,10 @@
                             <i class="fas fa-stop"></i> Encerrar Live
                         </button>
                         <button onclick="toggleCamera()" id="toggleCamBtn" class="btn btn-warning" style="flex:1; padding:0.5rem;">
-                            <i class="fas fa-camera"></i> Câmera
+                            <i class="fas fa-camera"></i> Ligar/Desligar Câmera
+                        </button>
+                        <button onclick="switchCamera()" id="switchCamBtn" class="btn btn-info" style="flex:1; padding:0.5rem;">
+                            <i class="fas fa-sync"></i> Trocar Câmera
                         </button>
                         <button onclick="toggleScreenShare()" id="screenShareBtn" class="btn btn-primary" style="flex:1; padding:0.5rem;">
                             <i class="fas fa-desktop"></i> Compartilhar Tela
@@ -1910,7 +1913,9 @@
         let isLiveActive = false;
         let liveId = null;
         let liveInterval = null;
+        let currentCamera = 'user';
 
+        // ===== VERIFICAR STATUS DA LIVE =====
         async function checkLiveStatus() {
             try {
                 const res = await fetch('/api/lives/active');
@@ -1942,6 +1947,7 @@
             }
         }
 
+        // ===== ATUALIZAR VIEWERS =====
         async function updateViewers() {
             if (!liveId) return;
             try {
@@ -1955,13 +1961,29 @@
             } catch (e) { console.error(e); }
         }
 
-        // ===== INICIAR LIVE (SIMPLIFICADA) =====
+        // ===== LISTAR CÂMERAS DISPONÍVEIS =====
+        async function getCameraDevices() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(d => d.kind === 'videoinput');
+                console.log('📷 Câmeras disponíveis:', videoDevices.map(d => d.label));
+                return videoDevices;
+            } catch (e) {
+                console.error('Erro ao listar câmeras:', e);
+                return [];
+            }
+        }
+
+        // ===== INICIAR LIVE =====
         async function startLive() {
             const titulo = document.getElementById('liveTitle').value.trim() || 'Live NJ Cabuçu';
             const descricao = document.getElementById('liveDesc').value.trim() || '';
 
             try {
-                // Iniciar captura de mídia (câmera)
+                // Listar câmeras disponíveis
+                await getCameraDevices();
+
+                // Iniciar captura de mídia
                 await startMediaCapture();
 
                 const res = await fetch('/api/lives/start', {
@@ -1991,7 +2013,7 @@
                 if (liveInterval) clearInterval(liveInterval);
                 liveInterval = setInterval(updateViewers, 10000);
 
-                // Abrir link da live em nova aba para o transmissor ver
+                // Abrir link da live em nova aba
                 if (data.liveUrl) {
                     window.open(data.liveUrl, '_blank');
                 }
@@ -2002,6 +2024,133 @@
             }
         }
 
+        // ===== INICIAR CAPTURA DE MÍDIA =====
+        async function startMediaCapture(deviceId = null) {
+            try {
+                // Para a stream anterior se existir
+                if (localStream) {
+                    localStream.getTracks().forEach(track => track.stop());
+                    localStream = null;
+                }
+
+                const constraints = {
+                    video: { 
+                        facingMode: currentCamera,
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    },
+                    audio: true
+                };
+
+                // Se tiver deviceId específico, usa ele
+                if (deviceId) {
+                    constraints.video = { deviceId: { exact: deviceId } };
+                }
+
+                localStream = await navigator.mediaDevices.getUserMedia(constraints);
+                const video = document.getElementById('localVideo');
+                video.srcObject = localStream;
+                video.style.display = 'block';
+                document.getElementById('placeholderMessage').style.display = 'none';
+
+                return localStream;
+            } catch (e) {
+                console.error('Erro ao acessar câmera:', e);
+                throw new Error('Não foi possível acessar a câmera/microfone. Verifique as permissões.');
+            }
+        }
+
+        // ===== TROCAR CÂMERA =====
+        async function switchCamera() {
+            if (!localStream) {
+                showNotification('Inicie a live primeiro!', 'error');
+                return;
+            }
+
+            try {
+                const devices = await getCameraDevices();
+                
+                if (devices.length < 2) {
+                    showNotification('⚠️ Apenas uma câmera disponível', 'info');
+                    return;
+                }
+
+                // Encontra a próxima câmera
+                const currentDeviceId = localStream.getVideoTracks()[0]?.getSettings().deviceId;
+                let nextDevice = devices.find(d => d.deviceId !== currentDeviceId);
+                
+                if (!nextDevice) {
+                    nextDevice = devices[0];
+                }
+
+                // Troca para a próxima câmera
+                await startMediaCapture(nextDevice.deviceId);
+                
+                // Atualiza o nome da câmera na interface
+                const camName = nextDevice.label || 'Câmera ' + (devices.indexOf(nextDevice) + 1);
+                showNotification(`📷 Trocou para: ${camName}`, 'success');
+                
+                // Salva a câmera atual
+                currentCamera = nextDevice.deviceId;
+                
+            } catch (e) {
+                console.error('Erro ao trocar câmera:', e);
+                showNotification('❌ Erro ao trocar câmera: ' + e.message, 'error');
+            }
+        }
+
+        // ===== LIGAR/DESLIGAR CÂMERA =====
+        function toggleCamera() {
+            if (!localStream) {
+                showNotification('Inicie a live primeiro!', 'error');
+                return;
+            }
+            const videoTrack = localStream.getVideoTracks()[0];
+            if (videoTrack) {
+                videoTrack.enabled = !videoTrack.enabled;
+                showNotification(videoTrack.enabled ? '📷 Câmera ativada' : '📷 Câmera desativada', 'info');
+            }
+        }
+
+        // ===== COMPARTILHAR TELA =====
+        async function toggleScreenShare() {
+            if (!localStream) {
+                showNotification('Inicie a live primeiro!', 'error');
+                return;
+            }
+
+            try {
+                const screenStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+                    audio: true
+                });
+
+                const videoTrack = screenStream.getVideoTracks()[0];
+                const oldVideoTrack = localStream.getVideoTracks()[0];
+                
+                if (oldVideoTrack) {
+                    localStream.removeTrack(oldVideoTrack);
+                    oldVideoTrack.stop();
+                }
+
+                localStream.addTrack(videoTrack);
+                const video = document.getElementById('localVideo');
+                video.srcObject = localStream;
+
+                videoTrack.onended = () => {
+                    // Volta para a câmera quando parar de compartilhar
+                    startMediaCapture(currentCamera);
+                };
+
+                showNotification('📺 Compartilhando tela!', 'success');
+            } catch (e) {
+                if (e.name !== 'AbortError') {
+                    showNotification('❌ Erro ao compartilhar tela: ' + e.message, 'error');
+                }
+            }
+        }
+
+        // ===== ENCERRAR LIVE =====
         async function stopLive() {
             if (!liveId) return;
             if (!confirm('Deseja encerrar a transmissão ao vivo?')) return;
@@ -2040,74 +2189,7 @@
             }
         }
 
-        async function startMediaCapture() {
-            try {
-                const constraints = {
-                    video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
-                    audio: true
-                };
-
-                localStream = await navigator.mediaDevices.getUserMedia(constraints);
-                const video = document.getElementById('localVideo');
-                video.srcObject = localStream;
-                video.style.display = 'block';
-                document.getElementById('placeholderMessage').style.display = 'none';
-
-                return localStream;
-            } catch (e) {
-                console.error('Erro ao acessar câmera:', e);
-                throw new Error('Não foi possível acessar a câmera/microfone. Verifique as permissões.');
-            }
-        }
-
-        function toggleCamera() {
-            if (!localStream) {
-                showNotification('Inicie a live primeiro!', 'error');
-                return;
-            }
-            const videoTrack = localStream.getVideoTracks()[0];
-            if (videoTrack) {
-                videoTrack.enabled = !videoTrack.enabled;
-                showNotification(videoTrack.enabled ? '📷 Câmera ativada' : '📷 Câmera desativada', 'info');
-            }
-        }
-
-        async function toggleScreenShare() {
-            if (!localStream) {
-                showNotification('Inicie a live primeiro!', 'error');
-                return;
-            }
-
-            try {
-                const screenStream = await navigator.mediaDevices.getDisplayMedia({
-                    video: { width: { ideal: 1280 }, height: { ideal: 720 } },
-                    audio: true
-                });
-
-                const videoTrack = screenStream.getVideoTracks()[0];
-                const oldVideoTrack = localStream.getVideoTracks()[0];
-                
-                if (oldVideoTrack) {
-                    localStream.removeTrack(oldVideoTrack);
-                    oldVideoTrack.stop();
-                }
-
-                localStream.addTrack(videoTrack);
-                const video = document.getElementById('localVideo');
-                video.srcObject = localStream;
-
-                videoTrack.onended = () => {
-                    startMediaCapture();
-                };
-
-                showNotification('📺 Compartilhando tela!', 'success');
-            } catch (e) {
-                if (e.name !== 'AbortError') {
-                    showNotification('❌ Erro ao compartilhar tela: ' + e.message, 'error');
-                }
-            }
-        }
-
+        // ===== HISTÓRICO DE LIVES =====
         async function loadLiveHistory() {
             try {
                 const res = await fetch('/api/lives/history', { headers: getHeaders() });
@@ -2947,6 +3029,7 @@
         window.startLive = startLive;
         window.stopLive = stopLive;
         window.toggleCamera = toggleCamera;
+        window.switchCamera = switchCamera;
         window.toggleScreenShare = toggleScreenShare;
         window.checkLiveStatus = checkLiveStatus;
         window.loadLiveHistory = loadLiveHistory;

@@ -151,7 +151,7 @@
         }
 
         /* ============================================
-           NAVEGAÇÃO (dropdown mobile)
+           NAVEGAÇÃO (mobile)
         ============================================ */
         .main-nav {
             background: rgba(255,255,255,0.97);
@@ -193,57 +193,16 @@
         }
 
         /* ============================================
-           SERVIÇOS (acima do carrossel)
-        ============================================ */
-        .services-top {
-            margin-top: calc(var(--header-h) + 10px);
-            padding: 1rem 2rem;
-            background: #ffffff;
-            border-bottom: 1px solid rgba(0,0,0,0.04);
-        }
-        .services-top .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 0.8rem;
-            max-width: var(--max-width);
-            margin: 0 auto;
-            text-align: center;
-        }
-        .services-top .service-item {
-            background: transparent;
-            padding: 0.5rem 0.2rem;
-            border-radius: var(--radius-sm);
-            transition: var(--transition);
-            cursor: default;
-        }
-        .services-top .service-item:hover {
-            transform: translateY(-3px);
-        }
-        .services-top .service-item .icon {
-            font-size: 1.8rem;
-            color: var(--primary);
-            margin-bottom: 0.2rem;
-        }
-        .services-top .service-item h4 {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--primary);
-        }
-        .services-top .service-item p {
-            font-size: 0.7rem;
-            color: #888;
-            margin-top: 0.05rem;
-        }
-
-        /* ============================================
-           HERO (CARROSSEL - menor)
+           HERO (CARROSSEL - com ajuste de imagem)
         ============================================ */
         .hero {
+            margin-top: calc(var(--header-h) + 48px);
             position: relative;
             width: 100%;
-            height: 380px;
-            max-height: 450px;
+            height: 450px;
+            max-height: 500px;
             overflow: hidden;
+            border-radius: 0 0 40px 40px;
             background: #1a1a2e;
         }
         .hero-slides {
@@ -268,7 +227,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            object-position: center;
+            object-position: center center;
         }
         .hero-slide .overlay {
             position: absolute;
@@ -287,7 +246,7 @@
             z-index: 2;
             color: #fff;
             max-width: 700px;
-            padding: 1.5rem;
+            padding: 2rem;
             text-align: center;
             animation: fadeUp 1s ease;
             pointer-events: none;
@@ -297,36 +256,36 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .hero-content h1 {
-            font-size: 2.4rem;
+            font-size: 2.8rem;
             font-weight: 900;
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.6rem;
             text-shadow: 0 4px 30px rgba(0,0,0,0.25);
             line-height: 1.1;
         }
         .hero-content p {
-            font-size: 1rem;
+            font-size: 1.1rem;
             opacity: 0.92;
-            margin-bottom: 0.8rem;
+            margin-bottom: 1.2rem;
             text-shadow: 0 2px 20px rgba(0,0,0,0.15);
         }
         .hero-content .btn {
             pointer-events: all;
-            font-size: 0.9rem;
-            padding: 0.5rem 1.8rem;
+            font-size: 1rem;
+            padding: 0.7rem 2rem;
         }
 
         .hero-controls {
             position: absolute;
-            bottom: 1rem;
+            bottom: 1.5rem;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 0.5rem;
+            gap: 0.6rem;
             z-index: 3;
         }
         .hero-dot {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             background: rgba(255,255,255,0.35);
             cursor: pointer;
@@ -348,7 +307,7 @@
             width: 100%;
             display: flex;
             justify-content: space-between;
-            padding: 0 1rem;
+            padding: 0 1.5rem;
             z-index: 3;
             pointer-events: none;
         }
@@ -356,10 +315,10 @@
             pointer-events: all;
             background: rgba(255,255,255,0.92);
             border: none;
-            width: 36px;
-            height: 36px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
-            font-size: 0.9rem;
+            font-size: 1.1rem;
             cursor: pointer;
             transition: var(--transition);
             box-shadow: 0 3px 15px rgba(0,0,0,0.06);
@@ -370,17 +329,16 @@
         }
         .hero-arrow:hover { background: #fff; transform: scale(1.08); box-shadow: 0 6px 25px rgba(0,0,0,0.1); }
 
-        /* LIVE BADGE NO HERO */
         .hero-live-badge {
             position: absolute;
-            top: 15px;
-            right: 15px;
+            top: 20px;
+            right: 20px;
             z-index: 5;
             background: #ff0000;
             color: #fff;
-            padding: 0.2rem 0.8rem;
+            padding: 0.3rem 1rem;
             border-radius: var(--radius-full);
-            font-size: 0.6rem;
+            font-size: 0.7rem;
             font-weight: 700;
             display: none;
             animation: pulse-live 1.5s infinite;
@@ -389,53 +347,150 @@
         .hero-live-badge i { margin-right: 0.3rem; }
 
         /* ============================================
+           LIVE (compacta, logo após o carrossel)
+        ============================================ */
+        .live-bar {
+            background: #1a1a2e;
+            padding: 0.5rem 1.5rem;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            border-bottom: 2px solid var(--primary);
+        }
+        .live-bar.active {
+            display: flex;
+        }
+        .live-bar .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #ff0000;
+            font-weight: 700;
+            font-size: 0.9rem;
+            animation: pulse-live 1.5s infinite;
+        }
+        .live-bar .live-indicator i {
+            font-size: 0.6rem;
+        }
+        .live-bar .live-info {
+            color: #ccc;
+            font-size: 0.85rem;
+        }
+        .live-bar .live-info strong {
+            color: #fff;
+        }
+        .live-bar .btn-watch {
+            background: #ff0000;
+            color: #fff;
+            border: none;
+            padding: 0.2rem 1.2rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.8rem;
+        }
+        .live-bar .btn-watch:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255,0,0,0.3);
+        }
+
+        /* ============================================
            SEÇÕES
         ============================================ */
         .section {
             max-width: var(--max-width);
-            margin: 2.5rem auto;
+            margin: 3rem auto;
             padding: 0 2rem;
             scroll-margin-top: 130px;
         }
         .section-header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
         }
         .section-header .tag {
             display: inline-block;
             background: var(--secondary);
             color: var(--primary);
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            padding: 0.15rem 1rem;
+            padding: 0.2rem 1rem;
             border-radius: var(--radius-full);
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.5rem;
         }
         .section-header h2 {
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: 800;
             color: var(--primary);
             letter-spacing: -0.3px;
         }
         .section-header .subtitle {
             color: #888;
-            font-size: 0.95rem;
-            margin-top: 0.1rem;
+            font-size: 1rem;
+            margin-top: 0.2rem;
         }
         .section-header .line {
             width: 50px;
             height: 3px;
             background: var(--primary-gradient);
             border-radius: 10px;
-            margin: 0.4rem auto 0;
+            margin: 0.5rem auto 0;
         }
 
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 1.5rem;
+        }
+
+        /* ============================================
+           SERVIÇOS (links rápidos abaixo do carrossel)
+        ============================================ */
+        .services-quick {
+            margin: 0 auto 3rem;
+            max-width: var(--max-width);
+            padding: 0 2rem;
+        }
+        .services-quick .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 0.5rem;
+            text-align: center;
+        }
+        .services-quick .service-item {
+            padding: 0.8rem 0.2rem;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--primary);
+            background: transparent;
+            border: 1px solid transparent;
+        }
+        .services-quick .service-item:hover {
+            background: var(--secondary);
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-sm);
+        }
+        .services-quick .service-item .icon {
+            font-size: 1.6rem;
+            color: var(--primary);
+            margin-bottom: 0.2rem;
+        }
+        .services-quick .service-item h4 {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        .services-quick .service-item p {
+            font-size: 0.65rem;
+            color: #888;
+            margin: 0;
         }
 
         /* ============================================
@@ -541,18 +596,18 @@
         .card:hover .card-image-wrapper img { transform: scale(1.04); }
 
         /* ============================================
-           VERSÍCULO DESTACADO
+           VERSÍCULO
         ============================================ */
         .verse-block {
             background: var(--secondary);
             border-radius: var(--radius-sm);
-            padding: 1.8rem 1.5rem;
+            padding: 2rem 1.5rem;
             text-align: center;
             margin: 1.5rem 0;
             border-left: 4px solid var(--primary);
         }
         .verse-block .verse-text {
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             font-weight: 500;
             color: #1a1a2e;
             font-style: italic;
@@ -560,7 +615,7 @@
         }
         .verse-block .verse-ref {
             display: block;
-            margin-top: 0.4rem;
+            margin-top: 0.5rem;
             font-weight: 700;
             color: var(--primary);
             font-size: 0.9rem;
@@ -601,14 +656,14 @@
            ENDEREÇO
         ============================================ */
         .address-section {
-            margin-top: 2rem;
-            padding-top: 1.5rem;
+            margin-top: 2.5rem;
+            padding-top: 2rem;
             border-top: 1px solid rgba(0,0,0,0.06);
         }
         .address-card {
             background: var(--card-bg);
             border-radius: var(--radius);
-            padding: 1.5rem 2rem;
+            padding: 1.8rem 2rem;
             text-align: center;
             max-width: 650px;
             margin: 0 auto;
@@ -669,7 +724,7 @@
         .footer {
             background: #1a1a2e;
             color: #fff;
-            padding: 2.5rem 2rem 1.5rem;
+            padding: 3rem 2rem 1.5rem;
             margin-top: 3rem;
             border-top: 4px solid var(--primary);
         }
@@ -678,7 +733,7 @@
             margin: 0 auto;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 2rem;
+            gap: 2.5rem;
         }
         .footer h4 {
             font-size: 1rem;
@@ -688,7 +743,7 @@
         .footer p, .footer a {
             opacity: 0.65;
             line-height: 1.7;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: #fff;
             text-decoration: none;
             transition: var(--transition);
@@ -702,9 +757,9 @@
         }
         .footer .social-links a {
             color: #fff;
-            font-size: 1.1rem;
-            width: 38px;
-            height: 38px;
+            font-size: 1.2rem;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -727,19 +782,19 @@
         .footer .address-link:hover { color: #fff; opacity: 1; }
         .footer-bottom {
             text-align: center;
-            padding-top: 1.2rem;
-            margin-top: 1.2rem;
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
             border-top: 1px solid rgba(255,255,255,0.05);
             opacity: 0.4;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
         }
 
         /* ============================================
            RESPONSIVO
         ============================================ */
         @media (max-width: 1024px) {
-            .hero-content h1 { font-size: 2rem; }
-            .hero { height: 320px; }
+            .hero-content h1 { font-size: 2.4rem; }
+            .hero { height: 380px; }
         }
         @media (max-width: 768px) {
             .header { padding: 0 1rem; }
@@ -762,37 +817,37 @@
                 padding: 0.6rem 1rem;
             }
             .nav-btn { width: 100%; text-align: center; padding: 0.4rem; font-size: 0.7rem; }
-            .services-top { padding: 0.5rem 1rem; }
-            .services-top .services-grid { grid-template-columns: repeat(3, 1fr); gap: 0.3rem; }
-            .services-top .service-item .icon { font-size: 1.4rem; }
-            .services-top .service-item h4 { font-size: 0.7rem; }
-            .services-top .service-item p { font-size: 0.6rem; }
             .hero {
-                height: 240px;
+                margin-top: calc(var(--header-h) + 40px);
+                height: 280px;
+                border-radius: 0 0 24px 24px;
             }
-            .hero-content h1 { font-size: 1.5rem; }
-            .hero-content p { font-size: 0.8rem; }
-            .hero-arrows .hero-arrow { width: 30px; height: 30px; font-size: 0.7rem; }
-            .hero-arrows { padding: 0 0.5rem; }
-            .section { padding: 0 1rem; margin: 1.5rem auto; }
-            .section-header h2 { font-size: 1.5rem; }
+            .hero-content h1 { font-size: 1.6rem; }
+            .hero-content p { font-size: 0.85rem; }
+            .hero-arrows .hero-arrow { width: 34px; height: 34px; font-size: 0.8rem; }
+            .hero-arrows { padding: 0 0.6rem; }
+            .section { padding: 0 1rem; margin: 2rem auto; }
+            .section-header h2 { font-size: 1.6rem; }
             .grid { grid-template-columns: 1fr; gap: 1rem; }
-            .schedule-grid { grid-template-columns: 1fr; }
+            .services-quick { padding: 0 1rem; }
+            .services-quick .services-grid { grid-template-columns: repeat(3, 1fr); }
             .footer-content { grid-template-columns: 1fr; text-align: center; }
             .footer .social-links { justify-content: center; }
-            .address-card { padding: 1rem; }
+            .address-card { padding: 1.2rem 1rem; }
+            .live-bar { flex-direction: column; gap: 0.5rem; padding: 0.5rem 1rem; }
         }
         @media (max-width: 480px) {
-            .hero { height: 200px; }
-            .hero-content h1 { font-size: 1.2rem; }
-            .hero-content p { font-size: 0.7rem; }
-            .services-top .services-grid { grid-template-columns: repeat(2, 1fr); }
+            .hero { height: 220px; }
+            .hero-content h1 { font-size: 1.3rem; }
+            .hero-content p { font-size: 0.75rem; }
+            .hero-arrows .hero-arrow { width: 30px; height: 30px; font-size: 0.7rem; }
+            .services-quick .services-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
         /* ============================================
            OVERRIDES PARA FUNCIONALIDADES (mantido)
         ============================================ */
-        /* Estilos para modais, live, etc. (já existentes) */
+        /* Estilos para modais, live player, etc. (já existentes) */
         .modal {
             display: none;
             position: fixed;
@@ -944,7 +999,7 @@
         .notification.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .notification.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
 
-        /* Live player */
+        /* Live player (para a seção completa, se necessário) */
         .live-container {
             background: #1a1a2e;
             border-radius: var(--radius);
@@ -958,14 +1013,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 300px;
+            min-height: 350px;
             background: #0a0a1a;
             position: relative;
         }
         .live-player video {
             width: 100%;
             height: 100%;
-            max-height: 450px;
+            max-height: 500px;
             object-fit: contain;
             background: #000;
         }
@@ -974,7 +1029,7 @@
             text-align: center;
             padding: 2rem;
         }
-        .live-offline i { font-size: 2.5rem; display: block; margin-bottom: 0.5rem; opacity: 0.3; }
+        .live-offline i { font-size: 3rem; display: block; margin-bottom: 0.5rem; opacity: 0.3; }
         .live-offline span { font-size: 0.9rem; }
         .live-offline p { font-size: 0.7rem; margin-top: 0.3rem; }
         .live-badge {
@@ -1018,8 +1073,8 @@
             background: var(--primary-gradient);
             color: #fff;
             border: none;
-            padding: 0.8rem 2rem;
-            font-size: 0.95rem;
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
             border-radius: var(--radius-full);
             cursor: pointer;
             transition: var(--transition);
@@ -1104,40 +1159,7 @@
     </nav>
 
     <!-- ============================================
-    SERVIÇOS (ACIMA DO CARROSSEL)
-    ============================================ -->
-    <section class="services-top" id="servicos-top">
-        <div class="services-grid">
-            <div class="service-item">
-                <div class="icon"><i class="fas fa-broadcast-tower"></i></div>
-                <h4>Ao Vivo</h4>
-                <p>Assista nossos cultos</p>
-            </div>
-            <div class="service-item">
-                <div class="icon"><i class="fas fa-hand-holding-heart"></i></div>
-                <h4>Dízimo</h4>
-                <p>Contribua com segurança</p>
-            </div>
-            <div class="service-item">
-                <div class="icon"><i class="fas fa-pray"></i></div>
-                <h4>Oração</h4>
-                <p>Compartilhe sua necessidade</p>
-            </div>
-            <div class="service-item">
-                <div class="icon"><i class="fas fa-book"></i></div>
-                <h4>Estudos</h4>
-                <p>Materiais para download</p>
-            </div>
-            <div class="service-item">
-                <div class="icon"><i class="fas fa-store"></i></div>
-                <h4>Loja</h4>
-                <p>Produtos oficiais</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- ============================================
-    HERO (CARROSSEL - MENOR)
+    HERO (CARROSSEL)
     ============================================ -->
     <section id="home" class="hero">
         <div class="hero-slides" id="heroSlides"></div>
@@ -1150,6 +1172,48 @@
             <i class="fas fa-circle"></i> AO VIVO
         </div>
     </section>
+
+    <!-- ============================================
+    LIVE BAR (compacta, se ativa)
+    ============================================ -->
+    <div class="live-bar" id="liveBar">
+        <div class="live-indicator"><i class="fas fa-circle"></i> AO VIVO</div>
+        <div class="live-info"><strong id="liveBarTitle">Culto</strong> <span id="liveBarDesc">- Transmissão ao vivo</span></div>
+        <button class="btn-watch" onclick="scrollToSection('live')">Assistir <i class="fas fa-chevron-right"></i></button>
+    </div>
+
+    <!-- ============================================
+    SERVIÇOS (links rápidos abaixo do carrossel)
+    ============================================ -->
+    <div class="services-quick">
+        <div class="services-grid">
+            <a href="#live" class="service-item" onclick="scrollToSection('live')">
+                <div class="icon"><i class="fas fa-broadcast-tower"></i></div>
+                <h4>Ao Vivo</h4>
+                <p>Assista nossos cultos</p>
+            </a>
+            <a href="#dizimos" class="service-item" onclick="scrollToSection('dizimos')">
+                <div class="icon"><i class="fas fa-hand-holding-heart"></i></div>
+                <h4>Dízimo</h4>
+                <p>Contribua com segurança</p>
+            </a>
+            <a href="#oracao" class="service-item" onclick="scrollToSection('oracao')">
+                <div class="icon"><i class="fas fa-pray"></i></div>
+                <h4>Oração</h4>
+                <p>Compartilhe sua necessidade</p>
+            </a>
+            <a href="#estudos" class="service-item" onclick="scrollToSection('estudos')">
+                <div class="icon"><i class="fas fa-book"></i></div>
+                <h4>Estudos</h4>
+                <p>Materiais para download</p>
+            </a>
+            <a href="#loja" class="service-item" onclick="scrollToSection('loja')">
+                <div class="icon"><i class="fas fa-store"></i></div>
+                <h4>Loja</h4>
+                <p>Produtos oficiais</p>
+            </a>
+        </div>
+    </div>
 
     <!-- ============================================
     SOBRE NÓS
@@ -1332,9 +1396,9 @@
     </section>
 
     <!-- ============================================
-    LIVE
+    LIVE (player completo, se necessário)
     ============================================ -->
-    <section id="live" class="section">
+    <section id="live" class="section" style="display:none;">
         <div class="section-header">
             <span class="tag">Ao Vivo</span>
             <h2>📺 Transmissão ao Vivo</h2>
@@ -1459,7 +1523,7 @@
     </footer>
 
     <!-- ============================================
-    MODAIS (MANTIDOS)
+    MODAIS (mantidos)
     ============================================ -->
 
     <!-- BÍBLIA -->
@@ -1634,7 +1698,7 @@
     </div>
 
     <!-- ============================================
-    SCRIPTS (MANTIDOS E AJUSTADOS)
+    SCRIPTS (mantidos e ajustados)
     ============================================ -->
     <script>
         // ============================================
@@ -1653,7 +1717,7 @@
         }
 
         // ============================================
-        // ===== FUNÇÕES DE MAPAS (CORRIGIDAS) =====
+        // ===== FUNÇÕES DE MAPAS =====
         // ============================================
         function openMaps() {
             const endereco = 'Av. Abílio Augusto Távora, Lote 01, Quadra 03, Cabuçu, Nova Iguaçu - RJ';
@@ -1663,6 +1727,30 @@
         function openWaze() {
             const endereco = 'Av. Abílio Augusto Távora, Lote 01, Quadra 03, Cabuçu, Nova Iguaçu - RJ';
             window.open(`https://waze.com/ul?q=${encodeURIComponent(endereco)}`, '_blank');
+        }
+
+        // ============================================
+        // ===== CARREGAR CONFIGURAÇÕES (CORES) =====
+        // ============================================
+        async function loadSettings() {
+            try {
+                const res = await fetch('/api/settings');
+                const settings = await res.json();
+                if (settings.primary_color) {
+                    document.documentElement.style.setProperty('--primary', settings.primary_color);
+                    // Atualiza gradientes também (se necessário)
+                    document.documentElement.style.setProperty('--primary-gradient', `linear-gradient(135deg, ${settings.primary_color}, #1565C0)`);
+                }
+                if (settings.site_title) {
+                    document.title = settings.site_title;
+                }
+                if (settings.whatsapp) {
+                    const btn = document.getElementById('whatsappBtn');
+                    btn.href = 'https://wa.me/55' + settings.whatsapp;
+                }
+            } catch (e) {
+                console.error('Erro ao carregar configurações:', e);
+            }
         }
 
         // ============================================
@@ -1859,7 +1947,7 @@
         function startCarousel() {
             if (slideInterval) clearInterval(slideInterval);
             if (slideCount > 1) {
-                slideInterval = setInterval(() => changeSlide(1), 5000);
+                slideInterval = setInterval(() => changeSlide(1), 6000);
             }
         }
 
@@ -1896,7 +1984,7 @@
         }
 
         // ============================================
-        // ===== BÍBLIA (FUNCIONANDO) =====
+        // ===== BÍBLIA =====
         // ============================================
         function openBibleModal() {
             openModal('bibleModal');
@@ -2078,14 +2166,24 @@
         });
 
         // ============================================
-        // ===== LIVE (APENAS VISUALIZAÇÃO) =====
+        // ===== LIVE (BAR + PLAYER) =====
         // ============================================
         async function checkLiveStatusIndex() {
             try {
                 const res = await fetch('/api/lives/active');
                 const data = await res.json();
 
+                const liveBar = document.getElementById('liveBar');
+                const liveSection = document.getElementById('live');
+
                 if (data.status === 'live') {
+                    // Mostra barra compacta
+                    liveBar.classList.add('active');
+                    document.getElementById('liveBarTitle').textContent = data.titulo || 'Live NJ Cabuçu';
+                    document.getElementById('liveBarDesc').textContent = data.descricao || '';
+
+                    // Mostra o player completo
+                    liveSection.style.display = 'block';
                     document.getElementById('liveOffline').style.display = 'none';
                     document.getElementById('remoteVideo').style.display = 'block';
                     document.getElementById('liveBadge').style.display = 'flex';
@@ -2131,6 +2229,9 @@
                     }, 10000);
 
                 } else {
+                    // Oculta barra e player
+                    liveBar.classList.remove('active');
+                    liveSection.style.display = 'none';
                     document.getElementById('liveOffline').style.display = 'flex';
                     document.getElementById('remoteVideo').style.display = 'none';
                     document.getElementById('remoteVideo').src = '';
@@ -2260,9 +2361,6 @@
             } catch (e) { console.error('Erro:', e); }
         }
 
-        // ============================================
-        // ===== EVENTOS COM INSCRIÇÃO DIRETA =====
-        // ============================================
         async function loadEvents() {
             try {
                 const res = await fetch('/api/events');
@@ -2288,7 +2386,6 @@
             } catch (e) { console.error('Erro:', e); }
         }
 
-        // Função para inscrição direta no evento (com prompts)
         async function registerForEvent(eventId, eventName, price) {
             const name = prompt('Seu nome completo:');
             if (!name) return;
@@ -2339,9 +2436,6 @@
             }
         }
 
-        // ============================================
-        // ===== PRODUTOS =====
-        // ============================================
         async function loadProducts() {
             try {
                 const res = await fetch('/api/products');
@@ -3308,7 +3402,10 @@
         // ============================================
         // ===== INICIALIZAÇÃO =====
         // ============================================
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Carrega as configurações (cores, etc.)
+            await loadSettings();
+
             const urlParams = new URLSearchParams(window.location.search);
             const status = urlParams.get('status');
             const paymentId = urlParams.get('payment_id');
@@ -3316,10 +3413,10 @@
             if (status || paymentId) {
                 document.getElementById('mainHeader').style.display = 'none';
                 document.getElementById('mainNav').style.display = 'none';
-                document.querySelector('.services-top').style.display = 'none';
                 document.querySelector('.hero').style.display = 'none';
                 document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
                 document.querySelector('.footer').style.display = 'none';
+                document.querySelector('.services-quick').style.display = 'none';
 
                 const returnPage = document.getElementById('paymentReturnPage');
                 returnPage.style.display = 'block';
@@ -3355,7 +3452,7 @@
             } else {
                 loadCarouselFromServer();
                 loadStudies();
-                loadEvents(); // agora com inscrição direta
+                loadEvents();
                 loadProducts();
                 loadBirthdays();
                 loadCelulasIndex();

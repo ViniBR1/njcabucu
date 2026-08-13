@@ -1233,7 +1233,7 @@ app.delete('/api/carousel/:id', auth, pastorOnly, async (req, res) => {
 });
 
 // ============================================
-// ===== ROTAS DE REFLEXÕES (NOVA) =====
+// ===== ROTAS DE REFLEXÕES =====
 // ============================================
 
 app.get('/api/pastor-reflections', async (req, res) => {
@@ -1257,6 +1257,12 @@ app.post('/api/pastor-reflections', auth, pastorOnly, async (req, res) => {
         
         if (!title || !link) {
             return res.status(400).json({ error: 'Título e link são obrigatórios' });
+        }
+
+        // Valida se é um link do YouTube
+        const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/;
+        if (!youtubeRegex.test(link)) {
+            return res.status(400).json({ error: 'Link inválido. Use um link do YouTube (ex: https://youtu.be/...)' });
         }
 
         const result = await sql`
@@ -1755,15 +1761,16 @@ async function atualizarEstatisticasCelula(celula_id) {
 }
 
 // ============================================
-// ===== ROTAS DE LIVES =====
+// ===== ROTAS DE LIVES (apenas pastor) =====
 // ============================================
 
 app.post('/api/lives/start', auth, async (req, res) => {
     try {
         const { titulo, descricao } = req.body;
         
-        if (req.user.role !== 'pastor' && req.user.role !== 'midia') {
-            return res.status(403).json({ error: 'Apenas pastor ou equipe de mídia podem iniciar uma live' });
+        // APENAS PASTOR PODE INICIAR LIVE
+        if (req.user.role !== 'pastor') {
+            return res.status(403).json({ error: 'Apenas o pastor pode iniciar uma transmissão ao vivo.' });
         }
 
         const activeLive = await sql`SELECT * FROM lives WHERE status = 'live'`;
@@ -1888,7 +1895,7 @@ app.listen(PORT, () => {
     console.log('📋 Credenciais: pastor@njcabucu.com / admin123');
     console.log('');
     console.log('💰 Mercado Pago: ' + (process.env.MP_ACCESS_TOKEN ? '✅ Configurado' : '⚠️ Não configurado'));
-    console.log('📹 Sistema de Live: ✅ Configurado');
+    console.log('📹 Sistema de Live: ✅ Configurado (apenas pastor)');
     console.log('🎥 Reflexões do Pastor: ✅ Configurado');
     console.log('');
 });

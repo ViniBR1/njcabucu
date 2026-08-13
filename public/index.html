@@ -1003,8 +1003,17 @@
     ============================================ -->
     <header class="header" id="mainHeader">
         <a href="/" class="logo">
-            <!-- LOGO EM BASE64 - NÃO DEPENDE DE ARQUIVO EXTERNO -->
-            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAADU0lEQVR4nO2dT2gUURzHv5PZbJpsSNlUFtRDsUdBo2cqkoTtQRB6UirIvuTgqRfBQwRBD4KKGEgLgfTQFA/KogcRrSJ4UBHEP1AJhSzZ1JpN/jR7e6dP3s535n3nzpsPDGx/szvzmS/fvO/73o+ZzZFSBMdxOB1OQY1nKpVKERERnUwmU38pADKZjKIoKul0elXf7hBdPp9XRAQEQOKZz4qIdC6XC7sz7btbw7o1rLvnmVh9fZGOqFQqkRQolUoGZv39/QGSiUSAi8JLLUDn8/li6TsqFAoR35lMZucr8IUA/V2LxWJwGS2s2+Wyy+WyQfodQjq2fD4fXMblK5t8ISiKso2C6bUoiu37cD1i/k8sBAzD4Pz9fdR/fTX6jH4Bx/5QwDAHCDKZTOH8yb9wWDa0e1/jCgw7TRR2bMfIq23FkM/nI175crk8tVPG6HipCqMTZeh1+O6Qv7+/6D/95vL5fA5DIHLlx8wUjh7fMxfgePpcG28POeaDiI+nMXK0hc8pQQLB6pARwB6cMxwgo+Nl9JzqwPj5TuJzSgQCyQwOQuT41XrMPzEe2y7qGNTmAYmAwwCZnNn79gQyNLOcfhLf1HpEAneIoRliit+QaNf6eIP7HjEMmCEuSgCewh0yUisgmS+9fiOaiIifx6+OQX27G8bJbggEAhlsMdaJhFA3TYZmpn3/kRCYQwTBMs5nDQ4GJRtBwTEhghfJzuU7Wl5LcFACd4iI3FweX50H5Ap5QCKv+3T3AQFzhnxCc2zMckO1QsgBPF0g2Bm93pMvBHlAxHjhcWjTLhBJ0KEEkc7tvtO3VSRJ0B7PEJFEDop8IShHZHE4JHMwgQERkGf5eKZt5gsB2SFcjohIOp2+Dt9Ogr4/v+ucTkcKxWIxQHp6egJka5MmaUydTkdKpVLRJIlIpVKoBgKAxng8JinTNI3Pf7cN/Z2dnWn7AMjAvxqG8TEBnBiGcSwTnAAMw3hT3wExMTOjiRPHcQwwAI7jKAAzMUlhGEYvQH8nN+i5YRi9pH4Xgq2trS7Wyy8G4LgK9LqQnDnO2v4H0jOlbj5q1J0AAAAASUVORK5CYII=" alt="NJ Cabuçu" style="height:42px; width:auto;">
+            <!-- LOGO DO GITHUB COM FALLBACK -->
+            <img src="https://raw.githubusercontent.com/ViniBR1/njcabucu/main/public/logo-nj.png" 
+                 alt="NJ Cabuçu" 
+                 id="logoImg"
+                 style="height:42px; width:auto;" 
+                 onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='block'">
+            <!-- FALLBACK EM BASE64 -->
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAADU0lEQVR4nO2dT2gUURzHv5PZbJpsSNlUFtRDsUdBo2cqkoTtQRB6UirIvuTgqRfBQwRBD4KKGEgLgfTQFA/KogcRrSJ4UBHEP1AJhSzZ1JpN/jR7e6dP3s535n3nzpsPDGx/szvzmS/fvO/73o+ZzZFSBMdxOB1OQY1nKpVKERERnUwmU38pADKZjKIoKul0elXf7hBdPp9XRAQEQOKZz4qIdC6XC7sz7btbw7o1rLvnmVh9fZGOqFQqkRQolUoGZv39/QGSiUSAi8JLLUDn8/li6TsqFAoR35lMZucr8IUA/V2LxWJwGS2s2+Wyy+WyQfodQjq2fD4fXMblK5t8ISiKso2C6bUoiu37cD1i/k8sBAzD4Pz9fdR/fTX6jH4Bx/5QwDAHCDKZTOH8yb9wWDa0e1/jCgw7TRR2bMfIq23FkM/nI175crk8tVPG6HipCqMTZeh1+O6Qv7+/6D/95vL5fA5DIHLlx8wUjh7fMxfgePpcG28POeaDiI+nMXK0hc8pQQLB6pARwB6cMxwgo+Nl9JzqwPj5TuJzSgQCyQwOQuT41XrMPzEe2y7qGNTmAYmAwwCZnNn79gQyNLOcfhLf1HpEAneIoRliit+QaNf6eIP7HjEMmCEuSgCewh0yUisgmS+9fiOaiIifx6+OQX27G8bJbggEAhlsMdaJhFA3TYZmpn3/kRCYQwTBMs5nDQ4GJRtBwTEhghfJzuU7Wl5LcFACd4iI3FweX50H5Ap5QCKv+3T3AQFzhnxCc2zMckO1QsgBPF0g2Bm93pMvBHlAxHjhcWjTLhBJ0KEEkc7tvtO3VSRJ0B7PEJFEDop8IShHZHE4JHMwgQERkGf5eKZt5gsB2SFcjohIOp2+Dt9Ogr4/v+ucTkcKxWIxQHp6egJka5MmaUydTkdKpVLRJIlIpVKoBgKAxng8JinTNI3Pf7cN/Z2dnWn7AMjAvxqG8TEBnBiGcSwTnAAMw3hT3wExMTOjiRPHcQwwAI7jKAAzMUlhGEYvQH8nN+i5YRi9pH4Xgq2trS7Wyy8G4LgK9LqQnDnO2v4H0jOlbj5q1J0AAAAASUVORK5CYII=" 
+                 alt="NJ Cabuçu" 
+                 id="logoFallback"
+                 style="height:42px; width:auto; display:none;">
         </a>
         <div class="header-actions">
             <button onclick="openBibleModal()" class="btn btn-bible btn-sm" title="Abrir Bíblia">

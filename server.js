@@ -1,6 +1,6 @@
 // ============================================
 // ===== NJ CABUÇU - SERVIDOR COMPLETO =====
-// =========================================
+// ============================================
 
 require('dotenv').config();
 console.log('🚀 Iniciando NJ Cabuçu...');
@@ -37,7 +37,6 @@ try {
         });
         PaymentService = new Payment(client);
         console.log('✅ Mercado Pago configurado');
-        console.log('🔑 Access Token:', process.env.MP_ACCESS_TOKEN.substring(0, 20) + '...');
     }
 } catch (error) {
     console.log('⚠️ Erro MP:', error.message);
@@ -189,7 +188,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // ORDERS (VENDAS)
+        // ORDERS
         await sql`CREATE TABLE IF NOT EXISTS orders (
             id SERIAL PRIMARY KEY,
             user_name VARCHAR(100),
@@ -216,21 +215,6 @@ async function initDB() {
             status VARCHAR(50) DEFAULT 'pending',
             amount DECIMAL(10,2) DEFAULT 0,
             is_paid BOOLEAN DEFAULT false,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // WORSHIP SCALES
-        await sql`CREATE TABLE IF NOT EXISTS worship_scales (
-            id SERIAL PRIMARY KEY,
-            department_id INTEGER,
-            event_date TIMESTAMP NOT NULL,
-            leader_id INTEGER,
-            minister_id INTEGER,
-            songs TEXT[],
-            song_ids TEXT,
-            musician_ids TEXT,
-            palette TEXT,
-            rehearsal BOOLEAN DEFAULT FALSE,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
@@ -332,22 +316,11 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // BIRTHDAYS
+        // BIRTHDAYS (mantido para compatibilidade)
         await sql`CREATE TABLE IF NOT EXISTS birthdays (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
             birth_date DATE NOT NULL,
-            phone VARCHAR(20),
-            is_active BOOLEAN DEFAULT true,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // WEDDINGS
-        await sql`CREATE TABLE IF NOT EXISTS weddings (
-            id SERIAL PRIMARY KEY,
-            name VARCHAR(100) NOT NULL,
-            spouse_name VARCHAR(100) NOT NULL,
-            wedding_date DATE NOT NULL,
             phone VARCHAR(20),
             is_active BOOLEAN DEFAULT true,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -364,27 +337,6 @@ async function initDB() {
             is_active BOOLEAN DEFAULT true,
             created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // SONGS
-        await sql`CREATE TABLE IF NOT EXISTS songs (
-            id SERIAL PRIMARY KEY,
-            title VARCHAR(200) NOT NULL,
-            artist VARCHAR(100),
-            key VARCHAR(10) DEFAULT 'C',
-            lyrics TEXT,
-            department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE,
-            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // AVAILABILITY
-        await sql`CREATE TABLE IF NOT EXISTS availability (
-            id SERIAL PRIMARY KEY,
-            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-            date TIMESTAMP NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(user_id, date)
         )`;
 
         // ============================================
@@ -459,13 +411,15 @@ async function initDB() {
             left_at TIMESTAMP
         )`;
 
-        await sql`CREATE TABLE IF NOT EXISTS notifications (
+        // ============================================
+        // ===== TABELA DE REFLEXÕES (NOVA) =====
+        // ============================================
+        await sql`CREATE TABLE IF NOT EXISTS pastor_reflections (
             id SERIAL PRIMARY KEY,
-            type VARCHAR(50),
-            title VARCHAR(200),
-            message TEXT,
-            link VARCHAR(500),
-            is_read BOOLEAN DEFAULT false,
+            title VARCHAR(200) NOT NULL,
+            description TEXT,
+            link VARCHAR(500) NOT NULL,
+            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
@@ -1009,7 +963,7 @@ app.get('/api/donations', auth, async (req, res) => {
     }
 });
 
-// ----- ANIVERSARIANTES -----
+// ----- ANIVERSARIANTES (via membros) -----
 app.get('/api/birthdays', async (req, res) => {
     try {
         const today = new Date();
@@ -1278,7 +1232,62 @@ app.delete('/api/carousel/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- CONFIGURAÇÕES -----
+// ============================================
+// ===== ROTAS DE REFLEXÕES (NOVA) =====
+// ============================================
+
+app.get('/api/pastor-reflections', async (req, res) => {
+    try {
+        const reflections = await sql`
+            SELECT r.*, u.name as created_by_name
+            FROM pastor_reflections r
+            LEFT JOIN users u ON r.created_by = u.id
+            ORDER BY r.created_at DESC
+        `;
+        res.json(reflections);
+    } catch (error) {
+        console.error('❌ Erro ao buscar reflexões:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/pastor-reflections', auth, pastorOnly, async (req, res) => {
+    try {
+        const { title, description, link } = req.body;
+        
+        if (!title || !link) {
+            return res.status(400).json({ error: 'Título e link são obrigatórios' });
+        }
+
+        const result = await sql`
+            INSERT INTO pastor_reflections (title, description, link, created_by)
+            VALUES (${title}, ${description || ''}, ${link}, ${req.user.id})
+            RETURNING *
+        `;
+        
+        console.log('✅ Reflexão criada:', result[0]);
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar reflexão:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/pastor-reflections/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        const { id } = req.params;
+        await sql`DELETE FROM pastor_reflections WHERE id = ${id}`;
+        res.json({ message: 'Reflexão removida' });
+    } catch (error) {
+        console.error('❌ Erro ao remover reflexão:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== CONFIGURAÇÕES =====
+// ============================================
+
 app.get('/api/settings', async (req, res) => {
     try {
         const settings = await sql`SELECT * FROM site_settings`;
@@ -1303,7 +1312,10 @@ app.post('/api/settings', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- MERCADO PAGO - PIX -----
+// ============================================
+// ===== MERCADO PAGO - PIX =====
+// ============================================
+
 app.post('/api/create-pix-payment', async (req, res) => {
     try {
         const { amount, description, email, name, phone, cpf } = req.body;
@@ -1356,7 +1368,7 @@ app.post('/api/create-pix-payment', async (req, res) => {
     }
 });
 
-// ----- MERCADO PAGO - CARTÃO FALLBACK -----
+// ----- MERCADO PAGO - CARTÃO -----
 app.post('/api/create-card-payment-fallback', async (req, res) => {
     try {
         const { amount, description, email, name, phone, cpf, card_number, card_expiry, card_cvv, installments } = req.body;
@@ -1710,23 +1722,6 @@ app.post('/api/celulas/:id/decisoes', auth, async (req, res) => {
     }
 });
 
-app.get('/api/celulas/:id/estatisticas', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const resumo = await sql`
-            SELECT 
-                SUM(total_membros) as total_membros,
-                SUM(batizados) as total_batizados,
-                SUM(aceitaram_jesus) as total_decisoes
-            FROM celula_estatisticas 
-            WHERE celula_id = ${id}
-        `;
-        res.json({ resumo: resumo[0] || { total_membros: 0, total_batizados: 0, total_decisoes: 0 } });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
 async function atualizarEstatisticasCelula(celula_id) {
     try {
         const hoje = new Date().toISOString().split('T')[0];
@@ -1784,12 +1779,7 @@ app.post('/api/lives/start', auth, async (req, res) => {
             RETURNING *
         `;
 
-        await sql`
-            INSERT INTO notifications (type, title, message, link)
-            VALUES ('live', ${titulo || 'Live NJ Cabuçu'}, 'Transmissão ao vivo iniciada! Clique para assistir', '/')
-        `;
-
-        res.status(201).json({ ...result[0], message: 'Live iniciada com sucesso!' });
+        res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao iniciar live:', error);
         res.status(500).json({ error: error.message });
@@ -1866,27 +1856,6 @@ app.post('/api/lives/:id/viewer', async (req, res) => {
     }
 });
 
-app.post('/api/notify-live', async (req, res) => {
-    try {
-        const { live_id, titulo, status } = req.body;
-        console.log(`📢 Live ${status}: ${titulo} (ID: ${live_id})`);
-        res.json({ message: 'Notificação enviada' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/notifications', auth, async (req, res) => {
-    try {
-        const notificacoes = await sql`
-            SELECT * FROM notifications ORDER BY created_at DESC LIMIT 20
-        `;
-        res.json(notificacoes);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
 // ============================================
 // ===== SERVE HTML =====
 // ============================================
@@ -1920,5 +1889,6 @@ app.listen(PORT, () => {
     console.log('');
     console.log('💰 Mercado Pago: ' + (process.env.MP_ACCESS_TOKEN ? '✅ Configurado' : '⚠️ Não configurado'));
     console.log('📹 Sistema de Live: ✅ Configurado');
+    console.log('🎥 Reflexões do Pastor: ✅ Configurado');
     console.log('');
 });

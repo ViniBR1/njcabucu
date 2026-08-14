@@ -623,7 +623,7 @@
                 <button class="tab-btn" onclick="showTab('contas')"><i class="fas fa-receipt"></i> Contas</button>
                 <button class="tab-btn" onclick="showTab('celulas')"><i class="fas fa-users"></i> Células</button>
                 <button class="tab-btn" onclick="showTab('aniversariantes')"><i class="fas fa-birthday-cake"></i> Aniversários</button>
-                <button class="tab-btn" onclick="showTab('reflexoes')"><i class="fas fa-video"></i> Reflexões</button> <!-- NOVA ABA -->
+                <button class="tab-btn" onclick="showTab('reflexoes')"><i class="fas fa-video"></i> Reflexões</button>
                 <button class="tab-btn" onclick="showTab('sobre')"><i class="fas fa-info-circle"></i> Sobre Nós</button>
                 <button class="tab-btn" onclick="showTab('config')"><i class="fas fa-cog"></i> Config</button>
             </div>
@@ -1981,13 +1981,23 @@
                 return;
             }
             
+            // Valida se é link do YouTube
+            const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/;
+            if (!youtubeRegex.test(link)) {
+                showNotification('Link inválido! Use um link do YouTube.', 'error');
+                return;
+            }
+            
             try {
                 const res = await fetch('/api/pastor-reflections', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', ...getHeaders() },
                     body: JSON.stringify({ title, description, link })
                 });
-                if (!res.ok) throw new Error('Erro ao salvar');
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error || 'Erro ao salvar');
+                }
                 closeModal('reflectionModal');
                 loadReflectionsAdmin();
                 showNotification('✅ Reflexão salva com sucesso!', 'success');

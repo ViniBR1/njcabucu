@@ -1,3 +1,13 @@
+Vou corrigir todos os pontos:
+
+1. **Logo** - usando a imagem do GitHub com fallback
+2. **Contador** - posicionado acima do "Sobre Nós" (após o carrossel)
+3. **Carrossel** - ajustando para não cortar as imagens (object-fit: cover com altura fixa)
+4. **Ícones sociais** - corrigindo opacidade e visibilidade
+
+Aqui está o **index.html** completo com todas as correções:
+
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -195,17 +205,16 @@
         }
 
         /* ============================================
-           HERO (CARROSSEL - LARGURA TOTAL)
+           HERO (CARROSSEL - CORRIGIDO)
         ============================================ */
         .hero {
             margin-top: calc(var(--header-h) + 42px);
             position: relative;
-            width: 100vw;
-            left: 50%;
-            transform: translateX(-50%);
+            width: 100%;
             height: 480px;
             max-height: 600px;
             overflow: hidden;
+            border-radius: 0 0 24px 24px;
             background: #0a0a1a;
         }
         .hero-slides {
@@ -348,58 +357,6 @@
         }
 
         /* ============================================
-           CONTADOR REGRESSIVO
-        ============================================ */
-        .countdown-bar {
-            background: var(--primary-gradient);
-            padding: 0.6rem 1rem;
-            text-align: center;
-            color: #fff;
-            border-bottom: 2px solid rgba(255,255,255,0.1);
-        }
-        .countdown-bar .countdown-label {
-            font-size: 0.65rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            opacity: 0.8;
-        }
-        .countdown-bar .countdown-timer {
-            font-size: 1.2rem;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin-top: 0.1rem;
-        }
-        .countdown-bar .countdown-timer .time-block {
-            display: flex;
-            align-items: center;
-            gap: 0.2rem;
-            background: rgba(0,0,0,0.2);
-            padding: 0.1rem 0.8rem;
-            border-radius: var(--radius-sm);
-        }
-        .countdown-bar .countdown-timer .time-block .num {
-            font-size: 1.4rem;
-            font-weight: 900;
-            min-width: 30px;
-        }
-        .countdown-bar .countdown-timer .time-block .label {
-            font-size: 0.5rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            opacity: 0.7;
-        }
-        .countdown-bar .next-culto-label {
-            font-size: 0.7rem;
-            opacity: 0.85;
-            margin-top: 0.1rem;
-        }
-
-        /* ============================================
            LIVE BAR (compacta)
         ============================================ */
         .live-bar {
@@ -437,6 +394,65 @@
             transition: var(--transition);
         }
         .live-bar .btn-watch:hover { transform: scale(1.05); }
+
+        /* ============================================
+           CONTADOR REGRESSIVO (ACIMA DO SOBRE NÓS)
+        ============================================ */
+        .countdown-section {
+            max-width: var(--max-width);
+            margin: 1rem auto 1.5rem;
+            padding: 0 1rem;
+        }
+        .countdown-bar {
+            background: var(--primary-gradient);
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--radius);
+            text-align: center;
+            color: #fff;
+            box-shadow: var(--shadow);
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        .countdown-bar .countdown-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.85;
+            margin-bottom: 0.2rem;
+        }
+        .countdown-bar .countdown-timer {
+            font-size: 1.3rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+        .countdown-bar .countdown-timer .time-block {
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+            background: rgba(0,0,0,0.2);
+            padding: 0.1rem 0.8rem;
+            border-radius: var(--radius-sm);
+        }
+        .countdown-bar .countdown-timer .time-block .num {
+            font-size: 1.6rem;
+            font-weight: 900;
+            min-width: 30px;
+        }
+        .countdown-bar .countdown-timer .time-block .label {
+            font-size: 0.55rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            opacity: 0.7;
+        }
+        .countdown-bar .next-culto-label {
+            font-size: 0.75rem;
+            opacity: 0.85;
+            margin-top: 0.1rem;
+        }
 
         /* ============================================
            SERVIÇOS (links rápidos)
@@ -781,14 +797,14 @@
             color: var(--primary-light);
         }
         .footer p, .footer a {
-            opacity: 0.65;
+            opacity: 0.7;
             line-height: 1.6;
             font-size: 0.8rem;
             color: #fff;
             text-decoration: none;
             transition: var(--transition);
         }
-        .footer a:hover { opacity: 1; }
+        .footer a:hover { opacity: 1; color: #fff; }
         .footer .social-links {
             display: flex;
             gap: 0.5rem;
@@ -804,11 +820,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.1);
             text-decoration: none;
             transition: var(--transition);
+            opacity: 0.7;
         }
-        .footer .social-links a:hover { background: var(--primary); transform: translateY(-3px); }
+        .footer .social-links a:hover { 
+            background: var(--primary); 
+            transform: translateY(-3px); 
+            opacity: 1;
+        }
         .footer-bottom {
             text-align: center;
             padding-top: 1rem;
@@ -920,9 +941,6 @@
                 height: 280px;
                 border-radius: 0 0 16px 16px;
                 margin-top: calc(var(--header-h) + 36px);
-                width: 100vw;
-                left: 50%;
-                transform: translateX(-50%);
             }
             .hero-content h1 { font-size: 1.4rem; }
             .hero-content p { font-size: 0.8rem; }
@@ -932,6 +950,9 @@
             .services-quick .service-item .icon { font-size: 1.1rem; }
             .services-quick .service-item h4 { font-size: 0.55rem; }
             .services-quick .service-item p { display: none; }
+            .countdown-bar .countdown-timer { font-size: 1rem; gap: 0.4rem; }
+            .countdown-bar .countdown-timer .time-block .num { font-size: 1.2rem; min-width: 20px; }
+            .countdown-bar .countdown-timer .time-block { padding: 0.05rem 0.5rem; }
             .section { padding: 0 0.8rem; margin: 1.2rem auto; }
             .section-header h2 { font-size: 1.3rem; }
             .grid { grid-template-columns: 1fr; gap: 0.8rem; }
@@ -943,9 +964,6 @@
             .fab-prayer { bottom: 126px; right: 12px; }
             .fab-donation { bottom: 182px; right: 12px; }
             .fab .fab-label { display: none; }
-            .countdown-bar .countdown-timer { font-size: 1rem; gap: 0.5rem; }
-            .countdown-bar .countdown-timer .time-block .num { font-size: 1.1rem; min-width: 20px; }
-            .countdown-bar .countdown-timer .time-block { padding: 0.05rem 0.5rem; }
         }
         @media (max-width: 480px) {
             .hero { height: 220px; }
@@ -953,6 +971,8 @@
             .services-quick .services-grid { grid-template-columns: repeat(3, 1fr); }
             .services-quick .service-item .icon { font-size: 1rem; }
             .services-quick .service-item h4 { font-size: 0.5rem; }
+            .countdown-bar { padding: 0.5rem 0.8rem; }
+            .countdown-bar .countdown-timer .time-block .num { font-size: 1rem; }
         }
 
         /* ============================================
@@ -1268,21 +1288,7 @@
     </nav>
 
     <!-- ============================================
-    CONTADOR REGRESSIVO
-    ============================================ -->
-    <div class="countdown-bar" id="countdownBar">
-        <div class="countdown-label">📅 Próximo Culto</div>
-        <div class="countdown-timer" id="countdownTimer">
-            <span class="time-block"><span class="num" id="cdDays">0</span><span class="label">d</span></span>
-            <span class="time-block"><span class="num" id="cdHours">0</span><span class="label">h</span></span>
-            <span class="time-block"><span class="num" id="cdMinutes">0</span><span class="label">min</span></span>
-            <span class="time-block"><span class="num" id="cdSeconds">0</span><span class="label">s</span></span>
-        </div>
-        <div class="next-culto-label" id="nextCultoLabel">Domingo às 18:00</div>
-    </div>
-
-    <!-- ============================================
-    HERO (CARROSSEL - LARGURA TOTAL)
+    HERO (CARROSSEL - CORRIGIDO)
     ============================================ -->
     <section id="home" class="hero">
         <div class="hero-slides" id="heroSlides"></div>
@@ -1303,6 +1309,22 @@
         <div class="live-indicator"><i class="fas fa-circle"></i> AO VIVO</div>
         <div class="live-info"><strong id="liveBarTitle">Culto</strong> <span id="liveBarDesc">- Transmissão ao vivo</span></div>
         <button class="btn-watch" onclick="scrollToSection('live')">Assistir <i class="fas fa-chevron-right"></i></button>
+    </div>
+
+    <!-- ============================================
+    CONTADOR REGRESSIVO (ACIMA DO SOBRE NÓS)
+    ============================================ -->
+    <div class="countdown-section">
+        <div class="countdown-bar" id="countdownBar">
+            <div class="countdown-label">📅 Próximo Culto</div>
+            <div class="countdown-timer" id="countdownTimer">
+                <span class="time-block"><span class="num" id="cdDays">0</span><span class="label">d</span></span>
+                <span class="time-block"><span class="num" id="cdHours">0</span><span class="label">h</span></span>
+                <span class="time-block"><span class="num" id="cdMinutes">0</span><span class="label">min</span></span>
+                <span class="time-block"><span class="num" id="cdSeconds">0</span><span class="label">s</span></span>
+            </div>
+            <div class="next-culto-label" id="nextCultoLabel">Domingo às 18:00</div>
+        </div>
     </div>
 
     <!-- ============================================
@@ -1983,7 +2005,6 @@
                     diff = target - now;
                 }
                 
-                // Ajusta para o dia da semana correto
                 const dayDiff = (culto.dia - target.getDay() + 7) % 7;
                 if (dayDiff > 0) {
                     target.setDate(target.getDate() + dayDiff);
@@ -1996,7 +2017,6 @@
                 }
             }
 
-            // Fallback se não encontrar
             if (!nextCulto) {
                 const fallback = new Date(now);
                 fallback.setHours(18, 0, 0, 0);
@@ -2449,13 +2469,11 @@
                         body: JSON.stringify({ viewer_id: viewerId })
                     });
 
-                    // Tenta carregar o vídeo da live
                     const video = document.getElementById('remoteVideo');
                     if (data.stream_url) {
                         video.src = data.stream_url;
                         video.play().catch(() => {});
                     } else {
-                        // Fallback: tenta capturar a câmera ou usar vídeo de exemplo
                         try {
                             const stream = await navigator.mediaDevices.getUserMedia({
                                 video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
@@ -3776,3 +3794,4 @@
     </script>
 </body>
 </html>
+```

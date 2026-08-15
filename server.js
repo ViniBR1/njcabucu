@@ -69,7 +69,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const BASE_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
 
-// MIDDLEWARE
+// MIDDLEWARE - IMPORTANTE
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -270,6 +270,7 @@ async function initDB() {
     console.log('📝 Criando tabelas...');
     
     try {
+        // USERS
         await sql`CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -284,6 +285,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // DEPARTMENTS
         await sql`CREATE TABLE IF NOT EXISTS departments (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -302,6 +304,7 @@ async function initDB() {
             PRIMARY KEY (department_id, user_id)
         )`;
 
+        // STUDIES
         await sql`CREATE TABLE IF NOT EXISTS studies (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -312,6 +315,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // PRODUCTS
         await sql`CREATE TABLE IF NOT EXISTS products (
             id SERIAL PRIMARY KEY,
             name VARCHAR(200) NOT NULL,
@@ -324,6 +328,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // EVENTS
         await sql`CREATE TABLE IF NOT EXISTS events (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -335,6 +340,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // PRAYERS
         await sql`CREATE TABLE IF NOT EXISTS prayers (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100),
@@ -343,6 +349,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // ORDERS
         await sql`CREATE TABLE IF NOT EXISTS orders (
             id SERIAL PRIMARY KEY,
             user_name VARCHAR(100),
@@ -356,6 +363,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // REGISTRATIONS
         await sql`CREATE TABLE IF NOT EXISTS registrations (
             id SERIAL PRIMARY KEY,
             type VARCHAR(50) NOT NULL,
@@ -371,6 +379,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // DONATIONS
         await sql`CREATE TABLE IF NOT EXISTS donations (
             id SERIAL PRIMARY KEY,
             user_name VARCHAR(100),
@@ -384,6 +393,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // CAROUSEL
         await sql`CREATE TABLE IF NOT EXISTS carousel_images (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200),
@@ -396,6 +406,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // SITE SETTINGS
         await sql`CREATE TABLE IF NOT EXISTS site_settings (
             id SERIAL PRIMARY KEY,
             key VARCHAR(100) UNIQUE NOT NULL,
@@ -403,6 +414,7 @@ async function initDB() {
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // MEMBERS
         await sql`CREATE TABLE IF NOT EXISTS members (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -424,6 +436,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // ATTENDANCE
         await sql`CREATE TABLE IF NOT EXISTS attendance (
             id SERIAL PRIMARY KEY,
             member_id INTEGER REFERENCES members(id) ON DELETE CASCADE,
@@ -435,6 +448,7 @@ async function initDB() {
             UNIQUE(member_id, event_date, service_type)
         )`;
 
+        // TITHES
         await sql`CREATE TABLE IF NOT EXISTS tithes (
             id SERIAL PRIMARY KEY,
             member_id INTEGER REFERENCES members(id) ON DELETE SET NULL,
@@ -448,6 +462,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // BILLS
         await sql`CREATE TABLE IF NOT EXISTS bills (
             id SERIAL PRIMARY KEY,
             description VARCHAR(200) NOT NULL,
@@ -462,6 +477,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // BAPTISM DATES
         await sql`CREATE TABLE IF NOT EXISTS baptism_dates (
             id SERIAL PRIMARY KEY,
             date TIMESTAMP NOT NULL,
@@ -474,6 +490,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // CELULAS
         await sql`CREATE TABLE IF NOT EXISTS celulas (
             id SERIAL PRIMARY KEY,
             nome VARCHAR(100) NOT NULL,
@@ -519,6 +536,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // LIVES
         await sql`CREATE TABLE IF NOT EXISTS lives (
             id SERIAL PRIMARY KEY,
             titulo VARCHAR(200) NOT NULL,
@@ -540,6 +558,7 @@ async function initDB() {
             left_at TIMESTAMP
         )`;
 
+        // REFLEXOES
         await sql`CREATE TABLE IF NOT EXISTS pastor_reflections (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,

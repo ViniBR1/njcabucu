@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#0D47A1">
     <meta name="mobile-web-app-capable" content="yes">
     
-    <!-- Favicon -->
+    <!-- FAVICON -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛪</text></svg>">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -1919,7 +1919,6 @@
                     btn.href = 'https://wa.me/55' + settings.whatsapp;
                     document.getElementById('fabWhatsapp').href = 'https://wa.me/55' + settings.whatsapp;
                 }
-                // Carregar Sobre Nós
                 if (settings.about_mission) {
                     document.getElementById('aboutMissionText').textContent = settings.about_mission;
                 }
@@ -3363,7 +3362,6 @@
                     } else {
                         showNotification(`⏳ Pagamento ${payment.status}. Aguarde a confirmação.`, 'info');
                         
-                        // Mostra o resultado do pagamento
                         const resultDiv = document.getElementById('paymentResult');
                         resultDiv.style.display = 'block';
                         document.getElementById('paymentForm').style.display = 'none';

@@ -316,16 +316,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // BIRTHDAYS (mantido para compatibilidade)
-        await sql`CREATE TABLE IF NOT EXISTS birthdays (
-            id SERIAL PRIMARY KEY,
-            name VARCHAR(100) NOT NULL,
-            birth_date DATE NOT NULL,
-            phone VARCHAR(20),
-            is_active BOOLEAN DEFAULT true,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
         // BAPTISM DATES
         await sql`CREATE TABLE IF NOT EXISTS baptism_dates (
             id SERIAL PRIMARY KEY,
@@ -412,7 +402,7 @@ async function initDB() {
         )`;
 
         // ============================================
-        // ===== TABELA DE REFLEXÕES (NOVA) =====
+        // ===== TABELA DE REFLEXÕES =====
         // ============================================
         await sql`CREATE TABLE IF NOT EXISTS pastor_reflections (
             id SERIAL PRIMARY KEY,
@@ -425,6 +415,7 @@ async function initDB() {
 
         console.log('✅ Tabelas criadas');
 
+        // Criar pastor padrão
         const existing = await sql`SELECT * FROM users WHERE email = 'pastor@njcabucu.com'`;
         if (existing.length === 0) {
             const hash = await hashPassword('admin123');
@@ -1761,7 +1752,7 @@ async function atualizarEstatisticasCelula(celula_id) {
 }
 
 // ============================================
-// ===== ROTAS DE LIVES (apenas pastor) =====
+// ===== ROTAS DE LIVES (APENAS PASTOR) =====
 // ============================================
 
 app.post('/api/lives/start', auth, async (req, res) => {
@@ -1897,5 +1888,6 @@ app.listen(PORT, () => {
     console.log('💰 Mercado Pago: ' + (process.env.MP_ACCESS_TOKEN ? '✅ Configurado' : '⚠️ Não configurado'));
     console.log('📹 Sistema de Live: ✅ Configurado (apenas pastor)');
     console.log('🎥 Reflexões do Pastor: ✅ Configurado');
+    console.log('⏰ Horários dos Cultos: ✅ Configurado via site_settings');
     console.log('');
 });

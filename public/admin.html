@@ -1,9 +1,15 @@
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Admin - NJ Cabuçu</title>
+    
+    <!-- FAVICON -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛪</text></svg>">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -3164,6 +3170,415 @@
             checkLiveStatus();
         });
 
+        // ============================================
+        // ===== PROCESSAR PAGAMENTO (CORRIGIDO) =====
+        // ============================================
+        let paymentType = 'sale';
+        let donationType = '';
+        let _donationAmount = 0;
+        let cart = [];
+
+        async function processPayment() {
+            const name = document.getElementById('payName').value.trim();
+            const email = document.getElementById('payEmail').value.trim();
+            const phone = document.getElementById('payPhone').value.trim();
+            const cpf = document.getElementById('payCpf').value.trim();
+            const method = document.getElementById('payMethod').value;
+
+            if (!name || !email || !phone || !cpf) {
+                showNotification('Preencha todos os dados!', 'error');
+                return;
+            }
+
+            let amount = 0;
+            let description = '';
+
+            if (paymentType === 'sale') {
+                amount = cart.reduce((sum, p) => sum + parseFloat(p.price), 0);
+                description = 'Compra NJ Store';
+            } else if (paymentType === 'donation') {
+                amount = _donationAmount || 0;
+                description = donationType + ' - NJ Cabuçu';
+            }
+
+            if (amount <= 0) { showNotification('Valor inválido!', 'error'); return; }
+
+            if (!validarCPF(cpf)) {
+                showNotification('CPF inválido! Digite um CPF válido.', 'error');
+                return;
+            }
+
+            try {
+                showNotification('🔄 Processando pagamento...', 'info');
+
+                if (method === 'pix') {
+                    const paymentData = {
+                        amount: amount,
+                        description: description,
+                        email: email,
+                        name: name,
+                        phone: phone,
+                        cpf: cpf,
+                        paymentType: paymentType
+                    };
+
+                    const response = await fetch('/api/create-pix-payment', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(paymentData)
+                    });
+
+                    const payment = await response.json();
+                    if (payment.error) throw new Error(payment.error);
+
+                    await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'pix', description);
+
+                    const resultDiv = document.getElementById('paymentResult');
+                    resultDiv.style.display = 'block';
+                    document.getElementById('paymentForm').style.display = 'none';
+
+                    let qrHtml = `
+                        <h3 style="color:var(--primary);margin-bottom:0.4rem;">✅ Pagamento PIX Gerado</h3>
+                        <div style="text-align:center;padding:0.5rem;">
+                    `;
+
+                    if (payment.qr_code_base64) {
+                        qrHtml += `
+                            <img src="data:image/png;base64,${payment.qr_code_base64}" style="max-width:160px;margin:0 auto;display:block;border-radius:8px;">
+                            <p style="margin:0.3rem 0;font-size:0.75rem;">Escaneie o QR Code com seu banco</p>
+                        `;
+                    }
+
+                    if (payment.qr_code) {
+                        qrHtml += `
+                            <div style="background:#f4f6fc;padding:0.3rem;border-radius:8px;word-break:break-all;font-size:0.65rem;margin:0.3rem 0;border:1px solid #e0e0e0;">
+                                <strong>Código PIX:</strong><br>${payment.qr_code}
+                            </div>
+                            <button onclick="navigator.clipboard.writeText('${payment.qr_code}')" class="btn btn-primary btn-sm" style="margin:0.15rem;font-size:0.65rem;">
+                                <i class="fas fa-copy"></i> Copiar código
+                            </button>
+                        `;
+                    }
+
+                    qrHtml += `
+                        <a href="${payment.payment_link}" target="_blank" class="btn btn-success" style="margin:0.15rem;display:inline-flex;font-size:0.75rem;">
+                            <i class="fas fa-external-link-alt"></i> Abrir no Mercado Pago
+                        </a>
+                        <p style="margin-top:0.3rem;font-size:0.65rem;color:#888;">Status: <strong>${payment.status}</strong></p>
+                        <div style="display:flex;gap:0.4rem;justify-content:center;margin-top:0.3rem;flex-wrap:wrap;">
+                            <button onclick="checkPaymentStatus('${payment.payment_id}')" class="btn btn-primary btn-sm" style="font-size:0.65rem;">
+                                <i class="fas fa-sync"></i> Verificar Status
+                            </button>
+                            <button onclick="closeModal('paymentModal')" class="btn btn-sm btn-outline-light" style="border:2px solid #888;color:#888;background:transparent;padding:0.1rem 0.6rem;border-radius:50px;cursor:pointer;font-size:0.65rem;">
+                                <i class="fas fa-check"></i> Concluir
+                            </button>
+                        </div>
+                        <p style="margin-top:0.3rem;font-size:0.6rem;color:#999;">
+                            ⏳ Aguardando pagamento... A verificação é automática!
+                        </p>
+                    </div>
+                    `;
+
+                    resultDiv.innerHTML = qrHtml;
+                    localStorage.setItem('last_payment_id', payment.payment_id);
+                    verificarStatusAutomatico(payment.payment_id);
+
+                } else {
+                    // CARTÃO DE CRÉDITO - MODO REAL (CORRIGIDO)
+                    const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+                    const cardExpiry = document.getElementById('cardExpiry').value;
+                    const cardCvv = document.getElementById('cardCvv').value;
+                    const installments = document.getElementById('cardInstallments').value;
+
+                    if (!cardNumber || !cardExpiry || !cardCvv) {
+                        showNotification('Preencha os dados do cartão!', 'error');
+                        return;
+                    }
+
+                    if (cardNumber.length < 16) {
+                        showNotification('Número do cartão inválido (16 dígitos)', 'error');
+                        return;
+                    }
+                    if (!cardExpiry.includes('/') || cardExpiry.length < 5) {
+                        showNotification('Validade inválida (MM/AA)', 'error');
+                        return;
+                    }
+                    if (cardCvv.length < 3) {
+                        showNotification('CVV inválido (3 dígitos)', 'error');
+                        return;
+                    }
+
+                    const paymentData = {
+                        amount: amount,
+                        description: description,
+                        email: email,
+                        name: name,
+                        phone: phone,
+                        cpf: cpf,
+                        card_number: cardNumber,
+                        card_expiry: cardExpiry,
+                        card_cvv: cardCvv,
+                        installments: parseInt(installments)
+                    };
+
+                    const response = await fetch('/api/create-card-payment', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(paymentData)
+                    });
+
+                    const payment = await response.json();
+                    if (payment.error) throw new Error(payment.error);
+
+                    await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'card', description);
+
+                    if (payment.status === 'approved') {
+                        showNotification('✅ Pagamento aprovado! Obrigado! 🙏', 'success');
+                        cart = [];
+                        document.getElementById('cartCount').textContent = 0;
+                        closeModal('paymentModal');
+                    } else {
+                        showNotification(`⏳ Pagamento ${payment.status}. Aguarde a confirmação.`, 'info');
+                        
+                        const resultDiv = document.getElementById('paymentResult');
+                        resultDiv.style.display = 'block';
+                        document.getElementById('paymentForm').style.display = 'none';
+                        resultDiv.innerHTML = `
+                            <h3 style="color:var(--primary);margin-bottom:0.4rem;">💳 Pagamento Processado</h3>
+                            <p style="font-size:0.9rem;">Status: <strong>${payment.status}</strong></p>
+                            <p style="font-size:0.8rem;color:#888;">ID: ${payment.payment_id}</p>
+                            <div style="display:flex;gap:0.4rem;justify-content:center;margin-top:0.5rem;flex-wrap:wrap;">
+                                <button onclick="checkPaymentStatus('${payment.payment_id}')" class="btn btn-primary btn-sm" style="font-size:0.65rem;">
+                                    <i class="fas fa-sync"></i> Verificar Status
+                                </button>
+                                <button onclick="closeModal('paymentModal')" class="btn btn-sm btn-outline-light" style="border:2px solid #888;color:#888;background:transparent;padding:0.1rem 0.6rem;border-radius:50px;cursor:pointer;font-size:0.65rem;">
+                                    <i class="fas fa-check"></i> Concluir
+                                </button>
+                            </div>
+                            <p style="margin-top:0.5rem;font-size:0.6rem;color:#999;">⏳ Aguardando confirmação automática...</p>
+                        `;
+                        verificarStatusAutomatico(payment.payment_id);
+                    }
+                }
+
+            } catch (error) {
+                console.error('Erro no pagamento:', error);
+                showNotification('❌ Erro: ' + error.message, 'error');
+            }
+        }
+
+        // Funções auxiliares
+        function validarCPF(cpf) {
+            cpf = cpf.replace(/[^\d]/g, '');
+            if (cpf.length !== 11) return false;
+            if (/^(\d)\1{10}$/.test(cpf)) return false;
+
+            let soma = 0;
+            for (let i = 0; i < 9; i++) {
+                soma += parseInt(cpf.charAt(i)) * (10 - i);
+            }
+            let resto = 11 - (soma % 11);
+            if (resto === 10 || resto === 11) resto = 0;
+            if (resto !== parseInt(cpf.charAt(9))) return false;
+
+            soma = 0;
+            for (let i = 0; i < 10; i++) {
+                soma += parseInt(cpf.charAt(i)) * (11 - i);
+            }
+            resto = 11 - (soma % 11);
+            if (resto === 10 || resto === 11) resto = 0;
+            if (resto !== parseInt(cpf.charAt(10))) return false;
+
+            return true;
+        }
+
+        async function saveOrderOrDonation(name, email, phone, amount, paymentId, method, description) {
+            try {
+                if (paymentType === 'sale') {
+                    const itemsForOrder = cart.map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        price: parseFloat(item.price),
+                        quantity: 1
+                    }));
+
+                    await fetch('/api/orders', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            user_name: name,
+                            user_email: email,
+                            user_phone: phone,
+                            items: itemsForOrder,
+                            total: amount,
+                            payment_id: paymentId,
+                            payment_method: method,
+                            status: 'pending'
+                        })
+                    });
+                    cart = [];
+                    document.getElementById('cartCount').textContent = 0;
+                } else if (paymentType === 'donation') {
+                    await fetch('/api/donations', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            user_name: name,
+                            user_email: email,
+                            user_phone: phone,
+                            type: donationType,
+                            amount: amount,
+                            payment_id: paymentId,
+                            payment_method: method,
+                            status: 'pending'
+                        })
+                    });
+                }
+                console.log('✅ Registro salvo com sucesso!');
+            } catch (error) {
+                console.error('❌ Erro ao salvar:', error);
+            }
+        }
+
+        async function checkPaymentStatus(paymentId) {
+            try {
+                showNotification('🔄 Verificando status do pagamento...', 'info');
+
+                const response = await fetch(`/api/check-payment/${paymentId}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'approved') {
+                    showNotification('✅ Pagamento confirmado! Obrigado! 🙏', 'success');
+
+                    await fetch('/api/update-payment-status', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            payment_id: paymentId,
+                            status: 'approved'
+                        })
+                    });
+
+                    localStorage.removeItem('last_payment_id');
+
+                    if (statusCheckInterval) {
+                        clearInterval(statusCheckInterval);
+                        statusCheckInterval = null;
+                    }
+
+                    setTimeout(() => {
+                        closeModal('paymentModal');
+                        if (paymentType === 'sale') {
+                            cart = [];
+                            document.getElementById('cartCount').textContent = 0;
+                        }
+                    }, 2000);
+
+                    return true;
+                } else if (data.status === 'pending' || data.status === 'in_process') {
+                    showNotification('⏳ Pagamento ainda pendente. Aguarde...', 'info');
+                    return false;
+                } else if (data.status === 'rejected' || data.status === 'cancelled') {
+                    showNotification('❌ Pagamento recusado ou cancelado.', 'error');
+                    if (statusCheckInterval) {
+                        clearInterval(statusCheckInterval);
+                        statusCheckInterval = null;
+                    }
+                    return false;
+                } else {
+                    showNotification(`ℹ️ Status atual: ${data.status}`, 'info');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Erro ao verificar status:', error);
+                showNotification('❌ Erro ao verificar status: ' + error.message, 'error');
+                return null;
+            }
+        }
+
+        function verificarStatusAutomatico(paymentId) {
+            let tentativas = 0;
+            const maxTentativas = 12;
+
+            showNotification('🔄 Aguardando confirmação do pagamento...', 'info');
+
+            if (statusCheckInterval) {
+                clearInterval(statusCheckInterval);
+                statusCheckInterval = null;
+            }
+
+            statusCheckInterval = setInterval(async () => {
+                tentativas++;
+
+                try {
+                    const response = await fetch(`/api/check-payment/${paymentId}`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        if (tentativas >= maxTentativas) {
+                            clearInterval(statusCheckInterval);
+                            statusCheckInterval = null;
+                            showNotification('⏳ Tempo esgotado. Use o botão "Verificar Status" para checar.',
+                                'info');
+                        }
+                        return;
+                    }
+
+                    const data = await response.json();
+
+                    if (data.status === 'approved') {
+                        clearInterval(statusCheckInterval);
+                        statusCheckInterval = null;
+                        showNotification('✅ Pagamento confirmado! Obrigado! 🙏', 'success');
+
+                        await fetch('/api/update-payment-status', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                payment_id: paymentId,
+                                status: 'approved'
+                            })
+                        });
+
+                        localStorage.removeItem('last_payment_id');
+
+                        setTimeout(() => {
+                            closeModal('paymentModal');
+                            if (paymentType === 'sale') {
+                                cart = [];
+                                document.getElementById('cartCount').textContent = 0;
+                            }
+                        }, 1500);
+
+                    } else if (data.status === 'rejected' || data.status === 'cancelled') {
+                        clearInterval(statusCheckInterval);
+                        statusCheckInterval = null;
+                        showNotification('❌ Pagamento recusado ou cancelado.', 'error');
+                    }
+
+                } catch (error) {
+                    console.error('Erro na verificação automática:', error);
+                    if (tentativas >= maxTentativas) {
+                        clearInterval(statusCheckInterval);
+                        statusCheckInterval = null;
+                        showNotification(
+                            '⏳ Não foi possível confirmar automaticamente. Use o botão "Verificar Status".',
+                            'info');
+                    }
+                }
+            }, 5000);
+        }
+
         // Registra funções globalmente
         window.filterRegistrations = filterRegistrations;
         window.approveRegistration = approveRegistration;
@@ -3230,6 +3645,11 @@
         window.removeCulto = removeCulto;
         window.saveCultos = saveCultos;
         window.loadCultos = loadCultos;
+        window.processPayment = processPayment;
+        window.validarCPF = validarCPF;
+        window.saveOrderOrDonation = saveOrderOrDonation;
+        window.checkPaymentStatus = checkPaymentStatus;
+        window.verificarStatusAutomatico = verificarStatusAutomatico;
     </script>
 </body>
 </html>

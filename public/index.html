@@ -1,4 +1,6 @@
+Aqui está o index.html completo com o carrossel ajustado para não cortar a altura das imagens, usando object-fit: contain com fundo escuro, mantendo a largura total e a imagem inteira visível.
 
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -196,7 +198,7 @@
         }
 
         /* ============================================
-           HERO (CARROSSEL - CORRIGIDO)
+           HERO (CARROSSEL - IMAGEM INTEIRA)
         ============================================ */
         .hero {
             margin-top: calc(var(--header-h) + 42px);
@@ -206,7 +208,7 @@
             max-height: 600px;
             overflow: hidden;
             border-radius: 0 0 24px 24px;
-            background: #1a1a2e;
+            background: #0a0a1a;
         }
         .hero-slides {
             display: flex;
@@ -229,8 +231,9 @@
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
             object-position: center center;
+            background: #0a0a1a;
         }
         .hero-slide .overlay {
             position: absolute;
@@ -1206,7 +1209,7 @@
     </nav>
 
     <!-- ============================================
-    HERO (CARROSSEL - CORRIGIDO)
+    HERO (CARROSSEL)
     ============================================ -->
     <section id="home" class="hero">
         <div class="hero-slides" id="heroSlides"></div>

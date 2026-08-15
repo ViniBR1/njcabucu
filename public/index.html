@@ -1,4 +1,12 @@
+Aqui está o **index.html** completo com todas as correções:
 
+- Toolbar preta com logo branca
+- Carrossel corrigido (sem cortes)
+- Contador regressivo reduzido
+- Botão "Área Interna" no header
+- Ícones sociais visíveis no footer
+
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -787,14 +795,14 @@
             color: var(--primary-light);
         }
         .footer p, .footer a {
-            opacity: 0.65;
+            opacity: 0.7;
             line-height: 1.6;
             font-size: 0.8rem;
             color: #fff;
             text-decoration: none;
             transition: var(--transition);
         }
-        .footer a:hover { opacity: 1; }
+        .footer a:hover { opacity: 1; color: #fff; }
         .footer .social-links {
             display: flex;
             gap: 0.5rem;
@@ -810,11 +818,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.1);
             text-decoration: none;
             transition: var(--transition);
+            opacity: 0.8;
         }
-        .footer .social-links a:hover { background: var(--primary); transform: translateY(-3px); }
+        .footer .social-links a:hover { 
+            background: var(--primary); 
+            transform: translateY(-3px); 
+            opacity: 1;
+        }
         .footer-bottom {
             text-align: center;
             padding-top: 1rem;
@@ -2454,18 +2467,22 @@
                         body: JSON.stringify({ viewer_id: viewerId })
                     });
 
-                    try {
-                        const stream = await navigator.mediaDevices.getUserMedia({
-                            video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
-                            audio: true
-                        });
-                        const video = document.getElementById('remoteVideo');
-                        video.srcObject = stream;
-                        video.play();
-                    } catch (e) {
-                        const video = document.getElementById('remoteVideo');
-                        video.src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
-                        video.play();
+                    const video = document.getElementById('remoteVideo');
+                    if (data.stream_url) {
+                        video.src = data.stream_url;
+                        video.play().catch(() => {});
+                    } else {
+                        try {
+                            const stream = await navigator.mediaDevices.getUserMedia({
+                                video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+                                audio: true
+                            });
+                            video.srcObject = stream;
+                            video.play();
+                        } catch (e) {
+                            video.src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+                            video.play();
+                        }
                     }
 
                     if (liveIntervalCheck) clearInterval(liveIntervalCheck);
@@ -3775,3 +3792,4 @@
     </script>
 </body>
 </html>
+```

@@ -13,7 +13,7 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { MercadoPagoConfig, Payment, CardToken } = require('mercadopago');
+const { MercadoPagoConfig, Payment } = require('mercadopago');
 const nodemailer = require('nodemailer');
 
 // ============================================
@@ -30,8 +30,6 @@ console.log('✅ Conectado ao Neon Database');
 // ===== MERCADO PAGO =====
 // ============================================
 let PaymentService = null;
-let CardTokenService = null;
-
 try {
     if (process.env.MP_ACCESS_TOKEN) {
         const client = new MercadoPagoConfig({
@@ -39,7 +37,6 @@ try {
             options: { timeout: 30000 }
         });
         PaymentService = new Payment(client);
-        CardTokenService = new CardToken(client);
         console.log('✅ Mercado Pago configurado (MODO REAL)');
     }
 } catch (error) {
@@ -72,7 +69,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const BASE_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
 
-// MIDDLEWARE - IMPORTANTE: raw para webhook
+// MIDDLEWARE
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -86,6 +83,81 @@ app.use(cors({
 app.use(express.static('public'));
 app.use('/uploads', express.static('public/uploads'));
 app.use('/icons', express.static('public/icons'));
+
+// ============================================
+// ===== ROTA DE TESTE =====
+// ============================================
+app.get('/api/test', (req, res) => {
+    res.json({
+        status: 'ok',
+        message: 'Servidor NJ Cabuçu funcionando!',
+        timestamp: new Date().toISOString()
+    });
+});
+
+// ============================================
+// ===== WEBHOOK CORRIGIDO =====
+// ============================================
+app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+    try {
+        console.log('📝 Webhook recebido');
+        
+        let body = req.body;
+        if (Buffer.isBuffer(body)) {
+            body = JSON.parse(body.toString('utf8'));
+        }
+        
+        console.log('📦 Body:', JSON.stringify(body, null, 2));
+        
+        // Responde 200 imediatamente
+        res.status(200).json({ received: true });
+        
+        const { data, type } = body;
+        
+        if (type === 'payment' && data && data.id) {
+            const paymentId = data.id;
+            console.log(`✅ Pagamento ${paymentId} recebido!`);
+            
+            if (PaymentService) {
+                try {
+                    const payment = await PaymentService.get({ id: paymentId });
+                    console.log('📊 Status:', payment.status);
+                    
+                    if (payment.status === 'approved') {
+                        await sql`
+                            UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}
+                        `;
+                        await sql`
+                            UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}
+                        `;
+                        
+                        const orders = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
+                        const donations = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
+                        const item = orders[0] || donations[0];
+                        
+                        if (item && transporter) {
+                            await enviarComprovanteEmail(
+                                item.user_email || 'cliente@email.com',
+                                item.user_name || 'Cliente',
+                                item.amount || item.total || 0,
+                                new Date(),
+                                'approved',
+                                paymentId,
+                                item.type || 'Pagamento'
+                            );
+                        }
+                        
+                        console.log('✅ Pagamento aprovado e processado!');
+                    }
+                } catch (error) {
+                    console.error('❌ Erro ao processar webhook:', error);
+                }
+            }
+        }
+    } catch (error) {
+        console.error('❌ Erro geral webhook:', error);
+    }
+});
 
 // ============================================
 // ===== MULTER =====
@@ -146,59 +218,33 @@ async function enviarComprovanteEmail(email, nome, valor, data, status, paymentI
     const html = `
     <!DOCTYPE html>
     <html>
-    <head>
-        <meta charset="UTF-8">
-        <style>
-            body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; }
-            .header { background: #0D47A1; color: #fff; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
-            .header h1 { margin: 0; font-size: 24px; }
-            .header p { margin: 5px 0 0; opacity: 0.8; }
-            .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0; border-top: none; }
-            .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e0e0e0; }
-            .info-row:last-child { border-bottom: none; }
-            .label { font-weight: 600; color: #555; }
-            .value { font-weight: 500; }
-            .status { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: 700; background: ${statusColor}; color: #fff; }
-            .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #888; }
-        </style>
+    <head><meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; }
+        .header { background: #0D47A1; color: #fff; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .header p { margin: 5px 0 0; opacity: 0.8; }
+        .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0; border-top: none; }
+        .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e0e0e0; }
+        .info-row:last-child { border-bottom: none; }
+        .label { font-weight: 600; color: #555; }
+        .value { font-weight: 500; }
+        .status { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: 700; background: ${statusColor}; color: #fff; }
+        .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #888; }
+    </style>
     </head>
     <body>
-        <div class="header">
-            <h1>🙏 NJ Cabuçu</h1>
-            <p>Comprovante de ${tipo || 'Pagamento'}</p>
-        </div>
+        <div class="header"><h1>🙏 NJ Cabuçu</h1><p>Comprovante de ${tipo || 'Pagamento'}</p></div>
         <div class="content">
-            <div style="text-align: center; margin-bottom: 20px;">
-                <span class="status">${statusText}</span>
-            </div>
-            <div class="info-row">
-                <span class="label">Nome</span>
-                <span class="value">${nome}</span>
-            </div>
-            <div class="info-row">
-                <span class="label">E-mail</span>
-                <span class="value">${email}</span>
-            </div>
-            <div class="info-row">
-                <span class="label">Valor</span>
-                <span class="value">R$ ${parseFloat(valor).toFixed(2)}</span>
-            </div>
-            <div class="info-row">
-                <span class="label">Data</span>
-                <span class="value">${new Date(data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-            </div>
-            <div class="info-row">
-                <span class="label">ID do Pagamento</span>
-                <span class="value">${paymentId}</span>
-            </div>
-            <div class="info-row">
-                <span class="label">Tipo</span>
-                <span class="value">${tipo || 'Pagamento'}</span>
-            </div>
+            <div style="text-align:center;margin-bottom:20px;"><span class="status">${statusText}</span></div>
+            <div class="info-row"><span class="label">Nome</span><span class="value">${nome}</span></div>
+            <div class="info-row"><span class="label">E-mail</span><span class="value">${email}</span></div>
+            <div class="info-row"><span class="label">Valor</span><span class="value">R$ ${parseFloat(valor).toFixed(2)}</span></div>
+            <div class="info-row"><span class="label">Data</span><span class="value">${new Date(data).toLocaleDateString('pt-BR')}</span></div>
+            <div class="info-row"><span class="label">ID</span><span class="value">${paymentId}</span></div>
+            <div class="info-row"><span class="label">Tipo</span><span class="value">${tipo || 'Pagamento'}</span></div>
         </div>
-        <div class="footer">
-            <p>NJ Cabuçu - "E conhecereis a verdade, e a verdade vos libertará." (João 8:32)</p>
-        </div>
+        <div class="footer"><p>NJ Cabuçu - "E conhecereis a verdade, e a verdade vos libertará." (João 8:32)</p></div>
     </body>
     </html>
     `;
@@ -224,7 +270,6 @@ async function initDB() {
     console.log('📝 Criando tabelas...');
     
     try {
-        // USERS
         await sql`CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -239,7 +284,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // DEPARTMENTS
         await sql`CREATE TABLE IF NOT EXISTS departments (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -250,7 +294,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // DEPARTMENT MEMBERS
         await sql`CREATE TABLE IF NOT EXISTS department_members (
             department_id INTEGER,
             user_id INTEGER,
@@ -259,7 +302,6 @@ async function initDB() {
             PRIMARY KEY (department_id, user_id)
         )`;
 
-        // STUDIES
         await sql`CREATE TABLE IF NOT EXISTS studies (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -270,7 +312,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // PRODUCTS
         await sql`CREATE TABLE IF NOT EXISTS products (
             id SERIAL PRIMARY KEY,
             name VARCHAR(200) NOT NULL,
@@ -283,7 +324,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // EVENTS
         await sql`CREATE TABLE IF NOT EXISTS events (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -295,7 +335,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // PRAYERS
         await sql`CREATE TABLE IF NOT EXISTS prayers (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100),
@@ -304,7 +343,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // ORDERS
         await sql`CREATE TABLE IF NOT EXISTS orders (
             id SERIAL PRIMARY KEY,
             user_name VARCHAR(100),
@@ -318,7 +356,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // REGISTRATIONS
         await sql`CREATE TABLE IF NOT EXISTS registrations (
             id SERIAL PRIMARY KEY,
             type VARCHAR(50) NOT NULL,
@@ -334,7 +371,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // DONATIONS
         await sql`CREATE TABLE IF NOT EXISTS donations (
             id SERIAL PRIMARY KEY,
             user_name VARCHAR(100),
@@ -348,7 +384,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // CAROUSEL
         await sql`CREATE TABLE IF NOT EXISTS carousel_images (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200),
@@ -361,7 +396,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // SITE SETTINGS
         await sql`CREATE TABLE IF NOT EXISTS site_settings (
             id SERIAL PRIMARY KEY,
             key VARCHAR(100) UNIQUE NOT NULL,
@@ -369,7 +403,6 @@ async function initDB() {
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // MEMBERS
         await sql`CREATE TABLE IF NOT EXISTS members (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -391,7 +424,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // ATTENDANCE
         await sql`CREATE TABLE IF NOT EXISTS attendance (
             id SERIAL PRIMARY KEY,
             member_id INTEGER REFERENCES members(id) ON DELETE CASCADE,
@@ -403,7 +435,6 @@ async function initDB() {
             UNIQUE(member_id, event_date, service_type)
         )`;
 
-        // TITHES
         await sql`CREATE TABLE IF NOT EXISTS tithes (
             id SERIAL PRIMARY KEY,
             member_id INTEGER REFERENCES members(id) ON DELETE SET NULL,
@@ -417,7 +448,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // BILLS
         await sql`CREATE TABLE IF NOT EXISTS bills (
             id SERIAL PRIMARY KEY,
             description VARCHAR(200) NOT NULL,
@@ -432,7 +462,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // BAPTISM DATES
         await sql`CREATE TABLE IF NOT EXISTS baptism_dates (
             id SERIAL PRIMARY KEY,
             date TIMESTAMP NOT NULL,
@@ -445,7 +474,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // CELULAS
         await sql`CREATE TABLE IF NOT EXISTS celulas (
             id SERIAL PRIMARY KEY,
             nome VARCHAR(100) NOT NULL,
@@ -491,7 +519,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // LIVES
         await sql`CREATE TABLE IF NOT EXISTS lives (
             id SERIAL PRIMARY KEY,
             titulo VARCHAR(200) NOT NULL,
@@ -513,7 +540,6 @@ async function initDB() {
             left_at TIMESTAMP
         )`;
 
-        // REFLEXOES
         await sql`CREATE TABLE IF NOT EXISTS pastor_reflections (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -525,7 +551,6 @@ async function initDB() {
 
         console.log('✅ Tabelas criadas');
 
-        // Criar pastor padrão
         const existing = await sql`SELECT * FROM users WHERE email = 'pastor@njcabucu.com'`;
         if (existing.length === 0) {
             const hash = await hashPassword('admin123');
@@ -543,72 +568,6 @@ async function initDB() {
 }
 
 initDB();
-
-// ============================================
-// ===== WEBHOOK - MERCADO PAGO =====
-// ============================================
-app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
-    try {
-        console.log('📝 Webhook recebido');
-        
-        let body = req.body;
-        if (Buffer.isBuffer(body)) {
-            body = JSON.parse(body.toString('utf8'));
-        }
-        
-        console.log('📦 Body:', JSON.stringify(body, null, 2));
-        
-        // Responde 200 imediatamente
-        res.status(200).json({ received: true });
-        
-        const { data, type } = body;
-        
-        if (type === 'payment' && data && data.id) {
-            const paymentId = data.id;
-            console.log(`✅ Pagamento ${paymentId} recebido!`);
-            
-            if (PaymentService) {
-                try {
-                    const payment = await PaymentService.get({ id: paymentId });
-                    console.log('📊 Status:', payment.status);
-                    
-                    if (payment.status === 'approved') {
-                        // Atualiza pedidos
-                        await sql`
-                            UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}
-                        `;
-                        await sql`
-                            UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}
-                        `;
-                        
-                        // Busca dados para email
-                        const orders = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
-                        const donations = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
-                        const item = orders[0] || donations[0];
-                        
-                        if (item && transporter) {
-                            await enviarComprovanteEmail(
-                                item.user_email || 'cliente@email.com',
-                                item.user_name || 'Cliente',
-                                item.amount || item.total || 0,
-                                new Date(),
-                                'approved',
-                                paymentId,
-                                item.type || 'Pagamento'
-                            );
-                        }
-                        
-                        console.log('✅ Pagamento aprovado e processado!');
-                    }
-                } catch (error) {
-                    console.error('❌ Erro ao processar webhook:', error);
-                }
-            }
-        }
-    } catch (error) {
-        console.error('❌ Erro geral webhook:', error);
-    }
-});
 
 // ============================================
 // ===== ROTAS DE AUTENTICAÇÃO =====
@@ -673,7 +632,6 @@ app.post('/api/change-password', async (req, res) => {
 // ===== ROTAS DE PAGAMENTO =====
 // ============================================
 
-// ----- PIX -----
 app.post('/api/create-pix-payment', async (req, res) => {
     try {
         const { amount, description, email, name, phone, cpf } = req.body;
@@ -740,7 +698,6 @@ app.post('/api/create-card-payment', async (req, res) => {
             return res.status(400).json({ error: 'Valor inválido' });
         }
 
-        // Validações
         if (!card_number || card_number.replace(/\s/g, '').length < 16) {
             return res.status(400).json({ error: 'Número do cartão inválido' });
         }
@@ -812,7 +769,6 @@ app.post('/api/create-card-payment', async (req, res) => {
         const payment = await PaymentService.create(paymentData);
         console.log('✅ Pagamento criado:', payment.id, 'Status:', payment.status);
 
-        // Se o pagamento foi aprovado, enviar email
         if (payment.status === 'approved') {
             await enviarComprovanteEmail(
                 email,
@@ -846,7 +802,6 @@ app.get('/api/check-payment/:paymentId', async (req, res) => {
         }
         const payment = await PaymentService.get({ id: paymentId });
         
-        // Se aprovado, enviar email
         if (payment.status === 'approved') {
             const orders = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
             const donations = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
@@ -884,7 +839,6 @@ app.post('/api/update-payment-status', async (req, res) => {
             UPDATE donations SET status = ${status} WHERE payment_id = ${payment_id}
         `;
         
-        // Se aprovado, enviar email
         if (status === 'approved') {
             const orders = await sql`SELECT * FROM orders WHERE payment_id = ${payment_id}`;
             const donations = await sql`SELECT * FROM donations WHERE payment_id = ${payment_id}`;
@@ -2061,7 +2015,7 @@ app.post('/api/lives/:id/viewer', async (req, res) => {
 });
 
 // ============================================
-// ===== ROTAS DE PDF =====
+// ===== PDF =====
 // ============================================
 
 app.get('/api/registration-pdf/:id', async (req, res) => {

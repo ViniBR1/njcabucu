@@ -1362,21 +1362,21 @@
             <div class="line"></div>
             <p class="subtitle">Conheça a história e missão da NJ Cabuçu</p>
         </div>
-        <div class="grid" id="aboutGrid">
+        <div class="grid">
             <div class="card">
                 <div class="icon-wrapper"><i class="fas fa-heart"></i></div>
                 <h3>Nossa Missão</h3>
-                <p id="aboutMissionText">Levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.</p>
+                <p>Levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.</p>
             </div>
             <div class="card">
                 <div class="icon-wrapper"><i class="fas fa-bible"></i></div>
                 <h3>Nossa Visão</h3>
-                <p id="aboutVisionText">Ser uma igreja relevante, que transforma vidas e impacta a comunidade com o evangelho.</p>
+                <p>Ser uma igreja relevante, que transforma vidas e impacta a comunidade com o evangelho.</p>
             </div>
             <div class="card">
                 <div class="icon-wrapper"><i class="fas fa-hand-holding-heart"></i></div>
                 <h3>Nossos Valores</h3>
-                <p id="aboutValuesText">Amor, fé, esperança, serviço e comunhão. Vivemos os valores do Reino de Deus.</p>
+                <p>Amor, fé, esperança, serviço e comunhão. Vivemos os valores do Reino de Deus.</p>
             </div>
         </div>
     </section>
@@ -1431,7 +1431,7 @@
             <div class="line"></div>
             <p class="subtitle">Venha nos visitar e adorar a Deus conosco</p>
         </div>
-        <div class="schedule-grid" id="scheduleGrid">
+        <div class="schedule-grid">
             <div class="schedule-item">
                 <div class="day">Terça-feira</div>
                 <div class="time"><i class="fas fa-clock"></i> Consagração 09:00</div>
@@ -3198,7 +3198,7 @@
         }
 
         // ============================================
-        // ===== PROCESSAR PAGAMENTO =====
+        // ===== PROCESSAR PAGAMENTO (CORRIGIDO) =====
         // ============================================
         async function processPayment() {
             const name = document.getElementById('payName').value.trim();
@@ -3260,53 +3260,53 @@
                     document.getElementById('paymentForm').style.display = 'none';
 
                     let qrHtml = `
-                                <h3 style="color:var(--primary);margin-bottom:0.4rem;">✅ Pagamento PIX Gerado</h3>
-                                <div style="text-align:center;padding:0.5rem;">
-                            `;
+                        <h3 style="color:var(--primary);margin-bottom:0.4rem;">✅ Pagamento PIX Gerado</h3>
+                        <div style="text-align:center;padding:0.5rem;">
+                    `;
 
                     if (payment.qr_code_base64) {
                         qrHtml += `
-                                    <img src="data:image/png;base64,${payment.qr_code_base64}" style="max-width:160px;margin:0 auto;display:block;border-radius:8px;">
-                                    <p style="margin:0.3rem 0;font-size:0.75rem;">Escaneie o QR Code com seu banco</p>
-                                `;
+                            <img src="data:image/png;base64,${payment.qr_code_base64}" style="max-width:160px;margin:0 auto;display:block;border-radius:8px;">
+                            <p style="margin:0.3rem 0;font-size:0.75rem;">Escaneie o QR Code com seu banco</p>
+                        `;
                     }
 
                     if (payment.qr_code) {
                         qrHtml += `
-                                    <div style="background:#f4f6fc;padding:0.3rem;border-radius:8px;word-break:break-all;font-size:0.65rem;margin:0.3rem 0;border:1px solid #e0e0e0;">
-                                        <strong>Código PIX:</strong><br>${payment.qr_code}
-                                    </div>
-                                    <button onclick="navigator.clipboard.writeText('${payment.qr_code}')" class="btn btn-primary btn-sm" style="margin:0.15rem;font-size:0.65rem;">
-                                        <i class="fas fa-copy"></i> Copiar código
-                                    </button>
-                                `;
+                            <div style="background:#f4f6fc;padding:0.3rem;border-radius:8px;word-break:break-all;font-size:0.65rem;margin:0.3rem 0;border:1px solid #e0e0e0;">
+                                <strong>Código PIX:</strong><br>${payment.qr_code}
+                            </div>
+                            <button onclick="navigator.clipboard.writeText('${payment.qr_code}')" class="btn btn-primary btn-sm" style="margin:0.15rem;font-size:0.65rem;">
+                                <i class="fas fa-copy"></i> Copiar código
+                            </button>
+                        `;
                     }
 
                     qrHtml += `
-                                    <a href="${payment.payment_link}" target="_blank" class="btn btn-success" style="margin:0.15rem;display:inline-flex;font-size:0.75rem;">
-                                        <i class="fas fa-external-link-alt"></i> Abrir no Mercado Pago
-                                    </a>
-                                    <p style="margin-top:0.3rem;font-size:0.65rem;color:#888;">Status: <strong>${payment.status}</strong></p>
-                                    <div style="display:flex;gap:0.4rem;justify-content:center;margin-top:0.3rem;flex-wrap:wrap;">
-                                        <button onclick="checkPaymentStatus('${payment.payment_id}')" class="btn btn-primary btn-sm" style="font-size:0.65rem;">
-                                            <i class="fas fa-sync"></i> Verificar Status
-                                        </button>
-                                        <button onclick="closeModal('paymentModal')" class="btn btn-sm btn-outline-light" style="border:2px solid #888;color:#888;background:transparent;padding:0.1rem 0.6rem;border-radius:50px;cursor:pointer;font-size:0.65rem;">
-                                            <i class="fas fa-check"></i> Concluir
-                                        </button>
-                                    </div>
-                                    <p style="margin-top:0.3rem;font-size:0.6rem;color:#999;">
-                                        ⏳ Aguardando pagamento... A verificação é automática!
-                                    </p>
-                                </div>
-                            `;
+                        <a href="${payment.payment_link}" target="_blank" class="btn btn-success" style="margin:0.15rem;display:inline-flex;font-size:0.75rem;">
+                            <i class="fas fa-external-link-alt"></i> Abrir no Mercado Pago
+                        </a>
+                        <p style="margin-top:0.3rem;font-size:0.65rem;color:#888;">Status: <strong>${payment.status}</strong></p>
+                        <div style="display:flex;gap:0.4rem;justify-content:center;margin-top:0.3rem;flex-wrap:wrap;">
+                            <button onclick="checkPaymentStatus('${payment.payment_id}')" class="btn btn-primary btn-sm" style="font-size:0.65rem;">
+                                <i class="fas fa-sync"></i> Verificar Status
+                            </button>
+                            <button onclick="closeModal('paymentModal')" class="btn btn-sm btn-outline-light" style="border:2px solid #888;color:#888;background:transparent;padding:0.1rem 0.6rem;border-radius:50px;cursor:pointer;font-size:0.65rem;">
+                                <i class="fas fa-check"></i> Concluir
+                            </button>
+                        </div>
+                        <p style="margin-top:0.3rem;font-size:0.6rem;color:#999;">
+                            ⏳ Aguardando pagamento... A verificação é automática!
+                        </p>
+                    </div>
+                    `;
 
                     resultDiv.innerHTML = qrHtml;
                     localStorage.setItem('last_payment_id', payment.payment_id);
                     verificarStatusAutomatico(payment.payment_id);
 
                 } else {
-                    // CARTÃO DE CRÉDITO - MODO REAL
+                    // CARTÃO DE CRÉDITO - MODO REAL (CORRIGIDO)
                     const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
                     const cardExpiry = document.getElementById('cardExpiry').value;
                     const cardCvv = document.getElementById('cardCvv').value;

@@ -56,23 +56,22 @@
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 
         /* ============================================
-           HEADER
+           HEADER (TOOLBAR PRETA)
         ============================================ */
         .header {
-            background: rgba(255,255,255,0.96);
-            backdrop-filter: blur(14px);
+            background: #1a1a2e;
             padding: 0 1rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(13,71,161,0.06);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 1000;
             height: var(--header-h);
-            box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.3);
         }
         .logo {
             display: flex;
@@ -82,18 +81,19 @@
             cursor: pointer;
         }
         .logo img {
-            height: 36px;
+            height: 40px;
             width: auto;
+            filter: brightness(0) invert(1);
         }
         .logo span {
             font-weight: 800;
             font-size: 1.1rem;
-            color: var(--primary);
+            color: #fff;
         }
         .logo span small {
             font-weight: 400;
-            font-size: 0.6rem;
-            color: #888;
+            font-size: 0.55rem;
+            color: #aaa;
             display: block;
             margin-top: -2px;
         }
@@ -116,7 +116,7 @@
             text-decoration: none;
             font-family: var(--font);
             background: transparent;
-            color: var(--primary);
+            color: #fff;
         }
         .btn-primary {
             background: var(--primary-gradient);
@@ -124,12 +124,12 @@
             box-shadow: 0 3px 12px rgba(13,71,161,0.2);
         }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(13,71,161,0.3); }
-        .btn-outline {
+        .btn-outline-light {
             background: transparent;
-            color: var(--primary);
-            border: 2px solid var(--primary);
+            color: #fff;
+            border: 2px solid rgba(255,255,255,0.3);
         }
-        .btn-outline:hover { background: var(--primary); color: #fff; }
+        .btn-outline-light:hover { background: rgba(255,255,255,0.1); }
         .btn-whatsapp { background: #25D366; color: #fff; }
         .btn-whatsapp:hover { transform: translateY(-2px); }
         .btn-sm { padding: 0.15rem 0.6rem; font-size: 0.6rem; }
@@ -148,7 +148,7 @@
             background: none;
             border: none;
             font-size: 1.3rem;
-            color: var(--primary);
+            color: #fff;
             cursor: pointer;
             padding: 0.2rem;
         }
@@ -157,7 +157,7 @@
            NAVEGAÇÃO (mobile)
         ============================================ */
         .main-nav {
-            background: rgba(255,255,255,0.97);
+            background: rgba(26,26,46,0.97);
             backdrop-filter: blur(14px);
             padding: 0.3rem 1rem;
             display: flex;
@@ -169,7 +169,7 @@
             left: 0;
             right: 0;
             z-index: 999;
-            border-bottom: 1px solid rgba(0,0,0,0.04);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
             transition: var(--transition);
         }
         .main-nav.mobile-open {
@@ -184,10 +184,10 @@
             cursor: pointer;
             transition: var(--transition);
             font-size: 0.65rem;
-            color: #555;
+            color: #ccc;
             font-family: var(--font);
         }
-        .nav-btn:hover { color: var(--primary); background: var(--secondary); }
+        .nav-btn:hover { color: #fff; background: rgba(255,255,255,0.1); }
         .nav-btn.active {
             color: #fff;
             background: var(--primary-gradient);
@@ -195,16 +195,17 @@
         }
 
         /* ============================================
-           HERO (CARROSSEL - SEM CORTES)
+           HERO (CARROSSEL - LARGURA TOTAL)
         ============================================ */
         .hero {
             margin-top: calc(var(--header-h) + 42px);
             position: relative;
-            width: 100%;
+            width: 100vw;
+            left: 50%;
+            transform: translateX(-50%);
             height: 480px;
             max-height: 600px;
             overflow: hidden;
-            border-radius: 0 0 24px 24px;
             background: #0a0a1a;
         }
         .hero-slides {
@@ -228,7 +229,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
             object-position: center center;
             background: #0a0a1a;
         }
@@ -344,6 +345,58 @@
             display: none;
             animation: pulse-live 1.5s infinite;
             box-shadow: 0 4px 20px rgba(255,0,0,0.3);
+        }
+
+        /* ============================================
+           CONTADOR REGRESSIVO
+        ============================================ */
+        .countdown-bar {
+            background: var(--primary-gradient);
+            padding: 0.6rem 1rem;
+            text-align: center;
+            color: #fff;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+        .countdown-bar .countdown-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+        .countdown-bar .countdown-timer {
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 0.1rem;
+        }
+        .countdown-bar .countdown-timer .time-block {
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+            background: rgba(0,0,0,0.2);
+            padding: 0.1rem 0.8rem;
+            border-radius: var(--radius-sm);
+        }
+        .countdown-bar .countdown-timer .time-block .num {
+            font-size: 1.4rem;
+            font-weight: 900;
+            min-width: 30px;
+        }
+        .countdown-bar .countdown-timer .time-block .label {
+            font-size: 0.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            opacity: 0.7;
+        }
+        .countdown-bar .next-culto-label {
+            font-size: 0.7rem;
+            opacity: 0.85;
+            margin-top: 0.1rem;
         }
 
         /* ============================================
@@ -854,8 +907,8 @@
                 align-items: stretch;
                 padding: 0.3rem 0.6rem;
                 top: var(--header-h);
-                background: #fff;
-                border-bottom: 1px solid #eee;
+                background: #1a1a2e;
+                border-bottom: 1px solid rgba(255,255,255,0.04);
             }
             .main-nav.mobile-open {
                 display: flex;
@@ -867,6 +920,9 @@
                 height: 280px;
                 border-radius: 0 0 16px 16px;
                 margin-top: calc(var(--header-h) + 36px);
+                width: 100vw;
+                left: 50%;
+                transform: translateX(-50%);
             }
             .hero-content h1 { font-size: 1.4rem; }
             .hero-content p { font-size: 0.8rem; }
@@ -887,6 +943,9 @@
             .fab-prayer { bottom: 126px; right: 12px; }
             .fab-donation { bottom: 182px; right: 12px; }
             .fab .fab-label { display: none; }
+            .countdown-bar .countdown-timer { font-size: 1rem; gap: 0.5rem; }
+            .countdown-bar .countdown-timer .time-block .num { font-size: 1.1rem; min-width: 20px; }
+            .countdown-bar .countdown-timer .time-block { padding: 0.05rem 0.5rem; }
         }
         @media (max-width: 480px) {
             .hero { height: 220px; }
@@ -1156,19 +1215,19 @@
 <body>
 
     <!-- ============================================
-    HEADER
+    HEADER (TOOLBAR PRETA)
     ============================================ -->
     <header class="header" id="mainHeader">
         <a href="/" class="logo">
             <img src="https://raw.githubusercontent.com/ViniBR1/njcabucu/main/public/logo-nj.png" 
                  alt="NJ Cabuçu" 
                  id="logoImg"
-                 style="height:36px; width:auto;" 
+                 style="height:40px; width:auto;" 
                  onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='block'">
             <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAADU0lEQVR4nO2dT2gUURzHv5PZbJpsSNlUFtRDsUdBo2cqkoTtQRB6UirIvuTgqRfBQwRBD4KKGEgLgfTQFA/KogcRrSJ4UBHEP1AJhSzZ1JpN/jR7e6dP3s535n3nzpsPDGx/szvzmS/fvO/73o+ZzZFSBMdxOB1OQY1nKpVKERERnUwmU38pADKZjKIoKul0elXf7hBdPp9XRAQEQOKZz4qIdC6XC7sz7btbw7o1rLvnmVh9fZGOqFQqkRQolUoGZv39/QGSiUSAi8JLLUDn8/li6TsqFAoR35lMZucr8IUA/V2LxWJwGS2s2+Wyy+WyQfodQjq2fD4fXMblK5t8ISiKso2C6bUoiu37cD1i/k8sBAzD4Pz9fdR/fTX6jH4Bx/5QwDAHCDKZTOH8yb9wWDa0e1/jCgw7TRR2bMfIq23FkM/nI175crk8tVPG6HipCqMTZeh1+O6Qv7+/6D/95vL5fA5DIHLlx8wUjh7fMxfgePpcG28POeaDiI+nMXK0hc8pQQLB6pARwB6cMxwgo+Nl9JzqwPj5TuJzSgQCyQwOQuT41XrMPzEe2y7qGNTmAYmAwwCZnNn79gQyNLOcfhLf1HpEAneIoRliit+QaNf6eIP7HjEMmCEuSgCewh0yUisgmS+9fiOaiIifx6+OQX27G8bJbggEAhlsMdaJhFA3TYZmpn3/kRCYQwTBMs5nDQ4GJRtBwTEhghfJzuU7Wl5LcFACd4iI3FweX50H5Ap5QCKv+3T3AQFzhnxCc2zMckO1QsgBPF0g2Bm93pMvBHlAxHjhcWjTLhBJ0KEEkc7tvtO3VSRJ0B7PEJFEDop8IShHZHE4JHMwgQERkGf5eKZt5gsB2SFcjohIOp2+Dt9Ogr4/v+ucTkcKxWIxQHp6egJka5MmaUydTkdKpVLRJIlIpVKoBgKAxng8JinTNI3Pf7cN/Z2dnWn7AMjAvxqG8TEBnBiGcSwTnAAMw3hT3wExMTOjiRPHcQwwAI7jKAAzMUlhGEYvQH8nN+i5YRi9pH4Xgq2trS7Wyy8G4LgK9LqQnDnO2v4H0jOlbj5q1J0AAAAASUVORK5CYII=" 
                  alt="NJ Cabuçu" 
                  id="logoFallback"
-                 style="height:36px; width:auto; display:none;">
+                 style="height:40px; width:auto; display:none;">
             <span>NJ Cabuçu <small>Igreja</small></span>
         </a>
         <div class="header-actions">
@@ -1180,6 +1239,9 @@
             </a>
             <a href="https://wa.me/5521985345627" target="_blank" class="btn btn-whatsapp btn-sm" id="whatsappBtn">
                 <i class="fab fa-whatsapp"></i> <span>WhatsApp</span>
+            </a>
+            <a href="/login" class="btn btn-outline-light btn-sm" id="adminBtn">
+                <i class="fas fa-user"></i> <span>Área Interna</span>
             </a>
             <button class="menu-toggle" onclick="toggleMobileMenu()" aria-label="Menu">
                 <i class="fas fa-bars"></i>
@@ -1206,7 +1268,21 @@
     </nav>
 
     <!-- ============================================
-    HERO (CARROSSEL - SEM CORTES)
+    CONTADOR REGRESSIVO
+    ============================================ -->
+    <div class="countdown-bar" id="countdownBar">
+        <div class="countdown-label">📅 Próximo Culto</div>
+        <div class="countdown-timer" id="countdownTimer">
+            <span class="time-block"><span class="num" id="cdDays">0</span><span class="label">d</span></span>
+            <span class="time-block"><span class="num" id="cdHours">0</span><span class="label">h</span></span>
+            <span class="time-block"><span class="num" id="cdMinutes">0</span><span class="label">min</span></span>
+            <span class="time-block"><span class="num" id="cdSeconds">0</span><span class="label">s</span></span>
+        </div>
+        <div class="next-culto-label" id="nextCultoLabel">Domingo às 18:00</div>
+    </div>
+
+    <!-- ============================================
+    HERO (CARROSSEL - LARGURA TOTAL)
     ============================================ -->
     <section id="home" class="hero">
         <div class="hero-slides" id="heroSlides"></div>
@@ -1847,6 +1923,100 @@
         let baptismDatesList = [];
         let eventsList = [];
         let liveIntervalCheck = null;
+        let countdownInterval = null;
+        let cultosData = [];
+
+        // ============================================
+        // ===== CONTADOR REGRESSIVO =====
+        // ============================================
+        async function loadCultosFromServer() {
+            try {
+                const res = await fetch('/api/settings');
+                const settings = await res.json();
+                if (settings.cultos) {
+                    try {
+                        cultosData = JSON.parse(settings.cultos);
+                    } catch {
+                        cultosData = [
+                            { dia: 0, hora: 18, minuto: 0, label: 'Domingo 18:00' },
+                            { dia: 3, hora: 20, minuto: 0, label: 'Quarta 20:00' },
+                            { dia: 2, hora: 9, minuto: 0, label: 'Terça 09:00' }
+                        ];
+                    }
+                } else {
+                    cultosData = [
+                        { dia: 0, hora: 18, minuto: 0, label: 'Domingo 18:00' },
+                        { dia: 3, hora: 20, minuto: 0, label: 'Quarta 20:00' },
+                        { dia: 2, hora: 9, minuto: 0, label: 'Terça 09:00' }
+                    ];
+                }
+                startCountdown();
+            } catch (e) {
+                console.error('Erro ao carregar cultos:', e);
+                cultosData = [
+                    { dia: 0, hora: 18, minuto: 0, label: 'Domingo 18:00' },
+                    { dia: 3, hora: 20, minuto: 0, label: 'Quarta 20:00' },
+                    { dia: 2, hora: 9, minuto: 0, label: 'Terça 09:00' }
+                ];
+                startCountdown();
+            }
+        }
+
+        function startCountdown() {
+            if (countdownInterval) clearInterval(countdownInterval);
+            updateCountdown();
+            countdownInterval = setInterval(updateCountdown, 1000);
+        }
+
+        function updateCountdown() {
+            const now = new Date();
+            let nextCulto = null;
+            let minDiff = Infinity;
+
+            for (const culto of cultosData) {
+                let target = new Date(now);
+                target.setHours(culto.hora, culto.minuto, 0, 0);
+                
+                let diff = target - now;
+                if (diff < 0) {
+                    target.setDate(target.getDate() + 7);
+                    diff = target - now;
+                }
+                
+                // Ajusta para o dia da semana correto
+                const dayDiff = (culto.dia - target.getDay() + 7) % 7;
+                if (dayDiff > 0) {
+                    target.setDate(target.getDate() + dayDiff);
+                    diff = target - now;
+                }
+                
+                if (diff < minDiff && diff > 0) {
+                    minDiff = diff;
+                    nextCulto = { target, label: culto.label };
+                }
+            }
+
+            // Fallback se não encontrar
+            if (!nextCulto) {
+                const fallback = new Date(now);
+                fallback.setHours(18, 0, 0, 0);
+                if (fallback <= now) fallback.setDate(fallback.getDate() + 1);
+                nextCulto = { target: fallback, label: 'Domingo 18:00' };
+            }
+
+            const diff = Math.max(0, nextCulto.target - now);
+            
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('cdDays').textContent = String(days).padStart(2, '0');
+            document.getElementById('cdHours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('cdMinutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('cdSeconds').textContent = String(seconds).padStart(2, '0');
+            document.getElementById('nextCultoLabel').textContent = `📖 ${nextCulto.label}`;
+        }
 
         // ============================================
         // ===== HEADER SCROLL =====
@@ -2279,18 +2449,24 @@
                         body: JSON.stringify({ viewer_id: viewerId })
                     });
 
-                    try {
-                        const stream = await navigator.mediaDevices.getUserMedia({
-                            video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
-                            audio: true
-                        });
-                        const video = document.getElementById('remoteVideo');
-                        video.srcObject = stream;
-                        video.play();
-                    } catch (e) {
-                        const video = document.getElementById('remoteVideo');
-                        video.src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
-                        video.play();
+                    // Tenta carregar o vídeo da live
+                    const video = document.getElementById('remoteVideo');
+                    if (data.stream_url) {
+                        video.src = data.stream_url;
+                        video.play().catch(() => {});
+                    } else {
+                        // Fallback: tenta capturar a câmera ou usar vídeo de exemplo
+                        try {
+                            const stream = await navigator.mediaDevices.getUserMedia({
+                                video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+                                audio: true
+                            });
+                            video.srcObject = stream;
+                            video.play();
+                        } catch (e) {
+                            video.src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+                            video.play();
+                        }
                     }
 
                     if (liveIntervalCheck) clearInterval(liveIntervalCheck);
@@ -3526,6 +3702,7 @@
         // ============================================
         document.addEventListener('DOMContentLoaded', async () => {
             await loadSettings();
+            await loadCultosFromServer();
 
             const urlParams = new URLSearchParams(window.location.search);
             const status = urlParams.get('status');

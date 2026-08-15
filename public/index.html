@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -57,22 +56,23 @@
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 
         /* ============================================
-           HEADER (TOOLBAR PRETA)
+           HEADER
         ============================================ */
         .header {
-            background: #1a1a2e;
+            background: rgba(255,255,255,0.96);
+            backdrop-filter: blur(14px);
             padding: 0 1rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(13,71,161,0.06);
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 1000;
             height: var(--header-h);
-            box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 1px 8px rgba(0,0,0,0.04);
         }
         .logo {
             display: flex;
@@ -82,19 +82,18 @@
             cursor: pointer;
         }
         .logo img {
-            height: 40px;
+            height: 36px;
             width: auto;
-            filter: brightness(0) invert(1);
         }
         .logo span {
             font-weight: 800;
             font-size: 1.1rem;
-            color: #fff;
+            color: var(--primary);
         }
         .logo span small {
             font-weight: 400;
-            font-size: 0.55rem;
-            color: #aaa;
+            font-size: 0.6rem;
+            color: #888;
             display: block;
             margin-top: -2px;
         }
@@ -117,7 +116,7 @@
             text-decoration: none;
             font-family: var(--font);
             background: transparent;
-            color: #fff;
+            color: var(--primary);
         }
         .btn-primary {
             background: var(--primary-gradient);
@@ -125,12 +124,12 @@
             box-shadow: 0 3px 12px rgba(13,71,161,0.2);
         }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(13,71,161,0.3); }
-        .btn-outline-light {
+        .btn-outline {
             background: transparent;
-            color: #fff;
-            border: 2px solid rgba(255,255,255,0.3);
+            color: var(--primary);
+            border: 2px solid var(--primary);
         }
-        .btn-outline-light:hover { background: rgba(255,255,255,0.1); }
+        .btn-outline:hover { background: var(--primary); color: #fff; }
         .btn-whatsapp { background: #25D366; color: #fff; }
         .btn-whatsapp:hover { transform: translateY(-2px); }
         .btn-sm { padding: 0.15rem 0.6rem; font-size: 0.6rem; }
@@ -149,7 +148,7 @@
             background: none;
             border: none;
             font-size: 1.3rem;
-            color: #fff;
+            color: var(--primary);
             cursor: pointer;
             padding: 0.2rem;
         }
@@ -158,7 +157,7 @@
            NAVEGAÇÃO (mobile)
         ============================================ */
         .main-nav {
-            background: rgba(26,26,46,0.97);
+            background: rgba(255,255,255,0.97);
             backdrop-filter: blur(14px);
             padding: 0.3rem 1rem;
             display: flex;
@@ -170,7 +169,7 @@
             left: 0;
             right: 0;
             z-index: 999;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
+            border-bottom: 1px solid rgba(0,0,0,0.04);
             transition: var(--transition);
         }
         .main-nav.mobile-open {
@@ -185,10 +184,10 @@
             cursor: pointer;
             transition: var(--transition);
             font-size: 0.65rem;
-            color: #ccc;
+            color: #555;
             font-family: var(--font);
         }
-        .nav-btn:hover { color: #fff; background: rgba(255,255,255,0.1); }
+        .nav-btn:hover { color: var(--primary); background: var(--secondary); }
         .nav-btn.active {
             color: #fff;
             background: var(--primary-gradient);
@@ -196,14 +195,14 @@
         }
 
         /* ============================================
-           HERO (CARROSSEL - CORRIGIDO)
+           HERO (CARROSSEL - ALTURA MAIOR)
         ============================================ */
         .hero {
             margin-top: calc(var(--header-h) + 42px);
             position: relative;
             width: 100%;
-            height: 480px;
-            max-height: 600px;
+            height: 520px;
+            max-height: 650px;
             overflow: hidden;
             border-radius: 0 0 24px 24px;
             background: #0a0a1a;
@@ -387,69 +386,68 @@
         .live-bar .btn-watch:hover { transform: scale(1.05); }
 
         /* ============================================
-           CONTADOR REGRESSIVO (ACIMA DO SOBRE NÓS)
+           CONTADOR REGRESSIVO (REDUZIDO)
         ============================================ */
         .countdown-section {
             max-width: var(--max-width);
-            margin: 1rem auto 1.5rem;
+            margin: 0.8rem auto 1rem;
             padding: 0 1rem;
         }
         .countdown-bar {
             background: var(--primary-gradient);
-            padding: 0.8rem 1.5rem;
-            border-radius: var(--radius);
+            padding: 0.4rem 1rem;
+            border-radius: var(--radius-sm);
             text-align: center;
             color: #fff;
-            box-shadow: var(--shadow);
-            border: 2px solid rgba(255,255,255,0.1);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(255,255,255,0.08);
         }
         .countdown-bar .countdown-label {
-            font-size: 0.7rem;
+            font-size: 0.55rem;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            opacity: 0.85;
-            margin-bottom: 0.2rem;
+            letter-spacing: 1px;
+            opacity: 0.8;
+            margin-bottom: 0.1rem;
         }
         .countdown-bar .countdown-timer {
-            font-size: 1.3rem;
-            font-weight: 800;
-            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+            font-weight: 700;
             display: flex;
             justify-content: center;
-            gap: 0.8rem;
+            gap: 0.4rem;
             flex-wrap: wrap;
         }
         .countdown-bar .countdown-timer .time-block {
             display: flex;
             align-items: center;
-            gap: 0.2rem;
-            background: rgba(0,0,0,0.2);
-            padding: 0.1rem 0.8rem;
+            gap: 0.15rem;
+            background: rgba(0,0,0,0.15);
+            padding: 0.05rem 0.5rem;
             border-radius: var(--radius-sm);
         }
         .countdown-bar .countdown-timer .time-block .num {
-            font-size: 1.6rem;
-            font-weight: 900;
-            min-width: 30px;
+            font-size: 1rem;
+            font-weight: 800;
+            min-width: 20px;
         }
         .countdown-bar .countdown-timer .time-block .label {
-            font-size: 0.55rem;
+            font-size: 0.45rem;
             font-weight: 600;
             text-transform: uppercase;
             opacity: 0.7;
         }
         .countdown-bar .next-culto-label {
-            font-size: 0.75rem;
-            opacity: 0.85;
-            margin-top: 0.1rem;
+            font-size: 0.6rem;
+            opacity: 0.8;
+            margin-top: 0.05rem;
         }
 
         /* ============================================
            SERVIÇOS (links rápidos)
         ============================================ */
         .services-quick {
-            margin: 1rem auto 1.5rem;
+            margin: 0.8rem auto 1.2rem;
             max-width: var(--max-width);
             padding: 0 1rem;
         }
@@ -460,11 +458,11 @@
             text-align: center;
             background: #fff;
             border-radius: var(--radius-sm);
-            padding: 0.6rem 0.3rem;
+            padding: 0.4rem 0.2rem;
             box-shadow: var(--shadow-sm);
         }
         .services-quick .service-item {
-            padding: 0.4rem 0.1rem;
+            padding: 0.3rem 0.1rem;
             border-radius: var(--radius-sm);
             transition: var(--transition);
             cursor: pointer;
@@ -477,17 +475,17 @@
             transform: translateY(-2px);
         }
         .services-quick .service-item .icon {
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             color: var(--primary);
-            margin-bottom: 0.1rem;
+            margin-bottom: 0.05rem;
         }
         .services-quick .service-item h4 {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             font-weight: 600;
             margin: 0;
         }
         .services-quick .service-item p {
-            font-size: 0.5rem;
+            font-size: 0.45rem;
             color: #888;
             margin: 0;
         }
@@ -788,14 +786,14 @@
             color: var(--primary-light);
         }
         .footer p, .footer a {
-            opacity: 0.7;
+            opacity: 0.65;
             line-height: 1.6;
             font-size: 0.8rem;
             color: #fff;
             text-decoration: none;
             transition: var(--transition);
         }
-        .footer a:hover { opacity: 1; color: #fff; }
+        .footer a:hover { opacity: 1; }
         .footer .social-links {
             display: flex;
             gap: 0.5rem;
@@ -811,16 +809,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.06);
             text-decoration: none;
             transition: var(--transition);
-            opacity: 0.7;
         }
-        .footer .social-links a:hover { 
-            background: var(--primary); 
-            transform: translateY(-3px); 
-            opacity: 1;
-        }
+        .footer .social-links a:hover { background: var(--primary); transform: translateY(-3px); }
         .footer-bottom {
             text-align: center;
             padding-top: 1rem;
@@ -919,8 +912,8 @@
                 align-items: stretch;
                 padding: 0.3rem 0.6rem;
                 top: var(--header-h);
-                background: #1a1a2e;
-                border-bottom: 1px solid rgba(255,255,255,0.04);
+                background: #fff;
+                border-bottom: 1px solid #eee;
             }
             .main-nav.mobile-open {
                 display: flex;
@@ -929,7 +922,7 @@
             }
             .nav-btn { width: 100%; text-align: center; padding: 0.3rem; font-size: 0.65rem; }
             .hero {
-                height: 280px;
+                height: 300px;
                 border-radius: 0 0 16px 16px;
                 margin-top: calc(var(--header-h) + 36px);
             }
@@ -941,9 +934,9 @@
             .services-quick .service-item .icon { font-size: 1.1rem; }
             .services-quick .service-item h4 { font-size: 0.55rem; }
             .services-quick .service-item p { display: none; }
-            .countdown-bar .countdown-timer { font-size: 1rem; gap: 0.4rem; }
-            .countdown-bar .countdown-timer .time-block .num { font-size: 1.2rem; min-width: 20px; }
-            .countdown-bar .countdown-timer .time-block { padding: 0.05rem 0.5rem; }
+            .countdown-bar .countdown-timer { font-size: 0.8rem; gap: 0.2rem; }
+            .countdown-bar .countdown-timer .time-block .num { font-size: 0.9rem; min-width: 16px; }
+            .countdown-bar .countdown-timer .time-block { padding: 0.05rem 0.3rem; }
             .section { padding: 0 0.8rem; margin: 1.2rem auto; }
             .section-header h2 { font-size: 1.3rem; }
             .grid { grid-template-columns: 1fr; gap: 0.8rem; }
@@ -957,13 +950,13 @@
             .fab .fab-label { display: none; }
         }
         @media (max-width: 480px) {
-            .hero { height: 220px; }
+            .hero { height: 240px; }
             .hero-content h1 { font-size: 1.1rem; }
             .services-quick .services-grid { grid-template-columns: repeat(3, 1fr); }
             .services-quick .service-item .icon { font-size: 1rem; }
             .services-quick .service-item h4 { font-size: 0.5rem; }
-            .countdown-bar { padding: 0.5rem 0.8rem; }
-            .countdown-bar .countdown-timer .time-block .num { font-size: 1rem; }
+            .countdown-bar { padding: 0.3rem 0.6rem; }
+            .countdown-bar .countdown-timer .time-block .num { font-size: 0.8rem; }
         }
 
         /* ============================================
@@ -1226,19 +1219,19 @@
 <body>
 
     <!-- ============================================
-    HEADER (TOOLBAR PRETA)
+    HEADER
     ============================================ -->
     <header class="header" id="mainHeader">
         <a href="/" class="logo">
             <img src="https://raw.githubusercontent.com/ViniBR1/njcabucu/main/public/logo-nj.png" 
                  alt="NJ Cabuçu" 
                  id="logoImg"
-                 style="height:40px; width:auto;" 
+                 style="height:36px; width:auto;" 
                  onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='block'">
             <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAADU0lEQVR4nO2dT2gUURzHv5PZbJpsSNlUFtRDsUdBo2cqkoTtQRB6UirIvuTgqRfBQwRBD4KKGEgLgfTQFA/KogcRrSJ4UBHEP1AJhSzZ1JpN/jR7e6dP3s535n3nzpsPDGx/szvzmS/fvO/73o+ZzZFSBMdxOB1OQY1nKpVKERERnUwmU38pADKZjKIoKul0elXf7hBdPp9XRAQEQOKZz4qIdC6XC7sz7btbw7o1rLvnmVh9fZGOqFQqkRQolUoGZv39/QGSiUSAi8JLLUDn8/li6TsqFAoR35lMZucr8IUA/V2LxWJwGS2s2+Wyy+WyQfodQjq2fD4fXMblK5t8ISiKso2C6bUoiu37cD1i/k8sBAzD4Pz9fdR/fTX6jH4Bx/5QwDAHCDKZTOH8yb9wWDa0e1/jCgw7TRR2bMfIq23FkM/nI175crk8tVPG6HipCqMTZeh1+O6Qv7+/6D/95vL5fA5DIHLlx8wUjh7fMxfgePpcG28POeaDiI+nMXK0hc8pQQLB6pARwB6cMxwgo+Nl9JzqwPj5TuJzSgQCyQwOQuT41XrMPzEe2y7qGNTmAYmAwwCZnNn79gQyNLOcfhLf1HpEAneIoRliit+QaNf6eIP7HjEMmCEuSgCewh0yUisgmS+9fiOaiIifx6+OQX27G8bJbggEAhlsMdaJhFA3TYZmpn3/kRCYQwTBMs5nDQ4GJRtBwTEhghfJzuU7Wl5LcFACd4iI3FweX50H5Ap5QCKv+3T3AQFzhnxCc2zMckO1QsgBPF0g2Bm93pMvBHlAxHjhcWjTLhBJ0KEEkc7tvtO3VSRJ0B7PEJFEDop8IShHZHE4JHMwgQERkGf5eKZt5gsB2SFcjohIOp2+Dt9Ogr4/v+ucTkcKxWIxQHp6egJka5MmaUydTkdKpVLRJIlIpVKoBgKAxng8JinTNI3Pf7cN/Z2dnWn7AMjAvxqG8TEBnBiGcSwTnAAMw3hT3wExMTOjiRPHcQwwAI7jKAAzMUlhGEYvQH8nN+i5YRi9pH4Xgq2trS7Wyy8G4LgK9LqQnDnO2v4H0jOlbj5q1J0AAAAASUVORK5CYII=" 
                  alt="NJ Cabuçu" 
                  id="logoFallback"
-                 style="height:40px; width:auto; display:none;">
+                 style="height:36px; width:auto; display:none;">
             <span>NJ Cabuçu <small>Igreja</small></span>
         </a>
         <div class="header-actions">
@@ -1250,9 +1243,6 @@
             </a>
             <a href="https://wa.me/5521985345627" target="_blank" class="btn btn-whatsapp btn-sm" id="whatsappBtn">
                 <i class="fab fa-whatsapp"></i> <span>WhatsApp</span>
-            </a>
-            <a href="/login" class="btn btn-outline-light btn-sm" id="adminBtn">
-                <i class="fas fa-user"></i> <span>Área Interna</span>
             </a>
             <button class="menu-toggle" onclick="toggleMobileMenu()" aria-label="Menu">
                 <i class="fas fa-bars"></i>
@@ -1279,7 +1269,7 @@
     </nav>
 
     <!-- ============================================
-    HERO (CARROSSEL - CORRIGIDO)
+    HERO (CARROSSEL - ALTURA MAIOR)
     ============================================ -->
     <section id="home" class="hero">
         <div class="hero-slides" id="heroSlides"></div>
@@ -1303,7 +1293,7 @@
     </div>
 
     <!-- ============================================
-    CONTADOR REGRESSIVO (ACIMA DO SOBRE NÓS)
+    CONTADOR REGRESSIVO (REDUZIDO)
     ============================================ -->
     <div class="countdown-section">
         <div class="countdown-bar" id="countdownBar">
@@ -2460,22 +2450,18 @@
                         body: JSON.stringify({ viewer_id: viewerId })
                     });
 
-                    const video = document.getElementById('remoteVideo');
-                    if (data.stream_url) {
-                        video.src = data.stream_url;
-                        video.play().catch(() => {});
-                    } else {
-                        try {
-                            const stream = await navigator.mediaDevices.getUserMedia({
-                                video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
-                                audio: true
-                            });
-                            video.srcObject = stream;
-                            video.play();
-                        } catch (e) {
-                            video.src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
-                            video.play();
-                        }
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({
+                            video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+                            audio: true
+                        });
+                        const video = document.getElementById('remoteVideo');
+                        video.srcObject = stream;
+                        video.play();
+                    } catch (e) {
+                        const video = document.getElementById('remoteVideo');
+                        video.src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+                        video.play();
                     }
 
                     if (liveIntervalCheck) clearInterval(liveIntervalCheck);
@@ -3785,4 +3771,3 @@
     </script>
 </body>
 </html>
-```

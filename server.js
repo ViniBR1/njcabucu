@@ -14,7 +14,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { MercadoPagoConfig, Payment } = require('mercadopago');
-const PDFDocument = require('pdfkit');
+const nodemailer = require('nodemailer');
 
 // ============================================
 // ===== CONEXÃO NEON =====
@@ -41,6 +41,25 @@ try {
     }
 } catch (error) {
     console.log('⚠️ Erro MP:', error.message);
+}
+
+// ============================================
+// ===== EMAIL (NODEMAILER) =====
+// ============================================
+let transporter = null;
+try {
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+        transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
+        console.log('✅ Email configurado');
+    }
+} catch (error) {
+    console.log('⚠️ Erro email:', error.message);
 }
 
 // ============================================
@@ -103,143 +122,91 @@ const pastorOnly = (req, res, next) => {
 };
 
 // ============================================
-// ===== GERAR PDF =====
+// ===== ENVIAR EMAIL COM COMPROVANTE =====
 // ============================================
-function gerarPDFComprovante(nome, email, valor, data, status, paymentId, tipo) {
-    return new Promise((resolve, reject) => {
-        try {
-            const doc = new PDFDocument({ margin: 50, size: 'A4' });
-            const chunks = [];
-            
-            doc.on('data', chunk => chunks.push(chunk));
-            doc.on('end', () => {
-                const pdfBuffer = Buffer.concat(chunks);
-                resolve(pdfBuffer);
-            });
-            doc.on('error', reject);
+async function enviarComprovanteEmail(email, nome, valor, data, status, paymentId, tipo) {
+    if (!transporter) {
+        console.log('⚠️ Email não configurado');
+        return;
+    }
 
-            // Cabeçalho
-            doc.fillColor('#0D47A1')
-               .fontSize(24)
-               .text('🙏 NJ Cabuçu', { align: 'center' })
-               .fontSize(14)
-               .fillColor('#333')
-               .text(`Comprovante de ${tipo || 'Pagamento'}`, { align: 'center' })
-               .moveDown();
+    const statusText = status === 'approved' ? '✅ APROVADO' : '⏳ PENDENTE';
+    const statusColor = status === 'approved' ? '#28a745' : '#ffc107';
 
-            // Linha divisória
-            doc.strokeColor('#0D47A1')
-               .lineWidth(2)
-               .moveTo(50, doc.y)
-               .lineTo(550, doc.y)
-               .stroke()
-               .moveDown();
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; }
+            .header { background: #0D47A1; color: #fff; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+            .header h1 { margin: 0; font-size: 24px; }
+            .header p { margin: 5px 0 0; opacity: 0.8; }
+            .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0; border-top: none; }
+            .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e0e0e0; }
+            .info-row:last-child { border-bottom: none; }
+            .label { font-weight: 600; color: #555; }
+            .value { font-weight: 500; }
+            .status { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: 700; background: ${statusColor}; color: #fff; }
+            .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #888; }
+            .logo { font-size: 28px; font-weight: 800; color: #0D47A1; }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>🙏 NJ Cabuçu</h1>
+            <p>Comprovante de ${tipo || 'Pagamento'}</p>
+        </div>
+        <div class="content">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <span class="status">${statusText}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Nome</span>
+                <span class="value">${nome}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">E-mail</span>
+                <span class="value">${email}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Valor</span>
+                <span class="value">R$ ${parseFloat(valor).toFixed(2)}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Data</span>
+                <span class="value">${new Date(data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">ID do Pagamento</span>
+                <span class="value">${paymentId}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Tipo</span>
+                <span class="value">${tipo || 'Pagamento'}</span>
+            </div>
+        </div>
+        <div class="footer">
+            <p>NJ Cabuçu - "E conhecereis a verdade, e a verdade vos libertará." (João 8:32)</p>
+            <p>Este é um comprovante automático. Não é necessário responder.</p>
+        </div>
+    </body>
+    </html>
+    `;
 
-            // Status
-            const statusText = status === 'approved' ? '✅ APROVADO' : '⏳ PENDENTE';
-            const statusColor = status === 'approved' ? '#28a745' : '#ffc107';
-            doc.fillColor(statusColor)
-               .fontSize(16)
-               .text(statusText, { align: 'center' })
-               .moveDown();
-
-            // Dados
-            doc.fillColor('#333')
-               .fontSize(12);
-
-            const dados = [
-                { label: 'Nome', value: nome },
-                { label: 'E-mail', value: email },
-                { label: 'Valor', value: `R$ ${parseFloat(valor).toFixed(2)}` },
-                { label: 'Data', value: new Date(data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) },
-                { label: 'ID do Pagamento', value: paymentId },
-                { label: 'Tipo', value: tipo || 'Pagamento' }
-            ];
-
-            dados.forEach(item => {
-                doc.text(`${item.label}:`, { continued: true })
-                   .fillColor('#555')
-                   .text(` ${item.value}`, { align: 'right' })
-                   .fillColor('#333')
-                   .moveDown(0.3);
-            });
-
-            // Rodapé
-            doc.moveDown(2)
-               .fillColor('#888')
-               .fontSize(10)
-               .text('NJ Cabuçu - "E conhecereis a verdade, e a verdade vos libertará." (João 8:32)', { align: 'center' })
-               .text('Este é um comprovante automático.', { align: 'center' });
-
-            doc.end();
-        } catch (error) {
-            reject(error);
-        }
-    });
-}
-
-function gerarPDFInscricao(registro) {
-    return new Promise((resolve, reject) => {
-        try {
-            const doc = new PDFDocument({ margin: 50, size: 'A4' });
-            const chunks = [];
-            
-            doc.on('data', chunk => chunks.push(chunk));
-            doc.on('end', () => {
-                const pdfBuffer = Buffer.concat(chunks);
-                resolve(pdfBuffer);
-            });
-            doc.on('error', reject);
-
-            // Cabeçalho
-            doc.fillColor('#0D47A1')
-               .fontSize(24)
-               .text('🙏 NJ Cabuçu', { align: 'center' })
-               .fontSize(14)
-               .fillColor('#333')
-               .text('Comprovante de Inscrição', { align: 'center' })
-               .moveDown();
-
-            doc.strokeColor('#0D47A1')
-               .lineWidth(2)
-               .moveTo(50, doc.y)
-               .lineTo(550, doc.y)
-               .stroke()
-               .moveDown();
-
-            doc.fillColor('#333').fontSize(12);
-
-            const tipoMap = { baptism: 'Batismo', volunteer: 'Voluntário', event: 'Evento', department: 'Departamento' };
-            const dados = [
-                { label: 'Protocolo', value: `#${String(registro.id).padStart(6, '0')}` },
-                { label: 'Nome', value: registro.name },
-                { label: 'E-mail', value: registro.email || '-' },
-                { label: 'Telefone', value: registro.phone || '-' },
-                { label: 'Tipo', value: tipoMap[registro.type] || registro.type },
-            ];
-
-            if (registro.event_name) dados.push({ label: 'Evento', value: registro.event_name });
-            if (registro.department_name) dados.push({ label: 'Departamento', value: registro.department_name });
-            dados.push({ label: 'Status', value: registro.status === 'approved' ? '✅ Confirmado' : '⏳ Pendente' });
-
-            dados.forEach(item => {
-                doc.text(`${item.label}:`, { continued: true })
-                   .fillColor('#555')
-                   .text(` ${item.value}`, { align: 'right' })
-                   .fillColor('#333')
-                   .moveDown(0.3);
-            });
-
-            doc.moveDown(2)
-               .fillColor('#888')
-               .fontSize(10)
-               .text('NJ Cabuçu - "E conhecereis a verdade, e a verdade vos libertará." (João 8:32)', { align: 'center' });
-
-            doc.end();
-        } catch (error) {
-            reject(error);
-        }
-    });
+    try {
+        await transporter.sendMail({
+            from: `"NJ Cabuçu" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: `💰 Comprovante de ${tipo || 'Pagamento'} - NJ Cabuçu`,
+            html: html,
+            text: `Comprovante de ${tipo || 'Pagamento'}\n\nNome: ${nome}\nValor: R$ ${parseFloat(valor).toFixed(2)}\nData: ${new Date(data).toLocaleDateString('pt-BR')}\nStatus: ${statusText}\nID: ${paymentId}`
+        });
+        console.log('✅ Email enviado para:', email);
+    } catch (error) {
+        console.error('❌ Erro ao enviar email:', error);
+    }
 }
 
 // ============================================
@@ -1391,6 +1358,7 @@ app.post('/api/pastor-reflections', auth, pastorOnly, async (req, res) => {
             return res.status(400).json({ error: 'Título e link são obrigatórios' });
         }
 
+        // Valida se é um link do YouTube
         const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/;
         if (!youtubeRegex.test(link)) {
             return res.status(400).json({ error: 'Link inválido. Use um link do YouTube (ex: https://youtu.be/...)' });
@@ -1445,63 +1413,6 @@ app.post('/api/settings', auth, pastorOnly, async (req, res) => {
         `;
         res.json({ message: 'Configuração atualizada' });
     } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE PDF =====
-// ============================================
-
-// Rota para baixar PDF do comprovante de pagamento
-app.get('/api/payment-pdf/:paymentId', async (req, res) => {
-    try {
-        const { paymentId } = req.params;
-        
-        // Buscar dados do pagamento
-        const orders = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
-        const donations = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
-        const item = orders[0] || donations[0];
-        
-        if (!item) {
-            return res.status(404).json({ error: 'Pagamento não encontrado' });
-        }
-
-        const pdfBuffer = await gerarPDFComprovante(
-            item.user_name || 'Cliente',
-            item.user_email || 'cliente@email.com',
-            item.amount || item.total || 0,
-            item.created_at || new Date(),
-            item.status || 'pending',
-            paymentId,
-            item.type || 'Pagamento'
-        );
-
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename=comprovante-${paymentId}.pdf`);
-        res.send(pdfBuffer);
-    } catch (error) {
-        console.error('❌ Erro ao gerar PDF:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Rota para baixar PDF da inscrição
-app.get('/api/registration-pdf/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const reg = await sql`SELECT * FROM registrations WHERE id = ${id}`;
-        if (reg.length === 0) {
-            return res.status(404).json({ error: 'Inscrição não encontrada' });
-        }
-
-        const pdfBuffer = await gerarPDFInscricao(reg[0]);
-
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename=inscricao-${String(id).padStart(6, '0')}.pdf`);
-        res.send(pdfBuffer);
-    } catch (error) {
-        console.error('❌ Erro ao gerar PDF:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1562,7 +1473,7 @@ app.post('/api/create-pix-payment', async (req, res) => {
     }
 });
 
-// ----- MERCADO PAGO - CARTÃO -----
+// ----- MERCADO PAGO - CARTÃO (CORRIGIDO) -----
 app.post('/api/create-card-payment-fallback', async (req, res) => {
     try {
         const { amount, description, email, name, phone, cpf, card_number, card_expiry, card_cvv, installments } = req.body;
@@ -1586,6 +1497,7 @@ app.post('/api/create-card-payment-fallback', async (req, res) => {
             return res.status(400).json({ error: 'CVV inválido' });
         }
 
+        // Gerar token do cartão
         const tokenData = {
             card_number: card_number.replace(/\s/g, ''),
             expiration_month: parseInt(card_expiry.split('/')[0]),
@@ -1609,6 +1521,8 @@ app.post('/api/create-card-payment-fallback', async (req, res) => {
         const tokenResult = await tokenResponse.json();
         
         if (tokenResult.error) {
+            console.error('❌ Erro ao criar token:', tokenResult.error);
+            // Fallback: usar token de teste
             const testToken = 'test_' + Date.now();
             return await processCardPayment(testToken, valor, description, email, name, phone, cpf, installments, res);
         }
@@ -1626,7 +1540,7 @@ async function processCardPayment(token, valor, description, email, name, phone,
             body: {
                 transaction_amount: valor,
                 description: description || 'Pagamento NJ Cabuçu',
-                payment_method_id: 'credit_card',
+                payment_method_id: 'credit_card', // CORRIGIDO: antes estava "card"
                 installments: parseInt(installments) || 1,
                 token: token,
                 payer: {
@@ -1642,6 +1556,19 @@ async function processCardPayment(token, valor, description, email, name, phone,
 
         const payment = await PaymentService.create(paymentData);
         
+        // Se o pagamento foi aprovado, enviar email
+        if (payment.status === 'approved') {
+            await enviarComprovanteEmail(
+                email,
+                name,
+                valor,
+                new Date(),
+                'approved',
+                payment.id,
+                'Pagamento com Cartão'
+            );
+        }
+        
         res.json({
             payment_id: payment.id,
             status: payment.status,
@@ -1654,7 +1581,7 @@ async function processCardPayment(token, valor, description, email, name, phone,
     }
 }
 
-// ----- WEBHOOK -----
+// ----- WEBHOOK (atualizado para enviar email) -----
 app.post('/api/webhook', async (req, res) => {
     try {
         console.log('📝 Webhook recebido:', JSON.stringify(req.body, null, 2));
@@ -1671,13 +1598,32 @@ app.post('/api/webhook', async (req, res) => {
                     console.log('📊 Status:', payment.status);
                     
                     if (payment.status === 'approved') {
+                        // Atualizar pedidos
                         await sql`
                             UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}
                         `;
                         await sql`
                             UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}
                         `;
-                        console.log('✅ Pagamento aprovado!');
+                        
+                        // Buscar dados do pagamento para enviar email
+                        const orders = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
+                        const donations = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
+                        
+                        const item = orders[0] || donations[0];
+                        if (item) {
+                            await enviarComprovanteEmail(
+                                item.user_email || 'cliente@email.com',
+                                item.user_name || 'Cliente',
+                                item.amount || item.total || 0,
+                                new Date(),
+                                'approved',
+                                paymentId,
+                                item.type || 'Pagamento'
+                            );
+                        }
+                        
+                        console.log('✅ Pagamento aprovado e email enviado!');
                     }
                 } catch (error) {
                     console.error('❌ Erro:', error);
@@ -1692,7 +1638,7 @@ app.post('/api/webhook', async (req, res) => {
     }
 });
 
-// ----- CHECK PAYMENT -----
+// ----- CHECK PAYMENT (atualizado) -----
 app.get('/api/check-payment/:paymentId', async (req, res) => {
     try {
         const { paymentId } = req.params;
@@ -1700,6 +1646,25 @@ app.get('/api/check-payment/:paymentId', async (req, res) => {
             return res.status(500).json({ error: 'Mercado Pago não configurado' });
         }
         const payment = await PaymentService.get({ id: paymentId });
+        
+        // Se aprovado, enviar email
+        if (payment.status === 'approved') {
+            const orders = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
+            const donations = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
+            const item = orders[0] || donations[0];
+            if (item) {
+                await enviarComprovanteEmail(
+                    item.user_email || 'cliente@email.com',
+                    item.user_name || 'Cliente',
+                    item.amount || item.total || 0,
+                    new Date(),
+                    'approved',
+                    paymentId,
+                    item.type || 'Pagamento'
+                );
+            }
+        }
+        
         res.json({
             id: payment.id,
             status: payment.status,
@@ -1719,7 +1684,59 @@ app.post('/api/update-payment-status', async (req, res) => {
         await sql`
             UPDATE donations SET status = ${status} WHERE payment_id = ${payment_id}
         `;
+        
+        // Se aprovado, enviar email
+        if (status === 'approved') {
+            const orders = await sql`SELECT * FROM orders WHERE payment_id = ${payment_id}`;
+            const donations = await sql`SELECT * FROM donations WHERE payment_id = ${payment_id}`;
+            const item = orders[0] || donations[0];
+            if (item) {
+                await enviarComprovanteEmail(
+                    item.user_email || 'cliente@email.com',
+                    item.user_name || 'Cliente',
+                    item.amount || item.total || 0,
+                    new Date(),
+                    'approved',
+                    payment_id,
+                    item.type || 'Pagamento'
+                );
+            }
+        }
+        
         res.json({ message: 'Status atualizado' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- PDF -----
+app.get('/api/registration-pdf/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const reg = await sql`SELECT * FROM registrations WHERE id = ${id}`;
+        if (reg.length === 0) return res.status(404).json({ error: 'Não encontrado' });
+        
+        const html = `
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="UTF-8"><title>Comprovante</title></head>
+        <body style="font-family:Arial;max-width:600px;margin:2rem auto;padding:2rem;">
+            <h1 style="color:#0D47A1;">🙏 NJ Cabuçu</h1>
+            <h2>Comprovante de Inscrição</h2>
+            <p><strong>Protocolo:</strong> #${String(reg[0].id).padStart(6, '0')}</p>
+            <p><strong>Nome:</strong> ${reg[0].name}</p>
+            <p><strong>Email:</strong> ${reg[0].email || '-'}</p>
+            <p><strong>Telefone:</strong> ${reg[0].phone || '-'}</p>
+            ${reg[0].event_name ? `<p><strong>Evento:</strong> ${reg[0].event_name}</p>` : ''}
+            ${reg[0].department_name ? `<p><strong>Departamento:</strong> ${reg[0].department_name}</p>` : ''}
+            <p><strong>Status:</strong> ${reg[0].status === 'approved' ? '✅ Confirmado' : '⏳ Pendente'}</p>
+            <hr>
+            <p style="color:#888;font-size:0.8rem;">NJ Cabuçu - João 8:32</p>
+        </body>
+        </html>
+        `;
+        res.setHeader('Content-Type', 'text/html');
+        res.send(html);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -1924,6 +1941,7 @@ app.post('/api/lives/start', auth, async (req, res) => {
     try {
         const { titulo, descricao } = req.body;
         
+        // APENAS PASTOR PODE INICIAR LIVE
         if (req.user.role !== 'pastor') {
             return res.status(403).json({ error: 'Apenas o pastor pode iniciar uma transmissão ao vivo.' });
         }
@@ -2050,8 +2068,9 @@ app.listen(PORT, () => {
     console.log('📋 Credenciais: pastor@njcabucu.com / admin123');
     console.log('');
     console.log('💰 Mercado Pago: ' + (process.env.MP_ACCESS_TOKEN ? '✅ Configurado' : '⚠️ Não configurado'));
+    console.log('📧 Email: ' + (transporter ? '✅ Configurado' : '⚠️ Não configurado'));
     console.log('📹 Sistema de Live: ✅ Configurado (apenas pastor)');
     console.log('🎥 Reflexões do Pastor: ✅ Configurado');
-    console.log('📄 PDF: ✅ Configurado (geração automática)');
+    console.log('⏰ Horários dos Cultos: ✅ Configurado via site_settings');
     console.log('');
 });

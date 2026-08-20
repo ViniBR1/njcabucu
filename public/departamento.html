@@ -600,14 +600,16 @@
 <!-- MODAIS -->
 <!-- ========================================================== -->
 
-<!-- Adicionar Membro -->
+<!-- Adicionar Membro (com seletor de usuários) -->
 <div class="modal" id="addMemberModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('addMemberModal')">&times;</button>
         <h3><i class="fas fa-user-plus"></i> Adicionar Membro</h3>
         <div class="form-group">
-            <label>E-mail do Membro *</label>
-            <input type="email" id="newMemberEmail" placeholder="email@exemplo.com">
+            <label>Selecione o Usuário *</label>
+            <select id="newMemberUserSelect">
+                <option value="">Carregando usuários...</option>
+            </select>
         </div>
         <div class="form-group">
             <label>Função</label>
@@ -1907,7 +1909,7 @@
     }
 
     // ================================================
-    // GERENCIAR MEMBROS (líder)
+    // GERENCIAR MEMBROS (líder) - com seletor de usuários
     // ================================================
     async function loadMembers() {
         try {
@@ -1947,31 +1949,56 @@
         }
     }
 
-    function openAddMemberModal() {
-        document.getElementById('newMemberEmail').value = '';
+    async function openAddMemberModal() {
+        // Carrega a lista de usuários que NÃO estão no departamento
+        try {
+            const res = await fetch('/api/users', { headers: getHeaders() });
+            const allUsers = await res.json();
+            
+            // Filtra os usuários que já são membros deste departamento
+            const memberIds = members.map(m => m.id);
+            const availableUsers = allUsers.filter(u => !memberIds.includes(u.id) && u.id !== user.id);
+            
+            const select = document.getElementById('newMemberUserSelect');
+            select.innerHTML = '<option value="">Selecione um usuário</option>';
+            availableUsers.forEach(u => {
+                select.innerHTML += `<option value="${u.id}">${u.name} (${u.email})</option>`;
+            });
+            if (availableUsers.length === 0) {
+                select.innerHTML = '<option value="">Nenhum usuário disponível</option>';
+            }
+        } catch (e) {
+            console.error('Erro ao carregar usuários:', e);
+            document.getElementById('newMemberUserSelect').innerHTML = '<option value="">Erro ao carregar</option>';
+        }
+        
         document.getElementById('newMemberRole').value = 'membro';
         openModal('addMemberModal');
     }
 
     async function addMember() {
-        const email = document.getElementById('newMemberEmail').value.trim();
+        const userId = document.getElementById('newMemberUserSelect').value;
         const role = document.getElementById('newMemberRole').value;
-        if (!email) { showNotification('Digite o e-mail do membro!', 'error'); return; }
+        
+        if (!userId) {
+            showNotification('Selecione um usuário!', 'error');
+            return;
+        }
 
         try {
+            // Primeiro, obtém o nome do usuário para a notificação
             const res = await fetch('/api/users', { headers: getHeaders() });
             const users = await res.json();
-            const found = users.find(u => u.email === email);
-            if (!found) { showNotification('Usuário não encontrado!', 'error'); return; }
-
+            const selectedUser = users.find(u => u.id == userId);
+            
             await fetch(`/api/departments/${user.department_id}/members`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...getHeaders() },
-                body: JSON.stringify({ user_id: found.id, role: role })
+                body: JSON.stringify({ user_id: userId, role: role })
             });
 
             closeModal('addMemberModal');
-            showNotification(`✅ ${found.name} adicionado como ${role}!`, 'success');
+            showNotification(`✅ ${selectedUser?.name || 'Usuário'} adicionado como ${role}!`, 'success');
             loadMembers();
             loadTeam();
         } catch (e) {

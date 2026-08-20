@@ -1292,22 +1292,25 @@ app.put('/api/worship-scales/:id/songs', auth, async (req, res) => {
 
 app.post('/api/availability', auth, async (req, res) => {
     try {
-        const { user_id, date, department_id } = req.body;
+        console.log('📝 Recebendo requisição de disponibilidade:', req.body);
         
-        console.log('📝 Recebendo disponibilidade:', { user_id, date, department_id });
+        const { user_id, date, department_id } = req.body;
 
         if (!user_id || !date) {
+            console.log('❌ Campos obrigatórios faltando:', { user_id, date });
             return res.status(400).json({ error: 'Usuário e data são obrigatórios' });
         }
 
         // Se não veio department_id, usa o do usuário logado
         let deptId = department_id || req.user.department_id;
         if (!deptId) {
+            console.log('❌ Departamento não informado');
             return res.status(400).json({ error: 'Departamento não informado' });
         }
 
-        // Converte a data para o formato correto (YYYY-MM-DD)
+        // Formata a data para YYYY-MM-DD
         const formattedDate = new Date(date).toISOString().split('T')[0];
+        console.log('📅 Data formatada:', formattedDate);
 
         // Verifica se já existe
         const existing = await sql`
@@ -1316,6 +1319,7 @@ app.post('/api/availability', auth, async (req, res) => {
         `;
 
         if (existing.length > 0) {
+            console.log('⚠️ Data já cadastrada:', formattedDate);
             return res.status(400).json({ error: 'Data já cadastrada' });
         }
 
@@ -1325,24 +1329,28 @@ app.post('/api/availability', auth, async (req, res) => {
             RETURNING *
         `;
         
-        console.log('✅ Disponibilidade salva:', result[0]);
+        console.log('✅ Disponibilidade salva com sucesso:', result[0]);
         res.status(201).json({ message: 'Disponibilidade adicionada', data: result[0] });
     } catch (error) {
         console.error('❌ Erro ao adicionar disponibilidade:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: error.message, stack: error.stack });
     }
 });
 
 app.get('/api/availability/:userId', auth, async (req, res) => {
     try {
         const userId = req.params.userId;
+        console.log(`📝 Buscando disponibilidade para usuário ${userId}`);
+        
         const availability = await sql`
             SELECT * FROM availability 
             WHERE user_id = ${userId} 
             ORDER BY date ASC
         `;
+        console.log(`✅ Encontrados ${availability.length} registros`);
         res.json(availability);
     } catch (error) {
+        console.error('❌ Erro ao buscar disponibilidade:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1350,9 +1358,13 @@ app.get('/api/availability/:userId', auth, async (req, res) => {
 app.delete('/api/availability/:id', auth, async (req, res) => {
     try {
         const { id } = req.params;
+        console.log(`📝 Removendo disponibilidade ${id}`);
+        
         await sql`DELETE FROM availability WHERE id = ${id}`;
+        console.log('✅ Disponibilidade removida');
         res.json({ message: 'Disponibilidade removida' });
     } catch (error) {
+        console.error('❌ Erro ao remover disponibilidade:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1361,6 +1373,7 @@ app.get('/api/availability/date/:date', auth, async (req, res) => {
     try {
         const { date } = req.params;
         const { department_id } = req.query;
+        console.log(`📝 Buscando disponíveis para data ${date}, departamento ${department_id}`);
 
         let query = `
             SELECT u.id, u.name, u.email 
@@ -1374,6 +1387,7 @@ app.get('/api/availability/date/:date', auth, async (req, res) => {
             params.push(department_id);
         }
         const available = await sql(query, params);
+        console.log(`✅ Encontrados ${available.length} disponíveis`);
         res.json(available);
     } catch (error) {
         console.error('❌ Erro ao buscar disponíveis:', error);
@@ -1388,6 +1402,10 @@ app.get('/api/availability/date/:date', auth, async (req, res) => {
 app.get('/api/availability/date/:date/department/:deptId', auth, async (req, res) => {
     try {
         const { date, deptId } = req.params;
+        console.log(`📝 Buscando disponíveis para data ${date}, departamento ${deptId}`);
+
+        // Formata a data para YYYY-MM-DD
+        const formattedDate = new Date(date).toISOString().split('T')[0];
         
         const available = await sql`
             SELECT u.id, u.name, u.email, u.phone, u.role, dm.role as member_role
@@ -1399,6 +1417,7 @@ app.get('/api/availability/date/:date/department/:deptId', auth, async (req, res
             AND dm.department_id = $2
             ORDER BY u.name
         `;
+        console.log(`✅ Encontrados ${available.length} membros disponíveis`);
         res.json(available);
     } catch (error) {
         console.error('❌ Erro ao buscar disponíveis:', error);

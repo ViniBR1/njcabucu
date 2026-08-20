@@ -6,7 +6,6 @@
     <title>Departamento - NJ Cabuçu</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* ===== ESTILOS ===== */
         * { margin:0; padding:0; box-sizing:border-box; }
         :root {
             --primary: #0D47A1;
@@ -1152,7 +1151,7 @@
     }
 
     // ================================================
-    // DISPONIBILIDADE (Membro)
+    // DISPONIBILIDADE (Membro) - CORRIGIDA
     // ================================================
     function generateDateSelector() {
         const container = document.getElementById('dateSelectorGrid');
@@ -1197,23 +1196,48 @@
             showNotification('⚠️ Selecione pelo menos uma data!', 'error');
             return;
         }
+
         try {
             let successCount = 0;
+            let errorMessages = [];
+
             for (const date of selectedAvailabilityDates) {
                 try {
-                    await fetch('/api/availability', {
+                    const response = await fetch('/api/availability', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', ...getHeaders() },
-                        body: JSON.stringify({ user_id: user.id, date: date + 'T00:00:00', department_id: user.department_id })
+                        body: JSON.stringify({
+                            user_id: user.id,
+                            date: date,
+                            department_id: user.department_id
+                        })
                     });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Erro ao salvar');
+                    }
+
                     successCount++;
-                } catch (e) {}
+                    console.log(`✅ Data ${date} salva com sucesso`);
+                } catch (e) {
+                    console.error(`❌ Erro ao salvar data ${date}:`, e);
+                    errorMessages.push(`${date}: ${e.message}`);
+                }
             }
-            showNotification(`✅ ${successCount} datas adicionadas!`, 'success');
+
+            if (successCount > 0) {
+                showNotification(`✅ ${successCount} datas adicionadas! ${errorMessages.length > 0 ? '⚠️ ' + errorMessages.length + ' erros' : ''}`, 'success');
+            } else {
+                showNotification(`❌ Nenhuma data foi salva. Erros: ${errorMessages.join('; ')}`, 'error');
+            }
+
             selectedAvailabilityDates = [];
             generateDateSelector();
             loadAvailability();
         } catch (e) {
+            console.error('❌ Erro geral:', e);
             showNotification('❌ Erro: ' + e.message, 'error');
         }
     }
@@ -1277,9 +1301,7 @@
                 `).join('');
             }
 
-            // Atualiza os selects com base nos disponíveis
             updateScaleSelects();
-
         } catch (e) {
             console.error('Erro ao carregar disponíveis:', e);
             document.getElementById('availableMembersList').innerHTML = '<p style="color:#dc3545;font-size:0.8rem;text-align:center;">Erro ao carregar</p>';
@@ -1289,7 +1311,6 @@
     function updateScaleSelects() {
         const availableIds = availableMembers.map(m => m.id);
         
-        // Ministros disponíveis
         const ministerSelect = document.getElementById('scaleMinister');
         const ministersList = members.filter(m => 
             (m.member_role === 'ministro' || m.member_role === 'lider') && 
@@ -1300,7 +1321,6 @@
             ministerSelect.innerHTML += `<option value="${m.id}">${m.name} ✅ Disponível</option>`;
         });
 
-        // Músicos disponíveis
         const musiciansSelect = document.getElementById('scaleMusicians');
         const musiciansList = members.filter(m => 
             (m.member_role === 'musico' || m.member_role === 'lider') && 
@@ -1321,7 +1341,6 @@
         document.getElementById('createScaleForm').scrollIntoView({ behavior: 'smooth' });
         loadMusicCheckboxGrid();
         
-        // Data padrão: próximo domingo às 18:00
         const dateInput = document.getElementById('scaleDate');
         if (!dateInput.value) {
             const now = new Date();
@@ -1331,7 +1350,6 @@
             dateInput.value = nextSunday.toISOString().slice(0, 16);
         }
         
-        // Carrega os disponíveis para a data padrão
         setTimeout(() => loadAvailableMembersForScale(), 300);
     }
 
@@ -1355,7 +1373,6 @@
         if (!date) { showNotification('Selecione a data do culto!', 'error'); return; }
         if (!musicIds.length) { showNotification('Selecione pelo menos uma música!', 'error'); return; }
 
-        // Verifica se os músicos selecionados estão disponíveis
         const availableIds = availableMembers.map(m => m.id);
         const invalidMusicians = musicians.filter(id => !availableIds.includes(parseInt(id)));
         if (invalidMusicians.length > 0) {
@@ -1367,7 +1384,6 @@
             return;
         }
 
-        // Verifica se o ministro está disponível
         if (minister && !availableIds.includes(parseInt(minister))) {
             showNotification('⚠️ O ministro selecionado não está disponível nesta data!', 'error');
             return;

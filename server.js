@@ -1287,27 +1287,46 @@ app.put('/api/worship-scales/:id/songs', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== ROTAS PARA DISPONIBILIDADE =====
+// ===== ROTAS PARA DISPONIBILIDADE (CORRIGIDAS) =====
 // ============================================
 
 app.post('/api/availability', auth, async (req, res) => {
     try {
         const { user_id, date, department_id } = req.body;
+        
+        console.log('📝 Recebendo disponibilidade:', { user_id, date, department_id });
+
         if (!user_id || !date) {
             return res.status(400).json({ error: 'Usuário e data são obrigatórios' });
         }
 
-        const deptId = department_id || req.user.department_id;
+        // Se não veio department_id, usa o do usuário logado
+        let deptId = department_id || req.user.department_id;
         if (!deptId) {
             return res.status(400).json({ error: 'Departamento não informado' });
         }
 
-        await sql`
-            INSERT INTO availability (user_id, date, department_id)
-            VALUES (${user_id}, ${date}, ${deptId})
-            ON CONFLICT (user_id, date) DO NOTHING
+        // Converte a data para o formato correto (YYYY-MM-DD)
+        const formattedDate = new Date(date).toISOString().split('T')[0];
+
+        // Verifica se já existe
+        const existing = await sql`
+            SELECT * FROM availability 
+            WHERE user_id = ${user_id} AND date = ${formattedDate}
         `;
-        res.status(201).json({ message: 'Disponibilidade adicionada' });
+
+        if (existing.length > 0) {
+            return res.status(400).json({ error: 'Data já cadastrada' });
+        }
+
+        const result = await sql`
+            INSERT INTO availability (user_id, date, department_id)
+            VALUES (${user_id}, ${formattedDate}, ${deptId})
+            RETURNING *
+        `;
+        
+        console.log('✅ Disponibilidade salva:', result[0]);
+        res.status(201).json({ message: 'Disponibilidade adicionada', data: result[0] });
     } catch (error) {
         console.error('❌ Erro ao adicionar disponibilidade:', error);
         res.status(500).json({ error: error.message });
@@ -1363,7 +1382,7 @@ app.get('/api/availability/date/:date', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== NOVA ROTA: BUSCAR DISPONÍVEIS POR DATA E DEPARTAMENTO =====
+// ===== ROTA: BUSCAR DISPONÍVEIS POR DATA E DEPARTAMENTO =====
 // ============================================
 
 app.get('/api/availability/date/:date/department/:deptId', auth, async (req, res) => {

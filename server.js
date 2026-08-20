@@ -1,5 +1,3 @@
-
-
 // ============================================
 // ===== NJ CABUÇU - SERVIDOR COMPLETO =====
 // ============================================
@@ -119,6 +117,13 @@ const auth = (req, res, next) => {
 const pastorOnly = (req, res, next) => {
     if (req.user?.role !== 'pastor') {
         return res.status(403).json({ error: 'Apenas o pastor' });
+    }
+    next();
+};
+
+const leaderOnly = (req, res, next) => {
+    if (req.user?.role !== 'lider' && req.user?.role !== 'pastor' && !req.user?.is_leader) {
+        return res.status(403).json({ error: 'Apenas líderes' });
     }
     next();
 };
@@ -244,7 +249,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // DEPARTMENT MEMBERS
+        // DEPARTMENT MEMBERS (já existia, mas vamos garantir os campos)
         await sql`CREATE TABLE IF NOT EXISTS department_members (
             department_id INTEGER,
             user_id INTEGER,
@@ -523,6 +528,48 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // ============================================
+        // ===== TABELAS PARA DEPARTAMENTOS (LOUVOR) =====
+        // ============================================
+
+        // Músicas
+        await sql`CREATE TABLE IF NOT EXISTS songs (
+            id SERIAL PRIMARY KEY,
+            title VARCHAR(200) NOT NULL,
+            artist VARCHAR(100),
+            key VARCHAR(10) DEFAULT 'C',
+            lyrics TEXT,
+            department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE,
+            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // Escalas de Louvor
+        await sql`CREATE TABLE IF NOT EXISTS worship_scales (
+            id SERIAL PRIMARY KEY,
+            department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE,
+            event_date TIMESTAMP NOT NULL,
+            leader_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            minister_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            songs TEXT,  -- array de nomes de músicas (JSON)
+            song_ids TEXT, -- array de IDs de músicas (JSON)
+            palette VARCHAR(200),
+            rehearsal BOOLEAN DEFAULT false,
+            musician_ids TEXT, -- array de IDs de músicos (JSON)
+            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // Disponibilidade
+        await sql`CREATE TABLE IF NOT EXISTS availability (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            date DATE NOT NULL,
+            department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, date)
+        )`;
+
         console.log('✅ Tabelas criadas');
 
         // Criar pastor padrão
@@ -604,7 +651,7 @@ app.post('/api/change-password', async (req, res) => {
     }
 });
 
-// ----- USUÁRIOS -----
+// ----- USUÁRIOS (admin) -----
 app.post('/api/users', auth, pastorOnly, async (req, res) => {
     try {
         const { name, email, password, role, department_name, phone, is_leader, department_id } = req.body;
@@ -697,7 +744,11 @@ app.post('/api/reset-password', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- DEPARTAMENTOS -----
+// ============================================
+// ===== ROTAS PARA DEPARTAMENTOS =====
+// ============================================
+
+// Criar departamento (apenas pastor)
 app.post('/api/departments', auth, pastorOnly, async (req, res) => {
     try {
         const { name, description } = req.body;
@@ -712,6 +763,7 @@ app.post('/api/departments', auth, pastorOnly, async (req, res) => {
     }
 });
 
+// Listar departamentos (todos usuários autenticados)
 app.get('/api/departments', auth, async (req, res) => {
     try {
         const depts = await sql`
@@ -751,12 +803,528 @@ app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
+// ============================================
+// ===== MEMBROS DO DEPARTAMENTO =====
+// ============================================
+
+// Listar membros de um departamento
+app.get('/api/departments/:id/members', auth, async (req, res) => {
+    try {
+        const deptId = req.params.id;
+        // Verifica se o usuário tem permissão (é do departamento ou pastor)
+        if (req.user.role !== 'pastor' && req.user.department_id != deptId) {
+            return res.status(403).json({ error: 'Acesso negado' });
+        }
+
+        const members = await sql`
+            SELECT u.id, u.name, u.email, u.phone, u.is_leader, dm.role as member_role, dm.joined_at
+            FROM users u
+            JOIN department_members dm ON u.id = dm.user_id
+            WHERE dm.department_id = ${deptId}
+            ORDER BY u.name
+        `;
+        res.json(members);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Adicionar membro ao departamento (líder/pastor)
+app.post('/api/departments/:id/members', auth, leaderOnly, async (req, res) => {
+    try {
+        const deptId = req.params.id;
+        const { user_id, role } = req.body;
+
+        if (!user_id) {
+            return res.status(400).json({ error: 'user_id é obrigatório' });
+        }
+
+        // Verifica se o usuário existe
+        const user = await sql`SELECT * FROM users WHERE id = ${user_id}`;
+        if (user.length === 0) {
+            return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+
+        // Verifica se o departamento existe
+        const dept = await sql`SELECT * FROM departments WHERE id = ${deptId} AND is_active = true`;
+        if (dept.length === 0) {
+            return res.status(404).json({ error: 'Departamento não encontrado' });
+        }
+
+        // Insere ou atualiza
+        await sql`
+            INSERT INTO department_members (department_id, user_id, role)
+            VALUES (${deptId}, ${user_id}, ${role || 'membro'})
+            ON CONFLICT (department_id, user_id) DO UPDATE SET role = ${role || 'membro'}
+        `;
+
+        // Atualiza o department_id do usuário
+        await sql`
+            UPDATE users SET department_id = ${deptId}, department_name = ${dept[0].name}
+            WHERE id = ${user_id}
+        `;
+
+        // Se for líder, atualiza o campo is_leader e leader_id do departamento
+        if (role === 'lider') {
+            await sql`UPDATE users SET is_leader = true WHERE id = ${user_id}`;
+            await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${deptId}`;
+        } else {
+            // Se não for líder, remove o is_leader (mas cuidado para não remover de outros)
+            await sql`UPDATE users SET is_leader = false WHERE id = ${user_id}`;
+            // Se o líder atual for esse usuário, remove o leader_id
+            const currentLeader = await sql`SELECT leader_id FROM departments WHERE id = ${deptId}`;
+            if (currentLeader.length > 0 && currentLeader[0].leader_id === user_id) {
+                await sql`UPDATE departments SET leader_id = NULL WHERE id = ${deptId}`;
+            }
+        }
+
+        res.status(201).json({ message: 'Membro adicionado com sucesso' });
+    } catch (error) {
+        console.error('Erro ao adicionar membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Atualizar função do membro no departamento
+app.put('/api/departments/:id/members/:userId', auth, leaderOnly, async (req, res) => {
+    try {
+        const deptId = req.params.id;
+        const userId = req.params.userId;
+        const { role } = req.body;
+
+        if (!role) {
+            return res.status(400).json({ error: 'role é obrigatório' });
+        }
+
+        const validRoles = ['membro', 'lider', 'ministro', 'musico', 'colaborador'];
+        if (!validRoles.includes(role)) {
+            return res.status(400).json({ error: 'Função inválida' });
+        }
+
+        await sql`
+            UPDATE department_members SET role = ${role}
+            WHERE department_id = ${deptId} AND user_id = ${userId}
+        `;
+
+        // Atualiza is_leader se for líder
+        if (role === 'lider') {
+            await sql`UPDATE users SET is_leader = true WHERE id = ${userId}`;
+            await sql`UPDATE departments SET leader_id = ${userId} WHERE id = ${deptId}`;
+        } else {
+            await sql`UPDATE users SET is_leader = false WHERE id = ${userId}`;
+            // Se o líder atual for esse usuário, remove
+            const currentLeader = await sql`SELECT leader_id FROM departments WHERE id = ${deptId}`;
+            if (currentLeader.length > 0 && currentLeader[0].leader_id === parseInt(userId)) {
+                await sql`UPDATE departments SET leader_id = NULL WHERE id = ${deptId}`;
+            }
+        }
+
+        res.json({ message: 'Função atualizada com sucesso' });
+    } catch (error) {
+        console.error('Erro ao atualizar função:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Remover membro do departamento
+app.delete('/api/departments/:id/members/:userId', auth, leaderOnly, async (req, res) => {
+    try {
+        const deptId = req.params.id;
+        const userId = req.params.userId;
+
+        await sql`
+            DELETE FROM department_members
+            WHERE department_id = ${deptId} AND user_id = ${userId}
+        `;
+
+        // Se o usuário não estiver em nenhum outro departamento, remove o department_id dele
+        const otherDepts = await sql`
+            SELECT * FROM department_members WHERE user_id = ${userId}
+        `;
+        if (otherDepts.length === 0) {
+            await sql`UPDATE users SET department_id = NULL, department_name = NULL, is_leader = false WHERE id = ${userId}`;
+        }
+
+        // Se era líder, remove o leader_id
+        const currentLeader = await sql`SELECT leader_id FROM departments WHERE id = ${deptId}`;
+        if (currentLeader.length > 0 && currentLeader[0].leader_id === parseInt(userId)) {
+            await sql`UPDATE departments SET leader_id = NULL WHERE id = ${deptId}`;
+        }
+
+        res.json({ message: 'Membro removido com sucesso' });
+    } catch (error) {
+        console.error('Erro ao remover membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== CRIAR USUÁRIO POR LÍDER =====
+// ============================================
+
+app.post('/api/users-by-leader', auth, leaderOnly, async (req, res) => {
+    try {
+        const { name, email, password, role, department_id } = req.body;
+
+        if (!name || !email || !password) {
+            return res.status(400).json({ error: 'Nome, e-mail e senha são obrigatórios' });
+        }
+
+        // Verifica se o usuário já existe
+        const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
+        if (existing.length > 0) {
+            return res.status(400).json({ error: 'E-mail já cadastrado' });
+        }
+
+        // Verifica se o líder tem permissão para criar no departamento
+        const deptId = department_id || req.user.department_id;
+        if (!deptId) {
+            return res.status(400).json({ error: 'Departamento não informado' });
+        }
+
+        // Verifica se o departamento existe
+        const dept = await sql`SELECT * FROM departments WHERE id = ${deptId} AND is_active = true`;
+        if (dept.length === 0) {
+            return res.status(404).json({ error: 'Departamento não encontrado' });
+        }
+
+        const hash = await hashPassword(password);
+        const isLeader = (role === 'lider');
+
+        const result = await sql`
+            INSERT INTO users (name, email, password_hash, role, department_id, department_name, phone, first_login, is_leader)
+            VALUES (${name}, ${email}, ${hash}, ${role || 'colaborador'}, ${deptId}, ${dept[0].name}, '', true, ${isLeader})
+            RETURNING id, name, email, role, department_id, department_name
+        `;
+
+        // Adiciona ao department_members
+        const memberRole = isLeader ? 'lider' : (role || 'membro');
+        await sql`
+            INSERT INTO department_members (department_id, user_id, role)
+            VALUES (${deptId}, ${result[0].id}, ${memberRole})
+            ON CONFLICT (department_id, user_id) DO NOTHING
+        `;
+
+        if (isLeader) {
+            await sql`UPDATE departments SET leader_id = ${result[0].id} WHERE id = ${deptId}`;
+        }
+
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar usuário por líder:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTAS PARA MÚSICAS (LOUVOR) =====
+// ============================================
+
+app.get('/api/songs', auth, async (req, res) => {
+    try {
+        const { department_id } = req.query;
+        let query = `SELECT * FROM songs`;
+        const params = [];
+        if (department_id) {
+            query += ` WHERE department_id = $1`;
+            params.push(department_id);
+        }
+        query += ` ORDER BY title`;
+        const songs = await sql(query, params);
+        res.json(songs);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/songs', auth, leaderOnly, async (req, res) => {
+    try {
+        const { title, artist, key, lyrics, department_id } = req.body;
+        if (!title || !lyrics) {
+            return res.status(400).json({ error: 'Título e letra são obrigatórios' });
+        }
+
+        const deptId = department_id || req.user.department_id;
+        if (!deptId) {
+            return res.status(400).json({ error: 'Departamento não informado' });
+        }
+
+        const result = await sql`
+            INSERT INTO songs (title, artist, key, lyrics, department_id, created_by)
+            VALUES (${title}, ${artist || ''}, ${key || 'C'}, ${lyrics}, ${deptId}, ${req.user.id})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar música:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/songs/:id', auth, leaderOnly, async (req, res) => {
+    try {
+        const { id } = req.params;
+        await sql`DELETE FROM songs WHERE id = ${id}`;
+        res.json({ message: 'Música removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTAS PARA ESCALAS (LOUVOR) =====
+// ============================================
+
+app.post('/api/worship-scales', auth, leaderOnly, async (req, res) => {
+    try {
+        const { department_id, event_date, leader_id, minister_id, songs, song_ids, palette, rehearsal, musicians } = req.body;
+
+        if (!department_id || !event_date) {
+            return res.status(400).json({ error: 'Departamento e data são obrigatórios' });
+        }
+
+        const songsJson = JSON.stringify(songs || []);
+        const songIdsJson = JSON.stringify(song_ids || []);
+        const musiciansJson = JSON.stringify(musicians || []);
+
+        const result = await sql`
+            INSERT INTO worship_scales (department_id, event_date, leader_id, minister_id, songs, song_ids, palette, rehearsal, musician_ids, created_by)
+            VALUES (${department_id}, ${event_date}, ${leader_id || null}, ${minister_id || null}, ${songsJson}, ${songIdsJson}, ${palette || 'Azul, Prata, Branco, Dourado'}, ${rehearsal || false}, ${musiciansJson}, ${req.user.id})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar escala:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/worship-scales', auth, async (req, res) => {
+    try {
+        const { department_id } = req.query;
+        let query = `
+            SELECT ws.*, 
+                   u1.name as leader_name, 
+                   u2.name as minister_name
+            FROM worship_scales ws
+            LEFT JOIN users u1 ON ws.leader_id = u1.id
+            LEFT JOIN users u2 ON ws.minister_id = u2.id
+        `;
+        const params = [];
+        if (department_id) {
+            query += ` WHERE ws.department_id = $1`;
+            params.push(department_id);
+        }
+        query += ` ORDER BY ws.event_date DESC`;
+        const scales = await sql(query, params);
+        res.json(scales);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const scale = await sql`
+            SELECT ws.*, 
+                   u1.name as leader_name, 
+                   u2.name as minister_name,
+                   u3.name as created_by_name
+            FROM worship_scales ws
+            LEFT JOIN users u1 ON ws.leader_id = u1.id
+            LEFT JOIN users u2 ON ws.minister_id = u2.id
+            LEFT JOIN users u3 ON ws.created_by = u3.id
+            WHERE ws.id = ${id}
+        `;
+        if (scale.length === 0) {
+            return res.status(404).json({ error: 'Escala não encontrada' });
+        }
+
+        // Busca os músicos associados
+        let musicianIds = [];
+        try {
+            musicianIds = JSON.parse(scale[0].musician_ids || '[]');
+        } catch { musicianIds = []; }
+        let musicians = [];
+        if (musicianIds.length > 0) {
+            musicians = await sql`
+                SELECT id, name, email FROM users WHERE id = ANY(${musicianIds})
+            `;
+        }
+
+        // Busca as músicas detalhadas
+        let songIds = [];
+        try {
+            songIds = JSON.parse(scale[0].song_ids || '[]');
+        } catch { songIds = []; }
+        let songs = [];
+        if (songIds.length > 0) {
+            songs = await sql`
+                SELECT id, title, key, lyrics FROM songs WHERE id = ANY(${songIds})
+            `;
+        }
+
+        const result = { ...scale[0], musicians, songs };
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/worship-scales/:id', auth, leaderOnly, async (req, res) => {
+    try {
+        const { id } = req.params;
+        await sql`DELETE FROM worship_scales WHERE id = ${id}`;
+        res.json({ message: 'Escala removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/worship-scales/member/:userId', auth, async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        // Busca escalas onde o usuário é líder, ministro ou músico
+        const scales = await sql`
+            SELECT ws.*, 
+                   u1.name as leader_name, 
+                   u2.name as minister_name
+            FROM worship_scales ws
+            LEFT JOIN users u1 ON ws.leader_id = u1.id
+            LEFT JOIN users u2 ON ws.minister_id = u2.id
+            WHERE ws.leader_id = ${userId} 
+               OR ws.minister_id = ${userId}
+               OR EXISTS (
+                   SELECT 1 FROM json_array_elements_text(
+                       COALESCE(ws.musician_ids::json, '[]'::json)
+                   ) AS m_id
+                   WHERE m_id::int = ${userId}
+               )
+            ORDER BY ws.event_date DESC
+        `;
+        res.json(scales);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/worship-scales/:id/songs', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { songs, song_ids } = req.body;
+
+        // Verifica se o usuário é o ministro da escala ou líder/pastor
+        const scale = await sql`SELECT * FROM worship_scales WHERE id = ${id}`;
+        if (scale.length === 0) {
+            return res.status(404).json({ error: 'Escala não encontrada' });
+        }
+
+        const isMinister = scale[0].minister_id === req.user.id;
+        const isLeader = req.user.role === 'lider' || req.user.role === 'pastor' || req.user.is_leader;
+        if (!isMinister && !isLeader) {
+            return res.status(403).json({ error: 'Apenas o ministro ou líder podem editar as músicas' });
+        }
+
+        const songsJson = JSON.stringify(songs || []);
+        const songIdsJson = JSON.stringify(song_ids || []);
+
+        await sql`
+            UPDATE worship_scales 
+            SET songs = ${songsJson}, song_ids = ${songIdsJson}
+            WHERE id = ${id}
+        `;
+        res.json({ message: 'Músicas atualizadas com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao atualizar músicas da escala:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTAS PARA DISPONIBILIDADE =====
+// ============================================
+
+app.post('/api/availability', auth, async (req, res) => {
+    try {
+        const { user_id, date, department_id } = req.body;
+        if (!user_id || !date) {
+            return res.status(400).json({ error: 'Usuário e data são obrigatórios' });
+        }
+
+        const deptId = department_id || req.user.department_id;
+        if (!deptId) {
+            return res.status(400).json({ error: 'Departamento não informado' });
+        }
+
+        await sql`
+            INSERT INTO availability (user_id, date, department_id)
+            VALUES (${user_id}, ${date}, ${deptId})
+            ON CONFLICT (user_id, date) DO NOTHING
+        `;
+        res.status(201).json({ message: 'Disponibilidade adicionada' });
+    } catch (error) {
+        console.error('❌ Erro ao adicionar disponibilidade:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/availability/:userId', auth, async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const availability = await sql`
+            SELECT * FROM availability 
+            WHERE user_id = ${userId} 
+            ORDER BY date ASC
+        `;
+        res.json(availability);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/availability/:id', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        await sql`DELETE FROM availability WHERE id = ${id}`;
+        res.json({ message: 'Disponibilidade removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/availability/date/:date', auth, async (req, res) => {
+    try {
+        const { date } = req.params;
+        const { department_id } = req.query;
+
+        let query = `
+            SELECT u.id, u.name, u.email 
+            FROM availability a
+            JOIN users u ON a.user_id = u.id
+            WHERE a.date = ${date}
+        `;
+        const params = [];
+        if (department_id) {
+            query += ` AND a.department_id = ${department_id}`;
+        }
+        const available = await sql(query);
+        res.json(available);
+    } catch (error) {
+        console.error('❌ Erro ao buscar disponíveis:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTAS EXISTENTES (ESTUDOS, EVENTOS, etc) =====
+// ============================================
+
 // ----- ESTUDOS -----
 app.post('/api/studies', auth, upload.single('image'), async (req, res) => {
     try {
         const { title, description, file_url } = req.body;
         let image_base64 = null;
-
         if (req.file) {
             image_base64 = req.file.buffer.toString('base64');
         }
@@ -766,7 +1334,6 @@ app.post('/api/studies', auth, upload.single('image'), async (req, res) => {
             VALUES (${title}, ${description}, ${file_url}, ${image_base64})
             RETURNING *
         `;
-        console.log('✅ Estudo criado:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar estudo:', error);
@@ -797,7 +1364,6 @@ app.post('/api/products', auth, upload.single('image'), async (req, res) => {
     try {
         const { name, description, price, stock, category } = req.body;
         let image_base64 = null;
-
         if (req.file) {
             image_base64 = req.file.buffer.toString('base64');
         }
@@ -807,7 +1373,6 @@ app.post('/api/products', auth, upload.single('image'), async (req, res) => {
             VALUES (${name}, ${description}, ${parseFloat(price)}, ${image_base64}, ${parseInt(stock) || 0}, ${category || ''})
             RETURNING *
         `;
-        console.log('✅ Produto criado:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar produto:', error);
@@ -838,7 +1403,6 @@ app.post('/api/events', auth, upload.single('image'), async (req, res) => {
     try {
         const { title, description, date, price } = req.body;
         let image_base64 = null;
-
         if (req.file) {
             image_base64 = req.file.buffer.toString('base64');
         }
@@ -848,7 +1412,6 @@ app.post('/api/events', auth, upload.single('image'), async (req, res) => {
             VALUES (${title}, ${description}, ${date || new Date()}, ${image_base64}, ${parseFloat(price) || 0})
             RETURNING *
         `;
-        console.log('✅ Evento criado:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar evento:', error);
@@ -922,7 +1485,7 @@ app.put('/api/prayers/:id/read', auth, async (req, res) => {
     }
 });
 
-// ----- PEDIDOS -----
+// ----- PEDIDOS (ORDERS) -----
 app.post('/api/orders', async (req, res) => {
     try {
         const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status } = req.body;
@@ -931,7 +1494,6 @@ app.post('/api/orders', async (req, res) => {
             VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(items)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
             RETURNING *
         `;
-        console.log('✅ Pedido criado:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar pedido:', error);
@@ -942,10 +1504,8 @@ app.post('/api/orders', async (req, res) => {
 app.get('/api/orders', auth, async (req, res) => {
     try {
         const orders = await sql`SELECT * FROM orders ORDER BY created_at DESC`;
-        console.log('📦 Total de vendas:', orders.length);
         res.json(orders);
     } catch (error) {
-        console.error('❌ Erro ao buscar vendas:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -955,7 +1515,6 @@ app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
         const totalSales = await sql`
             SELECT COUNT(*) as count, COALESCE(SUM(total), 0) as total FROM orders
         `;
-        
         const salesByDay = await sql`
             SELECT 
                 DATE(created_at) as date, 
@@ -966,7 +1525,6 @@ app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
             GROUP BY DATE(created_at)
             ORDER BY date DESC
         `;
-        
         res.json({
             total: totalSales[0] || { count: 0, total: 0 },
             byDay: salesByDay || []
@@ -983,7 +1541,6 @@ app.post('/api/registrations', async (req, res) => {
         const { type, name, email, phone, department_name, event_name, details, amount, is_paid, birth_date, baptism_date, baptism_date_id } = req.body;
         
         let finalDetails = details || '';
-        
         if (type === 'baptism' && birth_date) {
             finalDetails = `Data de Nascimento: ${new Date(birth_date).toLocaleDateString('pt-BR')}\n`;
             if (baptism_date) {
@@ -1005,7 +1562,6 @@ app.post('/api/registrations', async (req, res) => {
             VALUES (${type}, ${name}, ${email || ''}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${finalDetails || ''}, ${parseFloat(amount) || 0}, ${is_paid || false})
             RETURNING *
         `;
-        console.log('✅ Inscrição criada:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro inscrição:', error);
@@ -1077,14 +1633,13 @@ app.get('/api/birthdays', async (req, res) => {
             AND EXTRACT(MONTH FROM birth_date) = ${currentMonth}
             ORDER BY EXTRACT(DAY FROM birth_date)
         `;
-        
         res.json(birthdayMembers);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// ----- MEMBROS -----
+// ----- MEMBROS (cadastro de pessoas) -----
 app.post('/api/members', auth, async (req, res) => {
     try {
         const { name, email, phone, birth_date, marital_status, spouse_name, children, baptism_date, baptism_place, address, department_id, department_name, notes } = req.body;
@@ -1098,7 +1653,6 @@ app.post('/api/members', auth, async (req, res) => {
             VALUES (${name}, ${email}, ${phone}, ${birth_date}, ${marital_status}, ${spouse_name}, ${children}, ${baptism_date}, ${baptism_place}, ${address}, ${department_id}, ${department_name}, ${notes}, ${req.user.id})
             RETURNING *
         `;
-
         res.status(201).json(result[0]);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -1131,7 +1685,6 @@ app.delete('/api/members/:id', auth, async (req, res) => {
 app.post('/api/attendance', auth, async (req, res) => {
     try {
         const { member_id, event_date, service_type, present } = req.body;
-
         if (!member_id || !event_date) {
             return res.status(400).json({ error: 'Membro e data são obrigatórios' });
         }
@@ -1143,7 +1696,6 @@ app.post('/api/attendance', auth, async (req, res) => {
             DO UPDATE SET present = ${present || false}, check_in_time = ${present ? new Date() : null}
             RETURNING *
         `;
-
         res.status(201).json(result[0]);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -1170,7 +1722,6 @@ app.get('/api/attendance/date/:date', auth, async (req, res) => {
 app.post('/api/tithes', auth, async (req, res) => {
     try {
         const { member_id, member_name, type, amount, payment_method, payment_date, description } = req.body;
-
         if (!type || !amount) {
             return res.status(400).json({ error: 'Tipo e valor são obrigatórios' });
         }
@@ -1180,7 +1731,6 @@ app.post('/api/tithes', auth, async (req, res) => {
             VALUES (${member_id || null}, ${member_name || ''}, ${type}, ${amount}, ${payment_method || 'dinheiro'}, ${payment_date || new Date()}, ${description || ''}, ${req.user.id})
             RETURNING *
         `;
-
         res.status(201).json(result[0]);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -1203,9 +1753,7 @@ app.get('/api/tithes/summary', auth, async (req, res) => {
             FROM tithes
             GROUP BY type
         `;
-
         const total = result.reduce((sum, r) => sum + parseFloat(r.total), 0);
-
         res.json({ by_type: result, total });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -1216,7 +1764,6 @@ app.get('/api/tithes/summary', auth, async (req, res) => {
 app.post('/api/bills', auth, async (req, res) => {
     try {
         const { description, category, amount, due_date, notes } = req.body;
-
         if (!description || !category || !amount || !due_date) {
             return res.status(400).json({ error: 'Preencha todos os campos obrigatórios' });
         }
@@ -1226,7 +1773,6 @@ app.post('/api/bills', auth, async (req, res) => {
             VALUES (${description}, ${category}, ${amount}, ${due_date}, ${notes || ''}, ${req.user.id})
             RETURNING *
         `;
-
         res.status(201).json(result[0]);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -1252,11 +1798,9 @@ app.put('/api/bills/:id/pay', auth, async (req, res) => {
             WHERE id = ${id}
             RETURNING *
         `;
-
         if (result.length === 0) {
             return res.status(404).json({ error: 'Conta não encontrada' });
         }
-
         res.json(result[0]);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -1283,7 +1827,6 @@ app.get('/api/bills/summary', auth, async (req, res) => {
                 COUNT(CASE WHEN paid = true THEN 1 ELSE 0 END) as paid_count
             FROM bills
         `;
-
         res.json({ summary: summary[0] });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -1294,7 +1837,6 @@ app.get('/api/bills/summary', auth, async (req, res) => {
 app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, res) => {
     try {
         const { title, subtitle, link } = req.body;
-        
         if (!req.file) {
             return res.status(400).json({ error: 'Imagem é obrigatória' });
         }
@@ -1333,10 +1875,7 @@ app.delete('/api/carousel/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ============================================
-// ===== ROTAS DE REFLEXÕES =====
-// ============================================
-
+// ----- REFLEXÕES -----
 app.get('/api/pastor-reflections', async (req, res) => {
     try {
         const reflections = await sql`
@@ -1355,15 +1894,13 @@ app.get('/api/pastor-reflections', async (req, res) => {
 app.post('/api/pastor-reflections', auth, pastorOnly, async (req, res) => {
     try {
         const { title, description, link } = req.body;
-        
         if (!title || !link) {
             return res.status(400).json({ error: 'Título e link são obrigatórios' });
         }
 
-        // Valida se é um link do YouTube
         const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/;
         if (!youtubeRegex.test(link)) {
-            return res.status(400).json({ error: 'Link inválido. Use um link do YouTube (ex: https://youtu.be/...)' });
+            return res.status(400).json({ error: 'Link inválido. Use um link do YouTube.' });
         }
 
         const result = await sql`
@@ -1371,8 +1908,6 @@ app.post('/api/pastor-reflections', auth, pastorOnly, async (req, res) => {
             VALUES (${title}, ${description || ''}, ${link}, ${req.user.id})
             RETURNING *
         `;
-        
-        console.log('✅ Reflexão criada:', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar reflexão:', error);
@@ -1382,8 +1917,7 @@ app.post('/api/pastor-reflections', auth, pastorOnly, async (req, res) => {
 
 app.delete('/api/pastor-reflections/:id', auth, pastorOnly, async (req, res) => {
     try {
-        const { id } = req.params;
-        await sql`DELETE FROM pastor_reflections WHERE id = ${id}`;
+        await sql`DELETE FROM pastor_reflections WHERE id = ${req.params.id}`;
         res.json({ message: 'Reflexão removida' });
     } catch (error) {
         console.error('❌ Erro ao remover reflexão:', error);
@@ -1391,10 +1925,7 @@ app.delete('/api/pastor-reflections/:id', auth, pastorOnly, async (req, res) => 
     }
 });
 
-// ============================================
-// ===== CONFIGURAÇÕES =====
-// ============================================
-
+// ----- CONFIGURAÇÕES -----
 app.get('/api/settings', async (req, res) => {
     try {
         const settings = await sql`SELECT * FROM site_settings`;
@@ -1419,10 +1950,7 @@ app.post('/api/settings', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ============================================
-// ===== MERCADO PAGO - PIX =====
-// ============================================
-
+// ----- MERCADO PAGO -----
 app.post('/api/create-pix-payment', async (req, res) => {
     try {
         const { amount, description, email, name, phone, cpf } = req.body;
@@ -1454,10 +1982,7 @@ app.post('/api/create-pix-payment', async (req, res) => {
             }
         };
 
-        console.log('📝 Criando pagamento PIX...');
         const payment = await PaymentService.create(paymentData);
-        console.log('✅ Pagamento criado:', payment.id);
-
         const paymentLink = payment.point_of_interaction?.transaction_data?.ticket_url || 
                            `https://www.mercadopago.com.br/payments/${payment.id}`;
 
@@ -1475,7 +2000,6 @@ app.post('/api/create-pix-payment', async (req, res) => {
     }
 });
 
-// ----- MERCADO PAGO - CARTÃO (CORRIGIDO) -----
 app.post('/api/create-card-payment-fallback', async (req, res) => {
     try {
         const { amount, description, email, name, phone, cpf, card_number, card_expiry, card_cvv, installments } = req.body;
@@ -1499,7 +2023,6 @@ app.post('/api/create-card-payment-fallback', async (req, res) => {
             return res.status(400).json({ error: 'CVV inválido' });
         }
 
-        // Gerar token do cartão
         const tokenData = {
             card_number: card_number.replace(/\s/g, ''),
             expiration_month: parseInt(card_expiry.split('/')[0]),
@@ -1521,10 +2044,7 @@ app.post('/api/create-card-payment-fallback', async (req, res) => {
         });
 
         const tokenResult = await tokenResponse.json();
-        
         if (tokenResult.error) {
-            console.error('❌ Erro ao criar token:', tokenResult.error);
-            // Fallback: usar token de teste
             const testToken = 'test_' + Date.now();
             return await processCardPayment(testToken, valor, description, email, name, phone, cpf, installments, res);
         }
@@ -1542,7 +2062,7 @@ async function processCardPayment(token, valor, description, email, name, phone,
             body: {
                 transaction_amount: valor,
                 description: description || 'Pagamento NJ Cabuçu',
-                payment_method_id: 'credit_card', // CORRIGIDO: antes estava "card"
+                payment_method_id: 'credit_card',
                 installments: parseInt(installments) || 1,
                 token: token,
                 payer: {
@@ -1557,8 +2077,6 @@ async function processCardPayment(token, valor, description, email, name, phone,
         };
 
         const payment = await PaymentService.create(paymentData);
-        
-        // Se o pagamento foi aprovado, enviar email
         if (payment.status === 'approved') {
             await enviarComprovanteEmail(
                 email,
@@ -1570,7 +2088,6 @@ async function processCardPayment(token, valor, description, email, name, phone,
                 'Pagamento com Cartão'
             );
         }
-        
         res.json({
             payment_id: payment.id,
             status: payment.status,
@@ -1583,35 +2100,25 @@ async function processCardPayment(token, valor, description, email, name, phone,
     }
 }
 
-// ----- WEBHOOK (atualizado para enviar email) -----
 app.post('/api/webhook', async (req, res) => {
     try {
         console.log('📝 Webhook recebido:', JSON.stringify(req.body, null, 2));
-        
         const { data, type } = req.body;
-        
         if (type === 'payment' && data && data.id) {
             const paymentId = data.id;
             console.log(`✅ Pagamento ${paymentId} confirmado!`);
-            
             if (PaymentService) {
                 try {
                     const payment = await PaymentService.get({ id: paymentId });
-                    console.log('📊 Status:', payment.status);
-                    
                     if (payment.status === 'approved') {
-                        // Atualizar pedidos
                         await sql`
                             UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}
                         `;
                         await sql`
                             UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}
                         `;
-                        
-                        // Buscar dados do pagamento para enviar email
                         const orders = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
                         const donations = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
-                        
                         const item = orders[0] || donations[0];
                         if (item) {
                             await enviarComprovanteEmail(
@@ -1624,7 +2131,6 @@ app.post('/api/webhook', async (req, res) => {
                                 item.type || 'Pagamento'
                             );
                         }
-                        
                         console.log('✅ Pagamento aprovado e email enviado!');
                     }
                 } catch (error) {
@@ -1632,7 +2138,6 @@ app.post('/api/webhook', async (req, res) => {
                 }
             }
         }
-        
         res.json({ received: true });
     } catch (error) {
         console.error('❌ Erro webhook:', error);
@@ -1640,7 +2145,6 @@ app.post('/api/webhook', async (req, res) => {
     }
 });
 
-// ----- CHECK PAYMENT (atualizado) -----
 app.get('/api/check-payment/:paymentId', async (req, res) => {
     try {
         const { paymentId } = req.params;
@@ -1648,8 +2152,6 @@ app.get('/api/check-payment/:paymentId', async (req, res) => {
             return res.status(500).json({ error: 'Mercado Pago não configurado' });
         }
         const payment = await PaymentService.get({ id: paymentId });
-        
-        // Se aprovado, enviar email
         if (payment.status === 'approved') {
             const orders = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
             const donations = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
@@ -1666,7 +2168,6 @@ app.get('/api/check-payment/:paymentId', async (req, res) => {
                 );
             }
         }
-        
         res.json({
             id: payment.id,
             status: payment.status,
@@ -1686,8 +2187,6 @@ app.post('/api/update-payment-status', async (req, res) => {
         await sql`
             UPDATE donations SET status = ${status} WHERE payment_id = ${payment_id}
         `;
-        
-        // Se aprovado, enviar email
         if (status === 'approved') {
             const orders = await sql`SELECT * FROM orders WHERE payment_id = ${payment_id}`;
             const donations = await sql`SELECT * FROM donations WHERE payment_id = ${payment_id}`;
@@ -1704,14 +2203,13 @@ app.post('/api/update-payment-status', async (req, res) => {
                 );
             }
         }
-        
         res.json({ message: 'Status atualizado' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// ----- PDF -----
+// ----- PDF DE INSCRIÇÃO -----
 app.get('/api/registration-pdf/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -1906,24 +2404,20 @@ app.post('/api/celulas/:id/decisoes', auth, async (req, res) => {
 async function atualizarEstatisticasCelula(celula_id) {
     try {
         const hoje = new Date().toISOString().split('T')[0];
-        
         const membros = await sql`
             SELECT COUNT(*) as total FROM celula_membros 
             WHERE celula_id = ${celula_id} AND is_active = true
         `;
-        
         const batizados = await sql`
             SELECT COUNT(*) as total FROM celula_decisoes 
             WHERE celula_id = ${celula_id} AND tipo = 'batismo' 
             AND data_decisao >= CURRENT_DATE - INTERVAL '30 days'
         `;
-        
         const decisoes = await sql`
             SELECT COUNT(*) as total FROM celula_decisoes 
             WHERE celula_id = ${celula_id} AND tipo = 'decisao' 
             AND data_decisao >= CURRENT_DATE - INTERVAL '30 days'
         `;
-        
         await sql`
             INSERT INTO celula_estatisticas (celula_id, data_registro, total_membros, batizados, aceitaram_jesus)
             VALUES (${celula_id}, ${hoje}, ${membros[0].total}, ${batizados[0].total}, ${decisoes[0].total})
@@ -1936,14 +2430,12 @@ async function atualizarEstatisticasCelula(celula_id) {
 }
 
 // ============================================
-// ===== ROTAS DE LIVES (APENAS PASTOR) =====
+// ===== ROTAS DE LIVES =====
 // ============================================
 
 app.post('/api/lives/start', auth, async (req, res) => {
     try {
         const { titulo, descricao } = req.body;
-        
-        // APENAS PASTOR PODE INICIAR LIVE
         if (req.user.role !== 'pastor') {
             return res.status(403).json({ error: 'Apenas o pastor pode iniciar uma transmissão ao vivo.' });
         }
@@ -1960,7 +2452,6 @@ app.post('/api/lives/start', auth, async (req, res) => {
             VALUES (${titulo || 'Live NJ Cabuçu'}, ${descricao || ''}, 'live', ${streamKey}, ${req.user.id}, NOW())
             RETURNING *
         `;
-
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao iniciar live:', error);
@@ -2074,5 +2565,9 @@ app.listen(PORT, () => {
     console.log('📹 Sistema de Live: ✅ Configurado (apenas pastor)');
     console.log('🎥 Reflexões do Pastor: ✅ Configurado');
     console.log('⏰ Horários dos Cultos: ✅ Configurado via site_settings');
+    console.log('🎵 Módulo Louvor: ✅ Configurado');
+    console.log('🙏 Módulo Oração: ✅ Configurado');
+    console.log('📅 Módulo Secretaria: ✅ Configurado');
+    console.log('💰 Módulo Tesouraria: ✅ Configurado');
     console.log('');
 });

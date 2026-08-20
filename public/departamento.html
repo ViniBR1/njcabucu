@@ -6,7 +6,7 @@
     <title>Departamento - NJ Cabuçu</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* ===== ESTILOS COMPACTOS ===== */
+        /* ===== ESTILOS ===== */
         * { margin:0; padding:0; box-sizing:border-box; }
         :root {
             --primary: #0D47A1;
@@ -68,6 +68,8 @@
         .btn-warning { background: #ffc107; color: #1a1a1a; }
         .btn-warning:hover { background: #e0a800; }
         .btn-sm { padding: 0.3rem 0.8rem; font-size: 0.8rem; }
+        .btn-whatsapp { background: #25D366; color: white; }
+        .btn-whatsapp:hover { background: #1da851; transform: translateY(-2px); }
 
         .container { max-width: 1400px; margin: 1.5rem auto; padding: 0 1.5rem; }
 
@@ -196,6 +198,7 @@
         .scale-item .palette { display: flex; gap: 0.3rem; margin-top: 0.3rem; flex-wrap: wrap; align-items: center; }
         .scale-item .palette .color { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #ddd; }
         .scale-item .rehearsal { color: #28a745; font-weight: 600; font-size: 0.85rem; margin-top: 0.3rem; }
+        .scale-item .share-btn { margin-top: 0.3rem; }
 
         .my-scale-item {
             background: white;
@@ -318,7 +321,7 @@
             background: white;
             padding: 2rem;
             border-radius: var(--radius);
-            max-width: 600px;
+            max-width: 700px;
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
@@ -367,6 +370,20 @@
             border-left: 4px solid #28a745;
         }
 
+        .chord-transpose {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+            margin: 0.5rem 0;
+        }
+        .chord-transpose select, .chord-transpose input {
+            padding: 0.3rem 0.6rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
         @media (max-width: 768px) {
             .header { flex-direction: column; gap: 0.5rem; padding: 0.8rem 1rem; }
             .grid { grid-template-columns: 1fr; }
@@ -374,6 +391,7 @@
             .tab-btn { padding: 0.2rem 0.8rem; font-size: 0.75rem; }
             .date-selector-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
             .music-checkbox-grid { grid-template-columns: 1fr; }
+            .modal-content { max-width: 100%; }
         }
     </style>
 </head>
@@ -432,7 +450,9 @@
     <div id="tab-escalas" class="tab-content">
         <div class="flex-between">
             <h3><i class="fas fa-calendar-alt"></i> Escalas do Departamento</h3>
-            <button onclick="showCreateScale()" class="btn btn-primary hidden" id="btnNovaEscala"><i class="fas fa-plus"></i> Nova Escala</button>
+            <div style="display:flex;gap:0.3rem;flex-wrap:wrap;">
+                <button onclick="showCreateScale()" class="btn btn-primary hidden" id="btnNovaEscala"><i class="fas fa-plus"></i> Nova Escala</button>
+            </div>
         </div>
         <div id="scalesList"><p style="color:#888;">Carregando...</p></div>
 
@@ -486,7 +506,10 @@
     <div id="tab-musicas" class="tab-content">
         <div class="flex-between mb-1">
             <h3><i class="fas fa-music"></i> Músicas do Ministério</h3>
-            <button onclick="openAddMusicModal()" class="btn btn-success hidden" id="addMusicBtn"><i class="fas fa-plus"></i> Nova Música</button>
+            <div style="display:flex;gap:0.3rem;flex-wrap:wrap;">
+                <button onclick="openAddMusicModal()" class="btn btn-success hidden" id="addMusicBtn"><i class="fas fa-plus"></i> Nova Música</button>
+                <button onclick="openYoutubeMusicModal()" class="btn btn-primary hidden" id="youtubeMusicBtn"><i class="fab fa-youtube"></i> Buscar do YouTube</button>
+            </div>
         </div>
         <div id="songsList"><p style="color:#888;">Carregando...</p></div>
     </div>
@@ -600,7 +623,7 @@
 <!-- MODAIS -->
 <!-- ========================================================== -->
 
-<!-- Adicionar Membro (com seletor de usuários) -->
+<!-- Adicionar Membro -->
 <div class="modal" id="addMemberModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('addMemberModal')">&times;</button>
@@ -648,28 +671,65 @@
             </select>
         </div>
         <div class="form-group">
+            <label>Link do YouTube (opcional)</label>
+            <input type="url" id="newMusicYoutube" placeholder="https://www.youtube.com/watch?v=...">
+        </div>
+        <div class="form-group">
             <label>Letra e Cifras</label>
-            <textarea id="newMusicLyrics" rows="6" placeholder="Digite a letra com cifras..."></textarea>
+            <textarea id="newMusicLyrics" rows="8" placeholder="Digite a letra com cifras..."></textarea>
         </div>
         <button onclick="saveMusic()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
     </div>
 </div>
 
-<!-- Ver Música -->
-<div class="modal" id="viewMusicModal">
+<!-- Buscar Música do YouTube -->
+<div class="modal" id="youtubeMusicModal">
     <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('youtubeMusicModal')">&times;</button>
+        <h3><i class="fab fa-youtube"></i> Buscar Música do YouTube</h3>
+        <div class="form-group">
+            <label>Link do YouTube *</label>
+            <input type="url" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=...">
+        </div>
+        <button onclick="fetchYoutubeSong()" class="btn btn-primary w-full" style="justify-content:center;">
+            <i class="fas fa-search"></i> Buscar
+        </button>
+        <div id="youtubeResult" style="margin-top:1rem;"></div>
+    </div>
+</div>
+
+<!-- Ver Música com Cifras e Transposição -->
+<div class="modal" id="viewMusicModal">
+    <div class="modal-content" style="max-width:800px;">
         <button class="modal-close" onclick="closeModal('viewMusicModal')">&times;</button>
         <h3 id="viewMusicTitle"><i class="fas fa-music"></i> Música</h3>
         <div id="viewMusicContent"></div>
+        <div class="chord-transpose">
+            <label><strong>Transpor para:</strong></label>
+            <select id="transposeKey">
+                <option value="C">C</option><option value="C#">C#</option><option value="D">D</option>
+                <option value="D#">D#</option><option value="E">E</option><option value="F">F</option>
+                <option value="F#">F#</option><option value="G">G</option>
+                <option value="G#">G#</option><option value="A">A</option><option value="A#">A#</option>
+                <option value="B">B</option>
+            </select>
+            <button onclick="transposeSong()" class="btn btn-primary btn-sm"><i class="fas fa-arrows-alt-h"></i> Transpor</button>
+            <button onclick="resetTranspose()" class="btn btn-sm" style="background:#6c757d;color:white;">Resetar</button>
+        </div>
+        <div id="transposedLyrics" style="margin-top:0.5rem;"></div>
     </div>
 </div>
 
 <!-- Ver Escala -->
 <div class="modal" id="viewScaleModal">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width:800px;">
         <button class="modal-close" onclick="closeModal('viewScaleModal')">&times;</button>
         <h3 id="viewScaleTitle"><i class="fas fa-calendar-alt"></i> Detalhes da Escala</h3>
         <div id="viewScaleContent"></div>
+        <div style="margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
+            <button onclick="shareScaleWhatsApp()" class="btn btn-whatsapp"><i class="fab fa-whatsapp"></i> Compartilhar no WhatsApp</button>
+            <button onclick="closeModal('viewScaleModal')" class="btn" style="background:#6c757d;color:white;">Fechar</button>
+        </div>
     </div>
 </div>
 
@@ -680,6 +740,15 @@
         <h3><i class="fas fa-music"></i> Adicionar Músicas à Escala</h3>
         <p style="color:#666;margin-bottom:0.5rem;">Selecione as músicas que você vai ministrar neste culto:</p>
         <div class="music-checkbox-grid" id="ministerMusicGrid"></div>
+        <div style="margin-top:0.5rem;">
+            <div class="form-group">
+                <label>Ou adicione por link do YouTube:</label>
+                <div style="display:flex;gap:0.3rem;">
+                    <input type="url" id="ministerYoutubeUrl" placeholder="https://www.youtube.com/watch?v=..." style="flex:1;">
+                    <button onclick="addYoutubeToScale()" class="btn btn-primary btn-sm"><i class="fab fa-youtube"></i> Adicionar</button>
+                </div>
+            </div>
+        </div>
         <button onclick="saveMinisterSongs()" class="btn btn-primary w-full" style="margin-top:0.5rem;justify-content:center;">
             <i class="fas fa-save"></i> Salvar Músicas
         </button>
@@ -813,10 +882,11 @@
     }
 
     const isLeader = user.role === 'lider' || user.is_leader || user.role === 'pastor';
+    const isMinister = user.role === 'ministro';
     const departmentName = (user.department_name || '').toLowerCase().trim();
 
     // ================================================
-    // MAPEAMENTO DE DEPARTAMENTOS → CONFIGURAÇÕES
+    // MAPEAMENTO DE DEPARTAMENTOS
     // ================================================
     const DEPT_CONFIG = {
         louvor: {
@@ -846,7 +916,6 @@
         }
     };
 
-    // Fallback para departamentos não mapeados
     const defaultConfig = {
         label: user.department_name || 'Departamento',
         icon: 'fa-building',
@@ -855,6 +924,18 @@
 
     const deptKey = Object.keys(DEPT_CONFIG).find(key => departmentName.includes(key));
     const config = deptKey ? DEPT_CONFIG[deptKey] : defaultConfig;
+
+    // ================================================
+    // VARIÁVEIS GLOBAIS
+    // ================================================
+    let scales = [];
+    let myScales = [];
+    let songs = [];
+    let members = [];
+    let selectedAvailabilityDates = [];
+    let currentScaleId = null;
+    let currentSongId = null;
+    let originalLyrics = '';
 
     // ================================================
     // AUXILIARES
@@ -896,7 +977,7 @@
     }
 
     // ================================================
-    // RENDERIZAÇÃO DAS TABS (dinâmica)
+    // RENDERIZAÇÃO DAS TABS
     // ================================================
     function renderTabs() {
         const container = document.getElementById('tabsContainer');
@@ -925,10 +1006,10 @@
             container.appendChild(btn);
         });
 
-        // Mostrar/esconder botões específicos conforme permissão
         if (isLeader) {
             document.getElementById('btnNovaEscala')?.classList.remove('hidden');
             document.getElementById('addMusicBtn')?.classList.remove('hidden');
+            document.getElementById('youtubeMusicBtn')?.classList.remove('hidden');
             document.getElementById('btnNovaOracao')?.classList.remove('hidden');
             document.getElementById('btnNovoEvento')?.classList.remove('hidden');
             document.getElementById('btnNovoTithe')?.classList.remove('hidden');
@@ -940,7 +1021,6 @@
     // FUNÇÃO showTab
     // ================================================
     function showTab(tabId) {
-        // Atualizar botões
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => {
             if (b.textContent.trim().toLowerCase().includes(tabId) ||
@@ -949,12 +1029,10 @@
             }
         });
 
-        // Mostrar conteúdo
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         const el = document.getElementById('tab-' + tabId);
         if (el) el.classList.add('active');
 
-        // Carregar dados conforme a aba
         switch (tabId) {
             case 'dashboard': loadDashboard(); break;
             case 'escalas': loadScales(); loadMusicCheckboxGrid(); break;
@@ -971,7 +1049,7 @@
     }
 
     // ================================================
-    // DASHBOARD (comum)
+    // DASHBOARD
     // ================================================
     async function loadDashboard() {
         try {
@@ -1021,10 +1099,10 @@
         const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
         const today = new Date().getDay();
         const container = document.getElementById('weekdayGrid');
-        const myScales = window._myScales || [];
+        const myScalesData = window._myScales || [];
         container.innerHTML = days.map((day, index) => {
             const isToday = index === today;
-            const hasScale = myScales.some(s => {
+            const hasScale = myScalesData.some(s => {
                 const d = new Date(s.event_date);
                 return d.getDay() === index;
             });
@@ -1035,13 +1113,8 @@
     }
 
     // ================================================
-    // ESCALAS (Louvor)
+    // ESCALAS
     // ================================================
-    let scales = [];
-    let myScales = [];
-    let songs = [];
-    let members = [];
-
     function showCreateScale() {
         document.getElementById('createScaleForm').classList.remove('hidden');
         document.getElementById('createScaleForm').scrollIntoView({ behavior: 'smooth' });
@@ -1051,6 +1124,15 @@
         const dateInput = document.getElementById('scaleDate');
         dateInput.addEventListener('change', loadMusiciansSelect);
         if (dateInput.value) loadMusiciansSelect();
+        
+        // Data padrão: próximo domingo às 18:00
+        if (!dateInput.value) {
+            const now = new Date();
+            const nextSunday = new Date(now);
+            nextSunday.setDate(now.getDate() + (7 - now.getDay()));
+            nextSunday.setHours(18, 0, 0);
+            dateInput.value = nextSunday.toISOString().slice(0, 16);
+        }
     }
 
     function hideCreateScale() {
@@ -1163,7 +1245,7 @@
                         ` : ''}
                         ${s.rehearsal ? `<div class="rehearsal"><i class="fas fa-microphone"></i> Com Ensaio</div>` : ''}
                         ${musicianNames.length ? `<div><strong>Músicos:</strong> ${musicianNames.join(', ')}</div>` : ''}
-                        <div style="margin-top:0.3rem;">
+                        <div style="margin-top:0.3rem;display:flex;gap:0.3rem;flex-wrap:wrap;">
                             <button onclick="viewScaleDetails(${s.id})" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Detalhes</button>
                             ${isLeader ? `<button onclick="deleteScale(${s.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Remover</button>` : ''}
                         </div>
@@ -1176,7 +1258,10 @@
         }
     }
 
+    let currentScaleIdView = null;
+
     async function viewScaleDetails(id) {
+        currentScaleIdView = id;
         try {
             const res = await fetch(`/api/worship-scales/${id}/details`, { headers: getHeaders() });
             const scale = await res.json();
@@ -1186,6 +1271,7 @@
             const songsList = scale.songs || [];
             const paletteColors = scale.palette ? scale.palette.split(',').map(c => c.trim()) : [];
             const musiciansList = scale.musicians || [];
+            const isMinisterScale = scale.minister_id === user.id;
 
             document.getElementById('viewScaleTitle').textContent = `📅 Escala - ${eventDate.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' })}`;
             document.getElementById('viewScaleContent').innerHTML = `
@@ -1219,6 +1305,11 @@
                         `).join('')}
                     </div>
                 ` : ''}
+                ${isMinisterScale ? `
+                    <div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid #eee;">
+                        <button onclick="openMinisterMusicModal(${id})" class="btn btn-warning"><i class="fas fa-music"></i> Gerenciar Músicas</button>
+                    </div>
+                ` : ''}
                 <div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid #eee;font-size:0.85rem;color:#888;">
                     <i class="fas fa-info-circle"></i> Clique em "Ver Cifra" para visualizar a letra com cifras
                 </div>
@@ -1226,6 +1317,24 @@
             openModal('viewScaleModal');
         } catch (e) {
             showNotification('❌ Erro ao carregar detalhes: ' + e.message, 'error');
+        }
+    }
+
+    async function shareScaleWhatsApp() {
+        if (!currentScaleIdView) {
+            showNotification('Nenhuma escala selecionada!', 'error');
+            return;
+        }
+        try {
+            const res = await fetch(`/api/worship-scales/${currentScaleIdView}/share`, { headers: getHeaders() });
+            const data = await res.json();
+            if (data.whatsapp_url) {
+                window.open(data.whatsapp_url, '_blank');
+            } else {
+                showNotification('Erro ao gerar link do WhatsApp', 'error');
+            }
+        } catch (e) {
+            showNotification('❌ Erro: ' + e.message, 'error');
         }
     }
 
@@ -1314,7 +1423,7 @@
     }
 
     // ================================================
-    // MÚSICAS (Louvor)
+    // MÚSICAS
     // ================================================
     async function loadSongs() {
         try {
@@ -1331,8 +1440,9 @@
                 <div class="scale-item">
                     <div><strong>${s.title}</strong></div>
                     <div style="font-size:0.85rem;color:#666;">${s.artist || 'Artista desconhecido'} | Tom: ${s.key || 'C'}</div>
-                    <div style="margin-top:0.3rem;">
-                        <button onclick="viewSong(${s.id})" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Ver</button>
+                    ${s.youtube_url ? `<div style="font-size:0.75rem;color:#888;"><i class="fab fa-youtube"></i> <a href="${s.youtube_url}" target="_blank" style="color:var(--primary);">Ver no YouTube</a></div>` : ''}
+                    <div style="margin-top:0.3rem;display:flex;gap:0.3rem;flex-wrap:wrap;">
+                        <button onclick="viewSong(${s.id})" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Ver Cifra</button>
                         ${isLeader ? `<button onclick="deleteSong(${s.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>` : ''}
                     </div>
                 </div>
@@ -1349,18 +1459,72 @@
         document.getElementById('newMusicTitle').value = '';
         document.getElementById('newMusicArtist').value = '';
         document.getElementById('newMusicKey').value = 'C';
+        document.getElementById('newMusicYoutube').value = '';
         document.getElementById('newMusicLyrics').value = '';
         openModal('addMusicModal');
     }
 
-    async function saveMusic() {
-        const title = document.getElementById('newMusicTitle').value.trim();
-        const artist = document.getElementById('newMusicArtist').value.trim();
-        const key = document.getElementById('newMusicKey').value;
-        const lyrics = document.getElementById('newMusicLyrics').value.trim();
+    function openYoutubeMusicModal() {
+        document.getElementById('youtubeUrl').value = '';
+        document.getElementById('youtubeResult').innerHTML = '';
+        openModal('youtubeMusicModal');
+    }
+
+    async function fetchYoutubeSong() {
+        const url = document.getElementById('youtubeUrl').value.trim();
+        if (!url) { showNotification('Digite um link do YouTube!', 'error'); return; }
+
+        try {
+            const res = await fetch('/api/youtube-song', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                body: JSON.stringify({ url })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Erro ao buscar');
+
+            const resultDiv = document.getElementById('youtubeResult');
+            resultDiv.innerHTML = `
+                <div style="background:#f8f9fa;padding:1rem;border-radius:10px;">
+                    <h4>✅ Música encontrada!</h4>
+                    <div style="margin:0.5rem 0;">
+                        <iframe src="${data.embed_url}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    <div class="form-group">
+                        <label>Título</label>
+                        <input type="text" id="youtubeTitle" placeholder="Digite o título da música">
+                    </div>
+                    <div class="form-group">
+                        <label>Tom</label>
+                        <select id="youtubeKey">
+                            <option value="C">C</option><option value="C#">C#</option><option value="D">D</option>
+                            <option value="D#">D#</option><option value="E">E</option><option value="F">F</option>
+                            <option value="F#">F#</option><option value="G">G</option>
+                            <option value="G#">G#</option><option value="A">A</option><option value="A#">A#</option>
+                            <option value="B">B</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Cifra (opcional)</label>
+                        <textarea id="youtubeLyrics" rows="4" placeholder="Digite a cifra da música..."></textarea>
+                    </div>
+                    <button onclick="saveYoutubeSong('${data.video_id}')" class="btn btn-success w-full" style="justify-content:center;">
+                        <i class="fas fa-save"></i> Salvar Música
+                    </button>
+                </div>
+            `;
+        } catch (e) {
+            showNotification('❌ Erro: ' + e.message, 'error');
+        }
+    }
+
+    async function saveYoutubeSong(videoId) {
+        const title = document.getElementById('youtubeTitle').value.trim();
+        const key = document.getElementById('youtubeKey').value;
+        const lyrics = document.getElementById('youtubeLyrics').value.trim();
+        const url = document.getElementById('youtubeUrl').value.trim();
 
         if (!title) { showNotification('Digite o título da música!', 'error'); return; }
-        if (!lyrics) { showNotification('Digite a letra com cifras!', 'error'); return; }
 
         try {
             await fetch('/api/songs', {
@@ -1368,9 +1532,40 @@
                 headers: { 'Content-Type': 'application/json', ...getHeaders() },
                 body: JSON.stringify({
                     title,
-                    artist,
+                    artist: 'YouTube',
                     key,
-                    lyrics,
+                    lyrics: lyrics || '',
+                    youtube_url: url,
+                    department_id: user.department_id
+                })
+            });
+            closeModal('youtubeMusicModal');
+            showNotification('✅ Música salva do YouTube!', 'success');
+            loadSongs();
+        } catch (e) {
+            showNotification('❌ Erro: ' + e.message, 'error');
+        }
+    }
+
+    async function saveMusic() {
+        const title = document.getElementById('newMusicTitle').value.trim();
+        const artist = document.getElementById('newMusicArtist').value.trim();
+        const key = document.getElementById('newMusicKey').value;
+        const youtube = document.getElementById('newMusicYoutube').value.trim();
+        const lyrics = document.getElementById('newMusicLyrics').value.trim();
+
+        if (!title) { showNotification('Digite o título da música!', 'error'); return; }
+
+        try {
+            await fetch('/api/songs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                body: JSON.stringify({
+                    title,
+                    artist: artist || '',
+                    key,
+                    lyrics: lyrics || '',
+                    youtube_url: youtube || '',
                     department_id: user.department_id
                 })
             });
@@ -1385,12 +1580,18 @@
     function viewSong(id) {
         const song = songs.find(s => s.id === id);
         if (!song) return;
+        currentSongId = id;
+        originalLyrics = song.lyrics || '';
+        
         document.getElementById('viewMusicTitle').textContent = `🎵 ${song.title}`;
         document.getElementById('viewMusicContent').innerHTML = `
             <div><strong>Artista:</strong> ${song.artist || 'Desconhecido'}</div>
             <div><strong>Tom Original:</strong> ${song.key || 'C'}</div>
-            <div style="white-space:pre-wrap;font-family:monospace;background:#f8f9fa;padding:1rem;border-radius:8px;max-height:400px;overflow-y:auto;">${song.lyrics || 'Sem letra'}</div>
+            ${song.youtube_url ? `<div><i class="fab fa-youtube"></i> <a href="${song.youtube_url}" target="_blank" style="color:var(--primary);">Ver no YouTube</a></div>` : ''}
+            <div style="white-space:pre-wrap;font-family:monospace;background:#f8f9fa;padding:1rem;border-radius:8px;max-height:400px;overflow-y:auto;margin-top:0.5rem;" id="songLyricsDisplay">${song.lyrics || 'Sem cifra'}</div>
         `;
+        document.getElementById('transposedLyrics').innerHTML = '';
+        document.getElementById('transposeKey').value = song.key || 'C';
         openModal('viewMusicModal');
     }
 
@@ -1398,6 +1599,45 @@
         const song = songs.find(s => s.title === name);
         if (song) viewSong(song.id);
         else showNotification('Música não encontrada.', 'info');
+    }
+
+    async function transposeSong() {
+        const toKey = document.getElementById('transposeKey').value;
+        if (!originalLyrics) {
+            showNotification('Não há cifra para transpor!', 'error');
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/transpose-chord', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                body: JSON.stringify({
+                    lyrics: originalLyrics,
+                    fromKey: document.querySelector('#viewMusicContent div:nth-child(2)')?.textContent?.replace('Tom Original: ', '') || 'C',
+                    toKey: toKey
+                })
+            });
+            const data = await res.json();
+            document.getElementById('transposedLyrics').innerHTML = `
+                <div style="margin-top:0.5rem;">
+                    <strong>Transposto para ${toKey}:</strong>
+                    <div style="white-space:pre-wrap;font-family:monospace;background:#f0f4ff;padding:1rem;border-radius:8px;max-height:300px;overflow-y:auto;border:1px solid var(--primary);">${data.transposed}</div>
+                </div>
+            `;
+            showNotification(`✅ Transposto para ${toKey}!`, 'success');
+        } catch (e) {
+            showNotification('❌ Erro na transposição: ' + e.message, 'error');
+        }
+    }
+
+    function resetTranspose() {
+        document.getElementById('transposedLyrics').innerHTML = '';
+        const song = songs.find(s => s.id === currentSongId);
+        if (song) {
+            document.getElementById('transposeKey').value = song.key || 'C';
+            document.getElementById('songLyricsDisplay').textContent = song.lyrics || 'Sem cifra';
+        }
     }
 
     async function deleteSong(id) {
@@ -1412,10 +1652,8 @@
     }
 
     // ================================================
-    // DISPONIBILIDADE (Louvor)
+    // DISPONIBILIDADE
     // ================================================
-    let selectedAvailabilityDates = [];
-
     function generateDateSelector() {
         const container = document.getElementById('dateSelectorGrid');
         const today = new Date();
@@ -1584,7 +1822,125 @@
     }
 
     // ================================================
-    // ORAÇÕES (Departamento de Oração)
+    // MINISTRO ADICIONAR MÚSICAS
+    // ================================================
+    function openMinisterMusicModal(scaleId) {
+        currentScaleId = scaleId;
+        const scale = scales.find(s => s.id === scaleId);
+        if (!scale) {
+            showNotification('Escala não encontrada!', 'error');
+            return;
+        }
+        
+        const container = document.getElementById('ministerMusicGrid');
+        if (!songs || songs.length === 0) {
+            container.innerHTML = '<p style="color:#888;">Nenhuma música cadastrada.</p>';
+            return;
+        }
+
+        let songIds = [];
+        try { songIds = JSON.parse(scale.song_ids || '[]'); } catch { songIds = []; }
+        
+        container.innerHTML = songs.map(s => {
+            const isChecked = songIds.includes(s.id) ? 'checked' : '';
+            return `
+                <label>
+                    <input type="checkbox" class="minister-music-checkbox" value="${s.id}" data-title="${s.title}" ${isChecked}>
+                    ${s.title} (${s.key || 'C'})
+                </label>
+            `;
+        }).join('');
+        
+        document.getElementById('ministerYoutubeUrl').value = '';
+        openModal('ministerMusicModal');
+    }
+
+    async function addYoutubeToScale() {
+        const url = document.getElementById('ministerYoutubeUrl').value.trim();
+        if (!url) { showNotification('Digite um link do YouTube!', 'error'); return; }
+
+        try {
+            const res = await fetch('/api/youtube-song', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                body: JSON.stringify({ url })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Erro ao buscar');
+
+            // Adiciona como música temporária na escala
+            const musicName = `YouTube: ${new URL(url).searchParams.get('v') || 'Vídeo'}`;
+            
+            // Adiciona no grid de músicas da escala
+            const container = document.getElementById('ministerMusicGrid');
+            const checkbox = document.createElement('label');
+            checkbox.innerHTML = `
+                <input type="checkbox" class="minister-music-checkbox" value="youtube_${Date.now()}" data-title="${musicName}" checked>
+                ${musicName} (YouTube)
+            `;
+            container.appendChild(checkbox);
+            
+            showNotification('✅ Música do YouTube adicionada!', 'success');
+            document.getElementById('ministerYoutubeUrl').value = '';
+        } catch (e) {
+            showNotification('❌ Erro: ' + e.message, 'error');
+        }
+    }
+
+    function getSelectedMinisterMusicIds() {
+        const checkboxes = document.querySelectorAll('#ministerMusicGrid .minister-music-checkbox:checked');
+        return Array.from(checkboxes).map(cb => {
+            const id = parseInt(cb.value);
+            return isNaN(id) ? cb.value : id;
+        });
+    }
+
+    async function saveMinisterSongs() {
+        const musicItems = getSelectedMinisterMusicIds();
+        if (!musicItems.length) {
+            showNotification('Selecione pelo menos uma música!', 'error');
+            return;
+        }
+        
+        // Filtra apenas IDs numéricos (músicas do banco)
+        const songIds = musicItems.filter(id => typeof id === 'number');
+        const musicNames = songIds.map(id => {
+            const m = songs.find(s => s.id === id);
+            return m ? m.title : 'Música';
+        });
+
+        // Adiciona músicas do YouTube (não salvas no banco)
+        const youtubeItems = musicItems.filter(id => typeof id === 'string' && id.startsWith('youtube_'));
+        youtubeItems.forEach((item, index) => {
+            musicNames.push(`YouTube ${index + 1}`);
+        });
+        
+        try {
+            const response = await fetch(`/api/worship-scales/${currentScaleId}/songs`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                body: JSON.stringify({
+                    songs: musicNames,
+                    song_ids: songIds
+                })
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Erro ao adicionar músicas');
+            }
+            
+            showNotification('✅ Músicas adicionadas à escala!', 'success');
+            closeModal('ministerMusicModal');
+            loadScales();
+            loadMyScales();
+        } catch (e) {
+            showNotification('❌ Erro: ' + e.message, 'error');
+        }
+    }
+
+    // ================================================
+    // ORAÇÕES
     // ================================================
     async function loadPrayers() {
         try {
@@ -1644,7 +2000,7 @@
     }
 
     // ================================================
-    // EVENTOS (Secretaria)
+    // EVENTOS
     // ================================================
     async function loadEvents() {
         try {
@@ -1714,7 +2070,7 @@
     }
 
     // ================================================
-    // TESOURARIA (Dízimos e Contas)
+    // TESOURARIA
     // ================================================
     async function loadTithes() {
         try {
@@ -1786,6 +2142,9 @@
         }
     }
 
+    // ================================================
+    // CONTAS
+    // ================================================
     async function loadBills() {
         try {
             const res = await fetch('/api/bills', { headers: getHeaders() });
@@ -1867,7 +2226,7 @@
     }
 
     // ================================================
-    // EQUIPE (comum)
+    // EQUIPE
     // ================================================
     async function loadTeam() {
         try {
@@ -1909,7 +2268,7 @@
     }
 
     // ================================================
-    // GERENCIAR MEMBROS (líder) - com seletor de usuários
+    // GERENCIAR MEMBROS
     // ================================================
     async function loadMembers() {
         try {
@@ -1950,12 +2309,10 @@
     }
 
     async function openAddMemberModal() {
-        // Carrega a lista de usuários que NÃO estão no departamento
         try {
             const res = await fetch('/api/users', { headers: getHeaders() });
             const allUsers = await res.json();
             
-            // Filtra os usuários que já são membros deste departamento
             const memberIds = members.map(m => m.id);
             const availableUsers = allUsers.filter(u => !memberIds.includes(u.id) && u.id !== user.id);
             
@@ -1986,7 +2343,6 @@
         }
 
         try {
-            // Primeiro, obtém o nome do usuário para a notificação
             const res = await fetch('/api/users', { headers: getHeaders() });
             const users = await res.json();
             const selectedUser = users.find(u => u.id == userId);
@@ -2045,7 +2401,7 @@
     }
 
     // ================================================
-    // CRIAR USUÁRIO (líder)
+    // CRIAR USUÁRIO
     // ================================================
     async function createUserByLeader() {
         const name = document.getElementById('newUserName').value.trim();

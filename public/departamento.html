@@ -198,7 +198,6 @@
         .scale-item .palette { display: flex; gap: 0.3rem; margin-top: 0.3rem; flex-wrap: wrap; align-items: center; }
         .scale-item .palette .color { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #ddd; }
         .scale-item .rehearsal { color: #28a745; font-weight: 600; font-size: 0.85rem; margin-top: 0.3rem; }
-        .scale-item .share-btn { margin-top: 0.3rem; }
 
         .my-scale-item {
             background: white;
@@ -384,6 +383,29 @@
             font-size: 0.85rem;
         }
 
+        .available-member-item {
+            display: flex;
+            align-items: center;
+            padding: 0.3rem 0.5rem;
+            border-radius: 6px;
+            margin-bottom: 0.2rem;
+            background: #f8f9fa;
+            border-left: 3px solid #28a745;
+        }
+        .available-member-item .member-name {
+            font-weight: 600;
+            flex: 1;
+        }
+        .available-member-item .member-role {
+            font-size: 0.7rem;
+            color: #888;
+            margin-right: 0.5rem;
+        }
+        .available-member-item .member-check {
+            color: #28a745;
+            font-size: 0.8rem;
+        }
+
         @media (max-width: 768px) {
             .header { flex-direction: column; gap: 0.5rem; padding: 0.8rem 1rem; }
             .grid { grid-template-columns: 1fr; }
@@ -445,7 +467,18 @@
     </div>
 
     <!-- ========================================================== -->
-    <!-- ESCALAS (Louvor) -->
+    <!-- DISPONIBILIDADE (Membro) -->
+    <!-- ========================================================== -->
+    <div id="tab-disponibilidade" class="tab-content">
+        <h3><i class="fas fa-calendar-check"></i> Minha Disponibilidade</h3>
+        <p style="color:#666;margin-bottom:0.5rem;">Selecione os dias em que você está disponível para ser escalado:</p>
+        <div class="date-selector-grid" id="dateSelectorGrid"></div>
+        <button onclick="addMultipleAvailability()" class="btn btn-primary mt-1"><i class="fas fa-save"></i> Salvar Datas Selecionadas</button>
+        <div id="availabilityList" style="margin-top:1rem;"><p style="color:#888;">Nenhuma data disponível cadastrada.</p></div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- ESCALAS (Louvor - Líder) -->
     <!-- ========================================================== -->
     <div id="tab-escalas" class="tab-content">
         <div class="flex-between">
@@ -460,31 +493,47 @@
             <h4>Nova Escala</h4>
             <div class="form-group">
                 <label><i class="fas fa-calendar"></i> Data e Hora *</label>
-                <input type="datetime-local" id="scaleDate">
+                <input type="datetime-local" id="scaleDate" onchange="loadAvailableMembersForScale()">
             </div>
+            
+            <div class="form-group">
+                <label><i class="fas fa-users"></i> Membros Disponíveis nesta Data</label>
+                <div id="availableMembersList" style="max-height:200px;overflow-y:auto;border:1px solid #e0e0e0;border-radius:8px;padding:0.3rem;">
+                    <p style="color:#888;font-size:0.8rem;text-align:center;">Selecione uma data para ver os disponíveis</p>
+                </div>
+            </div>
+
             <div class="form-group">
                 <label><i class="fas fa-user"></i> Ministro Responsável</label>
-                <select id="scaleMinister"></select>
+                <select id="scaleMinister">
+                    <option value="">Selecione um ministro</option>
+                </select>
+                <small style="color:#888;">Só aparecem ministros disponíveis na data</small>
             </div>
+
             <div class="form-group">
                 <label><i class="fas fa-music"></i> Músicas (selecione as músicas)</label>
                 <div class="music-checkbox-grid" id="musicCheckboxGrid"></div>
             </div>
+
             <div class="form-group">
                 <label><i class="fas fa-palette"></i> Paleta de Cores</label>
                 <input type="text" id="scalePalette" placeholder="Ex: Azul, Prata, Branco, Dourado">
             </div>
+
             <div class="form-group">
                 <label><i class="fas fa-users"></i> Músicos (selecione múltiplos)</label>
                 <select id="scaleMusicians" multiple style="height:80px;"></select>
-                <small style="color:#888;">Segure Ctrl para selecionar múltiplos</small>
+                <small style="color:#888;">Segure Ctrl para selecionar múltiplos - Só aparecem músicos disponíveis na data</small>
             </div>
+
             <div class="form-group">
                 <label class="flex-center">
                     <input type="checkbox" id="hasRehearsal">
                     <span style="margin-left:0.5rem;"><i class="fas fa-microphone"></i> Com Ensaio</span>
                 </label>
             </div>
+
             <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
                 <button onclick="saveScale()" class="btn btn-success"><i class="fas fa-save"></i> Salvar Escala</button>
                 <button onclick="hideCreateScale()" class="btn" style="background:#6c757d;color:white;">Cancelar</button>
@@ -493,7 +542,7 @@
     </div>
 
     <!-- ========================================================== -->
-    <!-- MINHAS ESCALAS (Louvor) -->
+    <!-- MINHAS ESCALAS (Todos) -->
     <!-- ========================================================== -->
     <div id="tab-minhas-escalas" class="tab-content">
         <h3><i class="fas fa-calendar-check"></i> Minhas Escalas</h3>
@@ -512,17 +561,6 @@
             </div>
         </div>
         <div id="songsList"><p style="color:#888;">Carregando...</p></div>
-    </div>
-
-    <!-- ========================================================== -->
-    <!-- DISPONIBILIDADE (Louvor) -->
-    <!-- ========================================================== -->
-    <div id="tab-disponibilidade" class="tab-content">
-        <h3><i class="fas fa-calendar-check"></i> Minha Disponibilidade</h3>
-        <p style="color:#666;margin-bottom:0.5rem;">Selecione os dias em que você está disponível:</p>
-        <div class="date-selector-grid" id="dateSelectorGrid"></div>
-        <button onclick="addMultipleAvailability()" class="btn btn-primary mt-1"><i class="fas fa-save"></i> Salvar Datas Selecionadas</button>
-        <div id="availabilityList" style="margin-top:1rem;"><p style="color:#888;">Nenhuma data disponível cadastrada.</p></div>
     </div>
 
     <!-- ========================================================== -->
@@ -892,7 +930,7 @@
         louvor: {
             label: 'Louvor',
             icon: 'fa-music',
-            tabs: ['dashboard', 'escalas', 'minhas-escalas', 'musicas', 'disponibilidade', 'equipe', 'membros', 'criar-usuario'],
+            tabs: ['dashboard', 'disponibilidade', 'escalas', 'minhas-escalas', 'musicas', 'equipe', 'membros', 'criar-usuario'],
             canCreateScale: true,
             canManageMusic: true,
         },
@@ -936,6 +974,7 @@
     let currentScaleId = null;
     let currentSongId = null;
     let originalLyrics = '';
+    let availableMembers = [];
 
     // ================================================
     // AUXILIARES
@@ -983,10 +1022,10 @@
         const container = document.getElementById('tabsContainer');
         const tabMap = {
             dashboard: { label: 'Dashboard', icon: 'fa-home' },
+            disponibilidade: { label: 'Disponibilidade', icon: 'fa-calendar-check' },
             escalas: { label: 'Escalas', icon: 'fa-calendar-alt' },
             'minhas-escalas': { label: 'Minhas Escalas', icon: 'fa-calendar-check' },
             musicas: { label: 'Músicas', icon: 'fa-music' },
-            disponibilidade: { label: 'Disponibilidade', icon: 'fa-calendar-check' },
             oracoes: { label: 'Orações', icon: 'fa-pray' },
             eventos: { label: 'Eventos', icon: 'fa-calendar' },
             tesouraria: { label: 'Tesouraria', icon: 'fa-hand-holding-heart' },
@@ -1035,10 +1074,10 @@
 
         switch (tabId) {
             case 'dashboard': loadDashboard(); break;
+            case 'disponibilidade': loadAvailability(); generateDateSelector(); break;
             case 'escalas': loadScales(); loadMusicCheckboxGrid(); break;
             case 'minhas-escalas': loadMyScales(); break;
             case 'musicas': loadSongs(); break;
-            case 'disponibilidade': loadAvailability(); generateDateSelector(); break;
             case 'oracoes': loadPrayers(); break;
             case 'eventos': loadEvents(); break;
             case 'tesouraria': loadTithes(); loadBills(); break;
@@ -1113,19 +1152,177 @@
     }
 
     // ================================================
-    // ESCALAS
+    // DISPONIBILIDADE (Membro)
     // ================================================
+    function generateDateSelector() {
+        const container = document.getElementById('dateSelectorGrid');
+        const today = new Date();
+        const dates = [];
+        for (let i = 0; i < 30; i++) {
+            const d = new Date(today);
+            d.setDate(d.getDate() + i);
+            dates.push(d);
+        }
+        container.innerHTML = dates.map(d => {
+            const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+            const dayName = dayNames[d.getDay()];
+            const dayNumber = d.getDate();
+            const month = d.toLocaleDateString('pt-BR', { month: 'short' });
+            const dateStr = d.toISOString().split('T')[0];
+            const isSelected = selectedAvailabilityDates.includes(dateStr);
+            return `
+                <div class="date-option ${isSelected ? 'selected' : ''}" 
+                     onclick="toggleDateSelection('${dateStr}')"
+                     data-date="${dateStr}">
+                    <div style="font-size:0.7rem;opacity:0.7;">${dayName}</div>
+                    <div style="font-size:1.2rem;font-weight:700;">${dayNumber}</div>
+                    <div style="font-size:0.7rem;opacity:0.7;">${month}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function toggleDateSelection(dateStr) {
+        const index = selectedAvailabilityDates.indexOf(dateStr);
+        if (index > -1) selectedAvailabilityDates.splice(index, 1);
+        else selectedAvailabilityDates.push(dateStr);
+
+        document.querySelectorAll('.date-option').forEach(el => {
+            if (el.dataset.date === dateStr) el.classList.toggle('selected');
+        });
+    }
+
+    async function addMultipleAvailability() {
+        if (!selectedAvailabilityDates.length) {
+            showNotification('⚠️ Selecione pelo menos uma data!', 'error');
+            return;
+        }
+        try {
+            let successCount = 0;
+            for (const date of selectedAvailabilityDates) {
+                try {
+                    await fetch('/api/availability', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                        body: JSON.stringify({ user_id: user.id, date: date + 'T00:00:00', department_id: user.department_id })
+                    });
+                    successCount++;
+                } catch (e) {}
+            }
+            showNotification(`✅ ${successCount} datas adicionadas!`, 'success');
+            selectedAvailabilityDates = [];
+            generateDateSelector();
+            loadAvailability();
+        } catch (e) {
+            showNotification('❌ Erro: ' + e.message, 'error');
+        }
+    }
+
+    async function loadAvailability() {
+        try {
+            const res = await fetch(`/api/availability/${user.id}`, { headers: getHeaders() });
+            const data = await res.json();
+            const container = document.getElementById('availabilityList');
+            if (!data || !data.length) {
+                container.innerHTML = '<p style="color:#888;">Nenhuma data disponível cadastrada.</p>';
+                return;
+            }
+            container.innerHTML = data.map(a => `
+                <div class="scale-item">
+                    <div><i class="fas fa-calendar"></i> ${new Date(a.date).toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' })}</div>
+                    <button onclick="deleteAvailability(${a.id})" class="btn btn-danger btn-sm mt-1"><i class="fas fa-trash"></i> Remover</button>
+                </div>
+            `).join('');
+        } catch (e) {
+            console.error('Erro:', e);
+        }
+    }
+
+    async function deleteAvailability(id) {
+        if (!confirm('Remover esta data?')) return;
+        try {
+            await fetch('/api/availability/' + id, { method: 'DELETE', headers: getHeaders() });
+            showNotification('✅ Data removida!', 'success');
+            loadAvailability();
+        } catch (e) {
+            showNotification('❌ Erro: ' + e.message, 'error');
+        }
+    }
+
+    // ================================================
+    // ESCALAS (Líder)
+    // ================================================
+    async function loadAvailableMembersForScale() {
+        const date = document.getElementById('scaleDate').value;
+        if (!date) {
+            document.getElementById('availableMembersList').innerHTML = '<p style="color:#888;font-size:0.8rem;text-align:center;">Selecione uma data</p>';
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/availability/date/${date}/department/${user.department_id}`, { headers: getHeaders() });
+            const data = await res.json();
+            availableMembers = Array.isArray(data) ? data : [];
+
+            const container = document.getElementById('availableMembersList');
+            if (!availableMembers.length) {
+                container.innerHTML = '<p style="color:#888;font-size:0.8rem;text-align:center;">Nenhum membro disponível nesta data</p>';
+            } else {
+                container.innerHTML = availableMembers.map(m => `
+                    <div class="available-member-item">
+                        <span class="member-name">${m.name}</span>
+                        <span class="member-role">${m.member_role || m.role || 'Membro'}</span>
+                        <span class="member-check"><i class="fas fa-check-circle"></i></span>
+                    </div>
+                `).join('');
+            }
+
+            // Atualiza os selects com base nos disponíveis
+            updateScaleSelects();
+
+        } catch (e) {
+            console.error('Erro ao carregar disponíveis:', e);
+            document.getElementById('availableMembersList').innerHTML = '<p style="color:#dc3545;font-size:0.8rem;text-align:center;">Erro ao carregar</p>';
+        }
+    }
+
+    function updateScaleSelects() {
+        const availableIds = availableMembers.map(m => m.id);
+        
+        // Ministros disponíveis
+        const ministerSelect = document.getElementById('scaleMinister');
+        const ministersList = members.filter(m => 
+            (m.member_role === 'ministro' || m.member_role === 'lider') && 
+            availableIds.includes(m.id)
+        );
+        ministerSelect.innerHTML = '<option value="">Selecione um ministro</option>';
+        ministersList.forEach(m => {
+            ministerSelect.innerHTML += `<option value="${m.id}">${m.name} ✅ Disponível</option>`;
+        });
+
+        // Músicos disponíveis
+        const musiciansSelect = document.getElementById('scaleMusicians');
+        const musiciansList = members.filter(m => 
+            (m.member_role === 'musico' || m.member_role === 'lider') && 
+            availableIds.includes(m.id)
+        );
+        musiciansSelect.innerHTML = '';
+        if (!musiciansList.length) {
+            musiciansSelect.innerHTML = '<option value="">Nenhum músico disponível nesta data</option>';
+        } else {
+            musiciansList.forEach(m => {
+                musiciansSelect.innerHTML += `<option value="${m.id}">${m.name} ✅ Disponível</option>`;
+            });
+        }
+    }
+
     function showCreateScale() {
         document.getElementById('createScaleForm').classList.remove('hidden');
         document.getElementById('createScaleForm').scrollIntoView({ behavior: 'smooth' });
-        loadMinisterSelect();
-        loadMusiciansSelect();
         loadMusicCheckboxGrid();
-        const dateInput = document.getElementById('scaleDate');
-        dateInput.addEventListener('change', loadMusiciansSelect);
-        if (dateInput.value) loadMusiciansSelect();
         
         // Data padrão: próximo domingo às 18:00
+        const dateInput = document.getElementById('scaleDate');
         if (!dateInput.value) {
             const now = new Date();
             const nextSunday = new Date(now);
@@ -1133,6 +1330,9 @@
             nextSunday.setHours(18, 0, 0);
             dateInput.value = nextSunday.toISOString().slice(0, 16);
         }
+        
+        // Carrega os disponíveis para a data padrão
+        setTimeout(() => loadAvailableMembersForScale(), 300);
     }
 
     function hideCreateScale() {
@@ -1141,6 +1341,7 @@
         document.getElementById('scalePalette').value = '';
         document.getElementById('hasRehearsal').checked = false;
         document.querySelectorAll('#musicCheckboxGrid .music-checkbox').forEach(cb => cb.checked = false);
+        document.getElementById('availableMembersList').innerHTML = '<p style="color:#888;font-size:0.8rem;text-align:center;">Selecione uma data para ver os disponíveis</p>';
     }
 
     async function saveScale() {
@@ -1154,8 +1355,8 @@
         if (!date) { showNotification('Selecione a data do culto!', 'error'); return; }
         if (!musicIds.length) { showNotification('Selecione pelo menos uma música!', 'error'); return; }
 
-        const available = await loadAvailableMembersForDate(date);
-        const availableIds = available.map(m => m.id);
+        // Verifica se os músicos selecionados estão disponíveis
+        const availableIds = availableMembers.map(m => m.id);
         const invalidMusicians = musicians.filter(id => !availableIds.includes(parseInt(id)));
         if (invalidMusicians.length > 0) {
             const names = invalidMusicians.map(id => {
@@ -1163,6 +1364,12 @@
                 return m ? m.name : 'Músico';
             });
             showNotification(`⚠️ Os seguintes músicos não estão disponíveis na data: ${names.join(', ')}`, 'error');
+            return;
+        }
+
+        // Verifica se o ministro está disponível
+        if (minister && !availableIds.includes(parseInt(minister))) {
+            showNotification('⚠️ O ministro selecionado não está disponível nesta data!', 'error');
             return;
         }
 
@@ -1652,142 +1859,8 @@
     }
 
     // ================================================
-    // DISPONIBILIDADE
-    // ================================================
-    function generateDateSelector() {
-        const container = document.getElementById('dateSelectorGrid');
-        const today = new Date();
-        const dates = [];
-        for (let i = 0; i < 30; i++) {
-            const d = new Date(today);
-            d.setDate(d.getDate() + i);
-            dates.push(d);
-        }
-        container.innerHTML = dates.map(d => {
-            const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-            const dayName = dayNames[d.getDay()];
-            const dayNumber = d.getDate();
-            const month = d.toLocaleDateString('pt-BR', { month: 'short' });
-            const dateStr = d.toISOString().split('T')[0];
-            const isSelected = selectedAvailabilityDates.includes(dateStr);
-            return `
-                <div class="date-option ${isSelected ? 'selected' : ''}" 
-                     onclick="toggleDateSelection('${dateStr}')"
-                     data-date="${dateStr}">
-                    <div style="font-size:0.7rem;opacity:0.7;">${dayName}</div>
-                    <div style="font-size:1.2rem;font-weight:700;">${dayNumber}</div>
-                    <div style="font-size:0.7rem;opacity:0.7;">${month}</div>
-                </div>
-            `;
-        }).join('');
-    }
-
-    function toggleDateSelection(dateStr) {
-        const index = selectedAvailabilityDates.indexOf(dateStr);
-        if (index > -1) selectedAvailabilityDates.splice(index, 1);
-        else selectedAvailabilityDates.push(dateStr);
-
-        document.querySelectorAll('.date-option').forEach(el => {
-            if (el.dataset.date === dateStr) el.classList.toggle('selected');
-        });
-    }
-
-    async function addMultipleAvailability() {
-        if (!selectedAvailabilityDates.length) {
-            showNotification('⚠️ Selecione pelo menos uma data!', 'error');
-            return;
-        }
-        try {
-            let successCount = 0;
-            for (const date of selectedAvailabilityDates) {
-                try {
-                    await fetch('/api/availability', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', ...getHeaders() },
-                        body: JSON.stringify({ user_id: user.id, date: date + 'T00:00:00' })
-                    });
-                    successCount++;
-                } catch (e) {}
-            }
-            showNotification(`✅ ${successCount} datas adicionadas!`, 'success');
-            selectedAvailabilityDates = [];
-            generateDateSelector();
-            loadAvailability();
-        } catch (e) {
-            showNotification('❌ Erro: ' + e.message, 'error');
-        }
-    }
-
-    async function loadAvailability() {
-        try {
-            const res = await fetch(`/api/availability/${user.id}`, { headers: getHeaders() });
-            const data = await res.json();
-            const container = document.getElementById('availabilityList');
-            if (!data || !data.length) {
-                container.innerHTML = '<p style="color:#888;">Nenhuma data disponível cadastrada.</p>';
-                return;
-            }
-            container.innerHTML = data.map(a => `
-                <div class="scale-item">
-                    <div><i class="fas fa-calendar"></i> ${new Date(a.date).toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' })}</div>
-                    <button onclick="deleteAvailability(${a.id})" class="btn btn-danger btn-sm mt-1"><i class="fas fa-trash"></i> Remover</button>
-                </div>
-            `).join('');
-        } catch (e) {
-            console.error('Erro:', e);
-        }
-    }
-
-    async function deleteAvailability(id) {
-        if (!confirm('Remover esta data?')) return;
-        try {
-            await fetch('/api/availability/' + id, { method: 'DELETE', headers: getHeaders() });
-            showNotification('✅ Data removida!', 'success');
-            loadAvailability();
-        } catch (e) {
-            showNotification('❌ Erro: ' + e.message, 'error');
-        }
-    }
-
-    // ================================================
     // AUXILIARES DE ESCALA
     // ================================================
-    function loadMinisterSelect() {
-        const select = document.getElementById('scaleMinister');
-        const ministersList = members.filter(m => m.member_role === 'ministro' || m.member_role === 'lider');
-        select.innerHTML = '<option value="">Selecione um ministro</option>';
-        ministersList.forEach(m => {
-            select.innerHTML += `<option value="${m.id}">${m.name}</option>`;
-        });
-    }
-
-    async function loadMusiciansSelect() {
-        const date = document.getElementById('scaleDate').value;
-        const select = document.getElementById('scaleMusicians');
-        if (!date) {
-            select.innerHTML = '<option value="">Selecione uma data primeiro</option>';
-            return;
-        }
-        try {
-            const available = await loadAvailableMembersForDate(date);
-            const musiciansList = members.filter(m =>
-                (m.member_role === 'musico' || m.member_role === 'lider') &&
-                available.some(a => a.id === m.id)
-            );
-            select.innerHTML = '';
-            if (!musiciansList.length) {
-                select.innerHTML = '<option value="">Nenhum músico disponível nesta data</option>';
-            } else {
-                musiciansList.forEach(m => {
-                    select.innerHTML += `<option value="${m.id}">${m.name} ✅ Disponível</option>`;
-                });
-            }
-        } catch (e) {
-            console.error('Erro:', e);
-            select.innerHTML = '<option value="">Erro ao carregar disponíveis</option>';
-        }
-    }
-
     function getSelectedMusicIds() {
         const checkboxes = document.querySelectorAll('#musicCheckboxGrid .music-checkbox:checked');
         return Array.from(checkboxes).map(cb => parseInt(cb.value));
@@ -1806,19 +1879,6 @@
                 ${s.title} (${s.key || 'C'})
             </label>
         `).join('');
-    }
-
-    async function loadAvailableMembersForDate(date) {
-        try {
-            const res = await fetch(`/api/availability/date/${date}?department_id=${user.department_id}`, {
-                headers: getHeaders()
-            });
-            const data = await res.json();
-            return Array.isArray(data) ? data : [];
-        } catch (e) {
-            console.error('Erro:', e);
-            return [];
-        }
     }
 
     // ================================================
@@ -1868,10 +1928,8 @@
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Erro ao buscar');
 
-            // Adiciona como música temporária na escala
             const musicName = `YouTube: ${new URL(url).searchParams.get('v') || 'Vídeo'}`;
             
-            // Adiciona no grid de músicas da escala
             const container = document.getElementById('ministerMusicGrid');
             const checkbox = document.createElement('label');
             checkbox.innerHTML = `
@@ -1902,14 +1960,12 @@
             return;
         }
         
-        // Filtra apenas IDs numéricos (músicas do banco)
         const songIds = musicItems.filter(id => typeof id === 'number');
         const musicNames = songIds.map(id => {
             const m = songs.find(s => s.id === id);
             return m ? m.title : 'Música';
         });
 
-        // Adiciona músicas do YouTube (não salvas no banco)
         const youtubeItems = musicItems.filter(id => typeof id === 'string' && id.startsWith('youtube_'));
         youtubeItems.forEach((item, index) => {
             musicNames.push(`YouTube ${index + 1}`);

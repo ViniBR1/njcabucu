@@ -1363,6 +1363,31 @@ app.get('/api/availability/date/:date', auth, async (req, res) => {
 });
 
 // ============================================
+// ===== NOVA ROTA: BUSCAR DISPONÍVEIS POR DATA E DEPARTAMENTO =====
+// ============================================
+
+app.get('/api/availability/date/:date/department/:deptId', auth, async (req, res) => {
+    try {
+        const { date, deptId } = req.params;
+        
+        const available = await sql`
+            SELECT u.id, u.name, u.email, u.phone, u.role, dm.role as member_role
+            FROM availability a
+            JOIN users u ON a.user_id = u.id
+            JOIN department_members dm ON u.id = dm.user_id
+            WHERE a.date = $1 
+            AND a.department_id = $2
+            AND dm.department_id = $2
+            ORDER BY u.name
+        `;
+        res.json(available);
+    } catch (error) {
+        console.error('❌ Erro ao buscar disponíveis:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
 // ===== ROTAS PARA SISTEMA DE LOUVOR =====
 // ============================================
 
@@ -2779,5 +2804,6 @@ app.listen(PORT, () => {
     console.log('🙏 Módulo Oração: ✅ Configurado');
     console.log('📅 Módulo Secretaria: ✅ Configurado');
     console.log('💰 Módulo Tesouraria: ✅ Configurado');
+    console.log('📋 Módulo de Disponibilidade: ✅ Configurado');
     console.log('');
 });

@@ -724,6 +724,21 @@ app.post('/api/users', auth, pastorOnly, async (req, res) => {
     }
 });
 
+// ROTA PARA BUSCAR TODOS OS USUÁRIOS (para líderes/pastor adicionarem membros)
+app.get('/api/users/all', auth, leaderOnly, async (req, res) => {
+    try {
+        const users = await sql`
+            SELECT id, name, email, role, department_id, department_name, phone, first_login, is_leader, created_at
+            FROM users 
+            ORDER BY name
+        `;
+        res.json(users);
+    } catch (error) {
+        console.error('❌ Erro ao buscar todos os usuários:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.get('/api/users', auth, async (req, res) => {
     try {
         let users;
@@ -1383,14 +1398,13 @@ app.get('/api/availability/date/:date', auth, async (req, res) => {
         const { department_id } = req.query;
         console.log(`📝 Buscando disponíveis para data ${date}, departamento ${department_id}`);
 
-        // Converte a data para YYYY-MM-DD
         const formattedDate = new Date(date).toISOString().split('T')[0];
 
         let query = `
             SELECT u.id, u.name, u.email 
             FROM availability a
             JOIN users u ON a.user_id = u.id
-            WHERE a.date = $1
+            WHERE DATE(a.date) = $1
         `;
         const params = [formattedDate];
         if (department_id) {
@@ -1415,11 +1429,9 @@ app.get('/api/availability/date/:date/department/:deptId', auth, async (req, res
         const { date, deptId } = req.params;
         console.log(`📝 Buscando disponíveis para data ${date}, departamento ${deptId}`);
 
-        // Converte a data para YYYY-MM-DD (remove a hora)
         const formattedDate = new Date(date).toISOString().split('T')[0];
         console.log(`📅 Data formatada: ${formattedDate}`);
 
-        // Busca membros disponíveis na data e no departamento
         const available = await sql`
             SELECT u.id, u.name, u.email, u.phone, u.role, dm.role as member_role
             FROM availability a

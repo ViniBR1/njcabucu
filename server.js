@@ -582,7 +582,7 @@ async function initDB() {
             UNIQUE(user_id, date)
         )`;
 
-        // CORREÇÃO: Adiciona a coluna 'department_id' se não existir (para bancos antigos)
+        // CORREÇÃO: Adiciona a coluna 'department_id' se não existir
         await sql`
             DO $$
             BEGIN
@@ -1298,7 +1298,7 @@ app.put('/api/worship-scales/:id/songs', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== ROTAS PARA DISPONIBILIDADE (CORRIGIDAS) =====
+// ===== ROTAS PARA DISPONIBILIDADE =====
 // ============================================
 
 app.post('/api/availability', auth, async (req, res) => {
@@ -1312,18 +1312,15 @@ app.post('/api/availability', auth, async (req, res) => {
             return res.status(400).json({ error: 'Usuário e data são obrigatórios' });
         }
 
-        // Se não veio department_id, usa o do usuário logado
         let deptId = department_id || req.user.department_id;
         if (!deptId) {
             console.log('❌ Departamento não informado');
             return res.status(400).json({ error: 'Departamento não informado' });
         }
 
-        // Formata a data para YYYY-MM-DD
         const formattedDate = new Date(date).toISOString().split('T')[0];
         console.log('📅 Data formatada:', formattedDate);
 
-        // Verifica se já existe
         const existing = await sql`
             SELECT * FROM availability 
             WHERE user_id = ${user_id} AND date = ${formattedDate}
@@ -1386,13 +1383,16 @@ app.get('/api/availability/date/:date', auth, async (req, res) => {
         const { department_id } = req.query;
         console.log(`📝 Buscando disponíveis para data ${date}, departamento ${department_id}`);
 
+        // Converte a data para YYYY-MM-DD
+        const formattedDate = new Date(date).toISOString().split('T')[0];
+
         let query = `
             SELECT u.id, u.name, u.email 
             FROM availability a
             JOIN users u ON a.user_id = u.id
             WHERE a.date = $1
         `;
-        const params = [date];
+        const params = [formattedDate];
         if (department_id) {
             query += ` AND a.department_id = $2`;
             params.push(department_id);
@@ -1407,7 +1407,7 @@ app.get('/api/availability/date/:date', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== ROTA: BUSCAR DISPONÍVEIS POR DATA E DEPARTAMENTO =====
+// ===== ROTA: BUSCAR DISPONÍVEIS POR DATA E DEPARTAMENTO (CORRIGIDA) =====
 // ============================================
 
 app.get('/api/availability/date/:date/department/:deptId', auth, async (req, res) => {
@@ -1415,15 +1415,17 @@ app.get('/api/availability/date/:date/department/:deptId', auth, async (req, res
         const { date, deptId } = req.params;
         console.log(`📝 Buscando disponíveis para data ${date}, departamento ${deptId}`);
 
-        // Formata a data para YYYY-MM-DD
+        // Converte a data para YYYY-MM-DD (remove a hora)
         const formattedDate = new Date(date).toISOString().split('T')[0];
-        
+        console.log(`📅 Data formatada: ${formattedDate}`);
+
+        // Busca membros disponíveis na data e no departamento
         const available = await sql`
             SELECT u.id, u.name, u.email, u.phone, u.role, dm.role as member_role
             FROM availability a
             JOIN users u ON a.user_id = u.id
             JOIN department_members dm ON u.id = dm.user_id
-            WHERE a.date = $1 
+            WHERE DATE(a.date) = $1 
             AND a.department_id = $2
             AND dm.department_id = $2
             ORDER BY u.name

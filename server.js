@@ -582,6 +582,17 @@ async function initDB() {
             UNIQUE(user_id, date)
         )`;
 
+        // CORREÇÃO: Adiciona a coluna 'department_id' se não existir (para bancos antigos)
+        await sql`
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='availability' AND column_name='department_id') THEN
+                    ALTER TABLE availability ADD COLUMN department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE;
+                END IF;
+            END $$;
+        `;
+
         console.log('✅ Todas as tabelas verificadas/criadas');
 
         // Criar pastor padrão

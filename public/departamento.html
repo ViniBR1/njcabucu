@@ -1151,7 +1151,7 @@
     }
 
     // ================================================
-    // DISPONIBILIDADE (Membro) - CORRIGIDA
+    // DISPONIBILIDADE (Membro)
     // ================================================
     function generateDateSelector() {
         const container = document.getElementById('dateSelectorGrid');
@@ -2340,7 +2340,7 @@
     }
 
     // ================================================
-    // GERENCIAR MEMBROS
+    // GERENCIAR MEMBROS (CORRIGIDO)
     // ================================================
     async function loadMembers() {
         try {
@@ -2382,19 +2382,26 @@
 
     async function openAddMemberModal() {
         try {
-            const res = await fetch('/api/users', { headers: getHeaders() });
+            // Busca TODOS os usuários (rota /api/users/all)
+            const res = await fetch('/api/users/all', { headers: getHeaders() });
             const allUsers = await res.json();
             
-            const memberIds = members.map(m => m.id);
+            // Busca os membros atuais do departamento para filtrar
+            const memberRes = await fetch(`/api/departments/${user.department_id}/members`, { headers: getHeaders() });
+            const currentMembers = await memberRes.json();
+            const memberIds = currentMembers.map(m => m.id);
+            
+            // Filtra os usuários que NÃO estão no departamento
             const availableUsers = allUsers.filter(u => !memberIds.includes(u.id) && u.id !== user.id);
             
             const select = document.getElementById('newMemberUserSelect');
             select.innerHTML = '<option value="">Selecione um usuário</option>';
-            availableUsers.forEach(u => {
-                select.innerHTML += `<option value="${u.id}">${u.name} (${u.email})</option>`;
-            });
             if (availableUsers.length === 0) {
                 select.innerHTML = '<option value="">Nenhum usuário disponível</option>';
+            } else {
+                availableUsers.forEach(u => {
+                    select.innerHTML += `<option value="${u.id}">${u.name} (${u.email})</option>`;
+                });
             }
         } catch (e) {
             console.error('Erro ao carregar usuários:', e);

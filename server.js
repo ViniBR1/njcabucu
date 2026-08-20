@@ -249,7 +249,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // DEPARTMENT MEMBERS (já existia, mas vamos garantir os campos)
+        // DEPARTMENT MEMBERS
         await sql`CREATE TABLE IF NOT EXISTS department_members (
             department_id INTEGER,
             user_id INTEGER,
@@ -258,7 +258,7 @@ async function initDB() {
             PRIMARY KEY (department_id, user_id)
         )`;
 
-        // CORREÇÃO: Adiciona a coluna 'role' se não existir (para bancos antigos)
+        // CORREÇÃO: Adiciona a coluna 'role' se não existir
         await sql`
             DO $$
             BEGIN
@@ -550,6 +550,7 @@ async function initDB() {
             artist VARCHAR(100),
             key VARCHAR(10) DEFAULT 'C',
             lyrics TEXT,
+            youtube_url VARCHAR(500),
             department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE,
             created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -562,11 +563,11 @@ async function initDB() {
             event_date TIMESTAMP NOT NULL,
             leader_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
             minister_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
-            songs TEXT,  -- array de nomes de músicas (JSON)
-            song_ids TEXT, -- array de IDs de músicas (JSON)
+            songs TEXT,
+            song_ids TEXT,
             palette VARCHAR(200),
             rehearsal BOOLEAN DEFAULT false,
-            musician_ids TEXT, -- array de IDs de músicos (JSON)
+            musician_ids TEXT,
             created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
@@ -822,7 +823,6 @@ app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
 app.get('/api/departments/:id/members', auth, async (req, res) => {
     try {
         const deptId = req.params.id;
-        // Verifica se o usuário tem permissão (é do departamento ou pastor)
         if (req.user.role !== 'pastor' && req.user.department_id != deptId) {
             return res.status(403).json({ error: 'Acesso negado' });
         }
@@ -850,39 +850,32 @@ app.post('/api/departments/:id/members', auth, leaderOnly, async (req, res) => {
             return res.status(400).json({ error: 'user_id é obrigatório' });
         }
 
-        // Verifica se o usuário existe
         const user = await sql`SELECT * FROM users WHERE id = ${user_id}`;
         if (user.length === 0) {
             return res.status(404).json({ error: 'Usuário não encontrado' });
         }
 
-        // Verifica se o departamento existe
         const dept = await sql`SELECT * FROM departments WHERE id = ${deptId} AND is_active = true`;
         if (dept.length === 0) {
             return res.status(404).json({ error: 'Departamento não encontrado' });
         }
 
-        // Insere ou atualiza
         await sql`
             INSERT INTO department_members (department_id, user_id, role)
             VALUES (${deptId}, ${user_id}, ${role || 'membro'})
             ON CONFLICT (department_id, user_id) DO UPDATE SET role = ${role || 'membro'}
         `;
 
-        // Atualiza o department_id do usuário
         await sql`
             UPDATE users SET department_id = ${deptId}, department_name = ${dept[0].name}
             WHERE id = ${user_id}
         `;
 
-        // Se for líder, atualiza o campo is_leader e leader_id do departamento
         if (role === 'lider') {
             await sql`UPDATE users SET is_leader = true WHERE id = ${user_id}`;
             await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${deptId}`;
         } else {
-            // Se não for líder, remove o is_leader (mas cuidado para não remover de outros)
             await sql`UPDATE users SET is_leader = false WHERE id = ${user_id}`;
-            // Se o líder atual for esse usuário, remove o leader_id
             const currentLeader = await sql`SELECT leader_id FROM departments WHERE id = ${deptId}`;
             if (currentLeader.length > 0 && currentLeader[0].leader_id == user_id) {
                 await sql`UPDATE departments SET leader_id = NULL WHERE id = ${deptId}`;
@@ -917,13 +910,11 @@ app.put('/api/departments/:id/members/:userId', auth, leaderOnly, async (req, re
             WHERE department_id = ${deptId} AND user_id = ${userId}
         `;
 
-        // Atualiza is_leader se for líder
         if (role === 'lider') {
             await sql`UPDATE users SET is_leader = true WHERE id = ${userId}`;
             await sql`UPDATE departments SET leader_id = ${userId} WHERE id = ${deptId}`;
         } else {
             await sql`UPDATE users SET is_leader = false WHERE id = ${userId}`;
-            // Se o líder atual for esse usuário, remove
             const currentLeader = await sql`SELECT leader_id FROM departments WHERE id = ${deptId}`;
             if (currentLeader.length > 0 && currentLeader[0].leader_id == parseInt(userId)) {
                 await sql`UPDATE departments SET leader_id = NULL WHERE id = ${deptId}`;
@@ -948,7 +939,6 @@ app.delete('/api/departments/:id/members/:userId', auth, leaderOnly, async (req,
             WHERE department_id = ${deptId} AND user_id = ${userId}
         `;
 
-        // Se o usuário não estiver em nenhum outro departamento, remove o department_id dele
         const otherDepts = await sql`
             SELECT * FROM department_members WHERE user_id = ${userId}
         `;
@@ -956,7 +946,6 @@ app.delete('/api/departments/:id/members/:userId', auth, leaderOnly, async (req,
             await sql`UPDATE users SET department_id = NULL, department_name = NULL, is_leader = false WHERE id = ${userId}`;
         }
 
-        // Se era líder, remove o leader_id
         const currentLeader = await sql`SELECT leader_id FROM departments WHERE id = ${deptId}`;
         if (currentLeader.length > 0 && currentLeader[0].leader_id == parseInt(userId)) {
             await sql`UPDATE departments SET leader_id = NULL WHERE id = ${deptId}`;
@@ -981,19 +970,16 @@ app.post('/api/users-by-leader', auth, leaderOnly, async (req, res) => {
             return res.status(400).json({ error: 'Nome, e-mail e senha são obrigatórios' });
         }
 
-        // Verifica se o usuário já existe
         const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
         if (existing.length > 0) {
             return res.status(400).json({ error: 'E-mail já cadastrado' });
         }
 
-        // Verifica se o líder tem permissão para criar no departamento
         const deptId = department_id || req.user.department_id;
         if (!deptId) {
             return res.status(400).json({ error: 'Departamento não informado' });
         }
 
-        // Verifica se o departamento existe
         const dept = await sql`SELECT * FROM departments WHERE id = ${deptId} AND is_active = true`;
         if (dept.length === 0) {
             return res.status(404).json({ error: 'Departamento não encontrado' });
@@ -1008,7 +994,6 @@ app.post('/api/users-by-leader', auth, leaderOnly, async (req, res) => {
             RETURNING id, name, email, role, department_id, department_name
         `;
 
-        // Adiciona ao department_members
         const memberRole = isLeader ? 'lider' : (role || 'membro');
         await sql`
             INSERT INTO department_members (department_id, user_id, role)
@@ -1050,9 +1035,9 @@ app.get('/api/songs', auth, async (req, res) => {
 
 app.post('/api/songs', auth, leaderOnly, async (req, res) => {
     try {
-        const { title, artist, key, lyrics, department_id } = req.body;
-        if (!title || !lyrics) {
-            return res.status(400).json({ error: 'Título e letra são obrigatórios' });
+        const { title, artist, key, lyrics, youtube_url, department_id } = req.body;
+        if (!title) {
+            return res.status(400).json({ error: 'Título é obrigatório' });
         }
 
         const deptId = department_id || req.user.department_id;
@@ -1061,8 +1046,8 @@ app.post('/api/songs', auth, leaderOnly, async (req, res) => {
         }
 
         const result = await sql`
-            INSERT INTO songs (title, artist, key, lyrics, department_id, created_by)
-            VALUES (${title}, ${artist || ''}, ${key || 'C'}, ${lyrics}, ${deptId}, ${req.user.id})
+            INSERT INTO songs (title, artist, key, lyrics, youtube_url, department_id, created_by)
+            VALUES (${title}, ${artist || ''}, ${key || 'C'}, ${lyrics || ''}, ${youtube_url || ''}, ${deptId}, ${req.user.id})
             RETURNING *
         `;
         res.status(201).json(result[0]);
@@ -1077,6 +1062,59 @@ app.delete('/api/songs/:id', auth, leaderOnly, async (req, res) => {
         const { id } = req.params;
         await sql`DELETE FROM songs WHERE id = ${id}`;
         res.json({ message: 'Música removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/songs/:id/chords', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { chords, key } = req.body;
+        
+        if (!chords) {
+            return res.status(400).json({ error: 'Cifra é obrigatória' });
+        }
+
+        const song = await sql`SELECT * FROM songs WHERE id = ${id}`;
+        if (song.length === 0) {
+            return res.status(404).json({ error: 'Música não encontrada' });
+        }
+
+        const isLeader = req.user.role === 'lider' || req.user.role === 'pastor' || req.user.is_leader;
+        if (!isLeader && song[0].created_by !== req.user.id) {
+            return res.status(403).json({ error: 'Sem permissão para editar' });
+        }
+
+        await sql`
+            UPDATE songs 
+            SET lyrics = ${chords}, key = ${key || song[0].key || 'C'}
+            WHERE id = ${id}
+        `;
+        
+        res.json({ message: 'Cifra atualizada com sucesso' });
+    } catch (error) {
+        console.error('❌ Erro ao salvar cifra:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/songs/by-key/:key', auth, async (req, res) => {
+    try {
+        const { key } = req.params;
+        const { department_id } = req.query;
+        
+        let query = `SELECT * FROM songs WHERE key = $1`;
+        const params = [key];
+        
+        if (department_id) {
+            query += ` AND department_id = $2`;
+            params.push(department_id);
+        }
+        
+        query += ` ORDER BY title`;
+        const songs = await sql(query, params);
+        res.json(songs);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -1152,7 +1190,6 @@ app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
             return res.status(404).json({ error: 'Escala não encontrada' });
         }
 
-        // Busca os músicos associados
         let musicianIds = [];
         try {
             musicianIds = JSON.parse(scale[0].musician_ids || '[]');
@@ -1164,7 +1201,6 @@ app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
             `;
         }
 
-        // Busca as músicas detalhadas
         let songIds = [];
         try {
             songIds = JSON.parse(scale[0].song_ids || '[]');
@@ -1196,7 +1232,6 @@ app.delete('/api/worship-scales/:id', auth, leaderOnly, async (req, res) => {
 app.get('/api/worship-scales/member/:userId', auth, async (req, res) => {
     try {
         const userId = req.params.userId;
-        // Busca escalas onde o usuário é líder, ministro ou músico
         const scales = await sql`
             SELECT ws.*, 
                    u1.name as leader_name, 
@@ -1225,7 +1260,6 @@ app.put('/api/worship-scales/:id/songs', auth, async (req, res) => {
         const { id } = req.params;
         const { songs, song_ids } = req.body;
 
-        // Verifica se o usuário é o ministro da escala ou líder/pastor
         const scale = await sql`SELECT * FROM worship_scales WHERE id = ${id}`;
         if (scale.length === 0) {
             return res.status(404).json({ error: 'Escala não encontrada' });
@@ -1324,6 +1358,170 @@ app.get('/api/availability/date/:date', auth, async (req, res) => {
         res.json(available);
     } catch (error) {
         console.error('❌ Erro ao buscar disponíveis:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTAS PARA SISTEMA DE LOUVOR =====
+// ============================================
+
+// ----- BUSCAR MÚSICA DO YOUTUBE -----
+app.post('/api/youtube-song', auth, async (req, res) => {
+    try {
+        const { url } = req.body;
+        
+        const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/;
+        const match = url.match(youtubeRegex);
+        
+        if (!match) {
+            return res.status(400).json({ error: 'Link do YouTube inválido' });
+        }
+        
+        const videoId = match[1];
+        
+        res.json({
+            video_id: videoId,
+            embed_url: `https://www.youtube.com/embed/${videoId}`,
+            watch_url: `https://www.youtube.com/watch?v=${videoId}`
+        });
+    } catch (error) {
+        console.error('❌ Erro ao buscar música do YouTube:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ----- TRANSPOR CIFRA -----
+app.post('/api/transpose-chord', auth, async (req, res) => {
+    try {
+        const { lyrics, fromKey, toKey } = req.body;
+        
+        if (!lyrics || !fromKey || !toKey) {
+            return res.status(400).json({ error: 'Dados incompletos para transposição' });
+        }
+        
+        const transposed = transposeChords(lyrics, fromKey, toKey);
+        res.json({ transposed });
+    } catch (error) {
+        console.error('❌ Erro na transposição:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+function transposeChords(lyrics, fromKey, toKey) {
+    const chordMap = {
+        'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3,
+        'E': 4, 'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8,
+        'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11
+    };
+    
+    const chordNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    
+    const from = chordMap[fromKey];
+    const to = chordMap[toKey];
+    
+    if (from === undefined || to === undefined) {
+        return lyrics;
+    }
+    
+    const diff = (to - from + 12) % 12;
+    
+    const chordRegex = /([A-G][#b]?)(maj|m|min|dim|aug|sus|add|\d|\(|\)|)?/g;
+    
+    return lyrics.replace(chordRegex, (match, chord, suffix) => {
+        const baseIndex = chordMap[chord];
+        if (baseIndex === undefined) return match;
+        
+        const newIndex = (baseIndex + diff) % 12;
+        const newChord = chordNames[newIndex];
+        
+        return newChord + (suffix || '');
+    });
+}
+
+// ----- COMPARTILHAR ESCALA NO WHATSAPP -----
+app.get('/api/worship-scales/:id/share', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const scale = await sql`
+            SELECT ws.*, 
+                   u1.name as leader_name, 
+                   u2.name as minister_name,
+                   u3.name as created_by_name
+            FROM worship_scales ws
+            LEFT JOIN users u1 ON ws.leader_id = u1.id
+            LEFT JOIN users u2 ON ws.minister_id = u2.id
+            LEFT JOIN users u3 ON ws.created_by = u3.id
+            WHERE ws.id = ${id}
+        `;
+        
+        if (scale.length === 0) {
+            return res.status(404).json({ error: 'Escala não encontrada' });
+        }
+        
+        const s = scale[0];
+        const eventDate = new Date(s.event_date);
+        
+        let songs = [];
+        try {
+            songs = JSON.parse(s.songs || '[]');
+        } catch { songs = []; }
+        
+        let musicianIds = [];
+        try {
+            musicianIds = JSON.parse(s.musician_ids || '[]');
+        } catch { musicianIds = []; }
+        
+        let musicians = [];
+        if (musicianIds.length > 0) {
+            musicians = await sql`
+                SELECT name FROM users WHERE id = ANY(${musicianIds})
+            `;
+        }
+        
+        let message = `🎵 *ESCALA DE LOUVOR* 🎵\n\n`;
+        message += `📅 *Data:* ${eventDate.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' })}\n`;
+        message += `🕐 *Horário:* ${eventDate.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' })}\n\n`;
+        message += `👑 *Líder:* ${s.leader_name || 'Não definido'}\n`;
+        message += `🎤 *Ministro:* ${s.minister_name || 'Não definido'}\n\n`;
+        
+        if (songs.length > 0) {
+            message += `🎶 *MÚSICAS:*\n`;
+            songs.forEach((song, i) => {
+                message += `${i+1}. ${song}\n`;
+            });
+            message += `\n`;
+        }
+        
+        if (s.palette) {
+            message += `🎨 *Paleta:* ${s.palette}\n\n`;
+        }
+        
+        if (s.rehearsal) {
+            message += `🎤 *Com ensaio*\n\n`;
+        }
+        
+        if (musicians.length > 0) {
+            message += `🎸 *Músicos:*\n`;
+            musicians.forEach(m => {
+                message += `- ${m.name}\n`;
+            });
+            message += `\n`;
+        }
+        
+        message += `\n🙏 *"Cantai ao Senhor um novo cântico!"* (Salmo 96:1)`;
+        
+        const encodedMessage = encodeURIComponent(message);
+        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+        
+        res.json({ 
+            message, 
+            whatsapp_url: whatsappUrl,
+            scale: s
+        });
+    } catch (error) {
+        console.error('❌ Erro ao gerar compartilhamento:', error);
         res.status(500).json({ error: error.message });
     }
 });

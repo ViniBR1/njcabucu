@@ -220,7 +220,7 @@ async function enviarComprovanteEmail(email, nome, valor, data, status, paymentI
 // ===== INICIALIZAR BANCO =====
 // ============================================
 async function initDB() {
-    console.log('📝 Criando tabelas...');
+    console.log('📝 Criando/Verificando tabelas...');
     
     try {
         // USERS
@@ -257,6 +257,17 @@ async function initDB() {
             joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (department_id, user_id)
         )`;
+
+        // CORREÇÃO: Adiciona a coluna 'role' se não existir (para bancos antigos)
+        await sql`
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='department_members' AND column_name='role') THEN
+                    ALTER TABLE department_members ADD COLUMN role VARCHAR(50) DEFAULT 'membro';
+                END IF;
+            END $$;
+        `;
 
         // STUDIES
         await sql`CREATE TABLE IF NOT EXISTS studies (
@@ -570,7 +581,7 @@ async function initDB() {
             UNIQUE(user_id, date)
         )`;
 
-        console.log('✅ Tabelas criadas');
+        console.log('✅ Todas as tabelas verificadas/criadas');
 
         // Criar pastor padrão
         const existing = await sql`SELECT * FROM users WHERE email = 'pastor@njcabucu.com'`;
@@ -873,7 +884,7 @@ app.post('/api/departments/:id/members', auth, leaderOnly, async (req, res) => {
             await sql`UPDATE users SET is_leader = false WHERE id = ${user_id}`;
             // Se o líder atual for esse usuário, remove o leader_id
             const currentLeader = await sql`SELECT leader_id FROM departments WHERE id = ${deptId}`;
-            if (currentLeader.length > 0 && currentLeader[0].leader_id === user_id) {
+            if (currentLeader.length > 0 && currentLeader[0].leader_id == user_id) {
                 await sql`UPDATE departments SET leader_id = NULL WHERE id = ${deptId}`;
             }
         }
@@ -914,7 +925,7 @@ app.put('/api/departments/:id/members/:userId', auth, leaderOnly, async (req, re
             await sql`UPDATE users SET is_leader = false WHERE id = ${userId}`;
             // Se o líder atual for esse usuário, remove
             const currentLeader = await sql`SELECT leader_id FROM departments WHERE id = ${deptId}`;
-            if (currentLeader.length > 0 && currentLeader[0].leader_id === parseInt(userId)) {
+            if (currentLeader.length > 0 && currentLeader[0].leader_id == parseInt(userId)) {
                 await sql`UPDATE departments SET leader_id = NULL WHERE id = ${deptId}`;
             }
         }
@@ -947,7 +958,7 @@ app.delete('/api/departments/:id/members/:userId', auth, leaderOnly, async (req,
 
         // Se era líder, remove o leader_id
         const currentLeader = await sql`SELECT leader_id FROM departments WHERE id = ${deptId}`;
-        if (currentLeader.length > 0 && currentLeader[0].leader_id === parseInt(userId)) {
+        if (currentLeader.length > 0 && currentLeader[0].leader_id == parseInt(userId)) {
             await sql`UPDATE departments SET leader_id = NULL WHERE id = ${deptId}`;
         }
 
@@ -1302,13 +1313,14 @@ app.get('/api/availability/date/:date', auth, async (req, res) => {
             SELECT u.id, u.name, u.email 
             FROM availability a
             JOIN users u ON a.user_id = u.id
-            WHERE a.date = ${date}
+            WHERE a.date = $1
         `;
-        const params = [];
+        const params = [date];
         if (department_id) {
-            query += ` AND a.department_id = ${department_id}`;
+            query += ` AND a.department_id = $2`;
+            params.push(department_id);
         }
-        const available = await sql(query);
+        const available = await sql(query, params);
         res.json(available);
     } catch (error) {
         console.error('❌ Erro ao buscar disponíveis:', error);

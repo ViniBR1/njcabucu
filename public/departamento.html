@@ -1582,13 +1582,22 @@
             
             musiciansSelect.innerHTML = '';
             if (!musiciansList.length) {
-                musiciansSelect.innerHTML = '<option value="">Nenhum músico disponível nesta data</option>';
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = 'Nenhum músico disponível nesta data';
+                opt.disabled = true;
+                musiciansSelect.appendChild(opt);
             } else {
                 musiciansList.forEach(m => {
                     const role = m.member_role || m.role || 'membro';
                     const label = role === 'lider' ? '👑 Líder' : '🎸 Músico';
-                    musiciansSelect.innerHTML += `<option value="${m.id}">${m.name} (${label}) ✅ Disponível</option>`;
+                    const opt = document.createElement('option');
+                    opt.value = m.id;
+                    opt.textContent = `${m.name} (${label}) ✅ Disponível`;
+                    musiciansSelect.appendChild(opt);
                 });
+                musiciansSelect.setAttribute('multiple', 'multiple');
+                musiciansSelect.style.height = '80px';
             }
             
             console.log(`✅ Ministros disponíveis: ${ministersList.length}, Músicos disponíveis: ${musiciansList.length}`);
@@ -1625,7 +1634,9 @@
             const minister = document.getElementById('scaleMinister').value;
             const palette = document.getElementById('scalePalette').value;
             const rehearsal = document.getElementById('hasRehearsal').checked;
-            const musicians = Array.from(document.getElementById('scaleMusicians').selectedOptions).map(o => o.value);
+            const musicians = Array.from(document.getElementById('scaleMusicians').selectedOptions || [])
+                                  .filter(o => o.value)
+                                  .map(o => o.value);
             const musicIds = getSelectedMusicIds();
 
             if (!date) { showNotification('Selecione a data do culto!', 'error'); return; }
@@ -1650,6 +1661,18 @@
             const musicNames = musicIds.map(id => {
                 const m = songs.find(s => s.id == id);
                 return m ? m.title : 'Música';
+            });
+
+            console.log('📝 Dados da escala:', {
+                department_id: user.department_id,
+                event_date: date,
+                leader_id: user.id,
+                minister_id: minister || null,
+                songs: musicNames,
+                song_ids: musicIds,
+                palette: palette || 'Azul, Prata, Branco, Dourado',
+                rehearsal: rehearsal,
+                musicians: musicians
             });
 
             try {
@@ -1677,6 +1700,7 @@
                 loadScales();
                 loadMyScales();
             } catch (e) {
+                console.error('❌ Erro ao criar escala:', e);
                 showNotification('❌ Erro ao criar escala: ' + e.message, 'error');
             }
         }

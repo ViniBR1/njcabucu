@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -15,7 +14,8 @@
     <meta name="theme-color" content="#0D47A1">
     <meta name="mobile-web-app-capable" content="yes">
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- FONT AWESOME - CDN FIX -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         /* ============================================
@@ -197,7 +197,7 @@
         }
 
         /* ============================================
-           HERO (CARROSSEL - CORRIGIDO)
+           HERO (CARROSSEL)
         ============================================ */
         .hero {
             margin-top: calc(var(--header-h) + 42px);
@@ -349,7 +349,7 @@
         }
 
         /* ============================================
-           LIVE BAR (compacta)
+           LIVE BAR
         ============================================ */
         .live-bar {
             background: #1a1a2e;
@@ -388,7 +388,7 @@
         .live-bar .btn-watch:hover { transform: scale(1.05); }
 
         /* ============================================
-           CONTADOR REGRESSIVO (REDUZIDO)
+           CONTADOR REGRESSIVO
         ============================================ */
         .countdown-section {
             max-width: var(--max-width);
@@ -904,14 +904,21 @@
         }
 
         /* ============================================
-           RESPONSIVO
+           RESPONSIVO - CORRIGIDO
         ============================================ */
         @media (max-width: 768px) {
             .header { padding: 0 0.6rem; }
             .logo img { height: 30px; }
             .logo span { font-size: 0.95rem; }
-            .header-actions .btn span { display: none; }
-            .header-actions .btn { padding: 0.15rem 0.5rem; font-size: 0.6rem; }
+            /* BOTÃO ÁREA INTERNA SEMPRE VISÍVEL */
+            .header-actions .btn span { display: inline; font-size: 0.5rem; }
+            .header-actions .btn { 
+                padding: 0.2rem 0.5rem; 
+                font-size: 0.55rem;
+                min-width: 36px;
+                justify-content: center;
+            }
+            #adminBtn { display: inline-flex !important; }
             .menu-toggle { display: block; }
             .main-nav {
                 display: none;
@@ -1279,7 +1286,7 @@
     </nav>
 
     <!-- ============================================
-    HERO (CARROSSEL - CORRIGIDO)
+    HERO (CARROSSEL)
     ============================================ -->
     <section id="home" class="hero">
         <div class="hero-slides" id="heroSlides"></div>
@@ -1303,7 +1310,7 @@
     </div>
 
     <!-- ============================================
-    CONTADOR REGRESSIVO (REDUZIDO)
+    CONTADOR REGRESSIVO
     ============================================ -->
     <div class="countdown-section">
         <div class="countdown-bar" id="countdownBar">
@@ -1915,7 +1922,6 @@
                     btn.href = 'https://wa.me/55' + settings.whatsapp;
                     document.getElementById('fabWhatsapp').href = 'https://wa.me/55' + settings.whatsapp;
                 }
-                // Carregar textos do Sobre Nós
                 if (settings.about_mission) document.getElementById('aboutMissionText').textContent = settings.about_mission;
                 if (settings.about_vision) document.getElementById('aboutVisionText').textContent = settings.about_vision;
                 if (settings.about_values) document.getElementById('aboutValuesText').textContent = settings.about_values;

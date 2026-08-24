@@ -1119,7 +1119,7 @@
         let availableMembers = [];
 
         // ================================================
-        // HEADERS E FETCH - CORRIGIDOS
+        // HEADERS E FETCH
         // ================================================
         function getHeaders() {
             const token = localStorage.getItem('token');
@@ -1500,57 +1500,98 @@
             }
 
             try {
-                const data = await fetchApi(`/api/availability/date/${date}/department/${user.department_id}`);
-                if (!data) return;
+                console.log(`📝 Buscando disponíveis para data ${date}, departamento ${user.department_id}`);
                 
-                availableMembers = Array.isArray(data) ? data : [];
+                const allMembersData = await fetchApi(`/api/departments/${user.department_id}/members`);
+                if (!allMembersData) {
+                    document.getElementById('availableMembersList').innerHTML = '<p style="color:#dc3545;font-size:0.8rem;text-align:center;">Erro ao carregar membros</p>';
+                    return;
+                }
+                
+                const availableData = await fetchApi(`/api/availability/date/${date}/department/${user.department_id}`);
+                if (!availableData) {
+                    document.getElementById('availableMembersList').innerHTML = '<p style="color:#dc3545;font-size:0.8rem;text-align:center;">Erro ao carregar disponíveis</p>';
+                    return;
+                }
+                
+                const availableIds = new Set(availableData.map(m => m.id));
+                availableMembers = allMembersData.filter(m => availableIds.has(m.id));
+                members = allMembersData;
+                
+                console.log(`✅ Encontrados ${availableMembers.length} membros disponíveis de ${allMembersData.length} total`);
+                console.log('📋 Disponíveis:', availableMembers.map(m => ({ id: m.id, name: m.name, role: m.member_role || m.role })));
 
                 const container = document.getElementById('availableMembersList');
                 if (!availableMembers.length) {
-                    container.innerHTML = '<p class="text-muted text-center" style="font-size:0.8rem;">Nenhum membro disponível nesta data</p>';
+                    container.innerHTML = `<p class="text-muted text-center" style="font-size:0.8rem;">Nenhum membro disponível nesta data. (${allMembersData.length} membros no total, nenhum marcou disponibilidade)</p>`;
                 } else {
-                    container.innerHTML = availableMembers.map(m => `
-                        <div class="available-member-item">
-                            <span class="member-name">${m.name}</span>
-                            <span class="member-role">${m.member_role || m.role || 'Membro'}</span>
-                            <span class="member-check"><i class="fas fa-check-circle"></i></span>
-                        </div>
-                    `).join('');
+                    container.innerHTML = availableMembers.map(m => {
+                        const role = m.member_role || m.role || 'membro';
+                        const roleLabel = {
+                            'lider': '👑 Líder',
+                            'ministro': '🎤 Ministro',
+                            'musico': '🎸 Músico',
+                            'membro': '🙋 Membro',
+                            'colaborador': '🤝 Colaborador'
+                        }[role] || '🙋 Membro';
+                        
+                        return `
+                            <div class="available-member-item">
+                                <span class="member-name">${m.name}</span>
+                                <span class="member-role">${roleLabel}</span>
+                                <span class="member-check"><i class="fas fa-check-circle"></i></span>
+                            </div>
+                        `;
+                    }).join('');
                 }
 
                 updateScaleSelects();
             } catch (e) {
-                console.error('Erro ao carregar disponíveis:', e);
-                document.getElementById('availableMembersList').innerHTML = '<p style="color:#dc3545;font-size:0.8rem;text-align:center;">Erro ao carregar</p>';
+                console.error('❌ Erro ao carregar disponíveis:', e);
+                document.getElementById('availableMembersList').innerHTML = `<p style="color:#dc3545;font-size:0.8rem;text-align:center;">Erro ao carregar: ${e.message}</p>`;
             }
         }
 
         function updateScaleSelects() {
-            const availableIds = availableMembers.map(m => m.id);
+            const availableIds = new Set(availableMembers.map(m => m.id));
             
             const ministerSelect = document.getElementById('scaleMinister');
-            const ministersList = members.filter(m => 
-                (m.member_role === 'ministro' || m.member_role === 'lider') && 
-                availableIds.includes(m.id)
-            );
-            ministerSelect.innerHTML = '<option value="">Selecione um ministro</option>';
-            ministersList.forEach(m => {
-                ministerSelect.innerHTML += `<option value="${m.id}">${m.name} ✅ Disponível</option>`;
+            const ministersList = members.filter(m => {
+                const role = m.member_role || m.role || 'membro';
+                return (role === 'ministro' || role === 'lider' || m.is_leader) && 
+                       availableIds.has(m.id);
             });
-
-            const musiciansSelect = document.getElementById('scaleMusicians');
-            const musiciansList = members.filter(m => 
-                (m.member_role === 'musico' || m.member_role === 'lider') && 
-                availableIds.includes(m.id)
-            );
-            musiciansSelect.innerHTML = '';
-            if (!musiciansList.length) {
-                musiciansSelect.innerHTML = '<option value="">Nenhum músico disponível</option>';
+            
+            ministerSelect.innerHTML = '<option value="">Selecione um ministro</option>';
+            if (!ministersList.length) {
+                ministerSelect.innerHTML += '<option value="" disabled>Nenhum ministro disponível nesta data</option>';
             } else {
-                musiciansList.forEach(m => {
-                    musiciansSelect.innerHTML += `<option value="${m.id}">${m.name} ✅ Disponível</option>`;
+                ministersList.forEach(m => {
+                    const role = m.member_role || m.role || 'membro';
+                    const label = role === 'lider' ? '👑 Líder' : '🎤 Ministro';
+                    ministerSelect.innerHTML += `<option value="${m.id}">${m.name} (${label}) ✅ Disponível</option>`;
                 });
             }
+            
+            const musiciansSelect = document.getElementById('scaleMusicians');
+            const musiciansList = members.filter(m => {
+                const role = m.member_role || m.role || 'membro';
+                return (role === 'musico' || role === 'lider' || m.is_leader) && 
+                       availableIds.has(m.id);
+            });
+            
+            musiciansSelect.innerHTML = '';
+            if (!musiciansList.length) {
+                musiciansSelect.innerHTML = '<option value="">Nenhum músico disponível nesta data</option>';
+            } else {
+                musiciansList.forEach(m => {
+                    const role = m.member_role || m.role || 'membro';
+                    const label = role === 'lider' ? '👑 Líder' : '🎸 Músico';
+                    musiciansSelect.innerHTML += `<option value="${m.id}">${m.name} (${label}) ✅ Disponível</option>`;
+                });
+            }
+            
+            console.log(`✅ Ministros disponíveis: ${ministersList.length}, Músicos disponíveis: ${musiciansList.length}`);
         }
 
         function showCreateScale() {
@@ -1590,8 +1631,8 @@
             if (!date) { showNotification('Selecione a data do culto!', 'error'); return; }
             if (!musicIds.length) { showNotification('Selecione pelo menos uma música!', 'error'); return; }
 
-            const availableIds = availableMembers.map(m => m.id);
-            const invalidMusicians = musicians.filter(id => !availableIds.includes(parseInt(id)));
+            const availableIds = new Set(availableMembers.map(m => m.id));
+            const invalidMusicians = musicians.filter(id => !availableIds.has(parseInt(id)));
             if (invalidMusicians.length > 0) {
                 const names = invalidMusicians.map(id => {
                     const m = members.find(mem => mem.id == id);
@@ -1601,7 +1642,7 @@
                 return;
             }
 
-            if (minister && !availableIds.includes(parseInt(minister))) {
+            if (minister && !availableIds.has(parseInt(minister))) {
                 showNotification('⚠️ O ministro selecionado não está disponível nesta data!', 'error');
                 return;
             }
@@ -1793,7 +1834,7 @@
         }
 
         // ================================================
-        // MINHAS ESCALAS - CORRIGIDAS
+        // MINHAS ESCALAS
         // ================================================
         async function loadMyScales() {
             try {
@@ -2534,6 +2575,9 @@
                     container.innerHTML = '<p class="text-muted">Nenhum membro na equipe.</p>';
                     return;
                 }
+                
+                console.log('👥 Membros carregados:', members);
+                
                 const roleLabels = {
                     lider: '👑 Líder',
                     ministro: '🎤 Ministro',
@@ -2548,15 +2592,23 @@
                     membro: 'role-badge member',
                     colaborador: 'role-badge member'
                 };
-                container.innerHTML = members.map(m => `
-                    <div class="member-item">
-                        <div class="member-info">
-                            <span class="name">${m.name}</span>
-                            <span class="email">${m.email}</span>
-                            <span class="${roleBadges[m.member_role] || 'role-badge member'}">${roleLabels[m.member_role] || '🙋 Membro'}</span>
+                
+                container.innerHTML = members.map(m => {
+                    let role = m.member_role || m.role || 'membro';
+                    if (m.is_leader || role === 'lider') {
+                        role = 'lider';
+                    }
+                    
+                    return `
+                        <div class="member-item">
+                            <div class="member-info">
+                                <span class="name">${m.name}</span>
+                                <span class="email">${m.email}</span>
+                                <span class="${roleBadges[role] || 'role-badge member'}">${roleLabels[role] || '🙋 Membro'}</span>
+                            </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
                 console.log(`✅ ${members.length} membros na equipe carregados`);
             } catch (e) {
                 console.error('❌ Erro ao carregar equipe:', e);
@@ -2579,6 +2631,9 @@
                     container.innerHTML = '<p class="text-muted">Nenhum membro neste departamento.</p>';
                     return;
                 }
+                
+                console.log('👥 Membros carregados para gerenciamento:', members);
+                
                 const roleLabels = {
                     lider: '<span class="role-badge leader">👑 Líder</span>',
                     ministro: '<span class="role-badge minister">🎤 Ministro</span>',
@@ -2586,21 +2641,29 @@
                     membro: '<span class="role-badge member">🙋 Membro</span>',
                     colaborador: '<span class="role-badge member">🤝 Colaborador</span>'
                 };
-                container.innerHTML = members.map(m => `
-                    <div class="member-item">
-                        <div class="member-info">
-                            <span class="name">${m.name}</span>
-                            <span class="email">${m.email}</span>
-                            ${roleLabels[m.member_role] || roleLabels.membro}
-                        </div>
-                        ${isLeader && m.id !== user.id ? `
-                            <div>
-                                <button onclick="changeMemberRole(${m.id})" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>
-                                <button onclick="removeMember(${m.id})" class="btn btn-danger btn-sm"><i class="fas fa-user-minus"></i></button>
+                
+                container.innerHTML = members.map(m => {
+                    let role = m.member_role || m.role || 'membro';
+                    if (m.is_leader || role === 'lider') {
+                        role = 'lider';
+                    }
+                    
+                    return `
+                        <div class="member-item">
+                            <div class="member-info">
+                                <span class="name">${m.name}</span>
+                                <span class="email">${m.email}</span>
+                                ${roleLabels[role] || roleLabels.membro}
                             </div>
-                        ` : ''}
-                    </div>
-                `).join('');
+                            ${isLeader && m.id !== user.id ? `
+                                <div>
+                                    <button onclick="changeMemberRole(${m.id})" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>
+                                    <button onclick="removeMember(${m.id})" class="btn btn-danger btn-sm"><i class="fas fa-user-minus"></i></button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('');
                 console.log(`✅ ${members.length} membros carregados`);
             } catch (e) {
                 console.error('❌ Erro ao carregar membros:', e);

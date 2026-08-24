@@ -14,13 +14,9 @@
     <meta name="theme-color" content="#0D47A1">
     <meta name="mobile-web-app-capable" content="yes">
     
-    <!-- FONT AWESOME - CDN FIX -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        /* ============================================
-           RESET & ROOT
-        ============================================ */
         * { margin:0; padding:0; box-sizing:border-box; }
         :root {
             --primary: #0D47A1;
@@ -56,9 +52,6 @@
         ::-webkit-scrollbar-track { background: #f0f0f0; }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 
-        /* ============================================
-           HEADER (TOOLBAR PRETA)
-        ============================================ */
         .header {
             background: #1a1a2e;
             padding: 0 1rem;
@@ -155,9 +148,6 @@
             padding: 0.2rem;
         }
 
-        /* ============================================
-           NAVEGAÇÃO (mobile)
-        ============================================ */
         .main-nav {
             background: rgba(26,26,46,0.97);
             backdrop-filter: blur(14px);
@@ -174,9 +164,7 @@
             border-bottom: 1px solid rgba(255,255,255,0.04);
             transition: var(--transition);
         }
-        .main-nav.mobile-open {
-            display: none;
-        }
+        .main-nav.mobile-open { display: none; }
         .nav-btn {
             background: transparent;
             border: none;
@@ -196,9 +184,6 @@
             box-shadow: 0 2px 10px rgba(13,71,161,0.2);
         }
 
-        /* ============================================
-           HERO (CARROSSEL)
-        ============================================ */
         .hero {
             margin-top: calc(var(--header-h) + 42px);
             position: relative;
@@ -348,9 +333,6 @@
             box-shadow: 0 4px 20px rgba(255,0,0,0.3);
         }
 
-        /* ============================================
-           LIVE BAR
-        ============================================ */
         .live-bar {
             background: #1a1a2e;
             padding: 0.4rem 1rem;
@@ -387,9 +369,6 @@
         }
         .live-bar .btn-watch:hover { transform: scale(1.05); }
 
-        /* ============================================
-           CONTADOR REGRESSIVO
-        ============================================ */
         .countdown-section {
             max-width: var(--max-width);
             margin: 0.8rem auto 1rem;
@@ -445,9 +424,6 @@
             margin-top: 0.05rem;
         }
 
-        /* ============================================
-           SERVIÇOS (links rápidos)
-        ============================================ */
         .services-quick {
             margin: 0.8rem auto 1.2rem;
             max-width: var(--max-width);
@@ -492,9 +468,6 @@
             margin: 0;
         }
 
-        /* ============================================
-           SEÇÕES
-        ============================================ */
         .section {
             max-width: var(--max-width);
             margin: 1.5rem auto;
@@ -542,9 +515,6 @@
             gap: 1rem;
         }
 
-        /* ============================================
-           CARDS
-        ============================================ */
         .card {
             background: #ffffff;
             border-radius: var(--radius);
@@ -619,9 +589,6 @@
         }
         .card:hover .card-image-wrapper img { transform: scale(1.03); }
 
-        /* ============================================
-           VERSÍCULO
-        ============================================ */
         .verse-block {
             background: var(--secondary);
             border-radius: var(--radius-sm);
@@ -645,9 +612,6 @@
             font-size: 0.8rem;
         }
 
-        /* ============================================
-           HORÁRIOS
-        ============================================ */
         .schedule-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -673,9 +637,6 @@
         }
         .schedule-item .time i { margin-right: 0.3rem; color: var(--primary-light); }
 
-        /* ============================================
-           REFLEXÕES DO PASTOR
-        ============================================ */
         .reflection-card {
             background: #fff;
             border-radius: var(--radius);
@@ -717,9 +678,6 @@
             margin: 0;
         }
 
-        /* ============================================
-           ENDEREÇO
-        ============================================ */
         .address-section { margin-top: 1.5rem; }
         .address-card {
             background: #fff;
@@ -765,9 +723,6 @@
         .btn-map:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(13,71,161,0.3); }
         .btn-map.waze { background: #1a1a2e; }
 
-        /* ============================================
-           FOOTER
-        ============================================ */
         .footer {
             background: #1a1a2e;
             color: #fff;
@@ -830,9 +785,6 @@
             font-size: 0.7rem;
         }
 
-        /* ============================================
-           BOTÕES FLUTUANTES (FAB)
-        ============================================ */
         .fab {
             position: fixed;
             z-index: 9998;
@@ -899,83 +851,8 @@
             transition: var(--transition);
             pointer-events: none;
         }
-        .fab:hover .fab-label {
-            opacity: 1;
-        }
+        .fab:hover .fab-label { opacity: 1; }
 
-        /* ============================================
-           RESPONSIVO - CORRIGIDO
-        ============================================ */
-        @media (max-width: 768px) {
-            .header { padding: 0 0.6rem; }
-            .logo img { height: 30px; }
-            .logo span { font-size: 0.95rem; }
-            /* BOTÃO ÁREA INTERNA SEMPRE VISÍVEL */
-            .header-actions .btn span { display: inline; font-size: 0.5rem; }
-            .header-actions .btn { 
-                padding: 0.2rem 0.5rem; 
-                font-size: 0.55rem;
-                min-width: 36px;
-                justify-content: center;
-            }
-            #adminBtn { display: inline-flex !important; }
-            .menu-toggle { display: block; }
-            .main-nav {
-                display: none;
-                flex-direction: column;
-                align-items: stretch;
-                padding: 0.3rem 0.6rem;
-                top: var(--header-h);
-                background: #1a1a2e;
-                border-bottom: 1px solid rgba(255,255,255,0.04);
-            }
-            .main-nav.mobile-open {
-                display: flex;
-                max-height: 450px;
-                padding: 0.4rem 0.6rem;
-            }
-            .nav-btn { width: 100%; text-align: center; padding: 0.3rem; font-size: 0.65rem; }
-            .hero {
-                height: 300px;
-                border-radius: 0 0 16px 16px;
-                margin-top: calc(var(--header-h) + 36px);
-            }
-            .hero-content h1 { font-size: 1.4rem; }
-            .hero-content p { font-size: 0.8rem; }
-            .hero-arrows .hero-arrow { width: 30px; height: 30px; font-size: 0.7rem; }
-            .hero-arrows { padding: 0 0.5rem; }
-            .services-quick .services-grid { grid-template-columns: repeat(5, 1fr); gap: 0.1rem; padding: 0.3rem 0.1rem; }
-            .services-quick .service-item .icon { font-size: 1.1rem; }
-            .services-quick .service-item h4 { font-size: 0.55rem; }
-            .services-quick .service-item p { display: none; }
-            .countdown-bar .countdown-timer { font-size: 0.8rem; gap: 0.2rem; }
-            .countdown-bar .countdown-timer .time-block .num { font-size: 0.9rem; min-width: 16px; }
-            .countdown-bar .countdown-timer .time-block { padding: 0.05rem 0.3rem; }
-            .section { padding: 0 0.8rem; margin: 1.2rem auto; }
-            .section-header h2 { font-size: 1.3rem; }
-            .grid { grid-template-columns: 1fr; gap: 0.8rem; }
-            .schedule-grid { grid-template-columns: 1fr; }
-            .footer-content { grid-template-columns: 1fr; text-align: center; }
-            .footer .social-links { justify-content: center; }
-            .fab { width: 44px; height: 44px; font-size: 1.1rem; }
-            .fab-whatsapp { bottom: 70px; right: 12px; }
-            .fab-prayer { bottom: 126px; right: 12px; }
-            .fab-donation { bottom: 182px; right: 12px; }
-            .fab .fab-label { display: none; }
-        }
-        @media (max-width: 480px) {
-            .hero { height: 240px; }
-            .hero-content h1 { font-size: 1.1rem; }
-            .services-quick .services-grid { grid-template-columns: repeat(3, 1fr); }
-            .services-quick .service-item .icon { font-size: 1rem; }
-            .services-quick .service-item h4 { font-size: 0.5rem; }
-            .countdown-bar { padding: 0.3rem 0.6rem; }
-            .countdown-bar .countdown-timer .time-block .num { font-size: 0.8rem; }
-        }
-
-        /* ============================================
-           MODAIS
-        ============================================ */
         .modal {
             display: none;
             position: fixed;
@@ -1126,7 +1003,6 @@
         .notification.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .notification.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
 
-        /* Live player */
         .live-container {
             background: #1a1a2e;
             border-radius: var(--radius);
@@ -1188,7 +1064,6 @@
         .live-info-box .live-viewers { color: #aaa; font-size: 0.6rem; }
         .live-info-box .live-dot { color: #ff0000; font-size: 0.5rem; animation: pulse-live 1.5s infinite; }
 
-        /* Dízimos */
         .tithe-options {
             display: flex;
             justify-content: center;
@@ -1216,7 +1091,6 @@
             box-shadow: 0 8px 32px rgba(13,71,161,0.3);
         }
 
-        /* Aniversariantes */
         .birthday-card {
             text-align: center;
             border-left: 4px solid var(--primary);
@@ -1228,13 +1102,71 @@
         .birthday-card .age { color: #888; font-size: 0.75rem; }
         .birthday-card.today { border-color: #e91e63; }
         .birthday-card.today .name { color: #e91e63; }
+
+        @media (max-width: 768px) {
+            .header { padding: 0 0.6rem; }
+            .logo img { height: 30px; }
+            .logo span { font-size: 0.95rem; }
+            .header-actions .btn span { display: inline; font-size: 0.5rem; }
+            .header-actions .btn { padding: 0.2rem 0.5rem; font-size: 0.55rem; min-width: 36px; justify-content: center; }
+            #adminBtn { display: inline-flex !important; }
+            .menu-toggle { display: block; }
+            .main-nav {
+                display: none;
+                flex-direction: column;
+                align-items: stretch;
+                padding: 0.3rem 0.6rem;
+                top: var(--header-h);
+                background: #1a1a2e;
+                border-bottom: 1px solid rgba(255,255,255,0.04);
+            }
+            .main-nav.mobile-open {
+                display: flex;
+                max-height: 450px;
+                padding: 0.4rem 0.6rem;
+            }
+            .nav-btn { width: 100%; text-align: center; padding: 0.3rem; font-size: 0.65rem; }
+            .hero {
+                height: 300px;
+                border-radius: 0 0 16px 16px;
+                margin-top: calc(var(--header-h) + 36px);
+            }
+            .hero-content h1 { font-size: 1.4rem; }
+            .hero-content p { font-size: 0.8rem; }
+            .hero-arrows .hero-arrow { width: 30px; height: 30px; font-size: 0.7rem; }
+            .hero-arrows { padding: 0 0.5rem; }
+            .services-quick .services-grid { grid-template-columns: repeat(5, 1fr); gap: 0.1rem; padding: 0.3rem 0.1rem; }
+            .services-quick .service-item .icon { font-size: 1.1rem; }
+            .services-quick .service-item h4 { font-size: 0.55rem; }
+            .services-quick .service-item p { display: none; }
+            .countdown-bar .countdown-timer { font-size: 0.8rem; gap: 0.2rem; }
+            .countdown-bar .countdown-timer .time-block .num { font-size: 0.9rem; min-width: 16px; }
+            .countdown-bar .countdown-timer .time-block { padding: 0.05rem 0.3rem; }
+            .section { padding: 0 0.8rem; margin: 1.2rem auto; }
+            .section-header h2 { font-size: 1.3rem; }
+            .grid { grid-template-columns: 1fr; gap: 0.8rem; }
+            .schedule-grid { grid-template-columns: 1fr; }
+            .footer-content { grid-template-columns: 1fr; text-align: center; }
+            .footer .social-links { justify-content: center; }
+            .fab { width: 44px; height: 44px; font-size: 1.1rem; }
+            .fab-whatsapp { bottom: 70px; right: 12px; }
+            .fab-prayer { bottom: 126px; right: 12px; }
+            .fab-donation { bottom: 182px; right: 12px; }
+            .fab .fab-label { display: none; }
+        }
+        @media (max-width: 480px) {
+            .hero { height: 240px; }
+            .hero-content h1 { font-size: 1.1rem; }
+            .services-quick .services-grid { grid-template-columns: repeat(3, 1fr); }
+            .services-quick .service-item .icon { font-size: 1rem; }
+            .services-quick .service-item h4 { font-size: 0.5rem; }
+            .countdown-bar { padding: 0.3rem 0.6rem; }
+            .countdown-bar .countdown-timer .time-block .num { font-size: 0.8rem; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- ============================================
-    HEADER (TOOLBAR PRETA)
-    ============================================ -->
     <header class="header" id="mainHeader">
         <a href="/" class="logo">
             <img src="https://raw.githubusercontent.com/ViniBR1/njcabucu/main/public/logo-nj.png" 
@@ -1267,9 +1199,6 @@
         </div>
     </header>
 
-    <!-- ============================================
-    NAVEGAÇÃO (mobile)
-    ============================================ -->
     <nav class="main-nav" id="mainNav">
         <button onclick="scrollToSection('home')" class="nav-btn active"><i class="fas fa-home"></i> Início</button>
         <button onclick="scrollToSection('sobre')" class="nav-btn"><i class="fas fa-info-circle"></i> Sobre</button>
@@ -1285,9 +1214,6 @@
         <button onclick="scrollToSection('reflexoes')" class="nav-btn"><i class="fas fa-video"></i> Reflexões</button>
     </nav>
 
-    <!-- ============================================
-    HERO (CARROSSEL)
-    ============================================ -->
     <section id="home" class="hero">
         <div class="hero-slides" id="heroSlides"></div>
         <div class="hero-arrows">
@@ -1300,18 +1226,12 @@
         </div>
     </section>
 
-    <!-- ============================================
-    LIVE BAR (compacta, se ativa)
-    ============================================ -->
     <div class="live-bar" id="liveBar">
         <div class="live-indicator"><i class="fas fa-circle"></i> AO VIVO</div>
         <div class="live-info"><strong id="liveBarTitle">Culto</strong> <span id="liveBarDesc">- Transmissão ao vivo</span></div>
         <button class="btn-watch" onclick="scrollToSection('live')">Assistir <i class="fas fa-chevron-right"></i></button>
     </div>
 
-    <!-- ============================================
-    CONTADOR REGRESSIVO
-    ============================================ -->
     <div class="countdown-section">
         <div class="countdown-bar" id="countdownBar">
             <div class="countdown-label">📅 Próximo Culto</div>
@@ -1325,9 +1245,6 @@
         </div>
     </div>
 
-    <!-- ============================================
-    SERVIÇOS (links rápidos)
-    ============================================ -->
     <div class="services-quick">
         <div class="services-grid">
             <a href="#live" class="service-item" onclick="scrollToSection('live')">
@@ -1358,9 +1275,6 @@
         </div>
     </div>
 
-    <!-- ============================================
-    SOBRE NÓS
-    ============================================ -->
     <section id="sobre" class="section">
         <div class="section-header">
             <span class="tag">Quem Somos</span>
@@ -1387,9 +1301,6 @@
         </div>
     </section>
 
-    <!-- ============================================
-    REFLEXÕES DO PASTOR
-    ============================================ -->
     <section id="reflexoes" class="section">
         <div class="section-header">
             <span class="tag">Palavra do Pastor</span>
@@ -1402,9 +1313,6 @@
         </div>
     </section>
 
-    <!-- ============================================
-    PRÓXIMOS EVENTOS
-    ============================================ -->
     <section id="eventos" class="section">
         <div class="section-header">
             <span class="tag">Agenda</span>
@@ -1415,9 +1323,6 @@
         <div class="grid" id="eventsList"></div>
     </section>
 
-    <!-- ============================================
-    VERSÍCULO
-    ============================================ -->
     <div class="section">
         <div class="verse-block">
             <div class="verse-text">
@@ -1427,9 +1332,6 @@
         </div>
     </div>
 
-    <!-- ============================================
-    HORÁRIOS DOS CULTOS
-    ============================================ -->
     <section id="horarios" class="section">
         <div class="section-header">
             <span class="tag">Horários</span>
@@ -1455,9 +1357,6 @@
         </div>
     </section>
 
-    <!-- ============================================
-    CÉLULAS
-    ============================================ -->
     <section id="celulas" class="section">
         <div class="section-header">
             <span class="tag">Comunhão</span>
@@ -1468,9 +1367,6 @@
         <div id="celulasList" class="grid"></div>
     </section>
 
-    <!-- ============================================
-    ANIVERSARIANTES
-    ============================================ -->
     <section id="aniversariantes" class="section">
         <div class="section-header">
             <span class="tag">Celebração</span>
@@ -1481,9 +1377,6 @@
         <div id="birthdayList" class="grid"></div>
     </section>
 
-    <!-- ============================================
-    ESTUDOS
-    ============================================ -->
     <section id="estudos" class="section">
         <div class="section-header">
             <span class="tag">Aprofunde-se</span>
@@ -1494,9 +1387,6 @@
         <div class="grid" id="studiesList"></div>
     </section>
 
-    <!-- ============================================
-    NJ STORE
-    ============================================ -->
     <section id="loja" class="section">
         <div class="section-header">
             <span class="tag">Loja</span>
@@ -1512,9 +1402,6 @@
         </div>
     </section>
 
-    <!-- ============================================
-    DÍZIMOS E OFERTAS
-    ============================================ -->
     <section id="dizimos" class="section">
         <div class="section-header">
             <span class="tag">Contribuição</span>
@@ -1536,9 +1423,6 @@
         <div id="donationResult" style="display:none;" class="text-center mt-1"></div>
     </section>
 
-    <!-- ============================================
-    LIVE (player completo)
-    ============================================ -->
     <section id="live" class="section" style="display:none;">
         <div class="section-header">
             <span class="tag">Ao Vivo</span>
@@ -1576,9 +1460,6 @@
         </div>
     </section>
 
-    <!-- ============================================
-    ORAÇÃO
-    ============================================ -->
     <section id="oracao" class="section">
         <div class="section-header">
             <span class="tag">Comunicação com Deus</span>
@@ -1602,9 +1483,6 @@
         </div>
     </section>
 
-    <!-- ============================================
-    INSCRIÇÕES
-    ============================================ -->
     <section id="inscricoes" class="section">
         <div class="section-header">
             <span class="tag">Participe</span>
@@ -1622,9 +1500,6 @@
         <div id="registrationResult" style="display:none;" class="text-center mt-1"></div>
     </section>
 
-    <!-- ============================================
-    ENDEREÇO
-    ============================================ -->
     <div class="section">
         <div class="address-section">
             <div class="address-card" onclick="openMaps()">
@@ -1643,9 +1518,6 @@
         </div>
     </div>
 
-    <!-- ============================================
-    FOOTER
-    ============================================ -->
     <footer class="footer">
         <div class="footer-content">
             <div>
@@ -1684,9 +1556,6 @@
         </div>
     </footer>
 
-    <!-- ============================================
-    BOTÕES FLUTUANTES (FAB)
-    ============================================ -->
     <a href="https://wa.me/5521985345627" target="_blank" class="fab fab-whatsapp" id="fabWhatsapp" title="Fale conosco">
         <i class="fab fa-whatsapp"></i>
         <span class="fab-label">WhatsApp</span>
@@ -1700,11 +1569,7 @@
         <span class="fab-label">Doar</span>
     </button>
 
-    <!-- ============================================
-    MODAIS
-    ============================================ -->
-
-    <!-- BÍBLIA -->
+    <!-- MODAIS -->
     <div class="modal modal-bible" id="bibleModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('bibleModal')">&times;</button>
@@ -1772,7 +1637,6 @@
         </div>
     </div>
 
-    <!-- CARROSSEL INFO -->
     <div class="modal modal-carousel" id="carouselInfoModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('carouselInfoModal')">&times;</button>
@@ -1788,7 +1652,6 @@
         </div>
     </div>
 
-    <!-- DOAÇÃO -->
     <div class="modal" id="donationModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('donationModal')">&times;</button>
@@ -1804,7 +1667,6 @@
         </div>
     </div>
 
-    <!-- PAGAMENTO -->
     <div class="modal" id="paymentModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('paymentModal')">&times;</button>
@@ -1844,7 +1706,6 @@
         </div>
     </div>
 
-    <!-- CARRINHO -->
     <div class="modal" id="cartModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('cartModal')">&times;</button>
@@ -1857,7 +1718,6 @@
         </div>
     </div>
 
-    <!-- PÁGINA DE RETORNO -->
     <div id="paymentReturnPage" style="display:none;max-width:500px;margin:2rem auto;padding:1.5rem;background:#fff;border-radius:20px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.06);">
         <div class="icon" id="returnIcon" style="font-size:3rem;margin-bottom:0.6rem;color:#c9a84c;">⏳</div>
         <h2 id="returnTitle" style="font-size:1.5rem;color:var(--primary);margin-bottom:0.4rem;">Aguardando Confirmação</h2>
@@ -1872,9 +1732,6 @@
         <p style="margin-top:0.8rem;font-size:0.7rem;color:#8a8a9a;">NJ Cabuçu — "E conhecereis a verdade, e a verdade vos libertará."</p>
     </div>
 
-    <!-- ============================================
-    SCRIPTS
-    ============================================ -->
     <script>
         // ============================================
         // ===== SERVICE WORKER =====
@@ -2261,72 +2118,23 @@
         }
 
         const bookNames = {
-            'gn': 'Gênesis',
-            'ex': 'Êxodo',
-            'lv': 'Levítico',
-            'nm': 'Números',
-            'dt': 'Deuteronômio',
-            'js': 'Josué',
-            'jz': 'Juízes',
-            'rt': 'Rute',
-            '1sm': '1 Samuel',
-            '2sm': '2 Samuel',
-            '1rs': '1 Reis',
-            '2rs': '2 Reis',
-            '1cr': '1 Crônicas',
-            '2cr': '2 Crônicas',
-            'ed': 'Esdras',
-            'ne': 'Neemias',
-            'et': 'Ester',
-            'jó': 'Jó',
-            'sl': 'Salmos',
-            'pv': 'Provérbios',
-            'ec': 'Eclesiastes',
-            'ct': 'Cânticos',
-            'is': 'Isaías',
-            'jr': 'Jeremias',
-            'lm': 'Lamentações',
-            'ez': 'Ezequiel',
-            'dn': 'Daniel',
-            'os': 'Oseias',
-            'jl': 'Joel',
-            'am': 'Amós',
-            'ob': 'Obadias',
-            'jn': 'Jonas',
-            'mq': 'Miqueias',
-            'na': 'Naum',
-            'hc': 'Habacuque',
-            'sf': 'Sofonias',
-            'ag': 'Ageu',
-            'zc': 'Zacarias',
-            'ml': 'Malaquias',
-            'mt': 'Mateus',
-            'mc': 'Marcos',
-            'lc': 'Lucas',
-            'jo': 'João',
-            'at': 'Atos',
-            'rm': 'Romanos',
-            '1co': '1 Coríntios',
-            '2co': '2 Coríntios',
-            'gl': 'Gálatas',
-            'ef': 'Efésios',
-            'fp': 'Filipenses',
-            'cl': 'Colossenses',
-            '1ts': '1 Tessalonicenses',
-            '2ts': '2 Tessalonicenses',
-            '1tm': '1 Timóteo',
-            '2tm': '2 Timóteo',
-            'tt': 'Tito',
-            'fm': 'Filemom',
-            'hb': 'Hebreus',
-            'tg': 'Tiago',
-            '1pe': '1 Pedro',
-            '2pe': '2 Pedro',
-            '1jo': '1 João',
-            '2jo': '2 João',
-            '3jo': '3 João',
-            'jd': 'Judas',
-            'ap': 'Apocalipse'
+            'gn': 'Gênesis', 'ex': 'Êxodo', 'lv': 'Levítico', 'nm': 'Números',
+            'dt': 'Deuteronômio', 'js': 'Josué', 'jz': 'Juízes', 'rt': 'Rute',
+            '1sm': '1 Samuel', '2sm': '2 Samuel', '1rs': '1 Reis', '2rs': '2 Reis',
+            '1cr': '1 Crônicas', '2cr': '2 Crônicas', 'ed': 'Esdras', 'ne': 'Neemias',
+            'et': 'Ester', 'jó': 'Jó', 'sl': 'Salmos', 'pv': 'Provérbios',
+            'ec': 'Eclesiastes', 'ct': 'Cânticos', 'is': 'Isaías', 'jr': 'Jeremias',
+            'lm': 'Lamentações', 'ez': 'Ezequiel', 'dn': 'Daniel', 'os': 'Oseias',
+            'jl': 'Joel', 'am': 'Amós', 'ob': 'Obadias', 'jn': 'Jonas',
+            'mq': 'Miqueias', 'na': 'Naum', 'hc': 'Habacuque', 'sf': 'Sofonias',
+            'ag': 'Ageu', 'zc': 'Zacarias', 'ml': 'Malaquias',
+            'mt': 'Mateus', 'mc': 'Marcos', 'lc': 'Lucas', 'jo': 'João',
+            'at': 'Atos', 'rm': 'Romanos', '1co': '1 Coríntios', '2co': '2 Coríntios',
+            'gl': 'Gálatas', 'ef': 'Efésios', 'fp': 'Filipenses', 'cl': 'Colossenses',
+            '1ts': '1 Tessalonicenses', '2ts': '2 Tessalonicenses', '1tm': '1 Timóteo', '2tm': '2 Timóteo',
+            'tt': 'Tito', 'fm': 'Filemom', 'hb': 'Hebreus', 'tg': 'Tiago',
+            '1pe': '1 Pedro', '2pe': '2 Pedro', '1jo': '1 João', '2jo': '2 João',
+            '3jo': '3 João', 'jd': 'Judas', 'ap': 'Apocalipse'
         };
 
         async function searchBible() {
@@ -2656,30 +2464,116 @@
             } else if (imageData.length > 100 && !imageData.startsWith('http')) {
                 src = `data:image/jpeg;base64,${imageData}`;
             }
-            return `<div class="card-image-wrapper"><img src="${src}" alt="${alt}" loading="lazy"></div>`;
+            return `<div class="card-image-wrapper"><img src="${src}" alt="${alt}" loading="lazy" onerror="this.style.display='none'"></div>`;
         }
 
+        // ============================================
+        // ===== ESTUDOS - CORRIGIDO =====
+        // ============================================
         async function loadStudies() {
             try {
                 const res = await fetch('/api/studies');
                 const data = await res.json();
                 const container = document.getElementById('studiesList');
                 if (!data || data.length === 0) {
-                    container.innerHTML =
-                        '<p style="text-align:center;color:#888;grid-column:1/-1;">Nenhum estudo disponível.</p>';
+                    container.innerHTML = `
+                        <div style="text-align:center;padding:2rem;color:#888;grid-column:1/-1;">
+                            <i class="fas fa-book" style="font-size:2rem;color:#ccc;display:block;margin-bottom:0.5rem;"></i>
+                            Nenhum estudo disponível no momento.
+                        </div>
+                    `;
                     return;
                 }
-                container.innerHTML = data.map(s => `
-                    <div class="card">
-                        ${s.image_base64 ? createCardImage(s.image_base64, s.title) : ''}
-                        <h3>${s.title}</h3>
-                        <p>${s.description || ''}</p>
-                        ${s.file_url ? '<a href="' + s.file_url + '" target="_blank" class="btn btn-primary btn-sm" style="margin-top:0.4rem;width:auto;font-size:0.65rem;"><i class="fas fa-download"></i> Baixar</a>' : ''}
+                
+                container.innerHTML = data.map(s => {
+                    const hasPdf = s.file_base64 || s.file_url;
+                    const hasImage = s.image_base64;
+                    
+                    let fileButton = '';
+                    if (s.file_base64) {
+                        fileButton = `
+                            <button onclick="downloadPdf('${s.id}')" class="btn btn-primary" style="margin-top:0.4rem;width:auto;font-size:0.7rem;padding:0.3rem 1rem;">
+                                <i class="fas fa-file-pdf"></i> Baixar PDF
+                            </button>
+                        `;
+                    } else if (s.file_url) {
+                        const isDrive = s.file_url.includes('drive.google.com');
+                        const isYoutube = s.file_url.includes('youtube.com') || s.file_url.includes('youtu.be');
+                        let icon = 'fa-external-link-alt';
+                        let label = 'Abrir Link';
+                        
+                        if (isDrive) {
+                            icon = 'fa-google-drive';
+                            label = 'Ver no Drive';
+                        } else if (isYoutube) {
+                            icon = 'fa-youtube';
+                            label = 'Assistir';
+                        }
+                        
+                        fileButton = `
+                            <a href="${s.file_url}" target="_blank" class="btn btn-primary" style="margin-top:0.4rem;width:auto;font-size:0.7rem;padding:0.3rem 1rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;">
+                                <i class="fas ${icon}"></i> ${label}
+                            </a>
+                        `;
+                    }
+                    
+                    return `
+                        <div class="card" style="display:flex;flex-direction:column;">
+                            ${hasImage ? createCardImage(s.image_base64, s.title) : ''}
+                            <h3 style="font-size:1rem;color:var(--primary);margin-bottom:0.3rem;">${s.title}</h3>
+                            <p style="font-size:0.8rem;color:#555;flex:1;margin-bottom:0.5rem;">${s.description || ''}</p>
+                            ${fileButton}
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) { 
+                console.error('Erro ao carregar estudos:', e);
+                document.getElementById('studiesList').innerHTML = `
+                    <div style="text-align:center;padding:2rem;color:#dc3545;grid-column:1/-1;">
+                        <i class="fas fa-exclamation-circle" style="font-size:2rem;display:block;margin-bottom:0.5rem;"></i>
+                        Erro ao carregar estudos. Tente novamente.
                     </div>
-                `).join('');
-            } catch (e) { console.error('Erro:', e); }
+                `;
+            }
         }
 
+        // ============================================
+        // ===== FUNÇÃO PARA BAIXAR PDF =====
+        // ============================================
+        function downloadPdf(studyId) {
+            showNotification('📄 Baixando PDF...', 'info');
+            
+            fetch(`/api/studies/${studyId}/pdf`, {
+                headers: {
+                    'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao baixar PDF');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `estudo-${studyId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+                showNotification('✅ PDF baixado com sucesso!', 'success');
+            })
+            .catch(error => {
+                console.error('Erro ao baixar PDF:', error);
+                showNotification('❌ Erro ao baixar PDF: ' + error.message, 'error');
+            });
+        }
+
+        // ============================================
+        // ===== EVENTOS =====
+        // ============================================
         async function loadEvents() {
             try {
                 const res = await fetch('/api/events');

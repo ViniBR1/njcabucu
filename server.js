@@ -63,6 +63,108 @@ try {
 }
 
 // ============================================
+// ===== FUNÇÃO PARA ENVIAR EMAIL =====
+// ============================================
+async function enviarEmailConfirmacao(dados) {
+    if (!transporter) {
+        console.log('⚠️ Email não configurado');
+        return false;
+    }
+
+    const { email, nome, tipo, valor, data, status, paymentId, detalhes } = dados;
+
+    const statusText = status === 'approved' ? '✅ APROVADO' : '⏳ PENDENTE';
+    const statusColor = status === 'approved' ? '#28a745' : '#ffc107';
+    const tiposLabels = {
+        'dizimo': 'Dízimo',
+        'oferta': 'Oferta',
+        'missoes': 'Missões',
+        'inscricao': 'Inscrição',
+        'compra': 'Compra',
+        'evento': 'Evento'
+    };
+    const tipoLabel = tiposLabels[tipo] || tipo || 'Pagamento';
+
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; }
+            .header { background: #0D47A1; color: #fff; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+            .header h1 { margin: 0; font-size: 24px; }
+            .header p { margin: 5px 0 0; opacity: 0.8; }
+            .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0; border-top: none; }
+            .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e0e0e0; }
+            .info-row:last-child { border-bottom: none; }
+            .label { font-weight: 600; color: #555; }
+            .value { font-weight: 500; }
+            .status { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: 700; background: ${statusColor}; color: #fff; }
+            .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #888; }
+            .logo { font-size: 28px; font-weight: 800; color: #0D47A1; }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>🙏 NJ Cabuçu</h1>
+            <p>Comprovante de ${tipoLabel}</p>
+        </div>
+        <div class="content">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <span class="status">${statusText}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Nome</span>
+                <span class="value">${nome || 'Não informado'}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">E-mail</span>
+                <span class="value">${email || 'Não informado'}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Valor</span>
+                <span class="value">R$ ${parseFloat(valor || 0).toFixed(2)}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Data</span>
+                <span class="value">${new Date(data || Date.now()).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">ID do Pagamento</span>
+                <span class="value">${paymentId || '-'}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Tipo</span>
+                <span class="value">${tipoLabel}</span>
+            </div>
+            ${detalhes ? `<div class="info-row"><span class="label">Detalhes</span><span class="value">${detalhes}</span></div>` : ''}
+        </div>
+        <div class="footer">
+            <p>NJ Cabuçu - "E conhecereis a verdade, e a verdade vos libertará." (João 8:32)</p>
+            <p>Este é um comprovante automático. Não é necessário responder.</p>
+        </div>
+    </body>
+    </html>
+    `;
+
+    try {
+        await transporter.sendMail({
+            from: `"NJ Cabuçu" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: `💰 Comprovante de ${tipoLabel} - NJ Cabuçu`,
+            html: html,
+            text: `Comprovante de ${tipoLabel}\n\nNome: ${nome}\nValor: R$ ${parseFloat(valor || 0).toFixed(2)}\nData: ${new Date(data || Date.now()).toLocaleDateString('pt-BR')}\nStatus: ${statusText}\nID: ${paymentId}`
+        });
+        console.log('✅ Email enviado para:', email);
+        return true;
+    } catch (error) {
+        console.error('❌ Erro ao enviar email:', error);
+        return false;
+    }
+}
+
+// ============================================
 // ===== APP =====
 // ============================================
 const app = express();
@@ -98,7 +200,7 @@ const upload = multer({
 });
 
 // ============================================
-// ===== FUNÇÕES =====
+// ===== FUNÇÕES DE AUTENTICAÇÃO =====
 // ============================================
 const hashPassword = async (pwd) => await bcrypt.hash(pwd, 10);
 const verifyPassword = async (pwd, hash) => await bcrypt.compare(pwd, hash);
@@ -127,94 +229,6 @@ const leaderOnly = (req, res, next) => {
     }
     next();
 };
-
-// ============================================
-// ===== ENVIAR EMAIL COM COMPROVANTE =====
-// ============================================
-async function enviarComprovanteEmail(email, nome, valor, data, status, paymentId, tipo) {
-    if (!transporter) {
-        console.log('⚠️ Email não configurado');
-        return;
-    }
-
-    const statusText = status === 'approved' ? '✅ APROVADO' : '⏳ PENDENTE';
-    const statusColor = status === 'approved' ? '#28a745' : '#ffc107';
-
-    const html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <style>
-            body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; }
-            .header { background: #0D47A1; color: #fff; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
-            .header h1 { margin: 0; font-size: 24px; }
-            .header p { margin: 5px 0 0; opacity: 0.8; }
-            .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0; border-top: none; }
-            .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e0e0e0; }
-            .info-row:last-child { border-bottom: none; }
-            .label { font-weight: 600; color: #555; }
-            .value { font-weight: 500; }
-            .status { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: 700; background: ${statusColor}; color: #fff; }
-            .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #888; }
-            .logo { font-size: 28px; font-weight: 800; color: #0D47A1; }
-        </style>
-    </head>
-    <body>
-        <div class="header">
-            <h1>🙏 NJ Cabuçu</h1>
-            <p>Comprovante de ${tipo || 'Pagamento'}</p>
-        </div>
-        <div class="content">
-            <div style="text-align: center; margin-bottom: 20px;">
-                <span class="status">${statusText}</span>
-            </div>
-            <div class="info-row">
-                <span class="label">Nome</span>
-                <span class="value">${nome}</span>
-            </div>
-            <div class="info-row">
-                <span class="label">E-mail</span>
-                <span class="value">${email}</span>
-            </div>
-            <div class="info-row">
-                <span class="label">Valor</span>
-                <span class="value">R$ ${parseFloat(valor).toFixed(2)}</span>
-            </div>
-            <div class="info-row">
-                <span class="label">Data</span>
-                <span class="value">${new Date(data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-            </div>
-            <div class="info-row">
-                <span class="label">ID do Pagamento</span>
-                <span class="value">${paymentId}</span>
-            </div>
-            <div class="info-row">
-                <span class="label">Tipo</span>
-                <span class="value">${tipo || 'Pagamento'}</span>
-            </div>
-        </div>
-        <div class="footer">
-            <p>NJ Cabuçu - "E conhecereis a verdade, e a verdade vos libertará." (João 8:32)</p>
-            <p>Este é um comprovante automático. Não é necessário responder.</p>
-        </div>
-    </body>
-    </html>
-    `;
-
-    try {
-        await transporter.sendMail({
-            from: `"NJ Cabuçu" <${process.env.EMAIL_USER}>`,
-            to: email,
-            subject: `💰 Comprovante de ${tipo || 'Pagamento'} - NJ Cabuçu`,
-            html: html,
-            text: `Comprovante de ${tipo || 'Pagamento'}\n\nNome: ${nome}\nValor: R$ ${parseFloat(valor).toFixed(2)}\nData: ${new Date(data).toLocaleDateString('pt-BR')}\nStatus: ${statusText}\nID: ${paymentId}`
-        });
-        console.log('✅ Email enviado para:', email);
-    } catch (error) {
-        console.error('❌ Erro ao enviar email:', error);
-    }
-}
 
 // ============================================
 // ===== INICIALIZAR BANCO =====
@@ -258,7 +272,6 @@ async function initDB() {
             PRIMARY KEY (department_id, user_id)
         )`;
 
-        // CORREÇÃO: Adiciona a coluna 'role' se não existir
         await sql`
             DO $$
             BEGIN
@@ -363,6 +376,7 @@ async function initDB() {
             id SERIAL PRIMARY KEY,
             title VARCHAR(200),
             subtitle VARCHAR(200),
+            description TEXT,
             image_url VARCHAR(500),
             image_base64 TEXT,
             link VARCHAR(500),
@@ -455,9 +469,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // ============================================
-        // ===== TABELAS DE CÉLULAS =====
-        // ============================================
+        // CÉLULAS
         await sql`CREATE TABLE IF NOT EXISTS celulas (
             id SERIAL PRIMARY KEY,
             nome VARCHAR(100) NOT NULL,
@@ -503,9 +515,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // ============================================
-        // ===== TABELAS DE LIVES =====
-        // ============================================
+        // LIVES
         await sql`CREATE TABLE IF NOT EXISTS lives (
             id SERIAL PRIMARY KEY,
             titulo VARCHAR(200) NOT NULL,
@@ -527,9 +537,7 @@ async function initDB() {
             left_at TIMESTAMP
         )`;
 
-        // ============================================
-        // ===== TABELA DE REFLEXÕES =====
-        // ============================================
+        // REFLEXÕES
         await sql`CREATE TABLE IF NOT EXISTS pastor_reflections (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -539,11 +547,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // ============================================
-        // ===== TABELAS PARA DEPARTAMENTOS (LOUVOR) =====
-        // ============================================
-
-        // Músicas
+        // MÚSICAS
         await sql`CREATE TABLE IF NOT EXISTS songs (
             id SERIAL PRIMARY KEY,
             title VARCHAR(200) NOT NULL,
@@ -556,7 +560,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // Escalas de Louvor
+        // ESCALAS
         await sql`CREATE TABLE IF NOT EXISTS worship_scales (
             id SERIAL PRIMARY KEY,
             department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE,
@@ -572,7 +576,7 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // Disponibilidade
+        // DISPONIBILIDADE
         await sql`CREATE TABLE IF NOT EXISTS availability (
             id SERIAL PRIMARY KEY,
             user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -582,7 +586,6 @@ async function initDB() {
             UNIQUE(user_id, date)
         )`;
 
-        // CORREÇÃO: Adiciona a coluna 'department_id' se não existir
         await sql`
             DO $$
             BEGIN
@@ -615,10 +618,9 @@ async function initDB() {
 initDB();
 
 // ============================================
-// ===== ROTAS =====
+// ===== ROTAS DE AUTENTICAÇÃO =====
 // ============================================
 
-// ----- LOGIN -----
 app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -674,7 +676,47 @@ app.post('/api/change-password', async (req, res) => {
     }
 });
 
-// ----- USUÁRIOS (admin) -----
+// ============================================
+// ===== ROTAS DE USUÁRIOS =====
+// ============================================
+
+app.get('/api/users', auth, async (req, res) => {
+    try {
+        let users;
+        if (req.user.role === 'pastor') {
+            users = await sql`
+                SELECT id, name, email, role, department_id, department_name, phone, first_login, is_leader, created_at
+                FROM users ORDER BY name
+            `;
+        } else {
+            const deptId = req.user.department_id;
+            if (!deptId) return res.json([]);
+            users = await sql`
+                SELECT id, name, email, role, department_id, department_name, phone, first_login, is_leader, created_at
+                FROM users WHERE department_id = ${deptId}
+                ORDER BY name
+            `;
+        }
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/users/all', auth, leaderOnly, async (req, res) => {
+    try {
+        const users = await sql`
+            SELECT id, name, email, role, department_id, department_name, phone, first_login, is_leader, created_at
+            FROM users 
+            ORDER BY name
+        `;
+        res.json(users);
+    } catch (error) {
+        console.error('❌ Erro ao buscar todos os usuários:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.post('/api/users', auth, pastorOnly, async (req, res) => {
     try {
         const { name, email, password, role, department_name, phone, is_leader, department_id } = req.body;
@@ -724,44 +766,6 @@ app.post('/api/users', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ROTA PARA BUSCAR TODOS OS USUÁRIOS (para líderes/pastor adicionarem membros)
-app.get('/api/users/all', auth, leaderOnly, async (req, res) => {
-    try {
-        const users = await sql`
-            SELECT id, name, email, role, department_id, department_name, phone, first_login, is_leader, created_at
-            FROM users 
-            ORDER BY name
-        `;
-        res.json(users);
-    } catch (error) {
-        console.error('❌ Erro ao buscar todos os usuários:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/users', auth, async (req, res) => {
-    try {
-        let users;
-        if (req.user.role === 'pastor') {
-            users = await sql`
-                SELECT id, name, email, role, department_id, department_name, phone, first_login, is_leader, created_at
-                FROM users ORDER BY name
-            `;
-        } else {
-            const deptId = req.user.department_id;
-            if (!deptId) return res.json([]);
-            users = await sql`
-                SELECT id, name, email, role, department_id, department_name, phone, first_login, is_leader, created_at
-                FROM users WHERE department_id = ${deptId}
-                ORDER BY name
-            `;
-        }
-        res.json(users);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
 app.delete('/api/users/:id', auth, pastorOnly, async (req, res) => {
     try {
         await sql`DELETE FROM users WHERE id = ${req.params.id}`;
@@ -781,212 +785,6 @@ app.post('/api/reset-password', auth, pastorOnly, async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
-
-// ============================================
-// ===== ROTAS PARA DEPARTAMENTOS =====
-// ============================================
-
-// Criar departamento (apenas pastor)
-app.post('/api/departments', auth, pastorOnly, async (req, res) => {
-    try {
-        const { name, description } = req.body;
-        const result = await sql`
-            INSERT INTO departments (name, description, created_by)
-            VALUES (${name}, ${description || ''}, ${req.user.id})
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Listar departamentos (todos usuários autenticados)
-app.get('/api/departments', auth, async (req, res) => {
-    try {
-        const depts = await sql`
-            SELECT d.*, u.name as leader_name
-            FROM departments d
-            LEFT JOIN users u ON d.leader_id = u.id
-            WHERE d.is_active = true
-            ORDER BY d.name
-        `;
-        res.json(depts);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/departments/active', async (req, res) => {
-    try {
-        const depts = await sql`
-            SELECT id, name, description, leader_id
-            FROM departments 
-            WHERE is_active = true 
-            ORDER BY name
-        `;
-        res.json(depts);
-    } catch (error) {
-        console.error('❌ Erro ao buscar departamentos:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        await sql`UPDATE departments SET is_active = false WHERE id = ${req.params.id}`;
-        res.json({ message: 'Departamento removido' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== MEMBROS DO DEPARTAMENTO =====
-// ============================================
-
-// Listar membros de um departamento
-app.get('/api/departments/:id/members', auth, async (req, res) => {
-    try {
-        const deptId = req.params.id;
-        if (req.user.role !== 'pastor' && req.user.department_id != deptId) {
-            return res.status(403).json({ error: 'Acesso negado' });
-        }
-
-        const members = await sql`
-            SELECT u.id, u.name, u.email, u.phone, u.is_leader, dm.role as member_role, dm.joined_at
-            FROM users u
-            JOIN department_members dm ON u.id = dm.user_id
-            WHERE dm.department_id = ${deptId}
-            ORDER BY u.name
-        `;
-        res.json(members);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Adicionar membro ao departamento (líder/pastor)
-app.post('/api/departments/:id/members', auth, leaderOnly, async (req, res) => {
-    try {
-        const deptId = req.params.id;
-        const { user_id, role } = req.body;
-
-        if (!user_id) {
-            return res.status(400).json({ error: 'user_id é obrigatório' });
-        }
-
-        const user = await sql`SELECT * FROM users WHERE id = ${user_id}`;
-        if (user.length === 0) {
-            return res.status(404).json({ error: 'Usuário não encontrado' });
-        }
-
-        const dept = await sql`SELECT * FROM departments WHERE id = ${deptId} AND is_active = true`;
-        if (dept.length === 0) {
-            return res.status(404).json({ error: 'Departamento não encontrado' });
-        }
-
-        await sql`
-            INSERT INTO department_members (department_id, user_id, role)
-            VALUES (${deptId}, ${user_id}, ${role || 'membro'})
-            ON CONFLICT (department_id, user_id) DO UPDATE SET role = ${role || 'membro'}
-        `;
-
-        await sql`
-            UPDATE users SET department_id = ${deptId}, department_name = ${dept[0].name}
-            WHERE id = ${user_id}
-        `;
-
-        if (role === 'lider') {
-            await sql`UPDATE users SET is_leader = true WHERE id = ${user_id}`;
-            await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${deptId}`;
-        } else {
-            await sql`UPDATE users SET is_leader = false WHERE id = ${user_id}`;
-            const currentLeader = await sql`SELECT leader_id FROM departments WHERE id = ${deptId}`;
-            if (currentLeader.length > 0 && currentLeader[0].leader_id == user_id) {
-                await sql`UPDATE departments SET leader_id = NULL WHERE id = ${deptId}`;
-            }
-        }
-
-        res.status(201).json({ message: 'Membro adicionado com sucesso' });
-    } catch (error) {
-        console.error('Erro ao adicionar membro:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Atualizar função do membro no departamento
-app.put('/api/departments/:id/members/:userId', auth, leaderOnly, async (req, res) => {
-    try {
-        const deptId = req.params.id;
-        const userId = req.params.userId;
-        const { role } = req.body;
-
-        if (!role) {
-            return res.status(400).json({ error: 'role é obrigatório' });
-        }
-
-        const validRoles = ['membro', 'lider', 'ministro', 'musico', 'colaborador'];
-        if (!validRoles.includes(role)) {
-            return res.status(400).json({ error: 'Função inválida' });
-        }
-
-        await sql`
-            UPDATE department_members SET role = ${role}
-            WHERE department_id = ${deptId} AND user_id = ${userId}
-        `;
-
-        if (role === 'lider') {
-            await sql`UPDATE users SET is_leader = true WHERE id = ${userId}`;
-            await sql`UPDATE departments SET leader_id = ${userId} WHERE id = ${deptId}`;
-        } else {
-            await sql`UPDATE users SET is_leader = false WHERE id = ${userId}`;
-            const currentLeader = await sql`SELECT leader_id FROM departments WHERE id = ${deptId}`;
-            if (currentLeader.length > 0 && currentLeader[0].leader_id == parseInt(userId)) {
-                await sql`UPDATE departments SET leader_id = NULL WHERE id = ${deptId}`;
-            }
-        }
-
-        res.json({ message: 'Função atualizada com sucesso' });
-    } catch (error) {
-        console.error('Erro ao atualizar função:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Remover membro do departamento
-app.delete('/api/departments/:id/members/:userId', auth, leaderOnly, async (req, res) => {
-    try {
-        const deptId = req.params.id;
-        const userId = req.params.userId;
-
-        await sql`
-            DELETE FROM department_members
-            WHERE department_id = ${deptId} AND user_id = ${userId}
-        `;
-
-        const otherDepts = await sql`
-            SELECT * FROM department_members WHERE user_id = ${userId}
-        `;
-        if (otherDepts.length === 0) {
-            await sql`UPDATE users SET department_id = NULL, department_name = NULL, is_leader = false WHERE id = ${userId}`;
-        }
-
-        const currentLeader = await sql`SELECT leader_id FROM departments WHERE id = ${deptId}`;
-        if (currentLeader.length > 0 && currentLeader[0].leader_id == parseInt(userId)) {
-            await sql`UPDATE departments SET leader_id = NULL WHERE id = ${deptId}`;
-        }
-
-        res.json({ message: 'Membro removido com sucesso' });
-    } catch (error) {
-        console.error('Erro ao remover membro:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== CRIAR USUÁRIO POR LÍDER =====
-// ============================================
 
 app.post('/api/users-by-leader', auth, leaderOnly, async (req, res) => {
     try {
@@ -1039,7 +837,203 @@ app.post('/api/users-by-leader', auth, leaderOnly, async (req, res) => {
 });
 
 // ============================================
-// ===== ROTAS PARA MÚSICAS (LOUVOR) =====
+// ===== ROTAS DE DEPARTAMENTOS =====
+// ============================================
+
+app.post('/api/departments', auth, pastorOnly, async (req, res) => {
+    try {
+        const { name, description } = req.body;
+        const result = await sql`
+            INSERT INTO departments (name, description, created_by)
+            VALUES (${name}, ${description || ''}, ${req.user.id})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/departments', auth, async (req, res) => {
+    try {
+        const depts = await sql`
+            SELECT d.*, u.name as leader_name
+            FROM departments d
+            LEFT JOIN users u ON d.leader_id = u.id
+            WHERE d.is_active = true
+            ORDER BY d.name
+        `;
+        res.json(depts);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/departments/active', async (req, res) => {
+    try {
+        const depts = await sql`
+            SELECT id, name, description, leader_id
+            FROM departments 
+            WHERE is_active = true 
+            ORDER BY name
+        `;
+        res.json(depts);
+    } catch (error) {
+        console.error('❌ Erro ao buscar departamentos:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`UPDATE departments SET is_active = false WHERE id = ${req.params.id}`;
+        res.json({ message: 'Departamento removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== MEMBROS DO DEPARTAMENTO =====
+// ============================================
+
+app.get('/api/departments/:id/members', auth, async (req, res) => {
+    try {
+        const deptId = req.params.id;
+        if (req.user.role !== 'pastor' && req.user.department_id != deptId) {
+            return res.status(403).json({ error: 'Acesso negado' });
+        }
+
+        const members = await sql`
+            SELECT u.id, u.name, u.email, u.phone, u.is_leader, dm.role as member_role, dm.joined_at
+            FROM users u
+            JOIN department_members dm ON u.id = dm.user_id
+            WHERE dm.department_id = ${deptId}
+            ORDER BY u.name
+        `;
+        res.json(members);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/departments/:id/members', auth, leaderOnly, async (req, res) => {
+    try {
+        const deptId = req.params.id;
+        const { user_id, role } = req.body;
+
+        if (!user_id) {
+            return res.status(400).json({ error: 'user_id é obrigatório' });
+        }
+
+        const user = await sql`SELECT * FROM users WHERE id = ${user_id}`;
+        if (user.length === 0) {
+            return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+
+        const dept = await sql`SELECT * FROM departments WHERE id = ${deptId} AND is_active = true`;
+        if (dept.length === 0) {
+            return res.status(404).json({ error: 'Departamento não encontrado' });
+        }
+
+        await sql`
+            INSERT INTO department_members (department_id, user_id, role)
+            VALUES (${deptId}, ${user_id}, ${role || 'membro'})
+            ON CONFLICT (department_id, user_id) DO UPDATE SET role = ${role || 'membro'}
+        `;
+
+        await sql`
+            UPDATE users SET department_id = ${deptId}, department_name = ${dept[0].name}
+            WHERE id = ${user_id}
+        `;
+
+        if (role === 'lider') {
+            await sql`UPDATE users SET is_leader = true WHERE id = ${user_id}`;
+            await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${deptId}`;
+        } else {
+            await sql`UPDATE users SET is_leader = false WHERE id = ${user_id}`;
+            const currentLeader = await sql`SELECT leader_id FROM departments WHERE id = ${deptId}`;
+            if (currentLeader.length > 0 && currentLeader[0].leader_id == user_id) {
+                await sql`UPDATE departments SET leader_id = NULL WHERE id = ${deptId}`;
+            }
+        }
+
+        res.status(201).json({ message: 'Membro adicionado com sucesso' });
+    } catch (error) {
+        console.error('Erro ao adicionar membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/departments/:id/members/:userId', auth, leaderOnly, async (req, res) => {
+    try {
+        const deptId = req.params.id;
+        const userId = req.params.userId;
+        const { role } = req.body;
+
+        if (!role) {
+            return res.status(400).json({ error: 'role é obrigatório' });
+        }
+
+        const validRoles = ['membro', 'lider', 'ministro', 'musico', 'colaborador'];
+        if (!validRoles.includes(role)) {
+            return res.status(400).json({ error: 'Função inválida' });
+        }
+
+        await sql`
+            UPDATE department_members SET role = ${role}
+            WHERE department_id = ${deptId} AND user_id = ${userId}
+        `;
+
+        if (role === 'lider') {
+            await sql`UPDATE users SET is_leader = true WHERE id = ${userId}`;
+            await sql`UPDATE departments SET leader_id = ${userId} WHERE id = ${deptId}`;
+        } else {
+            await sql`UPDATE users SET is_leader = false WHERE id = ${userId}`;
+            const currentLeader = await sql`SELECT leader_id FROM departments WHERE id = ${deptId}`;
+            if (currentLeader.length > 0 && currentLeader[0].leader_id == parseInt(userId)) {
+                await sql`UPDATE departments SET leader_id = NULL WHERE id = ${deptId}`;
+            }
+        }
+
+        res.json({ message: 'Função atualizada com sucesso' });
+    } catch (error) {
+        console.error('Erro ao atualizar função:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/departments/:id/members/:userId', auth, leaderOnly, async (req, res) => {
+    try {
+        const deptId = req.params.id;
+        const userId = req.params.userId;
+
+        await sql`
+            DELETE FROM department_members
+            WHERE department_id = ${deptId} AND user_id = ${userId}
+        `;
+
+        const otherDepts = await sql`
+            SELECT * FROM department_members WHERE user_id = ${userId}
+        `;
+        if (otherDepts.length === 0) {
+            await sql`UPDATE users SET department_id = NULL, department_name = NULL, is_leader = false WHERE id = ${userId}`;
+        }
+
+        const currentLeader = await sql`SELECT leader_id FROM departments WHERE id = ${deptId}`;
+        if (currentLeader.length > 0 && currentLeader[0].leader_id == parseInt(userId)) {
+            await sql`UPDATE departments SET leader_id = NULL WHERE id = ${deptId}`;
+        }
+
+        res.json({ message: 'Membro removido com sucesso' });
+    } catch (error) {
+        console.error('Erro ao remover membro:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTAS DE MÚSICAS =====
 // ============================================
 
 app.get('/api/songs', auth, async (req, res) => {
@@ -1147,7 +1141,7 @@ app.get('/api/songs/by-key/:key', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== ROTAS PARA ESCALAS (LOUVOR) =====
+// ===== ROTAS DE ESCALAS =====
 // ============================================
 
 app.post('/api/worship-scales', auth, leaderOnly, async (req, res) => {
@@ -1313,7 +1307,7 @@ app.put('/api/worship-scales/:id/songs', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== ROTAS PARA DISPONIBILIDADE =====
+// ===== ROTAS DE DISPONIBILIDADE =====
 // ============================================
 
 app.post('/api/availability', auth, async (req, res) => {
@@ -1420,10 +1414,6 @@ app.get('/api/availability/date/:date', auth, async (req, res) => {
     }
 });
 
-// ============================================
-// ===== ROTA: BUSCAR DISPONÍVEIS POR DATA E DEPARTAMENTO (CORRIGIDA) =====
-// ============================================
-
 app.get('/api/availability/date/:date/department/:deptId', auth, async (req, res) => {
     try {
         const { date, deptId } = req.params;
@@ -1451,174 +1441,9 @@ app.get('/api/availability/date/:date/department/:deptId', auth, async (req, res
 });
 
 // ============================================
-// ===== ROTAS PARA SISTEMA DE LOUVOR =====
+// ===== ROTAS DE ESTUDOS =====
 // ============================================
 
-// ----- BUSCAR MÚSICA DO YOUTUBE -----
-app.post('/api/youtube-song', auth, async (req, res) => {
-    try {
-        const { url } = req.body;
-        
-        const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/;
-        const match = url.match(youtubeRegex);
-        
-        if (!match) {
-            return res.status(400).json({ error: 'Link do YouTube inválido' });
-        }
-        
-        const videoId = match[1];
-        
-        res.json({
-            video_id: videoId,
-            embed_url: `https://www.youtube.com/embed/${videoId}`,
-            watch_url: `https://www.youtube.com/watch?v=${videoId}`
-        });
-    } catch (error) {
-        console.error('❌ Erro ao buscar música do YouTube:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ----- TRANSPOR CIFRA -----
-app.post('/api/transpose-chord', auth, async (req, res) => {
-    try {
-        const { lyrics, fromKey, toKey } = req.body;
-        
-        if (!lyrics || !fromKey || !toKey) {
-            return res.status(400).json({ error: 'Dados incompletos para transposição' });
-        }
-        
-        const transposed = transposeChords(lyrics, fromKey, toKey);
-        res.json({ transposed });
-    } catch (error) {
-        console.error('❌ Erro na transposição:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-function transposeChords(lyrics, fromKey, toKey) {
-    const chordMap = {
-        'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3,
-        'E': 4, 'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8,
-        'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11
-    };
-    
-    const chordNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    
-    const from = chordMap[fromKey];
-    const to = chordMap[toKey];
-    
-    if (from === undefined || to === undefined) {
-        return lyrics;
-    }
-    
-    const diff = (to - from + 12) % 12;
-    
-    const chordRegex = /([A-G][#b]?)(maj|m|min|dim|aug|sus|add|\d|\(|\)|)?/g;
-    
-    return lyrics.replace(chordRegex, (match, chord, suffix) => {
-        const baseIndex = chordMap[chord];
-        if (baseIndex === undefined) return match;
-        
-        const newIndex = (baseIndex + diff) % 12;
-        const newChord = chordNames[newIndex];
-        
-        return newChord + (suffix || '');
-    });
-}
-
-// ----- COMPARTILHAR ESCALA NO WHATSAPP -----
-app.get('/api/worship-scales/:id/share', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        
-        const scale = await sql`
-            SELECT ws.*, 
-                   u1.name as leader_name, 
-                   u2.name as minister_name,
-                   u3.name as created_by_name
-            FROM worship_scales ws
-            LEFT JOIN users u1 ON ws.leader_id = u1.id
-            LEFT JOIN users u2 ON ws.minister_id = u2.id
-            LEFT JOIN users u3 ON ws.created_by = u3.id
-            WHERE ws.id = ${id}
-        `;
-        
-        if (scale.length === 0) {
-            return res.status(404).json({ error: 'Escala não encontrada' });
-        }
-        
-        const s = scale[0];
-        const eventDate = new Date(s.event_date);
-        
-        let songs = [];
-        try {
-            songs = JSON.parse(s.songs || '[]');
-        } catch { songs = []; }
-        
-        let musicianIds = [];
-        try {
-            musicianIds = JSON.parse(s.musician_ids || '[]');
-        } catch { musicianIds = []; }
-        
-        let musicians = [];
-        if (musicianIds.length > 0) {
-            musicians = await sql`
-                SELECT name FROM users WHERE id = ANY(${musicianIds})
-            `;
-        }
-        
-        let message = `🎵 *ESCALA DE LOUVOR* 🎵\n\n`;
-        message += `📅 *Data:* ${eventDate.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' })}\n`;
-        message += `🕐 *Horário:* ${eventDate.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' })}\n\n`;
-        message += `👑 *Líder:* ${s.leader_name || 'Não definido'}\n`;
-        message += `🎤 *Ministro:* ${s.minister_name || 'Não definido'}\n\n`;
-        
-        if (songs.length > 0) {
-            message += `🎶 *MÚSICAS:*\n`;
-            songs.forEach((song, i) => {
-                message += `${i+1}. ${song}\n`;
-            });
-            message += `\n`;
-        }
-        
-        if (s.palette) {
-            message += `🎨 *Paleta:* ${s.palette}\n\n`;
-        }
-        
-        if (s.rehearsal) {
-            message += `🎤 *Com ensaio*\n\n`;
-        }
-        
-        if (musicians.length > 0) {
-            message += `🎸 *Músicos:*\n`;
-            musicians.forEach(m => {
-                message += `- ${m.name}\n`;
-            });
-            message += `\n`;
-        }
-        
-        message += `\n🙏 *"Cantai ao Senhor um novo cântico!"* (Salmo 96:1)`;
-        
-        const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-        
-        res.json({ 
-            message, 
-            whatsapp_url: whatsappUrl,
-            scale: s
-        });
-    } catch (error) {
-        console.error('❌ Erro ao gerar compartilhamento:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS EXISTENTES (ESTUDOS, EVENTOS, etc) =====
-// ============================================
-
-// ----- ESTUDOS -----
 app.post('/api/studies', auth, upload.single('image'), async (req, res) => {
     try {
         const { title, description, file_url } = req.body;
@@ -1657,7 +1482,10 @@ app.delete('/api/studies/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- PRODUTOS -----
+// ============================================
+// ===== ROTAS DE PRODUTOS =====
+// ============================================
+
 app.post('/api/products', auth, upload.single('image'), async (req, res) => {
     try {
         const { name, description, price, stock, category } = req.body;
@@ -1696,7 +1524,10 @@ app.delete('/api/products/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- EVENTOS -----
+// ============================================
+// ===== ROTAS DE EVENTOS =====
+// ============================================
+
 app.post('/api/events', auth, upload.single('image'), async (req, res) => {
     try {
         const { title, description, date, price } = req.body;
@@ -1750,7 +1581,10 @@ app.delete('/api/events/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- ORAÇÕES -----
+// ============================================
+// ===== ROTAS DE ORAÇÕES =====
+// ============================================
+
 app.post('/api/prayers', async (req, res) => {
     try {
         const { name, request } = req.body;
@@ -1783,7 +1617,10 @@ app.put('/api/prayers/:id/read', auth, async (req, res) => {
     }
 });
 
-// ----- PEDIDOS (ORDERS) -----
+// ============================================
+// ===== ROTAS DE PEDIDOS =====
+// ============================================
+
 app.post('/api/orders', async (req, res) => {
     try {
         const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status } = req.body;
@@ -1792,6 +1629,21 @@ app.post('/api/orders', async (req, res) => {
             VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(items)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
             RETURNING *
         `;
+        
+        // Enviar email de confirmação
+        if (status === 'approved' || status === 'pending') {
+            await enviarEmailConfirmacao({
+                email: user_email,
+                nome: user_name,
+                tipo: 'compra',
+                valor: total,
+                data: new Date(),
+                status: status || 'pending',
+                paymentId: payment_id,
+                detalhes: `Items: ${items.map(i => i.name).join(', ')}`
+            });
+        }
+        
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar pedido:', error);
@@ -1811,7 +1663,7 @@ app.get('/api/orders', auth, async (req, res) => {
 app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
     try {
         const totalSales = await sql`
-            SELECT COUNT(*) as count, COALESCE(SUM(total), 0) as total FROM orders
+            SELECT COUNT(*) as count, COALESCE(SUM(total), 0) as total FROM orders WHERE status = 'approved'
         `;
         const salesByDay = await sql`
             SELECT 
@@ -1819,7 +1671,7 @@ app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
                 COUNT(*) as count, 
                 COALESCE(SUM(total), 0) as total 
             FROM orders 
-            WHERE created_at >= NOW() - INTERVAL '7 days'
+            WHERE created_at >= NOW() - INTERVAL '7 days' AND status = 'approved'
             GROUP BY DATE(created_at)
             ORDER BY date DESC
         `;
@@ -1833,7 +1685,10 @@ app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- INSCRIÇÕES -----
+// ============================================
+// ===== ROTAS DE INSCRIÇÕES =====
+// ============================================
+
 app.post('/api/registrations', async (req, res) => {
     try {
         const { type, name, email, phone, department_name, event_name, details, amount, is_paid, birth_date, baptism_date, baptism_date_id } = req.body;
@@ -1860,6 +1715,25 @@ app.post('/api/registrations', async (req, res) => {
             VALUES (${type}, ${name}, ${email || ''}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${finalDetails || ''}, ${parseFloat(amount) || 0}, ${is_paid || false})
             RETURNING *
         `;
+        
+        // Enviar email de confirmação da inscrição
+        const tipoLabel = {
+            baptism: 'Batismo',
+            volunteer: 'Voluntário',
+            event: 'Evento',
+            department: 'Departamento'
+        };
+        await enviarEmailConfirmacao({
+            email: email,
+            nome: name,
+            tipo: 'inscricao',
+            valor: parseFloat(amount) || 0,
+            data: new Date(),
+            status: 'pending',
+            paymentId: `REG-${result[0].id}`,
+            detalhes: `Inscrição para ${tipoLabel[type] || type}\n${event_name ? 'Evento: ' + event_name : ''}\n${department_name ? 'Departamento: ' + department_name : ''}`
+        });
+        
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro inscrição:', error);
@@ -1894,7 +1768,10 @@ app.delete('/api/registrations/:id', auth, async (req, res) => {
     }
 });
 
-// ----- DOAÇÕES -----
+// ============================================
+// ===== ROTAS DE DOAÇÕES =====
+// ============================================
+
 app.post('/api/donations', async (req, res) => {
     try {
         const { user_name, user_email, user_phone, type, amount, payment_id, payment_method, status } = req.body;
@@ -1903,8 +1780,21 @@ app.post('/api/donations', async (req, res) => {
             VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${type}, ${amount}, ${payment_id}, ${payment_method}, ${status || 'pending'})
             RETURNING *
         `;
+        
+        // Enviar email de confirmação
+        await enviarEmailConfirmacao({
+            email: user_email,
+            nome: user_name,
+            tipo: type || 'doacao',
+            valor: amount,
+            data: new Date(),
+            status: status || 'pending',
+            paymentId: payment_id
+        });
+        
         res.status(201).json(result[0]);
     } catch (error) {
+        console.error('❌ Erro ao criar doação:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1918,7 +1808,10 @@ app.get('/api/donations', auth, async (req, res) => {
     }
 });
 
-// ----- ANIVERSARIANTES (via membros) -----
+// ============================================
+// ===== ROTAS DE ANIVERSARIANTES =====
+// ============================================
+
 app.get('/api/birthdays', async (req, res) => {
     try {
         const today = new Date();
@@ -1937,7 +1830,10 @@ app.get('/api/birthdays', async (req, res) => {
     }
 });
 
-// ----- MEMBROS (cadastro de pessoas) -----
+// ============================================
+// ===== ROTAS DE MEMBROS =====
+// ============================================
+
 app.post('/api/members', auth, async (req, res) => {
     try {
         const { name, email, phone, birth_date, marital_status, spouse_name, children, baptism_date, baptism_place, address, department_id, department_name, notes } = req.body;
@@ -1979,7 +1875,10 @@ app.delete('/api/members/:id', auth, async (req, res) => {
     }
 });
 
-// ----- FREQUÊNCIA -----
+// ============================================
+// ===== ROTAS DE FREQUÊNCIA =====
+// ============================================
+
 app.post('/api/attendance', auth, async (req, res) => {
     try {
         const { member_id, event_date, service_type, present } = req.body;
@@ -2016,7 +1915,10 @@ app.get('/api/attendance/date/:date', auth, async (req, res) => {
     }
 });
 
-// ----- DÍZIMOS -----
+// ============================================
+// ===== ROTAS DE DÍZIMOS =====
+// ============================================
+
 app.post('/api/tithes', auth, async (req, res) => {
     try {
         const { member_id, member_name, type, amount, payment_method, payment_date, description } = req.body;
@@ -2058,7 +1960,10 @@ app.get('/api/tithes/summary', auth, async (req, res) => {
     }
 });
 
-// ----- CONTAS -----
+// ============================================
+// ===== ROTAS DE CONTAS =====
+// ============================================
+
 app.post('/api/bills', auth, async (req, res) => {
     try {
         const { description, category, amount, due_date, notes } = req.body;
@@ -2131,10 +2036,13 @@ app.get('/api/bills/summary', auth, async (req, res) => {
     }
 });
 
-// ----- CARROSSEL -----
+// ============================================
+// ===== ROTAS DE CARROSSEL =====
+// ============================================
+
 app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, res) => {
     try {
-        const { title, subtitle, link } = req.body;
+        const { title, subtitle, description, link } = req.body;
         if (!req.file) {
             return res.status(400).json({ error: 'Imagem é obrigatória' });
         }
@@ -2142,8 +2050,8 @@ app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, 
         const image_base64 = req.file.buffer.toString('base64');
 
         const result = await sql`
-            INSERT INTO carousel_images (title, subtitle, image_base64, link, order_position)
-            VALUES (${title || ''}, ${subtitle || ''}, ${image_base64}, ${link || ''}, 
+            INSERT INTO carousel_images (title, subtitle, description, image_base64, link, order_position)
+            VALUES (${title || ''}, ${subtitle || ''}, ${description || ''}, ${image_base64}, ${link || ''}, 
                 (SELECT COALESCE(MAX(order_position), 0) + 1 FROM carousel_images))
             RETURNING *
         `;
@@ -2173,7 +2081,10 @@ app.delete('/api/carousel/:id', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ----- REFLEXÕES -----
+// ============================================
+// ===== ROTAS DE REFLEXÕES =====
+// ============================================
+
 app.get('/api/pastor-reflections', async (req, res) => {
     try {
         const reflections = await sql`
@@ -2219,323 +2130,6 @@ app.delete('/api/pastor-reflections/:id', auth, pastorOnly, async (req, res) => 
         res.json({ message: 'Reflexão removida' });
     } catch (error) {
         console.error('❌ Erro ao remover reflexão:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ----- CONFIGURAÇÕES -----
-app.get('/api/settings', async (req, res) => {
-    try {
-        const settings = await sql`SELECT * FROM site_settings`;
-        const obj = {};
-        settings.forEach(s => obj[s.key] = s.value);
-        res.json(obj);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/settings', auth, pastorOnly, async (req, res) => {
-    try {
-        const { key, value } = req.body;
-        await sql`
-            INSERT INTO site_settings (key, value) VALUES (${key}, ${value})
-            ON CONFLICT (key) DO UPDATE SET value = ${value}
-        `;
-        res.json({ message: 'Configuração atualizada' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ----- MERCADO PAGO -----
-app.post('/api/create-pix-payment', async (req, res) => {
-    try {
-        const { amount, description, email, name, phone, cpf } = req.body;
-
-        if (!process.env.MP_ACCESS_TOKEN || !PaymentService) {
-            return res.status(500).json({ error: 'Mercado Pago não configurado' });
-        }
-
-        const valor = parseFloat(amount);
-        if (isNaN(valor) || valor <= 0) {
-            return res.status(400).json({ error: 'Valor inválido' });
-        }
-
-        const externalReference = `NJ-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
-
-        const paymentData = {
-            body: {
-                transaction_amount: valor,
-                description: description || 'Pagamento NJ Cabuçu',
-                payment_method_id: 'pix',
-                payer: {
-                    email: email || 'cliente@email.com',
-                    first_name: name || 'Cliente',
-                    phone: { number: phone || '' },
-                    identification: { type: 'CPF', number: cpf || '12345678909' }
-                },
-                external_reference: externalReference,
-                notification_url: `${process.env.PUBLIC_URL || 'https://igrejanjcabucurj.vercel.app'}/api/webhook`
-            }
-        };
-
-        const payment = await PaymentService.create(paymentData);
-        const paymentLink = payment.point_of_interaction?.transaction_data?.ticket_url || 
-                           `https://www.mercadopago.com.br/payments/${payment.id}`;
-
-        res.json({
-            payment_id: payment.id,
-            status: payment.status,
-            payment_link: paymentLink,
-            external_reference: externalReference,
-            qr_code: payment.point_of_interaction?.transaction_data?.qr_code || '',
-            qr_code_base64: payment.point_of_interaction?.transaction_data?.qr_code_base64 || ''
-        });
-    } catch (error) {
-        console.error('❌ Erro MP PIX:', error);
-        res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
-    }
-});
-
-app.post('/api/create-card-payment-fallback', async (req, res) => {
-    try {
-        const { amount, description, email, name, phone, cpf, card_number, card_expiry, card_cvv, installments } = req.body;
-
-        if (!process.env.MP_ACCESS_TOKEN || !PaymentService) {
-            return res.status(500).json({ error: 'Mercado Pago não configurado' });
-        }
-
-        const valor = parseFloat(amount);
-        if (isNaN(valor) || valor <= 0) {
-            return res.status(400).json({ error: 'Valor inválido' });
-        }
-
-        if (!card_number || card_number.length < 16) {
-            return res.status(400).json({ error: 'Número do cartão inválido' });
-        }
-        if (!card_expiry || !card_expiry.includes('/')) {
-            return res.status(400).json({ error: 'Data de validade inválida' });
-        }
-        if (!card_cvv || card_cvv.length < 3) {
-            return res.status(400).json({ error: 'CVV inválido' });
-        }
-
-        const tokenData = {
-            card_number: card_number.replace(/\s/g, ''),
-            expiration_month: parseInt(card_expiry.split('/')[0]),
-            expiration_year: parseInt('20' + card_expiry.split('/')[1]),
-            security_code: card_cvv,
-            cardholder: {
-                name: name || 'Cliente',
-                identification: { type: 'CPF', number: cpf || '12345678909' }
-            }
-        };
-
-        const tokenResponse = await fetch('https://api.mercadopago.com/v1/card_tokens', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.MP_ACCESS_TOKEN}`
-            },
-            body: JSON.stringify(tokenData)
-        });
-
-        const tokenResult = await tokenResponse.json();
-        if (tokenResult.error) {
-            const testToken = 'test_' + Date.now();
-            return await processCardPayment(testToken, valor, description, email, name, phone, cpf, installments, res);
-        }
-
-        return await processCardPayment(tokenResult.id, valor, description, email, name, phone, cpf, installments, res);
-    } catch (error) {
-        console.error('❌ Erro MP cartão:', error);
-        res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
-    }
-});
-
-async function processCardPayment(token, valor, description, email, name, phone, cpf, installments, res) {
-    try {
-        const paymentData = {
-            body: {
-                transaction_amount: valor,
-                description: description || 'Pagamento NJ Cabuçu',
-                payment_method_id: 'credit_card',
-                installments: parseInt(installments) || 1,
-                token: token,
-                payer: {
-                    email: email || 'cliente@email.com',
-                    first_name: name || 'Cliente',
-                    phone: { number: phone || '' },
-                    identification: { type: 'CPF', number: cpf || '12345678909' }
-                },
-                external_reference: `NJ-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-                notification_url: `${process.env.PUBLIC_URL || 'https://igrejanjcabucurj.vercel.app'}/api/webhook`
-            }
-        };
-
-        const payment = await PaymentService.create(paymentData);
-        if (payment.status === 'approved') {
-            await enviarComprovanteEmail(
-                email,
-                name,
-                valor,
-                new Date(),
-                'approved',
-                payment.id,
-                'Pagamento com Cartão'
-            );
-        }
-        res.json({
-            payment_id: payment.id,
-            status: payment.status,
-            status_detail: payment.status_detail,
-            external_reference: payment.external_reference
-        });
-    } catch (error) {
-        console.error('❌ Erro ao processar pagamento:', error);
-        res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
-    }
-}
-
-app.post('/api/webhook', async (req, res) => {
-    try {
-        console.log('📝 Webhook recebido:', JSON.stringify(req.body, null, 2));
-        const { data, type } = req.body;
-        if (type === 'payment' && data && data.id) {
-            const paymentId = data.id;
-            console.log(`✅ Pagamento ${paymentId} confirmado!`);
-            if (PaymentService) {
-                try {
-                    const payment = await PaymentService.get({ id: paymentId });
-                    if (payment.status === 'approved') {
-                        await sql`
-                            UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}
-                        `;
-                        await sql`
-                            UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}
-                        `;
-                        const orders = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
-                        const donations = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
-                        const item = orders[0] || donations[0];
-                        if (item) {
-                            await enviarComprovanteEmail(
-                                item.user_email || 'cliente@email.com',
-                                item.user_name || 'Cliente',
-                                item.amount || item.total || 0,
-                                new Date(),
-                                'approved',
-                                paymentId,
-                                item.type || 'Pagamento'
-                            );
-                        }
-                        console.log('✅ Pagamento aprovado e email enviado!');
-                    }
-                } catch (error) {
-                    console.error('❌ Erro:', error);
-                }
-            }
-        }
-        res.json({ received: true });
-    } catch (error) {
-        console.error('❌ Erro webhook:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/check-payment/:paymentId', async (req, res) => {
-    try {
-        const { paymentId } = req.params;
-        if (!PaymentService) {
-            return res.status(500).json({ error: 'Mercado Pago não configurado' });
-        }
-        const payment = await PaymentService.get({ id: paymentId });
-        if (payment.status === 'approved') {
-            const orders = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
-            const donations = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
-            const item = orders[0] || donations[0];
-            if (item) {
-                await enviarComprovanteEmail(
-                    item.user_email || 'cliente@email.com',
-                    item.user_name || 'Cliente',
-                    item.amount || item.total || 0,
-                    new Date(),
-                    'approved',
-                    paymentId,
-                    item.type || 'Pagamento'
-                );
-            }
-        }
-        res.json({
-            id: payment.id,
-            status: payment.status,
-            status_detail: payment.status_detail
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/update-payment-status', async (req, res) => {
-    try {
-        const { payment_id, status } = req.body;
-        await sql`
-            UPDATE orders SET status = ${status} WHERE payment_id = ${payment_id}
-        `;
-        await sql`
-            UPDATE donations SET status = ${status} WHERE payment_id = ${payment_id}
-        `;
-        if (status === 'approved') {
-            const orders = await sql`SELECT * FROM orders WHERE payment_id = ${payment_id}`;
-            const donations = await sql`SELECT * FROM donations WHERE payment_id = ${payment_id}`;
-            const item = orders[0] || donations[0];
-            if (item) {
-                await enviarComprovanteEmail(
-                    item.user_email || 'cliente@email.com',
-                    item.user_name || 'Cliente',
-                    item.amount || item.total || 0,
-                    new Date(),
-                    'approved',
-                    payment_id,
-                    item.type || 'Pagamento'
-                );
-            }
-        }
-        res.json({ message: 'Status atualizado' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ----- PDF DE INSCRIÇÃO -----
-app.get('/api/registration-pdf/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const reg = await sql`SELECT * FROM registrations WHERE id = ${id}`;
-        if (reg.length === 0) return res.status(404).json({ error: 'Não encontrado' });
-        
-        const html = `
-        <!DOCTYPE html>
-        <html>
-        <head><meta charset="UTF-8"><title>Comprovante</title></head>
-        <body style="font-family:Arial;max-width:600px;margin:2rem auto;padding:2rem;">
-            <h1 style="color:#0D47A1;">🙏 NJ Cabuçu</h1>
-            <h2>Comprovante de Inscrição</h2>
-            <p><strong>Protocolo:</strong> #${String(reg[0].id).padStart(6, '0')}</p>
-            <p><strong>Nome:</strong> ${reg[0].name}</p>
-            <p><strong>Email:</strong> ${reg[0].email || '-'}</p>
-            <p><strong>Telefone:</strong> ${reg[0].phone || '-'}</p>
-            ${reg[0].event_name ? `<p><strong>Evento:</strong> ${reg[0].event_name}</p>` : ''}
-            ${reg[0].department_name ? `<p><strong>Departamento:</strong> ${reg[0].department_name}</p>` : ''}
-            <p><strong>Status:</strong> ${reg[0].status === 'approved' ? '✅ Confirmado' : '⏳ Pendente'}</p>
-            <hr>
-            <p style="color:#888;font-size:0.8rem;">NJ Cabuçu - João 8:32</p>
-        </body>
-        </html>
-        `;
-        res.setHeader('Content-Type', 'text/html');
-        res.send(html);
-    } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
@@ -2828,6 +2422,535 @@ app.post('/api/lives/:id/viewer', async (req, res) => {
 });
 
 // ============================================
+// ===== ROTAS DE CONFIGURAÇÕES =====
+// ============================================
+
+app.get('/api/settings', async (req, res) => {
+    try {
+        const settings = await sql`SELECT * FROM site_settings`;
+        const obj = {};
+        settings.forEach(s => obj[s.key] = s.value);
+        
+        // Valores padrão para cultos se não existirem
+        if (!obj.cultos) {
+            obj.cultos = JSON.stringify([
+                { dia: 0, hora: 18, minuto: 0, label: 'Domingo 18:00' },
+                { dia: 3, hora: 20, minuto: 0, label: 'Quarta 20:00' },
+                { dia: 2, hora: 9, minuto: 0, label: 'Terça 09:00' }
+            ]);
+        }
+        // Valores padrão para primary_color
+        if (!obj.primary_color) {
+            obj.primary_color = '#0D47A1';
+        }
+        // Valores padrão para site_title
+        if (!obj.site_title) {
+            obj.site_title = 'NJ Cabuçu';
+        }
+        // Valores padrão para whatsapp
+        if (!obj.whatsapp) {
+            obj.whatsapp = '5521985345627';
+        }
+        // Valores padrão para about_mission
+        if (!obj.about_mission) {
+            obj.about_mission = 'Levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.';
+        }
+        // Valores padrão para about_vision
+        if (!obj.about_vision) {
+            obj.about_vision = 'Ser uma igreja relevante, que transforma vidas e impacta a comunidade com o evangelho.';
+        }
+        // Valores padrão para about_values
+        if (!obj.about_values) {
+            obj.about_values = 'Amor, fé, esperança, serviço e comunhão. Vivemos os valores do Reino de Deus.';
+        }
+        
+        res.json(obj);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/settings', auth, pastorOnly, async (req, res) => {
+    try {
+        const { key, value } = req.body;
+        await sql`
+            INSERT INTO site_settings (key, value) VALUES (${key}, ${value})
+            ON CONFLICT (key) DO UPDATE SET value = ${value}
+        `;
+        res.json({ message: 'Configuração atualizada' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTAS DE MERCADO PAGO =====
+// ============================================
+
+app.post('/api/create-pix-payment', async (req, res) => {
+    try {
+        const { amount, description, email, name, phone, cpf } = req.body;
+
+        if (!process.env.MP_ACCESS_TOKEN || !PaymentService) {
+            return res.status(500).json({ error: 'Mercado Pago não configurado' });
+        }
+
+        const valor = parseFloat(amount);
+        if (isNaN(valor) || valor <= 0) {
+            return res.status(400).json({ error: 'Valor inválido' });
+        }
+
+        const externalReference = `NJ-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+
+        const paymentData = {
+            body: {
+                transaction_amount: valor,
+                description: description || 'Pagamento NJ Cabuçu',
+                payment_method_id: 'pix',
+                payer: {
+                    email: email || 'cliente@email.com',
+                    first_name: name || 'Cliente',
+                    phone: { number: phone || '' },
+                    identification: { type: 'CPF', number: cpf || '12345678909' }
+                },
+                external_reference: externalReference,
+                notification_url: `${process.env.PUBLIC_URL || 'https://igrejanjcabucurj.vercel.app'}/api/webhook`
+            }
+        };
+
+        const payment = await PaymentService.create(paymentData);
+        const paymentLink = payment.point_of_interaction?.transaction_data?.ticket_url || 
+                           `https://www.mercadopago.com.br/payments/${payment.id}`;
+
+        res.json({
+            payment_id: payment.id,
+            status: payment.status,
+            payment_link: paymentLink,
+            external_reference: externalReference,
+            qr_code: payment.point_of_interaction?.transaction_data?.qr_code || '',
+            qr_code_base64: payment.point_of_interaction?.transaction_data?.qr_code_base64 || ''
+        });
+    } catch (error) {
+        console.error('❌ Erro MP PIX:', error);
+        res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
+    }
+});
+
+app.post('/api/create-card-payment-fallback', async (req, res) => {
+    try {
+        const { amount, description, email, name, phone, cpf, card_number, card_expiry, card_cvv, installments } = req.body;
+
+        if (!process.env.MP_ACCESS_TOKEN || !PaymentService) {
+            return res.status(500).json({ error: 'Mercado Pago não configurado' });
+        }
+
+        const valor = parseFloat(amount);
+        if (isNaN(valor) || valor <= 0) {
+            return res.status(400).json({ error: 'Valor inválido' });
+        }
+
+        if (!card_number || card_number.length < 16) {
+            return res.status(400).json({ error: 'Número do cartão inválido' });
+        }
+        if (!card_expiry || !card_expiry.includes('/')) {
+            return res.status(400).json({ error: 'Data de validade inválida' });
+        }
+        if (!card_cvv || card_cvv.length < 3) {
+            return res.status(400).json({ error: 'CVV inválido' });
+        }
+
+        const tokenData = {
+            card_number: card_number.replace(/\s/g, ''),
+            expiration_month: parseInt(card_expiry.split('/')[0]),
+            expiration_year: parseInt('20' + card_expiry.split('/')[1]),
+            security_code: card_cvv,
+            cardholder: {
+                name: name || 'Cliente',
+                identification: { type: 'CPF', number: cpf || '12345678909' }
+            }
+        };
+
+        const tokenResponse = await fetch('https://api.mercadopago.com/v1/card_tokens', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.MP_ACCESS_TOKEN}`
+            },
+            body: JSON.stringify(tokenData)
+        });
+
+        const tokenResult = await tokenResponse.json();
+        if (tokenResult.error) {
+            const testToken = 'test_' + Date.now();
+            return await processCardPayment(testToken, valor, description, email, name, phone, cpf, installments, res);
+        }
+
+        return await processCardPayment(tokenResult.id, valor, description, email, name, phone, cpf, installments, res);
+    } catch (error) {
+        console.error('❌ Erro MP cartão:', error);
+        res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
+    }
+});
+
+async function processCardPayment(token, valor, description, email, name, phone, cpf, installments, res) {
+    try {
+        const paymentData = {
+            body: {
+                transaction_amount: valor,
+                description: description || 'Pagamento NJ Cabuçu',
+                payment_method_id: 'credit_card',
+                installments: parseInt(installments) || 1,
+                token: token,
+                payer: {
+                    email: email || 'cliente@email.com',
+                    first_name: name || 'Cliente',
+                    phone: { number: phone || '' },
+                    identification: { type: 'CPF', number: cpf || '12345678909' }
+                },
+                external_reference: `NJ-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+                notification_url: `${process.env.PUBLIC_URL || 'https://igrejanjcabucurj.vercel.app'}/api/webhook`
+            }
+        };
+
+        const payment = await PaymentService.create(paymentData);
+        if (payment.status === 'approved') {
+            await enviarEmailConfirmacao({
+                email: email,
+                nome: name,
+                tipo: 'pagamento_cartao',
+                valor: valor,
+                data: new Date(),
+                status: 'approved',
+                paymentId: payment.id,
+                detalhes: 'Pagamento com Cartão de Crédito'
+            });
+        }
+        res.json({
+            payment_id: payment.id,
+            status: payment.status,
+            status_detail: payment.status_detail,
+            external_reference: payment.external_reference
+        });
+    } catch (error) {
+        console.error('❌ Erro ao processar pagamento:', error);
+        res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
+    }
+}
+
+app.post('/api/webhook', async (req, res) => {
+    try {
+        console.log('📝 Webhook recebido:', JSON.stringify(req.body, null, 2));
+        const { data, type } = req.body;
+        if (type === 'payment' && data && data.id) {
+            const paymentId = data.id;
+            console.log(`✅ Pagamento ${paymentId} confirmado!`);
+            if (PaymentService) {
+                try {
+                    const payment = await PaymentService.get({ id: paymentId });
+                    if (payment.status === 'approved') {
+                        await sql`
+                            UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}
+                        `;
+                        await sql`
+                            UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}
+                        `;
+                        const orders = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
+                        const donations = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
+                        const item = orders[0] || donations[0];
+                        if (item) {
+                            await enviarEmailConfirmacao({
+                                email: item.user_email || 'cliente@email.com',
+                                nome: item.user_name || 'Cliente',
+                                tipo: item.type || 'pagamento',
+                                valor: item.amount || item.total || 0,
+                                data: new Date(),
+                                status: 'approved',
+                                paymentId: paymentId,
+                                detalhes: 'Pagamento confirmado via webhook'
+                            });
+                        }
+                        console.log('✅ Pagamento aprovado e email enviado!');
+                    }
+                } catch (error) {
+                    console.error('❌ Erro:', error);
+                }
+            }
+        }
+        res.json({ received: true });
+    } catch (error) {
+        console.error('❌ Erro webhook:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/check-payment/:paymentId', async (req, res) => {
+    try {
+        const { paymentId } = req.params;
+        if (!PaymentService) {
+            return res.status(500).json({ error: 'Mercado Pago não configurado' });
+        }
+        const payment = await PaymentService.get({ id: paymentId });
+        if (payment.status === 'approved') {
+            const orders = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
+            const donations = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
+            const item = orders[0] || donations[0];
+            if (item) {
+                await enviarEmailConfirmacao({
+                    email: item.user_email || 'cliente@email.com',
+                    nome: item.user_name || 'Cliente',
+                    tipo: item.type || 'pagamento',
+                    valor: item.amount || item.total || 0,
+                    data: new Date(),
+                    status: 'approved',
+                    paymentId: paymentId,
+                    detalhes: 'Pagamento confirmado'
+                });
+            }
+        }
+        res.json({
+            id: payment.id,
+            status: payment.status,
+            status_detail: payment.status_detail
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/update-payment-status', async (req, res) => {
+    try {
+        const { payment_id, status } = req.body;
+        await sql`
+            UPDATE orders SET status = ${status} WHERE payment_id = ${payment_id}
+        `;
+        await sql`
+            UPDATE donations SET status = ${status} WHERE payment_id = ${payment_id}
+        `;
+        if (status === 'approved') {
+            const orders = await sql`SELECT * FROM orders WHERE payment_id = ${payment_id}`;
+            const donations = await sql`SELECT * FROM donations WHERE payment_id = ${payment_id}`;
+            const item = orders[0] || donations[0];
+            if (item) {
+                await enviarEmailConfirmacao({
+                    email: item.user_email || 'cliente@email.com',
+                    nome: item.user_name || 'Cliente',
+                    tipo: item.type || 'pagamento',
+                    valor: item.amount || item.total || 0,
+                    data: new Date(),
+                    status: 'approved',
+                    paymentId: payment_id,
+                    detalhes: 'Pagamento confirmado'
+                });
+            }
+        }
+        res.json({ message: 'Status atualizado' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTAS DE YOUTUBE E TRANSPOSIÇÃO =====
+// ============================================
+
+app.post('/api/youtube-song', auth, async (req, res) => {
+    try {
+        const { url } = req.body;
+        
+        const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/;
+        const match = url.match(youtubeRegex);
+        
+        if (!match) {
+            return res.status(400).json({ error: 'Link do YouTube inválido' });
+        }
+        
+        const videoId = match[1];
+        
+        res.json({
+            video_id: videoId,
+            embed_url: `https://www.youtube.com/embed/${videoId}`,
+            watch_url: `https://www.youtube.com/watch?v=${videoId}`
+        });
+    } catch (error) {
+        console.error('❌ Erro ao buscar música do YouTube:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/transpose-chord', auth, async (req, res) => {
+    try {
+        const { lyrics, fromKey, toKey } = req.body;
+        
+        if (!lyrics || !fromKey || !toKey) {
+            return res.status(400).json({ error: 'Dados incompletos para transposição' });
+        }
+        
+        const transposed = transposeChords(lyrics, fromKey, toKey);
+        res.json({ transposed });
+    } catch (error) {
+        console.error('❌ Erro na transposição:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+function transposeChords(lyrics, fromKey, toKey) {
+    const chordMap = {
+        'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3,
+        'E': 4, 'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8,
+        'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11
+    };
+    
+    const chordNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    
+    const from = chordMap[fromKey];
+    const to = chordMap[toKey];
+    
+    if (from === undefined || to === undefined) {
+        return lyrics;
+    }
+    
+    const diff = (to - from + 12) % 12;
+    
+    const chordRegex = /([A-G][#b]?)(maj|m|min|dim|aug|sus|add|\d|\(|\)|)?/g;
+    
+    return lyrics.replace(chordRegex, (match, chord, suffix) => {
+        const baseIndex = chordMap[chord];
+        if (baseIndex === undefined) return match;
+        
+        const newIndex = (baseIndex + diff) % 12;
+        const newChord = chordNames[newIndex];
+        
+        return newChord + (suffix || '');
+    });
+}
+
+// ============================================
+// ===== COMPARTILHAR ESCALA NO WHATSAPP =====
+// ============================================
+
+app.get('/api/worship-scales/:id/share', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const scale = await sql`
+            SELECT ws.*, 
+                   u1.name as leader_name, 
+                   u2.name as minister_name,
+                   u3.name as created_by_name
+            FROM worship_scales ws
+            LEFT JOIN users u1 ON ws.leader_id = u1.id
+            LEFT JOIN users u2 ON ws.minister_id = u2.id
+            LEFT JOIN users u3 ON ws.created_by = u3.id
+            WHERE ws.id = ${id}
+        `;
+        
+        if (scale.length === 0) {
+            return res.status(404).json({ error: 'Escala não encontrada' });
+        }
+        
+        const s = scale[0];
+        const eventDate = new Date(s.event_date);
+        
+        let songs = [];
+        try {
+            songs = JSON.parse(s.songs || '[]');
+        } catch { songs = []; }
+        
+        let musicianIds = [];
+        try {
+            musicianIds = JSON.parse(s.musician_ids || '[]');
+        } catch { musicianIds = []; }
+        
+        let musicians = [];
+        if (musicianIds.length > 0) {
+            musicians = await sql`
+                SELECT name FROM users WHERE id = ANY(${musicianIds})
+            `;
+        }
+        
+        let message = `🎵 *ESCALA DE LOUVOR* 🎵\n\n`;
+        message += `📅 *Data:* ${eventDate.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' })}\n`;
+        message += `🕐 *Horário:* ${eventDate.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' })}\n\n`;
+        message += `👑 *Líder:* ${s.leader_name || 'Não definido'}\n`;
+        message += `🎤 *Ministro:* ${s.minister_name || 'Não definido'}\n\n`;
+        
+        if (songs.length > 0) {
+            message += `🎶 *MÚSICAS:*\n`;
+            songs.forEach((song, i) => {
+                message += `${i+1}. ${song}\n`;
+            });
+            message += `\n`;
+        }
+        
+        if (s.palette) {
+            message += `🎨 *Paleta:* ${s.palette}\n\n`;
+        }
+        
+        if (s.rehearsal) {
+            message += `🎤 *Com ensaio*\n\n`;
+        }
+        
+        if (musicians.length > 0) {
+            message += `🎸 *Músicos:*\n`;
+            musicians.forEach(m => {
+                message += `- ${m.name}\n`;
+            });
+            message += `\n`;
+        }
+        
+        message += `\n🙏 *"Cantai ao Senhor um novo cântico!"* (Salmo 96:1)`;
+        
+        const encodedMessage = encodeURIComponent(message);
+        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+        
+        res.json({ 
+            message, 
+            whatsapp_url: whatsappUrl,
+            scale: s
+        });
+    } catch (error) {
+        console.error('❌ Erro ao gerar compartilhamento:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== PDF DE INSCRIÇÃO =====
+// ============================================
+
+app.get('/api/registration-pdf/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const reg = await sql`SELECT * FROM registrations WHERE id = ${id}`;
+        if (reg.length === 0) return res.status(404).json({ error: 'Não encontrado' });
+        
+        const html = `
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="UTF-8"><title>Comprovante</title></head>
+        <body style="font-family:Arial;max-width:600px;margin:2rem auto;padding:2rem;">
+            <h1 style="color:#0D47A1;">🙏 NJ Cabuçu</h1>
+            <h2>Comprovante de Inscrição</h2>
+            <p><strong>Protocolo:</strong> #${String(reg[0].id).padStart(6, '0')}</p>
+            <p><strong>Nome:</strong> ${reg[0].name}</p>
+            <p><strong>Email:</strong> ${reg[0].email || '-'}</p>
+            <p><strong>Telefone:</strong> ${reg[0].phone || '-'}</p>
+            ${reg[0].event_name ? `<p><strong>Evento:</strong> ${reg[0].event_name}</p>` : ''}
+            ${reg[0].department_name ? `<p><strong>Departamento:</strong> ${reg[0].department_name}</p>` : ''}
+            <p><strong>Status:</strong> ${reg[0].status === 'approved' ? '✅ Confirmado' : '⏳ Pendente'}</p>
+            <hr>
+            <p style="color:#888;font-size:0.8rem;">NJ Cabuçu - João 8:32</p>
+        </body>
+        </html>
+        `;
+        res.setHeader('Content-Type', 'text/html');
+        res.send(html);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
 // ===== SERVE HTML =====
 // ============================================
 
@@ -2860,7 +2983,7 @@ app.listen(PORT, () => {
     console.log('');
     console.log('💰 Mercado Pago: ' + (process.env.MP_ACCESS_TOKEN ? '✅ Configurado' : '⚠️ Não configurado'));
     console.log('📧 Email: ' + (transporter ? '✅ Configurado' : '⚠️ Não configurado'));
-    console.log('📹 Sistema de Live: ✅ Configurado (apenas pastor)');
+    console.log('📹 Sistema de Live: ✅ Configurado');
     console.log('🎥 Reflexões do Pastor: ✅ Configurado');
     console.log('⏰ Horários dos Cultos: ✅ Configurado via site_settings');
     console.log('🎵 Módulo Louvor: ✅ Configurado');

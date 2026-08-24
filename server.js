@@ -44,7 +44,7 @@ try {
 }
 
 // ============================================
-// ===== EMAIL (NODEMAILER) =====
+// ===== EMAIL (NODEMAILER) - CORRIGIDO =====
 // ============================================
 let transporter = null;
 try {
@@ -54,9 +54,21 @@ try {
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS
+            },
+            tls: {
+                rejectUnauthorized: false
             }
         });
-        console.log('✅ Email configurado');
+        // Verificar conexão
+        transporter.verify((error, success) => {
+            if (error) {
+                console.error('❌ Erro ao conectar email:', error.message);
+            } else {
+                console.log('✅ Email configurado e verificado!');
+            }
+        });
+    } else {
+        console.log('⚠️ Credenciais de email não configuradas');
     }
 } catch (error) {
     console.log('⚠️ Erro email:', error.message);
@@ -66,12 +78,23 @@ try {
 // ===== FUNÇÃO PARA ENVIAR EMAIL =====
 // ============================================
 async function enviarEmailConfirmacao(dados) {
+    console.log('📧 Tentando enviar email para:', dados.email);
+    
     if (!transporter) {
-        console.log('⚠️ Email não configurado');
+        console.log('⚠️ Email não configurado. Salvando log...');
+        try {
+            const log = `[${new Date().toISOString()}] Email não enviado para ${dados.email}: ${JSON.stringify(dados)}\n`;
+            fs.appendFileSync('email_log.txt', log);
+        } catch (e) {}
         return false;
     }
 
     const { email, nome, tipo, valor, data, status, paymentId, detalhes } = dados;
+
+    if (!email || !email.includes('@')) {
+        console.log('⚠️ Email inválido:', email);
+        return false;
+    }
 
     const statusText = status === 'approved' ? '✅ APROVADO' : '⏳ PENDENTE';
     const statusColor = status === 'approved' ? '#28a745' : '#ffc107';
@@ -81,7 +104,9 @@ async function enviarEmailConfirmacao(dados) {
         'missoes': 'Missões',
         'inscricao': 'Inscrição',
         'compra': 'Compra',
-        'evento': 'Evento'
+        'evento': 'Evento',
+        'pagamento': 'Pagamento',
+        'doacao': 'Doação'
     };
     const tipoLabel = tiposLabels[tipo] || tipo || 'Pagamento';
 
@@ -102,7 +127,6 @@ async function enviarEmailConfirmacao(dados) {
             .value { font-weight: 500; }
             .status { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: 700; background: ${statusColor}; color: #fff; }
             .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #888; }
-            .logo { font-size: 28px; font-weight: 800; color: #0D47A1; }
         </style>
     </head>
     <body>
@@ -149,17 +173,21 @@ async function enviarEmailConfirmacao(dados) {
     `;
 
     try {
-        await transporter.sendMail({
+        const info = await transporter.sendMail({
             from: `"NJ Cabuçu" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: `💰 Comprovante de ${tipoLabel} - NJ Cabuçu`,
             html: html,
             text: `Comprovante de ${tipoLabel}\n\nNome: ${nome}\nValor: R$ ${parseFloat(valor || 0).toFixed(2)}\nData: ${new Date(data || Date.now()).toLocaleDateString('pt-BR')}\nStatus: ${statusText}\nID: ${paymentId}`
         });
-        console.log('✅ Email enviado para:', email);
+        console.log('✅ Email enviado para:', email, 'ID:', info.messageId);
         return true;
     } catch (error) {
-        console.error('❌ Erro ao enviar email:', error);
+        console.error('❌ Erro ao enviar email:', error.message);
+        try {
+            const log = `[${new Date().toISOString()}] ERRO ao enviar para ${email}: ${error.message}\nDados: ${JSON.stringify(dados)}\n\n`;
+            fs.appendFileSync('email_log.txt', log);
+        } catch (e) {}
         return false;
     }
 }
@@ -186,15 +214,15 @@ const storage = multer.memoryStorage();
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 },
+    limits: { fileSize: 10 * 1024 * 1024 },
     fileFilter: function (req, file, cb) {
-        const allowedTypes = /jpeg|jpg|png|gif|webp/;
+        const allowedTypes = /jpeg|jpg|png|gif|webp|pdf/;
         const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
         const mimetype = allowedTypes.test(file.mimetype);
         if (mimetype && extname) {
             return cb(null, true);
         } else {
-            cb(new Error('Apenas imagens são permitidas!'));
+            cb(new Error('Apenas imagens e PDFs são permitidos!'));
         }
     }
 });
@@ -1446,21 +1474,43 @@ app.get('/api/availability/date/:date/department/:deptId', auth, async (req, res
 
 app.post('/api/studies', auth, upload.single('image'), async (req, res) => {
     try {
+        console.log('📝 Recebendo estudo...');
+        console.log('Body:', req.body);
+        console.log('File:', req.file ? 'Arquivo recebido: ' + req.file.originalname : 'Sem arquivo');
+        
         const { title, description, file_url } = req.body;
         let image_base64 = null;
+        
         if (req.file) {
             image_base64 = req.file.buffer.toString('base64');
+            console.log('✅ Imagem processada');
+        }
+
+        if (!title) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Título é obrigatório' 
+            });
         }
 
         const result = await sql`
             INSERT INTO studies (title, description, file_url, image_base64)
-            VALUES (${title}, ${description}, ${file_url}, ${image_base64})
+            VALUES (${title}, ${description || ''}, ${file_url || ''}, ${image_base64 || ''})
             RETURNING *
         `;
-        res.status(201).json(result[0]);
+        
+        console.log('✅ Estudo criado com sucesso! ID:', result[0].id);
+        res.status(201).json({ 
+            success: true, 
+            message: 'Estudo criado com sucesso!',
+            study: result[0] 
+        });
     } catch (error) {
         console.error('❌ Erro ao criar estudo:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ 
+            success: false,
+            error: error.message
+        });
     }
 });
 
@@ -1624,6 +1674,9 @@ app.put('/api/prayers/:id/read', auth, async (req, res) => {
 app.post('/api/orders', async (req, res) => {
     try {
         const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status } = req.body;
+        
+        console.log('📝 Criando pedido para:', user_email);
+        
         const result = await sql`
             INSERT INTO orders (user_name, user_email, user_phone, items, total, payment_id, payment_method, status)
             VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(items)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
@@ -1631,17 +1684,21 @@ app.post('/api/orders', async (req, res) => {
         `;
         
         // Enviar email de confirmação
-        if (status === 'approved' || status === 'pending') {
-            await enviarEmailConfirmacao({
-                email: user_email,
-                nome: user_name,
-                tipo: 'compra',
-                valor: total,
-                data: new Date(),
-                status: status || 'pending',
-                paymentId: payment_id,
-                detalhes: `Items: ${items.map(i => i.name).join(', ')}`
-            });
+        const emailEnviado = await enviarEmailConfirmacao({
+            email: user_email,
+            nome: user_name,
+            tipo: 'compra',
+            valor: total,
+            data: new Date(),
+            status: status || 'pending',
+            paymentId: payment_id,
+            detalhes: `Items: ${items.map(i => i.name).join(', ')}`
+        });
+        
+        if (emailEnviado) {
+            console.log('✅ Email de confirmação enviado para:', user_email);
+        } else {
+            console.log('⚠️ Falha ao enviar email para:', user_email);
         }
         
         res.status(201).json(result[0]);
@@ -1716,7 +1773,7 @@ app.post('/api/registrations', async (req, res) => {
             RETURNING *
         `;
         
-        // Enviar email de confirmação da inscrição
+        // Enviar email de confirmação
         const tipoLabel = {
             baptism: 'Batismo',
             volunteer: 'Voluntário',
@@ -1775,6 +1832,9 @@ app.delete('/api/registrations/:id', auth, async (req, res) => {
 app.post('/api/donations', async (req, res) => {
     try {
         const { user_name, user_email, user_phone, type, amount, payment_id, payment_method, status } = req.body;
+        
+        console.log('📝 Registrando doação de:', user_email);
+        
         const result = await sql`
             INSERT INTO donations (user_name, user_email, user_phone, type, amount, payment_id, payment_method, status)
             VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${type}, ${amount}, ${payment_id}, ${payment_method}, ${status || 'pending'})
@@ -1782,15 +1842,20 @@ app.post('/api/donations', async (req, res) => {
         `;
         
         // Enviar email de confirmação
-        await enviarEmailConfirmacao({
+        const emailEnviado = await enviarEmailConfirmacao({
             email: user_email,
             nome: user_name,
             tipo: type || 'doacao',
             valor: amount,
             data: new Date(),
             status: status || 'pending',
-            paymentId: payment_id
+            paymentId: payment_id,
+            detalhes: `Doação de ${type}`
         });
+        
+        if (emailEnviado) {
+            console.log('✅ Email de confirmação enviado para:', user_email);
+        }
         
         res.status(201).json(result[0]);
     } catch (error) {
@@ -1922,6 +1987,9 @@ app.get('/api/attendance/date/:date', auth, async (req, res) => {
 app.post('/api/tithes', auth, async (req, res) => {
     try {
         const { member_id, member_name, type, amount, payment_method, payment_date, description } = req.body;
+        
+        console.log('📝 Registrando dízimo de:', member_name || 'Visitante');
+        
         if (!type || !amount) {
             return res.status(400).json({ error: 'Tipo e valor são obrigatórios' });
         }
@@ -1931,8 +1999,25 @@ app.post('/api/tithes', auth, async (req, res) => {
             VALUES (${member_id || null}, ${member_name || ''}, ${type}, ${amount}, ${payment_method || 'dinheiro'}, ${payment_date || new Date()}, ${description || ''}, ${req.user.id})
             RETURNING *
         `;
+        
+        // Enviar email de confirmação para o pastor
+        const user = await sql`SELECT email, name FROM users WHERE id = ${req.user.id}`;
+        if (user.length > 0) {
+            await enviarEmailConfirmacao({
+                email: user[0].email,
+                nome: user[0].name,
+                tipo: type,
+                valor: amount,
+                data: new Date(),
+                status: 'approved',
+                paymentId: `TITHE-${result[0].id}`,
+                detalhes: `${type} registrado por ${member_name || 'Visitante'}`
+            });
+        }
+        
         res.status(201).json(result[0]);
     } catch (error) {
+        console.error('❌ Erro ao registrar dízimo:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -2431,7 +2516,6 @@ app.get('/api/settings', async (req, res) => {
         const obj = {};
         settings.forEach(s => obj[s.key] = s.value);
         
-        // Valores padrão para cultos se não existirem
         if (!obj.cultos) {
             obj.cultos = JSON.stringify([
                 { dia: 0, hora: 18, minuto: 0, label: 'Domingo 18:00' },
@@ -2439,30 +2523,12 @@ app.get('/api/settings', async (req, res) => {
                 { dia: 2, hora: 9, minuto: 0, label: 'Terça 09:00' }
             ]);
         }
-        // Valores padrão para primary_color
-        if (!obj.primary_color) {
-            obj.primary_color = '#0D47A1';
-        }
-        // Valores padrão para site_title
-        if (!obj.site_title) {
-            obj.site_title = 'NJ Cabuçu';
-        }
-        // Valores padrão para whatsapp
-        if (!obj.whatsapp) {
-            obj.whatsapp = '5521985345627';
-        }
-        // Valores padrão para about_mission
-        if (!obj.about_mission) {
-            obj.about_mission = 'Levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.';
-        }
-        // Valores padrão para about_vision
-        if (!obj.about_vision) {
-            obj.about_vision = 'Ser uma igreja relevante, que transforma vidas e impacta a comunidade com o evangelho.';
-        }
-        // Valores padrão para about_values
-        if (!obj.about_values) {
-            obj.about_values = 'Amor, fé, esperança, serviço e comunhão. Vivemos os valores do Reino de Deus.';
-        }
+        if (!obj.primary_color) obj.primary_color = '#0D47A1';
+        if (!obj.site_title) obj.site_title = 'NJ Cabuçu';
+        if (!obj.whatsapp) obj.whatsapp = '5521985345627';
+        if (!obj.about_mission) obj.about_mission = 'Levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.';
+        if (!obj.about_vision) obj.about_vision = 'Ser uma igreja relevante, que transforma vidas e impacta a comunidade com o evangelho.';
+        if (!obj.about_values) obj.about_values = 'Amor, fé, esperança, serviço e comunhão. Vivemos os valores do Reino de Deus.';
         
         res.json(obj);
     } catch (error) {

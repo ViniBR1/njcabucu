@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Admin - NJ Cabuçu</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
@@ -570,9 +570,62 @@
             .tab-btn { font-size: 0.7rem; padding: 0.3rem 1rem; }
         }
 
-        /* BIRTHDAY TODAY */
         .birthday-today { background: #fce4ec !important; border-color: #e91e63 !important; }
         .birthday-today .name { color: #e91e63 !important; }
+
+        /* FILE INPUT STYLING */
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+        .file-input-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        .file-input-wrapper .file-label {
+            display: block;
+            padding: 0.3rem 0.5rem;
+            background: #f8f9fa;
+            border: 2px dashed #e0e0e0;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            font-size: 0.7rem;
+            color: #888;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .file-input-wrapper .file-label:hover {
+            border-color: var(--primary);
+            background: #f0f4ff;
+        }
+        .file-input-wrapper .file-label .file-name {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .study-result {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            display: none;
+        }
+        .study-result.success { display: block; background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .study-result.error { display: block; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .study-result.loading { display: block; background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+
+        /* BADGE */
+        .badge-pastor { background: var(--primary); color: #fff; padding: 0.04rem 0.35rem; border-radius: var(--radius-full); font-size: 0.45rem; font-weight: 600; text-transform: uppercase; }
+        .badge-lider { background: #28a745; color: #fff; padding: 0.04rem 0.35rem; border-radius: var(--radius-full); font-size: 0.45rem; font-weight: 600; text-transform: uppercase; }
+        .badge-colaborador { background: #17a2b8; color: #fff; padding: 0.04rem 0.35rem; border-radius: var(--radius-full); font-size: 0.45rem; font-weight: 600; text-transform: uppercase; }
+        .badge-fiel { background: #6c757d; color: #fff; padding: 0.04rem 0.35rem; border-radius: var(--radius-full); font-size: 0.45rem; font-weight: 600; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -636,9 +689,7 @@
                 <button class="tab-btn" onclick="showTab('config')"><i class="fas fa-cog"></i> Config</button>
             </div>
 
-            <!-- ========================================================== -->
             <!-- DASHBOARD -->
-            <!-- ========================================================== -->
             <div id="tab-dashboard" class="tab-content active">
                 <div class="section-title"><i class="fas fa-chart-pie"></i> Resumo Financeiro</div>
                 <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.4rem; margin-bottom:0.5rem;">
@@ -659,23 +710,18 @@
                 <div class="bar-chart" id="barChart"></div>
             </div>
 
-            <!-- ========================================================== -->
             <!-- LIVE -->
-            <!-- ========================================================== -->
             <div id="tab-live" class="tab-content">
                 <div class="section-title"><i class="fas fa-broadcast-tower"></i> Transmissão ao Vivo</div>
-                
                 <div id="liveStatus" style="margin-bottom:1rem; padding:0.8rem; border-radius:8px; text-align:center; background:#f8f9fa;">
                     <span id="liveIndicator" class="live-indicator"><i class="fas fa-circle"></i> OFFLINE</span>
                     <div id="liveInfo" style="margin-top:0.3rem; font-size:0.7rem; color:#888;">Nenhuma live ativa no momento</div>
                 </div>
-
                 <div class="card" style="margin-bottom:1rem;">
                     <div class="flex-between mb-1">
                         <h4 style="font-size:0.8rem;">🎥 Controles da Live</h4>
                         <span id="liveViewers" style="font-size:0.7rem; color:#888;"><i class="fas fa-eye"></i> 0 espectadores</span>
                     </div>
-                    
                     <div id="captureArea">
                         <video id="localVideo" autoplay muted playsinline style="display:none;"></video>
                         <div id="placeholderMessage" class="placeholder">
@@ -683,7 +729,6 @@
                             <span>Clique em "Iniciar Live" para começar a transmissão</span>
                         </div>
                     </div>
-
                     <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.5rem;">
                         <div style="flex:1; min-width:120px;">
                             <input type="text" id="liveTitle" placeholder="Título da Live" value="Culto NJ Cabuçu" style="width:100%; padding:0.3rem 0.5rem; border:2px solid #e0e0e0; border-radius:6px; font-size:0.7rem;">
@@ -692,7 +737,6 @@
                             <input type="text" id="liveDesc" placeholder="Descrição" value="Transmissão ao vivo" style="width:100%; padding:0.3rem 0.5rem; border:2px solid #e0e0e0; border-radius:6px; font-size:0.7rem;">
                         </div>
                     </div>
-
                     <div style="display:flex; gap:0.5rem; margin-top:0.5rem; flex-wrap:wrap;">
                         <button onclick="startLive()" id="startLiveBtn" class="btn btn-success" style="flex:1; padding:0.5rem;">
                             <i class="fas fa-play"></i> Iniciar Live
@@ -711,7 +755,6 @@
                         </button>
                     </div>
                 </div>
-
                 <div class="section-title" style="margin-top:1rem;"><i class="fas fa-history"></i> Histórico de Lives</div>
                 <div class="table-wrapper">
                     <table class="table">
@@ -721,9 +764,7 @@
                 </div>
             </div>
 
-            <!-- ========================================================== -->
             <!-- VENDAS -->
-            <!-- ========================================================== -->
             <div id="tab-vendas" class="tab-content">
                 <div class="section-title"><i class="fas fa-shopping-cart"></i> Vendas</div>
                 <div class="table-wrapper">
@@ -734,9 +775,7 @@
                 </div>
             </div>
 
-            <!-- ========================================================== -->
             <!-- USUÁRIOS -->
-            <!-- ========================================================== -->
             <div id="tab-usuarios" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-users"></i> Usuários</div>
@@ -750,9 +789,7 @@
                 </div>
             </div>
 
-            <!-- ========================================================== -->
             <!-- ORAÇÕES -->
-            <!-- ========================================================== -->
             <div id="tab-oracoes" class="tab-content">
                 <div class="section-title"><i class="fas fa-pray"></i> Pedidos de Oração</div>
                 <div class="table-wrapper">
@@ -763,9 +800,7 @@
                 </div>
             </div>
 
-            <!-- ========================================================== -->
             <!-- ESTUDOS -->
-            <!-- ========================================================== -->
             <div id="tab-estudos" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-book"></i> Estudos</div>
@@ -779,9 +814,7 @@
                 </div>
             </div>
 
-            <!-- ========================================================== -->
             <!-- EVENTOS -->
-            <!-- ========================================================== -->
             <div id="tab-eventos" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-calendar"></i> Eventos</div>
@@ -795,9 +828,7 @@
                 </div>
             </div>
 
-            <!-- ========================================================== -->
             <!-- PRODUTOS -->
-            <!-- ========================================================== -->
             <div id="tab-produtos" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-box"></i> Produtos</div>
@@ -811,9 +842,7 @@
                 </div>
             </div>
 
-            <!-- ========================================================== -->
             <!-- CARROSSEL -->
-            <!-- ========================================================== -->
             <div id="tab-carousel" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-images"></i> Carrossel</div>
@@ -822,9 +851,7 @@
                 <div id="carouselList" class="carousel-grid"></div>
             </div>
 
-            <!-- ========================================================== -->
             <!-- DOAÇÕES -->
-            <!-- ========================================================== -->
             <div id="tab-doacoes" class="tab-content">
                 <div class="section-title"><i class="fas fa-hand-holding-heart"></i> Doações</div>
                 <div class="table-wrapper">
@@ -835,9 +862,7 @@
                 </div>
             </div>
 
-            <!-- ========================================================== -->
             <!-- INSCRIÇÕES -->
-            <!-- ========================================================== -->
             <div id="tab-inscricoes" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-clipboard-list"></i> Inscrições</div>
@@ -858,9 +883,7 @@
                 </div>
             </div>
 
-            <!-- ========================================================== -->
             <!-- DEPARTAMENTOS -->
-            <!-- ========================================================== -->
             <div id="tab-departamentos" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-building"></i> Departamentos</div>
@@ -874,9 +897,7 @@
                 </div>
             </div>
 
-            <!-- ========================================================== -->
             <!-- MEMBROS -->
-            <!-- ========================================================== -->
             <div id="tab-membros" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-user-plus"></i> Membros</div>
@@ -890,9 +911,7 @@
                 </div>
             </div>
 
-            <!-- ========================================================== -->
             <!-- FREQUÊNCIA -->
-            <!-- ========================================================== -->
             <div id="tab-frequencia" class="tab-content">
                 <div class="section-title"><i class="fas fa-calendar-check"></i> Frequência</div>
                 <div class="form-row" style="grid-template-columns:1fr 1fr; gap:0.3rem;">
@@ -913,8 +932,7 @@
                     <div class="freq-box">
                         <h4>👥 Selecionar</h4>
                         <div style="display:flex; gap:0.2rem; margin-bottom:0.2rem; flex-wrap:wrap;">
-                            <input type="text" id="memberSearch" placeholder="🔍 Buscar..." 
-                                   style="flex:1; padding:0.2rem 0.4rem; border-radius:4px; border:2px solid #e0e0e0; font-size:0.6rem; min-width:60px;">
+                            <input type="text" id="memberSearch" placeholder="🔍 Buscar..." style="flex:1; padding:0.2rem 0.4rem; border-radius:4px; border:2px solid #e0e0e0; font-size:0.6rem; min-width:60px;">
                             <button onclick="toggleSelectAll()" class="btn btn-warning btn-xs"><i class="fas fa-check-double"></i></button>
                             <button onclick="clearSelection()" class="btn btn-danger btn-xs"><i class="fas fa-times"></i></button>
                         </div>
@@ -949,9 +967,7 @@
                 </div>
             </div>
 
-            <!-- ========================================================== -->
             <!-- TESOURARIA -->
-            <!-- ========================================================== -->
             <div id="tab-tesouraria" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-hand-holding-heart"></i> Dízimos e Ofertas</div>
@@ -966,9 +982,7 @@
                 </div>
             </div>
 
-            <!-- ========================================================== -->
             <!-- CONTAS -->
-            <!-- ========================================================== -->
             <div id="tab-contas" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-receipt"></i> Contas a Pagar</div>
@@ -983,9 +997,7 @@
                 </div>
             </div>
 
-            <!-- ========================================================== -->
             <!-- CÉLULAS -->
-            <!-- ========================================================== -->
             <div id="tab-celulas" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-users"></i> Células</div>
@@ -1004,9 +1016,7 @@
                 </div>
             </div>
 
-            <!-- ========================================================== -->
             <!-- ANIVERSARIANTES -->
-            <!-- ========================================================== -->
             <div id="tab-aniversariantes" class="tab-content">
                 <div class="section-title"><i class="fas fa-birthday-cake"></i> Aniversariantes</div>
                 <div class="table-wrapper">
@@ -1017,9 +1027,7 @@
                 </div>
             </div>
 
-            <!-- ========================================================== -->
-            <!-- REFLEXÕES DO PASTOR -->
-            <!-- ========================================================== -->
+            <!-- REFLEXÕES -->
             <div id="tab-reflexoes" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-video"></i> Reflexões do Pastor</div>
@@ -1034,9 +1042,7 @@
                 </div>
             </div>
 
-            <!-- ========================================================== -->
             <!-- SOBRE NÓS -->
-            <!-- ========================================================== -->
             <div id="tab-sobre" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-info-circle"></i> Editar Sobre Nós</div>
@@ -1059,25 +1065,14 @@
                 </div>
             </div>
 
-            <!-- ========================================================== -->
             <!-- CONFIG -->
-            <!-- ========================================================== -->
             <div id="tab-config" class="tab-content">
                 <div class="section-title"><i class="fas fa-cog"></i> Configurações</div>
-                
-                <!-- Cor Primária -->
                 <div class="form-group"><label>Cor Primária</label><input type="color" id="configPrimary" value="#0D47A1" onchange="saveConfig('primary_color', this.value)"></div>
-                
-                <!-- Título do Site -->
                 <div class="form-group"><label>Título do Site</label><input type="text" id="configTitle" value="NJ Cabuçu" onchange="saveConfig('site_title', this.value)"></div>
-                
-                <!-- WhatsApp -->
                 <div class="form-group"><label>WhatsApp</label><input type="text" id="configWhatsapp" value="5521985345627" onchange="saveConfig('whatsapp', this.value)"></div>
-                
-                <!-- HORÁRIOS DOS CULTOS (para o contador) -->
                 <div class="section-title" style="margin-top:1rem; border-bottom-color: #888;"><i class="fas fa-clock"></i> Horários dos Cultos (Contador)</div>
                 <p style="font-size:0.6rem; color:#888; margin-bottom:0.5rem;">Configure os dias e horários dos cultos para o contador regressivo no site.</p>
-                
                 <div id="cultosContainer">
                     <div style="display:flex; gap:0.5rem; align-items:center; margin-bottom:0.3rem; flex-wrap:wrap;">
                         <select id="cultoDia" style="padding:0.3rem 0.5rem; border:2px solid #e0e0e0; border-radius:6px; font-size:0.7rem; flex:1; min-width:100px;">
@@ -1096,8 +1091,6 @@
                     <div id="cultosList" style="display:flex; flex-wrap:wrap; gap:0.3rem; margin-top:0.3rem;"></div>
                 </div>
                 <button onclick="saveCultos()" class="btn btn-primary btn-sm" style="margin-top:0.3rem;"><i class="fas fa-save"></i> Salvar Horários</button>
-                
-                <!-- Botão recarregar -->
                 <div style="margin-top:1rem;">
                     <button onclick="loadConfig()" class="btn btn-outline btn-sm"><i class="fas fa-sync"></i> Recarregar Configurações</button>
                 </div>
@@ -1214,19 +1207,50 @@
         </div>
     </div>
 
-    <!-- ESTUDO -->
+    <!-- ESTUDO - CORRIGIDO -->
     <div class="modal" id="studyModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('studyModal')">&times;</button>
             <h3><i class="fas fa-book"></i> Estudo</h3>
-            <form id="studyForm" enctype="multipart/form-data">
-                <div class="form-group"><label>Título</label><input type="text" name="title" required></div>
-                <div class="form-group"><label>Descrição</label><textarea name="description" rows="2"></textarea></div>
-                <div class="form-group"><label>Imagem</label><input type="file" name="image" accept="image/*"></div>
-                <div class="form-group"><label>Arquivo PDF</label><input type="file" name="file" accept=".pdf"></div>
-                <div class="form-group"><label>Link do Arquivo</label><input type="url" name="file_url" placeholder="https://..."></div>
-                <button type="submit" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
-            </form>
+            <div class="form-group">
+                <label>Título *</label>
+                <input type="text" id="studyTitle" placeholder="Digite o título do estudo">
+            </div>
+            <div class="form-group">
+                <label>Descrição</label>
+                <textarea id="studyDescription" rows="3" placeholder="Descrição do estudo"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Imagem (capa)</label>
+                <div class="file-input-wrapper">
+                    <input type="file" id="studyImage" accept="image/*">
+                    <div class="file-label" id="studyImageLabel">
+                        <i class="fas fa-image"></i> <span>Clique para selecionar uma imagem</span>
+                        <span class="file-name" id="studyImageName"></span>
+                    </div>
+                </div>
+                <small style="color:#888;font-size:0.6rem;">Formatos: JPG, PNG, GIF (máx 5MB)</small>
+            </div>
+            <div class="form-group">
+                <label>Link do Arquivo (Google Drive, Dropbox, etc)</label>
+                <input type="url" id="studyFileUrl" placeholder="https://drive.google.com/...">
+                <small style="color:#888;font-size:0.6rem;">Ou use o campo abaixo para enviar um PDF</small>
+            </div>
+            <div class="form-group">
+                <label>Ou envie um PDF</label>
+                <div class="file-input-wrapper">
+                    <input type="file" id="studyPdf" accept=".pdf">
+                    <div class="file-label" id="studyPdfLabel">
+                        <i class="fas fa-file-pdf"></i> <span>Clique para selecionar um PDF</span>
+                        <span class="file-name" id="studyPdfName"></span>
+                    </div>
+                </div>
+                <small style="color:#888;font-size:0.6rem;">PDF até 5MB</small>
+            </div>
+            <button onclick="submitStudy()" class="btn btn-primary btn-block" style="padding:0.3rem;">
+                <i class="fas fa-save"></i> Salvar Estudo
+            </button>
+            <div id="studyResult" class="study-result"></div>
         </div>
     </div>
 
@@ -1360,7 +1384,7 @@
     </div>
 
     <!-- ========================================================== -->
-    <!-- SCRIPTS -->
+    <!-- SCRIPTS (COMPLETO) -->
     <!-- ========================================================== -->
     <script>
         // ============================================
@@ -1426,6 +1450,164 @@
             localStorage.removeItem('user');
             window.location.href = '/login';
         }
+
+        // ============================================
+        // ===== VERIFICAR CONEXÃO =====
+        // ============================================
+        async function testServerConnection() {
+            try {
+                const response = await fetch('/api/studies', { 
+                    headers: getHeaders(),
+                    signal: AbortSignal.timeout(5000)
+                });
+                if (response.ok) {
+                    console.log('✅ Servidor respondendo normalmente');
+                    return true;
+                } else {
+                    console.warn('⚠️ Servidor respondeu com status:', response.status);
+                    return false;
+                }
+            } catch (error) {
+                console.error('❌ Erro ao conectar ao servidor:', error.message);
+                return false;
+            }
+        }
+
+        // ============================================
+        // ===== FUNÇÃO PARA ENVIAR ESTUDO =====
+        // ============================================
+        async function submitStudy() {
+            const title = document.getElementById('studyTitle').value.trim();
+            const description = document.getElementById('studyDescription').value.trim();
+            const fileUrl = document.getElementById('studyFileUrl').value.trim();
+            const imageFile = document.getElementById('studyImage').files[0];
+            const pdfFile = document.getElementById('studyPdf').files[0];
+            const resultDiv = document.getElementById('studyResult');
+
+            resultDiv.className = 'study-result';
+            resultDiv.style.display = 'none';
+
+            if (!title) {
+                showNotification('❌ Digite o título do estudo!', 'error');
+                resultDiv.className = 'study-result error';
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = '❌ Digite o título do estudo!';
+                return;
+            }
+
+            if (!imageFile && !pdfFile && !fileUrl) {
+                showNotification('❌ Adicione pelo menos uma imagem, PDF ou link!', 'error');
+                resultDiv.className = 'study-result error';
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = '❌ Adicione pelo menos uma imagem, PDF ou link!';
+                return;
+            }
+
+            if (imageFile && imageFile.size > 5 * 1024 * 1024) {
+                showNotification('❌ Imagem muito grande! Máx 5MB.', 'error');
+                return;
+            }
+            if (pdfFile && pdfFile.size > 5 * 1024 * 1024) {
+                showNotification('❌ PDF muito grande! Máx 5MB.', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('description', description || '');
+            if (fileUrl) formData.append('file_url', fileUrl);
+            if (imageFile) formData.append('image', imageFile);
+            if (pdfFile) formData.append('file', pdfFile);
+
+            resultDiv.className = 'study-result loading';
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '⏳ Enviando estudo...';
+
+            try {
+                const response = await fetch('/api/studies', {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: formData
+                });
+
+                let result;
+                const text = await response.text();
+                try {
+                    result = JSON.parse(text);
+                } catch (e) {
+                    console.error('❌ Resposta não é JSON:', text);
+                    throw new Error('Resposta inválida do servidor. Verifique os logs.');
+                }
+
+                if (!response.ok) {
+                    throw new Error(result.error || 'Erro ao criar estudo');
+                }
+
+                resultDiv.className = 'study-result success';
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = '✅ Estudo criado com sucesso!';
+                closeModal('studyModal');
+                loadDashboard();
+                showNotification('✅ Estudo criado com sucesso!', 'success');
+                
+                document.getElementById('studyTitle').value = '';
+                document.getElementById('studyDescription').value = '';
+                document.getElementById('studyFileUrl').value = '';
+                document.getElementById('studyImage').value = '';
+                document.getElementById('studyPdf').value = '';
+                document.getElementById('studyImageName').textContent = '';
+                document.getElementById('studyPdfName').textContent = '';
+
+                setTimeout(() => {
+                    resultDiv.style.display = 'none';
+                }, 3000);
+
+            } catch (error) {
+                console.error('❌ Erro ao criar estudo:', error);
+                resultDiv.className = 'study-result error';
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = '❌ ' + error.message;
+                showNotification('❌ ' + error.message, 'error');
+            }
+        }
+
+        function openStudyModal() {
+            document.getElementById('studyTitle').value = '';
+            document.getElementById('studyDescription').value = '';
+            document.getElementById('studyFileUrl').value = '';
+            document.getElementById('studyImage').value = '';
+            document.getElementById('studyPdf').value = '';
+            document.getElementById('studyImageName').textContent = '';
+            document.getElementById('studyPdfName').textContent = '';
+            document.getElementById('studyResult').className = 'study-result';
+            document.getElementById('studyResult').style.display = 'none';
+            openModal('studyModal');
+        }
+
+        // ============================================
+        // ===== FILE INPUT HANDLERS =====
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('studyImage')?.addEventListener('change', function() {
+                const name = this.files[0] ? this.files[0].name : '';
+                document.getElementById('studyImageName').textContent = name;
+                if (name) {
+                    document.getElementById('studyImageLabel').querySelector('span').textContent = 'Arquivo selecionado:';
+                } else {
+                    document.getElementById('studyImageLabel').querySelector('span').textContent = 'Clique para selecionar uma imagem';
+                }
+            });
+
+            document.getElementById('studyPdf')?.addEventListener('change', function() {
+                const name = this.files[0] ? this.files[0].name : '';
+                document.getElementById('studyPdfName').textContent = name;
+                if (name) {
+                    document.getElementById('studyPdfLabel').querySelector('span').textContent = 'Arquivo selecionado:';
+                } else {
+                    document.getElementById('studyPdfLabel').querySelector('span').textContent = 'Clique para selecionar um PDF';
+                }
+            });
+        });
 
         // ============================================
         // ===== TABS =====
@@ -1510,6 +1692,9 @@
             hideLoading();
         }
 
+        // ============================================
+        // ===== SALES STATS =====
+        // ============================================
         async function loadSalesStats() {
             try {
                 const res = await fetch('/api/sales-stats', { headers: getHeaders() });
@@ -1550,7 +1735,7 @@
             tbody.innerHTML = users.map(u => `
                 <tr>
                     <td>${u.name}</td>
-                    <td><span class="badge ${badgeMap[u.role]||'badge-fiel'}">${roleMap[u.role]||u.role}</span></td>
+                    <td><span class="${badgeMap[u.role]||'badge-fiel'}">${roleMap[u.role]||u.role}</span></td>
                     <td>
                         <button onclick="resetPassword('${u.email}')" class="btn btn-warning btn-xs" title="Resetar senha"><i class="fas fa-key"></i></button>
                         <button onclick="deleteUser(${u.id})" class="btn btn-danger btn-xs" title="Remover"><i class="fas fa-trash"></i></button>
@@ -1604,14 +1789,14 @@
 
         function loadStudies(studies) {
             const tbody = document.getElementById('studiesList');
-            if (!studies?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+            if (!studies?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum estudo cadastrado</td></tr>'; return; }
             tbody.innerHTML = studies.map(s => `
                 <tr>
                     <td>${s.title}</td>
                     <td>${s.image_base64 ? '✅' : '-'}</td>
                     <td>${s.file_url || s.file_base64 ? '✅' : '-'}</td>
                     <td>
-                        ${s.file_base64 ? `<a href="/api/studies/${s.id}/download" target="_blank" class="btn btn-primary btn-xs"><i class="fas fa-download"></i></a>` : ''}
+                        ${s.file_url ? `<a href="${s.file_url}" target="_blank" class="btn btn-primary btn-xs"><i class="fas fa-download"></i></a>` : ''}
                         <button onclick="deleteStudy(${s.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
@@ -1674,9 +1859,6 @@
             } catch (e) { console.error('Erro:', e); }
         }
 
-        // ============================================
-        // ===== INSCRIÇÕES =====
-        // ============================================
         let currentFilter = 'all';
 
         async function approveRegistration(id) {
@@ -1979,7 +2161,7 @@
         }
 
         // ============================================
-        // ===== REFLEXÕES DO PASTOR =====
+        // ===== REFLEXÕES =====
         // ============================================
         async function loadReflectionsAdmin() {
             try {
@@ -3063,33 +3245,9 @@
         // ============================================
         // ===== UPLOAD FORMS =====
         // ============================================
-        function openStudyModal() { openModal('studyModal'); }
         function openEventModal() { openModal('eventModal'); }
         function openProductModal() { openModal('productModal'); }
         function openCarouselModal() { openModal('carouselModal'); }
-
-        document.getElementById('studyForm')?.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            showLoading();
-            try {
-                const formData = new FormData(this);
-                const response = await fetch('/api/studies', { 
-                    method: 'POST', 
-                    headers: getHeaders(), 
-                    body: formData 
-                });
-                const result = await response.json();
-                if (!response.ok) throw new Error(result.error || 'Erro ao criar');
-                closeModal('studyModal');
-                loadDashboard();
-                showNotification('✅ Estudo criado!', 'success');
-                this.reset();
-            } catch (e) { 
-                showNotification('❌ ' + e.message, 'error'); 
-                console.error(e);
-            }
-            hideLoading();
-        });
 
         document.getElementById('eventForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -3163,15 +3321,26 @@
         // ============================================
         // ===== INICIALIZAÇÃO =====
         // ============================================
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Testar conexão
+            await testServerConnection();
+            
+            // Carregar dados
             loadDashboard();
             loadConfig();
             setDefaultAttendanceDate();
             loadAbout();
             checkLiveStatus();
+
+            // Configurar handlers dos inputs de arquivo
+            setupFileInputs();
         });
 
-        // Registra funções globalmente
+        function setupFileInputs() {
+            // Já configurado acima com event listeners
+        }
+
+        // Registrar funções globalmente
         window.filterRegistrations = filterRegistrations;
         window.approveRegistration = approveRegistration;
         window.deleteRegistration = deleteRegistration;
@@ -3219,6 +3388,7 @@
         window.saveConfig = saveConfig;
         window.saveAbout = saveAbout;
         window.openStudyModal = openStudyModal;
+        window.submitStudy = submitStudy;
         window.openEventModal = openEventModal;
         window.openProductModal = openProductModal;
         window.openCarouselModal = openCarouselModal;

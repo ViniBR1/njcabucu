@@ -609,7 +609,6 @@ async function initDB() {
             palette VARCHAR(200),
             rehearsal BOOLEAN DEFAULT false,
             musician_ids TEXT,
-            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
@@ -1289,8 +1288,7 @@ app.post('/api/worship-scales', auth, async (req, res) => {
                 song_ids, 
                 palette, 
                 rehearsal, 
-                musician_ids, 
-                created_by
+                musician_ids
             )
             VALUES (
                 ${department_id}, 
@@ -1301,8 +1299,7 @@ app.post('/api/worship-scales', auth, async (req, res) => {
                 ${songIdsJson}, 
                 ${palette || 'Azul, Prata, Branco, Dourado'}, 
                 ${rehearsal || false}, 
-                ${musiciansJson}, 
-                ${req.user.id}
+                ${musiciansJson}
             )
             RETURNING *
         `;

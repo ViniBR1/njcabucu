@@ -643,13 +643,22 @@ async function initDB() {
             END $$;
         `;
 
-        // Adicionar minister_id se não existir
         await sql`
             DO $$
             BEGIN
                 IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
                                WHERE table_name='worship_scales' AND column_name='minister_id') THEN
                     ALTER TABLE worship_scales ADD COLUMN minister_id INTEGER REFERENCES users(id) ON DELETE SET NULL;
+                END IF;
+            END $$;
+        `;
+
+        await sql`
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='worship_scales' AND column_name='musician_ids') THEN
+                    ALTER TABLE worship_scales ADD COLUMN musician_ids TEXT;
                 END IF;
             END $$;
         `;
@@ -974,7 +983,7 @@ app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
 });
 
 // ============================================
-// ===== MEMBROS DO DEPARTAMENTO - CORRIGIDO =====
+// ===== MEMBROS DO DEPARTAMENTO =====
 // ============================================
 
 app.get('/api/departments/:id/members', auth, async (req, res) => {
@@ -982,13 +991,11 @@ app.get('/api/departments/:id/members', auth, async (req, res) => {
         const deptId = req.params.id;
         console.log(`📝 Buscando membros do departamento ${deptId}`);
         
-        // Verificar se o departamento existe
         const dept = await sql`SELECT * FROM departments WHERE id = ${deptId} AND is_active = true`;
         if (dept.length === 0) {
             return res.status(404).json({ error: 'Departamento não encontrado' });
         }
 
-        // Buscar membros sem restrição de permissão
         const members = await sql`
             SELECT u.id, u.name, u.email, u.phone, u.role, u.is_leader, 
                    dm.role as member_role, dm.joined_at
@@ -1230,7 +1237,7 @@ app.get('/api/songs/by-key/:key', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== ROTAS DE ESCALAS - CORRIGIDAS =====
+// ===== ROTAS DE ESCALAS =====
 // ============================================
 
 app.post('/api/worship-scales', auth, async (req, res) => {
@@ -1294,14 +1301,15 @@ app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
         const { id } = req.params;
         console.log(`📝 Buscando detalhes da escala ${id}`);
         
-        // Buscar escala com minister_name
         const scale = await sql`
             SELECT ws.*, 
                    u1.name as leader_name, 
-                   u2.name as minister_name
+                   u2.name as minister_name,
+                   u3.name as created_by_name
             FROM worship_scales ws
             LEFT JOIN users u1 ON ws.leader_id = u1.id
             LEFT JOIN users u2 ON ws.minister_id = u2.id
+            LEFT JOIN users u3 ON ws.created_by = u3.id
             WHERE ws.id = ${id}
         `;
         
@@ -1309,29 +1317,43 @@ app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
             return res.status(404).json({ error: 'Escala não encontrada' });
         }
 
+        let musicians = [];
         let musicianIds = [];
         try {
-            musicianIds = JSON.parse(scale[0].musician_ids || '[]');
-        } catch { musicianIds = []; }
-        let musicians = [];
-        if (musicianIds.length > 0) {
-            musicians = await sql`
-                SELECT id, name, email FROM users WHERE id = ANY(${musicianIds})
-            `;
+            if (scale[0].musician_ids) {
+                musicianIds = JSON.parse(scale[0].musician_ids);
+                if (musicianIds.length > 0) {
+                    musicians = await sql`
+                        SELECT id, name, email FROM users WHERE id = ANY(${musicianIds})
+                    `;
+                }
+            }
+        } catch (e) {
+            console.log('⚠️ Erro ao parsear musician_ids:', e);
         }
 
+        let songs = [];
         let songIds = [];
         try {
-            songIds = JSON.parse(scale[0].song_ids || '[]');
-        } catch { songIds = []; }
-        let songs = [];
-        if (songIds.length > 0) {
-            songs = await sql`
-                SELECT id, title, key, lyrics FROM songs WHERE id = ANY(${songIds})
-            `;
+            if (scale[0].song_ids) {
+                songIds = JSON.parse(scale[0].song_ids);
+                if (songIds.length > 0) {
+                    songs = await sql`
+                        SELECT id, title, key, lyrics FROM songs WHERE id = ANY(${songIds})
+                    `;
+                }
+            }
+        } catch (e) {
+            console.log('⚠️ Erro ao parsear song_ids:', e);
         }
 
-        const result = { ...scale[0], musicians, songs };
+        const result = { 
+            ...scale[0], 
+            musicians, 
+            songs,
+            musician_ids: musicianIds,
+            song_ids: songIds
+        };
         res.json(result);
     } catch (error) {
         console.error('❌ Erro ao buscar detalhes da escala:', error);
@@ -1354,7 +1376,6 @@ app.get('/api/worship-scales/member/:userId', auth, async (req, res) => {
         const userId = req.params.userId;
         console.log(`📝 Buscando escalas para usuário ${userId}`);
         
-        // Verificar se o usuário está buscando as próprias escalas
         if (parseInt(userId) !== req.user.id && req.user.role !== 'pastor' && !req.user.is_leader) {
             console.log(`⚠️ Usuário ${req.user.id} tentou acessar escalas de ${userId}`);
             return res.status(403).json({ error: 'Acesso negado' });
@@ -1369,12 +1390,6 @@ app.get('/api/worship-scales/member/:userId', auth, async (req, res) => {
             LEFT JOIN users u2 ON ws.minister_id = u2.id
             WHERE ws.leader_id = ${userId} 
                OR ws.minister_id = ${userId}
-               OR EXISTS (
-                   SELECT 1 FROM json_array_elements_text(
-                       COALESCE(ws.musician_ids::json, '[]'::json)
-                   ) AS m_id
-                   WHERE m_id::int = ${userId}
-               )
             ORDER BY ws.event_date DESC
         `;
         console.log(`✅ Encontradas ${scales.length} escalas para o usuário`);
@@ -1529,24 +1544,38 @@ app.get('/api/availability/date/:date', auth, async (req, res) => {
     }
 });
 
+// ============================================
+// ===== BUSCAR DISPONÍVEIS POR DATA E DEPARTAMENTO - CORRIGIDO =====
+// ============================================
 app.get('/api/availability/date/:date/department/:deptId', auth, async (req, res) => {
     try {
         const { date, deptId } = req.params;
         console.log(`📝 Buscando disponíveis para data ${date}, departamento ${deptId}`);
 
+        if (!date || !deptId) {
+            return res.status(400).json({ error: 'Data e departamento são obrigatórios' });
+        }
+
         const formattedDate = new Date(date).toISOString().split('T')[0];
         console.log(`📅 Data formatada: ${formattedDate}`);
 
+        const dept = await sql`SELECT * FROM departments WHERE id = ${deptId} AND is_active = true`;
+        if (dept.length === 0) {
+            return res.status(404).json({ error: 'Departamento não encontrado' });
+        }
+
         const available = await sql`
-            SELECT u.id, u.name, u.email, u.phone, u.role, dm.role as member_role
+            SELECT u.id, u.name, u.email, u.phone, u.role, 
+                   COALESCE(dm.role, 'membro') as member_role
             FROM availability a
             JOIN users u ON a.user_id = u.id
-            JOIN department_members dm ON u.id = dm.user_id
-            WHERE DATE(a.date) = $1 
-            AND a.department_id = $2
-            AND dm.department_id = $2
+            LEFT JOIN department_members dm ON u.id = dm.user_id AND dm.department_id = ${deptId}
+            WHERE DATE(a.date) = ${formattedDate}
+            AND a.department_id = ${deptId}
+            AND u.is_active IS NOT FALSE
             ORDER BY u.name
         `;
+        
         console.log(`✅ Encontrados ${available.length} membros disponíveis`);
         res.json(available);
     } catch (error) {

@@ -633,7 +633,6 @@ async function initDB() {
             END $$;
         `;
 
-        // Adicionar coluna file_base64 se não existir
         await sql`
             DO $$
             BEGIN
@@ -646,7 +645,6 @@ async function initDB() {
 
         console.log('✅ Todas as tabelas verificadas/criadas');
 
-        // Criar pastor padrão
         const existing = await sql`SELECT * FROM users WHERE email = 'pastor@njcabucu.com'`;
         if (existing.length === 0) {
             const hash = await hashPassword('admin123');
@@ -834,14 +832,10 @@ app.post('/api/reset-password', auth, pastorOnly, async (req, res) => {
     }
 });
 
-// ============================================
-// ===== CRIAR USUÁRIO POR LÍDER - CORRIGIDO =====
-// ============================================
 app.post('/api/users-by-leader', auth, async (req, res) => {
     try {
         const { name, email, password, role, department_id } = req.body;
 
-        // Verificar se o usuário é líder
         if (req.user.role !== 'lider' && req.user.role !== 'pastor' && !req.user.is_leader) {
             return res.status(403).json({ error: 'Apenas líderes podem criar usuários' });
         }
@@ -868,7 +862,6 @@ app.post('/api/users-by-leader', auth, async (req, res) => {
         const hash = await hashPassword(password);
         const isLeader = (role === 'lider');
 
-        // Determinar o role do usuário no sistema
         let userRole = 'colaborador';
         if (role === 'lider') userRole = 'lider';
         else if (role === 'ministro') userRole = 'ministro';
@@ -881,7 +874,6 @@ app.post('/api/users-by-leader', auth, async (req, res) => {
             RETURNING id, name, email, role, department_id, department_name, is_leader
         `;
 
-        // Adicionar o usuário como membro do departamento
         const memberRole = isLeader ? 'lider' : (role || 'membro');
         await sql`
             INSERT INTO department_members (department_id, user_id, role)
@@ -889,7 +881,6 @@ app.post('/api/users-by-leader', auth, async (req, res) => {
             ON CONFLICT (department_id, user_id) DO UPDATE SET role = ${memberRole}
         `;
 
-        // Se for líder, atualizar o departamento
         if (isLeader) {
             await sql`
                 UPDATE departments 
@@ -947,7 +938,7 @@ app.get('/api/departments', auth, async (req, res) => {
     }
 });
 
-app.get('/api/departments/active', auth, async (req, res) => {
+app.get('/api/departments/active', async (req, res) => {
     try {
         const depts = await sql`
             SELECT id, name, description, leader_id
@@ -972,25 +963,29 @@ app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
 });
 
 // ============================================
-// ===== MEMBROS DO DEPARTAMENTO =====
+// ===== MEMBROS DO DEPARTAMENTO - CORRIGIDO =====
 // ============================================
 
 app.get('/api/departments/:id/members', auth, async (req, res) => {
     try {
         const deptId = req.params.id;
+        console.log(`📝 Buscando membros do departamento ${deptId} para usuário ${req.user.id}`);
         
-        // Verificar se o usuário tem acesso a este departamento
         if (req.user.role !== 'pastor' && req.user.department_id != deptId && !req.user.is_leader) {
+            console.log(`⚠️ Usuário ${req.user.id} não tem acesso ao departamento ${deptId}`);
             return res.status(403).json({ error: 'Acesso negado' });
         }
 
         const members = await sql`
-            SELECT u.id, u.name, u.email, u.phone, u.is_leader, dm.role as member_role, dm.joined_at
+            SELECT u.id, u.name, u.email, u.phone, u.role, u.is_leader, 
+                   dm.role as member_role, dm.joined_at
             FROM users u
             JOIN department_members dm ON u.id = dm.user_id
             WHERE dm.department_id = ${deptId}
             ORDER BY u.name
         `;
+        
+        console.log(`✅ Encontrados ${members.length} membros`);
         res.json(members);
     } catch (error) {
         console.error('❌ Erro ao buscar membros:', error);
@@ -1222,7 +1217,7 @@ app.get('/api/songs/by-key/:key', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== ROTAS DE ESCALAS =====
+// ===== ROTAS DE ESCALAS - CORRIGIDAS =====
 // ============================================
 
 app.post('/api/worship-scales', auth, async (req, res) => {
@@ -1252,6 +1247,8 @@ app.post('/api/worship-scales', auth, async (req, res) => {
 app.get('/api/worship-scales', auth, async (req, res) => {
     try {
         const { department_id } = req.query;
+        console.log(`📝 Buscando escalas para departamento ${department_id || 'todos'}`);
+        
         let query = `
             SELECT ws.*, 
                    u1.name as leader_name, 
@@ -1264,11 +1261,17 @@ app.get('/api/worship-scales', auth, async (req, res) => {
         if (department_id) {
             query += ` WHERE ws.department_id = $1`;
             params.push(department_id);
+        } else if (req.user.department_id) {
+            query += ` WHERE ws.department_id = $1`;
+            params.push(req.user.department_id);
         }
         query += ` ORDER BY ws.event_date DESC`;
+        
         const scales = await sql(query, params);
+        console.log(`✅ Encontradas ${scales.length} escalas`);
         res.json(scales);
     } catch (error) {
+        console.error('❌ Erro ao buscar escalas:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1333,6 +1336,13 @@ app.delete('/api/worship-scales/:id', auth, async (req, res) => {
 app.get('/api/worship-scales/member/:userId', auth, async (req, res) => {
     try {
         const userId = req.params.userId;
+        console.log(`📝 Buscando escalas para usuário ${userId}`);
+        
+        if (parseInt(userId) !== req.user.id && req.user.role !== 'pastor' && !req.user.is_leader) {
+            console.log(`⚠️ Usuário ${req.user.id} tentou acessar escalas de ${userId}`);
+            return res.status(403).json({ error: 'Acesso negado' });
+        }
+
         const scales = await sql`
             SELECT ws.*, 
                    u1.name as leader_name, 
@@ -1350,8 +1360,10 @@ app.get('/api/worship-scales/member/:userId', auth, async (req, res) => {
                )
             ORDER BY ws.event_date DESC
         `;
+        console.log(`✅ Encontradas ${scales.length} escalas para o usuário`);
         res.json(scales);
     } catch (error) {
+        console.error('❌ Erro ao buscar minhas escalas:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1440,12 +1452,17 @@ app.get('/api/availability/:userId', auth, async (req, res) => {
         const userId = req.params.userId;
         console.log(`📝 Buscando disponibilidade para usuário ${userId}`);
         
+        if (parseInt(userId) !== req.user.id && req.user.role !== 'pastor' && !req.user.is_leader) {
+            console.log(`⚠️ Usuário ${req.user.id} tentou acessar disponibilidade de ${userId}`);
+            return res.status(403).json({ error: 'Acesso negado' });
+        }
+
         const availability = await sql`
             SELECT * FROM availability 
             WHERE user_id = ${userId} 
             ORDER BY date ASC
         `;
-        console.log(`✅ Encontrados ${availability.length} registros`);
+        console.log(`✅ Encontrados ${availability.length} registros de disponibilidade`);
         res.json(availability);
     } catch (error) {
         console.error('❌ Erro ao buscar disponibilidade:', error);
@@ -1590,9 +1607,6 @@ app.post('/api/studies', auth, uploadFields, async (req, res) => {
     }
 });
 
-// ============================================
-// ===== ROTA PARA BAIXAR PDF DO ESTUDO =====
-// ============================================
 app.get('/api/studies/:id/pdf', async (req, res) => {
     try {
         const { id } = req.params;

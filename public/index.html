@@ -102,6 +102,7 @@
             display: flex;
             gap: 0.3rem;
             align-items: center;
+            flex-wrap: wrap;
         }
         .btn {
             padding: 0.3rem 0.8rem;
@@ -1364,17 +1365,17 @@
             <div class="card">
                 <div class="icon-wrapper"><i class="fas fa-heart"></i></div>
                 <h3>Nossa Missão</h3>
-                <p>Levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.</p>
+                <p id="aboutMissionText">Levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.</p>
             </div>
             <div class="card">
                 <div class="icon-wrapper"><i class="fas fa-bible"></i></div>
                 <h3>Nossa Visão</h3>
-                <p>Ser uma igreja relevante, que transforma vidas e impacta a comunidade com o evangelho.</p>
+                <p id="aboutVisionText">Ser uma igreja relevante, que transforma vidas e impacta a comunidade com o evangelho.</p>
             </div>
             <div class="card">
                 <div class="icon-wrapper"><i class="fas fa-hand-holding-heart"></i></div>
                 <h3>Nossos Valores</h3>
-                <p>Amor, fé, esperança, serviço e comunhão. Vivemos os valores do Reino de Deus.</p>
+                <p id="aboutValuesText">Amor, fé, esperança, serviço e comunhão. Vivemos os valores do Reino de Deus.</p>
             </div>
         </div>
     </section>
@@ -1753,7 +1754,7 @@
                     <button onclick="searchBible()" class="btn btn-primary" style="width:100%;justify-content:center;">
                         <i class="fas fa-search"></i> Buscar
                     </button>
-                    <button onclick="searchBibleRandom()" class="btn btn-outline" style="width:100%;justify-content:center;margin-top:0.2rem;">
+                    <button onclick="searchBibleRandom()" class="btn btn-outline-light" style="width:100%;justify-content:center;margin-top:0.2rem;border:2px solid var(--primary);color:var(--primary);">
                         <i class="fas fa-random"></i> Versículo Aleatório
                     </button>
                 </div>
@@ -1914,6 +1915,10 @@
                     btn.href = 'https://wa.me/55' + settings.whatsapp;
                     document.getElementById('fabWhatsapp').href = 'https://wa.me/55' + settings.whatsapp;
                 }
+                // Carregar textos do Sobre Nós
+                if (settings.about_mission) document.getElementById('aboutMissionText').textContent = settings.about_mission;
+                if (settings.about_vision) document.getElementById('aboutVisionText').textContent = settings.about_vision;
+                if (settings.about_values) document.getElementById('aboutValuesText').textContent = settings.about_values;
             } catch (e) {
                 console.error('Erro ao carregar configurações:', e);
             }
@@ -2096,21 +2101,21 @@
                     carouselData = [{
                         title: '🙏 Bem-Vindo à NJ Cabuçu',
                         subtitle: 'Uma comunidade que ama a Deus e ao próximo',
+                        description: 'A NJ Cabuçu é uma comunidade cristã dedicada a levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.',
                         image_url: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1200&h=500&fit=crop&crop=center',
-                        link: '#sobre',
-                        description: 'A NJ Cabuçu é uma comunidade cristã dedicada a levar o amor de Deus a todas as pessoas.'
+                        link: '#sobre'
                     }, {
                         title: '🎶 Venha nos Louvar',
                         subtitle: 'Nossos cultos são cheios de adoração',
+                        description: 'Nossos cultos são marcados por louvores vibrantes e adoração sincera. Venha experimentar a presença de Deus!',
                         image_url: 'https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1200&h=500&fit=crop&crop=center',
-                        link: '#eventos',
-                        description: 'Nossos cultos são marcados por louvores vibrantes e adoração sincera.'
+                        link: '#eventos'
                     }, {
                         title: '🤝 Faça Parte',
                         subtitle: 'Junte-se a nós e faça a diferença',
+                        description: 'Acreditamos que a igreja não é um lugar, mas um povo. Venha fazer parte da nossa família!',
                         image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1200&h=500&fit=crop&crop=center',
-                        link: '#inscricoes',
-                        description: 'Acreditamos que a igreja não é um lugar, mas um povo. Venha fazer parte!'
+                        link: '#inscricoes'
                     }];
                 }
 
@@ -2120,21 +2125,21 @@
                 carouselData = [{
                     title: '🙏 Bem-Vindo à NJ Cabuçu',
                     subtitle: 'Uma comunidade que ama a Deus e ao próximo',
+                    description: 'A NJ Cabuçu é uma comunidade cristã dedicada a levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.',
                     image_url: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1200&h=500&fit=crop&crop=center',
-                    link: '#sobre',
-                    description: 'A NJ Cabuçu é uma comunidade cristã dedicada a levar o amor de Deus a todas as pessoas.'
+                    link: '#sobre'
                 }, {
                     title: '🎶 Venha nos Louvar',
                     subtitle: 'Nossos cultos são cheios de adoração',
+                    description: 'Nossos cultos são marcados por louvores vibrantes e adoração sincera. Venha experimentar a presença de Deus!',
                     image_url: 'https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1200&h=500&fit=crop&crop=center',
-                    link: '#eventos',
-                    description: 'Nossos cultos são marcados por louvores vibrantes e adoração sincera.'
+                    link: '#eventos'
                 }, {
                     title: '🤝 Faça Parte',
                     subtitle: 'Junte-se a nós e faça a diferença',
+                    description: 'Acreditamos que a igreja não é um lugar, mas um povo. Venha fazer parte da nossa família!',
                     image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1200&h=500&fit=crop&crop=center',
-                    link: '#inscricoes',
-                    description: 'Acreditamos que a igreja não é um lugar, mas um povo. Venha fazer parte!'
+                    link: '#inscricoes'
                 }];
                 renderCarousel();
             }
@@ -2159,16 +2164,16 @@
                         'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1200&h=500&fit=crop&crop=center');
 
                 slide.innerHTML = `
-                            <img src="${imgSrc}" alt="${item.title || 'Slide'}" class="bg-image" loading="lazy">
-                            <div class="overlay"></div>
-                            <div class="hero-content">
-                                <h1>${item.title || ''}</h1>
-                                <p>${item.subtitle || ''}</p>
-                                ${item.link ? `<a href="${item.link}" class="btn btn-primary" onclick="event.stopPropagation(); scrollToSection('${item.link.replace('#', '')}')">
-                                    <i class="fas fa-chevron-right"></i> Saiba Mais
-                                </a>` : ''}
-                            </div>
-                        `;
+                    <img src="${imgSrc}" alt="${item.title || 'Slide'}" class="bg-image" loading="lazy">
+                    <div class="overlay"></div>
+                    <div class="hero-content">
+                        <h1>${item.title || ''}</h1>
+                        <p>${item.subtitle || ''}</p>
+                        ${item.link ? `<a href="${item.link}" class="btn btn-primary" onclick="event.stopPropagation(); scrollToSection('${item.link.replace('#', '')}')">
+                            <i class="fas fa-chevron-right"></i> Saiba Mais
+                        </a>` : ''}
+                    </div>
+                `;
 
                 slide.addEventListener('click', () => openCarouselInfo(index));
                 slidesContainer.appendChild(slide);
@@ -2348,9 +2353,9 @@
 
                 if (data.error) {
                     resultDiv.innerHTML = `
-                                <p class="error-message">❌ ${data.error}</p>
-                                <p style="color:#888;margin-top:0.5rem;">Tente: Salmos 23, João 3:16, Romanos 8:28</p>
-                            `;
+                        <p class="error-message">❌ ${data.error}</p>
+                        <p style="color:#888;margin-top:0.5rem;">Tente: Salmos 23, João 3:16, Romanos 8:28</p>
+                    `;
                     return;
                 }
 
@@ -2371,9 +2376,9 @@
             } catch (error) {
                 console.error('❌ Erro na busca:', error);
                 resultDiv.innerHTML = `
-                            <p class="error-message">❌ Erro ao buscar: ${error.message}</p>
-                            <p style="color:#888;margin-top:0.5rem;">Tente: Salmos 23, João 3:16, Romanos 8:28</p>
-                        `;
+                    <p class="error-message">❌ Erro ao buscar: ${error.message}</p>
+                    <p style="color:#888;margin-top:0.5rem;">Tente: Salmos 23, João 3:16, Romanos 8:28</p>
+                `;
             }
         }
 
@@ -2407,9 +2412,9 @@
             } catch (error) {
                 console.error('❌ Erro no versículo aleatório:', error);
                 resultDiv.innerHTML = `
-                            <p class="error-message">❌ Erro ao buscar versículo aleatório: ${error.message}</p>
-                            <p style="color:#888;margin-top:0.5rem;">Tente novamente ou faça uma busca manual.</p>
-                        `;
+                    <p class="error-message">❌ Erro ao buscar versículo aleatório: ${error.message}</p>
+                    <p style="color:#888;margin-top:0.5rem;">Tente novamente ou faça uma busca manual.</p>
+                `;
             }
         }
 
@@ -2581,54 +2586,54 @@
 
                 if (!data || data.length === 0) {
                     container.innerHTML = `
-                                <div style="text-align:center;padding:1.5rem;color:#888;grid-column:1/-1;">
-                                    <i class="fas fa-users" style="font-size:2rem;color:#ccc;display:block;margin-bottom:0.4rem;"></i>
-                                    Nenhuma célula disponível no momento 🏠
-                                </div>
-                            `;
+                        <div style="text-align:center;padding:1.5rem;color:#888;grid-column:1/-1;">
+                            <i class="fas fa-users" style="font-size:2rem;color:#ccc;display:block;margin-bottom:0.4rem;"></i>
+                            Nenhuma célula disponível no momento 🏠
+                        </div>
+                    `;
                     return;
                 }
 
                 container.innerHTML = data.map(c => `
-                            <div class="card">
-                                <div class="icon-wrapper" style="background:var(--primary-gradient);color:#fff;">
-                                    <i class="fas fa-home"></i>
-                                </div>
-                                <h3>${c.nome}</h3>
-                                <div style="display:flex;align-items:center;gap:0.3rem;font-size:0.8rem;color:#555;margin:0.1rem 0;">
-                                    <i class="fas fa-user" style="width:16px;color:var(--primary);"></i>
-                                    <span><strong>Líder:</strong> ${c.lider_nome || 'Sem líder'}</span>
-                                </div>
-                                <div style="display:flex;align-items:center;gap:0.3rem;font-size:0.8rem;color:#555;margin:0.1rem 0;">
-                                    <i class="fas fa-map-pin" style="width:16px;color:var(--primary);"></i>
-                                    <span>${c.endereco || 'Endereço não informado'}</span>
-                                </div>
-                                <div style="display:flex;align-items:center;gap:0.3rem;font-size:0.8rem;color:#555;margin:0.1rem 0;">
-                                    <i class="fas fa-calendar" style="width:16px;color:var(--primary);"></i>
-                                    <span>${c.dias_reuniao || 'Dias não informados'}</span>
-                                </div>
-                                <div style="display:flex;align-items:center;gap:0.3rem;font-size:0.8rem;color:#555;margin:0.1rem 0;">
-                                    <i class="fas fa-clock" style="width:16px;color:var(--primary);"></i>
-                                    <span>${c.horario || 'Horário não informado'}</span>
-                                </div>
-                                <div style="display:inline-block;background:var(--secondary);color:var(--primary);padding:0.1rem 0.6rem;border-radius:var(--radius-full);font-size:0.65rem;font-weight:600;margin-top:0.2rem;align-self:flex-start;">
-                                    <i class="fas fa-users"></i> ${c.membros_ativos || 0} membros
-                                </div>
-                                ${c.descricao ? `<p style="margin-top:0.3rem;font-size:0.75rem;color:#666;">${c.descricao}</p>` : ''}
-                                <a href="https://wa.me/5521985345627?text=Olá! Quero participar da célula ${c.nome}" 
-                                   target="_blank" class="btn btn-whatsapp" style="margin-top:0.4rem;width:100%;justify-content:center;font-size:0.7rem;padding:0.3rem;">
-                                    <i class="fab fa-whatsapp"></i> Quero Participar
-                                </a>
-                            </div>
-                        `).join('');
+                    <div class="card">
+                        <div class="icon-wrapper" style="background:var(--primary-gradient);color:#fff;">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <h3>${c.nome}</h3>
+                        <div style="display:flex;align-items:center;gap:0.3rem;font-size:0.8rem;color:#555;margin:0.1rem 0;">
+                            <i class="fas fa-user" style="width:16px;color:var(--primary);"></i>
+                            <span><strong>Líder:</strong> ${c.lider_nome || 'Sem líder'}</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:0.3rem;font-size:0.8rem;color:#555;margin:0.1rem 0;">
+                            <i class="fas fa-map-pin" style="width:16px;color:var(--primary);"></i>
+                            <span>${c.endereco || 'Endereço não informado'}</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:0.3rem;font-size:0.8rem;color:#555;margin:0.1rem 0;">
+                            <i class="fas fa-calendar" style="width:16px;color:var(--primary);"></i>
+                            <span>${c.dias_reuniao || 'Dias não informados'}</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:0.3rem;font-size:0.8rem;color:#555;margin:0.1rem 0;">
+                            <i class="fas fa-clock" style="width:16px;color:var(--primary);"></i>
+                            <span>${c.horario || 'Horário não informado'}</span>
+                        </div>
+                        <div style="display:inline-block;background:var(--secondary);color:var(--primary);padding:0.1rem 0.6rem;border-radius:var(--radius-full);font-size:0.65rem;font-weight:600;margin-top:0.2rem;align-self:flex-start;">
+                            <i class="fas fa-users"></i> ${c.membros_ativos || 0} membros
+                        </div>
+                        ${c.descricao ? `<p style="margin-top:0.3rem;font-size:0.75rem;color:#666;">${c.descricao}</p>` : ''}
+                        <a href="https://wa.me/5521985345627?text=Olá! Quero participar da célula ${c.nome}" 
+                           target="_blank" class="btn btn-whatsapp" style="margin-top:0.4rem;width:100%;justify-content:center;font-size:0.7rem;padding:0.3rem;">
+                            <i class="fab fa-whatsapp"></i> Quero Participar
+                        </a>
+                    </div>
+                `).join('');
             } catch (e) {
                 console.error('Erro:', e);
                 document.getElementById('celulasList').innerHTML = `
-                            <div style="text-align:center;padding:1.5rem;color:#dc3545;grid-column:1/-1;">
-                                <i class="fas fa-exclamation-circle" style="font-size:1.5rem;display:block;margin-bottom:0.3rem;"></i>
-                                Erro ao carregar células
-                            </div>
-                        `;
+                    <div style="text-align:center;padding:1.5rem;color:#dc3545;grid-column:1/-1;">
+                        <i class="fas fa-exclamation-circle" style="font-size:1.5rem;display:block;margin-bottom:0.3rem;"></i>
+                        Erro ao carregar células
+                    </div>
+                `;
             }
         }
 
@@ -2659,13 +2664,13 @@
                     return;
                 }
                 container.innerHTML = data.map(s => `
-                            <div class="card">
-                                ${s.image_base64 ? createCardImage(s.image_base64, s.title) : ''}
-                                <h3>${s.title}</h3>
-                                <p>${s.description || ''}</p>
-                                ${s.file_url ? '<a href="' + s.file_url + '" target="_blank" class="btn btn-primary btn-sm" style="margin-top:0.4rem;width:auto;font-size:0.65rem;"><i class="fas fa-download"></i> Baixar</a>' : ''}
-                            </div>
-                        `).join('');
+                    <div class="card">
+                        ${s.image_base64 ? createCardImage(s.image_base64, s.title) : ''}
+                        <h3>${s.title}</h3>
+                        <p>${s.description || ''}</p>
+                        ${s.file_url ? '<a href="' + s.file_url + '" target="_blank" class="btn btn-primary btn-sm" style="margin-top:0.4rem;width:auto;font-size:0.65rem;"><i class="fas fa-download"></i> Baixar</a>' : ''}
+                    </div>
+                `).join('');
             } catch (e) { console.error('Erro:', e); }
         }
 
@@ -2680,17 +2685,17 @@
                     return;
                 }
                 container.innerHTML = data.map(e => `
-                            <div class="card">
-                                ${e.image_base64 ? createCardImage(e.image_base64, e.title) : ''}
-                                <h3>${e.title}</h3>
-                                <p>${e.description || ''}</p>
-                                <p style="font-size:0.75rem;color:#666;margin:0.15rem 0;"><strong>Data:</strong> ${new Date(e.date).toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' })}</p>
-                                <p style="font-size:0.75rem;color:#666;"><strong>Valor:</strong> ${parseFloat(e.price || 0) > 0 ? 'R$ ' + parseFloat(e.price).toFixed(2) : 'Grátis'}</p>
-                                <button onclick="registerForEvent(${e.id}, '${e.title}', ${e.price || 0})" class="btn btn-primary" style="margin-top:0.4rem; background:#28a745; font-size:0.75rem; padding:0.3rem 1rem;">
-                                    <i class="fas fa-ticket-alt"></i> Inscrever-se
-                                </button>
-                            </div>
-                        `).join('');
+                    <div class="card">
+                        ${e.image_base64 ? createCardImage(e.image_base64, e.title) : ''}
+                        <h3>${e.title}</h3>
+                        <p>${e.description || ''}</p>
+                        <p style="font-size:0.75rem;color:#666;margin:0.15rem 0;"><strong>Data:</strong> ${new Date(e.date).toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' })}</p>
+                        <p style="font-size:0.75rem;color:#666;"><strong>Valor:</strong> ${parseFloat(e.price || 0) > 0 ? 'R$ ' + parseFloat(e.price).toFixed(2) : 'Grátis'}</p>
+                        <button onclick="registerForEvent(${e.id}, '${e.title}', ${e.price || 0})" class="btn btn-primary" style="margin-top:0.4rem; background:#28a745; font-size:0.75rem; padding:0.3rem 1rem;">
+                            <i class="fas fa-ticket-alt"></i> Inscrever-se
+                        </button>
+                    </div>
+                `).join('');
             } catch (e) { console.error('Erro:', e); }
         }
 
@@ -2755,14 +2760,14 @@
                     return;
                 }
                 container.innerHTML = data.map(p => `
-                            <div class="card">
-                                ${p.image_base64 ? createCardImage(p.image_base64, p.name) : ''}
-                                <h3>${p.name}</h3>
-                                <p>${p.description || ''}</p>
-                                <div style="font-size:1.1rem;font-weight:700;color:var(--primary);margin:0.3rem 0;">R$ ${parseFloat(p.price).toFixed(2)}</div>
-                                <button onclick="addToCart(${p.id})" class="btn btn-primary" style="font-size:0.75rem;padding:0.3rem 1rem;"><i class="fas fa-cart-plus"></i> Comprar</button>
-                            </div>
-                        `).join('');
+                    <div class="card">
+                        ${p.image_base64 ? createCardImage(p.image_base64, p.name) : ''}
+                        <h3>${p.name}</h3>
+                        <p>${p.description || ''}</p>
+                        <div style="font-size:1.1rem;font-weight:700;color:var(--primary);margin:0.3rem 0;">R$ ${parseFloat(p.price).toFixed(2)}</div>
+                        <button onclick="addToCart(${p.id})" class="btn btn-primary" style="font-size:0.75rem;padding:0.3rem 1rem;"><i class="fas fa-cart-plus"></i> Comprar</button>
+                    </div>
+                `).join('');
             } catch (e) { console.error('Erro:', e); }
         }
 
@@ -2777,11 +2782,11 @@
 
                 if (!data || data.length === 0) {
                     container.innerHTML = `
-                                <div style="text-align:center;padding:1.5rem;color:#888;grid-column:1/-1;">
-                                    <i class="fas fa-birthday-cake" style="font-size:2rem;color:#ccc;display:block;margin-bottom:0.4rem;"></i>
-                                    Nenhum aniversariante este mês 🎉
-                                </div>
-                            `;
+                        <div style="text-align:center;padding:1.5rem;color:#888;grid-column:1/-1;">
+                            <i class="fas fa-birthday-cake" style="font-size:2rem;color:#ccc;display:block;margin-bottom:0.4rem;"></i>
+                            Nenhum aniversariante este mês 🎉
+                        </div>
+                    `;
                     return;
                 }
 
@@ -2811,23 +2816,23 @@
                     const isToday = mesNiver === todayMonth && diaNiver === todayDay;
 
                     return `
-                                <div class="card ${isToday ? 'birthday-today' : ''}" style="text-align:center; border-left:4px solid ${isToday ? '#e91e63' : 'var(--primary)'}; padding:1rem;">
-                                    <div style="font-size:1.8rem;">${emoji}</div>
-                                    <div style="font-size:0.95rem;font-weight:700;color:var(--primary);">${person.name}</div>
-                                    <div style="color:#666;font-size:0.8rem;">${birth.toLocaleDateString('pt-BR', { day:'numeric', month:'long' })}</div>
-                                    <div style="color:#888;font-size:0.75rem;">🎯 ${idade} anos ${isToday ? '🎉 HOJE!' : ''}</div>
-                                    ${person.phone ? `<div style="font-size:0.7rem;color:#888;margin-top:0.1rem;"><i class="fas fa-phone"></i> ${person.phone}</div>` : ''}
-                                </div>
-                            `;
+                        <div class="card ${isToday ? 'birthday-today' : ''}" style="text-align:center; border-left:4px solid ${isToday ? '#e91e63' : 'var(--primary)'}; padding:1rem;">
+                            <div style="font-size:1.8rem;">${emoji}</div>
+                            <div style="font-size:0.95rem;font-weight:700;color:var(--primary);">${person.name}</div>
+                            <div style="color:#666;font-size:0.8rem;">${birth.toLocaleDateString('pt-BR', { day:'numeric', month:'long' })}</div>
+                            <div style="color:#888;font-size:0.75rem;">🎯 ${idade} anos ${isToday ? '🎉 HOJE!' : ''}</div>
+                            ${person.phone ? `<div style="font-size:0.7rem;color:#888;margin-top:0.1rem;"><i class="fas fa-phone"></i> ${person.phone}</div>` : ''}
+                        </div>
+                    `;
                 }).join('');
             } catch (e) {
                 console.error('Erro:', e);
                 document.getElementById('birthdayList').innerHTML = `
-                            <div style="text-align:center;padding:1.5rem;color:#dc3545;grid-column:1/-1;">
-                                <i class="fas fa-exclamation-circle" style="font-size:2rem;display:block;margin-bottom:0.4rem;"></i>
-                                Erro ao carregar aniversariantes
-                            </div>
-                        `;
+                    <div style="text-align:center;padding:1.5rem;color:#dc3545;grid-column:1/-1;">
+                        <i class="fas fa-exclamation-circle" style="font-size:2rem;display:block;margin-bottom:0.4rem;"></i>
+                        Erro ao carregar aniversariantes
+                    </div>
+                `;
             }
         }
 
@@ -2856,11 +2861,11 @@
             } else {
                 let total = 0;
                 container.innerHTML = cart.map((p, i) => `
-                            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.3rem;border-bottom:1px solid #eee;">
-                                <span style="font-size:0.8rem;">${p.name} - R$ ${parseFloat(p.price).toFixed(2)}</span>
-                                <button onclick="removeFromCart(${i})" class="btn btn-danger btn-sm" style="font-size:0.6rem;padding:0.1rem 0.4rem;"><i class="fas fa-times"></i></button>
-                            </div>
-                        `).join('');
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.3rem;border-bottom:1px solid #eee;">
+                        <span style="font-size:0.8rem;">${p.name} - R$ ${parseFloat(p.price).toFixed(2)}</span>
+                        <button onclick="removeFromCart(${i})" class="btn btn-danger btn-sm" style="font-size:0.6rem;padding:0.1rem 0.4rem;"><i class="fas fa-times"></i></button>
+                    </div>
+                `).join('');
                 total = cart.reduce((sum, p) => sum + parseFloat(p.price), 0);
                 totalDiv.textContent = 'Total: R$ ' + total.toFixed(2);
             }
@@ -3273,46 +3278,46 @@
                     document.getElementById('paymentForm').style.display = 'none';
 
                     let qrHtml = `
-                                <h3 style="color:var(--primary);margin-bottom:0.4rem;">✅ Pagamento PIX Gerado</h3>
-                                <div style="text-align:center;padding:0.5rem;">
-                            `;
+                        <h3 style="color:var(--primary);margin-bottom:0.4rem;">✅ Pagamento PIX Gerado</h3>
+                        <div style="text-align:center;padding:0.5rem;">
+                    `;
 
                     if (payment.qr_code_base64) {
                         qrHtml += `
-                                    <img src="data:image/png;base64,${payment.qr_code_base64}" style="max-width:160px;margin:0 auto;display:block;border-radius:8px;">
-                                    <p style="margin:0.3rem 0;font-size:0.75rem;">Escaneie o QR Code com seu banco</p>
-                                `;
+                            <img src="data:image/png;base64,${payment.qr_code_base64}" style="max-width:160px;margin:0 auto;display:block;border-radius:8px;">
+                            <p style="margin:0.3rem 0;font-size:0.75rem;">Escaneie o QR Code com seu banco</p>
+                        `;
                     }
 
                     if (payment.qr_code) {
                         qrHtml += `
-                                    <div style="background:#f4f6fc;padding:0.3rem;border-radius:8px;word-break:break-all;font-size:0.65rem;margin:0.3rem 0;border:1px solid #e0e0e0;">
-                                        <strong>Código PIX:</strong><br>${payment.qr_code}
-                                    </div>
-                                    <button onclick="navigator.clipboard.writeText('${payment.qr_code}')" class="btn btn-primary btn-sm" style="margin:0.15rem;font-size:0.65rem;">
-                                        <i class="fas fa-copy"></i> Copiar código
-                                    </button>
-                                `;
+                            <div style="background:#f4f6fc;padding:0.3rem;border-radius:8px;word-break:break-all;font-size:0.65rem;margin:0.3rem 0;border:1px solid #e0e0e0;">
+                                <strong>Código PIX:</strong><br>${payment.qr_code}
+                            </div>
+                            <button onclick="navigator.clipboard.writeText('${payment.qr_code}')" class="btn btn-primary btn-sm" style="margin:0.15rem;font-size:0.65rem;">
+                                <i class="fas fa-copy"></i> Copiar código
+                            </button>
+                        `;
                     }
 
                     qrHtml += `
-                                    <a href="${payment.payment_link}" target="_blank" class="btn btn-success" style="margin:0.15rem;display:inline-flex;font-size:0.75rem;">
-                                        <i class="fas fa-external-link-alt"></i> Abrir no Mercado Pago
-                                    </a>
-                                    <p style="margin-top:0.3rem;font-size:0.65rem;color:#888;">Status: <strong>${payment.status}</strong></p>
-                                    <div style="display:flex;gap:0.4rem;justify-content:center;margin-top:0.3rem;flex-wrap:wrap;">
-                                        <button onclick="checkPaymentStatus('${payment.payment_id}')" class="btn btn-primary btn-sm" style="font-size:0.65rem;">
-                                            <i class="fas fa-sync"></i> Verificar Status
-                                        </button>
-                                        <button onclick="closeModal('paymentModal')" class="btn btn-sm btn-outline" style="border:2px solid #888;color:#888;background:transparent;padding:0.1rem 0.6rem;border-radius:50px;cursor:pointer;font-size:0.65rem;">
-                                            <i class="fas fa-check"></i> Concluir
-                                        </button>
-                                    </div>
-                                    <p style="margin-top:0.3rem;font-size:0.6rem;color:#999;">
-                                        ⏳ Aguardando pagamento... A verificação é automática!
-                                    </p>
-                                </div>
-                            `;
+                        <a href="${payment.payment_link}" target="_blank" class="btn btn-success" style="margin:0.15rem;display:inline-flex;font-size:0.75rem;">
+                            <i class="fas fa-external-link-alt"></i> Abrir no Mercado Pago
+                        </a>
+                        <p style="margin-top:0.3rem;font-size:0.65rem;color:#888;">Status: <strong>${payment.status}</strong></p>
+                        <div style="display:flex;gap:0.4rem;justify-content:center;margin-top:0.3rem;flex-wrap:wrap;">
+                            <button onclick="checkPaymentStatus('${payment.payment_id}')" class="btn btn-primary btn-sm" style="font-size:0.65rem;">
+                                <i class="fas fa-sync"></i> Verificar Status
+                            </button>
+                            <button onclick="closeModal('paymentModal')" class="btn btn-sm btn-outline-light" style="border:2px solid #888;color:#888;background:transparent;padding:0.1rem 0.6rem;border-radius:50px;cursor:pointer;font-size:0.65rem;">
+                                <i class="fas fa-check"></i> Concluir
+                            </button>
+                        </div>
+                        <p style="margin-top:0.3rem;font-size:0.6rem;color:#999;">
+                            ⏳ Aguardando pagamento... A verificação é automática!
+                        </p>
+                    </div>
+                    `;
 
                     resultDiv.innerHTML = qrHtml;
                     localStorage.setItem('last_payment_id', payment.payment_id);
@@ -3784,3 +3789,4 @@
     </script>
 </body>
 </html>
+```

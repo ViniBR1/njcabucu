@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Departamento - NJ Cabuçu</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -10,19 +10,32 @@
         :root {
             --primary: #0D47A1;
             --primary-light: #1565C0;
+            --primary-gradient: linear-gradient(135deg, #0D47A1, #1565C0);
             --bg: #f0f4f8;
             --card-bg: #ffffff;
             --shadow: 0 2px 20px rgba(0,0,0,0.06);
+            --shadow-lg: 0 8px 40px rgba(0,0,0,0.10);
             --radius: 16px;
+            --radius-sm: 10px;
+            --radius-full: 50px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Segoe UI', system-ui, sans-serif;
+            --header-h: 62px;
         }
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: var(--font);
             background: var(--bg);
             color: #1a1a1a;
+            padding-bottom: 2rem;
         }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f0f0f0; }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+
+        /* HEADER */
         .header {
             background: var(--card-bg);
-            padding: 0.8rem 2rem;
+            padding: 0.6rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -31,343 +44,415 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: var(--shadow);
         }
         .logo { display: flex; align-items: center; gap: 0.8rem; }
         .logo-icon {
-            width: 45px; height: 45px;
+            width: 42px; height: 42px;
             border-radius: 50%;
-            background: var(--primary);
+            background: var(--primary-gradient);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             color: white;
         }
-        .logo h1 { font-size: 1.3rem; color: var(--primary); }
+        .logo h1 { font-size: 1.2rem; color: var(--primary); }
+        .logo h1 small { font-weight: 400; font-size: 0.65rem; color: #888; display: block; margin-top: -2px; }
+
+        .header-right { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
 
         .btn {
-            padding: 0.5rem 1.2rem;
-            border-radius: 50px;
+            padding: 0.4rem 1.2rem;
+            border-radius: var(--radius-full);
             border: none;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: var(--transition);
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
+            gap: 0.4rem;
+            font-size: 0.8rem;
+            font-family: var(--font);
+            text-decoration: none;
         }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-light); transform: translateY(-2px); }
+        .btn-primary { background: var(--primary-gradient); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(13,71,161,0.25); }
         .btn-danger { background: #dc3545; color: white; }
-        .btn-danger:hover { background: #c82333; }
+        .btn-danger:hover { background: #c82333; transform: translateY(-2px); }
         .btn-success { background: #28a745; color: white; }
-        .btn-success:hover { background: #218838; }
+        .btn-success:hover { background: #218838; transform: translateY(-2px); }
         .btn-warning { background: #ffc107; color: #1a1a1a; }
-        .btn-warning:hover { background: #e0a800; }
-        .btn-sm { padding: 0.3rem 0.8rem; font-size: 0.8rem; }
+        .btn-warning:hover { background: #e0a800; transform: translateY(-2px); }
+        .btn-sm { padding: 0.2rem 0.8rem; font-size: 0.7rem; }
+        .btn-xs { padding: 0.1rem 0.4rem; font-size: 0.55rem; }
+        .btn-block { width: 100%; justify-content: center; }
         .btn-whatsapp { background: #25D366; color: white; }
         .btn-whatsapp:hover { background: #1da851; transform: translateY(-2px); }
+        .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: white; }
 
-        .container { max-width: 1400px; margin: 1.5rem auto; padding: 0 1.5rem; }
+        .container { max-width: 1400px; margin: 1.2rem auto; padding: 0 1.5rem; }
 
+        /* DEPT HEADER */
         .dept-header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            background: var(--primary-gradient);
             color: white;
-            padding: 2rem;
+            padding: 1.5rem 2rem;
             border-radius: var(--radius);
             margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            box-shadow: var(--shadow-lg);
         }
-        .dept-header h1 { font-size: 2.2rem; }
-        .dept-header .subtitle { opacity: 0.9; margin-top: 0.3rem; }
+        .dept-header h1 { font-size: 1.8rem; }
+        .dept-header .subtitle { opacity: 0.9; margin-top: 0.2rem; font-size: 0.9rem; }
+        .dept-header .dept-badge {
+            background: rgba(255,255,255,0.15);
+            padding: 0.3rem 1rem;
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+        }
 
+        /* TABS */
+        .tabs-wrapper {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 1.2rem;
+        }
         .tabs {
             display: flex;
-            gap: 0.3rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-            background: var(--card-bg);
-            padding: 0.6rem;
-            border-radius: 12px;
-            border: 1px solid #e8e8e8;
+            gap: 0.2rem;
+            padding: 0.5rem 0.8rem;
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e8e8e8;
+            scrollbar-width: thin;
         }
+        .tabs::-webkit-scrollbar { height: 4px; }
+        .tabs::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
         .tab-btn {
-            padding: 0.4rem 1.2rem;
-            border: 2px solid transparent;
-            border-radius: 50px;
+            padding: 0.3rem 1rem;
+            border: none;
+            border-radius: var(--radius-full);
             background: transparent;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.3s;
-            font-size: 0.85rem;
+            transition: var(--transition);
+            font-size: 0.75rem;
+            font-family: var(--font);
+            color: #666;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
         }
-        .tab-btn:hover { border-color: var(--primary); }
-        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .tab-btn:hover { background: var(--secondary); color: var(--primary); }
+        .tab-btn.active {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 2px 10px rgba(13,71,161,0.2);
+        }
+        .tab-btn i { font-size: 0.7rem; }
 
         .tab-content {
             display: none;
+            padding: 1.2rem;
             background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: var(--radius);
-            border: 1px solid #e8e8e8;
+            width: 100%;
+            overflow-x: hidden;
         }
         .tab-content.active { display: block; }
+        .tab-content .section-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 2px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .tab-content .section-title i { font-size: 0.9rem; }
 
+        /* GRID */
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.2rem;
         }
         .card {
             background: #f8f9fa;
             padding: 1.2rem;
             border-radius: var(--radius);
             border: 1px solid #e8e8e8;
+            transition: var(--transition);
         }
+        .card:hover { box-shadow: var(--shadow); border-color: var(--primary-light); }
         .card h3 {
             color: var(--primary);
-            margin-bottom: 0.8rem;
+            margin-bottom: 0.6rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            font-size: 1rem;
         }
 
-        .form-group { margin: 0.8rem 0; }
+        /* FORM */
+        .form-group { margin: 0.6rem 0; }
         .form-group label {
             display: block;
             font-weight: 600;
-            margin-bottom: 0.3rem;
-            font-size: 0.9rem;
+            margin-bottom: 0.2rem;
+            font-size: 0.85rem;
+            color: #333;
         }
         .form-group input, .form-group select, .form-group textarea {
             width: 100%;
-            padding: 0.7rem;
+            padding: 0.5rem 0.7rem;
             border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 0.95rem;
-            font-family: inherit;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-family: var(--font);
+            transition: var(--transition);
+            background: #fafbff;
         }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             border-color: var(--primary);
             outline: none;
+            box-shadow: 0 0 0 3px rgba(13,71,161,0.06);
         }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+        .form-group textarea { min-height: 60px; resize: vertical; }
 
-        .member-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.4rem 0;
-            border-bottom: 1px solid #eee;
+        /* TABLES */
+        .table-wrapper {
+            width: 100%;
+            overflow: hidden;
+            border-radius: var(--radius-sm);
+            border: 1px solid #f0f0f0;
+            margin: 0.3rem 0;
         }
-        .member-item .name { font-weight: 600; }
-        .member-item .email { color: #888; font-size: 0.85rem; }
-        .member-item .role-badge {
-            font-size: 0.7rem;
-            padding: 0.1rem 0.5rem;
-            border-radius: 50px;
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+            table-layout: fixed;
+        }
+        .table th {
+            text-align: left;
+            padding: 0.3rem 0.5rem;
+            border-bottom: 2px solid #e8e8e8;
+            color: #666;
             font-weight: 600;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            background: #fafafa;
+        }
+        .table td {
+            padding: 0.3rem 0.5rem;
+            border-bottom: 1px solid #f0f0f0;
+            word-break: break-word;
+            vertical-align: middle;
+        }
+        .table tr:hover { background: #f8f9fa; }
+
+        /* BADGES */
+        .role-badge {
+            font-size: 0.65rem;
+            padding: 0.1rem 0.5rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            display: inline-block;
         }
         .role-badge.leader { background: #28a745; color: white; }
         .role-badge.minister { background: #17a2b8; color: white; }
         .role-badge.musician { background: #ffc107; color: #1a1a1a; }
         .role-badge.member { background: #6c757d; color: white; }
+        .role-badge.colaborador { background: #6c757d; color: white; }
 
+        .status {
+            padding: 0.05rem 0.4rem;
+            border-radius: var(--radius-full);
+            font-size: 0.55rem;
+            font-weight: 600;
+            display: inline-block;
+            text-transform: uppercase;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-approved { background: #d4edda; color: #155724; }
+
+        /* SCALE ITEMS */
         .scale-item {
             background: white;
-            padding: 0.8rem;
-            border-radius: 10px;
+            padding: 0.8rem 1rem;
+            border-radius: var(--radius-sm);
             margin-bottom: 0.6rem;
             border-left: 4px solid var(--primary);
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: var(--transition);
         }
-        .scale-item .date { font-weight: 700; color: var(--primary); }
+        .scale-item:hover { box-shadow: var(--shadow); }
+        .scale-item .date { font-weight: 700; color: var(--primary); font-size: 0.9rem; }
         .scale-item .songs { margin: 0.3rem 0; }
-        .music-tag {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        .scale-item .songs .music-tag {
+            background: var(--primary-gradient);
             color: white;
-            padding: 0.15rem 0.6rem;
-            border-radius: 50px;
-            font-size: 0.75rem;
+            padding: 0.1rem 0.6rem;
+            border-radius: var(--radius-full);
+            font-size: 0.7rem;
             display: inline-block;
-            margin: 0.15rem;
+            margin: 0.1rem 0.15rem;
             cursor: pointer;
         }
-        .music-tag:hover { opacity: 0.8; }
+        .scale-item .songs .music-tag:hover { opacity: 0.8; transform: scale(1.05); }
         .scale-item .palette { display: flex; gap: 0.3rem; margin-top: 0.3rem; flex-wrap: wrap; align-items: center; }
-        .scale-item .palette .color { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #ddd; }
-        .scale-item .rehearsal { color: #28a745; font-weight: 600; font-size: 0.85rem; margin-top: 0.3rem; }
+        .scale-item .palette .color { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #ddd; }
+        .scale-item .rehearsal { color: #28a745; font-weight: 600; font-size: 0.8rem; margin-top: 0.2rem; }
+        .scale-item .actions { margin-top: 0.4rem; display: flex; gap: 0.3rem; flex-wrap: wrap; }
 
         .my-scale-item {
             background: white;
-            padding: 0.8rem;
-            border-radius: 10px;
+            padding: 0.8rem 1rem;
+            border-radius: var(--radius-sm);
             margin-bottom: 0.6rem;
             border-left: 4px solid #28a745;
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
-        .my-scale-item .date { font-weight: 700; color: #28a745; }
+        .my-scale-item .date { font-weight: 700; color: #28a745; font-size: 0.9rem; }
         .my-scale-item .role-tag {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             padding: 0.1rem 0.5rem;
-            border-radius: 50px;
+            border-radius: var(--radius-full);
             font-weight: 600;
             display: inline-block;
             margin-top: 0.2rem;
         }
         .role-tag.minister { background: #17a2b8; color: white; }
         .role-tag.musician { background: #ffc107; color: #1a1a1a; }
+        .role-tag.leader { background: #28a745; color: white; }
         .role-tag.member { background: #6c757d; color: white; }
 
-        .weekday-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
+        /* MEMBER ITEMS */
+        .member-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.4rem 0.3rem;
+            border-bottom: 1px solid #eee;
+            flex-wrap: wrap;
             gap: 0.3rem;
-            margin: 0.5rem 0;
         }
-        .weekday-grid .day {
-            text-align: center;
-            padding: 0.3rem;
-            border-radius: 8px;
-            background: #f0f0f0;
-            font-size: 0.75rem;
-        }
-        .weekday-grid .day.active { background: var(--primary); color: white; }
-        .weekday-grid .day.today { border: 2px solid var(--primary); }
+        .member-item .member-info { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+        .member-item .name { font-weight: 600; font-size: 0.85rem; }
+        .member-item .email { color: #888; font-size: 0.75rem; }
 
+        /* AVAILABLE MEMBERS */
+        .available-member-item {
+            display: flex;
+            align-items: center;
+            padding: 0.3rem 0.5rem;
+            border-radius: 6px;
+            margin-bottom: 0.2rem;
+            background: #f8f9fa;
+            border-left: 3px solid #28a745;
+        }
+        .available-member-item .member-name { font-weight: 600; flex: 1; font-size: 0.8rem; }
+        .available-member-item .member-role { font-size: 0.65rem; color: #888; margin-right: 0.5rem; }
+        .available-member-item .member-check { color: #28a745; font-size: 0.8rem; }
+
+        /* MUSIC CHECKBOX GRID */
+        .music-checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.3rem;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 0.5rem;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--radius-sm);
+            background: #fafbff;
+        }
+        .music-checkbox-grid label {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.2rem 0.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: var(--transition);
+        }
+        .music-checkbox-grid label:hover { background: #f0f4ff; }
+        .music-checkbox-grid input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+
+        /* DATE SELECTOR */
         .date-selector-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
             gap: 0.5rem;
             margin-top: 0.5rem;
         }
         .date-selector-grid .date-option {
             padding: 0.5rem;
             border: 2px solid #e0e0e0;
-            border-radius: 10px;
+            border-radius: var(--radius-sm);
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.85rem;
+            transition: var(--transition);
+            font-size: 0.8rem;
+            background: white;
         }
         .date-selector-grid .date-option:hover { border-color: var(--primary); background: #f0f4ff; }
         .date-selector-grid .date-option.selected { border-color: var(--primary); background: var(--primary); color: white; }
-        .date-selector-grid .date-option .day-number { font-size: 1.2rem; font-weight: 700; }
+        .date-selector-grid .date-option .day-number { font-size: 1.1rem; font-weight: 700; }
+        .date-selector-grid .date-option .day-name { font-size: 0.65rem; opacity: 0.7; }
 
-        .music-checkbox-grid {
+        /* WEEKDAY GRID */
+        .weekday-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 0.3rem;
-            max-height: 200px;
-            overflow-y: auto;
-            padding: 0.5rem;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.2rem;
+            margin: 0.5rem 0;
         }
-        .music-checkbox-grid label {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.3rem;
-            border-radius: 6px;
-            cursor: pointer;
+        .weekday-grid .day {
+            text-align: center;
+            padding: 0.3rem 0.1rem;
+            border-radius: 8px;
+            background: #f0f0f0;
+            font-size: 0.7rem;
+            font-weight: 600;
+            transition: var(--transition);
         }
-        .music-checkbox-grid label:hover { background: #f0f4ff; }
+        .weekday-grid .day.active { background: var(--primary); color: white; }
+        .weekday-grid .day.today { border: 2px solid var(--primary); }
+        .weekday-grid .day.has-scale { background: #28a745; color: white; }
 
-        .hidden { display: none !important; }
-        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-        .flex-center { display: flex; align-items: center; gap: 0.5rem; }
-        .mt-1 { margin-top: 0.8rem; }
-        .mb-1 { margin-bottom: 0.8rem; }
-        .text-center { text-align: center; }
-        .w-full { width: 100%; }
-
-        .notification {
-            padding: 0.8rem 1.2rem;
-            border-radius: 10px;
-            font-weight: 500;
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            max-width: 400px;
-            z-index: 99999;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            animation: fadeIn 0.3s ease;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .notification.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .notification.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .notification.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(4px);
-        }
-        .modal-content {
+        /* PRAYER & EVENT ITEMS */
+        .prayer-item, .event-item, .finance-item {
             background: white;
-            padding: 2rem;
-            border-radius: var(--radius);
-            max-width: 700px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: modalIn 0.3s ease;
+            padding: 0.7rem 0.8rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.5rem;
+            border-left: 4px solid var(--primary);
+            transition: var(--transition);
         }
-        @keyframes modalIn {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        .modal-close {
-            float: right;
-            cursor: pointer;
-            font-size: 1.5rem;
-            color: #888;
-            background: none;
-            border: none;
-        }
-        .modal-close:hover { color: #333; }
+        .prayer-item:hover, .event-item:hover, .finance-item:hover { box-shadow: var(--shadow); }
+        .prayer-item .prayer-name, .event-item .event-title { font-weight: 700; color: var(--primary); font-size: 0.85rem; }
+        .prayer-item .prayer-request { margin: 0.2rem 0; font-size: 0.8rem; }
+        .prayer-item .prayer-date, .event-item .event-date { font-size: 0.7rem; color: #888; }
+        .finance-item .finance-amount { font-weight: 700; color: #28a745; }
 
-        .prayer-item {
-            background: white;
-            padding: 0.8rem;
-            border-radius: 10px;
-            margin-bottom: 0.6rem;
-            border-left: 4px solid #17a2b8;
-        }
-        .prayer-item .prayer-name { font-weight: 700; color: var(--primary); }
-        .prayer-item .prayer-request { margin: 0.2rem 0; }
-        .prayer-item .prayer-date { font-size: 0.75rem; color: #888; }
-
-        .event-item {
-            background: white;
-            padding: 0.8rem;
-            border-radius: 10px;
-            margin-bottom: 0.6rem;
-            border-left: 4px solid #ffc107;
-        }
-        .event-item .event-title { font-weight: 700; color: var(--primary); }
-        .event-item .event-date { font-size: 0.85rem; color: #555; }
-
-        .finance-item {
-            background: white;
-            padding: 0.8rem;
-            border-radius: 10px;
-            margin-bottom: 0.6rem;
-            border-left: 4px solid #28a745;
-        }
-
+        /* CHORD TRANSPOSE */
         .chord-transpose {
             display: flex;
             gap: 0.5rem;
@@ -379,288 +464,385 @@
             padding: 0.3rem 0.6rem;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
+            font-family: var(--font);
+        }
+        .chord-transpose select:focus, .chord-transpose input:focus {
+            border-color: var(--primary);
+            outline: none;
         }
 
-        .available-member-item {
-            display: flex;
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
             align-items: center;
-            padding: 0.3rem 0.5rem;
-            border-radius: 6px;
-            margin-bottom: 0.2rem;
-            background: #f8f9fa;
-            border-left: 3px solid #28a745;
+            justify-content: center;
+            padding: 0.8rem;
         }
-        .available-member-item .member-name {
-            font-weight: 600;
-            flex: 1;
+        .modal.open { display: flex; }
+        .modal-content {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            max-width: 650px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalIn 0.3s ease;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.15);
         }
-        .available-member-item .member-role {
-            font-size: 0.7rem;
+        @keyframes modalIn {
+            from { transform: scale(0.95) translateY(10px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        .modal-close {
+            float: right;
+            cursor: pointer;
+            font-size: 1.5rem;
             color: #888;
-            margin-right: 0.5rem;
+            background: none;
+            border: none;
+            transition: var(--transition);
+            padding: 0.1rem;
         }
-        .available-member-item .member-check {
-            color: #28a745;
+        .modal-close:hover { color: #333; transform: rotate(90deg); }
+        .modal-content h3 { font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 0.8rem; }
+        .modal-content h3 i { margin-right: 0.3rem; }
+
+        /* NOTIFICATION */
+        .notification {
+            position: fixed;
+            top: calc(var(--header-h) + 10px);
+            right: 16px;
+            padding: 0.6rem 1.2rem;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            z-index: 99999;
+            max-width: 400px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+            animation: slideIn 0.3s ease;
+            font-family: var(--font);
             font-size: 0.8rem;
         }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .notification.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .notification.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .notification.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
 
+        /* UTILS */
+        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+        .flex-center { display: flex; align-items: center; gap: 0.5rem; }
+        .mt-1 { margin-top: 0.8rem; }
+        .mb-1 { margin-bottom: 0.8rem; }
+        .text-center { text-align: center; }
+        .text-muted { color: #888; font-size: 0.75rem; }
+        .hidden { display: none !important; }
+        .w-full { width: 100%; }
+        .gap-1 { gap: 0.5rem; }
+
+        /* RESPONSIVO */
         @media (max-width: 768px) {
-            .header { flex-direction: column; gap: 0.5rem; padding: 0.8rem 1rem; }
+            .header { padding: 0.5rem 1rem; flex-direction: column; gap: 0.3rem; }
+            .header-right { width: 100%; justify-content: center; }
+            .container { padding: 0 0.8rem; margin: 0.8rem auto; }
+            .dept-header { padding: 1rem; flex-direction: column; text-align: center; gap: 0.5rem; }
+            .dept-header h1 { font-size: 1.4rem; }
             .grid { grid-template-columns: 1fr; }
-            .tabs { gap: 0.2rem; padding: 0.4rem; }
-            .tab-btn { padding: 0.2rem 0.8rem; font-size: 0.75rem; }
-            .date-selector-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+            .tabs { padding: 0.3rem 0.4rem; gap: 0.1rem; }
+            .tab-btn { font-size: 0.6rem; padding: 0.2rem 0.6rem; }
+            .tab-btn i { font-size: 0.55rem; }
+            .tab-content { padding: 0.8rem; }
+            .form-row { grid-template-columns: 1fr; }
+            .date-selector-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
             .music-checkbox-grid { grid-template-columns: 1fr; }
-            .modal-content { max-width: 100%; }
+            .modal-content { max-width: 100%; margin: 0.5rem; padding: 1rem; }
+            .weekday-grid .day { font-size: 0.6rem; padding: 0.2rem 0.1rem; }
+            .table { font-size: 0.6rem; }
+            .table th, .table td { padding: 0.15rem 0.25rem; }
+            .notification { right: 8px; left: 8px; max-width: none; font-size: 0.7rem; }
+        }
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .grid { grid-template-columns: 1fr 1fr; }
+            .dept-header { padding: 1.2rem 1.5rem; }
+        }
+        @media (min-width: 1025px) {
+            .container { padding: 0 2rem; }
+            .tab-content { padding: 1.5rem; }
+            .tab-btn { font-size: 0.85rem; padding: 0.4rem 1.2rem; }
+            .table { font-size: 0.8rem; }
         }
     </style>
 </head>
 <body>
 
+<!-- ============================================ -->
+<!-- HEADER -->
+<!-- ============================================ -->
 <header class="header">
     <div class="logo">
         <div class="logo-icon">NJ</div>
-        <h1>NJ Cabuçu</h1>
+        <div>
+            <h1>NJ Cabuçu <small>Ministério</small></h1>
+        </div>
     </div>
-    <div>
-        <span style="margin-right:0.8rem;color:#666;font-weight:600;" id="userName">Usuário</span>
-        <button onclick="logout()" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Sair</button>
+    <div class="header-right">
+        <span style="font-weight:600;color:#666;font-size:0.85rem;" id="userName">Usuário</span>
+        <a href="/" class="btn btn-sm" style="background:#e8e8e8;color:#333;"><i class="fas fa-home"></i> Site</a>
+        <button onclick="logout()" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i> Sair</button>
     </div>
 </header>
 
+<!-- ============================================ -->
+<!-- CONTAINER -->
+<!-- ============================================ -->
 <div class="container">
+
+    <!-- DEPT HEADER -->
     <div class="dept-header">
-        <h1><i class="fas fa-users"></i> <span id="deptName">Meu Departamento</span></h1>
-        <div class="subtitle" id="deptRole">Membro</div>
-        <div style="margin-top:0.5rem;font-size:0.9rem;">
-            <span id="deptType"><i class="fas fa-building"></i> Departamento</span>
+        <div>
+            <h1><i class="fas fa-users"></i> <span id="deptName">Meu Departamento</span></h1>
+            <div class="subtitle" id="deptRole">Membro</div>
+        </div>
+        <div class="dept-badge" id="deptType">
+            <i class="fas fa-building"></i> <span id="deptLabel">Departamento</span>
         </div>
     </div>
 
-    <!-- TABS geradas dinamicamente -->
-    <div class="tabs" id="tabsContainer"></div>
+    <!-- TABS -->
+    <div class="tabs-wrapper">
+        <div class="tabs" id="tabsContainer"></div>
 
-    <!-- ========================================================== -->
-    <!-- DASHBOARD (comum) -->
-    <!-- ========================================================== -->
-    <div id="tab-dashboard" class="tab-content active">
-        <div class="grid">
-            <div class="card">
-                <h3><i class="fas fa-calendar-alt"></i> Próximos Compromissos</h3>
-                <div id="nextAppointments"><p style="color:#888;">Carregando...</p></div>
-            </div>
-            <div class="card">
-                <h3><i class="fas fa-chart-bar"></i> Sua Participação</h3>
-                <div id="myStats">
-                    <p><strong>Total de Atividades:</strong> <span id="myTotalActivities">0</span></p>
-                    <p><strong>Próximos:</strong> <span id="myNextActivities">0</span></p>
-                    <p><strong>Função:</strong> <span id="myRole">Membro</span></p>
+        <!-- ========================================================== -->
+        <!-- DASHBOARD -->
+        <!-- ========================================================== -->
+        <div id="tab-dashboard" class="tab-content active">
+            <div class="grid">
+                <div class="card">
+                    <h3><i class="fas fa-calendar-alt"></i> Próximos Compromissos</h3>
+                    <div id="nextAppointments"><p class="text-muted">Carregando...</p></div>
+                </div>
+                <div class="card">
+                    <h3><i class="fas fa-chart-bar"></i> Sua Participação</h3>
+                    <div id="myStats">
+                        <p><strong>Total de Atividades:</strong> <span id="myTotalActivities">0</span></p>
+                        <p><strong>Próximos:</strong> <span id="myNextActivities">0</span></p>
+                        <p><strong>Função:</strong> <span id="myRole">Membro</span></p>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3><i class="fas fa-calendar-week"></i> Dias da Semana</h3>
+                    <div class="weekday-grid" id="weekdayGrid"></div>
                 </div>
             </div>
-            <div class="card">
-                <h3><i class="fas fa-calendar-week"></i> Dias da Semana</h3>
-                <div class="weekday-grid" id="weekdayGrid"></div>
-            </div>
         </div>
-    </div>
 
-    <!-- ========================================================== -->
-    <!-- DISPONIBILIDADE (Membro) -->
-    <!-- ========================================================== -->
-    <div id="tab-disponibilidade" class="tab-content">
-        <h3><i class="fas fa-calendar-check"></i> Minha Disponibilidade</h3>
-        <p style="color:#666;margin-bottom:0.5rem;">Selecione os dias em que você está disponível para ser escalado:</p>
-        <div class="date-selector-grid" id="dateSelectorGrid"></div>
-        <button onclick="addMultipleAvailability()" class="btn btn-primary mt-1"><i class="fas fa-save"></i> Salvar Datas Selecionadas</button>
-        <div id="availabilityList" style="margin-top:1rem;"><p style="color:#888;">Nenhuma data disponível cadastrada.</p></div>
-    </div>
-
-    <!-- ========================================================== -->
-    <!-- ESCALAS (Louvor - Líder) -->
-    <!-- ========================================================== -->
-    <div id="tab-escalas" class="tab-content">
-        <div class="flex-between">
-            <h3><i class="fas fa-calendar-alt"></i> Escalas do Departamento</h3>
-            <div style="display:flex;gap:0.3rem;flex-wrap:wrap;">
-                <button onclick="showCreateScale()" class="btn btn-primary hidden" id="btnNovaEscala"><i class="fas fa-plus"></i> Nova Escala</button>
-            </div>
+        <!-- ========================================================== -->
+        <!-- DISPONIBILIDADE -->
+        <!-- ========================================================== -->
+        <div id="tab-disponibilidade" class="tab-content">
+            <div class="section-title"><i class="fas fa-calendar-check"></i> Minha Disponibilidade</div>
+            <p class="text-muted" style="margin-bottom:0.5rem;">Selecione os dias em que você está disponível para ser escalado:</p>
+            <div class="date-selector-grid" id="dateSelectorGrid"></div>
+            <button onclick="addMultipleAvailability()" class="btn btn-primary mt-1"><i class="fas fa-save"></i> Salvar Datas Selecionadas</button>
+            <div id="availabilityList" style="margin-top:1rem;"><p class="text-muted">Nenhuma data disponível cadastrada.</p></div>
         </div>
-        <div id="scalesList"><p style="color:#888;">Carregando...</p></div>
 
-        <div id="createScaleForm" class="hidden" style="margin-top:1rem;border-top:1px solid #eee;padding-top:1rem;">
-            <h4>Nova Escala</h4>
-            <div class="form-group">
-                <label><i class="fas fa-calendar"></i> Data e Hora *</label>
-                <input type="datetime-local" id="scaleDate" onchange="loadAvailableMembersForScale()">
+        <!-- ========================================================== -->
+        <!-- ESCALAS (Líder) -->
+        <!-- ========================================================== -->
+        <div id="tab-escalas" class="tab-content">
+            <div class="flex-between">
+                <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-calendar-alt"></i> Escalas</div>
+                <button onclick="showCreateScale()" class="btn btn-success btn-sm hidden" id="btnNovaEscala"><i class="fas fa-plus"></i> Nova Escala</button>
             </div>
-            
-            <div class="form-group">
-                <label><i class="fas fa-users"></i> Membros Disponíveis nesta Data</label>
-                <div id="availableMembersList" style="max-height:200px;overflow-y:auto;border:1px solid #e0e0e0;border-radius:8px;padding:0.3rem;">
-                    <p style="color:#888;font-size:0.8rem;text-align:center;">Selecione uma data para ver os disponíveis</p>
+            <div id="scalesList"><p class="text-muted">Carregando...</p></div>
+
+            <!-- CREATE SCALE FORM -->
+            <div id="createScaleForm" class="hidden" style="margin-top:1rem;border-top:1px solid #eee;padding-top:1rem;">
+                <h4 style="color:var(--primary);margin-bottom:0.5rem;">Nova Escala</h4>
+                <div class="form-group">
+                    <label><i class="fas fa-calendar"></i> Data e Hora *</label>
+                    <input type="datetime-local" id="scaleDate" onchange="loadAvailableMembersForScale()">
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-users"></i> Membros Disponíveis nesta Data</label>
+                    <div id="availableMembersList" style="max-height:150px;overflow-y:auto;border:1px solid #e0e0e0;border-radius:8px;padding:0.3rem;background:#fafbff;">
+                        <p class="text-muted text-center" style="font-size:0.8rem;">Selecione uma data para ver os disponíveis</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Ministro Responsável</label>
+                    <select id="scaleMinister">
+                        <option value="">Selecione um ministro</option>
+                    </select>
+                    <small class="text-muted">Só aparecem ministros disponíveis na data</small>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-music"></i> Músicas (selecione as músicas)</label>
+                    <div class="music-checkbox-grid" id="musicCheckboxGrid"></div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-palette"></i> Paleta de Cores</label>
+                    <input type="text" id="scalePalette" placeholder="Ex: Azul, Prata, Branco, Dourado">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-users"></i> Músicos (selecione múltiplos)</label>
+                    <select id="scaleMusicians" multiple style="height:80px;"></select>
+                    <small class="text-muted">Segure Ctrl para selecionar múltiplos - Só aparecem músicos disponíveis na data</small>
+                </div>
+
+                <div class="form-group">
+                    <label class="flex-center">
+                        <input type="checkbox" id="hasRehearsal">
+                        <span style="margin-left:0.5rem;"><i class="fas fa-microphone"></i> Com Ensaio</span>
+                    </label>
+                </div>
+
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                    <button onclick="saveScale()" class="btn btn-success"><i class="fas fa-save"></i> Salvar Escala</button>
+                    <button onclick="hideCreateScale()" class="btn" style="background:#6c757d;color:white;">Cancelar</button>
                 </div>
             </div>
+        </div>
 
-            <div class="form-group">
-                <label><i class="fas fa-user"></i> Ministro Responsável</label>
-                <select id="scaleMinister">
-                    <option value="">Selecione um ministro</option>
-                </select>
-                <small style="color:#888;">Só aparecem ministros disponíveis na data</small>
+        <!-- ========================================================== -->
+        <!-- MINHAS ESCALAS -->
+        <!-- ========================================================== -->
+        <div id="tab-minhas-escalas" class="tab-content">
+            <div class="section-title"><i class="fas fa-calendar-check"></i> Minhas Escalas</div>
+            <div id="myScalesList"><p class="text-muted">Carregando...</p></div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- MÚSICAS -->
+        <!-- ========================================================== -->
+        <div id="tab-musicas" class="tab-content">
+            <div class="flex-between mb-1">
+                <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-music"></i> Músicas</div>
+                <div style="display:flex;gap:0.3rem;flex-wrap:wrap;">
+                    <button onclick="openAddMusicModal()" class="btn btn-success btn-sm hidden" id="addMusicBtn"><i class="fas fa-plus"></i> Nova</button>
+                    <button onclick="openYoutubeMusicModal()" class="btn btn-primary btn-sm hidden" id="youtubeMusicBtn"><i class="fab fa-youtube"></i> YouTube</button>
+                </div>
             </div>
+            <div id="songsList"><p class="text-muted">Carregando...</p></div>
+        </div>
 
-            <div class="form-group">
-                <label><i class="fas fa-music"></i> Músicas (selecione as músicas)</label>
-                <div class="music-checkbox-grid" id="musicCheckboxGrid"></div>
+        <!-- ========================================================== -->
+        <!-- ORAÇÕES -->
+        <!-- ========================================================== -->
+        <div id="tab-oracoes" class="tab-content">
+            <div class="flex-between mb-1">
+                <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-pray"></i> Pedidos de Oração</div>
+                <button onclick="openNewPrayerModal()" class="btn btn-success btn-sm hidden" id="btnNovaOracao"><i class="fas fa-plus"></i> Novo</button>
             </div>
+            <div id="prayersList"><p class="text-muted">Nenhum pedido de oração.</p></div>
+        </div>
 
-            <div class="form-group">
-                <label><i class="fas fa-palette"></i> Paleta de Cores</label>
-                <input type="text" id="scalePalette" placeholder="Ex: Azul, Prata, Branco, Dourado">
+        <!-- ========================================================== -->
+        <!-- EVENTOS -->
+        <!-- ========================================================== -->
+        <div id="tab-eventos" class="tab-content">
+            <div class="flex-between mb-1">
+                <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-calendar"></i> Eventos</div>
+                <button onclick="openNewEventModal()" class="btn btn-success btn-sm hidden" id="btnNovoEvento"><i class="fas fa-plus"></i> Novo</button>
             </div>
+            <div id="eventsList"><p class="text-muted">Nenhum evento cadastrado.</p></div>
+        </div>
 
-            <div class="form-group">
-                <label><i class="fas fa-users"></i> Músicos (selecione múltiplos)</label>
-                <select id="scaleMusicians" multiple style="height:80px;"></select>
-                <small style="color:#888;">Segure Ctrl para selecionar múltiplos - Só aparecem músicos disponíveis na data</small>
-            </div>
-
-            <div class="form-group">
-                <label class="flex-center">
-                    <input type="checkbox" id="hasRehearsal">
-                    <span style="margin-left:0.5rem;"><i class="fas fa-microphone"></i> Com Ensaio</span>
-                </label>
-            </div>
-
-            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-                <button onclick="saveScale()" class="btn btn-success"><i class="fas fa-save"></i> Salvar Escala</button>
-                <button onclick="hideCreateScale()" class="btn" style="background:#6c757d;color:white;">Cancelar</button>
+        <!-- ========================================================== -->
+        <!-- TESOURARIA -->
+        <!-- ========================================================== -->
+        <div id="tab-tesouraria" class="tab-content">
+            <div class="grid">
+                <div class="card">
+                    <h3><i class="fas fa-hand-holding-heart"></i> Dízimos e Ofertas</h3>
+                    <button onclick="openNewTitheModal()" class="btn btn-success btn-sm hidden" id="btnNovoTithe"><i class="fas fa-plus"></i> Registrar</button>
+                    <div id="tithesList" style="margin-top:0.5rem;"><p class="text-muted">Nenhum registro.</p></div>
+                </div>
+                <div class="card">
+                    <h3><i class="fas fa-receipt"></i> Contas a Pagar</h3>
+                    <button onclick="openNewBillModal()" class="btn btn-success btn-sm hidden" id="btnNovaConta"><i class="fas fa-plus"></i> Nova</button>
+                    <div id="billsList" style="margin-top:0.5rem;"><p class="text-muted">Nenhuma conta.</p></div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- ========================================================== -->
-    <!-- MINHAS ESCALAS (Todos) -->
-    <!-- ========================================================== -->
-    <div id="tab-minhas-escalas" class="tab-content">
-        <h3><i class="fas fa-calendar-check"></i> Minhas Escalas</h3>
-        <div id="myScalesList"><p style="color:#888;">Carregando...</p></div>
-    </div>
+        <!-- ========================================================== -->
+        <!-- EQUIPE -->
+        <!-- ========================================================== -->
+        <div id="tab-equipe" class="tab-content">
+            <div class="section-title"><i class="fas fa-users"></i> Equipe</div>
+            <div id="teamList"><p class="text-muted">Carregando...</p></div>
+        </div>
 
-    <!-- ========================================================== -->
-    <!-- MÚSICAS (Louvor) -->
-    <!-- ========================================================== -->
-    <div id="tab-musicas" class="tab-content">
-        <div class="flex-between mb-1">
-            <h3><i class="fas fa-music"></i> Músicas do Ministério</h3>
-            <div style="display:flex;gap:0.3rem;flex-wrap:wrap;">
-                <button onclick="openAddMusicModal()" class="btn btn-success hidden" id="addMusicBtn"><i class="fas fa-plus"></i> Nova Música</button>
-                <button onclick="openYoutubeMusicModal()" class="btn btn-primary hidden" id="youtubeMusicBtn"><i class="fab fa-youtube"></i> Buscar do YouTube</button>
+        <!-- ========================================================== -->
+        <!-- GERENCIAR MEMBROS (Líder) -->
+        <!-- ========================================================== -->
+        <div id="tab-membros" class="tab-content">
+            <div class="flex-between mb-1">
+                <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-user-friends"></i> Gerenciar Membros</div>
+                <button onclick="openAddMemberModal()" class="btn btn-success btn-sm"><i class="fas fa-user-plus"></i> Adicionar</button>
             </div>
+            <div id="membersList"><p class="text-muted">Carregando...</p></div>
         </div>
-        <div id="songsList"><p style="color:#888;">Carregando...</p></div>
-    </div>
 
-    <!-- ========================================================== -->
-    <!-- ORAÇÕES (Departamento de Oração) -->
-    <!-- ========================================================== -->
-    <div id="tab-oracoes" class="tab-content">
-        <div class="flex-between mb-1">
-            <h3><i class="fas fa-pray"></i> Pedidos de Oração</h3>
-            <button onclick="openNewPrayerModal()" class="btn btn-success hidden" id="btnNovaOracao"><i class="fas fa-plus"></i> Novo Pedido</button>
-        </div>
-        <div id="prayersList"><p style="color:#888;">Carregando...</p></div>
-    </div>
-
-    <!-- ========================================================== -->
-    <!-- EVENTOS (Secretaria) -->
-    <!-- ========================================================== -->
-    <div id="tab-eventos" class="tab-content">
-        <div class="flex-between mb-1">
-            <h3><i class="fas fa-calendar"></i> Eventos</h3>
-            <button onclick="openNewEventModal()" class="btn btn-success hidden" id="btnNovoEvento"><i class="fas fa-plus"></i> Novo Evento</button>
-        </div>
-        <div id="eventsList"><p style="color:#888;">Carregando...</p></div>
-    </div>
-
-    <!-- ========================================================== -->
-    <!-- TESOURARIA (Dízimos e Contas) -->
-    <!-- ========================================================== -->
-    <div id="tab-tesouraria" class="tab-content">
-        <div class="grid">
+        <!-- ========================================================== -->
+        <!-- CRIAR USUÁRIO (Líder) -->
+        <!-- ========================================================== -->
+        <div id="tab-criar-usuario" class="tab-content">
+            <div class="section-title"><i class="fas fa-user-plus"></i> Criar Usuário</div>
             <div class="card">
-                <h3><i class="fas fa-hand-holding-heart"></i> Dízimos e Ofertas</h3>
-                <button onclick="openNewTitheModal()" class="btn btn-success hidden" id="btnNovoTithe"><i class="fas fa-plus"></i> Registrar</button>
-                <div id="tithesList" style="margin-top:0.5rem;"><p style="color:#888;">Nenhum registro.</p></div>
+                <div class="form-group">
+                    <label>Nome *</label>
+                    <input type="text" id="newUserName" placeholder="Nome completo">
+                </div>
+                <div class="form-group">
+                    <label>E-mail *</label>
+                    <input type="email" id="newUserEmail" placeholder="email@exemplo.com">
+                </div>
+                <div class="form-group">
+                    <label>Senha *</label>
+                    <input type="password" id="newUserPassword" placeholder="Digite uma senha">
+                </div>
+                <div class="form-group">
+                    <label>Função</label>
+                    <select id="newUserRole">
+                        <option value="membro">Membro</option>
+                        <option value="ministro">Ministro</option>
+                        <option value="musico">Músico</option>
+                        <option value="lider">Líder</option>
+                    </select>
+                </div>
+                <button onclick="createUserByLeader()" class="btn btn-primary w-full" style="justify-content:center;">
+                    <i class="fas fa-save"></i> Criar Usuário
+                </button>
             </div>
-            <div class="card">
-                <h3><i class="fas fa-receipt"></i> Contas a Pagar</h3>
-                <button onclick="openNewBillModal()" class="btn btn-success hidden" id="btnNovaConta"><i class="fas fa-plus"></i> Nova Conta</button>
-                <div id="billsList" style="margin-top:0.5rem;"><p style="color:#888;">Nenhuma conta.</p></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ========================================================== -->
-    <!-- EQUIPE (comum) -->
-    <!-- ========================================================== -->
-    <div id="tab-equipe" class="tab-content">
-        <h3><i class="fas fa-users"></i> Equipe do Departamento</h3>
-        <div id="teamList"><p style="color:#888;">Carregando...</p></div>
-    </div>
-
-    <!-- ========================================================== -->
-    <!-- GERENCIAR MEMBROS (líder) -->
-    <!-- ========================================================== -->
-    <div id="tab-membros" class="tab-content">
-        <div class="flex-between mb-1">
-            <h3><i class="fas fa-user-friends"></i> Gerenciar Membros</h3>
-            <button onclick="openAddMemberModal()" class="btn btn-success"><i class="fas fa-user-plus"></i> Adicionar</button>
-        </div>
-        <div id="membersList"><p style="color:#888;">Carregando...</p></div>
-    </div>
-
-    <!-- ========================================================== -->
-    <!-- CRIAR USUÁRIO (líder) -->
-    <!-- ========================================================== -->
-    <div id="tab-criar-usuario" class="tab-content">
-        <h3><i class="fas fa-user-plus"></i> Criar Usuário para o Ministério</h3>
-        <div class="card">
-            <div class="form-group">
-                <label>Nome *</label>
-                <input type="text" id="newUserName" placeholder="Nome completo">
-            </div>
-            <div class="form-group">
-                <label>E-mail *</label>
-                <input type="email" id="newUserEmail" placeholder="email@exemplo.com">
-            </div>
-            <div class="form-group">
-                <label>Senha *</label>
-                <input type="password" id="newUserPassword" placeholder="Digite uma senha">
-            </div>
-            <div class="form-group">
-                <label>Função</label>
-                <select id="newUserRole">
-                    <option value="membro">Membro</option>
-                    <option value="ministro">Ministro</option>
-                    <option value="musico">Músico</option>
-                    <option value="lider">Líder</option>
-                </select>
-            </div>
-            <button onclick="createUserByLeader()" class="btn btn-primary w-full" style="justify-content:center;">
-                <i class="fas fa-save"></i> Criar Usuário
-            </button>
         </div>
     </div>
 
 </div>
 
-<!-- ========================================================== -->
+<!-- ============================================ -->
 <!-- MODAIS -->
-<!-- ========================================================== -->
+<!-- ============================================ -->
 
-<!-- Adicionar Membro -->
+<!-- ADICIONAR MEMBRO -->
 <div class="modal" id="addMemberModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('addMemberModal')">&times;</button>
@@ -684,7 +866,7 @@
     </div>
 </div>
 
-<!-- Nova Música -->
+<!-- NOVA MÚSICA -->
 <div class="modal" id="addMusicModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('addMusicModal')">&times;</button>
@@ -713,17 +895,17 @@
         </div>
         <div class="form-group">
             <label>Letra e Cifras</label>
-            <textarea id="newMusicLyrics" rows="8" placeholder="Digite a letra com cifras..."></textarea>
+            <textarea id="newMusicLyrics" rows="6" placeholder="Digite a letra com cifras..."></textarea>
         </div>
         <button onclick="saveMusic()" class="btn btn-primary w-full" style="justify-content:center;"><i class="fas fa-save"></i> Salvar</button>
     </div>
 </div>
 
-<!-- Buscar Música do YouTube -->
+<!-- YOUTUBE MUSIC -->
 <div class="modal" id="youtubeMusicModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('youtubeMusicModal')">&times;</button>
-        <h3><i class="fab fa-youtube"></i> Buscar Música do YouTube</h3>
+        <h3><i class="fab fa-youtube"></i> Buscar do YouTube</h3>
         <div class="form-group">
             <label>Link do YouTube *</label>
             <input type="url" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=...">
@@ -735,7 +917,7 @@
     </div>
 </div>
 
-<!-- Ver Música com Cifras e Transposição -->
+<!-- VER MÚSICA -->
 <div class="modal" id="viewMusicModal">
     <div class="modal-content" style="max-width:800px;">
         <button class="modal-close" onclick="closeModal('viewMusicModal')">&times;</button>
@@ -757,7 +939,7 @@
     </div>
 </div>
 
-<!-- Ver Escala -->
+<!-- VER ESCALA -->
 <div class="modal" id="viewScaleModal">
     <div class="modal-content" style="max-width:800px;">
         <button class="modal-close" onclick="closeModal('viewScaleModal')">&times;</button>
@@ -770,12 +952,12 @@
     </div>
 </div>
 
-<!-- Ministro adicionar músicas -->
+<!-- MINISTRO ADICIONAR MÚSICAS -->
 <div class="modal" id="ministerMusicModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('ministerMusicModal')">&times;</button>
-        <h3><i class="fas fa-music"></i> Adicionar Músicas à Escala</h3>
-        <p style="color:#666;margin-bottom:0.5rem;">Selecione as músicas que você vai ministrar neste culto:</p>
+        <h3><i class="fas fa-music"></i> Adicionar Músicas</h3>
+        <p class="text-muted" style="margin-bottom:0.5rem;">Selecione as músicas que você vai ministrar:</p>
         <div class="music-checkbox-grid" id="ministerMusicGrid"></div>
         <div style="margin-top:0.5rem;">
             <div class="form-group">
@@ -792,7 +974,7 @@
     </div>
 </div>
 
-<!-- Novo Pedido de Oração -->
+<!-- NOVO PEDIDO DE ORAÇÃO -->
 <div class="modal" id="newPrayerModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('newPrayerModal')">&times;</button>
@@ -809,7 +991,7 @@
     </div>
 </div>
 
-<!-- Novo Evento -->
+<!-- NOVO EVENTO -->
 <div class="modal" id="newEventModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('newEventModal')">&times;</button>
@@ -834,7 +1016,7 @@
     </div>
 </div>
 
-<!-- Novo Dízimo/Oferta -->
+<!-- NOVO DÍZIMO -->
 <div class="modal" id="newTitheModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('newTitheModal')">&times;</button>
@@ -871,11 +1053,11 @@
     </div>
 </div>
 
-<!-- Nova Conta -->
+<!-- NOVA CONTA -->
 <div class="modal" id="newBillModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('newBillModal')">&times;</button>
-        <h3><i class="fas fa-receipt"></i> Nova Conta a Pagar</h3>
+        <h3><i class="fas fa-receipt"></i> Nova Conta</h3>
         <div class="form-group">
             <label>Descrição *</label>
             <input type="text" id="billDescription" placeholder="Ex: Conta de luz">
@@ -902,9 +1084,9 @@
     </div>
 </div>
 
-<!-- ========================================================== -->
+<!-- ============================================ -->
 <!-- SCRIPTS -->
-<!-- ========================================================== -->
+<!-- ============================================ -->
 <script>
     // ================================================
     // CONFIGURAÇÕES INICIAIS
@@ -983,6 +1165,8 @@
     }
 
     function showNotification(message, type = 'info') {
+        const old = document.querySelector('.notification');
+        if (old) old.remove();
         const div = document.createElement('div');
         div.className = 'notification ' + type;
         div.textContent = message;
@@ -995,11 +1179,11 @@
     }
 
     function openModal(id) {
-        document.getElementById(id).style.display = 'flex';
+        document.getElementById(id).classList.add('open');
         document.body.style.overflow = 'hidden';
     }
     function closeModal(id) {
-        document.getElementById(id).style.display = 'none';
+        document.getElementById(id).classList.remove('open');
         document.body.style.overflow = 'auto';
     }
     document.querySelectorAll('.modal').forEach(m => {
@@ -1015,7 +1199,7 @@
     }
 
     // ================================================
-    // RENDERIZAÇÃO DAS TABS
+    // RENDER TABS
     // ================================================
     function renderTabs() {
         const container = document.getElementById('tabsContainer');
@@ -1056,7 +1240,7 @@
     }
 
     // ================================================
-    // FUNÇÃO showTab
+    // SHOW TAB
     // ================================================
     function showTab(tabId) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1142,16 +1326,16 @@
             const isToday = index === today;
             const hasScale = myScalesData.some(s => {
                 const d = new Date(s.event_date);
-                return d.getDay() === index;
+                return d.getDay() === index && new Date(s.event_date) > new Date();
             });
-            return `<div class="day ${isToday ? 'today' : ''} ${hasScale ? 'active' : ''}">
+            return `<div class="day ${isToday ? 'today' : ''} ${hasScale ? 'has-scale' : ''}">
                 ${day}${hasScale ? ' ✓' : ''}
             </div>`;
         }).join('');
     }
 
     // ================================================
-    // DISPONIBILIDADE (Membro)
+    // DISPONIBILIDADE
     // ================================================
     function generateDateSelector() {
         const container = document.getElementById('dateSelectorGrid');
@@ -1162,8 +1346,8 @@
             d.setDate(d.getDate() + i);
             dates.push(d);
         }
+        const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
         container.innerHTML = dates.map(d => {
-            const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
             const dayName = dayNames[d.getDay()];
             const dayNumber = d.getDate();
             const month = d.toLocaleDateString('pt-BR', { month: 'short' });
@@ -1173,9 +1357,9 @@
                 <div class="date-option ${isSelected ? 'selected' : ''}" 
                      onclick="toggleDateSelection('${dateStr}')"
                      data-date="${dateStr}">
-                    <div style="font-size:0.7rem;opacity:0.7;">${dayName}</div>
-                    <div style="font-size:1.2rem;font-weight:700;">${dayNumber}</div>
-                    <div style="font-size:0.7rem;opacity:0.7;">${month}</div>
+                    <div class="day-name">${dayName}</div>
+                    <div class="day-number">${dayNumber}</div>
+                    <div class="day-name">${month}</div>
                 </div>
             `;
         }).join('');
@@ -1220,24 +1404,21 @@
                     }
 
                     successCount++;
-                    console.log(`✅ Data ${date} salva com sucesso`);
                 } catch (e) {
-                    console.error(`❌ Erro ao salvar data ${date}:`, e);
                     errorMessages.push(`${date}: ${e.message}`);
                 }
             }
 
             if (successCount > 0) {
-                showNotification(`✅ ${successCount} datas adicionadas! ${errorMessages.length > 0 ? '⚠️ ' + errorMessages.length + ' erros' : ''}`, 'success');
+                showNotification(`✅ ${successCount} datas adicionadas!${errorMessages.length > 0 ? ' ⚠️ ' + errorMessages.length + ' erros' : ''}`, 'success');
             } else {
-                showNotification(`❌ Nenhuma data foi salva. Erros: ${errorMessages.join('; ')}`, 'error');
+                showNotification(`❌ Nenhuma data foi salva.`, 'error');
             }
 
             selectedAvailabilityDates = [];
             generateDateSelector();
             loadAvailability();
         } catch (e) {
-            console.error('❌ Erro geral:', e);
             showNotification('❌ Erro: ' + e.message, 'error');
         }
     }
@@ -1248,12 +1429,12 @@
             const data = await res.json();
             const container = document.getElementById('availabilityList');
             if (!data || !data.length) {
-                container.innerHTML = '<p style="color:#888;">Nenhuma data disponível cadastrada.</p>';
+                container.innerHTML = '<p class="text-muted">Nenhuma data disponível cadastrada.</p>';
                 return;
             }
             container.innerHTML = data.map(a => `
                 <div class="scale-item">
-                    <div><i class="fas fa-calendar"></i> ${new Date(a.date).toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' })}</div>
+                    <div class="date"><i class="fas fa-calendar"></i> ${new Date(a.date).toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' })}</div>
                     <button onclick="deleteAvailability(${a.id})" class="btn btn-danger btn-sm mt-1"><i class="fas fa-trash"></i> Remover</button>
                 </div>
             `).join('');
@@ -1279,7 +1460,7 @@
     async function loadAvailableMembersForScale() {
         const date = document.getElementById('scaleDate').value;
         if (!date) {
-            document.getElementById('availableMembersList').innerHTML = '<p style="color:#888;font-size:0.8rem;text-align:center;">Selecione uma data</p>';
+            document.getElementById('availableMembersList').innerHTML = '<p class="text-muted text-center" style="font-size:0.8rem;">Selecione uma data</p>';
             return;
         }
 
@@ -1290,7 +1471,7 @@
 
             const container = document.getElementById('availableMembersList');
             if (!availableMembers.length) {
-                container.innerHTML = '<p style="color:#888;font-size:0.8rem;text-align:center;">Nenhum membro disponível nesta data</p>';
+                container.innerHTML = '<p class="text-muted text-center" style="font-size:0.8rem;">Nenhum membro disponível nesta data</p>';
             } else {
                 container.innerHTML = availableMembers.map(m => `
                     <div class="available-member-item">
@@ -1328,7 +1509,7 @@
         );
         musiciansSelect.innerHTML = '';
         if (!musiciansList.length) {
-            musiciansSelect.innerHTML = '<option value="">Nenhum músico disponível nesta data</option>';
+            musiciansSelect.innerHTML = '<option value="">Nenhum músico disponível</option>';
         } else {
             musiciansList.forEach(m => {
                 musiciansSelect.innerHTML += `<option value="${m.id}">${m.name} ✅ Disponível</option>`;
@@ -1359,7 +1540,7 @@
         document.getElementById('scalePalette').value = '';
         document.getElementById('hasRehearsal').checked = false;
         document.querySelectorAll('#musicCheckboxGrid .music-checkbox').forEach(cb => cb.checked = false);
-        document.getElementById('availableMembersList').innerHTML = '<p style="color:#888;font-size:0.8rem;text-align:center;">Selecione uma data para ver os disponíveis</p>';
+        document.getElementById('availableMembersList').innerHTML = '<p class="text-muted text-center" style="font-size:0.8rem;">Selecione uma data para ver os disponíveis</p>';
     }
 
     async function saveScale() {
@@ -1380,7 +1561,7 @@
                 const m = members.find(mem => mem.id == id);
                 return m ? m.name : 'Músico';
             });
-            showNotification(`⚠️ Os seguintes músicos não estão disponíveis na data: ${names.join(', ')}`, 'error');
+            showNotification(`⚠️ Os seguintes músicos não estão disponíveis: ${names.join(', ')}`, 'error');
             return;
         }
 
@@ -1430,7 +1611,7 @@
             scales = Array.isArray(data) ? data.filter(s => s.department_id === user.department_id) : [];
             const container = document.getElementById('scalesList');
             if (!scales.length) {
-                container.innerHTML = '<p style="color:#888;">Nenhuma escala cadastrada.</p>';
+                container.innerHTML = '<p class="text-muted">Nenhuma escala cadastrada.</p>';
                 return;
             }
 
@@ -1452,7 +1633,7 @@
                             <i class="fas fa-calendar-alt"></i>
                             ${eventDate.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' })}
                             às ${eventDate.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' })}
-                            ${isMyScale ? ' <span style="background:#28a745;color:white;padding:0.1rem 0.5rem;border-radius:50px;font-size:0.7rem;">✅ Você está escalado</span>' : ''}
+                            ${isMyScale ? ' <span style="background:#28a745;color:white;padding:0.1rem 0.5rem;border-radius:50px;font-size:0.6rem;">✅ Você está escalado</span>' : ''}
                         </div>
                         ${s.leader_name ? `<div><strong>Líder:</strong> ${s.leader_name}</div>` : ''}
                         ${s.minister_name ? `<div><strong>Ministro:</strong> ${s.minister_name}</div>` : ''}
@@ -1468,7 +1649,7 @@
                         ` : ''}
                         ${s.rehearsal ? `<div class="rehearsal"><i class="fas fa-microphone"></i> Com Ensaio</div>` : ''}
                         ${musicianNames.length ? `<div><strong>Músicos:</strong> ${musicianNames.join(', ')}</div>` : ''}
-                        <div style="margin-top:0.3rem;display:flex;gap:0.3rem;flex-wrap:wrap;">
+                        <div class="actions">
                             <button onclick="viewScaleDetails(${s.id})" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Detalhes</button>
                             ${isLeader ? `<button onclick="deleteScale(${s.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Remover</button>` : ''}
                         </div>
@@ -1504,25 +1685,25 @@
                 <div><strong>Músicas:</strong></div>
                 <div style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:0.5rem;">
                     ${songsList.map(s => `
-                        <div style="background:linear-gradient(135deg, var(--primary), var(--primary-light));color:white;padding:0.3rem 0.8rem;border-radius:50px;font-size:0.8rem;display:inline-block;margin:0.15rem;">
+                        <div style="background:var(--primary-gradient);color:white;padding:0.2rem 0.7rem;border-radius:50px;font-size:0.75rem;display:inline-block;margin:0.15rem;">
                             ${s.title || s}
                             ${s.key ? ` (${s.key})` : ''}
-                            ${s.lyrics ? `<button onclick="viewSong(${s.id})" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:white;padding:0.1rem 0.4rem;margin-left:0.3rem;font-size:0.6rem;border:none;cursor:pointer;">🎵 Ver Cifra</button>` : ''}
+                            ${s.lyrics ? `<button onclick="viewSong(${s.id})" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:white;padding:0.05rem 0.4rem;margin-left:0.3rem;font-size:0.55rem;border:none;cursor:pointer;">🎵 Ver Cifra</button>` : ''}
                         </div>
                     `).join('') || '-'}
                 </div>
                 ${paletteColors.length ? `
                     <div><strong>Paleta:</strong></div>
                     <div style="display:flex;gap:0.3rem;flex-wrap:wrap;margin-bottom:0.5rem;">
-                        ${paletteColors.map(c => `<span style="width:30px;height:30px;border-radius:50%;background:${c};border:2px solid #ddd;"></span>`).join('')}
+                        ${paletteColors.map(c => `<span style="width:28px;height:28px;border-radius:50%;background:${c};border:2px solid #ddd;"></span>`).join('')}
                     </div>
                 ` : ''}
                 ${scale.rehearsal ? `<div style="color:#28a745;margin-bottom:0.5rem;"><i class="fas fa-microphone"></i> Com Ensaio</div>` : ''}
                 ${musiciansList.length ? `
                     <div><strong>Equipe Músicos:</strong></div>
-                    <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.5rem;">
+                    <div style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:0.5rem;">
                         ${musiciansList.map(m => `
-                            <span style="background:#f0f0f0;padding:0.2rem 0.8rem;border-radius:50px;font-size:0.8rem;">
+                            <span style="background:#f0f0f0;padding:0.15rem 0.7rem;border-radius:50px;font-size:0.75rem;">
                                 ${m.name}
                             </span>
                         `).join('')}
@@ -1533,7 +1714,7 @@
                         <button onclick="openMinisterMusicModal(${id})" class="btn btn-warning"><i class="fas fa-music"></i> Gerenciar Músicas</button>
                     </div>
                 ` : ''}
-                <div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid #eee;font-size:0.85rem;color:#888;">
+                <div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid #eee;font-size:0.8rem;color:#888;">
                     <i class="fas fa-info-circle"></i> Clique em "Ver Cifra" para visualizar a letra com cifras
                 </div>
             `;
@@ -1585,7 +1766,7 @@
             const container = document.getElementById('myScalesList');
 
             if (!myScales.length) {
-                container.innerHTML = '<p style="color:#888;">Você não está escalado em nenhum culto.</p>';
+                container.innerHTML = '<p class="text-muted">Você não está escalado em nenhum culto.</p>';
                 return;
             }
 
@@ -1655,15 +1836,15 @@
             songs = Array.isArray(data) ? data : [];
             const container = document.getElementById('songsList');
             if (!songs.length) {
-                container.innerHTML = '<p style="color:#888;">Nenhuma música cadastrada.</p>';
+                container.innerHTML = '<p class="text-muted">Nenhuma música cadastrada.</p>';
                 return;
             }
 
             container.innerHTML = songs.map(s => `
                 <div class="scale-item">
                     <div><strong>${s.title}</strong></div>
-                    <div style="font-size:0.85rem;color:#666;">${s.artist || 'Artista desconhecido'} | Tom: ${s.key || 'C'}</div>
-                    ${s.youtube_url ? `<div style="font-size:0.75rem;color:#888;"><i class="fab fa-youtube"></i> <a href="${s.youtube_url}" target="_blank" style="color:var(--primary);">Ver no YouTube</a></div>` : ''}
+                    <div style="font-size:0.8rem;color:#666;">${s.artist || 'Artista desconhecido'} | Tom: ${s.key || 'C'}</div>
+                    ${s.youtube_url ? `<div style="font-size:0.7rem;color:#888;"><i class="fab fa-youtube"></i> <a href="${s.youtube_url}" target="_blank" style="color:var(--primary);">Ver no YouTube</a></div>` : ''}
                     <div style="margin-top:0.3rem;display:flex;gap:0.3rem;flex-wrap:wrap;">
                         <button onclick="viewSong(${s.id})" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Ver Cifra</button>
                         ${isLeader ? `<button onclick="deleteSong(${s.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>` : ''}
@@ -1708,7 +1889,7 @@
 
             const resultDiv = document.getElementById('youtubeResult');
             resultDiv.innerHTML = `
-                <div style="background:#f8f9fa;padding:1rem;border-radius:10px;">
+                <div style="background:#f8f9fa;padding:1rem;border-radius:10px;margin-top:0.5rem;">
                     <h4>✅ Música encontrada!</h4>
                     <div style="margin:0.5rem 0;">
                         <iframe src="${data.embed_url}" width="100%" height="200" frameborder="0" allowfullscreen></iframe>
@@ -1886,7 +2067,7 @@
         const container = document.getElementById('musicCheckboxGrid');
         if (!container) return;
         if (!songs || !songs.length) {
-            container.innerHTML = '<p style="color:#888;">Nenhuma música cadastrada.</p>';
+            container.innerHTML = '<p class="text-muted">Nenhuma música cadastrada.</p>';
             return;
         }
         container.innerHTML = songs.map(s => `
@@ -1910,7 +2091,7 @@
         
         const container = document.getElementById('ministerMusicGrid');
         if (!songs || songs.length === 0) {
-            container.innerHTML = '<p style="color:#888;">Nenhuma música cadastrada.</p>';
+            container.innerHTML = '<p class="text-muted">Nenhuma música cadastrada.</p>';
             return;
         }
 
@@ -2020,7 +2201,7 @@
             const data = await res.json();
             const container = document.getElementById('prayersList');
             if (!data || !data.length) {
-                container.innerHTML = '<p style="color:#888;">Nenhum pedido de oração.</p>';
+                container.innerHTML = '<p class="text-muted">Nenhum pedido de oração.</p>';
                 return;
             }
             container.innerHTML = data.map(p => `
@@ -2080,7 +2261,7 @@
             const data = await res.json();
             const container = document.getElementById('eventsList');
             if (!data || !data.length) {
-                container.innerHTML = '<p style="color:#888;">Nenhum evento cadastrado.</p>';
+                container.innerHTML = '<p class="text-muted">Nenhum evento cadastrado.</p>';
                 return;
             }
             container.innerHTML = data.map(e => `
@@ -2150,13 +2331,14 @@
             const data = await res.json();
             const container = document.getElementById('tithesList');
             if (!data || !data.length) {
-                container.innerHTML = '<p style="color:#888;">Nenhum registro de dízimo/oferta.</p>';
+                container.innerHTML = '<p class="text-muted">Nenhum registro de dízimo/oferta.</p>';
                 return;
             }
             container.innerHTML = data.slice(0, 20).map(t => `
-                <div class="finance-item">
+                <div class="finance-item" style="border-left-color:#28a745;">
                     <div><strong>${t.member_name || 'Visitante'}</strong> - ${t.type}</div>
-                    <div>R$ ${parseFloat(t.amount).toFixed(2)} - ${new Date(t.payment_date).toLocaleDateString('pt-BR')}</div>
+                    <div class="finance-amount">R$ ${parseFloat(t.amount).toFixed(2)}</div>
+                    <div style="font-size:0.7rem;color:#888;">${new Date(t.payment_date).toLocaleDateString('pt-BR')}</div>
                 </div>
             `).join('');
         } catch (e) {
@@ -2223,14 +2405,14 @@
             const data = await res.json();
             const container = document.getElementById('billsList');
             if (!data || !data.length) {
-                container.innerHTML = '<p style="color:#888;">Nenhuma conta a pagar.</p>';
+                container.innerHTML = '<p class="text-muted">Nenhuma conta a pagar.</p>';
                 return;
             }
             container.innerHTML = data.map(b => `
                 <div class="finance-item" style="border-left-color: ${b.paid ? '#28a745' : '#dc3545'};">
                     <div><strong>${b.description}</strong> - ${b.category}</div>
-                    <div>R$ ${parseFloat(b.amount).toFixed(2)} - Vence: ${new Date(b.due_date).toLocaleDateString('pt-BR')}</div>
-                    <div>Status: ${b.paid ? '✅ Pago' : '⏳ Pendente'}</div>
+                    <div class="finance-amount" style="color:${b.paid ? '#28a745' : '#dc3545'};">R$ ${parseFloat(b.amount).toFixed(2)}</div>
+                    <div style="font-size:0.7rem;color:#888;">Vence: ${new Date(b.due_date).toLocaleDateString('pt-BR')} ${b.paid ? '✅ Pago' : '⏳ Pendente'}</div>
                     ${isLeader && !b.paid ? `<button onclick="payBill(${b.id})" class="btn btn-success btn-sm mt-1"><i class="fas fa-check"></i> Pagar</button>` : ''}
                     ${isLeader ? `<button onclick="deleteBill(${b.id})" class="btn btn-danger btn-sm mt-1"><i class="fas fa-trash"></i> Remover</button>` : ''}
                 </div>
@@ -2307,7 +2489,7 @@
             members = Array.isArray(data) ? data : [];
             const container = document.getElementById('teamList');
             if (!members.length) {
-                container.innerHTML = '<p style="color:#888;">Nenhum membro na equipe.</p>';
+                container.innerHTML = '<p class="text-muted">Nenhum membro na equipe.</p>';
                 return;
             }
             const roleLabels = {
@@ -2326,7 +2508,7 @@
             };
             container.innerHTML = members.map(m => `
                 <div class="member-item">
-                    <div>
+                    <div class="member-info">
                         <span class="name">${m.name}</span>
                         <span class="email">${m.email}</span>
                         <span class="${roleBadges[m.member_role] || 'role-badge member'}">${roleLabels[m.member_role] || '🙋 Membro'}</span>
@@ -2340,7 +2522,7 @@
     }
 
     // ================================================
-    // GERENCIAR MEMBROS (CORRIGIDO)
+    // GERENCIAR MEMBROS
     // ================================================
     async function loadMembers() {
         try {
@@ -2349,7 +2531,7 @@
             members = Array.isArray(data) ? data : [];
             const container = document.getElementById('membersList');
             if (!members.length) {
-                container.innerHTML = '<p style="color:#888;">Nenhum membro neste departamento.</p>';
+                container.innerHTML = '<p class="text-muted">Nenhum membro neste departamento.</p>';
                 return;
             }
             const roleLabels = {
@@ -2361,7 +2543,7 @@
             };
             container.innerHTML = members.map(m => `
                 <div class="member-item">
-                    <div>
+                    <div class="member-info">
                         <span class="name">${m.name}</span>
                         <span class="email">${m.email}</span>
                         ${roleLabels[m.member_role] || roleLabels.membro}
@@ -2382,16 +2564,13 @@
 
     async function openAddMemberModal() {
         try {
-            // Busca TODOS os usuários (rota /api/users/all)
             const res = await fetch('/api/users/all', { headers: getHeaders() });
             const allUsers = await res.json();
             
-            // Busca os membros atuais do departamento para filtrar
             const memberRes = await fetch(`/api/departments/${user.department_id}/members`, { headers: getHeaders() });
             const currentMembers = await memberRes.json();
             const memberIds = currentMembers.map(m => m.id);
             
-            // Filtra os usuários que NÃO estão no departamento
             const availableUsers = allUsers.filter(u => !memberIds.includes(u.id) && u.id !== user.id);
             
             const select = document.getElementById('newMemberUserSelect');
@@ -2509,7 +2688,7 @@
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Erro ao criar usuário');
 
-            showNotification(`✅ Usuário ${name} criado com sucesso! Senha: ${password}`, 'success');
+            showNotification(`✅ Usuário ${name} criado com sucesso!`, 'success');
             document.getElementById('newUserName').value = '';
             document.getElementById('newUserEmail').value = '';
             document.getElementById('newUserPassword').value = '';
@@ -2536,7 +2715,7 @@
         document.getElementById('userName').textContent = user.name || 'Usuário';
         document.getElementById('deptName').textContent = user.department_name || 'Meu Departamento';
         document.getElementById('deptRole').textContent = roleMap[user.role] || '🙋 Membro';
-        document.getElementById('deptType').innerHTML = `<i class="fas ${config.icon}"></i> ${config.label}`;
+        document.getElementById('deptLabel').textContent = config.label;
 
         renderTabs();
         loadDashboard();

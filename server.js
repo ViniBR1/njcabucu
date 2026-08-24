@@ -663,6 +663,16 @@ async function initDB() {
             END $$;
         `;
 
+        await sql`
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='worship_scales' AND column_name='song_ids') THEN
+                    ALTER TABLE worship_scales ADD COLUMN song_ids TEXT;
+                END IF;
+            END $$;
+        `;
+
         console.log('✅ Todas as tabelas verificadas/criadas');
 
         const existing = await sql`SELECT * FROM users WHERE email = 'pastor@njcabucu.com'`;
@@ -1237,15 +1247,32 @@ app.get('/api/songs/by-key/:key', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== ROTAS DE ESCALAS =====
+// ===== ROTAS DE ESCALAS - CORRIGIDAS =====
 // ============================================
 
 app.post('/api/worship-scales', auth, async (req, res) => {
     try {
         const { department_id, event_date, leader_id, minister_id, songs, song_ids, palette, rehearsal, musicians } = req.body;
 
+        console.log('📝 Recebendo requisição de escala:', {
+            department_id,
+            event_date,
+            leader_id,
+            minister_id,
+            songs,
+            song_ids,
+            palette,
+            rehearsal,
+            musicians
+        });
+
         if (!department_id || !event_date) {
             return res.status(400).json({ error: 'Departamento e data são obrigatórios' });
+        }
+
+        const dept = await sql`SELECT * FROM departments WHERE id = ${department_id} AND is_active = true`;
+        if (dept.length === 0) {
+            return res.status(404).json({ error: 'Departamento não encontrado' });
         }
 
         const songsJson = JSON.stringify(songs || []);
@@ -1253,10 +1280,34 @@ app.post('/api/worship-scales', auth, async (req, res) => {
         const musiciansJson = JSON.stringify(musicians || []);
 
         const result = await sql`
-            INSERT INTO worship_scales (department_id, event_date, leader_id, minister_id, songs, song_ids, palette, rehearsal, musician_ids, created_by)
-            VALUES (${department_id}, ${event_date}, ${leader_id || null}, ${minister_id || null}, ${songsJson}, ${songIdsJson}, ${palette || 'Azul, Prata, Branco, Dourado'}, ${rehearsal || false}, ${musiciansJson}, ${req.user.id})
+            INSERT INTO worship_scales (
+                department_id, 
+                event_date, 
+                leader_id, 
+                minister_id, 
+                songs, 
+                song_ids, 
+                palette, 
+                rehearsal, 
+                musician_ids, 
+                created_by
+            )
+            VALUES (
+                ${department_id}, 
+                ${event_date}, 
+                ${leader_id || null}, 
+                ${minister_id || null}, 
+                ${songsJson}, 
+                ${songIdsJson}, 
+                ${palette || 'Azul, Prata, Branco, Dourado'}, 
+                ${rehearsal || false}, 
+                ${musiciansJson}, 
+                ${req.user.id}
+            )
             RETURNING *
         `;
+        
+        console.log('✅ Escala criada com sucesso! ID:', result[0].id);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar escala:', error);
@@ -1545,7 +1596,7 @@ app.get('/api/availability/date/:date', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== BUSCAR DISPONÍVEIS POR DATA E DEPARTAMENTO - CORRIGIDO =====
+// ===== BUSCAR DISPONÍVEIS POR DATA E DEPARTAMENTO =====
 // ============================================
 app.get('/api/availability/date/:date/department/:deptId', auth, async (req, res) => {
     try {

@@ -751,7 +751,7 @@ app.get('/api/users', auth, async (req, res) => {
     }
 });
 
-app.get('/api/users/all', auth, leaderOnly, async (req, res) => {
+app.get('/api/users/all', auth, async (req, res) => {
     try {
         const users = await sql`
             SELECT id, name, email, role, department_id, department_name, phone, first_login, is_leader, created_at
@@ -837,9 +837,14 @@ app.post('/api/reset-password', auth, pastorOnly, async (req, res) => {
 // ============================================
 // ===== CRIAR USUÁRIO POR LÍDER - CORRIGIDO =====
 // ============================================
-app.post('/api/users-by-leader', auth, leaderOnly, async (req, res) => {
+app.post('/api/users-by-leader', auth, async (req, res) => {
     try {
         const { name, email, password, role, department_id } = req.body;
+
+        // Verificar se o usuário é líder
+        if (req.user.role !== 'lider' && req.user.role !== 'pastor' && !req.user.is_leader) {
+            return res.status(403).json({ error: 'Apenas líderes podem criar usuários' });
+        }
 
         if (!name || !email || !password) {
             return res.status(400).json({ error: 'Nome, e-mail e senha são obrigatórios' });
@@ -942,7 +947,7 @@ app.get('/api/departments', auth, async (req, res) => {
     }
 });
 
-app.get('/api/departments/active', async (req, res) => {
+app.get('/api/departments/active', auth, async (req, res) => {
     try {
         const depts = await sql`
             SELECT id, name, description, leader_id
@@ -973,7 +978,9 @@ app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
 app.get('/api/departments/:id/members', auth, async (req, res) => {
     try {
         const deptId = req.params.id;
-        if (req.user.role !== 'pastor' && req.user.department_id != deptId) {
+        
+        // Verificar se o usuário tem acesso a este departamento
+        if (req.user.role !== 'pastor' && req.user.department_id != deptId && !req.user.is_leader) {
             return res.status(403).json({ error: 'Acesso negado' });
         }
 
@@ -986,11 +993,12 @@ app.get('/api/departments/:id/members', auth, async (req, res) => {
         `;
         res.json(members);
     } catch (error) {
+        console.error('❌ Erro ao buscar membros:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-app.post('/api/departments/:id/members', auth, leaderOnly, async (req, res) => {
+app.post('/api/departments/:id/members', auth, async (req, res) => {
     try {
         const deptId = req.params.id;
         const { user_id, role } = req.body;
@@ -1038,7 +1046,7 @@ app.post('/api/departments/:id/members', auth, leaderOnly, async (req, res) => {
     }
 });
 
-app.put('/api/departments/:id/members/:userId', auth, leaderOnly, async (req, res) => {
+app.put('/api/departments/:id/members/:userId', auth, async (req, res) => {
     try {
         const deptId = req.params.id;
         const userId = req.params.userId;
@@ -1076,7 +1084,7 @@ app.put('/api/departments/:id/members/:userId', auth, leaderOnly, async (req, re
     }
 });
 
-app.delete('/api/departments/:id/members/:userId', auth, leaderOnly, async (req, res) => {
+app.delete('/api/departments/:id/members/:userId', auth, async (req, res) => {
     try {
         const deptId = req.params.id;
         const userId = req.params.userId;
@@ -1126,7 +1134,7 @@ app.get('/api/songs', auth, async (req, res) => {
     }
 });
 
-app.post('/api/songs', auth, leaderOnly, async (req, res) => {
+app.post('/api/songs', auth, async (req, res) => {
     try {
         const { title, artist, key, lyrics, youtube_url, department_id } = req.body;
         if (!title) {
@@ -1150,7 +1158,7 @@ app.post('/api/songs', auth, leaderOnly, async (req, res) => {
     }
 });
 
-app.delete('/api/songs/:id', auth, leaderOnly, async (req, res) => {
+app.delete('/api/songs/:id', auth, async (req, res) => {
     try {
         const { id } = req.params;
         await sql`DELETE FROM songs WHERE id = ${id}`;
@@ -1217,7 +1225,7 @@ app.get('/api/songs/by-key/:key', auth, async (req, res) => {
 // ===== ROTAS DE ESCALAS =====
 // ============================================
 
-app.post('/api/worship-scales', auth, leaderOnly, async (req, res) => {
+app.post('/api/worship-scales', auth, async (req, res) => {
     try {
         const { department_id, event_date, leader_id, minister_id, songs, song_ids, palette, rehearsal, musicians } = req.body;
 
@@ -1312,7 +1320,7 @@ app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
     }
 });
 
-app.delete('/api/worship-scales/:id', auth, leaderOnly, async (req, res) => {
+app.delete('/api/worship-scales/:id', auth, async (req, res) => {
     try {
         const { id } = req.params;
         await sql`DELETE FROM worship_scales WHERE id = ${id}`;

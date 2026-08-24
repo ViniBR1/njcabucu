@@ -1565,14 +1565,20 @@ app.get('/api/availability/date/:date/department/:deptId', auth, async (req, res
         }
 
         const available = await sql`
-            SELECT u.id, u.name, u.email, u.phone, u.role, 
-                   COALESCE(dm.role, 'membro') as member_role
+            SELECT 
+                u.id, 
+                u.name, 
+                u.email, 
+                u.phone, 
+                u.role,
+                u.is_leader,
+                COALESCE(dm.role, 'membro') as member_role
             FROM availability a
             JOIN users u ON a.user_id = u.id
             LEFT JOIN department_members dm ON u.id = dm.user_id AND dm.department_id = ${deptId}
             WHERE DATE(a.date) = ${formattedDate}
             AND a.department_id = ${deptId}
-            AND u.is_active IS NOT FALSE
+            AND u.id IS NOT NULL
             ORDER BY u.name
         `;
         

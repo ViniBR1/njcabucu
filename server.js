@@ -1,4 +1,3 @@
-
 // ============================================
 // ===== NJ CABUÇU - SERVIDOR COMPLETO =====
 // ============================================
@@ -674,16 +673,6 @@ async function initDB() {
             END $$;
         `;
 
-        await sql`
-            DO $$
-            BEGIN
-                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
-                               WHERE table_name='worship_scales' AND column_name='created_by') THEN
-                    ALTER TABLE worship_scales ADD COLUMN created_by INTEGER REFERENCES users(id) ON DELETE SET NULL;
-                END IF;
-            END $$;
-        `;
-
         console.log('✅ Todas as tabelas verificadas/criadas');
 
         const existing = await sql`SELECT * FROM users WHERE email = 'pastor@njcabucu.com'`;
@@ -1300,7 +1289,7 @@ app.post('/api/worship-scales', auth, async (req, res) => {
                 song_ids, 
                 palette, 
                 rehearsal, 
-                musician_ids,
+                musician_ids, 
                 created_by
             )
             VALUES (
@@ -1312,7 +1301,7 @@ app.post('/api/worship-scales', auth, async (req, res) => {
                 ${songIdsJson}, 
                 ${palette || 'Azul, Prata, Branco, Dourado'}, 
                 ${rehearsal || false}, 
-                ${musiciansJson},
+                ${musiciansJson}, 
                 ${req.user.id}
             )
             RETURNING *
@@ -3291,4 +3280,3 @@ app.listen(PORT, () => {
     console.log('📋 Módulo de Disponibilidade: ✅ Configurado');
     console.log('');
 });
-```

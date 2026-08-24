@@ -643,6 +643,17 @@ async function initDB() {
             END $$;
         `;
 
+        // Adicionar minister_id se não existir
+        await sql`
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='worship_scales' AND column_name='minister_id') THEN
+                    ALTER TABLE worship_scales ADD COLUMN minister_id INTEGER REFERENCES users(id) ON DELETE SET NULL;
+                END IF;
+            END $$;
+        `;
+
         console.log('✅ Todas as tabelas verificadas/criadas');
 
         const existing = await sql`SELECT * FROM users WHERE email = 'pastor@njcabucu.com'`;
@@ -969,13 +980,15 @@ app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
 app.get('/api/departments/:id/members', auth, async (req, res) => {
     try {
         const deptId = req.params.id;
-        console.log(`📝 Buscando membros do departamento ${deptId} para usuário ${req.user.id}`);
+        console.log(`📝 Buscando membros do departamento ${deptId}`);
         
-        if (req.user.role !== 'pastor' && req.user.department_id != deptId && !req.user.is_leader) {
-            console.log(`⚠️ Usuário ${req.user.id} não tem acesso ao departamento ${deptId}`);
-            return res.status(403).json({ error: 'Acesso negado' });
+        // Verificar se o departamento existe
+        const dept = await sql`SELECT * FROM departments WHERE id = ${deptId} AND is_active = true`;
+        if (dept.length === 0) {
+            return res.status(404).json({ error: 'Departamento não encontrado' });
         }
 
+        // Buscar membros sem restrição de permissão
         const members = await sql`
             SELECT u.id, u.name, u.email, u.phone, u.role, u.is_leader, 
                    dm.role as member_role, dm.joined_at
@@ -1279,17 +1292,19 @@ app.get('/api/worship-scales', auth, async (req, res) => {
 app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
     try {
         const { id } = req.params;
+        console.log(`📝 Buscando detalhes da escala ${id}`);
+        
+        // Buscar escala com minister_name
         const scale = await sql`
             SELECT ws.*, 
                    u1.name as leader_name, 
-                   u2.name as minister_name,
-                   u3.name as created_by_name
+                   u2.name as minister_name
             FROM worship_scales ws
             LEFT JOIN users u1 ON ws.leader_id = u1.id
             LEFT JOIN users u2 ON ws.minister_id = u2.id
-            LEFT JOIN users u3 ON ws.created_by = u3.id
             WHERE ws.id = ${id}
         `;
+        
         if (scale.length === 0) {
             return res.status(404).json({ error: 'Escala não encontrada' });
         }
@@ -1319,6 +1334,7 @@ app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
         const result = { ...scale[0], musicians, songs };
         res.json(result);
     } catch (error) {
+        console.error('❌ Erro ao buscar detalhes da escala:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1338,6 +1354,7 @@ app.get('/api/worship-scales/member/:userId', auth, async (req, res) => {
         const userId = req.params.userId;
         console.log(`📝 Buscando escalas para usuário ${userId}`);
         
+        // Verificar se o usuário está buscando as próprias escalas
         if (parseInt(userId) !== req.user.id && req.user.role !== 'pastor' && !req.user.is_leader) {
             console.log(`⚠️ Usuário ${req.user.id} tentou acessar escalas de ${userId}`);
             return res.status(403).json({ error: 'Acesso negado' });

@@ -1281,7 +1281,7 @@
         }
 
         // ================================================
-        // DISPONIBILIDADE - CORRIGIDO
+        // DISPONIBILIDADE
         // ================================================
         function generateDateSelector() {
             const container = document.getElementById('dateSelectorGrid');
@@ -1290,7 +1290,6 @@
             const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
             const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
             
-            // Gerar 60 dias para frente
             for (let i = 0; i < 60; i++) {
                 const d = new Date(today);
                 d.setDate(d.getDate() + i);
@@ -1306,7 +1305,6 @@
                 const isSunday = d.getDay() === 0;
                 const isSaturday = d.getDay() === 6;
                 
-                // Destacar domingos e sábados
                 let highlight = '';
                 if (isSunday) highlight = ' style="border-color:#28a745;"';
                 if (isSaturday) highlight = ' style="border-color:#17a2b8;"';
@@ -1337,9 +1335,6 @@
                     el.classList.toggle('selected');
                 }
             });
-            
-            // Atualizar contador
-            document.getElementById('selectedCount')?.textContent = selectedAvailabilityDates.length;
         }
 
         async function addMultipleAvailability() {
@@ -2633,7 +2628,6 @@
                     const selected = d.id == user.department_id ? 'selected' : '';
                     select.innerHTML += `<option value="${d.id}" ${selected}>${d.name}</option>`;
                 });
-                // Se for líder, já seleciona o departamento atual
                 if (isLeader && user.department_id) {
                     select.value = user.department_id;
                 }
@@ -2675,12 +2669,23 @@
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || 'Erro ao criar usuário');
 
+                // Mapear função para exibição
+                const roleLabel = {
+                    'lider': '👑 Líder',
+                    'ministro': '🎤 Ministro',
+                    'musico': '🎸 Músico',
+                    'membro': '🙋 Membro'
+                };
+
                 resultDiv.style.display = 'block';
                 resultDiv.className = 'notification success';
-                resultDiv.innerHTML = `✅ Usuário <strong>${name}</strong> criado com sucesso!<br>
-                    <span style="font-size:0.8rem;">E-mail: ${email} | Senha: ${password}</span>`;
+                resultDiv.innerHTML = `
+                    ✅ Usuário <strong>${name}</strong> criado com sucesso!<br>
+                    <span style="font-size:0.8rem;">E-mail: ${email} | Senha: ${password}</span><br>
+                    <span style="font-size:0.8rem;">Função: ${roleLabel[role] || role} | Departamento: ${data.department_name || 'Selecionado'}</span>
+                `;
                 
-                showNotification(`✅ Usuário ${name} criado com sucesso!`, 'success');
+                showNotification(`✅ Usuário ${name} criado como ${roleLabel[role] || role}!`, 'success');
                 
                 document.getElementById('newUserName').value = '';
                 document.getElementById('newUserEmail').value = '';
@@ -2690,6 +2695,14 @@
                 loadMembers();
                 loadTeam();
                 loadDepartmentsForSelect();
+                
+                // Se for líder, recarregar a página para atualizar o líder do departamento
+                if (role === 'lider') {
+                    setTimeout(() => {
+                        showNotification('🔄 Recarregando dados do departamento...', 'info');
+                        setTimeout(() => location.reload(), 1500);
+                    }, 2000);
+                }
                 
                 setTimeout(() => {
                     resultDiv.style.display = 'none';

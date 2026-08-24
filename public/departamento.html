@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -756,7 +757,7 @@
                 <div id="membersList"><p class="text-muted">Carregando...</p></div>
             </div>
 
-            <!-- CRIAR USUÁRIO - CORRIGIDO -->
+            <!-- CRIAR USUÁRIO -->
             <div id="tab-criar-usuario" class="tab-content">
                 <div class="section-title"><i class="fas fa-user-plus"></i> Criar Usuário para o Ministério</div>
                 <div class="card">
@@ -1038,16 +1039,27 @@
         // CONFIGURAÇÕES INICIAIS
         // ================================================
         const token = localStorage.getItem('token');
-        if (!token) { window.location.href = '/login'; }
+        if (!token) { 
+            window.location.href = '/login'; 
+        }
 
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        let user = null;
+        try {
+            user = JSON.parse(localStorage.getItem('user') || '{}');
+        } catch (e) {
+            user = {};
+        }
+
+        // Verificar se o usuário tem departamento
         if (!user.department_id) {
             alert('Você não está vinculado a nenhum departamento. Peça ao líder para te adicionar.');
             window.location.href = '/';
         }
 
-        const isLeader = user.role === 'lider' || user.is_leader || user.role === 'pastor';
+        // Determinar se é líder (role = lider OU is_leader = true OU role = pastor)
+        const isLeader = user.role === 'lider' || user.is_leader === true || user.role === 'pastor';
         const isMinister = user.role === 'ministro';
+        const isMusician = user.role === 'musico';
         const departmentName = (user.department_name || '').toLowerCase().trim();
 
         // ================================================
@@ -1087,7 +1099,14 @@
             tabs: ['dashboard', 'equipe', 'membros', 'criar-usuario'],
         };
 
-        const deptKey = Object.keys(DEPT_CONFIG).find(key => departmentName.includes(key));
+        // Encontrar a configuração do departamento
+        let deptKey = null;
+        for (const key of Object.keys(DEPT_CONFIG)) {
+            if (departmentName.includes(key)) {
+                deptKey = key;
+                break;
+            }
+        }
         const config = deptKey ? DEPT_CONFIG[deptKey] : defaultConfig;
 
         // ================================================
@@ -1107,7 +1126,10 @@
         // AUXILIARES
         // ================================================
         function getHeaders() {
-            return { 'Authorization': 'Bearer ' + token };
+            return { 
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            };
         }
 
         function showNotification(message, type = 'info') {
@@ -1174,6 +1196,7 @@
                 container.appendChild(btn);
             });
 
+            // Mostrar botões apenas para líder
             if (isLeader) {
                 document.getElementById('btnNovaEscala')?.classList.remove('hidden');
                 document.getElementById('addMusicBtn')?.classList.remove('hidden');
@@ -1226,24 +1249,30 @@
                 }
                 if (config.tabs.includes('oracoes')) {
                     const res = await fetch('/api/prayers', { headers: getHeaders() });
-                    const prayers = await res.json();
-                    document.getElementById('myTotalActivities').textContent = prayers.length || 0;
-                    const next = prayers.filter(p => !p.is_read).length;
-                    document.getElementById('myNextActivities').textContent = next;
+                    if (res.ok) {
+                        const prayers = await res.json();
+                        document.getElementById('myTotalActivities').textContent = prayers.length || 0;
+                        const next = prayers.filter(p => !p.is_read).length;
+                        document.getElementById('myNextActivities').textContent = next;
+                    }
                 }
                 if (config.tabs.includes('eventos')) {
                     const res = await fetch('/api/events', { headers: getHeaders() });
-                    const events = await res.json();
-                    document.getElementById('myTotalActivities').textContent = events.length || 0;
-                    const now = new Date();
-                    const next = events.filter(e => new Date(e.date) > now).length;
-                    document.getElementById('myNextActivities').textContent = next;
+                    if (res.ok) {
+                        const events = await res.json();
+                        document.getElementById('myTotalActivities').textContent = events.length || 0;
+                        const now = new Date();
+                        const next = events.filter(e => new Date(e.date) > now).length;
+                        document.getElementById('myNextActivities').textContent = next;
+                    }
                 }
                 if (config.tabs.includes('tesouraria')) {
                     const res = await fetch('/api/tithes', { headers: getHeaders() });
-                    const tithes = await res.json();
-                    document.getElementById('myTotalActivities').textContent = tithes.length || 0;
-                    document.getElementById('myNextActivities').textContent = '-';
+                    if (res.ok) {
+                        const tithes = await res.json();
+                        document.getElementById('myTotalActivities').textContent = tithes.length || 0;
+                        document.getElementById('myNextActivities').textContent = '-';
+                    }
                 }
 
                 const roleMap = {
@@ -1351,7 +1380,7 @@
                     try {
                         const response = await fetch('/api/availability', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                            headers: getHeaders(),
                             body: JSON.stringify({
                                 user_id: user.id,
                                 date: date,
@@ -1389,6 +1418,10 @@
         async function loadAvailability() {
             try {
                 const res = await fetch(`/api/availability/${user.id}`, { headers: getHeaders() });
+                if (!res.ok) {
+                    console.error('Erro ao carregar disponibilidade:', res.status);
+                    return;
+                }
                 const data = await res.json();
                 const container = document.getElementById('availabilityList');
                 if (!data || !data.length) {
@@ -1429,6 +1462,11 @@
 
             try {
                 const res = await fetch(`/api/availability/date/${date}/department/${user.department_id}`, { headers: getHeaders() });
+                if (!res.ok) {
+                    console.error('Erro ao carregar disponíveis:', res.status);
+                    document.getElementById('availableMembersList').innerHTML = '<p style="color:#dc3545;font-size:0.8rem;text-align:center;">Erro ao carregar</p>';
+                    return;
+                }
                 const data = await res.json();
                 availableMembers = Array.isArray(data) ? data : [];
 
@@ -1541,7 +1579,7 @@
             try {
                 const response = await fetch('/api/worship-scales', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getHeaders(),
                     body: JSON.stringify({
                         department_id: user.department_id,
                         event_date: date,
@@ -1570,6 +1608,11 @@
         async function loadScales() {
             try {
                 const res = await fetch('/api/worship-scales', { headers: getHeaders() });
+                if (!res.ok) {
+                    console.error('Erro ao carregar escalas:', res.status);
+                    document.getElementById('scalesList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar escalas.</p>';
+                    return;
+                }
                 const data = await res.json();
                 scales = Array.isArray(data) ? data.filter(s => s.department_id === user.department_id) : [];
                 const container = document.getElementById('scalesList');
@@ -1631,6 +1674,10 @@
             currentScaleIdView = id;
             try {
                 const res = await fetch(`/api/worship-scales/${id}/details`, { headers: getHeaders() });
+                if (!res.ok) {
+                    showNotification('❌ Erro ao carregar detalhes da escala', 'error');
+                    return;
+                }
                 const scale = await res.json();
                 if (!scale) { showNotification('Escala não encontrada!', 'error'); return; }
 
@@ -1723,6 +1770,10 @@
         async function loadMyScales() {
             try {
                 const res = await fetch(`/api/worship-scales/member/${user.id}`, { headers: getHeaders() });
+                if (!res.ok) {
+                    console.error('Erro ao carregar minhas escalas:', res.status);
+                    return;
+                }
                 const data = await res.json();
                 myScales = Array.isArray(data) ? data : [];
                 window._myScales = myScales;
@@ -1795,6 +1846,11 @@
         async function loadSongs() {
             try {
                 const res = await fetch(`/api/songs?department_id=${user.department_id}`, { headers: getHeaders() });
+                if (!res.ok) {
+                    console.error('Erro ao carregar músicas:', res.status);
+                    document.getElementById('songsList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar músicas.</p>';
+                    return;
+                }
                 const data = await res.json();
                 songs = Array.isArray(data) ? data : [];
                 const container = document.getElementById('songsList');
@@ -1844,7 +1900,7 @@
             try {
                 const res = await fetch('/api/youtube-song', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getHeaders(),
                     body: JSON.stringify({ url })
                 });
                 const data = await res.json();
@@ -1896,7 +1952,7 @@
             try {
                 await fetch('/api/songs', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getHeaders(),
                     body: JSON.stringify({
                         title,
                         artist: 'YouTube',
@@ -1926,7 +1982,7 @@
             try {
                 await fetch('/api/songs', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getHeaders(),
                     body: JSON.stringify({
                         title,
                         artist: artist || '',
@@ -1978,7 +2034,7 @@
             try {
                 const res = await fetch('/api/transpose-chord', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getHeaders(),
                     body: JSON.stringify({
                         lyrics: originalLyrics,
                         fromKey: document.querySelector('#viewMusicContent div:nth-child(2)')?.textContent?.replace('Tom Original: ', '') || 'C',
@@ -2076,7 +2132,7 @@
             try {
                 const res = await fetch('/api/youtube-song', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getHeaders(),
                     body: JSON.stringify({ url })
                 });
                 const data = await res.json();
@@ -2128,7 +2184,7 @@
             try {
                 const response = await fetch(`/api/worship-scales/${currentScaleId}/songs`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getHeaders(),
                     body: JSON.stringify({
                         songs: musicNames,
                         song_ids: songIds
@@ -2155,6 +2211,11 @@
         async function loadPrayers() {
             try {
                 const res = await fetch('/api/prayers', { headers: getHeaders() });
+                if (!res.ok) {
+                    console.error('Erro ao carregar orações:', res.status);
+                    document.getElementById('prayersList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar pedidos.</p>';
+                    return;
+                }
                 const data = await res.json();
                 const container = document.getElementById('prayersList');
                 if (!data || !data.length) {
@@ -2188,7 +2249,7 @@
             try {
                 await fetch('/api/prayers', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getHeaders(),
                     body: JSON.stringify({ name, request })
                 });
                 closeModal('newPrayerModal');
@@ -2215,6 +2276,11 @@
         async function loadEvents() {
             try {
                 const res = await fetch('/api/events', { headers: getHeaders() });
+                if (!res.ok) {
+                    console.error('Erro ao carregar eventos:', res.status);
+                    document.getElementById('eventsList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar eventos.</p>';
+                    return;
+                }
                 const data = await res.json();
                 const container = document.getElementById('eventsList');
                 if (!data || !data.length) {
@@ -2257,7 +2323,7 @@
             try {
                 await fetch('/api/events', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getHeaders(),
                     body: JSON.stringify({ title, description, date, price })
                 });
                 closeModal('newEventModal');
@@ -2285,6 +2351,11 @@
         async function loadTithes() {
             try {
                 const res = await fetch('/api/tithes', { headers: getHeaders() });
+                if (!res.ok) {
+                    console.error('Erro ao carregar dízimos:', res.status);
+                    document.getElementById('tithesList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar.</p>';
+                    return;
+                }
                 const data = await res.json();
                 const container = document.getElementById('tithesList');
                 if (!data || !data.length) {
@@ -2334,7 +2405,7 @@
             try {
                 await fetch('/api/tithes', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getHeaders(),
                     body: JSON.stringify({
                         member_id,
                         member_name: null,
@@ -2359,6 +2430,11 @@
         async function loadBills() {
             try {
                 const res = await fetch('/api/bills', { headers: getHeaders() });
+                if (!res.ok) {
+                    console.error('Erro ao carregar contas:', res.status);
+                    document.getElementById('billsList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar contas.</p>';
+                    return;
+                }
                 const data = await res.json();
                 const container = document.getElementById('billsList');
                 if (!data || !data.length) {
@@ -2399,7 +2475,7 @@
             try {
                 await fetch('/api/bills', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getHeaders(),
                     body: JSON.stringify({ description, category, amount, due_date, notes: '' })
                 });
                 closeModal('newBillModal');
@@ -2415,7 +2491,7 @@
             try {
                 await fetch(`/api/bills/${id}/pay`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getHeaders(),
                     body: JSON.stringify({ payment_date: new Date().toISOString().split('T')[0], payment_method: 'dinheiro' })
                 });
                 showNotification('✅ Conta paga!', 'success');
@@ -2442,6 +2518,11 @@
         async function loadTeam() {
             try {
                 const res = await fetch(`/api/departments/${user.department_id}/members`, { headers: getHeaders() });
+                if (!res.ok) {
+                    console.error('Erro ao carregar equipe:', res.status);
+                    document.getElementById('teamList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar equipe.</p>';
+                    return;
+                }
                 const data = await res.json();
                 members = Array.isArray(data) ? data : [];
                 const container = document.getElementById('teamList');
@@ -2484,6 +2565,11 @@
         async function loadMembers() {
             try {
                 const res = await fetch(`/api/departments/${user.department_id}/members`, { headers: getHeaders() });
+                if (!res.ok) {
+                    console.error('Erro ao carregar membros:', res.status);
+                    document.getElementById('membersList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar membros.</p>';
+                    return;
+                }
                 const data = await res.json();
                 members = Array.isArray(data) ? data : [];
                 const container = document.getElementById('membersList');
@@ -2522,6 +2608,11 @@
         async function openAddMemberModal() {
             try {
                 const res = await fetch('/api/users/all', { headers: getHeaders() });
+                if (!res.ok) {
+                    console.error('Erro ao carregar usuários:', res.status);
+                    document.getElementById('newMemberUserSelect').innerHTML = '<option value="">Erro ao carregar</option>';
+                    return;
+                }
                 const allUsers = await res.json();
                 
                 const memberRes = await fetch(`/api/departments/${user.department_id}/members`, { headers: getHeaders() });
@@ -2564,7 +2655,7 @@
                 
                 await fetch(`/api/departments/${user.department_id}/members`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getHeaders(),
                     body: JSON.stringify({ user_id: userId, role: role })
                 });
 
@@ -2589,7 +2680,7 @@
             try {
                 await fetch(`/api/departments/${user.department_id}/members/${userId}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getHeaders(),
                     body: JSON.stringify({ role: newRole })
                 });
                 showNotification('✅ Função atualizada!', 'success');
@@ -2616,11 +2707,15 @@
         }
 
         // ================================================
-        // CRIAR USUÁRIO - CORRIGIDO
+        // CRIAR USUÁRIO
         // ================================================
         async function loadDepartmentsForSelect() {
             try {
                 const res = await fetch('/api/departments', { headers: getHeaders() });
+                if (!res.ok) {
+                    console.error('Erro ao carregar departamentos:', res.status);
+                    return;
+                }
                 const depts = await res.json();
                 const select = document.getElementById('newUserDepartment');
                 select.innerHTML = '<option value="">Selecione um departamento</option>';
@@ -2656,7 +2751,7 @@
             try {
                 const response = await fetch('/api/users-by-leader', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getHeaders(),
                     body: JSON.stringify({
                         name,
                         email,
@@ -2669,7 +2764,6 @@
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || 'Erro ao criar usuário');
 
-                // Mapear função para exibição
                 const roleLabel = {
                     'lider': '👑 Líder',
                     'ministro': '🎤 Ministro',
@@ -2691,12 +2785,10 @@
                 document.getElementById('newUserEmail').value = '';
                 document.getElementById('newUserPassword').value = '';
                 
-                // Recarregar listas
                 loadMembers();
                 loadTeam();
                 loadDepartmentsForSelect();
                 
-                // Se for líder, recarregar a página para atualizar o líder do departamento
                 if (role === 'lider') {
                     setTimeout(() => {
                         showNotification('🔄 Recarregando dados do departamento...', 'info');
@@ -2740,3 +2832,4 @@
     </script>
 </body>
 </html>
+```

@@ -44,7 +44,7 @@ try {
 }
 
 // ============================================
-// ===== EMAIL (NODEMAILER) - CORRIGIDO =====
+// ===== EMAIL (NODEMAILER) =====
 // ============================================
 let transporter = null;
 try {
@@ -59,7 +59,6 @@ try {
                 rejectUnauthorized: false
             }
         });
-        // Verificar conexão
         transporter.verify((error, success) => {
             if (error) {
                 console.error('❌ Erro ao conectar email:', error.message);
@@ -208,24 +207,33 @@ app.use(express.static('public'));
 app.use('/uploads', express.static('public/uploads'));
 
 // ============================================
-// ===== MULTER =====
+// ===== MULTER - CONFIGURAÇÃO CORRIGIDA =====
 // ============================================
 const storage = multer.memoryStorage();
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 },
+    limits: { 
+        fileSize: 10 * 1024 * 1024 // 10MB
+    },
     fileFilter: function (req, file, cb) {
         const allowedTypes = /jpeg|jpg|png|gif|webp|pdf/;
         const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
         const mimetype = allowedTypes.test(file.mimetype);
+        
         if (mimetype && extname) {
             return cb(null, true);
         } else {
-            cb(new Error('Apenas imagens e PDFs são permitidos!'));
+            cb(new Error('Apenas imagens (JPG, PNG, GIF, WEBP) e PDFs são permitidos!'));
         }
     }
 });
+
+// Middleware para upload de múltiplos arquivos (imagem + pdf)
+const uploadFields = upload.fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'file', maxCount: 1 }
+]);
 
 // ============================================
 // ===== FUNÇÕES DE AUTENTICAÇÃO =====
@@ -318,6 +326,7 @@ async function initDB() {
             file_url VARCHAR(500),
             image_url VARCHAR(500),
             image_base64 TEXT,
+            file_base64 TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
@@ -620,6 +629,17 @@ async function initDB() {
                 IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
                                WHERE table_name='availability' AND column_name='department_id') THEN
                     ALTER TABLE availability ADD COLUMN department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE;
+                END IF;
+            END $$;
+        `;
+
+        // Adicionar coluna file_base64 se não existir
+        await sql`
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='studies' AND column_name='file_base64') THEN
+                    ALTER TABLE studies ADD COLUMN file_base64 TEXT;
                 END IF;
             END $$;
         `;
@@ -1469,24 +1489,97 @@ app.get('/api/availability/date/:date/department/:deptId', auth, async (req, res
 });
 
 // ============================================
-// ===== ROTAS DE ESTUDOS =====
+// ===== ROTA DE ESTUDOS - CORRIGIDA =====
 // ============================================
 
-app.post('/api/studies', auth, upload.single('image'), async (req, res) => {
+app.post('/api/studies', auth, uploadFields, async (req, res) => {
     try {
         console.log('📝 Recebendo estudo...');
-        console.log('Body:', req.body);
-        console.log('File:', req.file ? 'Arquivo recebido: ' + req.file.originalname : 'Sem arquivo');
+        console.log('📋 Body:', req.body);
+        console.log('📎 Files:', req.files ? Object.keys(req.files) : 'Nenhum arquivo');
+        
+        const { title, description, file_url } = req.body;
+        let image_base64 = null;
+        let file_base64 = null;
+        
+        // Processar imagem
+        if (req.files && req.files.image && req.files.image.length > 0) {
+            image_base64 = req.files.image[0].buffer.toString('base64');
+            console.log('✅ Imagem processada com sucesso!');
+        }
+        
+        // Processar PDF
+        if (req.files && req.files.file && req.files.file.length > 0) {
+            file_base64 = req.files.file[0].buffer.toString('base64');
+            console.log('✅ PDF processado com sucesso!');
+        }
+
+        // Validar título
+        if (!title || title.trim() === '') {
+            console.log('❌ Título não informado');
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Título é obrigatório' 
+            });
+        }
+
+        // Validar se pelo menos um arquivo ou link foi enviado
+        if (!image_base64 && !file_base64 && !file_url) {
+            console.log('❌ Nenhum arquivo ou link enviado');
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Envie pelo menos uma imagem, PDF ou link' 
+            });
+        }
+
+        // Inserir no banco de dados
+        const result = await sql`
+            INSERT INTO studies (title, description, file_url, image_base64, file_base64)
+            VALUES (
+                ${title.trim()}, 
+                ${description || ''}, 
+                ${file_url || ''}, 
+                ${image_base64 || ''},
+                ${file_base64 || ''}
+            )
+            RETURNING id, title, description, file_url
+        `;
+        
+        console.log('✅ Estudo criado com sucesso! ID:', result[0].id);
+        
+        res.status(201).json({ 
+            success: true, 
+            message: 'Estudo criado com sucesso!',
+            study: result[0] 
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao criar estudo:', error);
+        res.status(500).json({ 
+            success: false,
+            error: error.message || 'Erro interno do servidor'
+        });
+    }
+});
+
+// ============================================
+// ===== ROTA DE ESTUDOS - FALLBACK (SINGLE) =====
+// ============================================
+app.post('/api/studies/single', auth, upload.single('image'), async (req, res) => {
+    try {
+        console.log('📝 Recebendo estudo (single)...');
+        console.log('📋 Body:', req.body);
+        console.log('📎 File:', req.file ? req.file.originalname : 'Nenhum arquivo');
         
         const { title, description, file_url } = req.body;
         let image_base64 = null;
         
         if (req.file) {
             image_base64 = req.file.buffer.toString('base64');
-            console.log('✅ Imagem processada');
+            console.log('✅ Arquivo processado com sucesso!');
         }
 
-        if (!title) {
+        if (!title || title.trim() === '') {
             return res.status(400).json({ 
                 success: false, 
                 error: 'Título é obrigatório' 
@@ -1495,21 +1588,23 @@ app.post('/api/studies', auth, upload.single('image'), async (req, res) => {
 
         const result = await sql`
             INSERT INTO studies (title, description, file_url, image_base64)
-            VALUES (${title}, ${description || ''}, ${file_url || ''}, ${image_base64 || ''})
-            RETURNING *
+            VALUES (${title.trim()}, ${description || ''}, ${file_url || ''}, ${image_base64 || ''})
+            RETURNING id, title, description, file_url
         `;
         
         console.log('✅ Estudo criado com sucesso! ID:', result[0].id);
+        
         res.status(201).json({ 
             success: true, 
             message: 'Estudo criado com sucesso!',
             study: result[0] 
         });
+        
     } catch (error) {
         console.error('❌ Erro ao criar estudo:', error);
         res.status(500).json({ 
             success: false,
-            error: error.message
+            error: error.message || 'Erro interno do servidor'
         });
     }
 });
@@ -1683,7 +1778,6 @@ app.post('/api/orders', async (req, res) => {
             RETURNING *
         `;
         
-        // Enviar email de confirmação
         const emailEnviado = await enviarEmailConfirmacao({
             email: user_email,
             nome: user_name,
@@ -1773,7 +1867,6 @@ app.post('/api/registrations', async (req, res) => {
             RETURNING *
         `;
         
-        // Enviar email de confirmação
         const tipoLabel = {
             baptism: 'Batismo',
             volunteer: 'Voluntário',
@@ -1841,7 +1934,6 @@ app.post('/api/donations', async (req, res) => {
             RETURNING *
         `;
         
-        // Enviar email de confirmação
         const emailEnviado = await enviarEmailConfirmacao({
             email: user_email,
             nome: user_name,
@@ -2000,7 +2092,6 @@ app.post('/api/tithes', auth, async (req, res) => {
             RETURNING *
         `;
         
-        // Enviar email de confirmação para o pastor
         const user = await sql`SELECT email, name FROM users WHERE id = ${req.user.id}`;
         if (user.length > 0) {
             await enviarEmailConfirmacao({

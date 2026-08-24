@@ -207,7 +207,7 @@ app.use(express.static('public'));
 app.use('/uploads', express.static('public/uploads'));
 
 // ============================================
-// ===== MULTER - CONFIGURAÇÃO CORRIGIDA =====
+// ===== MULTER =====
 // ============================================
 const storage = multer.memoryStorage();
 
@@ -834,6 +834,9 @@ app.post('/api/reset-password', auth, pastorOnly, async (req, res) => {
     }
 });
 
+// ============================================
+// ===== CRIAR USUÁRIO POR LÍDER - CORRIGIDO =====
+// ============================================
 app.post('/api/users-by-leader', auth, leaderOnly, async (req, res) => {
     try {
         const { name, email, password, role, department_id } = req.body;
@@ -860,24 +863,46 @@ app.post('/api/users-by-leader', auth, leaderOnly, async (req, res) => {
         const hash = await hashPassword(password);
         const isLeader = (role === 'lider');
 
+        // Determinar o role do usuário no sistema
+        let userRole = 'colaborador';
+        if (role === 'lider') userRole = 'lider';
+        else if (role === 'ministro') userRole = 'ministro';
+        else if (role === 'musico') userRole = 'musico';
+        else userRole = 'colaborador';
+
         const result = await sql`
             INSERT INTO users (name, email, password_hash, role, department_id, department_name, phone, first_login, is_leader)
-            VALUES (${name}, ${email}, ${hash}, ${role || 'colaborador'}, ${deptId}, ${dept[0].name}, '', true, ${isLeader})
-            RETURNING id, name, email, role, department_id, department_name
+            VALUES (${name}, ${email}, ${hash}, ${userRole}, ${deptId}, ${dept[0].name}, '', true, ${isLeader})
+            RETURNING id, name, email, role, department_id, department_name, is_leader
         `;
 
+        // Adicionar o usuário como membro do departamento
         const memberRole = isLeader ? 'lider' : (role || 'membro');
         await sql`
             INSERT INTO department_members (department_id, user_id, role)
             VALUES (${deptId}, ${result[0].id}, ${memberRole})
-            ON CONFLICT (department_id, user_id) DO NOTHING
+            ON CONFLICT (department_id, user_id) DO UPDATE SET role = ${memberRole}
         `;
 
+        // Se for líder, atualizar o departamento
         if (isLeader) {
-            await sql`UPDATE departments SET leader_id = ${result[0].id} WHERE id = ${deptId}`;
+            await sql`
+                UPDATE departments 
+                SET leader_id = ${result[0].id} 
+                WHERE id = ${deptId}
+            `;
+            console.log(`✅ ${name} definido como líder do departamento ${dept[0].name}`);
         }
 
-        res.status(201).json(result[0]);
+        console.log(`✅ Usuário ${name} criado como ${memberRole} no departamento ${dept[0].name}`);
+
+        res.status(201).json({ 
+            success: true,
+            message: 'Usuário criado com sucesso!',
+            user: result[0],
+            department_name: dept[0].name,
+            member_role: memberRole
+        });
     } catch (error) {
         console.error('❌ Erro ao criar usuário por líder:', error);
         res.status(500).json({ error: error.message });
@@ -1489,7 +1514,7 @@ app.get('/api/availability/date/:date/department/:deptId', auth, async (req, res
 });
 
 // ============================================
-// ===== ROTA DE ESTUDOS - CORRIGIDA =====
+// ===== ROTA DE ESTUDOS =====
 // ============================================
 
 app.post('/api/studies', auth, uploadFields, async (req, res) => {
@@ -1502,19 +1527,16 @@ app.post('/api/studies', auth, uploadFields, async (req, res) => {
         let image_base64 = null;
         let file_base64 = null;
         
-        // Processar imagem
         if (req.files && req.files.image && req.files.image.length > 0) {
             image_base64 = req.files.image[0].buffer.toString('base64');
             console.log('✅ Imagem processada com sucesso!');
         }
         
-        // Processar PDF
         if (req.files && req.files.file && req.files.file.length > 0) {
             file_base64 = req.files.file[0].buffer.toString('base64');
             console.log('✅ PDF processado com sucesso!');
         }
 
-        // Validar título
         if (!title || title.trim() === '') {
             console.log('❌ Título não informado');
             return res.status(400).json({ 
@@ -1523,7 +1545,6 @@ app.post('/api/studies', auth, uploadFields, async (req, res) => {
             });
         }
 
-        // Validar se pelo menos um arquivo ou link foi enviado
         if (!image_base64 && !file_base64 && !file_url) {
             console.log('❌ Nenhum arquivo ou link enviado');
             return res.status(400).json({ 
@@ -1532,7 +1553,6 @@ app.post('/api/studies', auth, uploadFields, async (req, res) => {
             });
         }
 
-        // Inserir no banco de dados
         const result = await sql`
             INSERT INTO studies (title, description, file_url, image_base64, file_base64)
             VALUES (
@@ -1576,7 +1596,6 @@ app.get('/api/studies/:id/pdf', async (req, res) => {
         
         const s = study[0];
         
-        // Se tiver file_base64 (PDF em base64)
         if (s.file_base64) {
             const pdfBuffer = Buffer.from(s.file_base64, 'base64');
             res.setHeader('Content-Type', 'application/pdf');
@@ -1584,7 +1603,6 @@ app.get('/api/studies/:id/pdf', async (req, res) => {
             return res.send(pdfBuffer);
         }
         
-        // Se tiver file_url (link externo) - redirecionar
         if (s.file_url) {
             return res.redirect(s.file_url);
         }
@@ -1593,53 +1611,6 @@ app.get('/api/studies/:id/pdf', async (req, res) => {
     } catch (error) {
         console.error('❌ Erro ao baixar PDF:', error);
         res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTA DE ESTUDOS - FALLBACK (SINGLE) =====
-// ============================================
-app.post('/api/studies/single', auth, upload.single('image'), async (req, res) => {
-    try {
-        console.log('📝 Recebendo estudo (single)...');
-        console.log('📋 Body:', req.body);
-        console.log('📎 File:', req.file ? req.file.originalname : 'Nenhum arquivo');
-        
-        const { title, description, file_url } = req.body;
-        let image_base64 = null;
-        
-        if (req.file) {
-            image_base64 = req.file.buffer.toString('base64');
-            console.log('✅ Arquivo processado com sucesso!');
-        }
-
-        if (!title || title.trim() === '') {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Título é obrigatório' 
-            });
-        }
-
-        const result = await sql`
-            INSERT INTO studies (title, description, file_url, image_base64)
-            VALUES (${title.trim()}, ${description || ''}, ${file_url || ''}, ${image_base64 || ''})
-            RETURNING id, title, description, file_url
-        `;
-        
-        console.log('✅ Estudo criado com sucesso! ID:', result[0].id);
-        
-        res.status(201).json({ 
-            success: true, 
-            message: 'Estudo criado com sucesso!',
-            study: result[0] 
-        });
-        
-    } catch (error) {
-        console.error('❌ Erro ao criar estudo:', error);
-        res.status(500).json({ 
-            success: false,
-            error: error.message || 'Erro interno do servidor'
-        });
     }
 });
 

@@ -1563,6 +1563,40 @@ app.post('/api/studies', auth, uploadFields, async (req, res) => {
 });
 
 // ============================================
+// ===== ROTA PARA BAIXAR PDF DO ESTUDO =====
+// ============================================
+app.get('/api/studies/:id/pdf', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const study = await sql`SELECT * FROM studies WHERE id = ${id}`;
+        
+        if (study.length === 0) {
+            return res.status(404).json({ error: 'Estudo não encontrado' });
+        }
+        
+        const s = study[0];
+        
+        // Se tiver file_base64 (PDF em base64)
+        if (s.file_base64) {
+            const pdfBuffer = Buffer.from(s.file_base64, 'base64');
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="${s.title || 'estudo'}.pdf"`);
+            return res.send(pdfBuffer);
+        }
+        
+        // Se tiver file_url (link externo) - redirecionar
+        if (s.file_url) {
+            return res.redirect(s.file_url);
+        }
+        
+        res.status(404).json({ error: 'PDF não disponível para este estudo' });
+    } catch (error) {
+        console.error('❌ Erro ao baixar PDF:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
 // ===== ROTA DE ESTUDOS - FALLBACK (SINGLE) =====
 // ============================================
 app.post('/api/studies/single', auth, upload.single('image'), async (req, res) => {

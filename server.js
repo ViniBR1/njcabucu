@@ -1274,9 +1274,16 @@ app.post('/api/worship-scales', auth, async (req, res) => {
             return res.status(404).json({ error: 'Departamento não encontrado' });
         }
 
+        // Converte para JSON string corretamente
         const songsJson = JSON.stringify(songs || []);
         const songIdsJson = JSON.stringify(song_ids || []);
         const musiciansJson = JSON.stringify(musicians || []);
+
+        console.log('📝 Dados a serem salvos:', {
+            songsJson,
+            songIdsJson,
+            musiciansJson
+        });
 
         const result = await sql`
             INSERT INTO worship_scales (
@@ -1336,8 +1343,41 @@ app.get('/api/worship-scales', auth, async (req, res) => {
         query += ` ORDER BY ws.event_date DESC`;
         
         const scales = await sql(query, params);
-        console.log(`✅ Encontradas ${scales.length} escalas`);
-        res.json(scales);
+        
+        // Processa os dados para garantir que os arrays sejam parseados corretamente
+        const processedScales = scales.map(scale => {
+            let songs = [];
+            let songIds = [];
+            let musicianIds = [];
+            
+            try {
+                if (scale.songs) {
+                    songs = typeof scale.songs === 'string' ? JSON.parse(scale.songs) : scale.songs;
+                }
+            } catch (e) { songs = []; }
+            
+            try {
+                if (scale.song_ids) {
+                    songIds = typeof scale.song_ids === 'string' ? JSON.parse(scale.song_ids) : scale.song_ids;
+                }
+            } catch (e) { songIds = []; }
+            
+            try {
+                if (scale.musician_ids) {
+                    musicianIds = typeof scale.musician_ids === 'string' ? JSON.parse(scale.musician_ids) : scale.musician_ids;
+                }
+            } catch (e) { musicianIds = []; }
+            
+            return {
+                ...scale,
+                songs: songs,
+                song_ids: songIds,
+                musician_ids: musicianIds
+            };
+        });
+        
+        console.log(`✅ Encontradas ${processedScales.length} escalas`);
+        res.json(processedScales);
     } catch (error) {
         console.error('❌ Erro ao buscar escalas:', error);
         res.status(500).json({ error: error.message });
@@ -1369,7 +1409,12 @@ app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
         let musicianIds = [];
         try {
             if (scale[0].musician_ids) {
-                musicianIds = JSON.parse(scale[0].musician_ids);
+                let musicianData = scale[0].musician_ids;
+                if (typeof musicianData === 'string') {
+                    musicianIds = JSON.parse(musicianData);
+                } else if (Array.isArray(musicianData)) {
+                    musicianIds = musicianData;
+                }
                 if (musicianIds.length > 0) {
                     musicians = await sql`
                         SELECT id, name, email FROM users WHERE id = ANY(${musicianIds})
@@ -1378,13 +1423,19 @@ app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
             }
         } catch (e) {
             console.log('⚠️ Erro ao parsear musician_ids:', e);
+            musicianIds = [];
         }
 
         let songs = [];
         let songIds = [];
         try {
             if (scale[0].song_ids) {
-                songIds = JSON.parse(scale[0].song_ids);
+                let songData = scale[0].song_ids;
+                if (typeof songData === 'string') {
+                    songIds = JSON.parse(songData);
+                } else if (Array.isArray(songData)) {
+                    songIds = songData;
+                }
                 if (songIds.length > 0) {
                     songs = await sql`
                         SELECT id, title, key, lyrics FROM songs WHERE id = ANY(${songIds})
@@ -1393,14 +1444,28 @@ app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
             }
         } catch (e) {
             console.log('⚠️ Erro ao parsear song_ids:', e);
+            songIds = [];
+        }
+
+        let songsList = [];
+        try {
+            if (scale[0].songs) {
+                if (typeof scale[0].songs === 'string') {
+                    songsList = JSON.parse(scale[0].songs);
+                } else if (Array.isArray(scale[0].songs)) {
+                    songsList = scale[0].songs;
+                }
+            }
+        } catch (e) {
+            songsList = [];
         }
 
         const result = { 
             ...scale[0], 
             musicians, 
-            songs,
-            musician_ids: musicianIds,
-            song_ids: songIds
+            songs: songsList,
+            song_ids: songIds,
+            musician_ids: musicianIds
         };
         res.json(result);
     } catch (error) {

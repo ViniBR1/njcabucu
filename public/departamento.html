@@ -1606,7 +1606,9 @@
         function showCreateScale() {
             document.getElementById('createScaleForm').classList.remove('hidden');
             document.getElementById('createScaleForm').scrollIntoView({ behavior: 'smooth' });
-            loadMusicCheckboxGrid();
+            
+            // Carrega as músicas ANTES de mostrar o formulário
+            loadSongsForCheckbox();
             
             const dateInput = document.getElementById('scaleDate');
             if (!dateInput.value) {
@@ -1617,7 +1619,7 @@
                 dateInput.value = nextSunday.toISOString().slice(0, 16);
             }
             
-            setTimeout(() => loadAvailableMembersForScale(), 300);
+            setTimeout(() => loadAvailableMembersForScale(), 500);
         }
 
         function hideCreateScale() {
@@ -1636,14 +1638,14 @@
             const rehearsal = document.getElementById('hasRehearsal').checked;
             const musicians = Array.from(document.getElementById('scaleMusicians').selectedOptions || [])
                                   .filter(o => o.value)
-                                  .map(o => o.value);
-            const musicIds = getSelectedMusicIds();
+                                  .map(o => parseInt(o.value));
+            const musicIds = getSelectedMusicIds().map(id => parseInt(id));
 
             if (!date) { showNotification('Selecione a data do culto!', 'error'); return; }
             if (!musicIds.length) { showNotification('Selecione pelo menos uma música!', 'error'); return; }
 
             const availableIds = new Set(availableMembers.map(m => m.id));
-            const invalidMusicians = musicians.filter(id => !availableIds.has(parseInt(id)));
+            const invalidMusicians = musicians.filter(id => !availableIds.has(id));
             if (invalidMusicians.length > 0) {
                 const names = invalidMusicians.map(id => {
                     const m = members.find(mem => mem.id == id);
@@ -1663,7 +1665,7 @@
                 return m ? m.title : 'Música';
             });
 
-            console.log('📝 Dados da escala:', {
+            console.log('📝 Enviando dados da escala:', {
                 department_id: user.department_id,
                 event_date: date,
                 leader_id: user.id,
@@ -1720,11 +1722,27 @@
 
                 container.innerHTML = scales.map(s => {
                     const eventDate = new Date(s.event_date);
-                    const songsList = Array.isArray(s.songs) ? s.songs : [];
+                    // Verifica se songs é um array ou string
+                    let songsList = [];
+                    try {
+                        if (typeof s.songs === 'string') {
+                            songsList = JSON.parse(s.songs);
+                        } else if (Array.isArray(s.songs)) {
+                            songsList = s.songs;
+                        }
+                    } catch (e) { songsList = []; }
+                    
                     const paletteColors = s.palette ? s.palette.split(',').map(c => c.trim()) : [];
                     const isMyScale = myScales.some(m => m.id === s.id);
                     let musicianIds = [];
-                    try { musicianIds = JSON.parse(s.musician_ids || '[]'); } catch { musicianIds = []; }
+                    try {
+                        if (typeof s.musician_ids === 'string') {
+                            musicianIds = JSON.parse(s.musician_ids);
+                        } else if (Array.isArray(s.musician_ids)) {
+                            musicianIds = s.musician_ids;
+                        }
+                    } catch { musicianIds = []; }
+                    
                     const musicianNames = musicianIds.map(id => {
                         const m = members.find(mem => mem.id == id);
                         return m ? m.name : '';
@@ -1877,9 +1895,24 @@
 
                 container.innerHTML = myScales.map(s => {
                     const eventDate = new Date(s.event_date);
-                    const songsList = Array.isArray(s.songs) ? s.songs : [];
+                    let songsList = [];
+                    try {
+                        if (typeof s.songs === 'string') {
+                            songsList = JSON.parse(s.songs);
+                        } else if (Array.isArray(s.songs)) {
+                            songsList = s.songs;
+                        }
+                    } catch (e) { songsList = []; }
+                    
                     let musicianIds = [];
-                    try { musicianIds = JSON.parse(s.musician_ids || '[]'); } catch { musicianIds = []; }
+                    try {
+                        if (typeof s.musician_ids === 'string') {
+                            musicianIds = JSON.parse(s.musician_ids);
+                        } else if (Array.isArray(s.musician_ids)) {
+                            musicianIds = s.musician_ids;
+                        }
+                    } catch { musicianIds = []; }
+                    
                     const musicianNames = musicianIds.map(id => {
                         const m = members.find(mem => mem.id == id);
                         return m ? m.name : '';
@@ -1963,6 +1996,62 @@
             } catch (e) {
                 console.error('Erro:', e);
                 document.getElementById('songsList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar músicas.</p>';
+            }
+        }
+
+        // ================================================
+        // FUNÇÃO PARA CARREGAR MÚSICAS NO CHECKBOX
+        // ================================================
+        function loadMusicCheckboxGrid() {
+            const container = document.getElementById('musicCheckboxGrid');
+            if (!container) return;
+            
+            // Verifica se as músicas já foram carregadas
+            if (!songs || songs.length === 0) {
+                // Tenta carregar as músicas novamente
+                loadSongsForCheckbox();
+                return;
+            }
+            
+            container.innerHTML = songs.map(s => `
+                <label>
+                    <input type="checkbox" class="music-checkbox" value="${s.id}" data-title="${s.title}">
+                    ${s.title} (${s.key || 'C'})
+                </label>
+            `).join('');
+        }
+
+        // ================================================
+        // FUNÇÃO PARA CARREGAR MÚSICAS ESPECIFICAMENTE PARA O CHECKBOX
+        // ================================================
+        async function loadSongsForCheckbox() {
+            try {
+                console.log('📝 Carregando músicas para o checkbox...');
+                const data = await fetchApi(`/api/songs?department_id=${user.department_id}`);
+                if (!data) {
+                    document.getElementById('musicCheckboxGrid').innerHTML = '<p class="text-muted">Nenhuma música cadastrada.</p>';
+                    return;
+                }
+                
+                songs = Array.isArray(data) ? data : [];
+                const container = document.getElementById('musicCheckboxGrid');
+                
+                if (!songs.length) {
+                    container.innerHTML = '<p class="text-muted">Nenhuma música cadastrada. Cadastre uma música na aba "Músicas".</p>';
+                    return;
+                }
+                
+                container.innerHTML = songs.map(s => `
+                    <label>
+                        <input type="checkbox" class="music-checkbox" value="${s.id}" data-title="${s.title}">
+                        ${s.title} (${s.key || 'C'})
+                    </label>
+                `).join('');
+                
+                console.log(`✅ ${songs.length} músicas carregadas para o checkbox`);
+            } catch (e) {
+                console.error('❌ Erro ao carregar músicas:', e);
+                document.getElementById('musicCheckboxGrid').innerHTML = `<p style="color:#dc3545;">❌ Erro ao carregar músicas: ${e.message}</p>`;
             }
         }
 

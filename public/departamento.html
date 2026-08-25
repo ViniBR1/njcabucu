@@ -827,6 +827,16 @@
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('addMusicModal')">&times;</button>
             <h3><i class="fas fa-music"></i> Nova Música</h3>
+            <div id="youtubeSearchDiv">
+                <div class="form-group" style="border-bottom:2px solid #e0e0e0;padding-bottom:1rem;margin-bottom:1rem;">
+                    <label><i class="fab fa-youtube"></i> Buscar no YouTube</label>
+                    <div style="display:flex;gap:0.3rem;">
+                        <input type="text" id="youtubeSearchInput" placeholder="Digite o nome da música..." style="flex:1;">
+                        <button onclick="searchYoutubeMusic()" class="btn btn-primary"><i class="fas fa-search"></i> Buscar</button>
+                    </div>
+                    <div id="youtubeSearchResults" style="margin-top:0.5rem;max-height:200px;overflow-y:auto;"></div>
+                </div>
+            </div>
             <div class="form-group">
                 <label>Título *</label>
                 <input type="text" id="newMusicTitle" placeholder="Nome da música">
@@ -2055,12 +2065,85 @@
             }
         }
 
+        // ================================================
+        // FUNÇÃO PARA BUSCAR MÚSICA NO YOUTUBE
+        // ================================================
+        async function searchYoutubeMusic() {
+            const query = document.getElementById('youtubeSearchInput').value.trim();
+            if (!query) {
+                showNotification('Digite o nome da música!', 'error');
+                return;
+            }
+            
+            showNotification('🔍 Buscando no YouTube...', 'info');
+            
+            try {
+                const response = await fetch(`/api/youtube-search?query=${encodeURIComponent(query)}`, {
+                    headers: getHeaders()
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar no YouTube');
+                }
+                
+                const data = await response.json();
+                const resultsContainer = document.getElementById('youtubeSearchResults');
+                
+                if (!data.results || data.results.length === 0) {
+                    resultsContainer.innerHTML = '<p class="text-muted">Nenhum resultado encontrado.</p>';
+                    return;
+                }
+                
+                resultsContainer.innerHTML = data.results.map((video, index) => `
+                    <div class="scale-item" style="cursor:pointer;border-left-color:#ff0000;padding:0.5rem;margin-bottom:0.3rem;" 
+                         onclick="selectYoutubeVideo('${video.videoId}', '${video.title.replace(/'/g, "\\'")}')">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <div>
+                                <strong>${video.title}</strong>
+                            </div>
+                            <button class="btn btn-success btn-sm">
+                                <i class="fas fa-check"></i> Selecionar
+                            </button>
+                        </div>
+                        <div style="font-size:0.7rem;color:#888;">
+                            <i class="fab fa-youtube"></i> Clique para selecionar
+                        </div>
+                    </div>
+                `).join('');
+                
+                showNotification(`✅ ${data.results.length} resultados encontrados!`, 'success');
+            } catch (e) {
+                console.error('❌ Erro na busca:', e);
+                showNotification('❌ Erro ao buscar: ' + e.message, 'error');
+            }
+        }
+
+        // ================================================
+        // FUNÇÃO PARA SELECIONAR VÍDEO DO YOUTUBE
+        // ================================================
+        function selectYoutubeVideo(videoId, title) {
+            document.getElementById('newMusicTitle').value = title;
+            document.getElementById('newMusicYoutube').value = `https://www.youtube.com/watch?v=${videoId}`;
+            
+            // Fecha os resultados
+            document.getElementById('youtubeSearchResults').innerHTML = `
+                <div style="background:#d4edda;padding:0.5rem;border-radius:8px;color:#155724;">
+                    ✅ Vídeo selecionado: <strong>${title}</strong>
+                    <br><small>Clique em "Salvar" para cadastrar a música</small>
+                </div>
+            `;
+            
+            showNotification('✅ Música selecionada! Preencha os outros campos e salve.', 'success');
+        }
+
         function openAddMusicModal() {
             document.getElementById('newMusicTitle').value = '';
             document.getElementById('newMusicArtist').value = '';
             document.getElementById('newMusicKey').value = 'C';
             document.getElementById('newMusicYoutube').value = '';
             document.getElementById('newMusicLyrics').value = '';
+            document.getElementById('youtubeSearchInput').value = '';
+            document.getElementById('youtubeSearchResults').innerHTML = '';
             openModal('addMusicModal');
         }
 

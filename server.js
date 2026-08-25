@@ -596,18 +596,18 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // ESCALAS
+        // ESCALAS - COM JSONB
         await sql`CREATE TABLE IF NOT EXISTS worship_scales (
             id SERIAL PRIMARY KEY,
             department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE,
             event_date TIMESTAMP NOT NULL,
             leader_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
             minister_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
-            songs TEXT,
-            song_ids TEXT,
+            songs jsonb DEFAULT '[]'::jsonb,
+            song_ids jsonb DEFAULT '[]'::jsonb,
             palette VARCHAR(200),
             rehearsal BOOLEAN DEFAULT false,
-            musician_ids TEXT,
+            musician_ids jsonb DEFAULT '[]'::jsonb,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
@@ -637,36 +637,6 @@ async function initDB() {
                 IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
                                WHERE table_name='studies' AND column_name='file_base64') THEN
                     ALTER TABLE studies ADD COLUMN file_base64 TEXT;
-                END IF;
-            END $$;
-        `;
-
-        await sql`
-            DO $$
-            BEGIN
-                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
-                               WHERE table_name='worship_scales' AND column_name='minister_id') THEN
-                    ALTER TABLE worship_scales ADD COLUMN minister_id INTEGER REFERENCES users(id) ON DELETE SET NULL;
-                END IF;
-            END $$;
-        `;
-
-        await sql`
-            DO $$
-            BEGIN
-                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
-                               WHERE table_name='worship_scales' AND column_name='musician_ids') THEN
-                    ALTER TABLE worship_scales ADD COLUMN musician_ids TEXT;
-                END IF;
-            END $$;
-        `;
-
-        await sql`
-            DO $$
-            BEGIN
-                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
-                               WHERE table_name='worship_scales' AND column_name='song_ids') THEN
-                    ALTER TABLE worship_scales ADD COLUMN song_ids TEXT;
                 END IF;
             END $$;
         `;
@@ -957,8 +927,7 @@ app.get('/api/departments', auth, async (req, res) => {
             SELECT d.*, u.name as leader_name
             FROM departments d
             LEFT JOIN users u ON d.leader_id = u.id
-            WHERE d.is_active = true
-            ORDER BY d.name
+            WHERE d.is_active = true            ORDER BY d.name
         `;
         res.json(depts);
     } catch (error) {
@@ -1348,7 +1317,7 @@ app.get('/api/youtube-search', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== ROTAS DE ESCALAS - CORRIGIDAS =====
+// ===== ROTAS DE ESCALAS - CORRIGIDAS COM JSONB =====
 // ============================================
 
 app.post('/api/worship-scales', auth, async (req, res) => {
@@ -1376,15 +1345,16 @@ app.post('/api/worship-scales', auth, async (req, res) => {
             return res.status(404).json({ error: 'Departamento não encontrado' });
         }
 
-        // Garante que songs seja um array
+        // Garante que songs seja um array de strings
         let songsArray = [];
         if (Array.isArray(songs)) {
-            songsArray = songs;
+            songsArray = songs.map(s => String(s));
         } else if (typeof songs === 'string') {
             try {
-                songsArray = JSON.parse(songs);
+                const parsed = JSON.parse(songs);
+                songsArray = Array.isArray(parsed) ? parsed.map(s => String(s)) : [String(songs)];
             } catch (e) {
-                songsArray = [songs];
+                songsArray = [String(songs)];
             }
         }
 
@@ -1446,11 +1416,11 @@ app.post('/api/worship-scales', auth, async (req, res) => {
                 ${event_date}, 
                 ${leader_id || null}, 
                 ${minister_id || null}, 
-                ${songsStr}, 
-                ${songIdsStr}, 
+                ${songsStr}::jsonb, 
+                ${songIdsStr}::jsonb, 
                 ${palette || 'Azul, Prata, Branco, Dourado'}, 
                 ${rehearsal || false}, 
-                ${musiciansStr}
+                ${musiciansStr}::jsonb
             )
             RETURNING *
         `;
@@ -1494,10 +1464,14 @@ app.get('/api/worship-scales', auth, async (req, res) => {
             let musicianIds = [];
             
             try {
-                if (scale.songs && typeof scale.songs === 'string') {
-                    songs = JSON.parse(scale.songs);
-                } else if (Array.isArray(scale.songs)) {
-                    songs = scale.songs;
+                if (scale.songs) {
+                    if (typeof scale.songs === 'string') {
+                        songs = JSON.parse(scale.songs);
+                    } else if (Array.isArray(scale.songs)) {
+                        songs = scale.songs;
+                    } else if (typeof scale.songs === 'object') {
+                        songs = scale.songs;
+                    }
                 }
             } catch (e) { 
                 console.log('⚠️ Erro ao parsear songs:', e);
@@ -1505,10 +1479,14 @@ app.get('/api/worship-scales', auth, async (req, res) => {
             }
             
             try {
-                if (scale.song_ids && typeof scale.song_ids === 'string') {
-                    songIds = JSON.parse(scale.song_ids);
-                } else if (Array.isArray(scale.song_ids)) {
-                    songIds = scale.song_ids;
+                if (scale.song_ids) {
+                    if (typeof scale.song_ids === 'string') {
+                        songIds = JSON.parse(scale.song_ids);
+                    } else if (Array.isArray(scale.song_ids)) {
+                        songIds = scale.song_ids;
+                    } else if (typeof scale.song_ids === 'object') {
+                        songIds = scale.song_ids;
+                    }
                 }
             } catch (e) { 
                 console.log('⚠️ Erro ao parsear song_ids:', e);
@@ -1516,10 +1494,14 @@ app.get('/api/worship-scales', auth, async (req, res) => {
             }
             
             try {
-                if (scale.musician_ids && typeof scale.musician_ids === 'string') {
-                    musicianIds = JSON.parse(scale.musician_ids);
-                } else if (Array.isArray(scale.musician_ids)) {
-                    musicianIds = scale.musician_ids;
+                if (scale.musician_ids) {
+                    if (typeof scale.musician_ids === 'string') {
+                        musicianIds = JSON.parse(scale.musician_ids);
+                    } else if (Array.isArray(scale.musician_ids)) {
+                        musicianIds = scale.musician_ids;
+                    } else if (typeof scale.musician_ids === 'object') {
+                        musicianIds = scale.musician_ids;
+                    }
                 }
             } catch (e) { 
                 console.log('⚠️ Erro ao parsear musician_ids:', e);
@@ -1528,9 +1510,9 @@ app.get('/api/worship-scales', auth, async (req, res) => {
             
             return {
                 ...scale,
-                songs: songs,
-                song_ids: songIds,
-                musician_ids: musicianIds
+                songs: Array.isArray(songs) ? songs : [],
+                song_ids: Array.isArray(songIds) ? songIds : [],
+                musician_ids: Array.isArray(musicianIds) ? musicianIds : []
             };
         });
         
@@ -1572,6 +1554,8 @@ app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
                     musicianIds = JSON.parse(musicianData);
                 } else if (Array.isArray(musicianData)) {
                     musicianIds = musicianData;
+                } else if (typeof musicianData === 'object') {
+                    musicianIds = musicianData;
                 }
                 if (musicianIds.length > 0) {
                     musicians = await sql`
@@ -1593,6 +1577,8 @@ app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
                     songIds = JSON.parse(songData);
                 } else if (Array.isArray(songData)) {
                     songIds = songData;
+                } else if (typeof songData === 'object') {
+                    songIds = songData;
                 }
                 if (songIds.length > 0) {
                     songs = await sql`
@@ -1612,6 +1598,8 @@ app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
                     songsList = JSON.parse(scale[0].songs);
                 } else if (Array.isArray(scale[0].songs)) {
                     songsList = scale[0].songs;
+                } else if (typeof scale[0].songs === 'object') {
+                    songsList = scale[0].songs;
                 }
             }
         } catch (e) {
@@ -1621,9 +1609,9 @@ app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
         const result = { 
             ...scale[0], 
             musicians, 
-            songs: songsList,
-            song_ids: songIds,
-            musician_ids: musicianIds
+            songs: Array.isArray(songsList) ? songsList : [],
+            song_ids: Array.isArray(songIds) ? songIds : [],
+            musician_ids: Array.isArray(musicianIds) ? musicianIds : []
         };
         res.json(result);
     } catch (error) {
@@ -1661,7 +1649,7 @@ app.get('/api/worship-scales/member/:userId', auth, async (req, res) => {
             LEFT JOIN users u2 ON ws.minister_id = u2.id
             WHERE ws.leader_id = ${userId} 
                OR ws.minister_id = ${userId}
-               OR EXISTS (SELECT 1 FROM jsonb_array_elements_text(COALESCE(ws.musician_ids, '[]')::jsonb) AS m WHERE m::int = ${userId})
+               OR EXISTS (SELECT 1 FROM jsonb_array_elements_text(COALESCE(ws.musician_ids, '[]'::jsonb)) AS m WHERE m::int = ${userId})
             ORDER BY ws.event_date DESC
         `;
         console.log(`✅ Encontradas ${scales.length} escalas para o usuário`);
@@ -1693,7 +1681,7 @@ app.put('/api/worship-scales/:id/songs', auth, async (req, res) => {
 
         await sql`
             UPDATE worship_scales 
-            SET songs = ${songsJson}, song_ids = ${songIdsJson}
+            SET songs = ${songsJson}::jsonb, song_ids = ${songIdsJson}::jsonb
             WHERE id = ${id}
         `;
         res.json({ message: 'Músicas atualizadas com sucesso' });
@@ -1728,19 +1716,27 @@ app.get('/api/worship-scales/:id/share', auth, async (req, res) => {
         
         let songs = [];
         try {
-            if (typeof s.songs === 'string') {
-                songs = JSON.parse(s.songs);
-            } else if (Array.isArray(s.songs)) {
-                songs = s.songs;
+            if (s.songs) {
+                if (typeof s.songs === 'string') {
+                    songs = JSON.parse(s.songs);
+                } else if (Array.isArray(s.songs)) {
+                    songs = s.songs;
+                } else if (typeof s.songs === 'object') {
+                    songs = s.songs;
+                }
             }
         } catch { songs = []; }
         
         let musicianIds = [];
         try {
-            if (typeof s.musician_ids === 'string') {
-                musicianIds = JSON.parse(s.musician_ids);
-            } else if (Array.isArray(s.musician_ids)) {
-                musicianIds = s.musician_ids;
+            if (s.musician_ids) {
+                if (typeof s.musician_ids === 'string') {
+                    musicianIds = JSON.parse(s.musician_ids);
+                } else if (Array.isArray(s.musician_ids)) {
+                    musicianIds = s.musician_ids;
+                } else if (typeof s.musician_ids === 'object') {
+                    musicianIds = s.musician_ids;
+                }
             }
         } catch { musicianIds = []; }
         

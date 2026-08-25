@@ -203,6 +203,7 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static('public'));
 app.use('/uploads', express.static('public/uploads'));
 
@@ -1237,7 +1238,7 @@ app.get('/api/songs/by-key/:key', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== ROTA PARA BUSCAR MÚSICA NO YOUTUBE - CORRIGIDA =====
+// ===== ROTA PARA BUSCAR MÚSICA NO YOUTUBE =====
 // ============================================
 
 app.get('/api/youtube-search', auth, async (req, res) => {
@@ -1250,7 +1251,6 @@ app.get('/api/youtube-search', auth, async (req, res) => {
             return res.status(400).json({ error: 'Digite o nome da música' });
         }
 
-        // Verifica se a chave existe
         const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
         console.log('🔑 Chave API presente:', YOUTUBE_API_KEY ? '✅ Sim' : '❌ Não');
         
@@ -1271,7 +1271,6 @@ app.get('/api/youtube-search', auth, async (req, res) => {
         
         console.log('📊 Status da resposta:', response.status);
         
-        // Verifica se houve erro na API
         if (data.error) {
             console.error('❌ Erro na API do YouTube:', JSON.stringify(data.error, null, 2));
             
@@ -1342,7 +1341,6 @@ app.post('/api/worship-scales', auth, async (req, res) => {
             return res.status(404).json({ error: 'Departamento não encontrado' });
         }
 
-        // Garante que songs seja um array de strings
         let songsArray = [];
         if (Array.isArray(songs)) {
             songsArray = songs.map(s => String(s));
@@ -1355,7 +1353,6 @@ app.post('/api/worship-scales', auth, async (req, res) => {
             }
         }
 
-        // Garante que song_ids seja um array de números
         let songIdsArray = [];
         if (Array.isArray(song_ids)) {
             songIdsArray = song_ids.map(id => parseInt(id)).filter(id => !isNaN(id));
@@ -1370,7 +1367,6 @@ app.post('/api/worship-scales', auth, async (req, res) => {
             }
         }
 
-        // Garante que musicians seja um array de números
         let musiciansArray = [];
         if (Array.isArray(musicians)) {
             musiciansArray = musicians.map(id => parseInt(id)).filter(id => !isNaN(id));
@@ -1385,7 +1381,6 @@ app.post('/api/worship-scales', auth, async (req, res) => {
             }
         }
 
-        // Converte para JSON string
         const songsStr = JSON.stringify(songsArray);
         const songIdsStr = JSON.stringify(songIdsArray);
         const musiciansStr = JSON.stringify(musiciansArray);
@@ -2507,6 +2502,55 @@ app.get('/api/attendance/date/:date', auth, async (req, res) => {
     }
 });
 
+app.get('/api/attendance/:memberId', auth, async (req, res) => {
+    try {
+        const { memberId } = req.params;
+        const { limit } = req.query;
+        
+        let query = `
+            SELECT * FROM attendance 
+            WHERE member_id = ${memberId} 
+            ORDER BY event_date DESC
+        `;
+        if (limit) {
+            query += ` LIMIT ${parseInt(limit)}`;
+        }
+        
+        const records = await sql(query);
+        res.json(records);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/attendance/stats/:memberId', auth, async (req, res) => {
+    try {
+        const { memberId } = req.params;
+        
+        const stats = await sql`
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN present = true THEN 1 ELSE 0 END) as present,
+                SUM(CASE WHEN present = false THEN 1 ELSE 0 END) as absent
+            FROM attendance 
+            WHERE member_id = ${memberId}
+        `;
+        
+        const total = stats[0]?.total || 0;
+        const present = stats[0]?.present || 0;
+        const percentage = total > 0 ? Math.round((present / total) * 100) : 0;
+        
+        res.json({
+            total,
+            present,
+            absent: stats[0]?.absent || 0,
+            percentage
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // ============================================
 // ===== ROTAS DE DÍZIMOS =====
 // ============================================
@@ -3470,6 +3514,10 @@ app.get('/admin', (req, res) => {
 
 app.get('/departamento', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'departamento.html'));
+});
+
+app.get('/secretaria', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'secretaria.html'));
 });
 
 // ============================================

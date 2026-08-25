@@ -1,4 +1,3 @@
-
 // ============================================
 // ===== NJ CABUÇU - SERVIDOR COMPLETO =====
 // ============================================
@@ -1275,15 +1274,15 @@ app.post('/api/worship-scales', auth, async (req, res) => {
             return res.status(404).json({ error: 'Departamento não encontrado' });
         }
 
-        // Converte para JSON string corretamente
-        const songsJson = JSON.stringify(songs || []);
-        const songIdsJson = JSON.stringify(song_ids || []);
-        const musiciansJson = JSON.stringify(musicians || []);
+        // Converte para JSON string
+        const songsStr = JSON.stringify(songs || []);
+        const songIdsStr = JSON.stringify(song_ids || []);
+        const musiciansStr = JSON.stringify(musicians || []);
 
-        console.log('📝 Dados a serem salvos:', {
-            songsJson,
-            songIdsJson,
-            musiciansJson
+        console.log('📝 Salvando como strings:', {
+            songsStr,
+            songIdsStr,
+            musiciansStr
         });
 
         const result = await sql`
@@ -1303,11 +1302,11 @@ app.post('/api/worship-scales', auth, async (req, res) => {
                 ${event_date}, 
                 ${leader_id || null}, 
                 ${minister_id || null}, 
-                ${songsJson}, 
-                ${songIdsJson}, 
+                ${songsStr}, 
+                ${songIdsStr}, 
                 ${palette || 'Azul, Prata, Branco, Dourado'}, 
                 ${rehearsal || false}, 
-                ${musiciansJson}
+                ${musiciansStr}
             )
             RETURNING *
         `;
@@ -1352,20 +1351,26 @@ app.get('/api/worship-scales', auth, async (req, res) => {
             let musicianIds = [];
             
             try {
-                if (scale.songs) {
-                    songs = typeof scale.songs === 'string' ? JSON.parse(scale.songs) : scale.songs;
+                if (scale.songs && typeof scale.songs === 'string') {
+                    songs = JSON.parse(scale.songs);
+                } else if (Array.isArray(scale.songs)) {
+                    songs = scale.songs;
                 }
             } catch (e) { songs = []; }
             
             try {
-                if (scale.song_ids) {
-                    songIds = typeof scale.song_ids === 'string' ? JSON.parse(scale.song_ids) : scale.song_ids;
+                if (scale.song_ids && typeof scale.song_ids === 'string') {
+                    songIds = JSON.parse(scale.song_ids);
+                } else if (Array.isArray(scale.song_ids)) {
+                    songIds = scale.song_ids;
                 }
             } catch (e) { songIds = []; }
             
             try {
-                if (scale.musician_ids) {
-                    musicianIds = typeof scale.musician_ids === 'string' ? JSON.parse(scale.musician_ids) : scale.musician_ids;
+                if (scale.musician_ids && typeof scale.musician_ids === 'string') {
+                    musicianIds = JSON.parse(scale.musician_ids);
+                } else if (Array.isArray(scale.musician_ids)) {
+                    musicianIds = scale.musician_ids;
                 }
             } catch (e) { musicianIds = []; }
             
@@ -3203,12 +3208,20 @@ app.get('/api/worship-scales/:id/share', auth, async (req, res) => {
         
         let songs = [];
         try {
-            songs = JSON.parse(s.songs || '[]');
+            if (typeof s.songs === 'string') {
+                songs = JSON.parse(s.songs);
+            } else if (Array.isArray(s.songs)) {
+                songs = s.songs;
+            }
         } catch { songs = []; }
         
         let musicianIds = [];
         try {
-            musicianIds = JSON.parse(s.musician_ids || '[]');
+            if (typeof s.musician_ids === 'string') {
+                musicianIds = JSON.parse(s.musician_ids);
+            } else if (Array.isArray(s.musician_ids)) {
+                musicianIds = s.musician_ids;
+            }
         } catch { musicianIds = []; }
         
         let musicians = [];

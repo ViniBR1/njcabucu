@@ -24,11 +24,9 @@
     <meta name="theme-color" content="#0D47A1">
     <meta name="mobile-web-app-capable" content="yes">
     
-    <!-- Ícone para a aba do navegador -->
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512x512.png">
     <link rel="shortcut icon" href="/icons/icon-72x72.png">
-    
     <!-- ===== FIM PWA ===== -->
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -68,6 +66,243 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f0f0f0; }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+
+        /* ===== BOTÃO DE INSTALAÇÃO PWA (ESTILO IGUAL AO EXEMPLO) ===== */
+
+        /* Banner inferior */
+        .install-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #000000;
+            color: #ffffff;
+            padding: 16px 20px;
+            box-shadow: 0 -4px 30px rgba(0,0,0,0.5);
+            z-index: 99999;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            animation: slideUpBanner 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUpBanner {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .install-banner .banner-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .install-banner .banner-icon {
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .install-banner .banner-icon i {
+            font-size: 22px;
+            color: #fff;
+        }
+
+        .install-banner .banner-text {
+            flex: 1;
+        }
+
+        .install-banner .banner-text h4 {
+            font-weight: 700;
+            font-size: 14px;
+            margin: 0;
+            color: #fff;
+        }
+
+        .install-banner .banner-text p {
+            font-size: 12px;
+            opacity: 0.7;
+            margin: 2px 0 0;
+            color: #fff;
+        }
+
+        .install-banner .banner-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .install-banner .btn-install {
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .install-banner .btn-install:hover {
+            background: #e8e8e8;
+            transform: scale(1.02);
+        }
+
+        .install-banner .btn-install i {
+            font-size: 16px;
+        }
+
+        .install-banner .btn-close-banner {
+            background: transparent;
+            color: rgba(255,255,255,0.5);
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .install-banner .btn-close-banner:hover {
+            color: #fff;
+            transform: rotate(90deg);
+        }
+
+        /* Botão flutuante */
+        .install-fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+            z-index: 99998;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255,255,255,0.1);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            animation: fadeInFab 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .install-fab:hover {
+            background: #1a1a1a;
+            transform: scale(1.05);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+        }
+
+        .install-fab i {
+            font-size: 18px;
+        }
+
+        @keyframes fadeInFab {
+            from { opacity: 0; transform: scale(0.9) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* Toast de notificação */
+        .notification-toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a1a;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 999999;
+            max-width: 90%;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            animation: fadeInFab 0.3s ease;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .install-banner {
+                padding: 14px 16px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .install-banner .banner-left {
+                gap: 10px;
+            }
+            
+            .install-banner .banner-actions {
+                justify-content: flex-end;
+                width: 100%;
+            }
+            
+            .install-banner .btn-install {
+                padding: 8px 18px;
+                font-size: 13px;
+            }
+            
+            .install-fab {
+                bottom: 16px;
+                right: 16px;
+                padding: 12px 18px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .install-banner .banner-text h4 {
+                font-size: 13px;
+            }
+            
+            .install-banner .banner-text p {
+                font-size: 11px;
+            }
+            
+            .install-banner .btn-install {
+                padding: 6px 14px;
+                font-size: 12px;
+            }
+            
+            .install-banner .banner-icon i {
+                font-size: 18px;
+            }
+            
+            .install-fab {
+                padding: 10px 14px;
+                font-size: 12px;
+                bottom: 12px;
+                right: 12px;
+            }
+            
+            .install-fab i {
+                font-size: 15px;
+            }
+        }
+
+        /* ===== FIM BOTÃO PWA ===== */
 
         .header {
             background: #1a1a2e;
@@ -164,119 +399,6 @@
             cursor: pointer;
             padding: 0.2rem;
         }
-
-        /* ===== BOTÃO FLUTUANTE DE INSTALAÇÃO PWA ===== */
-        .install-pwa-btn {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 99999;
-            background: linear-gradient(135deg, #0D47A1, #1565C0);
-            color: #fff;
-            border: none;
-            border-radius: 50px;
-            padding: 12px 24px;
-            font-size: 14px;
-            font-weight: 700;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            cursor: pointer;
-            box-shadow: 0 8px 32px rgba(13, 71, 161, 0.4);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: none;
-            align-items: center;
-            gap: 10px;
-            animation: slideUpInstall 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            max-width: 90%;
-            text-align: center;
-            white-space: nowrap;
-        }
-
-        .install-pwa-btn:hover {
-            transform: translateX(-50%) scale(1.05);
-            box-shadow: 0 12px 40px rgba(13, 71, 161, 0.5);
-        }
-
-        .install-pwa-btn i {
-            font-size: 20px;
-            animation: bounceInstall 2s infinite;
-        }
-
-        @keyframes slideUpInstall {
-            from { opacity: 0; transform: translateX(-50%) translateY(30px); }
-            to { opacity: 1; transform: translateX(-50%) translateY(0); }
-        }
-
-        @keyframes bounceInstall {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
-        }
-
-        .install-pwa-btn .close-install {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: #fff;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            font-size: 14px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-            margin-left: 4px;
-            padding: 0;
-        }
-
-        .install-pwa-btn .close-install:hover {
-            background: rgba(255,255,255,0.3);
-            transform: scale(1.1);
-        }
-
-        .install-pwa-btn .badge-new {
-            background: #FF6B6B;
-            color: #fff;
-            font-size: 8px;
-            font-weight: 800;
-            padding: 2px 8px;
-            border-radius: 50px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-left: 4px;
-            animation: pulseBadge 1.5s infinite;
-        }
-
-        @keyframes pulseBadge {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        @media (max-width: 768px) {
-            .install-pwa-btn {
-                bottom: 16px;
-                padding: 10px 18px;
-                font-size: 12px;
-                white-space: normal;
-            }
-            .install-pwa-btn i {
-                font-size: 16px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .install-pwa-btn {
-                bottom: 12px;
-                padding: 8px 14px;
-                font-size: 11px;
-                border-radius: 40px;
-            }
-            .install-pwa-btn i {
-                font-size: 14px;
-            }
-        }
-
-        /* ===== FIM BOTÃO PWA ===== */
 
         .main-nav {
             background: rgba(26,26,46,0.97);
@@ -1344,6 +1466,34 @@
         <button onclick="scrollToSection('reflexoes')" class="nav-btn"><i class="fas fa-video"></i> Reflexões</button>
     </nav>
 
+    <!-- ===== BANNER DE INSTALAÇÃO PWA ===== -->
+    <div class="install-banner" id="installBanner">
+        <div class="banner-left">
+            <div class="banner-icon">
+                <i class="fas fa-download"></i>
+            </div>
+            <div class="banner-text">
+                <h4>📱 NJ Cabuçu</h4>
+                <p>Instale o app na tela inicial do seu celular</p>
+            </div>
+        </div>
+        <div class="banner-actions">
+            <button class="btn-install" id="installBtn">
+                <i class="fas fa-download"></i>
+                Instalar
+            </button>
+            <button class="btn-close-banner" id="closeBannerBtn" aria-label="Fechar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== BOTÃO FLUTUANTE ===== -->
+    <button class="install-fab" id="installFab">
+        <i class="fas fa-download"></i>
+        <span>Instalar App</span>
+    </button>
+
     <section id="home" class="hero">
         <div class="hero-slides" id="heroSlides"></div>
         <div class="hero-arrows">
@@ -1699,15 +1849,6 @@
         <span class="fab-label">Doar</span>
     </button>
 
-    <!-- BOTÃO FLUTUANTE DE INSTALAÇÃO PWA -->
-    <button id="installPwaBtn" class="install-pwa-btn" style="display:none;">
-        <i class="fas fa-download"></i>
-        <span>Instalar App <span class="badge-new">Novo</span></span>
-        <button class="close-install" onclick="dismissInstallPrompt(event)" aria-label="Fechar">
-            <i class="fas fa-times"></i>
-        </button>
-    </button>
-
     <!-- MODAIS -->
     <div class="modal modal-bible" id="bibleModal">
         <div class="modal-content">
@@ -1888,204 +2029,206 @@
         }
 
         // ============================================
-        // ===== BOTÃO DE INSTALAÇÃO PWA =====
+        // ===== BOTÃO DE INSTALAÇÃO PWA (IGUAL AO EXEMPLO) =====
         // ============================================
 
-        let deferredPrompt = null;
-        let installDismissed = false;
+        (function() {
+            'use strict';
 
-        // Verifica se o usuário já instalou ou fechou o prompt
-        function checkInstallDismissed() {
-            try {
-                installDismissed = localStorage.getItem('pwa_install_dismissed') === 'true';
-                return installDismissed;
-            } catch {
-                return false;
+            let deferredPrompt = null;
+            let showBannerState = false;
+            
+            const banner = document.getElementById('installBanner');
+            const fab = document.getElementById('installFab');
+            const installBtn = document.getElementById('installBtn');
+            const closeBtn = document.getElementById('closeBannerBtn');
+
+            // ===== VERIFICAR SE JÁ ESTÁ INSTALADO =====
+            function isStandalone() {
+                return window.matchMedia('(display-mode: standalone)').matches || 
+                       window.navigator.standalone === true;
             }
-        }
 
-        // Salva que o usuário fechou o prompt
-        function setInstallDismissed() {
-            try {
-                localStorage.setItem('pwa_install_dismissed', 'true');
-                installDismissed = true;
-            } catch {}
-        }
-
-        // Mostra ou esconde o botão de instalação
-        function toggleInstallButton(show) {
-            const btn = document.getElementById('installPwaBtn');
-            if (!btn) return;
-            
-            // Se já foi instalado, não mostra
-            if (window.navigator && window.navigator.standalone === true) {
-                btn.style.display = 'none';
-                return;
-            }
-            
-            // Se já foi fechado, não mostra (a menos que seja iOS)
-            if (installDismissed && !isIOS()) {
-                btn.style.display = 'none';
-                return;
-            }
-            
-            btn.style.display = show ? 'flex' : 'none';
-        }
-
-        // Detecta se é iOS
-        function isIOS() {
-            return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        }
-
-        // Detecta se está no modo standalone (já instalado)
-        function isStandalone() {
-            return window.matchMedia('(display-mode: standalone)').matches || 
-                   window.navigator.standalone === true;
-        }
-
-        // ===== EVENTO: beforeinstallprompt (Android/Chrome) =====
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            if (!installDismissed && !isStandalone()) {
-                toggleInstallButton(true);
-            }
-        });
-
-        // ===== CLIQUE NO BOTÃO DE INSTALAÇÃO =====
-        document.getElementById('installPwaBtn')?.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            
-            const btn = document.getElementById('installPwaBtn');
-            
-            if (deferredPrompt) {
+            // ===== VERIFICAR SE O BANNER FOI FECHADO =====
+            function isBannerClosed() {
                 try {
-                    const result = await deferredPrompt.prompt();
-                    const choiceResult = await deferredPrompt.userChoice;
-                    console.log('Usuário escolheu:', choiceResult.outcome);
-                    
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('✅ App instalado com sucesso!');
-                        showNotification('✅ NJ Cabuçu instalado com sucesso!', 'success');
-                        btn.style.display = 'none';
-                        setInstallDismissed();
-                    } else {
-                        console.log('❌ Usuário recusou a instalação');
-                        showAlternativeInstall();
-                    }
-                    
-                    deferredPrompt = null;
-                } catch (error) {
-                    console.error('Erro na instalação:', error);
-                    showAlternativeInstall();
+                    return localStorage.getItem('pwa-banner-fechado') === 'true';
+                } catch {
+                    return false;
                 }
-                return;
             }
-            
-            if (isIOS()) {
-                showIOSInstructions();
-                return;
+
+            // ===== SALVAR QUE O BANNER FOI FECHADO =====
+            function setBannerClosed() {
+                try {
+                    localStorage.setItem('pwa-banner-fechado', 'true');
+                } catch {}
             }
-            
-            showAlternativeInstall();
-        });
 
-        // ===== FUNÇÃO PARA FECHAR O BOTÃO =====
-        function dismissInstallPrompt(e) {
-            if (e) e.stopPropagation();
-            setInstallDismissed();
-            toggleInstallButton(false);
-            showNotification('💡 Você pode instalar o app acessando o menu do navegador.', 'info');
-        }
+            // ===== MOSTRAR/ESCONDER ELEMENTOS =====
+            function updateUI() {
+                const installed = isStandalone();
+                const closed = isBannerClosed();
 
-        // ===== INSTRUÇÕES PARA iOS =====
-        function showIOSInstructions() {
-            if (isIOS()) {
-                if (isStandalone()) {
-                    showNotification('✅ NJ Cabuçu já está instalado no seu dispositivo!', 'success');
+                if (installed) {
+                    banner.style.display = 'none';
+                    fab.style.display = 'none';
                     return;
                 }
-                
-                const msg = `📱 Para instalar o NJ Cabuçu no seu iPhone/iPad:\n\n1. Toque no ícone de compartilhar 📤\n2. Role para baixo e toque em "Adicionar à Tela de Início"\n3. Toque em "Adicionar"`;
-                alert(msg);
-                showNotification('📱 Siga as instruções para adicionar à tela inicial', 'info');
-                setInstallDismissed();
-                toggleInstallButton(false);
-            }
-        }
 
-        // ===== INSTRUÇÕES ALTERNATIVAS =====
-        function showAlternativeInstall() {
-            const msg = `📲 Para instalar o NJ Cabuçu como app:\n\n• Chrome/Edge: Toque nos 3 pontos ⋮ e selecione "Instalar app"\n• Safari: Toque no ícone de compartilhar 📤 e "Adicionar à Tela de Início"\n• Firefox: Toque no menu ☰ e "Adicionar à tela inicial"`;
-            alert(msg);
-            showNotification('💡 Siga as instruções para instalar o app', 'info');
-        }
-
-        // ===== VERIFICA SE JÁ ESTÁ INSTALADO =====
-        function checkAlreadyInstalled() {
-            if (isStandalone()) {
-                console.log('✅ App já está instalado e em execução');
-                toggleInstallButton(false);
-                return true;
-            }
-            return false;
-        }
-
-        // ===== DETECTA SE É UM DISPOSITIVO MÓVEL =====
-        function isMobileDevice() {
-            return /Mobi|Android|iPhone|iPad|iPod|Opera Mini|BlackBerry|Windows Phone/i.test(navigator.userAgent);
-        }
-
-        // ===== INICIALIZAÇÃO DO BOTÃO =====
-        document.addEventListener('DOMContentLoaded', () => {
-            if (checkAlreadyInstalled()) {
-                return;
-            }
-            
-            if (!isMobileDevice()) {
-                toggleInstallButton(false);
-                return;
-            }
-            
-            if (checkInstallDismissed()) {
-                toggleInstallButton(false);
-                return;
-            }
-            
-            if (isIOS()) {
-                setTimeout(() => {
-                    if (!isStandalone() && !checkInstallDismissed()) {
-                        toggleInstallButton(true);
-                    }
-                }, 1500);
-                return;
-            }
-            
-            setTimeout(() => {
-                const btn = document.getElementById('installPwaBtn');
-                if (btn && btn.style.display !== 'flex' && !checkInstallDismissed() && !isStandalone()) {
-                    toggleInstallButton(true);
+                if (closed) {
+                    banner.style.display = 'none';
+                    fab.style.display = 'flex';
+                    return;
                 }
-            }, 5000);
-        });
 
-        // ===== EVENTO: appinstalled =====
-        window.addEventListener('appinstalled', (evt) => {
-            console.log('✅ App instalado com sucesso via evento appinstalled');
-            toggleInstallButton(false);
-            setInstallDismissed();
-            showNotification('✅ NJ Cabuçu instalado! Abra o app na tela inicial.', 'success');
-        });
-
-        // ===== VERIFICAÇÃO PERIÓDICA =====
-        setInterval(() => {
-            if (isStandalone() && document.getElementById('installPwaBtn')?.style.display !== 'none') {
-                toggleInstallButton(false);
+                if (showBannerState) {
+                    banner.style.display = 'flex';
+                    fab.style.display = 'none';
+                } else {
+                    banner.style.display = 'none';
+                    fab.style.display = 'flex';
+                }
             }
-        }, 5000);
 
-        console.log('✅ Sistema de instalação PWA carregado!');
+            // ===== FUNÇÃO DE INSTALAÇÃO =====
+            async function handleInstall() {
+                if (deferredPrompt) {
+                    try {
+                        deferredPrompt.prompt();
+                        const result = await deferredPrompt.userChoice;
+                        
+                        if (result.outcome === 'accepted') {
+                            console.log('✅ App instalado com sucesso!');
+                            banner.style.display = 'none';
+                            fab.style.display = 'none';
+                            setBannerClosed();
+                            showNotification('✅ App instalado com sucesso!');
+                        } else {
+                            console.log('❌ Instalação cancelada');
+                            showNotification('ℹ️ Instalação cancelada');
+                        }
+                        deferredPrompt = null;
+                    } catch (error) {
+                        console.error('Erro na instalação:', error);
+                        showAlternativeInstall();
+                    }
+                } else {
+                    showAlternativeInstall();
+                }
+            }
+
+            // ===== INSTRUÇÕES ALTERNATIVAS =====
+            function showAlternativeInstall() {
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                
+                if (isIOS) {
+                    alert('📱 Para instalar o NJ Cabuçu no seu iPhone/iPad:\n\n1. Toque no ícone de compartilhar 📤\n2. Role para baixo e toque em "Adicionar à Tela de Início"\n3. Toque em "Adicionar"');
+                } else {
+                    alert('📲 Para instalar o NJ Cabuçu como app:\n\n• Chrome/Edge: Toque nos 3 pontos ⋮ e selecione "Instalar app"\n• Safari: Toque no ícone de compartilhar 📤 e "Adicionar à Tela de Início"\n• Firefox: Toque no menu ☰ e "Adicionar à tela inicial"');
+                }
+                showNotification('💡 Siga as instruções para instalar o app');
+            }
+
+            // ===== FECHAR BANNER =====
+            function closeBanner() {
+                setBannerClosed();
+                showBannerState = false;
+                updateUI();
+                showNotification('💡 Você pode instalar o app acessando o menu do navegador.');
+            }
+
+            // ===== NOTIFICAÇÃO TOAST =====
+            function showNotification(message) {
+                const old = document.querySelector('.notification-toast');
+                if (old) old.remove();
+                
+                const div = document.createElement('div');
+                div.className = 'notification-toast';
+                div.textContent = message;
+                document.body.appendChild(div);
+                
+                setTimeout(() => {
+                    div.style.opacity = '0';
+                    div.style.transition = 'opacity 0.4s';
+                    setTimeout(() => div.remove(), 400);
+                }, 3500);
+            }
+
+            // ===== EVENTO: beforeinstallprompt =====
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                console.log('✅ PWA pronto para instalação!');
+                
+                if (!isBannerClosed() && !isStandalone()) {
+                    showBannerState = true;
+                    updateUI();
+                }
+            });
+
+            // ===== EVENTO: appinstalled =====
+            window.addEventListener('appinstalled', () => {
+                console.log('✅ App instalado com sucesso via evento!');
+                banner.style.display = 'none';
+                fab.style.display = 'none';
+                setBannerClosed();
+                showNotification('✅ App instalado com sucesso!');
+            });
+
+            // ===== CLICK: Botão Instalar =====
+            if (installBtn) {
+                installBtn.addEventListener('click', handleInstall);
+            }
+
+            // ===== CLICK: Botão Flutuante =====
+            if (fab) {
+                fab.addEventListener('click', handleInstall);
+            }
+
+            // ===== CLICK: Fechar Banner =====
+            if (closeBtn) {
+                closeBtn.addEventListener('click', closeBanner);
+            }
+
+            // ===== INICIALIZAÇÃO =====
+            function init() {
+                if (isStandalone()) {
+                    banner.style.display = 'none';
+                    fab.style.display = 'none';
+                    return;
+                }
+
+                if (isBannerClosed()) {
+                    showBannerState = false;
+                    updateUI();
+                    return;
+                }
+
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                
+                if (isIOS) {
+                    setTimeout(() => {
+                        if (!isStandalone() && !isBannerClosed()) {
+                            showBannerState = true;
+                            updateUI();
+                        }
+                    }, 2000);
+                    return;
+                }
+
+                setTimeout(() => {
+                    if (!deferredPrompt && !isStandalone() && !isBannerClosed()) {
+                        showBannerState = true;
+                        updateUI();
+                    }
+                }, 5000);
+            }
+
+            init();
+
+            console.log('✅ Sistema de instalação PWA (igual ao exemplo) carregado!');
+        })();
 
         // ============================================
         // ===== FUNÇÕES DE MAPAS =====

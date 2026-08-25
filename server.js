@@ -1237,41 +1237,53 @@ app.get('/api/songs/by-key/:key', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== ROTA PARA BUSCAR MÚSICA NO YOUTUBE - CORRIGIDA COM API =====
+// ===== ROTA PARA BUSCAR MÚSICA NO YOUTUBE - CORRIGIDA =====
 // ============================================
 
 app.get('/api/youtube-search', auth, async (req, res) => {
     try {
         const { query } = req.query;
         
+        console.log('🔍 Busca recebida:', query);
+        
         if (!query || query.trim() === '') {
             return res.status(400).json({ error: 'Digite o nome da música' });
         }
 
+        // Verifica se a chave existe
         const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
+        console.log('🔑 Chave API presente:', YOUTUBE_API_KEY ? '✅ Sim' : '❌ Não');
         
         if (!YOUTUBE_API_KEY) {
+            console.error('❌ Chave da API do YouTube não encontrada no .env');
             return res.status(500).json({ 
-                error: 'Chave da API do YouTube não configurada. Adicione YOUTUBE_API_KEY no .env' 
+                error: 'Chave da API do YouTube não configurada. Adicione YOUTUBE_API_KEY no .env e reinicie o servidor.' 
             });
         }
 
-        console.log(`🔍 Buscando no YouTube: "${query}"`);
-
-        const response = await fetch(
-            `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(query + ' música gospel')}&type=video&key=${YOUTUBE_API_KEY}`
-        );
+        const searchQuery = encodeURIComponent(query + ' música gospel');
+        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${searchQuery}&type=video&key=${YOUTUBE_API_KEY}`;
         
+        console.log('📡 Fazendo requisição para YouTube...');
+
+        const response = await fetch(url);
         const data = await response.json();
+        
+        console.log('📊 Status da resposta:', response.status);
         
         // Verifica se houve erro na API
         if (data.error) {
-            console.error('❌ Erro na API do YouTube:', data.error);
+            console.error('❌ Erro na API do YouTube:', JSON.stringify(data.error, null, 2));
             
-            // Verifica se é erro de quota
             if (data.error.code === 403) {
                 return res.status(403).json({ 
-                    error: 'Limite de requisições da API do YouTube excedido. Tente novamente mais tarde ou cadastre a música manualmente.' 
+                    error: 'Limite de requisições da API do YouTube excedido. Tente novamente mais tarde.' 
+                });
+            }
+            
+            if (data.error.code === 400) {
+                return res.status(400).json({ 
+                    error: 'Chave da API inválida. Verifique se a chave está correta e se a API do YouTube está ativada.' 
                 });
             }
             

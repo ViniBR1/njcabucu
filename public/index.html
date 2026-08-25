@@ -67,9 +67,7 @@
         ::-webkit-scrollbar-track { background: #f0f0f0; }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 
-        /* ===== BOTÃO DE INSTALAÇÃO PWA (ESTILO IGUAL AO EXEMPLO) ===== */
-
-        /* Banner inferior */
+        /* ===== BOTÃO DE INSTALAÇÃO PWA ===== */
         .install-banner {
             position: fixed;
             bottom: 0;
@@ -182,7 +180,6 @@
             transform: rotate(90deg);
         }
 
-        /* Botão flutuante */
         .install-fab {
             position: fixed;
             bottom: 24px;
@@ -221,7 +218,6 @@
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
 
-        /* Toast de notificação */
         .notification-toast {
             position: fixed;
             bottom: 100px;
@@ -242,28 +238,21 @@
             border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* Responsivo */
         @media (max-width: 768px) {
             .install-banner {
                 padding: 14px 16px;
                 flex-direction: column;
                 align-items: stretch;
             }
-            
-            .install-banner .banner-left {
-                gap: 10px;
-            }
-            
+            .install-banner .banner-left { gap: 10px; }
             .install-banner .banner-actions {
                 justify-content: flex-end;
                 width: 100%;
             }
-            
             .install-banner .btn-install {
                 padding: 8px 18px;
                 font-size: 13px;
             }
-            
             .install-fab {
                 bottom: 16px;
                 right: 16px;
@@ -273,33 +262,20 @@
         }
 
         @media (max-width: 480px) {
-            .install-banner .banner-text h4 {
-                font-size: 13px;
-            }
-            
-            .install-banner .banner-text p {
-                font-size: 11px;
-            }
-            
+            .install-banner .banner-text h4 { font-size: 13px; }
+            .install-banner .banner-text p { font-size: 11px; }
             .install-banner .btn-install {
                 padding: 6px 14px;
                 font-size: 12px;
             }
-            
-            .install-banner .banner-icon i {
-                font-size: 18px;
-            }
-            
+            .install-banner .banner-icon i { font-size: 18px; }
             .install-fab {
                 padding: 10px 14px;
                 font-size: 12px;
                 bottom: 12px;
                 right: 12px;
             }
-            
-            .install-fab i {
-                font-size: 15px;
-            }
+            .install-fab i { font-size: 15px; }
         }
 
         /* ===== FIM BOTÃO PWA ===== */
@@ -2029,7 +2005,7 @@
         }
 
         // ============================================
-        // ===== BOTÃO DE INSTALAÇÃO PWA (IGUAL AO EXEMPLO) =====
+        // ===== BOTÃO DE INSTALAÇÃO PWA (CORRIGIDO) =====
         // ============================================
 
         (function() {
@@ -2091,12 +2067,22 @@
                 }
             }
 
-            // ===== FUNÇÃO DE INSTALAÇÃO =====
-            async function handleInstall() {
+            // ===== FUNÇÃO DE INSTALAÇÃO CORRIGIDA =====
+            async function handleInstall(e) {
+                if (e) e.preventDefault();
+                
+                console.log('📲 Botão de instalação clicado!');
+                console.log('deferredPrompt:', deferredPrompt);
+                
+                // VERIFICA SE O PROMPT ESTÁ DISPONÍVEL
                 if (deferredPrompt) {
                     try {
+                        // MOSTRA O PROMPT NATIVO DO CHROME
                         deferredPrompt.prompt();
+                        
+                        // AGUARDA A ESCOLHA DO USUÁRIO
                         const result = await deferredPrompt.userChoice;
+                        console.log('✅ Resultado da instalação:', result.outcome);
                         
                         if (result.outcome === 'accepted') {
                             console.log('✅ App instalado com sucesso!');
@@ -2105,15 +2091,21 @@
                             setBannerClosed();
                             showNotification('✅ App instalado com sucesso!');
                         } else {
-                            console.log('❌ Instalação cancelada');
+                            console.log('❌ Instalação cancelada pelo usuário');
                             showNotification('ℹ️ Instalação cancelada');
                         }
+                        
+                        // LIMPA O PROMPT DEPOIS DE USADO
                         deferredPrompt = null;
+                        
                     } catch (error) {
-                        console.error('Erro na instalação:', error);
+                        console.error('❌ Erro na instalação:', error);
+                        // TENTA NOVAMENTE COM O MÉTODO ALTERNATIVO
                         showAlternativeInstall();
                     }
                 } else {
+                    console.log('⚠️ deferredPrompt é null - mostrando instruções alternativas');
+                    // SE NÃO TIVER PROMPT, MOSTRA INSTRUÇÕES
                     showAlternativeInstall();
                 }
             }
@@ -2125,7 +2117,12 @@
                 if (isIOS) {
                     alert('📱 Para instalar o NJ Cabuçu no seu iPhone/iPad:\n\n1. Toque no ícone de compartilhar 📤\n2. Role para baixo e toque em "Adicionar à Tela de Início"\n3. Toque em "Adicionar"');
                 } else {
-                    alert('📲 Para instalar o NJ Cabuçu como app:\n\n• Chrome/Edge: Toque nos 3 pontos ⋮ e selecione "Instalar app"\n• Safari: Toque no ícone de compartilhar 📤 e "Adicionar à Tela de Início"\n• Firefox: Toque no menu ☰ e "Adicionar à tela inicial"');
+                    // VERIFICA SE O NAVEGADOR SUPORTA INSTALAÇÃO
+                    if ('beforeinstallprompt' in window) {
+                        alert('⚠️ O prompt de instalação não está disponível agora.\n\nTente:\n• Recarregar a página\n• Usar o Chrome/Edge\n• Clicar nos 3 pontos ⋮ e selecionar "Instalar app"');
+                    } else {
+                        alert('📲 Para instalar o NJ Cabuçu como app:\n\n• Chrome/Edge: Toque nos 3 pontos ⋮ e selecione "Instalar app"\n• Safari: Toque no ícone de compartilhar 📤 e "Adicionar à Tela de Início"\n• Firefox: Toque no menu ☰ e "Adicionar à tela inicial"');
+                    }
                 }
                 showNotification('💡 Siga as instruções para instalar o app');
             }
@@ -2155,12 +2152,19 @@
                 }, 3500);
             }
 
-            // ===== EVENTO: beforeinstallprompt =====
+            // ===== EVENTO: beforeinstallprompt (CORRIGIDO) =====
             window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                console.log('✅ PWA pronto para instalação!');
+                console.log('📥 Evento beforeinstallprompt disparado!');
                 
+                // PREVINE O PROMPT AUTOMÁTICO
+                e.preventDefault();
+                
+                // ARMAZENA O EVENTO PARA USAR DEPOIS
+                deferredPrompt = e;
+                
+                console.log('✅ deferredPrompt armazenado com sucesso!');
+                
+                // MOSTRA O BANNER SE O USUÁRIO NUNCA FECHOU
                 if (!isBannerClosed() && !isStandalone()) {
                     showBannerState = true;
                     updateUI();
@@ -2176,58 +2180,87 @@
                 showNotification('✅ App instalado com sucesso!');
             });
 
-            // ===== CLICK: Botão Instalar =====
+            // ===== CLICK: Botão Instalar (Banner) =====
             if (installBtn) {
                 installBtn.addEventListener('click', handleInstall);
+                console.log('✅ Botão "Instalar" do banner configurado');
             }
 
             // ===== CLICK: Botão Flutuante =====
             if (fab) {
                 fab.addEventListener('click', handleInstall);
+                console.log('✅ Botão flutuante configurado');
             }
 
             // ===== CLICK: Fechar Banner =====
             if (closeBtn) {
                 closeBtn.addEventListener('click', closeBanner);
+                console.log('✅ Botão "Fechar" do banner configurado');
             }
 
             // ===== INICIALIZAÇÃO =====
             function init() {
+                console.log('🚀 Inicializando sistema de instalação PWA...');
+                console.log('📱 Standalone:', isStandalone());
+                console.log('🔒 Banner fechado:', isBannerClosed());
+                
+                // SE JÁ ESTIVER INSTALADO, NÃO MOSTRA NADA
                 if (isStandalone()) {
                     banner.style.display = 'none';
                     fab.style.display = 'none';
+                    console.log('✅ App já está instalado');
                     return;
                 }
 
+                // SE JÁ FECHOU O BANNER, MOSTRA SÓ O BOTÃO
                 if (isBannerClosed()) {
                     showBannerState = false;
                     updateUI();
+                    console.log('✅ Banner já foi fechado, mostrando apenas o botão');
                     return;
                 }
 
+                // VERIFICA SE É iOS
                 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
                 
                 if (isIOS) {
+                    console.log('📱 Dispositivo iOS detectado');
                     setTimeout(() => {
                         if (!isStandalone() && !isBannerClosed()) {
                             showBannerState = true;
                             updateUI();
+                            console.log('✅ Banner mostrado para iOS');
                         }
                     }, 2000);
                     return;
                 }
 
+                // PARA ANDROID/CHROME, ESPERA O beforeinstallprompt
+                // SE NÃO FOR ACIONADO EM 5 SEGUNDOS, MOSTRA O BOTÃO
                 setTimeout(() => {
                     if (!deferredPrompt && !isStandalone() && !isBannerClosed()) {
+                        console.log('⏳ beforeinstallprompt não foi acionado, mostrando botão');
                         showBannerState = true;
                         updateUI();
                     }
                 }, 5000);
+                
+                console.log('✅ Sistema de instalação PWA inicializado!');
             }
 
+            // EXECUTA A INICIALIZAÇÃO
             init();
 
-            console.log('✅ Sistema de instalação PWA (igual ao exemplo) carregado!');
+            // EXPÕE A FUNÇÃO GLOBALMENTE PARA DEBUG
+            window.__debugInstall = {
+                deferredPrompt: () => deferredPrompt,
+                showBannerState: () => showBannerState,
+                isStandalone: isStandalone,
+                isBannerClosed: isBannerClosed,
+                handleInstall: handleInstall
+            };
+
+            console.log('✅ Sistema de instalação PWA carregado! Use window.__debugInstall para debug');
         })();
 
         // ============================================

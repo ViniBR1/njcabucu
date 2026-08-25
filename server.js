@@ -214,7 +214,7 @@ const storage = multer.memoryStorage();
 const upload = multer({
     storage: storage,
     limits: { 
-        fileSize: 10 * 1024 * 1024 // 10MB
+        fileSize: 10 * 1024 * 1024
     },
     fileFilter: function (req, file, cb) {
         const allowedTypes = /jpeg|jpg|png|gif|webp|pdf/;
@@ -229,7 +229,6 @@ const upload = multer({
     }
 });
 
-// Middleware para upload de múltiplos arquivos (imagem + pdf)
 const uploadFields = upload.fields([
     { name: 'image', maxCount: 1 },
     { name: 'file', maxCount: 1 }
@@ -1174,7 +1173,6 @@ app.post('/api/songs', auth, async (req, res) => {
             return res.status(400).json({ error: 'Departamento não informado' });
         }
 
-        // Verifica se a música já existe
         const existing = await sql`
             SELECT * FROM songs WHERE title ILIKE ${title.trim()} AND department_id = ${deptId}
         `;
@@ -1269,7 +1267,7 @@ app.get('/api/songs/by-key/:key', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== ROTA PARA BUSCAR MÚSICA NO YOUTUBE - CORRIGIDA =====
+// ===== ROTA PARA BUSCAR MÚSICA NO YOUTUBE =====
 // ============================================
 
 app.get('/api/youtube-search', auth, async (req, res) => {
@@ -1280,7 +1278,6 @@ app.get('/api/youtube-search', auth, async (req, res) => {
             return res.status(400).json({ error: 'Digite o nome da música' });
         }
 
-        // Tenta usar a API oficial do YouTube primeiro
         const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
         
         if (YOUTUBE_API_KEY) {
@@ -1305,7 +1302,6 @@ app.get('/api/youtube-search', auth, async (req, res) => {
             }
         }
 
-        // Fallback: scraping do YouTube (pode falhar)
         const searchQuery = encodeURIComponent(query + ' música gospel cifra');
         const response = await fetch(`https://www.youtube.com/results?search_query=${searchQuery}`, {
             headers: {
@@ -1315,11 +1311,9 @@ app.get('/api/youtube-search', auth, async (req, res) => {
         
         const html = await response.text();
         
-        // Extrai os vídeos do HTML
         const videoIds = [];
         const titleMatches = [];
         
-        // Padrões para extrair dados
         const videoIdRegex = /"videoId":"([^"]+)"/g;
         let match;
         while ((match = videoIdRegex.exec(html)) !== null) {
@@ -1335,7 +1329,6 @@ app.get('/api/youtube-search', auth, async (req, res) => {
             }
         }
         
-        // Monta os resultados
         const results = [];
         const maxResults = Math.min(videoIds.length, titleMatches.length, 10);
         
@@ -1355,7 +1348,7 @@ app.get('/api/youtube-search', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== ROTAS DE ESCALAS =====
+// ===== ROTAS DE ESCALAS - CORRIGIDAS =====
 // ============================================
 
 app.post('/api/worship-scales', auth, async (req, res) => {
@@ -1383,10 +1376,52 @@ app.post('/api/worship-scales', auth, async (req, res) => {
             return res.status(404).json({ error: 'Departamento não encontrado' });
         }
 
+        // Garante que songs seja um array
+        let songsArray = [];
+        if (Array.isArray(songs)) {
+            songsArray = songs;
+        } else if (typeof songs === 'string') {
+            try {
+                songsArray = JSON.parse(songs);
+            } catch (e) {
+                songsArray = [songs];
+            }
+        }
+
+        // Garante que song_ids seja um array de números
+        let songIdsArray = [];
+        if (Array.isArray(song_ids)) {
+            songIdsArray = song_ids.map(id => parseInt(id)).filter(id => !isNaN(id));
+        } else if (typeof song_ids === 'string') {
+            try {
+                const parsed = JSON.parse(song_ids);
+                if (Array.isArray(parsed)) {
+                    songIdsArray = parsed.map(id => parseInt(id)).filter(id => !isNaN(id));
+                }
+            } catch (e) {
+                songIdsArray = [];
+            }
+        }
+
+        // Garante que musicians seja um array de números
+        let musiciansArray = [];
+        if (Array.isArray(musicians)) {
+            musiciansArray = musicians.map(id => parseInt(id)).filter(id => !isNaN(id));
+        } else if (typeof musicians === 'string') {
+            try {
+                const parsed = JSON.parse(musicians);
+                if (Array.isArray(parsed)) {
+                    musiciansArray = parsed.map(id => parseInt(id)).filter(id => !isNaN(id));
+                }
+            } catch (e) {
+                musiciansArray = [];
+            }
+        }
+
         // Converte para JSON string
-        const songsStr = JSON.stringify(songs || []);
-        const songIdsStr = JSON.stringify(song_ids || []);
-        const musiciansStr = JSON.stringify(musicians || []);
+        const songsStr = JSON.stringify(songsArray);
+        const songIdsStr = JSON.stringify(songIdsArray);
+        const musiciansStr = JSON.stringify(musiciansArray);
 
         console.log('📝 Salvando como strings:', {
             songsStr,
@@ -1453,7 +1488,6 @@ app.get('/api/worship-scales', auth, async (req, res) => {
         
         const scales = await sql(query, params);
         
-        // Processa os dados para garantir que os arrays sejam parseados corretamente
         const processedScales = scales.map(scale => {
             let songs = [];
             let songIds = [];
@@ -1465,7 +1499,10 @@ app.get('/api/worship-scales', auth, async (req, res) => {
                 } else if (Array.isArray(scale.songs)) {
                     songs = scale.songs;
                 }
-            } catch (e) { songs = []; }
+            } catch (e) { 
+                console.log('⚠️ Erro ao parsear songs:', e);
+                songs = []; 
+            }
             
             try {
                 if (scale.song_ids && typeof scale.song_ids === 'string') {
@@ -1473,7 +1510,10 @@ app.get('/api/worship-scales', auth, async (req, res) => {
                 } else if (Array.isArray(scale.song_ids)) {
                     songIds = scale.song_ids;
                 }
-            } catch (e) { songIds = []; }
+            } catch (e) { 
+                console.log('⚠️ Erro ao parsear song_ids:', e);
+                songIds = []; 
+            }
             
             try {
                 if (scale.musician_ids && typeof scale.musician_ids === 'string') {
@@ -1481,7 +1521,10 @@ app.get('/api/worship-scales', auth, async (req, res) => {
                 } else if (Array.isArray(scale.musician_ids)) {
                     musicianIds = scale.musician_ids;
                 }
-            } catch (e) { musicianIds = []; }
+            } catch (e) { 
+                console.log('⚠️ Erro ao parsear musician_ids:', e);
+                musicianIds = []; 
+            }
             
             return {
                 ...scale,

@@ -1503,7 +1503,7 @@
         }
 
         // ================================================
-        // FUNÇÃO PARA CARREGAR MÚSICAS PARA O CHECKBOX
+        // FUNÇÃO PARA CARREGAR MÚSICAS PARA O CHECKBOX - CORRIGIDA
         // ================================================
         async function loadSongsForCheckbox() {
             try {
@@ -1682,7 +1682,7 @@
         }
 
         // ================================================
-        // SALVAR ESCALA - CORRIGIDO
+        // SALVAR ESCALA - CORRIGIDA
         // ================================================
         async function saveScale() {
             const date = document.getElementById('scaleDate').value;
@@ -1697,10 +1697,8 @@
             if (!date) { showNotification('Selecione a data do culto!', 'error'); return; }
             if (!musicIds.length) { showNotification('Selecione pelo menos uma música!', 'error'); return; }
 
-            // Verifica disponibilidade
             const availableIds = new Set(availableMembers.map(m => m.id));
             
-            // Verifica músicos
             const invalidMusicians = musicians.filter(id => !availableIds.has(id));
             if (invalidMusicians.length > 0) {
                 const names = invalidMusicians.map(id => {
@@ -1711,19 +1709,16 @@
                 return;
             }
 
-            // Verifica ministro
             if (minister && !availableIds.has(parseInt(minister))) {
                 showNotification('⚠️ O ministro selecionado não está disponível nesta data!', 'error');
                 return;
             }
 
-            // Busca os nomes das músicas
             const musicNames = musicIds.map(id => {
                 const m = songs.find(s => s.id == id);
                 return m ? m.title : 'Música';
             });
 
-            // Prepara os dados para enviar
             const payload = {
                 department_id: parseInt(user.department_id),
                 event_date: date,
@@ -1779,6 +1774,8 @@
                             songsList = JSON.parse(s.songs);
                         } else if (Array.isArray(s.songs)) {
                             songsList = s.songs;
+                        } else if (typeof s.songs === 'object') {
+                            songsList = s.songs;
                         }
                     } catch (e) { songsList = []; }
                     
@@ -1789,6 +1786,8 @@
                         if (typeof s.musician_ids === 'string') {
                             musicianIds = JSON.parse(s.musician_ids);
                         } else if (Array.isArray(s.musician_ids)) {
+                            musicianIds = s.musician_ids;
+                        } else if (typeof s.musician_ids === 'object') {
                             musicianIds = s.musician_ids;
                         }
                     } catch { musicianIds = []; }
@@ -1951,6 +1950,8 @@
                             songsList = JSON.parse(s.songs);
                         } else if (Array.isArray(s.songs)) {
                             songsList = s.songs;
+                        } else if (typeof s.songs === 'object') {
+                            songsList = s.songs;
                         }
                     } catch (e) { songsList = []; }
                     
@@ -1959,6 +1960,8 @@
                         if (typeof s.musician_ids === 'string') {
                             musicianIds = JSON.parse(s.musician_ids);
                         } else if (Array.isArray(s.musician_ids)) {
+                            musicianIds = s.musician_ids;
+                        } else if (typeof s.musician_ids === 'object') {
                             musicianIds = s.musician_ids;
                         }
                     } catch { musicianIds = []; }
@@ -2332,7 +2335,15 @@
             }
 
             let songIds = [];
-            try { songIds = JSON.parse(scale.song_ids || '[]'); } catch { songIds = []; }
+            try { 
+                if (typeof scale.song_ids === 'string') {
+                    songIds = JSON.parse(scale.song_ids);
+                } else if (Array.isArray(scale.song_ids)) {
+                    songIds = scale.song_ids;
+                } else if (typeof scale.song_ids === 'object') {
+                    songIds = scale.song_ids;
+                }
+            } catch { songIds = []; }
             
             container.innerHTML = songs.map(s => {
                 const isChecked = songIds.includes(s.id) ? 'checked' : '';

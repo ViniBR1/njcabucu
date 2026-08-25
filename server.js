@@ -214,7 +214,7 @@ const storage = multer.memoryStorage();
 const upload = multer({
     storage: storage,
     limits: { 
-        fileSize: 10 * 1024 * 1024
+        fileSize: 10 * 1024 * 1024 // 10MB
     },
     fileFilter: function (req, file, cb) {
         const allowedTypes = /jpeg|jpg|png|gif|webp|pdf/;
@@ -229,6 +229,7 @@ const upload = multer({
     }
 });
 
+// Middleware para upload de múltiplos arquivos (imagem + pdf)
 const uploadFields = upload.fields([
     { name: 'image', maxCount: 1 },
     { name: 'file', maxCount: 1 }
@@ -596,18 +597,18 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // ESCALAS - COM JSONB
+        // ESCALAS
         await sql`CREATE TABLE IF NOT EXISTS worship_scales (
             id SERIAL PRIMARY KEY,
             department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE,
             event_date TIMESTAMP NOT NULL,
             leader_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
             minister_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
-            songs jsonb DEFAULT '[]'::jsonb,
-            song_ids jsonb DEFAULT '[]'::jsonb,
+            songs TEXT,
+            song_ids TEXT,
             palette VARCHAR(200),
             rehearsal BOOLEAN DEFAULT false,
-            musician_ids jsonb DEFAULT '[]'::jsonb,
+            musician_ids TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
@@ -637,6 +638,36 @@ async function initDB() {
                 IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
                                WHERE table_name='studies' AND column_name='file_base64') THEN
                     ALTER TABLE studies ADD COLUMN file_base64 TEXT;
+                END IF;
+            END $$;
+        `;
+
+        await sql`
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='worship_scales' AND column_name='minister_id') THEN
+                    ALTER TABLE worship_scales ADD COLUMN minister_id INTEGER REFERENCES users(id) ON DELETE SET NULL;
+                END IF;
+            END $$;
+        `;
+
+        await sql`
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='worship_scales' AND column_name='musician_ids') THEN
+                    ALTER TABLE worship_scales ADD COLUMN musician_ids TEXT;
+                END IF;
+            END $$;
+        `;
+
+        await sql`
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='worship_scales' AND column_name='song_ids') THEN
+                    ALTER TABLE worship_scales ADD COLUMN song_ids TEXT;
                 END IF;
             END $$;
         `;
@@ -927,7 +958,8 @@ app.get('/api/departments', auth, async (req, res) => {
             SELECT d.*, u.name as leader_name
             FROM departments d
             LEFT JOIN users u ON d.leader_id = u.id
-            WHERE d.is_active = true            ORDER BY d.name
+            WHERE d.is_active = true
+            ORDER BY d.name
         `;
         res.json(depts);
     } catch (error) {
@@ -1106,7 +1138,7 @@ app.delete('/api/departments/:id/members/:userId', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== ROTAS DE MÚSICAS =====
+// ===== ROTAS DE MÚSICAS - CORRIGIDAS =====
 // ============================================
 
 app.get('/api/songs', auth, async (req, res) => {
@@ -1122,7 +1154,6 @@ app.get('/api/songs', auth, async (req, res) => {
         const songs = await sql(query, params);
         res.json(songs);
     } catch (error) {
-        console.error('❌ Erro ao buscar músicas:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1142,6 +1173,7 @@ app.post('/api/songs', auth, async (req, res) => {
             return res.status(400).json({ error: 'Departamento não informado' });
         }
 
+        // Verifica se a música já existe
         const existing = await sql`
             SELECT * FROM songs WHERE title ILIKE ${title.trim()} AND department_id = ${deptId}
         `;
@@ -1247,42 +1279,16 @@ app.get('/api/youtube-search', auth, async (req, res) => {
             return res.status(400).json({ error: 'Digite o nome da música' });
         }
 
-        const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
-        
-        if (YOUTUBE_API_KEY) {
-            try {
-                const response = await fetch(
-                    `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(query + ' música gospel')}&type=video&key=${YOUTUBE_API_KEY}`
-                );
-                
-                const data = await response.json();
-                
-                if (!data.error && data.items) {
-                    const results = data.items.map(item => ({
-                        title: item.snippet.title,
-                        videoId: item.id.videoId,
-                        url: `https://www.youtube.com/watch?v=${item.id.videoId}`
-                    }));
-                    
-                    return res.json({ results });
-                }
-            } catch (apiError) {
-                console.log('⚠️ Erro na API do YouTube, usando fallback:', apiError.message);
-            }
-        }
-
+        // Usa a API do YouTube (sem chave, faz scraping básico)
         const searchQuery = encodeURIComponent(query + ' música gospel cifra');
-        const response = await fetch(`https://www.youtube.com/results?search_query=${searchQuery}`, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-            }
-        });
-        
+        const response = await fetch(`https://www.youtube.com/results?search_query=${searchQuery}`);
         const html = await response.text();
         
+        // Extrai os vídeos do HTML (método simples)
         const videoIds = [];
         const titleMatches = [];
         
+        // Regex para encontrar IDs dos vídeos
         const videoIdRegex = /"videoId":"([^"]+)"/g;
         let match;
         while ((match = videoIdRegex.exec(html)) !== null) {
@@ -1291,6 +1297,7 @@ app.get('/api/youtube-search', auth, async (req, res) => {
             }
         }
         
+        // Regex para encontrar títulos
         const titleRegex = /"title":{"runs":\[{"text":"([^"]+)"}\]}/g;
         while ((match = titleRegex.exec(html)) !== null) {
             if (!titleMatches.includes(match[1])) {
@@ -1298,6 +1305,7 @@ app.get('/api/youtube-search', auth, async (req, res) => {
             }
         }
         
+        // Monta os resultados
         const results = [];
         const maxResults = Math.min(videoIds.length, titleMatches.length, 10);
         
@@ -1317,7 +1325,7 @@ app.get('/api/youtube-search', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== ROTAS DE ESCALAS - CORRIGIDAS COM JSONB =====
+// ===== ROTAS DE ESCALAS - CORRIGIDAS =====
 // ============================================
 
 app.post('/api/worship-scales', auth, async (req, res) => {
@@ -1345,53 +1353,10 @@ app.post('/api/worship-scales', auth, async (req, res) => {
             return res.status(404).json({ error: 'Departamento não encontrado' });
         }
 
-        // Garante que songs seja um array de strings
-        let songsArray = [];
-        if (Array.isArray(songs)) {
-            songsArray = songs.map(s => String(s));
-        } else if (typeof songs === 'string') {
-            try {
-                const parsed = JSON.parse(songs);
-                songsArray = Array.isArray(parsed) ? parsed.map(s => String(s)) : [String(songs)];
-            } catch (e) {
-                songsArray = [String(songs)];
-            }
-        }
-
-        // Garante que song_ids seja um array de números
-        let songIdsArray = [];
-        if (Array.isArray(song_ids)) {
-            songIdsArray = song_ids.map(id => parseInt(id)).filter(id => !isNaN(id));
-        } else if (typeof song_ids === 'string') {
-            try {
-                const parsed = JSON.parse(song_ids);
-                if (Array.isArray(parsed)) {
-                    songIdsArray = parsed.map(id => parseInt(id)).filter(id => !isNaN(id));
-                }
-            } catch (e) {
-                songIdsArray = [];
-            }
-        }
-
-        // Garante que musicians seja um array de números
-        let musiciansArray = [];
-        if (Array.isArray(musicians)) {
-            musiciansArray = musicians.map(id => parseInt(id)).filter(id => !isNaN(id));
-        } else if (typeof musicians === 'string') {
-            try {
-                const parsed = JSON.parse(musicians);
-                if (Array.isArray(parsed)) {
-                    musiciansArray = parsed.map(id => parseInt(id)).filter(id => !isNaN(id));
-                }
-            } catch (e) {
-                musiciansArray = [];
-            }
-        }
-
         // Converte para JSON string
-        const songsStr = JSON.stringify(songsArray);
-        const songIdsStr = JSON.stringify(songIdsArray);
-        const musiciansStr = JSON.stringify(musiciansArray);
+        const songsStr = JSON.stringify(songs || []);
+        const songIdsStr = JSON.stringify(song_ids || []);
+        const musiciansStr = JSON.stringify(musicians || []);
 
         console.log('📝 Salvando como strings:', {
             songsStr,
@@ -1416,11 +1381,11 @@ app.post('/api/worship-scales', auth, async (req, res) => {
                 ${event_date}, 
                 ${leader_id || null}, 
                 ${minister_id || null}, 
-                ${songsStr}::jsonb, 
-                ${songIdsStr}::jsonb, 
+                ${songsStr}, 
+                ${songIdsStr}, 
                 ${palette || 'Azul, Prata, Branco, Dourado'}, 
                 ${rehearsal || false}, 
-                ${musiciansStr}::jsonb
+                ${musiciansStr}
             )
             RETURNING *
         `;
@@ -1458,61 +1423,41 @@ app.get('/api/worship-scales', auth, async (req, res) => {
         
         const scales = await sql(query, params);
         
+        // Processa os dados para garantir que os arrays sejam parseados corretamente
         const processedScales = scales.map(scale => {
             let songs = [];
             let songIds = [];
             let musicianIds = [];
             
             try {
-                if (scale.songs) {
-                    if (typeof scale.songs === 'string') {
-                        songs = JSON.parse(scale.songs);
-                    } else if (Array.isArray(scale.songs)) {
-                        songs = scale.songs;
-                    } else if (typeof scale.songs === 'object') {
-                        songs = scale.songs;
-                    }
+                if (scale.songs && typeof scale.songs === 'string') {
+                    songs = JSON.parse(scale.songs);
+                } else if (Array.isArray(scale.songs)) {
+                    songs = scale.songs;
                 }
-            } catch (e) { 
-                console.log('⚠️ Erro ao parsear songs:', e);
-                songs = []; 
-            }
+            } catch (e) { songs = []; }
             
             try {
-                if (scale.song_ids) {
-                    if (typeof scale.song_ids === 'string') {
-                        songIds = JSON.parse(scale.song_ids);
-                    } else if (Array.isArray(scale.song_ids)) {
-                        songIds = scale.song_ids;
-                    } else if (typeof scale.song_ids === 'object') {
-                        songIds = scale.song_ids;
-                    }
+                if (scale.song_ids && typeof scale.song_ids === 'string') {
+                    songIds = JSON.parse(scale.song_ids);
+                } else if (Array.isArray(scale.song_ids)) {
+                    songIds = scale.song_ids;
                 }
-            } catch (e) { 
-                console.log('⚠️ Erro ao parsear song_ids:', e);
-                songIds = []; 
-            }
+            } catch (e) { songIds = []; }
             
             try {
-                if (scale.musician_ids) {
-                    if (typeof scale.musician_ids === 'string') {
-                        musicianIds = JSON.parse(scale.musician_ids);
-                    } else if (Array.isArray(scale.musician_ids)) {
-                        musicianIds = scale.musician_ids;
-                    } else if (typeof scale.musician_ids === 'object') {
-                        musicianIds = scale.musician_ids;
-                    }
+                if (scale.musician_ids && typeof scale.musician_ids === 'string') {
+                    musicianIds = JSON.parse(scale.musician_ids);
+                } else if (Array.isArray(scale.musician_ids)) {
+                    musicianIds = scale.musician_ids;
                 }
-            } catch (e) { 
-                console.log('⚠️ Erro ao parsear musician_ids:', e);
-                musicianIds = []; 
-            }
+            } catch (e) { musicianIds = []; }
             
             return {
                 ...scale,
-                songs: Array.isArray(songs) ? songs : [],
-                song_ids: Array.isArray(songIds) ? songIds : [],
-                musician_ids: Array.isArray(musicianIds) ? musicianIds : []
+                songs: songs,
+                song_ids: songIds,
+                musician_ids: musicianIds
             };
         });
         
@@ -1554,8 +1499,6 @@ app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
                     musicianIds = JSON.parse(musicianData);
                 } else if (Array.isArray(musicianData)) {
                     musicianIds = musicianData;
-                } else if (typeof musicianData === 'object') {
-                    musicianIds = musicianData;
                 }
                 if (musicianIds.length > 0) {
                     musicians = await sql`
@@ -1577,8 +1520,6 @@ app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
                     songIds = JSON.parse(songData);
                 } else if (Array.isArray(songData)) {
                     songIds = songData;
-                } else if (typeof songData === 'object') {
-                    songIds = songData;
                 }
                 if (songIds.length > 0) {
                     songs = await sql`
@@ -1598,8 +1539,6 @@ app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
                     songsList = JSON.parse(scale[0].songs);
                 } else if (Array.isArray(scale[0].songs)) {
                     songsList = scale[0].songs;
-                } else if (typeof scale[0].songs === 'object') {
-                    songsList = scale[0].songs;
                 }
             }
         } catch (e) {
@@ -1609,9 +1548,9 @@ app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
         const result = { 
             ...scale[0], 
             musicians, 
-            songs: Array.isArray(songsList) ? songsList : [],
-            song_ids: Array.isArray(songIds) ? songIds : [],
-            musician_ids: Array.isArray(musicianIds) ? musicianIds : []
+            songs: songsList,
+            song_ids: songIds,
+            musician_ids: musicianIds
         };
         res.json(result);
     } catch (error) {
@@ -1649,7 +1588,6 @@ app.get('/api/worship-scales/member/:userId', auth, async (req, res) => {
             LEFT JOIN users u2 ON ws.minister_id = u2.id
             WHERE ws.leader_id = ${userId} 
                OR ws.minister_id = ${userId}
-               OR EXISTS (SELECT 1 FROM jsonb_array_elements_text(COALESCE(ws.musician_ids, '[]'::jsonb)) AS m WHERE m::int = ${userId})
             ORDER BY ws.event_date DESC
         `;
         console.log(`✅ Encontradas ${scales.length} escalas para o usuário`);
@@ -1681,114 +1619,12 @@ app.put('/api/worship-scales/:id/songs', auth, async (req, res) => {
 
         await sql`
             UPDATE worship_scales 
-            SET songs = ${songsJson}::jsonb, song_ids = ${songIdsJson}::jsonb
+            SET songs = ${songsJson}, song_ids = ${songIdsJson}
             WHERE id = ${id}
         `;
         res.json({ message: 'Músicas atualizadas com sucesso' });
     } catch (error) {
         console.error('❌ Erro ao atualizar músicas da escala:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/worship-scales/:id/share', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        
-        const scale = await sql`
-            SELECT ws.*, 
-                   u1.name as leader_name, 
-                   u2.name as minister_name,
-                   u3.name as created_by_name
-            FROM worship_scales ws
-            LEFT JOIN users u1 ON ws.leader_id = u1.id
-            LEFT JOIN users u2 ON ws.minister_id = u2.id
-            LEFT JOIN users u3 ON ws.created_by = u3.id
-            WHERE ws.id = ${id}
-        `;
-        
-        if (scale.length === 0) {
-            return res.status(404).json({ error: 'Escala não encontrada' });
-        }
-        
-        const s = scale[0];
-        const eventDate = new Date(s.event_date);
-        
-        let songs = [];
-        try {
-            if (s.songs) {
-                if (typeof s.songs === 'string') {
-                    songs = JSON.parse(s.songs);
-                } else if (Array.isArray(s.songs)) {
-                    songs = s.songs;
-                } else if (typeof s.songs === 'object') {
-                    songs = s.songs;
-                }
-            }
-        } catch { songs = []; }
-        
-        let musicianIds = [];
-        try {
-            if (s.musician_ids) {
-                if (typeof s.musician_ids === 'string') {
-                    musicianIds = JSON.parse(s.musician_ids);
-                } else if (Array.isArray(s.musician_ids)) {
-                    musicianIds = s.musician_ids;
-                } else if (typeof s.musician_ids === 'object') {
-                    musicianIds = s.musician_ids;
-                }
-            }
-        } catch { musicianIds = []; }
-        
-        let musicians = [];
-        if (musicianIds.length > 0) {
-            musicians = await sql`
-                SELECT name FROM users WHERE id = ANY(${musicianIds})
-            `;
-        }
-        
-        let message = `🎵 *ESCALA DE LOUVOR* 🎵\n\n`;
-        message += `📅 *Data:* ${eventDate.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' })}\n`;
-        message += `🕐 *Horário:* ${eventDate.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' })}\n\n`;
-        message += `👑 *Líder:* ${s.leader_name || 'Não definido'}\n`;
-        message += `🎤 *Ministro:* ${s.minister_name || 'Não definido'}\n\n`;
-        
-        if (songs.length > 0) {
-            message += `🎶 *MÚSICAS:*\n`;
-            songs.forEach((song, i) => {
-                message += `${i+1}. ${song}\n`;
-            });
-            message += `\n`;
-        }
-        
-        if (s.palette) {
-            message += `🎨 *Paleta:* ${s.palette}\n\n`;
-        }
-        
-        if (s.rehearsal) {
-            message += `🎤 *Com ensaio*\n\n`;
-        }
-        
-        if (musicians.length > 0) {
-            message += `🎸 *Músicos:*\n`;
-            musicians.forEach(m => {
-                message += `- ${m.name}\n`;
-            });
-            message += `\n`;
-        }
-        
-        message += `\n🙏 *"Cantai ao Senhor um novo cântico!"* (Salmo 96:1)`;
-        
-        const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-        
-        res.json({ 
-            message, 
-            whatsapp_url: whatsappUrl,
-            scale: s
-        });
-    } catch (error) {
-        console.error('❌ Erro ao gerar compartilhamento:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1906,6 +1742,9 @@ app.get('/api/availability/date/:date', auth, async (req, res) => {
     }
 });
 
+// ============================================
+// ===== BUSCAR DISPONÍVEIS POR DATA E DEPARTAMENTO =====
+// ============================================
 app.get('/api/availability/date/:date/department/:deptId', auth, async (req, res) => {
     try {
         const { date, deptId } = req.params;
@@ -1950,7 +1789,7 @@ app.get('/api/availability/date/:date/department/:deptId', auth, async (req, res
 });
 
 // ============================================
-// ===== ROTAS DE ESTUDOS =====
+// ===== ROTA DE ESTUDOS =====
 // ============================================
 
 app.post('/api/studies', auth, uploadFields, async (req, res) => {
@@ -3418,6 +3257,104 @@ function transposeChords(lyrics, fromKey, toKey) {
         return newChord + (suffix || '');
     });
 }
+
+// ============================================
+// ===== COMPARTILHAR ESCALA NO WHATSAPP =====
+// ============================================
+
+app.get('/api/worship-scales/:id/share', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const scale = await sql`
+            SELECT ws.*, 
+                   u1.name as leader_name, 
+                   u2.name as minister_name,
+                   u3.name as created_by_name
+            FROM worship_scales ws
+            LEFT JOIN users u1 ON ws.leader_id = u1.id
+            LEFT JOIN users u2 ON ws.minister_id = u2.id
+            LEFT JOIN users u3 ON ws.created_by = u3.id
+            WHERE ws.id = ${id}
+        `;
+        
+        if (scale.length === 0) {
+            return res.status(404).json({ error: 'Escala não encontrada' });
+        }
+        
+        const s = scale[0];
+        const eventDate = new Date(s.event_date);
+        
+        let songs = [];
+        try {
+            if (typeof s.songs === 'string') {
+                songs = JSON.parse(s.songs);
+            } else if (Array.isArray(s.songs)) {
+                songs = s.songs;
+            }
+        } catch { songs = []; }
+        
+        let musicianIds = [];
+        try {
+            if (typeof s.musician_ids === 'string') {
+                musicianIds = JSON.parse(s.musician_ids);
+            } else if (Array.isArray(s.musician_ids)) {
+                musicianIds = s.musician_ids;
+            }
+        } catch { musicianIds = []; }
+        
+        let musicians = [];
+        if (musicianIds.length > 0) {
+            musicians = await sql`
+                SELECT name FROM users WHERE id = ANY(${musicianIds})
+            `;
+        }
+        
+        let message = `🎵 *ESCALA DE LOUVOR* 🎵\n\n`;
+        message += `📅 *Data:* ${eventDate.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' })}\n`;
+        message += `🕐 *Horário:* ${eventDate.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' })}\n\n`;
+        message += `👑 *Líder:* ${s.leader_name || 'Não definido'}\n`;
+        message += `🎤 *Ministro:* ${s.minister_name || 'Não definido'}\n\n`;
+        
+        if (songs.length > 0) {
+            message += `🎶 *MÚSICAS:*\n`;
+            songs.forEach((song, i) => {
+                message += `${i+1}. ${song}\n`;
+            });
+            message += `\n`;
+        }
+        
+        if (s.palette) {
+            message += `🎨 *Paleta:* ${s.palette}\n\n`;
+        }
+        
+        if (s.rehearsal) {
+            message += `🎤 *Com ensaio*\n\n`;
+        }
+        
+        if (musicians.length > 0) {
+            message += `🎸 *Músicos:*\n`;
+            musicians.forEach(m => {
+                message += `- ${m.name}\n`;
+            });
+            message += `\n`;
+        }
+        
+        message += `\n🙏 *"Cantai ao Senhor um novo cântico!"* (Salmo 96:1)`;
+        
+        const encodedMessage = encodeURIComponent(message);
+        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+        
+        res.json({ 
+            message, 
+            whatsapp_url: whatsappUrl,
+            scale: s
+        });
+    } catch (error) {
+        console.error('❌ Erro ao gerar compartilhamento:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
 
 // ============================================
 // ===== PDF DE INSCRIÇÃO =====

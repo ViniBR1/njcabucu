@@ -5,14 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>NJ Cabuçu - Igreja</title>
     
-    <!-- PWA -->
+    <!-- ===== PWA ===== -->
     <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <link rel="apple-touch-icon" href="/icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="57x57" href="/icons/icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/icons/icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/icons/icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/icons/icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/icons/icon-128x128.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/icons/icon-128x128.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NJ Cabuçu">
     <meta name="theme-color" content="#0D47A1">
     <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Ícone para a aba do navegador -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512x512.png">
+    <link rel="shortcut icon" href="/icons/icon-72x72.png">
+    
+    <!-- ===== FIM PWA ===== -->
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -147,6 +164,119 @@
             cursor: pointer;
             padding: 0.2rem;
         }
+
+        /* ===== BOTÃO FLUTUANTE DE INSTALAÇÃO PWA ===== */
+        .install-pwa-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99999;
+            background: linear-gradient(135deg, #0D47A1, #1565C0);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            cursor: pointer;
+            box-shadow: 0 8px 32px rgba(13, 71, 161, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: none;
+            align-items: center;
+            gap: 10px;
+            animation: slideUpInstall 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: 90%;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .install-pwa-btn:hover {
+            transform: translateX(-50%) scale(1.05);
+            box-shadow: 0 12px 40px rgba(13, 71, 161, 0.5);
+        }
+
+        .install-pwa-btn i {
+            font-size: 20px;
+            animation: bounceInstall 2s infinite;
+        }
+
+        @keyframes slideUpInstall {
+            from { opacity: 0; transform: translateX(-50%) translateY(30px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        @keyframes bounceInstall {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        .install-pwa-btn .close-install {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: #fff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            margin-left: 4px;
+            padding: 0;
+        }
+
+        .install-pwa-btn .close-install:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+
+        .install-pwa-btn .badge-new {
+            background: #FF6B6B;
+            color: #fff;
+            font-size: 8px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 4px;
+            animation: pulseBadge 1.5s infinite;
+        }
+
+        @keyframes pulseBadge {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @media (max-width: 768px) {
+            .install-pwa-btn {
+                bottom: 16px;
+                padding: 10px 18px;
+                font-size: 12px;
+                white-space: normal;
+            }
+            .install-pwa-btn i {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .install-pwa-btn {
+                bottom: 12px;
+                padding: 8px 14px;
+                font-size: 11px;
+                border-radius: 40px;
+            }
+            .install-pwa-btn i {
+                font-size: 14px;
+            }
+        }
+
+        /* ===== FIM BOTÃO PWA ===== */
 
         .main-nav {
             background: rgba(26,26,46,0.97);
@@ -1569,6 +1699,15 @@
         <span class="fab-label">Doar</span>
     </button>
 
+    <!-- BOTÃO FLUTUANTE DE INSTALAÇÃO PWA -->
+    <button id="installPwaBtn" class="install-pwa-btn" style="display:none;">
+        <i class="fas fa-download"></i>
+        <span>Instalar App <span class="badge-new">Novo</span></span>
+        <button class="close-install" onclick="dismissInstallPrompt(event)" aria-label="Fechar">
+            <i class="fas fa-times"></i>
+        </button>
+    </button>
+
     <!-- MODAIS -->
     <div class="modal modal-bible" id="bibleModal">
         <div class="modal-content">
@@ -1747,6 +1886,206 @@
                     });
             });
         }
+
+        // ============================================
+        // ===== BOTÃO DE INSTALAÇÃO PWA =====
+        // ============================================
+
+        let deferredPrompt = null;
+        let installDismissed = false;
+
+        // Verifica se o usuário já instalou ou fechou o prompt
+        function checkInstallDismissed() {
+            try {
+                installDismissed = localStorage.getItem('pwa_install_dismissed') === 'true';
+                return installDismissed;
+            } catch {
+                return false;
+            }
+        }
+
+        // Salva que o usuário fechou o prompt
+        function setInstallDismissed() {
+            try {
+                localStorage.setItem('pwa_install_dismissed', 'true');
+                installDismissed = true;
+            } catch {}
+        }
+
+        // Mostra ou esconde o botão de instalação
+        function toggleInstallButton(show) {
+            const btn = document.getElementById('installPwaBtn');
+            if (!btn) return;
+            
+            // Se já foi instalado, não mostra
+            if (window.navigator && window.navigator.standalone === true) {
+                btn.style.display = 'none';
+                return;
+            }
+            
+            // Se já foi fechado, não mostra (a menos que seja iOS)
+            if (installDismissed && !isIOS()) {
+                btn.style.display = 'none';
+                return;
+            }
+            
+            btn.style.display = show ? 'flex' : 'none';
+        }
+
+        // Detecta se é iOS
+        function isIOS() {
+            return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        }
+
+        // Detecta se está no modo standalone (já instalado)
+        function isStandalone() {
+            return window.matchMedia('(display-mode: standalone)').matches || 
+                   window.navigator.standalone === true;
+        }
+
+        // ===== EVENTO: beforeinstallprompt (Android/Chrome) =====
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            if (!installDismissed && !isStandalone()) {
+                toggleInstallButton(true);
+            }
+        });
+
+        // ===== CLIQUE NO BOTÃO DE INSTALAÇÃO =====
+        document.getElementById('installPwaBtn')?.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            
+            const btn = document.getElementById('installPwaBtn');
+            
+            if (deferredPrompt) {
+                try {
+                    const result = await deferredPrompt.prompt();
+                    const choiceResult = await deferredPrompt.userChoice;
+                    console.log('Usuário escolheu:', choiceResult.outcome);
+                    
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('✅ App instalado com sucesso!');
+                        showNotification('✅ NJ Cabuçu instalado com sucesso!', 'success');
+                        btn.style.display = 'none';
+                        setInstallDismissed();
+                    } else {
+                        console.log('❌ Usuário recusou a instalação');
+                        showAlternativeInstall();
+                    }
+                    
+                    deferredPrompt = null;
+                } catch (error) {
+                    console.error('Erro na instalação:', error);
+                    showAlternativeInstall();
+                }
+                return;
+            }
+            
+            if (isIOS()) {
+                showIOSInstructions();
+                return;
+            }
+            
+            showAlternativeInstall();
+        });
+
+        // ===== FUNÇÃO PARA FECHAR O BOTÃO =====
+        function dismissInstallPrompt(e) {
+            if (e) e.stopPropagation();
+            setInstallDismissed();
+            toggleInstallButton(false);
+            showNotification('💡 Você pode instalar o app acessando o menu do navegador.', 'info');
+        }
+
+        // ===== INSTRUÇÕES PARA iOS =====
+        function showIOSInstructions() {
+            if (isIOS()) {
+                if (isStandalone()) {
+                    showNotification('✅ NJ Cabuçu já está instalado no seu dispositivo!', 'success');
+                    return;
+                }
+                
+                const msg = `📱 Para instalar o NJ Cabuçu no seu iPhone/iPad:\n\n1. Toque no ícone de compartilhar 📤\n2. Role para baixo e toque em "Adicionar à Tela de Início"\n3. Toque em "Adicionar"`;
+                alert(msg);
+                showNotification('📱 Siga as instruções para adicionar à tela inicial', 'info');
+                setInstallDismissed();
+                toggleInstallButton(false);
+            }
+        }
+
+        // ===== INSTRUÇÕES ALTERNATIVAS =====
+        function showAlternativeInstall() {
+            const msg = `📲 Para instalar o NJ Cabuçu como app:\n\n• Chrome/Edge: Toque nos 3 pontos ⋮ e selecione "Instalar app"\n• Safari: Toque no ícone de compartilhar 📤 e "Adicionar à Tela de Início"\n• Firefox: Toque no menu ☰ e "Adicionar à tela inicial"`;
+            alert(msg);
+            showNotification('💡 Siga as instruções para instalar o app', 'info');
+        }
+
+        // ===== VERIFICA SE JÁ ESTÁ INSTALADO =====
+        function checkAlreadyInstalled() {
+            if (isStandalone()) {
+                console.log('✅ App já está instalado e em execução');
+                toggleInstallButton(false);
+                return true;
+            }
+            return false;
+        }
+
+        // ===== DETECTA SE É UM DISPOSITIVO MÓVEL =====
+        function isMobileDevice() {
+            return /Mobi|Android|iPhone|iPad|iPod|Opera Mini|BlackBerry|Windows Phone/i.test(navigator.userAgent);
+        }
+
+        // ===== INICIALIZAÇÃO DO BOTÃO =====
+        document.addEventListener('DOMContentLoaded', () => {
+            if (checkAlreadyInstalled()) {
+                return;
+            }
+            
+            if (!isMobileDevice()) {
+                toggleInstallButton(false);
+                return;
+            }
+            
+            if (checkInstallDismissed()) {
+                toggleInstallButton(false);
+                return;
+            }
+            
+            if (isIOS()) {
+                setTimeout(() => {
+                    if (!isStandalone() && !checkInstallDismissed()) {
+                        toggleInstallButton(true);
+                    }
+                }, 1500);
+                return;
+            }
+            
+            setTimeout(() => {
+                const btn = document.getElementById('installPwaBtn');
+                if (btn && btn.style.display !== 'flex' && !checkInstallDismissed() && !isStandalone()) {
+                    toggleInstallButton(true);
+                }
+            }, 5000);
+        });
+
+        // ===== EVENTO: appinstalled =====
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('✅ App instalado com sucesso via evento appinstalled');
+            toggleInstallButton(false);
+            setInstallDismissed();
+            showNotification('✅ NJ Cabuçu instalado! Abra o app na tela inicial.', 'success');
+        });
+
+        // ===== VERIFICAÇÃO PERIÓDICA =====
+        setInterval(() => {
+            if (isStandalone() && document.getElementById('installPwaBtn')?.style.display !== 'none') {
+                toggleInstallButton(false);
+            }
+        }, 5000);
+
+        console.log('✅ Sistema de instalação PWA carregado!');
 
         // ============================================
         // ===== FUNÇÕES DE MAPAS =====
@@ -2468,7 +2807,7 @@
         }
 
         // ============================================
-        // ===== ESTUDOS - CORRIGIDO =====
+        // ===== ESTUDOS =====
         // ============================================
         async function loadStudies() {
             try {

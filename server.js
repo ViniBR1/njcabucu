@@ -198,14 +198,54 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const BASE_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
 
+// ===== MIDDLEWARES =====
 app.use(cors({
     origin: ['https://igrejanjcabucurj.vercel.app', 'http://localhost:3000', 'http://localhost:3001', '*'],
     credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-app.use(express.static('public'));
-app.use('/uploads', express.static('public/uploads'));
+
+// ============================================
+// ===== ROTAS PWA =====
+// ============================================
+
+// Servir arquivos estáticos da pasta public
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
+
+// Servir o manifest.json
+app.get('/manifest.json', (req, res) => {
+    const filePath = path.join(__dirname, 'manifest.json');
+    if (fs.existsSync(filePath)) {
+        res.setHeader('Content-Type', 'application/json');
+        res.sendFile(filePath);
+    } else {
+        res.status(404).json({ error: 'manifest.json não encontrado' });
+    }
+});
+
+// Servir o service worker (sw.js)
+app.get('/sw.js', (req, res) => {
+    const filePath = path.join(__dirname, 'sw.js');
+    if (fs.existsSync(filePath)) {
+        res.setHeader('Content-Type', 'application/javascript');
+        res.setHeader('Service-Worker-Allowed', '/');
+        res.sendFile(filePath);
+    } else {
+        res.status(404).json({ error: 'sw.js não encontrado' });
+    }
+});
+
+// Servir ícones da pasta public/icons
+app.get('/icons/:file', (req, res) => {
+    const filePath = path.join(__dirname, 'public', 'icons', req.params.file);
+    if (fs.existsSync(filePath)) {
+        res.sendFile(filePath);
+    } else {
+        res.status(404).json({ error: 'Ícone não encontrado' });
+    }
+});
 
 // ============================================
 // ===== MULTER =====

@@ -1138,7 +1138,7 @@ app.delete('/api/departments/:id/members/:userId', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== ROTAS DE MÚSICAS =====
+// ===== ROTAS DE MÚSICAS - CORRIGIDAS =====
 // ============================================
 
 app.get('/api/songs', auth, async (req, res) => {
@@ -1161,7 +1161,10 @@ app.get('/api/songs', auth, async (req, res) => {
 app.post('/api/songs', auth, async (req, res) => {
     try {
         const { title, artist, key, lyrics, youtube_url, department_id } = req.body;
-        if (!title) {
+        
+        console.log('📝 Recebendo música:', { title, artist, key, department_id });
+        
+        if (!title || title.trim() === '') {
             return res.status(400).json({ error: 'Título é obrigatório' });
         }
 
@@ -1170,11 +1173,30 @@ app.post('/api/songs', auth, async (req, res) => {
             return res.status(400).json({ error: 'Departamento não informado' });
         }
 
+        // Verifica se a música já existe
+        const existing = await sql`
+            SELECT * FROM songs WHERE title ILIKE ${title.trim()} AND department_id = ${deptId}
+        `;
+        
+        if (existing.length > 0) {
+            return res.status(400).json({ error: 'Esta música já está cadastrada neste departamento' });
+        }
+
         const result = await sql`
             INSERT INTO songs (title, artist, key, lyrics, youtube_url, department_id, created_by)
-            VALUES (${title}, ${artist || ''}, ${key || 'C'}, ${lyrics || ''}, ${youtube_url || ''}, ${deptId}, ${req.user.id})
+            VALUES (
+                ${title.trim()}, 
+                ${artist || ''}, 
+                ${key || 'C'}, 
+                ${lyrics || ''}, 
+                ${youtube_url || ''}, 
+                ${deptId}, 
+                ${req.user.id}
+            )
             RETURNING *
         `;
+        
+        console.log('✅ Música criada com sucesso! ID:', result[0].id);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar música:', error);
@@ -1241,6 +1263,63 @@ app.get('/api/songs/by-key/:key', auth, async (req, res) => {
         const songs = await sql(query, params);
         res.json(songs);
     } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTA PARA BUSCAR MÚSICA NO YOUTUBE =====
+// ============================================
+
+app.get('/api/youtube-search', auth, async (req, res) => {
+    try {
+        const { query } = req.query;
+        
+        if (!query || query.trim() === '') {
+            return res.status(400).json({ error: 'Digite o nome da música' });
+        }
+
+        // Usa a API do YouTube (sem chave, faz scraping básico)
+        const searchQuery = encodeURIComponent(query + ' música gospel cifra');
+        const response = await fetch(`https://www.youtube.com/results?search_query=${searchQuery}`);
+        const html = await response.text();
+        
+        // Extrai os vídeos do HTML (método simples)
+        const videoIds = [];
+        const titleMatches = [];
+        
+        // Regex para encontrar IDs dos vídeos
+        const videoIdRegex = /"videoId":"([^"]+)"/g;
+        let match;
+        while ((match = videoIdRegex.exec(html)) !== null) {
+            if (!videoIds.includes(match[1])) {
+                videoIds.push(match[1]);
+            }
+        }
+        
+        // Regex para encontrar títulos
+        const titleRegex = /"title":{"runs":\[{"text":"([^"]+)"}\]}/g;
+        while ((match = titleRegex.exec(html)) !== null) {
+            if (!titleMatches.includes(match[1])) {
+                titleMatches.push(match[1]);
+            }
+        }
+        
+        // Monta os resultados
+        const results = [];
+        const maxResults = Math.min(videoIds.length, titleMatches.length, 10);
+        
+        for (let i = 0; i < maxResults; i++) {
+            results.push({
+                title: titleMatches[i] || `Vídeo ${i+1}`,
+                videoId: videoIds[i],
+                url: `https://www.youtube.com/watch?v=${videoIds[i]}`
+            });
+        }
+        
+        res.json({ results });
+    } catch (error) {
+        console.error('❌ Erro ao buscar no YouTube:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1350,47 +1429,29 @@ app.get('/api/worship-scales', auth, async (req, res) => {
             let songIds = [];
             let musicianIds = [];
             
-            // Processa songs
-            if (scale.songs) {
-                try {
-                    if (typeof scale.songs === 'string') {
-                        songs = JSON.parse(scale.songs);
-                    } else if (Array.isArray(scale.songs)) {
-                        songs = scale.songs;
-                    }
-                } catch (e) {
-                    console.log(`⚠️ Erro ao parsear songs para escala ${scale.id}:`, e.message);
-                    songs = [];
+            try {
+                if (scale.songs && typeof scale.songs === 'string') {
+                    songs = JSON.parse(scale.songs);
+                } else if (Array.isArray(scale.songs)) {
+                    songs = scale.songs;
                 }
-            }
+            } catch (e) { songs = []; }
             
-            // Processa song_ids
-            if (scale.song_ids) {
-                try {
-                    if (typeof scale.song_ids === 'string') {
-                        songIds = JSON.parse(scale.song_ids);
-                    } else if (Array.isArray(scale.song_ids)) {
-                        songIds = scale.song_ids;
-                    }
-                } catch (e) {
-                    console.log(`⚠️ Erro ao parsear song_ids para escala ${scale.id}:`, e.message);
-                    songIds = [];
+            try {
+                if (scale.song_ids && typeof scale.song_ids === 'string') {
+                    songIds = JSON.parse(scale.song_ids);
+                } else if (Array.isArray(scale.song_ids)) {
+                    songIds = scale.song_ids;
                 }
-            }
+            } catch (e) { songIds = []; }
             
-            // Processa musician_ids
-            if (scale.musician_ids) {
-                try {
-                    if (typeof scale.musician_ids === 'string') {
-                        musicianIds = JSON.parse(scale.musician_ids);
-                    } else if (Array.isArray(scale.musician_ids)) {
-                        musicianIds = scale.musician_ids;
-                    }
-                } catch (e) {
-                    console.log(`⚠️ Erro ao parsear musician_ids para escala ${scale.id}:`, e.message);
-                    musicianIds = [];
+            try {
+                if (scale.musician_ids && typeof scale.musician_ids === 'string') {
+                    musicianIds = JSON.parse(scale.musician_ids);
+                } else if (Array.isArray(scale.musician_ids)) {
+                    musicianIds = scale.musician_ids;
                 }
-            }
+            } catch (e) { musicianIds = []; }
             
             return {
                 ...scale,

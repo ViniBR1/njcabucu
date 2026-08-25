@@ -1681,6 +1681,9 @@
             document.getElementById('availableMembersList').innerHTML = '<p class="text-muted text-center" style="font-size:0.8rem;">Selecione uma data para ver os disponíveis</p>';
         }
 
+        // ================================================
+        // SALVAR ESCALA - CORRIGIDO
+        // ================================================
         async function saveScale() {
             const date = document.getElementById('scaleDate').value;
             const minister = document.getElementById('scaleMinister').value;
@@ -1694,7 +1697,10 @@
             if (!date) { showNotification('Selecione a data do culto!', 'error'); return; }
             if (!musicIds.length) { showNotification('Selecione pelo menos uma música!', 'error'); return; }
 
+            // Verifica disponibilidade
             const availableIds = new Set(availableMembers.map(m => m.id));
+            
+            // Verifica músicos
             const invalidMusicians = musicians.filter(id => !availableIds.has(id));
             if (invalidMusicians.length > 0) {
                 const names = invalidMusicians.map(id => {
@@ -1705,31 +1711,38 @@
                 return;
             }
 
+            // Verifica ministro
             if (minister && !availableIds.has(parseInt(minister))) {
                 showNotification('⚠️ O ministro selecionado não está disponível nesta data!', 'error');
                 return;
             }
 
+            // Busca os nomes das músicas
             const musicNames = musicIds.map(id => {
                 const m = songs.find(s => s.id == id);
                 return m ? m.title : 'Música';
             });
 
+            // Prepara os dados para enviar
+            const payload = {
+                department_id: parseInt(user.department_id),
+                event_date: date,
+                leader_id: parseInt(user.id),
+                minister_id: minister ? parseInt(minister) : null,
+                songs: musicNames,
+                song_ids: musicIds,
+                palette: palette || 'Azul, Prata, Branco, Dourado',
+                rehearsal: rehearsal,
+                musicians: musicians
+            };
+
+            console.log('📝 Enviando dados da escala:', JSON.stringify(payload, null, 2));
+
             try {
                 const response = await fetch('/api/worship-scales', {
                     method: 'POST',
                     headers: getHeaders(),
-                    body: JSON.stringify({
-                        department_id: user.department_id,
-                        event_date: date,
-                        leader_id: user.id,
-                        minister_id: minister || null,
-                        songs: musicNames,
-                        song_ids: musicIds,
-                        palette: palette || 'Azul, Prata, Branco, Dourado',
-                        rehearsal: rehearsal,
-                        musicians: musicians
-                    })
+                    body: JSON.stringify(payload)
                 });
 
                 const data = await response.json();
@@ -3023,7 +3036,7 @@
             renderTabs();
             loadDashboard();
             loadDepartmentsForSelect();
-            loadSongsForCheckbox(); // Carrega músicas na inicialização
+            loadSongsForCheckbox();
         });
     </script>
 </body>

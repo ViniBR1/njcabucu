@@ -1350,29 +1350,47 @@ app.get('/api/worship-scales', auth, async (req, res) => {
             let songIds = [];
             let musicianIds = [];
             
-            try {
-                if (scale.songs && typeof scale.songs === 'string') {
-                    songs = JSON.parse(scale.songs);
-                } else if (Array.isArray(scale.songs)) {
-                    songs = scale.songs;
+            // Processa songs
+            if (scale.songs) {
+                try {
+                    if (typeof scale.songs === 'string') {
+                        songs = JSON.parse(scale.songs);
+                    } else if (Array.isArray(scale.songs)) {
+                        songs = scale.songs;
+                    }
+                } catch (e) {
+                    console.log(`⚠️ Erro ao parsear songs para escala ${scale.id}:`, e.message);
+                    songs = [];
                 }
-            } catch (e) { songs = []; }
+            }
             
-            try {
-                if (scale.song_ids && typeof scale.song_ids === 'string') {
-                    songIds = JSON.parse(scale.song_ids);
-                } else if (Array.isArray(scale.song_ids)) {
-                    songIds = scale.song_ids;
+            // Processa song_ids
+            if (scale.song_ids) {
+                try {
+                    if (typeof scale.song_ids === 'string') {
+                        songIds = JSON.parse(scale.song_ids);
+                    } else if (Array.isArray(scale.song_ids)) {
+                        songIds = scale.song_ids;
+                    }
+                } catch (e) {
+                    console.log(`⚠️ Erro ao parsear song_ids para escala ${scale.id}:`, e.message);
+                    songIds = [];
                 }
-            } catch (e) { songIds = []; }
+            }
             
-            try {
-                if (scale.musician_ids && typeof scale.musician_ids === 'string') {
-                    musicianIds = JSON.parse(scale.musician_ids);
-                } else if (Array.isArray(scale.musician_ids)) {
-                    musicianIds = scale.musician_ids;
+            // Processa musician_ids
+            if (scale.musician_ids) {
+                try {
+                    if (typeof scale.musician_ids === 'string') {
+                        musicianIds = JSON.parse(scale.musician_ids);
+                    } else if (Array.isArray(scale.musician_ids)) {
+                        musicianIds = scale.musician_ids;
+                    }
+                } catch (e) {
+                    console.log(`⚠️ Erro ao parsear musician_ids para escala ${scale.id}:`, e.message);
+                    musicianIds = [];
                 }
-            } catch (e) { musicianIds = []; }
+            }
             
             return {
                 ...scale,

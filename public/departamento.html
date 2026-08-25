@@ -151,7 +151,7 @@
             align-items: center;
             gap: 0.3rem;
         }
-        .tab-btn:hover { background: #e8e8e8; color: var(--primary); }
+        .tab-btn:hover { background: var(--secondary); color: var(--primary); }
         .tab-btn.active {
             background: var(--primary-gradient);
             color: white;
@@ -656,7 +656,7 @@
                         <select id="scaleMinister">
                             <option value="">Selecione um ministro</option>
                         </select>
-                        <small class="text-muted">Só aparecem ministros disponíveis na data</small>
+                        <small class="text-muted">Todos os membros disponíveis podem ser ministros</small>
                     </div>
 
                     <div class="form-group">
@@ -672,7 +672,7 @@
                     <div class="form-group">
                         <label><i class="fas fa-users"></i> Músicos (selecione múltiplos)</label>
                         <select id="scaleMusicians" multiple style="height:80px;"></select>
-                        <small class="text-muted">Segure Ctrl para selecionar múltiplos - Só aparecem músicos disponíveis na data</small>
+                        <small class="text-muted">Segure Ctrl para selecionar múltiplos - Todos os membros disponíveis podem ser músicos</small>
                     </div>
 
                     <div class="form-group">
@@ -1277,10 +1277,7 @@
             switch (tabId) {
                 case 'dashboard': loadDashboard(); break;
                 case 'disponibilidade': loadAvailability(); generateDateSelector(); break;
-                case 'escalas': 
-                    loadScales(); 
-                    loadSongsForCheckbox(); 
-                    break;
+                case 'escalas': loadScales(); loadMusicCheckboxGrid(); break;
                 case 'minhas-escalas': loadMyScales(); break;
                 case 'musicas': loadSongs(); break;
                 case 'oracoes': loadPrayers(); break;
@@ -1503,47 +1500,7 @@
         }
 
         // ================================================
-        // FUNÇÃO PARA CARREGAR MÚSICAS PARA O CHECKBOX - CORRIGIDA
-        // ================================================
-        async function loadSongsForCheckbox() {
-            try {
-                console.log('📝 Carregando músicas para o checkbox...');
-                const data = await fetchApi(`/api/songs?department_id=${user.department_id}`);
-                if (!data) {
-                    document.getElementById('musicCheckboxGrid').innerHTML = '<p class="text-muted">Nenhuma música cadastrada.</p>';
-                    return;
-                }
-                
-                songs = Array.isArray(data) ? data : [];
-                const container = document.getElementById('musicCheckboxGrid');
-                
-                if (!songs.length) {
-                    container.innerHTML = '<p class="text-muted">Nenhuma música cadastrada. Cadastre uma música na aba "Músicas".</p>';
-                    return;
-                }
-                
-                container.innerHTML = songs.map(s => `
-                    <label>
-                        <input type="checkbox" class="music-checkbox" value="${s.id}" data-title="${s.title}">
-                        ${s.title} (${s.key || 'C'})
-                        ${s.youtube_url ? ' <i class="fab fa-youtube" style="color:#ff0000;"></i>' : ''}
-                    </label>
-                `).join('');
-                
-                console.log(`✅ ${songs.length} músicas carregadas para o checkbox`);
-            } catch (e) {
-                console.error('❌ Erro ao carregar músicas:', e);
-                document.getElementById('musicCheckboxGrid').innerHTML = `<p style="color:#dc3545;">❌ Erro ao carregar músicas: ${e.message}</p>`;
-            }
-        }
-
-        function getSelectedMusicIds() {
-            const checkboxes = document.querySelectorAll('#musicCheckboxGrid .music-checkbox:checked');
-            return Array.from(checkboxes).map(cb => parseInt(cb.value));
-        }
-
-        // ================================================
-        // ESCALAS
+        // ESCALAS - CORRIGIDAS
         // ================================================
         async function loadAvailableMembersForScale() {
             const date = document.getElementById('scaleDate').value;
@@ -1572,6 +1529,7 @@
                 members = allMembersData;
                 
                 console.log(`✅ Encontrados ${availableMembers.length} membros disponíveis de ${allMembersData.length} total`);
+                console.log('📋 Disponíveis:', availableMembers.map(m => ({ id: m.id, name: m.name, role: m.member_role || m.role })));
 
                 const container = document.getElementById('availableMembersList');
                 if (!availableMembers.length) {
@@ -1604,45 +1562,46 @@
             }
         }
 
+        // ================================================
+        // FUNÇÃO PARA ATUALIZAR OS SELECTS - CORRIGIDA
+        // AGORA TODOS PODEM SER MINISTROS OU MÚSICOS
+        // ================================================
         function updateScaleSelects() {
             const availableIds = new Set(availableMembers.map(m => m.id));
             
+            // MINISTRO - AGORA QUALQUER MEMBRO DISPONÍVEL PODE SER MINISTRO
             const ministerSelect = document.getElementById('scaleMinister');
-            const ministersList = members.filter(m => {
-                const role = m.member_role || m.role || 'membro';
-                return (role === 'ministro' || role === 'lider' || m.is_leader) && 
-                       availableIds.has(m.id);
-            });
+            const allAvailable = members.filter(m => availableIds.has(m.id));
             
             ministerSelect.innerHTML = '<option value="">Selecione um ministro</option>';
-            if (!ministersList.length) {
-                ministerSelect.innerHTML += '<option value="" disabled>Nenhum ministro disponível nesta data</option>';
+            if (!allAvailable.length) {
+                ministerSelect.innerHTML += '<option value="" disabled>Nenhum membro disponível nesta data</option>';
             } else {
-                ministersList.forEach(m => {
+                allAvailable.forEach(m => {
                     const role = m.member_role || m.role || 'membro';
-                    const label = role === 'lider' ? '👑 Líder' : '🎤 Ministro';
+                    const label = role === 'lider' ? '👑 Líder' : 
+                                 role === 'ministro' ? '🎤 Ministro' : 
+                                 role === 'musico' ? '🎸 Músico' : '🙋 Membro';
                     ministerSelect.innerHTML += `<option value="${m.id}">${m.name} (${label}) ✅ Disponível</option>`;
                 });
             }
             
+            // MÚSICOS - AGORA QUALQUER MEMBRO DISPONÍVEL PODE SER MÚSICO
             const musiciansSelect = document.getElementById('scaleMusicians');
-            const musiciansList = members.filter(m => {
-                const role = m.member_role || m.role || 'membro';
-                return (role === 'musico' || role === 'lider' || m.is_leader) && 
-                       availableIds.has(m.id);
-            });
             
             musiciansSelect.innerHTML = '';
-            if (!musiciansList.length) {
+            if (!allAvailable.length) {
                 const opt = document.createElement('option');
                 opt.value = '';
-                opt.textContent = 'Nenhum músico disponível nesta data';
+                opt.textContent = 'Nenhum membro disponível nesta data';
                 opt.disabled = true;
                 musiciansSelect.appendChild(opt);
             } else {
-                musiciansList.forEach(m => {
+                allAvailable.forEach(m => {
                     const role = m.member_role || m.role || 'membro';
-                    const label = role === 'lider' ? '👑 Líder' : '🎸 Músico';
+                    const label = role === 'lider' ? '👑 Líder' : 
+                                 role === 'ministro' ? '🎤 Ministro' : 
+                                 role === 'musico' ? '🎸 Músico' : '🙋 Membro';
                     const opt = document.createElement('option');
                     opt.value = m.id;
                     opt.textContent = `${m.name} (${label}) ✅ Disponível`;
@@ -1651,13 +1610,15 @@
                 musiciansSelect.setAttribute('multiple', 'multiple');
                 musiciansSelect.style.height = '80px';
             }
+            
+            console.log(`✅ Todos os membros disponíveis: ${allAvailable.length}`);
         }
 
         function showCreateScale() {
             document.getElementById('createScaleForm').classList.remove('hidden');
             document.getElementById('createScaleForm').scrollIntoView({ behavior: 'smooth' });
             
-            // Carrega as músicas
+            // Carrega as músicas ANTES de mostrar o formulário
             loadSongsForCheckbox();
             
             const dateInput = document.getElementById('scaleDate');
@@ -1681,9 +1642,6 @@
             document.getElementById('availableMembersList').innerHTML = '<p class="text-muted text-center" style="font-size:0.8rem;">Selecione uma data para ver os disponíveis</p>';
         }
 
-        // ================================================
-        // SALVAR ESCALA - CORRIGIDA
-        // ================================================
         async function saveScale() {
             const date = document.getElementById('scaleDate').value;
             const minister = document.getElementById('scaleMinister').value;
@@ -1698,7 +1656,6 @@
             if (!musicIds.length) { showNotification('Selecione pelo menos uma música!', 'error'); return; }
 
             const availableIds = new Set(availableMembers.map(m => m.id));
-            
             const invalidMusicians = musicians.filter(id => !availableIds.has(id));
             if (invalidMusicians.length > 0) {
                 const names = invalidMusicians.map(id => {
@@ -1719,25 +1676,33 @@
                 return m ? m.title : 'Música';
             });
 
-            const payload = {
-                department_id: parseInt(user.department_id),
+            console.log('📝 Enviando dados da escala:', {
+                department_id: user.department_id,
                 event_date: date,
-                leader_id: parseInt(user.id),
-                minister_id: minister ? parseInt(minister) : null,
+                leader_id: user.id,
+                minister_id: minister || null,
                 songs: musicNames,
                 song_ids: musicIds,
                 palette: palette || 'Azul, Prata, Branco, Dourado',
                 rehearsal: rehearsal,
                 musicians: musicians
-            };
-
-            console.log('📝 Enviando dados da escala:', JSON.stringify(payload, null, 2));
+            });
 
             try {
                 const response = await fetch('/api/worship-scales', {
                     method: 'POST',
                     headers: getHeaders(),
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({
+                        department_id: user.department_id,
+                        event_date: date,
+                        leader_id: user.id,
+                        minister_id: minister || null,
+                        songs: musicNames,
+                        song_ids: musicIds,
+                        palette: palette || 'Azul, Prata, Branco, Dourado',
+                        rehearsal: rehearsal,
+                        musicians: musicians
+                    })
                 });
 
                 const data = await response.json();
@@ -1768,13 +1733,12 @@
 
                 container.innerHTML = scales.map(s => {
                     const eventDate = new Date(s.event_date);
+                    // Verifica se songs é um array ou string
                     let songsList = [];
                     try {
                         if (typeof s.songs === 'string') {
                             songsList = JSON.parse(s.songs);
                         } else if (Array.isArray(s.songs)) {
-                            songsList = s.songs;
-                        } else if (typeof s.songs === 'object') {
                             songsList = s.songs;
                         }
                     } catch (e) { songsList = []; }
@@ -1786,8 +1750,6 @@
                         if (typeof s.musician_ids === 'string') {
                             musicianIds = JSON.parse(s.musician_ids);
                         } else if (Array.isArray(s.musician_ids)) {
-                            musicianIds = s.musician_ids;
-                        } else if (typeof s.musician_ids === 'object') {
                             musicianIds = s.musician_ids;
                         }
                     } catch { musicianIds = []; }
@@ -1950,8 +1912,6 @@
                             songsList = JSON.parse(s.songs);
                         } else if (Array.isArray(s.songs)) {
                             songsList = s.songs;
-                        } else if (typeof s.songs === 'object') {
-                            songsList = s.songs;
                         }
                     } catch (e) { songsList = []; }
                     
@@ -1960,8 +1920,6 @@
                         if (typeof s.musician_ids === 'string') {
                             musicianIds = JSON.parse(s.musician_ids);
                         } else if (Array.isArray(s.musician_ids)) {
-                            musicianIds = s.musician_ids;
-                        } else if (typeof s.musician_ids === 'object') {
                             musicianIds = s.musician_ids;
                         }
                     } catch { musicianIds = []; }
@@ -2045,7 +2003,7 @@
                     </div>
                 `).join('');
 
-                loadSongsForCheckbox();
+                loadMusicCheckboxGrid();
             } catch (e) {
                 console.error('Erro:', e);
                 document.getElementById('songsList').innerHTML = '<p style="color:#dc3545;">❌ Erro ao carregar músicas.</p>';
@@ -2053,7 +2011,63 @@
         }
 
         // ================================================
-        // BUSCAR MÚSICA NO YOUTUBE
+        // FUNÇÃO PARA CARREGAR MÚSICAS NO CHECKBOX
+        // ================================================
+        function loadMusicCheckboxGrid() {
+            const container = document.getElementById('musicCheckboxGrid');
+            if (!container) return;
+            
+            // Verifica se as músicas já foram carregadas
+            if (!songs || songs.length === 0) {
+                // Tenta carregar as músicas novamente
+                loadSongsForCheckbox();
+                return;
+            }
+            
+            container.innerHTML = songs.map(s => `
+                <label>
+                    <input type="checkbox" class="music-checkbox" value="${s.id}" data-title="${s.title}">
+                    ${s.title} (${s.key || 'C'})
+                </label>
+            `).join('');
+        }
+
+        // ================================================
+        // FUNÇÃO PARA CARREGAR MÚSICAS ESPECIFICAMENTE PARA O CHECKBOX
+        // ================================================
+        async function loadSongsForCheckbox() {
+            try {
+                console.log('📝 Carregando músicas para o checkbox...');
+                const data = await fetchApi(`/api/songs?department_id=${user.department_id}`);
+                if (!data) {
+                    document.getElementById('musicCheckboxGrid').innerHTML = '<p class="text-muted">Nenhuma música cadastrada.</p>';
+                    return;
+                }
+                
+                songs = Array.isArray(data) ? data : [];
+                const container = document.getElementById('musicCheckboxGrid');
+                
+                if (!songs.length) {
+                    container.innerHTML = '<p class="text-muted">Nenhuma música cadastrada. Cadastre uma música na aba "Músicas".</p>';
+                    return;
+                }
+                
+                container.innerHTML = songs.map(s => `
+                    <label>
+                        <input type="checkbox" class="music-checkbox" value="${s.id}" data-title="${s.title}">
+                        ${s.title} (${s.key || 'C'})
+                    </label>
+                `).join('');
+                
+                console.log(`✅ ${songs.length} músicas carregadas para o checkbox`);
+            } catch (e) {
+                console.error('❌ Erro ao carregar músicas:', e);
+                document.getElementById('musicCheckboxGrid').innerHTML = `<p style="color:#dc3545;">❌ Erro ao carregar músicas: ${e.message}</p>`;
+            }
+        }
+
+        // ================================================
+        // FUNÇÃO PARA BUSCAR MÚSICA NO YOUTUBE
         // ================================================
         async function searchYoutubeMusic() {
             const query = document.getElementById('youtubeSearchInput').value.trim();
@@ -2105,10 +2119,14 @@
             }
         }
 
+        // ================================================
+        // FUNÇÃO PARA SELECIONAR VÍDEO DO YOUTUBE
+        // ================================================
         function selectYoutubeVideo(videoId, title) {
             document.getElementById('newMusicTitle').value = title;
             document.getElementById('newMusicYoutube').value = `https://www.youtube.com/watch?v=${videoId}`;
             
+            // Fecha os resultados
             document.getElementById('youtubeSearchResults').innerHTML = `
                 <div style="background:#d4edda;padding:0.5rem;border-radius:8px;color:#155724;">
                     ✅ Vídeo selecionado: <strong>${title}</strong>
@@ -2317,9 +2335,26 @@
             }
         }
 
-        // ================================================
-        // GERENCIAR MÚSICAS DA ESCALA (MINISTRO)
-        // ================================================
+        function getSelectedMusicIds() {
+            const checkboxes = document.querySelectorAll('#musicCheckboxGrid .music-checkbox:checked');
+            return Array.from(checkboxes).map(cb => parseInt(cb.value));
+        }
+
+        function loadMusicCheckboxGrid() {
+            const container = document.getElementById('musicCheckboxGrid');
+            if (!container) return;
+            if (!songs || !songs.length) {
+                container.innerHTML = '<p class="text-muted">Nenhuma música cadastrada.</p>';
+                return;
+            }
+            container.innerHTML = songs.map(s => `
+                <label>
+                    <input type="checkbox" class="music-checkbox" value="${s.id}" data-title="${s.title}">
+                    ${s.title} (${s.key || 'C'})
+                </label>
+            `).join('');
+        }
+
         function openMinisterMusicModal(scaleId) {
             currentScaleId = scaleId;
             const scale = scales.find(s => s.id === scaleId);
@@ -2335,15 +2370,7 @@
             }
 
             let songIds = [];
-            try { 
-                if (typeof scale.song_ids === 'string') {
-                    songIds = JSON.parse(scale.song_ids);
-                } else if (Array.isArray(scale.song_ids)) {
-                    songIds = scale.song_ids;
-                } else if (typeof scale.song_ids === 'object') {
-                    songIds = scale.song_ids;
-                }
-            } catch { songIds = []; }
+            try { songIds = JSON.parse(scale.song_ids || '[]'); } catch { songIds = []; }
             
             container.innerHTML = songs.map(s => {
                 const isChecked = songIds.includes(s.id) ? 'checked' : '';
@@ -2731,7 +2758,7 @@
         }
 
         // ================================================
-        // EQUIPE
+        // EQUIPE - CORRIGIDO
         // ================================================
         async function loadTeam() {
             try {
@@ -2745,6 +2772,8 @@
                     container.innerHTML = '<p class="text-muted">Nenhum membro na equipe.</p>';
                     return;
                 }
+                
+                console.log('👥 Membros carregados:', members);
                 
                 const roleLabels = {
                     lider: '👑 Líder',
@@ -2785,7 +2814,7 @@
         }
 
         // ================================================
-        // GERENCIAR MEMBROS
+        // GERENCIAR MEMBROS - CORRIGIDO
         // ================================================
         async function loadMembers() {
             try {
@@ -2799,6 +2828,8 @@
                     container.innerHTML = '<p class="text-muted">Nenhum membro neste departamento.</p>';
                     return;
                 }
+                
+                console.log('👥 Membros carregados para gerenciamento:', members);
                 
                 const roleLabels = {
                     lider: '<span class="role-badge leader">👑 Líder</span>',
@@ -3047,7 +3078,6 @@
             renderTabs();
             loadDashboard();
             loadDepartmentsForSelect();
-            loadSongsForCheckbox();
         });
     </script>
 </body>

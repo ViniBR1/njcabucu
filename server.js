@@ -3017,7 +3017,7 @@ async function atualizarEstatisticasCelula(celula_id) {
 }
 
 // ============================================
-// ===== ROTAS DE LIVES =====
+// ===== ROTAS DE LIVES (CORRIGIDAS) =====
 // ============================================
 
 app.post('/api/lives/start', auth, async (req, res) => {
@@ -3046,33 +3046,82 @@ app.post('/api/lives/start', auth, async (req, res) => {
     }
 });
 
+// ===== ENCERRAR LIVE (CORRIGIDO) =====
 app.post('/api/lives/end/:id', auth, async (req, res) => {
     try {
         const { id } = req.params;
+        console.log(`📝 Encerrando live ${id}...`);
+        
+        // Busca a live
         const live = await sql`SELECT * FROM lives WHERE id = ${id}`;
-        if (live.length === 0) return res.status(404).json({ error: 'Live não encontrada' });
-        if (live[0].status === 'ended') return res.status(400).json({ error: 'Live já foi encerrada' });
+        if (live.length === 0) {
+            return res.status(404).json({ error: 'Live não encontrada' });
+        }
+        
+        if (live[0].status === 'ended') {
+            return res.status(400).json({ error: 'Live já foi encerrada' });
+        }
 
-        await sql`UPDATE lives SET status = 'ended', ended_at = NOW() WHERE id = ${id}`;
-        res.json({ message: 'Live encerrada com sucesso' });
+        // Atualiza o status para 'ended'
+        const result = await sql`
+            UPDATE lives 
+            SET status = 'ended', ended_at = NOW() 
+            WHERE id = ${id} 
+            RETURNING *
+        `;
+        
+        // Marca todos os viewers como offline
+        await sql`
+            UPDATE live_viewers 
+            SET left_at = NOW() 
+            WHERE live_id = ${id} AND left_at IS NULL
+        `;
+        
+        console.log(`✅ Live ${id} encerrada com sucesso!`);
+        res.json({ 
+            message: 'Live encerrada com sucesso',
+            live: result[0]
+        });
     } catch (error) {
+        console.error('❌ Erro ao encerrar live:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
+// ===== VERIFICAR STATUS DA LIVE (CORRIGIDO) =====
 app.get('/api/lives/active', async (req, res) => {
     try {
-        const live = await sql`
+        // Busca todas as lives ativas
+        const lives = await sql`
             SELECT l.*, u.name as iniciada_por_nome
             FROM lives l
             LEFT JOIN users u ON l.iniciada_por = u.id
             WHERE l.status = 'live'
             ORDER BY l.started_at DESC
-            LIMIT 1
         `;
-        if (live.length === 0) return res.json({ status: 'offline', message: 'Nenhuma live ativa' });
-        res.json(live[0]);
+        
+        if (lives.length === 0) {
+            // Retorna offline SEM limpar viewers
+            return res.json({ 
+                status: 'offline', 
+                message: 'Nenhuma live ativa' 
+            });
+        }
+        
+        // Pega a primeira live ativa
+        const live = lives[0];
+        
+        // Conta viewers ativos
+        const viewers = await sql`
+            SELECT COUNT(*) as total FROM live_viewers 
+            WHERE live_id = ${live.id} AND left_at IS NULL
+        `;
+        
+        live.viewers = viewers[0]?.total || 0;
+        
+        res.json(live);
     } catch (error) {
+        console.error('❌ Erro ao verificar live:', error);
         res.status(500).json({ error: error.message });
     }
 });

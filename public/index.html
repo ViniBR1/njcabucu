@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -7,16 +8,11 @@
     
     <!-- ===== PWA ===== -->
     <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="/icons/icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="57x57" href="/icons/icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="/icons/icon-72x72.png">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
     <link rel="apple-touch-icon" sizes="72x72" href="/icons/icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="/icons/icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="/icons/icon-128x128.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="/icons/icon-128x128.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="96x96" href="/icons/icon-96x96.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512x512.png">
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -277,7 +273,6 @@
             }
             .install-fab i { font-size: 15px; }
         }
-
         /* ===== FIM BOTÃO PWA ===== */
 
         .header {
@@ -2005,27 +2000,27 @@
         }
 
         // ============================================
-        // ===== BOTÃO DE INSTALAÇÃO PWA (CORRIGIDO) =====
+        // ===== BOTÃO DE INSTALAÇÃO PWA (VERSÃO CORRIGIDA) =====
         // ============================================
 
         (function() {
             'use strict';
 
             let deferredPrompt = null;
-            let showBannerState = false;
+            let showBannerState = true;
+            let installAttempts = 0;
+            const MAX_ATTEMPTS = 3;
             
             const banner = document.getElementById('installBanner');
             const fab = document.getElementById('installFab');
             const installBtn = document.getElementById('installBtn');
             const closeBtn = document.getElementById('closeBannerBtn');
 
-            // ===== VERIFICAR SE JÁ ESTÁ INSTALADO =====
             function isStandalone() {
                 return window.matchMedia('(display-mode: standalone)').matches || 
                        window.navigator.standalone === true;
             }
 
-            // ===== VERIFICAR SE O BANNER FOI FECHADO =====
             function isBannerClosed() {
                 try {
                     return localStorage.getItem('pwa-banner-fechado') === 'true';
@@ -2034,14 +2029,12 @@
                 }
             }
 
-            // ===== SALVAR QUE O BANNER FOI FECHADO =====
             function setBannerClosed() {
                 try {
                     localStorage.setItem('pwa-banner-fechado', 'true');
                 } catch {}
             }
 
-            // ===== MOSTRAR/ESCONDER ELEMENTOS =====
             function updateUI() {
                 const installed = isStandalone();
                 const closed = isBannerClosed();
@@ -2067,20 +2060,23 @@
                 }
             }
 
-            // ===== FUNÇÃO DE INSTALAÇÃO CORRIGIDA =====
             async function handleInstall(e) {
                 if (e) e.preventDefault();
                 
                 console.log('📲 Botão de instalação clicado!');
                 console.log('deferredPrompt:', deferredPrompt);
+                console.log('isStandalone:', isStandalone());
                 
-                // VERIFICA SE O PROMPT ESTÁ DISPONÍVEL
+                if (isStandalone()) {
+                    showNotification('✅ App já está instalado!');
+                    banner.style.display = 'none';
+                    fab.style.display = 'none';
+                    return;
+                }
+                
                 if (deferredPrompt) {
                     try {
-                        // MOSTRA O PROMPT NATIVO DO CHROME
                         deferredPrompt.prompt();
-                        
-                        // AGUARDA A ESCOLHA DO USUÁRIO
                         const result = await deferredPrompt.userChoice;
                         console.log('✅ Resultado da instalação:', result.outcome);
                         
@@ -2089,53 +2085,58 @@
                             banner.style.display = 'none';
                             fab.style.display = 'none';
                             setBannerClosed();
-                            showNotification('✅ App instalado com sucesso!');
+                            showNotification('✅ App instalado com sucesso! 🎉');
                         } else {
                             console.log('❌ Instalação cancelada pelo usuário');
                             showNotification('ℹ️ Instalação cancelada');
                         }
-                        
-                        // LIMPA O PROMPT DEPOIS DE USADO
                         deferredPrompt = null;
-                        
+                        return;
                     } catch (error) {
                         console.error('❌ Erro na instalação:', error);
-                        // TENTA NOVAMENTE COM O MÉTODO ALTERNATIVO
-                        showAlternativeInstall();
                     }
-                } else {
-                    console.log('⚠️ deferredPrompt é null - mostrando instruções alternativas');
-                    // SE NÃO TIVER PROMPT, MOSTRA INSTRUÇÕES
-                    showAlternativeInstall();
                 }
+                
+                installAttempts++;
+                if (installAttempts <= MAX_ATTEMPTS) {
+                    console.log(`🔄 Tentativa ${installAttempts} de ${MAX_ATTEMPTS}...`);
+                    const fakeEvent = new Event('beforeinstallprompt');
+                    window.dispatchEvent(fakeEvent);
+                    
+                    setTimeout(async () => {
+                        if (deferredPrompt) {
+                            await handleInstall(e);
+                        } else {
+                            showAlternativeInstall();
+                        }
+                    }, 1000);
+                    return;
+                }
+                
+                showAlternativeInstall();
             }
 
-            // ===== INSTRUÇÕES ALTERNATIVAS =====
             function showAlternativeInstall() {
                 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                const isAndroid = /Android/.test(navigator.userAgent);
                 
                 if (isIOS) {
                     alert('📱 Para instalar o NJ Cabuçu no seu iPhone/iPad:\n\n1. Toque no ícone de compartilhar 📤\n2. Role para baixo e toque em "Adicionar à Tela de Início"\n3. Toque em "Adicionar"');
+                } else if (isAndroid) {
+                    alert('📱 Para instalar o NJ Cabuçu no seu Android:\n\n1. Toque nos 3 pontos ⋮ (canto superior direito)\n2. Selecione "Instalar app"\n3. Toque em "Instalar"');
                 } else {
-                    // VERIFICA SE O NAVEGADOR SUPORTA INSTALAÇÃO
-                    if ('beforeinstallprompt' in window) {
-                        alert('⚠️ O prompt de instalação não está disponível agora.\n\nTente:\n• Recarregar a página\n• Usar o Chrome/Edge\n• Clicar nos 3 pontos ⋮ e selecionar "Instalar app"');
-                    } else {
-                        alert('📲 Para instalar o NJ Cabuçu como app:\n\n• Chrome/Edge: Toque nos 3 pontos ⋮ e selecione "Instalar app"\n• Safari: Toque no ícone de compartilhar 📤 e "Adicionar à Tela de Início"\n• Firefox: Toque no menu ☰ e "Adicionar à tela inicial"');
-                    }
+                    alert('📲 Para instalar o NJ Cabuçu como app:\n\n• Chrome/Edge: Toque nos 3 pontos ⋮ e selecione "Instalar app"\n• Safari: Toque no ícone de compartilhar 📤 e "Adicionar à Tela de Início"');
                 }
                 showNotification('💡 Siga as instruções para instalar o app');
             }
 
-            // ===== FECHAR BANNER =====
             function closeBanner() {
                 setBannerClosed();
                 showBannerState = false;
                 updateUI();
-                showNotification('💡 Você pode instalar o app acessando o menu do navegador.');
+                showNotification('💡 Para instalar, acesse o menu do navegador');
             }
 
-            // ===== NOTIFICAÇÃO TOAST =====
             function showNotification(message) {
                 const old = document.querySelector('.notification-toast');
                 if (old) old.remove();
@@ -2149,62 +2150,49 @@
                     div.style.opacity = '0';
                     div.style.transition = 'opacity 0.4s';
                     setTimeout(() => div.remove(), 400);
-                }, 3500);
+                }, 4000);
             }
 
-            // ===== EVENTO: beforeinstallprompt (CORRIGIDO) =====
             window.addEventListener('beforeinstallprompt', (e) => {
-                console.log('📥 Evento beforeinstallprompt disparado!');
-                
-                // PREVINE O PROMPT AUTOMÁTICO
+                console.log('📥 Evento beforeinstallprompt DISPARADO!');
                 e.preventDefault();
-                
-                // ARMAZENA O EVENTO PARA USAR DEPOIS
                 deferredPrompt = e;
-                
                 console.log('✅ deferredPrompt armazenado com sucesso!');
                 
-                // MOSTRA O BANNER SE O USUÁRIO NUNCA FECHOU
                 if (!isBannerClosed() && !isStandalone()) {
                     showBannerState = true;
                     updateUI();
                 }
             });
 
-            // ===== EVENTO: appinstalled =====
             window.addEventListener('appinstalled', () => {
                 console.log('✅ App instalado com sucesso via evento!');
                 banner.style.display = 'none';
                 fab.style.display = 'none';
                 setBannerClosed();
-                showNotification('✅ App instalado com sucesso!');
+                showNotification('✅ App instalado com sucesso! 🎉');
             });
 
-            // ===== CLICK: Botão Instalar (Banner) =====
             if (installBtn) {
                 installBtn.addEventListener('click', handleInstall);
                 console.log('✅ Botão "Instalar" do banner configurado');
             }
 
-            // ===== CLICK: Botão Flutuante =====
             if (fab) {
                 fab.addEventListener('click', handleInstall);
                 console.log('✅ Botão flutuante configurado');
             }
 
-            // ===== CLICK: Fechar Banner =====
             if (closeBtn) {
                 closeBtn.addEventListener('click', closeBanner);
                 console.log('✅ Botão "Fechar" do banner configurado');
             }
 
-            // ===== INICIALIZAÇÃO =====
             function init() {
                 console.log('🚀 Inicializando sistema de instalação PWA...');
                 console.log('📱 Standalone:', isStandalone());
                 console.log('🔒 Banner fechado:', isBannerClosed());
                 
-                // SE JÁ ESTIVER INSTALADO, NÃO MOSTRA NADA
                 if (isStandalone()) {
                     banner.style.display = 'none';
                     fab.style.display = 'none';
@@ -2212,7 +2200,6 @@
                     return;
                 }
 
-                // SE JÁ FECHOU O BANNER, MOSTRA SÓ O BOTÃO
                 if (isBannerClosed()) {
                     showBannerState = false;
                     updateUI();
@@ -2220,7 +2207,6 @@
                     return;
                 }
 
-                // VERIFICA SE É iOS
                 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
                 
                 if (isIOS) {
@@ -2235,32 +2221,41 @@
                     return;
                 }
 
-                // PARA ANDROID/CHROME, ESPERA O beforeinstallprompt
-                // SE NÃO FOR ACIONADO EM 5 SEGUNDOS, MOSTRA O BOTÃO
                 setTimeout(() => {
                     if (!deferredPrompt && !isStandalone() && !isBannerClosed()) {
-                        console.log('⏳ beforeinstallprompt não foi acionado, mostrando botão');
-                        showBannerState = true;
-                        updateUI();
+                        console.log('⏳ beforeinstallprompt não foi acionado, tentando forçar...');
+                        const event = new Event('beforeinstallprompt');
+                        window.dispatchEvent(event);
+                        
+                        setTimeout(() => {
+                            if (!deferredPrompt && !isStandalone() && !isBannerClosed()) {
+                                console.log('⚠️ Prompt não disponível, mostrando botão');
+                                showBannerState = true;
+                                updateUI();
+                            }
+                        }, 2000);
                     }
-                }, 5000);
+                }, 1000);
                 
                 console.log('✅ Sistema de instalação PWA inicializado!');
             }
 
-            // EXECUTA A INICIALIZAÇÃO
             init();
 
-            // EXPÕE A FUNÇÃO GLOBALMENTE PARA DEBUG
             window.__debugInstall = {
                 deferredPrompt: () => deferredPrompt,
                 showBannerState: () => showBannerState,
                 isStandalone: isStandalone,
                 isBannerClosed: isBannerClosed,
-                handleInstall: handleInstall
+                handleInstall: handleInstall,
+                forcePrompt: () => {
+                    const event = new Event('beforeinstallprompt');
+                    window.dispatchEvent(event);
+                }
             };
 
-            console.log('✅ Sistema de instalação PWA carregado! Use window.__debugInstall para debug');
+            console.log('✅ Sistema de instalação PWA carregado!');
+            console.log('🔧 Use window.__debugInstall.forcePrompt() para forçar o prompt');
         })();
 
         // ============================================
@@ -3923,8 +3918,7 @@
             if (type === 'baptism') {
                 html +=
                     `<div class="form-group"><label>${t.labels.birth_date}</label><input type="date" id="regBirthDate" required /></div>`;
-                html +=
-                    `<div class="form-group"><label>${t.labels.baptism_date}</label><select id="regBaptismDate" required><option value="">Selecione uma data para o Batismo</option>`;
+                html +=                    `<div class="form-group"><label>${t.labels.baptism_date}</label><select id="regBaptismDate" required><option value="">Selecione uma data para o Batismo</option>`;
                 if (baptismDatesList && baptismDatesList.length > 0) {
                     baptismDatesList.forEach(d => {
                         const dateFormatted = new Date(d.date).toLocaleDateString('pt-BR', { day: 'numeric',

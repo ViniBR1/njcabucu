@@ -206,15 +206,15 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Servir arquivos estáticos da pasta public
+app.use(express.static('public'));
+app.use('/uploads', express.static('public/uploads'));
+
 // ============================================
 // ===== ROTAS PWA =====
 // ============================================
 
-// Servir arquivos estáticos da pasta public
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
-
-// Servir o manifest.json
+// Servir o manifest.json (NA RAIZ)
 app.get('/manifest.json', (req, res) => {
     const filePath = path.join(__dirname, 'manifest.json');
     if (fs.existsSync(filePath)) {
@@ -225,7 +225,7 @@ app.get('/manifest.json', (req, res) => {
     }
 });
 
-// Servir o service worker (sw.js)
+// Servir o service worker (NA RAIZ)
 app.get('/sw.js', (req, res) => {
     const filePath = path.join(__dirname, 'sw.js');
     if (fs.existsSync(filePath)) {

@@ -3052,7 +3052,6 @@ app.post('/api/lives/end/:id', auth, async (req, res) => {
         const { id } = req.params;
         console.log(`📝 Encerrando live ${id}...`);
         
-        // Busca a live
         const live = await sql`SELECT * FROM lives WHERE id = ${id}`;
         if (live.length === 0) {
             return res.status(404).json({ error: 'Live não encontrada' });
@@ -3062,7 +3061,6 @@ app.post('/api/lives/end/:id', auth, async (req, res) => {
             return res.status(400).json({ error: 'Live já foi encerrada' });
         }
 
-        // Atualiza o status para 'ended'
         const result = await sql`
             UPDATE lives 
             SET status = 'ended', ended_at = NOW() 
@@ -3070,7 +3068,6 @@ app.post('/api/lives/end/:id', auth, async (req, res) => {
             RETURNING *
         `;
         
-        // Marca todos os viewers como offline
         await sql`
             UPDATE live_viewers 
             SET left_at = NOW() 
@@ -3091,7 +3088,6 @@ app.post('/api/lives/end/:id', auth, async (req, res) => {
 // ===== VERIFICAR STATUS DA LIVE (CORRIGIDO) =====
 app.get('/api/lives/active', async (req, res) => {
     try {
-        // Busca todas as lives ativas
         const lives = await sql`
             SELECT l.*, u.name as iniciada_por_nome
             FROM lives l
@@ -3101,17 +3097,14 @@ app.get('/api/lives/active', async (req, res) => {
         `;
         
         if (lives.length === 0) {
-            // Retorna offline SEM limpar viewers
             return res.json({ 
                 status: 'offline', 
                 message: 'Nenhuma live ativa' 
             });
         }
         
-        // Pega a primeira live ativa
         const live = lives[0];
         
-        // Conta viewers ativos
         const viewers = await sql`
             SELECT COUNT(*) as total FROM live_viewers 
             WHERE live_id = ${live.id} AND left_at IS NULL

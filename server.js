@@ -1,3641 +1,3498 @@
-// ============================================
-// ===== NJ CABUÇU - SERVIDOR COMPLETO =====
-// ============================================
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Admin - NJ Cabuçu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        :root {
+            --primary: #0D47A1;
+            --primary-light: #1565C0;
+            --primary-gradient: linear-gradient(135deg, #0D47A1, #1565C0);
+            --bg: #f0f4f8;
+            --card-bg: #ffffff;
+            --shadow: 0 2px 12px rgba(0,0,0,0.05);
+            --shadow-lg: 0 8px 30px rgba(0,0,0,0.08);
+            --radius: 14px;
+            --radius-sm: 8px;
+            --radius-full: 50px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --header-h: 60px;
+        }
+        html { overflow-x: hidden; width: 100%; }
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: #1a1a2e;
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+            padding-bottom: 2rem;
+        }
 
-require('dotenv').config();
-console.log('🚀 Iniciando NJ Cabuçu...');
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            flex-direction: column;
+            gap: 1rem;
+            transition: opacity 0.5s;
+        }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loading-spinner {
+            width: 44px;
+            height: 44px;
+            border: 4px solid #e0e0e0;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { font-size: 0.9rem; color: var(--primary); font-weight: 600; }
 
-const express = require('express');
-const cors = require('cors');
-const { neon } = require('@neondatabase/serverless');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const { MercadoPagoConfig, Payment } = require('mercadopago');
-const nodemailer = require('nodemailer');
+        .header {
+            background: #1a1a2e;
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--primary);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: var(--header-h);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+        }
+        .logo { display: flex; align-items: center; gap: 0.6rem; }
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .logo h1 { font-size: 1.1rem; font-weight: 800; color: #fff; }
+        .logo h1 span { color: #F5A623; }
 
-// ============================================
-// ===== CONEXÃO NEON =====
-// ============================================
-if (!process.env.DATABASE_URL) {
-    console.error('❌ DATABASE_URL não encontrada!');
-    process.exit(1);
-}
-const sql = neon(process.env.DATABASE_URL);
-console.log('✅ Conectado ao Neon Database');
+        .header-right { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+        .user-badge {
+            background: rgba(255,255,255,0.1);
+            padding: 0.2rem 0.8rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            font-size: 0.65rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .user-badge i { font-size: 0.7rem; }
 
-// ============================================
-// ===== MERCADO PAGO =====
-// ============================================
-let PaymentService = null;
-try {
-    if (process.env.MP_ACCESS_TOKEN) {
-        const client = new MercadoPagoConfig({
-            accessToken: process.env.MP_ACCESS_TOKEN,
-            options: { timeout: 30000 }
-        });
-        PaymentService = new Payment(client);
-        console.log('✅ Mercado Pago configurado');
-    }
-} catch (error) {
-    console.log('⚠️ Erro MP:', error.message);
-}
+        .btn {
+            padding: 0.3rem 0.8rem;
+            border-radius: var(--radius-full);
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.7rem;
+            font-family: var(--font);
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .btn-primary { background: var(--primary-gradient); color: #fff; }
+        .btn-primary:hover { opacity:0.9; transform:translateY(-1px); box-shadow: 0 4px 15px rgba(13,71,161,0.2); }
+        .btn-danger { background: #dc3545; color: #fff; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-success { background: #28a745; color: #fff; }
+        .btn-success:hover { background: #218838; }
+        .btn-warning { background: #ffc107; color: #1a1a1a; }
+        .btn-warning:hover { background: #e0a800; }
+        .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: #fff; }
+        .btn-sm { padding: 0.12rem 0.5rem; font-size: 0.55rem; }
+        .btn-xs { padding: 0.06rem 0.3rem; font-size: 0.5rem; }
+        .btn-block { width: 100%; justify-content: center; }
+        .btn-light { background: rgba(255,255,255,0.15); color: #fff; }
+        .btn-light:hover { background: rgba(255,255,255,0.25); }
 
-// ============================================
-// ===== EMAIL (NODEMAILER) =====
-// ============================================
-let transporter = null;
-try {
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-        transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            },
-            tls: {
-                rejectUnauthorized: false
-            }
-        });
-        transporter.verify((error, success) => {
-            if (error) {
-                console.error('❌ Erro ao conectar email:', error.message);
-            } else {
-                console.log('✅ Email configurado e verificado!');
-            }
-        });
-    } else {
-        console.log('⚠️ Credenciais de email não configuradas');
-    }
-} catch (error) {
-    console.log('⚠️ Erro email:', error.message);
-}
+        .container { width: 100%; max-width: 1400px; margin: 0 auto; padding: 0.8rem 1rem; overflow-x: hidden; }
 
-// ============================================
-// ===== FUNÇÃO PARA ENVIAR EMAIL =====
-// ============================================
-async function enviarEmailConfirmacao(dados) {
-    console.log('📧 Tentando enviar email para:', dados.email);
-    
-    if (!transporter) {
-        console.log('⚠️ Email não configurado. Salvando log...');
-        try {
-            const log = `[${new Date().toISOString()}] Email não enviado para ${dados.email}: ${JSON.stringify(dados)}\n`;
-            fs.appendFileSync('email_log.txt', log);
-        } catch (e) {}
-        return false;
-    }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            padding: 0.6rem 0.3rem;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .stat-card .number { font-size: 1.2rem; font-weight: 800; color: var(--primary); line-height: 1.2; }
+        .stat-card .label { font-size: 0.5rem; color: #888; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
+        .stat-card .icon { font-size: 1rem; color: var(--primary-light); margin-bottom: 0.1rem; }
 
-    const { email, nome, tipo, valor, data, status, paymentId, detalhes } = dados;
+        .tabs-wrapper {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        .tabs {
+            display: flex;
+            gap: 0.1rem;
+            padding: 0.4rem 0.6rem;
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e8e8e8;
+            scrollbar-width: thin;
+        }
+        .tabs::-webkit-scrollbar { height: 4px; }
+        .tabs::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        .tab-btn {
+            padding: 0.25rem 0.7rem;
+            border: none;
+            border-radius: var(--radius-full);
+            background: transparent;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-size: 0.6rem;
+            font-family: var(--font);
+            color: #666;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+        .tab-btn:hover { background: var(--secondary); color: var(--primary); }
+        .tab-btn.active {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 2px 10px rgba(13,71,161,0.2);
+        }
+        .tab-btn i { font-size: 0.6rem; }
 
-    if (!email || !email.includes('@')) {
-        console.log('⚠️ Email inválido:', email);
-        return false;
-    }
+        .tab-content {
+            display: none;
+            padding: 1rem;
+            background: var(--card-bg);
+            width: 100%;
+            overflow-x: hidden;
+        }
+        .tab-content.active { display: block; }
+        .tab-content .section-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.6rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 2px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .tab-content .section-title i { font-size: 0.9rem; }
 
-    const statusText = status === 'approved' ? '✅ APROVADO' : '⏳ PENDENTE';
-    const statusColor = status === 'approved' ? '#28a745' : '#ffc107';
-    const tiposLabels = {
-        'dizimo': 'Dízimo',
-        'oferta': 'Oferta',
-        'missoes': 'Missões',
-        'inscricao': 'Inscrição',
-        'compra': 'Compra',
-        'evento': 'Evento',
-        'pagamento': 'Pagamento',
-        'doacao': 'Doação'
-    };
-    const tipoLabel = tiposLabels[tipo] || tipo || 'Pagamento';
+        .table-wrapper {
+            width: 100%;
+            overflow: hidden;
+            border-radius: var(--radius-sm);
+            border: 1px solid #f0f0f0;
+            margin: 0.2rem 0;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.6rem;
+            table-layout: fixed;
+        }
+        .table th {
+            text-align: left;
+            padding: 0.2rem 0.4rem;
+            border-bottom: 2px solid #e8e8e8;
+            color: #666;
+            font-weight: 600;
+            font-size: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            background: #fafafa;
+        }
+        .table td {
+            padding: 0.2rem 0.4rem;
+            border-bottom: 1px solid #f0f0f0;
+            word-break: break-word;
+            vertical-align: middle;
+        }
+        .table tr:hover { background: #f8f9fa; }
 
-    const html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <style>
-            body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; }
-            .header { background: #0D47A1; color: #fff; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
-            .header h1 { margin: 0; font-size: 24px; }
-            .header p { margin: 5px 0 0; opacity: 0.8; }
-            .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0; border-top: none; }
-            .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e0e0e0; }
-            .info-row:last-child { border-bottom: none; }
-            .label { font-weight: 600; color: #555; }
-            .value { font-weight: 500; }
-            .status { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: 700; background: ${statusColor}; color: #fff; }
-            .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #888; }
-        </style>
-    </head>
-    <body>
-        <div class="header">
-            <h1>🙏 NJ Cabuçu</h1>
-            <p>Comprovante de ${tipoLabel}</p>
+        .status {
+            padding: 0.04rem 0.35rem;
+            border-radius: var(--radius-full);
+            font-size: 0.45rem;
+            font-weight: 600;
+            display: inline-block;
+            text-transform: uppercase;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-approved { background: #d4edda; color: #155724; }
+        .status-rejected { background: #f8d7da; color: #721c24; }
+
+        .badge {
+            padding: 0.04rem 0.35rem;
+            border-radius: var(--radius-full);
+            font-size: 0.45rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-pastor { background: var(--primary); color: #fff; }
+        .badge-lider { background: #28a745; color: #fff; }
+        .badge-colaborador { background: #17a2b8; color: #fff; }
+        .badge-fiel { background: #6c757d; color: #fff; }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius-sm);
+            padding: 0.8rem;
+            border: 1px solid rgba(0,0,0,0.04);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        .card:hover { box-shadow: var(--shadow-lg); }
+
+        .flex-between { display: flex; justify-content: space-between; align-items: center; gap: 0.3rem; flex-wrap: wrap; }
+        .mt-1 { margin-top: 0.5rem; }
+        .mb-1 { margin-bottom: 0.5rem; }
+        .hidden { display: none !important; }
+        .w-full { width: 100%; }
+        .text-center { text-align: center; }
+        .text-muted { color: #888; font-size: 0.55rem; }
+        .gap-1 { gap: 0.5rem; }
+
+        .form-group { margin: 0.4rem 0; }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.65rem;
+            color: #333;
+            margin-bottom: 0.1rem;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.3rem 0.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-family: var(--font);
+            background: #fafbff;
+            transition: all 0.2s;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(13,71,161,0.08);
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+        .form-group textarea { min-height: 50px; resize: vertical; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(6px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem;
+        }
+        .modal.open { display: flex; }
+        .modal-content {
+            background: #fff;
+            padding: 1.2rem;
+            border-radius: var(--radius);
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalIn 0.25s ease;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+        @keyframes modalIn {
+            from { transform: scale(0.95) translateY(10px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        .modal-close {
+            float: right;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #888;
+            background: none;
+            border: none;
+            padding: 0.1rem;
+            transition: var(--transition);
+        }
+        .modal-close:hover { color: #333; transform: rotate(90deg); }
+        .modal-content h3 { font-size: 0.95rem; font-weight: 700; color: var(--primary); margin-bottom: 0.6rem; }
+        .modal-content h3 i { margin-right: 0.3rem; }
+
+        .notification {
+            position: fixed;
+            top: calc(var(--header-h) + 6px);
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.5rem 1.2rem;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            z-index: 99999;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            animation: slideDown 0.3s ease;
+            font-size: 0.75rem;
+            text-align: center;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        .notification.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .notification.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .notification.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+
+        .carousel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.5rem;
+            width: 100%;
+        }
+        .carousel-item {
+            text-align: center;
+            border: 1px solid #e8e8e8;
+            border-radius: var(--radius-sm);
+            padding: 0.3rem;
+            background: #f8f9fa;
+        }
+        .carousel-item img { width: 100%; height: 65px; object-fit: cover; border-radius: 4px; }
+        .carousel-item .title { font-size: 0.5rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        .freq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+        .freq-box {
+            background: #f8f9fa;
+            border-radius: var(--radius-sm);
+            border: 1px solid #e8e8e8;
+            padding: 0.5rem;
+        }
+        .freq-box h4 { font-size: 0.65rem; font-weight: 600; margin-bottom: 0.2rem; }
+        .member-row {
+            display: flex;
+            align-items: center;
+            padding: 0.15rem 0.2rem;
+            border-radius: 4px;
+            gap: 0.2rem;
+            font-size: 0.6rem;
+        }
+        .member-row .member-checkbox { width: 12px; height: 12px; flex-shrink: 0; cursor: pointer; }
+        .member-row .member-info { flex: 1; min-width: 0; }
+        .member-row .member-name { font-weight: 500; font-size: 0.6rem; }
+        .member-row .member-dept { font-size: 0.5rem; color: #888; }
+
+        .about-editor { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; }
+        .about-card {
+            background: #f8f9fa;
+            padding: 0.6rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid #e8e8e8;
+        }
+        .about-card .title { font-size: 0.7rem; font-weight: 700; color: var(--primary); margin-bottom: 0.2rem; }
+        .about-card textarea {
+            width: 100%;
+            padding: 0.3rem 0.4rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-family: var(--font);
+            min-height: 60px;
+            resize: vertical;
+            background: #fff;
+        }
+        .about-card textarea:focus { border-color: var(--primary); outline: none; }
+
+        .registration-filters { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+        .registration-filters .btn { font-size: 0.55rem; }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.15rem;
+            height: 80px;
+            padding: 0.15rem 0;
+            width: 100%;
+            overflow: hidden;
+        }
+        .bar-item { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 0.05rem; }
+        .bar {
+            width: 100%;
+            max-width: 20px;
+            background: var(--primary-gradient);
+            border-radius: 2px 2px 0 0;
+            min-height: 3px;
+            transition: height 0.5s ease;
+        }
+        .bar-label { font-size: 0.4rem; color: #888; }
+        .bar-value { font-size: 0.4rem; font-weight: 600; color: var(--primary); }
+
+        .live-indicator {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            font-size: 0.7rem;
+            background: #dc3545;
+            color: #fff;
+        }
+        .live-indicator.live { background: #28a745; animation: pulse-live 1.5s infinite; }
+        .live-indicator i { font-size: 0.5rem; margin-right: 0.3rem; }
+        @keyframes pulse-live { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        #captureArea {
+            background: #1a1a2e;
+            border-radius: var(--radius-sm);
+            padding: 0.5rem;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: relative;
+        }
+        #captureArea video {
+            width: 100%;
+            max-height: 300px;
+            border-radius: 4px;
+            background: #000;
+        }
+        #captureArea .placeholder {
+            color: #888;
+            text-align: center;
+            padding: 2rem;
+        }
+        #captureArea .placeholder i { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
+        #captureArea .placeholder span { font-size: 0.8rem; }
+
+        .birthday-today { background: #fce4ec !important; border-color: #e91e63 !important; }
+        .birthday-today .name { color: #e91e63 !important; }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+        .file-input-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        .file-input-wrapper .file-label {
+            display: block;
+            padding: 0.3rem 0.5rem;
+            background: #f8f9fa;
+            border: 2px dashed #e0e0e0;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            font-size: 0.7rem;
+            color: #888;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .file-input-wrapper .file-label:hover {
+            border-color: var(--primary);
+            background: #f0f4ff;
+        }
+        .file-input-wrapper .file-label .file-name {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .study-result {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            display: none;
+        }
+        .study-result.success { display: block; background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .study-result.error { display: block; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .study-result.loading { display: block; background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+
+        @media (max-width: 768px) {
+            .header { padding: 0 0.8rem; }
+            .logo h1 { font-size: 0.95rem; }
+            .logo-icon { width: 32px; height: 32px; font-size: 0.8rem; }
+            .user-badge span { display: none; }
+            .tabs { padding: 0.3rem 0.4rem; gap: 0.1rem; }
+            .tab-btn { font-size: 0.5rem; padding: 0.2rem 0.5rem; }
+            .tab-btn i { font-size: 0.5rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .stat-card .number { font-size: 0.9rem; }
+            .container { padding: 0.4rem; }
+            .tab-content { padding: 0.6rem; }
+            .form-row { grid-template-columns: 1fr; }
+            .freq-grid { grid-template-columns: 1fr; }
+            .about-editor { grid-template-columns: 1fr; }
+            .modal-content { padding: 0.8rem; max-width: 100%; margin: 0.5rem; }
+            .notification { font-size: 0.65rem; padding: 0.4rem 0.8rem; top: calc(var(--header-h) + 4px); }
+            #captureArea { min-height: 150px; }
+            #captureArea video { max-height: 200px; }
+            .header-actions .btn span { display: none; }
+            .header-actions .btn { padding: 0.15rem 0.5rem; font-size: 0.55rem; }
+        }
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+            .about-editor { grid-template-columns: 1fr 1fr; }
+        }
+        @media (min-width: 1025px) {
+            .stats-grid { grid-template-columns: repeat(7, 1fr); }
+            .container { padding: 1rem 2rem; }
+            .tab-content { padding: 1.2rem; }
+            .table { font-size: 0.65rem; }
+            .tabs { justify-content: center; padding: 0.5rem 1rem; }
+            .tab-btn { font-size: 0.7rem; padding: 0.3rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOADING -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Carregando...</div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">NJ</div>
+            <h1>NJ <span>Admin</span></h1>
         </div>
-        <div class="content">
-            <div style="text-align: center; margin-bottom: 20px;">
-                <span class="status">${statusText}</span>
-            </div>
-            <div class="info-row">
-                <span class="label">Nome</span>
-                <span class="value">${nome || 'Não informado'}</span>
-            </div>
-            <div class="info-row">
-                <span class="label">E-mail</span>
-                <span class="value">${email || 'Não informado'}</span>
-            </div>
-            <div class="info-row">
-                <span class="label">Valor</span>
-                <span class="value">R$ ${parseFloat(valor || 0).toFixed(2)}</span>
-            </div>
-            <div class="info-row">
-                <span class="label">Data</span>
-                <span class="value">${new Date(data || Date.now()).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-            </div>
-            <div class="info-row">
-                <span class="label">ID do Pagamento</span>
-                <span class="value">${paymentId || '-'}</span>
-            </div>
-            <div class="info-row">
-                <span class="label">Tipo</span>
-                <span class="value">${tipoLabel}</span>
-            </div>
-            ${detalhes ? `<div class="info-row"><span class="label">Detalhes</span><span class="value">${detalhes}</span></div>` : ''}
+        <div class="header-right">
+            <span class="user-badge"><i class="fas fa-crown"></i> <span id="userNameDisplay">Pastor</span></span>
+            <a href="/" class="btn btn-light btn-sm"><i class="fas fa-home"></i> Site</a>
+            <button onclick="logout()" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i> Sair</button>
         </div>
-        <div class="footer">
-            <p>NJ Cabuçu - "E conhecereis a verdade, e a verdade vos libertará." (João 8:32)</p>
-            <p>Este é um comprovante automático. Não é necessário responder.</p>
+    </header>
+
+    <!-- CONTAINER -->
+    <div class="container">
+
+        <!-- STATS -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card"><div class="icon"><i class="fas fa-users"></i></div><div class="number" id="totalUsers">0</div><div class="label">Membros</div></div>
+            <div class="stat-card"><div class="icon"><i class="fas fa-pray"></i></div><div class="number" id="totalPrayers">0</div><div class="label">Orações</div></div>
+            <div class="stat-card"><div class="icon"><i class="fas fa-shopping-cart"></i></div><div class="number" id="totalOrders">0</div><div class="label">Vendas</div></div>
+            <div class="stat-card"><div class="icon"><i class="fas fa-hand-holding-heart"></i></div><div class="number" id="totalDonations">R$0</div><div class="label">Doações</div></div>
+            <div class="stat-card"><div class="icon"><i class="fas fa-book"></i></div><div class="number" id="totalStudies">0</div><div class="label">Estudos</div></div>
+            <div class="stat-card"><div class="icon"><i class="fas fa-home"></i></div><div class="number" id="totalCelulas">0</div><div class="label">Células</div></div>
+            <div class="stat-card"><div class="icon"><i class="fas fa-broadcast-tower"></i></div><div class="number" id="totalLives">0</div><div class="label">Lives</div></div>
         </div>
-    </body>
-    </html>
-    `;
 
-    try {
-        const info = await transporter.sendMail({
-            from: `"NJ Cabuçu" <${process.env.EMAIL_USER}>`,
-            to: email,
-            subject: `💰 Comprovante de ${tipoLabel} - NJ Cabuçu`,
-            html: html,
-            text: `Comprovante de ${tipoLabel}\n\nNome: ${nome}\nValor: R$ ${parseFloat(valor || 0).toFixed(2)}\nData: ${new Date(data || Date.now()).toLocaleDateString('pt-BR')}\nStatus: ${statusText}\nID: ${paymentId}`
-        });
-        console.log('✅ Email enviado para:', email, 'ID:', info.messageId);
-        return true;
-    } catch (error) {
-        console.error('❌ Erro ao enviar email:', error.message);
-        try {
-            const log = `[${new Date().toISOString()}] ERRO ao enviar para ${email}: ${error.message}\nDados: ${JSON.stringify(dados)}\n\n`;
-            fs.appendFileSync('email_log.txt', log);
-        } catch (e) {}
-        return false;
-    }
-}
-
-// ============================================
-// ===== APP =====
-// ============================================
-const app = express();
-const PORT = process.env.PORT || 3000;
-const BASE_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
-
-// ===== MIDDLEWARES - CORRIGIDO =====
-app.use(cors({
-    origin: ['https://igrejanjcabucurj.vercel.app', 'http://localhost:3000', 'http://localhost:3001'],
-    credentials: true
-}));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Servir arquivos estáticos da pasta public
-app.use(express.static('public'));
-app.use('/uploads', express.static('public/uploads'));
-
-// ============================================
-// ===== MULTER - CORRIGIDO =====
-// ============================================
-const storage = multer.memoryStorage();
-
-const upload = multer({
-    storage: storage,
-    limits: { 
-        fileSize: 10 * 1024 * 1024
-    },
-    fileFilter: function (req, file, cb) {
-        const allowedTypes = /jpeg|jpg|png|gif|webp|pdf/;
-        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = allowedTypes.test(file.mimetype);
-        
-        if (mimetype && extname) {
-            return cb(null, true);
-        } else {
-            cb(new Error('Apenas imagens (JPG, PNG, GIF, WEBP) e PDFs são permitidos!'));
-        }
-    }
-});
-
-const uploadFields = upload.fields([
-    { name: 'image', maxCount: 1 },
-    { name: 'file', maxCount: 1 }
-]);
-
-// ============================================
-// ===== ROTAS PWA =====
-// ============================================
-
-// Servir o manifest.json (NA RAIZ)
-app.get('/manifest.json', (req, res) => {
-    const filePath = path.join(__dirname, 'manifest.json');
-    if (fs.existsSync(filePath)) {
-        res.setHeader('Content-Type', 'application/json');
-        res.sendFile(filePath);
-    } else {
-        res.status(404).json({ error: 'manifest.json não encontrado' });
-    }
-});
-
-// Servir o service worker (NA RAIZ)
-app.get('/sw.js', (req, res) => {
-    const filePath = path.join(__dirname, 'sw.js');
-    if (fs.existsSync(filePath)) {
-        res.setHeader('Content-Type', 'application/javascript');
-        res.setHeader('Service-Worker-Allowed', '/');
-        res.sendFile(filePath);
-    } else {
-        res.status(404).json({ error: 'sw.js não encontrado' });
-    }
-});
-
-// Servir ícones da pasta public/icons
-app.get('/icons/:file', (req, res) => {
-    const filePath = path.join(__dirname, 'public', 'icons', req.params.file);
-    if (fs.existsSync(filePath)) {
-        res.sendFile(filePath);
-    } else {
-        res.status(404).json({ error: 'Ícone não encontrado' });
-    }
-});
-
-// ============================================
-// ===== FUNÇÕES DE AUTENTICAÇÃO =====
-// ============================================
-const hashPassword = async (pwd) => await bcrypt.hash(pwd, 10);
-const verifyPassword = async (pwd, hash) => await bcrypt.compare(pwd, hash);
-
-const auth = (req, res, next) => {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ error: 'Não autorizado' });
-    try {
-        req.user = jwt.verify(token, process.env.JWT_SECRET || 'secret');
-        next();
-    } catch {
-        res.status(401).json({ error: 'Token inválido' });
-    }
-};
-
-const pastorOnly = (req, res, next) => {
-    if (req.user?.role !== 'pastor') {
-        return res.status(403).json({ error: 'Apenas o pastor' });
-    }
-    next();
-};
-
-const leaderOnly = (req, res, next) => {
-    if (req.user?.role !== 'lider' && req.user?.role !== 'pastor' && !req.user?.is_leader) {
-        return res.status(403).json({ error: 'Apenas líderes' });
-    }
-    next();
-};
-
-// ============================================
-// ===== INICIALIZAR BANCO =====
-// ============================================
-async function initDB() {
-    console.log('📝 Criando/Verificando tabelas...');
-    
-    try {
-        // USERS
-        await sql`CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            name VARCHAR(100) NOT NULL,
-            email VARCHAR(100) UNIQUE NOT NULL,
-            password_hash VARCHAR(255) NOT NULL,
-            role VARCHAR(50) DEFAULT 'colaborador',
-            department_id INTEGER,
-            department_name VARCHAR(100),
-            first_login BOOLEAN DEFAULT true,
-            phone VARCHAR(20),
-            is_leader BOOLEAN DEFAULT false,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // DEPARTMENTS
-        await sql`CREATE TABLE IF NOT EXISTS departments (
-            id SERIAL PRIMARY KEY,
-            name VARCHAR(100) NOT NULL,
-            leader_id INTEGER,
-            description TEXT,
-            is_active BOOLEAN DEFAULT true,
-            created_by INTEGER,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // DEPARTMENT MEMBERS
-        await sql`CREATE TABLE IF NOT EXISTS department_members (
-            department_id INTEGER,
-            user_id INTEGER,
-            role VARCHAR(50) DEFAULT 'membro',
-            joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (department_id, user_id)
-        )`;
-
-        await sql`
-            DO $$
-            BEGIN
-                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
-                               WHERE table_name='department_members' AND column_name='role') THEN
-                    ALTER TABLE department_members ADD COLUMN role VARCHAR(50) DEFAULT 'membro';
-                END IF;
-            END $$;
-        `;
-
-        // STUDIES
-        await sql`CREATE TABLE IF NOT EXISTS studies (
-            id SERIAL PRIMARY KEY,
-            title VARCHAR(200) NOT NULL,
-            description TEXT,
-            file_url VARCHAR(500),
-            image_url VARCHAR(500),
-            image_base64 TEXT,
-            file_base64 TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // PRODUCTS
-        await sql`CREATE TABLE IF NOT EXISTS products (
-            id SERIAL PRIMARY KEY,
-            name VARCHAR(200) NOT NULL,
-            description TEXT,
-            price DECIMAL(10,2) NOT NULL,
-            image_url VARCHAR(500),
-            image_base64 TEXT,
-            stock INTEGER DEFAULT 0,
-            category VARCHAR(100),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // EVENTS
-        await sql`CREATE TABLE IF NOT EXISTS events (
-            id SERIAL PRIMARY KEY,
-            title VARCHAR(200) NOT NULL,
-            description TEXT,
-            date TIMESTAMP NOT NULL,
-            image_url VARCHAR(500),
-            image_base64 TEXT,
-            price DECIMAL(10,2) DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // PRAYERS
-        await sql`CREATE TABLE IF NOT EXISTS prayers (
-            id SERIAL PRIMARY KEY,
-            name VARCHAR(100),
-            request TEXT NOT NULL,
-            is_read BOOLEAN DEFAULT FALSE,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // ORDERS
-        await sql`CREATE TABLE IF NOT EXISTS orders (
-            id SERIAL PRIMARY KEY,
-            user_name VARCHAR(100),
-            user_email VARCHAR(100),
-            user_phone VARCHAR(20),
-            items TEXT,
-            total DECIMAL(10,2) NOT NULL,
-            status VARCHAR(50) DEFAULT 'pending',
-            payment_id VARCHAR(100),
-            payment_method VARCHAR(50),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // REGISTRATIONS
-        await sql`CREATE TABLE IF NOT EXISTS registrations (
-            id SERIAL PRIMARY KEY,
-            type VARCHAR(50) NOT NULL,
-            name VARCHAR(100) NOT NULL,
-            email VARCHAR(100),
-            phone VARCHAR(20),
-            department_name VARCHAR(100),
-            event_name VARCHAR(200),
-            details TEXT,
-            status VARCHAR(50) DEFAULT 'pending',
-            amount DECIMAL(10,2) DEFAULT 0,
-            is_paid BOOLEAN DEFAULT false,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // DONATIONS
-        await sql`CREATE TABLE IF NOT EXISTS donations (
-            id SERIAL PRIMARY KEY,
-            user_name VARCHAR(100),
-            user_email VARCHAR(100),
-            user_phone VARCHAR(20),
-            type VARCHAR(50) NOT NULL,
-            amount DECIMAL(10,2) NOT NULL,
-            payment_id VARCHAR(100),
-            payment_method VARCHAR(50),
-            status VARCHAR(50) DEFAULT 'pending',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // CAROUSEL
-        await sql`CREATE TABLE IF NOT EXISTS carousel_images (
-            id SERIAL PRIMARY KEY,
-            title VARCHAR(200),
-            subtitle VARCHAR(200),
-            description TEXT,
-            image_url VARCHAR(500),
-            image_base64 TEXT,
-            link VARCHAR(500),
-            order_position INTEGER DEFAULT 0,
-            active BOOLEAN DEFAULT true,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // SITE SETTINGS
-        await sql`CREATE TABLE IF NOT EXISTS site_settings (
-            id SERIAL PRIMARY KEY,
-            key VARCHAR(100) UNIQUE NOT NULL,
-            value TEXT,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // MEMBERS
-        await sql`CREATE TABLE IF NOT EXISTS members (
-            id SERIAL PRIMARY KEY,
-            name VARCHAR(100) NOT NULL,
-            email VARCHAR(100),
-            phone VARCHAR(20),
-            birth_date DATE,
-            marital_status VARCHAR(20) DEFAULT 'solteiro',
-            spouse_name VARCHAR(100),
-            children TEXT,
-            baptism_date DATE,
-            baptism_place VARCHAR(100),
-            address TEXT,
-            department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
-            department_name VARCHAR(100),
-            is_active BOOLEAN DEFAULT true,
-            joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            notes TEXT,
-            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // ATTENDANCE
-        await sql`CREATE TABLE IF NOT EXISTS attendance (
-            id SERIAL PRIMARY KEY,
-            member_id INTEGER REFERENCES members(id) ON DELETE CASCADE,
-            event_date DATE NOT NULL,
-            service_type VARCHAR(50) DEFAULT 'domingo',
-            present BOOLEAN DEFAULT false,
-            check_in_time TIMESTAMP,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(member_id, event_date, service_type)
-        )`;
-
-        // TITHES
-        await sql`CREATE TABLE IF NOT EXISTS tithes (
-            id SERIAL PRIMARY KEY,
-            member_id INTEGER REFERENCES members(id) ON DELETE SET NULL,
-            member_name VARCHAR(100),
-            type VARCHAR(20) NOT NULL,
-            amount DECIMAL(10,2) NOT NULL,
-            payment_method VARCHAR(20) DEFAULT 'dinheiro',
-            payment_date DATE DEFAULT CURRENT_DATE,
-            description TEXT,
-            received_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // BILLS
-        await sql`CREATE TABLE IF NOT EXISTS bills (
-            id SERIAL PRIMARY KEY,
-            description VARCHAR(200) NOT NULL,
-            category VARCHAR(50) NOT NULL,
-            amount DECIMAL(10,2) NOT NULL,
-            due_date DATE NOT NULL,
-            paid BOOLEAN DEFAULT false,
-            payment_date DATE,
-            payment_method VARCHAR(20),
-            notes TEXT,
-            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // BAPTISM DATES
-        await sql`CREATE TABLE IF NOT EXISTS baptism_dates (
-            id SERIAL PRIMARY KEY,
-            date TIMESTAMP NOT NULL,
-            title VARCHAR(200) DEFAULT 'Batismo',
-            description TEXT,
-            max_participants INTEGER DEFAULT 20,
-            current_participants INTEGER DEFAULT 0,
-            is_active BOOLEAN DEFAULT true,
-            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // CÉLULAS
-        await sql`CREATE TABLE IF NOT EXISTS celulas (
-            id SERIAL PRIMARY KEY,
-            nome VARCHAR(100) NOT NULL,
-            lider_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
-            endereco TEXT,
-            dias_reuniao VARCHAR(100),
-            horario VARCHAR(50),
-            descricao TEXT,
-            is_active BOOLEAN DEFAULT true,
-            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        await sql`CREATE TABLE IF NOT EXISTS celula_membros (
-            id SERIAL PRIMARY KEY,
-            celula_id INTEGER REFERENCES celulas(id) ON DELETE CASCADE,
-            membro_id INTEGER REFERENCES members(id) ON DELETE CASCADE,
-            data_entrada DATE DEFAULT CURRENT_DATE,
-            is_active BOOLEAN DEFAULT true,
-            UNIQUE(celula_id, membro_id)
-        )`;
-
-        await sql`CREATE TABLE IF NOT EXISTS celula_estatisticas (
-            id SERIAL PRIMARY KEY,
-            celula_id INTEGER REFERENCES celulas(id) ON DELETE CASCADE,
-            data_registro DATE DEFAULT CURRENT_DATE,
-            total_membros INTEGER DEFAULT 0,
-            batizados INTEGER DEFAULT 0,
-            aceitaram_jesus INTEGER DEFAULT 0,
-            visitantes INTEGER DEFAULT 0,
-            novo_membros INTEGER DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(celula_id, data_registro)
-        )`;
-
-        await sql`CREATE TABLE IF NOT EXISTS celula_decisoes (
-            id SERIAL PRIMARY KEY,
-            celula_id INTEGER REFERENCES celulas(id) ON DELETE CASCADE,
-            membro_id INTEGER REFERENCES members(id) ON DELETE SET NULL,
-            tipo VARCHAR(20) NOT NULL,
-            data_decisao DATE DEFAULT CURRENT_DATE,
-            observacao TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // LIVES
-        await sql`CREATE TABLE IF NOT EXISTS lives (
-            id SERIAL PRIMARY KEY,
-            titulo VARCHAR(200) NOT NULL,
-            descricao TEXT,
-            status VARCHAR(20) DEFAULT 'offline',
-            stream_key VARCHAR(100) UNIQUE,
-            iniciada_por INTEGER REFERENCES users(id) ON DELETE SET NULL,
-            started_at TIMESTAMP,
-            ended_at TIMESTAMP,
-            viewers INTEGER DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        await sql`CREATE TABLE IF NOT EXISTS live_viewers (
-            id SERIAL PRIMARY KEY,
-            live_id INTEGER REFERENCES lives(id) ON DELETE CASCADE,
-            viewer_id VARCHAR(100),
-            joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            left_at TIMESTAMP
-        )`;
-
-        // REFLEXÕES
-        await sql`CREATE TABLE IF NOT EXISTS pastor_reflections (
-            id SERIAL PRIMARY KEY,
-            title VARCHAR(200) NOT NULL,
-            description TEXT,
-            link VARCHAR(500) NOT NULL,
-            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // MÚSICAS
-        await sql`CREATE TABLE IF NOT EXISTS songs (
-            id SERIAL PRIMARY KEY,
-            title VARCHAR(200) NOT NULL,
-            artist VARCHAR(100),
-            key VARCHAR(10) DEFAULT 'C',
-            lyrics TEXT,
-            youtube_url VARCHAR(500),
-            department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE,
-            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // ESCALAS - COM JSONB
-        await sql`CREATE TABLE IF NOT EXISTS worship_scales (
-            id SERIAL PRIMARY KEY,
-            department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE,
-            event_date TIMESTAMP NOT NULL,
-            leader_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
-            minister_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
-            songs jsonb DEFAULT '[]'::jsonb,
-            song_ids jsonb DEFAULT '[]'::jsonb,
-            palette VARCHAR(200),
-            rehearsal BOOLEAN DEFAULT false,
-            musician_ids jsonb DEFAULT '[]'::jsonb,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`;
-
-        // DISPONIBILIDADE
-        await sql`CREATE TABLE IF NOT EXISTS availability (
-            id SERIAL PRIMARY KEY,
-            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-            date DATE NOT NULL,
-            department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(user_id, date)
-        )`;
-
-        await sql`
-            DO $$
-            BEGIN
-                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
-                               WHERE table_name='availability' AND column_name='department_id') THEN
-                    ALTER TABLE availability ADD COLUMN department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE;
-                END IF;
-            END $$;
-        `;
-
-        await sql`
-            DO $$
-            BEGIN
-                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
-                               WHERE table_name='studies' AND column_name='file_base64') THEN
-                    ALTER TABLE studies ADD COLUMN file_base64 TEXT;
-                END IF;
-            END $$;
-        `;
-
-        console.log('✅ Todas as tabelas verificadas/criadas');
-
-        const existing = await sql`SELECT * FROM users WHERE email = 'pastor@njcabucu.com'`;
-        if (existing.length === 0) {
-            const hash = await hashPassword('admin123');
-            await sql`
-                INSERT INTO users (name, email, password_hash, role, department_name, first_login, is_leader)
-                VALUES ('Pastor', 'pastor@njcabucu.com', ${hash}, 'pastor', 'Administração', false, true)
-            `;
-            console.log('✅ Pastor criado: pastor@njcabucu.com / admin123');
-        }
-
-        console.log('🎉 Sistema pronto!');
-    } catch (error) {
-        console.error('❌ Erro:', error.message);
-    }
-}
-
-initDB();
-
-// ============================================
-// ===== ROTAS DE AUTENTICAÇÃO =====
-// ============================================
-
-app.post('/api/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        const users = await sql`SELECT * FROM users WHERE email = ${email}`;
-        if (users.length === 0) return res.status(401).json({ error: 'Usuário não encontrado' });
-        
-        const user = users[0];
-        const valid = await verifyPassword(password, user.password_hash);
-        if (!valid) return res.status(401).json({ error: 'Senha incorreta' });
-
-        const token = jwt.sign(
-            { id: user.id, email: user.email, role: user.role },
-            process.env.JWT_SECRET || 'secret',
-            { expiresIn: '7d' }
-        );
-
-        res.json({
-            token,
-            user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                department_id: user.department_id,
-                department_name: user.department_name,
-                first_login: user.first_login || false,
-                phone: user.phone || '',
-                is_leader: user.is_leader || false
-            }
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/change-password', async (req, res) => {
-    try {
-        const { email, currentPassword, newPassword } = req.body;
-        const users = await sql`SELECT * FROM users WHERE email = ${email}`;
-        if (users.length === 0) return res.status(404).json({ error: 'Usuário não encontrado' });
-
-        const user = users[0];
-        if (!user.first_login && currentPassword) {
-            const valid = await verifyPassword(currentPassword, user.password_hash);
-            if (!valid) return res.status(401).json({ error: 'Senha atual incorreta' });
-        }
-
-        const hash = await hashPassword(newPassword);
-        await sql`UPDATE users SET password_hash = ${hash}, first_login = false WHERE id = ${user.id}`;
-        res.json({ message: 'Senha alterada com sucesso!' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE USUÁRIOS =====
-// ============================================
-
-app.get('/api/users', auth, async (req, res) => {
-    try {
-        let users;
-        if (req.user.role === 'pastor') {
-            users = await sql`
-                SELECT id, name, email, role, department_id, department_name, phone, first_login, is_leader, created_at
-                FROM users ORDER BY name
-            `;
-        } else {
-            const deptId = req.user.department_id;
-            if (!deptId) return res.json([]);
-            users = await sql`
-                SELECT id, name, email, role, department_id, department_name, phone, first_login, is_leader, created_at
-                FROM users WHERE department_id = ${deptId}
-                ORDER BY name
-            `;
-        }
-        res.json(users);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/users/all', auth, async (req, res) => {
-    try {
-        const users = await sql`
-            SELECT id, name, email, role, department_id, department_name, phone, first_login, is_leader, created_at
-            FROM users 
-            ORDER BY name
-        `;
-        res.json(users);
-    } catch (error) {
-        console.error('❌ Erro ao buscar todos os usuários:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/users', auth, pastorOnly, async (req, res) => {
-    try {
-        const { name, email, password, role, department_name, phone, is_leader, department_id } = req.body;
-        
-        const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
-        if (existing.length > 0) {
-            return res.status(400).json({ error: 'Usuário já existe' });
-        }
-
-        const hash = await hashPassword(password || '123456');
-        
-        let deptId = department_id || null;
-        let deptName = department_name || null;
-        
-        if (deptId) {
-            const dept = await sql`SELECT name FROM departments WHERE id = ${deptId}`;
-            if (dept.length > 0) {
-                deptName = dept[0].name;
-            }
-        }
-
-        const result = await sql`
-            INSERT INTO users (name, email, password_hash, role, department_id, department_name, phone, first_login, is_leader)
-            VALUES (${name}, ${email}, ${hash}, ${role || 'colaborador'}, ${deptId}, ${deptName}, ${phone || ''}, true, ${is_leader || false})
-            RETURNING id, name, email, role, department_id, department_name, is_leader
-        `;
-        
-        if (deptId) {
-            const memberRole = is_leader ? 'lider' : 'membro';
-            await sql`
-                INSERT INTO department_members (department_id, user_id, role)
-                VALUES (${deptId}, ${result[0].id}, ${memberRole})
-                ON CONFLICT (department_id, user_id) DO UPDATE SET role = ${memberRole}
-            `;
-            
-            if (is_leader) {
-                await sql`
-                    UPDATE departments SET leader_id = ${result[0].id} WHERE id = ${deptId}
-                `;
-            }
-        }
-        
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao criar usuário:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/users/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        await sql`DELETE FROM users WHERE id = ${req.params.id}`;
-        res.json({ message: 'Usuário removido' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/reset-password', auth, pastorOnly, async (req, res) => {
-    try {
-        const { email } = req.body;
-        const hash = await hashPassword('123456');
-        await sql`UPDATE users SET password_hash = ${hash}, first_login = true WHERE email = ${email}`;
-        res.json({ message: 'Senha resetada para 123456' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/users-by-leader', auth, async (req, res) => {
-    try {
-        const { name, email, password, role, department_id } = req.body;
-
-        if (req.user.role !== 'lider' && req.user.role !== 'pastor' && !req.user.is_leader) {
-            return res.status(403).json({ error: 'Apenas líderes podem criar usuários' });
-        }
-
-        if (!name || !email || !password) {
-            return res.status(400).json({ error: 'Nome, e-mail e senha são obrigatórios' });
-        }
-
-        const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
-        if (existing.length > 0) {
-            return res.status(400).json({ error: 'E-mail já cadastrado' });
-        }
-
-        const deptId = department_id || req.user.department_id;
-        if (!deptId) {
-            return res.status(400).json({ error: 'Departamento não informado' });
-        }
-
-        const dept = await sql`SELECT * FROM departments WHERE id = ${deptId} AND is_active = true`;
-        if (dept.length === 0) {
-            return res.status(404).json({ error: 'Departamento não encontrado' });
-        }
-
-        const hash = await hashPassword(password);
-        const isLeader = (role === 'lider');
-
-        let userRole = 'colaborador';
-        if (role === 'lider') userRole = 'lider';
-        else if (role === 'ministro') userRole = 'ministro';
-        else if (role === 'musico') userRole = 'musico';
-        else userRole = 'colaborador';
-
-        const result = await sql`
-            INSERT INTO users (name, email, password_hash, role, department_id, department_name, phone, first_login, is_leader)
-            VALUES (${name}, ${email}, ${hash}, ${userRole}, ${deptId}, ${dept[0].name}, '', true, ${isLeader})
-            RETURNING id, name, email, role, department_id, department_name, is_leader
-        `;
-
-        const memberRole = isLeader ? 'lider' : (role || 'membro');
-        await sql`
-            INSERT INTO department_members (department_id, user_id, role)
-            VALUES (${deptId}, ${result[0].id}, ${memberRole})
-            ON CONFLICT (department_id, user_id) DO UPDATE SET role = ${memberRole}
-        `;
-
-        if (isLeader) {
-            await sql`
-                UPDATE departments 
-                SET leader_id = ${result[0].id} 
-                WHERE id = ${deptId}
-            `;
-            console.log(`✅ ${name} definido como líder do departamento ${dept[0].name}`);
-        }
-
-        console.log(`✅ Usuário ${name} criado como ${memberRole} no departamento ${dept[0].name}`);
-
-        res.status(201).json({ 
-            success: true,
-            message: 'Usuário criado com sucesso!',
-            user: result[0],
-            department_name: dept[0].name,
-            member_role: memberRole
-        });
-    } catch (error) {
-        console.error('❌ Erro ao criar usuário por líder:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE DEPARTAMENTOS =====
-// ============================================
-
-app.post('/api/departments', auth, pastorOnly, async (req, res) => {
-    try {
-        const { name, description } = req.body;
-        const result = await sql`
-            INSERT INTO departments (name, description, created_by)
-            VALUES (${name}, ${description || ''}, ${req.user.id})
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/departments', auth, async (req, res) => {
-    try {
-        const depts = await sql`
-            SELECT d.*, u.name as leader_name
-            FROM departments d
-            LEFT JOIN users u ON d.leader_id = u.id
-            WHERE d.is_active = true
-            ORDER BY d.name
-        `;
-        res.json(depts);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/departments/active', async (req, res) => {
-    try {
-        const depts = await sql`
-            SELECT id, name, description, leader_id
-            FROM departments 
-            WHERE is_active = true 
-            ORDER BY name
-        `;
-        res.json(depts);
-    } catch (error) {
-        console.error('❌ Erro ao buscar departamentos:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        await sql`UPDATE departments SET is_active = false WHERE id = ${req.params.id}`;
-        res.json({ message: 'Departamento removido' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== MEMBROS DO DEPARTAMENTO =====
-// ============================================
-
-app.get('/api/departments/:id/members', auth, async (req, res) => {
-    try {
-        const deptId = req.params.id;
-        console.log(`📝 Buscando membros do departamento ${deptId}`);
-        
-        const dept = await sql`SELECT * FROM departments WHERE id = ${deptId} AND is_active = true`;
-        if (dept.length === 0) {
-            return res.status(404).json({ error: 'Departamento não encontrado' });
-        }
-
-        const members = await sql`
-            SELECT u.id, u.name, u.email, u.phone, u.role, u.is_leader, 
-                   dm.role as member_role, dm.joined_at
-            FROM users u
-            JOIN department_members dm ON u.id = dm.user_id
-            WHERE dm.department_id = ${deptId}
-            ORDER BY u.name
-        `;
-        
-        console.log(`✅ Encontrados ${members.length} membros`);
-        res.json(members);
-    } catch (error) {
-        console.error('❌ Erro ao buscar membros:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/departments/:id/members', auth, async (req, res) => {
-    try {
-        const deptId = req.params.id;
-        const { user_id, role } = req.body;
-
-        if (!user_id) {
-            return res.status(400).json({ error: 'user_id é obrigatório' });
-        }
-
-        const user = await sql`SELECT * FROM users WHERE id = ${user_id}`;
-        if (user.length === 0) {
-            return res.status(404).json({ error: 'Usuário não encontrado' });
-        }
-
-        const dept = await sql`SELECT * FROM departments WHERE id = ${deptId} AND is_active = true`;
-        if (dept.length === 0) {
-            return res.status(404).json({ error: 'Departamento não encontrado' });
-        }
-
-        await sql`
-            INSERT INTO department_members (department_id, user_id, role)
-            VALUES (${deptId}, ${user_id}, ${role || 'membro'})
-            ON CONFLICT (department_id, user_id) DO UPDATE SET role = ${role || 'membro'}
-        `;
-
-        await sql`
-            UPDATE users SET department_id = ${deptId}, department_name = ${dept[0].name}
-            WHERE id = ${user_id}
-        `;
-
-        if (role === 'lider') {
-            await sql`UPDATE users SET is_leader = true WHERE id = ${user_id}`;
-            await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${deptId}`;
-        } else {
-            await sql`UPDATE users SET is_leader = false WHERE id = ${user_id}`;
-            const currentLeader = await sql`SELECT leader_id FROM departments WHERE id = ${deptId}`;
-            if (currentLeader.length > 0 && currentLeader[0].leader_id == user_id) {
-                await sql`UPDATE departments SET leader_id = NULL WHERE id = ${deptId}`;
-            }
-        }
-
-        res.status(201).json({ message: 'Membro adicionado com sucesso' });
-    } catch (error) {
-        console.error('Erro ao adicionar membro:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.put('/api/departments/:id/members/:userId', auth, async (req, res) => {
-    try {
-        const deptId = req.params.id;
-        const userId = req.params.userId;
-        const { role } = req.body;
-
-        if (!role) {
-            return res.status(400).json({ error: 'role é obrigatório' });
-        }
-
-        const validRoles = ['membro', 'lider', 'ministro', 'musico', 'colaborador'];
-        if (!validRoles.includes(role)) {
-            return res.status(400).json({ error: 'Função inválida' });
-        }
-
-        await sql`
-            UPDATE department_members SET role = ${role}
-            WHERE department_id = ${deptId} AND user_id = ${userId}
-        `;
-
-        if (role === 'lider') {
-            await sql`UPDATE users SET is_leader = true WHERE id = ${userId}`;
-            await sql`UPDATE departments SET leader_id = ${userId} WHERE id = ${deptId}`;
-        } else {
-            await sql`UPDATE users SET is_leader = false WHERE id = ${userId}`;
-            const currentLeader = await sql`SELECT leader_id FROM departments WHERE id = ${deptId}`;
-            if (currentLeader.length > 0 && currentLeader[0].leader_id == parseInt(userId)) {
-                await sql`UPDATE departments SET leader_id = NULL WHERE id = ${deptId}`;
-            }
-        }
-
-        res.json({ message: 'Função atualizada com sucesso' });
-    } catch (error) {
-        console.error('Erro ao atualizar função:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/departments/:id/members/:userId', auth, async (req, res) => {
-    try {
-        const deptId = req.params.id;
-        const userId = req.params.userId;
-
-        await sql`
-            DELETE FROM department_members
-            WHERE department_id = ${deptId} AND user_id = ${userId}
-        `;
-
-        const otherDepts = await sql`
-            SELECT * FROM department_members WHERE user_id = ${userId}
-        `;
-        if (otherDepts.length === 0) {
-            await sql`UPDATE users SET department_id = NULL, department_name = NULL, is_leader = false WHERE id = ${userId}`;
-        }
-
-        const currentLeader = await sql`SELECT leader_id FROM departments WHERE id = ${deptId}`;
-        if (currentLeader.length > 0 && currentLeader[0].leader_id == parseInt(userId)) {
-            await sql`UPDATE departments SET leader_id = NULL WHERE id = ${deptId}`;
-        }
-
-        res.json({ message: 'Membro removido com sucesso' });
-    } catch (error) {
-        console.error('Erro ao remover membro:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE ESTUDOS - CORRIGIDO =====
-// ============================================
-
-app.post('/api/studies', auth, uploadFields, async (req, res) => {
-    try {
-        console.log('📝 Recebendo estudo...');
-        console.log('📋 Body:', req.body);
-        console.log('📎 Files:', req.files ? Object.keys(req.files) : 'Nenhum arquivo');
-        
-        const { title, description, file_url } = req.body;
-        let image_base64 = null;
-        let file_base64 = null;
-        
-        if (req.files && req.files.image && req.files.image.length > 0) {
-            image_base64 = req.files.image[0].buffer.toString('base64');
-            console.log('✅ Imagem processada com sucesso!');
-        }
-        
-        if (req.files && req.files.file && req.files.file.length > 0) {
-            file_base64 = req.files.file[0].buffer.toString('base64');
-            console.log('✅ PDF processado com sucesso!');
-        }
-
-        if (!title || title.trim() === '') {
-            console.log('❌ Título não informado');
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Título é obrigatório' 
-            });
-        }
-
-        if (!image_base64 && !file_base64 && !file_url) {
-            console.log('❌ Nenhum arquivo ou link enviado');
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Envie pelo menos uma imagem, PDF ou link' 
-            });
-        }
-
-        const result = await sql`
-            INSERT INTO studies (title, description, file_url, image_base64, file_base64)
-            VALUES (
-                ${title.trim()}, 
-                ${description || ''}, 
-                ${file_url || ''}, 
-                ${image_base64 || ''},
-                ${file_base64 || ''}
-            )
-            RETURNING id, title, description, file_url
-        `;
-        
-        console.log('✅ Estudo criado com sucesso! ID:', result[0].id);
-        
-        res.status(201).json({ 
-            success: true, 
-            message: 'Estudo criado com sucesso!',
-            study: result[0] 
-        });
-        
-    } catch (error) {
-        console.error('❌ Erro ao criar estudo:', error);
-        res.status(500).json({ 
-            success: false,
-            error: error.message || 'Erro interno do servidor'
-        });
-    }
-});
-
-app.get('/api/studies/:id/pdf', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const study = await sql`SELECT * FROM studies WHERE id = ${id}`;
-        
-        if (study.length === 0) {
-            return res.status(404).json({ error: 'Estudo não encontrado' });
-        }
-        
-        const s = study[0];
-        
-        if (s.file_base64) {
-            const pdfBuffer = Buffer.from(s.file_base64, 'base64');
-            res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', `attachment; filename="${s.title || 'estudo'}.pdf"`);
-            return res.send(pdfBuffer);
-        }
-        
-        if (s.file_url) {
-            return res.redirect(s.file_url);
-        }
-        
-        res.status(404).json({ error: 'PDF não disponível para este estudo' });
-    } catch (error) {
-        console.error('❌ Erro ao baixar PDF:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/studies', async (req, res) => {
-    try {
-        const studies = await sql`SELECT * FROM studies ORDER BY created_at DESC`;
-        res.json(studies);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/studies/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        await sql`DELETE FROM studies WHERE id = ${req.params.id}`;
-        res.json({ message: 'Estudo removido' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE PRODUTOS - CORRIGIDO =====
-// ============================================
-
-app.post('/api/products', auth, upload.single('image'), async (req, res) => {
-    try {
-        console.log('📝 Criando produto...');
-        console.log('📋 Body:', req.body);
-        console.log('📎 File:', req.file ? '✅ Recebido' : '❌ Nenhum');
-        
-        const { name, description, price, stock, category } = req.body;
-        let image_base64 = null;
-        if (req.file) {
-            image_base64 = req.file.buffer.toString('base64');
-        }
-
-        if (!name || !name.trim()) {
-            return res.status(400).json({ error: 'Nome é obrigatório' });
-        }
-
-        const result = await sql`
-            INSERT INTO products (name, description, price, image_base64, stock, category)
-            VALUES (${name.trim()}, ${description || ''}, ${parseFloat(price) || 0}, ${image_base64}, ${parseInt(stock) || 0}, ${category || ''})
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao criar produto:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/products', async (req, res) => {
-    try {
-        const products = await sql`SELECT * FROM products ORDER BY name`;
-        res.json(products);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/products/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        await sql`DELETE FROM products WHERE id = ${req.params.id}`;
-        res.json({ message: 'Produto removido' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE EVENTOS - CORRIGIDO =====
-// ============================================
-
-app.post('/api/events', auth, upload.single('image'), async (req, res) => {
-    try {
-        console.log('📝 Criando evento...');
-        console.log('📋 Body:', req.body);
-        console.log('📎 File:', req.file ? '✅ Recebido' : '❌ Nenhum');
-        
-        const { title, description, date, price } = req.body;
-        let image_base64 = null;
-        if (req.file) {
-            image_base64 = req.file.buffer.toString('base64');
-        }
-
-        if (!title || !title.trim()) {
-            return res.status(400).json({ error: 'Título é obrigatório' });
-        }
-
-        const result = await sql`
-            INSERT INTO events (title, description, date, image_base64, price)
-            VALUES (${title.trim()}, ${description || ''}, ${date || new Date()}, ${image_base64}, ${parseFloat(price) || 0})
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao criar evento:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/events', async (req, res) => {
-    try {
-        const events = await sql`SELECT * FROM events ORDER BY date DESC`;
-        res.json(events);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/events/active', async (req, res) => {
-    try {
-        const events = await sql`
-            SELECT id, title, description, date, price, image_base64
-            FROM events 
-            WHERE date >= NOW() 
-            ORDER BY date ASC
-        `;
-        res.json(events);
-    } catch (error) {
-        console.error('❌ Erro ao buscar eventos ativos:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/events/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        await sql`DELETE FROM events WHERE id = ${req.params.id}`;
-        res.json({ message: 'Evento removido' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE CARROSSEL =====
-// ============================================
-
-app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, res) => {
-    try {
-        const { title, subtitle, description, link } = req.body;
-        if (!req.file) {
-            return res.status(400).json({ error: 'Imagem é obrigatória' });
-        }
-
-        const image_base64 = req.file.buffer.toString('base64');
-
-        const result = await sql`
-            INSERT INTO carousel_images (title, subtitle, description, image_base64, link, order_position)
-            VALUES (${title || ''}, ${subtitle || ''}, ${description || ''}, ${image_base64}, ${link || ''}, 
-                (SELECT COALESCE(MAX(order_position), 0) + 1 FROM carousel_images))
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/carousel', async (req, res) => {
-    try {
-        const images = await sql`
-            SELECT * FROM carousel_images WHERE active = true ORDER BY order_position, created_at
-        `;
-        res.json(images);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/carousel/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        await sql`DELETE FROM carousel_images WHERE id = ${req.params.id}`;
-        res.json({ message: 'Imagem removida' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE ORAÇÕES =====
-// ============================================
-
-app.post('/api/prayers', async (req, res) => {
-    try {
-        const { name, request } = req.body;
-        const result = await sql`
-            INSERT INTO prayers (name, request)
-            VALUES (${name || 'Anônimo'}, ${request})
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/prayers', auth, async (req, res) => {
-    try {
-        const prayers = await sql`SELECT * FROM prayers ORDER BY created_at DESC`;
-        res.json(prayers);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.put('/api/prayers/:id/read', auth, async (req, res) => {
-    try {
-        await sql`UPDATE prayers SET is_read = TRUE WHERE id = ${req.params.id}`;
-        res.json({ message: 'Marcado como lido' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE PEDIDOS =====
-// ============================================
-
-app.post('/api/orders', async (req, res) => {
-    try {
-        const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status } = req.body;
-        
-        console.log('📝 Criando pedido para:', user_email);
-        
-        const result = await sql`
-            INSERT INTO orders (user_name, user_email, user_phone, items, total, payment_id, payment_method, status)
-            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(items)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
-            RETURNING *
-        `;
-        
-        const emailEnviado = await enviarEmailConfirmacao({
-            email: user_email,
-            nome: user_name,
-            tipo: 'compra',
-            valor: total,
-            data: new Date(),
-            status: status || 'pending',
-            paymentId: payment_id,
-            detalhes: `Items: ${items.map(i => i.name).join(', ')}`
-        });
-        
-        if (emailEnviado) {
-            console.log('✅ Email de confirmação enviado para:', user_email);
-        } else {
-            console.log('⚠️ Falha ao enviar email para:', user_email);
-        }
-        
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao criar pedido:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/orders', auth, async (req, res) => {
-    try {
-        const orders = await sql`SELECT * FROM orders ORDER BY created_at DESC`;
-        res.json(orders);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
-    try {
-        const totalSales = await sql`
-            SELECT COUNT(*) as count, COALESCE(SUM(total), 0) as total FROM orders WHERE status = 'approved'
-        `;
-        const salesByDay = await sql`
-            SELECT 
-                DATE(created_at) as date, 
-                COUNT(*) as count, 
-                COALESCE(SUM(total), 0) as total 
-            FROM orders 
-            WHERE created_at >= NOW() - INTERVAL '7 days' AND status = 'approved'
-            GROUP BY DATE(created_at)
-            ORDER BY date DESC
-        `;
-        res.json({
-            total: totalSales[0] || { count: 0, total: 0 },
-            byDay: salesByDay || []
-        });
-    } catch (error) {
-        console.error('❌ Erro nas estatísticas:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE INSCRIÇÕES =====
-// ============================================
-
-app.post('/api/registrations', async (req, res) => {
-    try {
-        const { type, name, email, phone, department_name, event_name, details, amount, is_paid, birth_date, baptism_date, baptism_date_id } = req.body;
-        
-        let finalDetails = details || '';
-        if (type === 'baptism' && birth_date) {
-            finalDetails = `Data de Nascimento: ${new Date(birth_date).toLocaleDateString('pt-BR')}\n`;
-            if (baptism_date) {
-                finalDetails += `Data do Batismo: ${new Date(baptism_date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}\n`;
-            }
-            finalDetails += details || '';
-            
-            if (baptism_date_id) {
-                await sql`
-                    UPDATE baptism_dates 
-                    SET current_participants = current_participants + 1 
-                    WHERE id = ${baptism_date_id}
-                `;
-            }
-        }
-
-        const result = await sql`
-            INSERT INTO registrations (type, name, email, phone, department_name, event_name, details, amount, is_paid)
-            VALUES (${type}, ${name}, ${email || ''}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${finalDetails || ''}, ${parseFloat(amount) || 0}, ${is_paid || false})
-            RETURNING *
-        `;
-        
-        const tipoLabel = {
-            baptism: 'Batismo',
-            volunteer: 'Voluntário',
-            event: 'Evento',
-            department: 'Departamento'
-        };
-        await enviarEmailConfirmacao({
-            email: email,
-            nome: name,
-            tipo: 'inscricao',
-            valor: parseFloat(amount) || 0,
-            data: new Date(),
-            status: 'pending',
-            paymentId: `REG-${result[0].id}`,
-            detalhes: `Inscrição para ${tipoLabel[type] || type}\n${event_name ? 'Evento: ' + event_name : ''}\n${department_name ? 'Departamento: ' + department_name : ''}`
-        });
-        
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro inscrição:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/registrations', auth, async (req, res) => {
-    try {
-        const registrations = await sql`SELECT * FROM registrations ORDER BY created_at DESC`;
-        res.json(registrations);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.put('/api/registrations/:id/approve', auth, async (req, res) => {
-    try {
-        await sql`UPDATE registrations SET status = 'approved' WHERE id = ${req.params.id}`;
-        res.json({ message: 'Inscrição aprovada' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/registrations/:id', auth, async (req, res) => {
-    try {
-        await sql`DELETE FROM registrations WHERE id = ${req.params.id}`;
-        res.json({ message: 'Inscrição removida' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE DOAÇÕES =====
-// ============================================
-
-app.post('/api/donations', async (req, res) => {
-    try {
-        const { user_name, user_email, user_phone, type, amount, payment_id, payment_method, status } = req.body;
-        
-        console.log('📝 Registrando doação de:', user_email);
-        
-        const result = await sql`
-            INSERT INTO donations (user_name, user_email, user_phone, type, amount, payment_id, payment_method, status)
-            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${type}, ${amount}, ${payment_id}, ${payment_method}, ${status || 'pending'})
-            RETURNING *
-        `;
-        
-        const emailEnviado = await enviarEmailConfirmacao({
-            email: user_email,
-            nome: user_name,
-            tipo: type || 'doacao',
-            valor: amount,
-            data: new Date(),
-            status: status || 'pending',
-            paymentId: payment_id,
-            detalhes: `Doação de ${type}`
-        });
-        
-        if (emailEnviado) {
-            console.log('✅ Email de confirmação enviado para:', user_email);
-        }
-        
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao criar doação:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/donations', auth, async (req, res) => {
-    try {
-        const donations = await sql`SELECT * FROM donations ORDER BY created_at DESC`;
-        res.json(donations);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE ANIVERSARIANTES =====
-// ============================================
-
-app.get('/api/birthdays', async (req, res) => {
-    try {
-        const today = new Date();
-        const currentMonth = today.getMonth() + 1;
-        
-        const birthdayMembers = await sql`
-            SELECT id, name, birth_date, phone, department_name
-            FROM members 
-            WHERE is_active = true 
-            AND EXTRACT(MONTH FROM birth_date) = ${currentMonth}
-            ORDER BY EXTRACT(DAY FROM birth_date)
-        `;
-        res.json(birthdayMembers);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE MEMBROS =====
-// ============================================
-
-app.post('/api/members', auth, async (req, res) => {
-    try {
-        const { name, email, phone, birth_date, marital_status, spouse_name, children, baptism_date, baptism_place, address, department_id, department_name, notes } = req.body;
-
-        if (!name) {
-            return res.status(400).json({ error: 'Nome é obrigatório' });
-        }
-
-        const result = await sql`
-            INSERT INTO members (name, email, phone, birth_date, marital_status, spouse_name, children, baptism_date, baptism_place, address, department_id, department_name, notes, created_by)
-            VALUES (${name}, ${email}, ${phone}, ${birth_date}, ${marital_status}, ${spouse_name}, ${children}, ${baptism_date}, ${baptism_place}, ${address}, ${department_id}, ${department_name}, ${notes}, ${req.user.id})
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/members', auth, async (req, res) => {
-    try {
-        const members = await sql`
-            SELECT * FROM members 
-            WHERE is_active = true 
-            ORDER BY name
-        `;
-        res.json(members);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/members/:id', auth, async (req, res) => {
-    try {
-        await sql`UPDATE members SET is_active = false WHERE id = ${req.params.id}`;
-        res.json({ message: 'Membro removido' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE FREQUÊNCIA =====
-// ============================================
-
-app.post('/api/attendance', auth, async (req, res) => {
-    try {
-        const { member_id, event_date, service_type, present } = req.body;
-        if (!member_id || !event_date) {
-            return res.status(400).json({ error: 'Membro e data são obrigatórios' });
-        }
-
-        const result = await sql`
-            INSERT INTO attendance (member_id, event_date, service_type, present, check_in_time)
-            VALUES (${member_id}, ${event_date}, ${service_type || 'domingo'}, ${present || false}, ${present ? new Date() : null})
-            ON CONFLICT (member_id, event_date, service_type) 
-            DO UPDATE SET present = ${present || false}, check_in_time = ${present ? new Date() : null}
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/attendance/date/:date', auth, async (req, res) => {
-    try {
-        const { date } = req.params;
-        const records = await sql`
-            SELECT a.*, m.name as member_name
-            FROM attendance a
-            LEFT JOIN members m ON a.member_id = m.id
-            WHERE a.event_date = ${date}
-            ORDER BY a.created_at DESC
-        `;
-        res.json(records);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/attendance/:memberId', auth, async (req, res) => {
-    try {
-        const { memberId } = req.params;
-        const { limit } = req.query;
-        
-        let query = `
-            SELECT * FROM attendance 
-            WHERE member_id = ${memberId} 
-            ORDER BY event_date DESC
-        `;
-        if (limit) {
-            query += ` LIMIT ${parseInt(limit)}`;
-        }
-        
-        const records = await sql(query);
-        res.json(records);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/attendance/stats/:memberId', auth, async (req, res) => {
-    try {
-        const { memberId } = req.params;
-        
-        const stats = await sql`
-            SELECT 
-                COUNT(*) as total,
-                SUM(CASE WHEN present = true THEN 1 ELSE 0 END) as present,
-                SUM(CASE WHEN present = false THEN 1 ELSE 0 END) as absent
-            FROM attendance 
-            WHERE member_id = ${memberId}
-        `;
-        
-        const total = stats[0]?.total || 0;
-        const present = stats[0]?.present || 0;
-        const percentage = total > 0 ? Math.round((present / total) * 100) : 0;
-        
-        res.json({
-            total,
-            present,
-            absent: stats[0]?.absent || 0,
-            percentage
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE DÍZIMOS =====
-// ============================================
-
-app.post('/api/tithes', auth, async (req, res) => {
-    try {
-        const { member_id, member_name, type, amount, payment_method, payment_date, description } = req.body;
-        
-        console.log('📝 Registrando dízimo de:', member_name || 'Visitante');
-        
-        if (!type || !amount) {
-            return res.status(400).json({ error: 'Tipo e valor são obrigatórios' });
-        }
-
-        const result = await sql`
-            INSERT INTO tithes (member_id, member_name, type, amount, payment_method, payment_date, description, received_by)
-            VALUES (${member_id || null}, ${member_name || ''}, ${type}, ${amount}, ${payment_method || 'dinheiro'}, ${payment_date || new Date()}, ${description || ''}, ${req.user.id})
-            RETURNING *
-        `;
-        
-        const user = await sql`SELECT email, name FROM users WHERE id = ${req.user.id}`;
-        if (user.length > 0) {
-            await enviarEmailConfirmacao({
-                email: user[0].email,
-                nome: user[0].name,
-                tipo: type,
-                valor: amount,
-                data: new Date(),
-                status: 'approved',
-                paymentId: `TITHE-${result[0].id}`,
-                detalhes: `${type} registrado por ${member_name || 'Visitante'}`
-            });
-        }
-        
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao registrar dízimo:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/tithes', auth, async (req, res) => {
-    try {
-        const tithes = await sql`SELECT * FROM tithes ORDER BY payment_date DESC`;
-        res.json(tithes);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/tithes/summary', auth, async (req, res) => {
-    try {
-        const result = await sql`
-            SELECT type, COUNT(*) as count, SUM(amount) as total
-            FROM tithes
-            GROUP BY type
-        `;
-        const total = result.reduce((sum, r) => sum + parseFloat(r.total), 0);
-        res.json({ by_type: result, total });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE CONTAS =====
-// ============================================
-
-app.post('/api/bills', auth, async (req, res) => {
-    try {
-        const { description, category, amount, due_date, notes } = req.body;
-        if (!description || !category || !amount || !due_date) {
-            return res.status(400).json({ error: 'Preencha todos os campos obrigatórios' });
-        }
-
-        const result = await sql`
-            INSERT INTO bills (description, category, amount, due_date, notes, created_by)
-            VALUES (${description}, ${category}, ${amount}, ${due_date}, ${notes || ''}, ${req.user.id})
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/bills', auth, async (req, res) => {
-    try {
-        const bills = await sql`SELECT * FROM bills ORDER BY due_date ASC, paid ASC`;
-        res.json(bills);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.put('/api/bills/:id/pay', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { payment_date, payment_method } = req.body;
-
-        const result = await sql`
-            UPDATE bills SET paid = true, payment_date = ${payment_date || new Date()}, payment_method = ${payment_method || 'dinheiro'}
-            WHERE id = ${id}
-            RETURNING *
-        `;
-        if (result.length === 0) {
-            return res.status(404).json({ error: 'Conta não encontrada' });
-        }
-        res.json(result[0]);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/bills/:id', auth, async (req, res) => {
-    try {
-        await sql`DELETE FROM bills WHERE id = ${req.params.id}`;
-        res.json({ message: 'Conta removida' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/bills/summary', auth, async (req, res) => {
-    try {
-        const summary = await sql`
-            SELECT 
-                COUNT(*) as total,
-                SUM(CASE WHEN paid = false THEN amount ELSE 0 END) as pending,
-                SUM(CASE WHEN paid = true THEN amount ELSE 0 END) as paid_total,
-                COUNT(CASE WHEN paid = false THEN 1 ELSE 0 END) as pending_count,
-                COUNT(CASE WHEN paid = true THEN 1 ELSE 0 END) as paid_count
-            FROM bills
-        `;
-        res.json({ summary: summary[0] });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE CÉLULAS =====
-// ============================================
-
-app.post('/api/celulas', auth, pastorOnly, async (req, res) => {
-    try {
-        const { nome, lider_id, endereco, dias_reuniao, horario, descricao } = req.body;
-        if (!nome) return res.status(400).json({ error: 'Nome da célula é obrigatório' });
-
-        const result = await sql`
-            INSERT INTO celulas (nome, lider_id, endereco, dias_reuniao, horario, descricao, created_by)
-            VALUES (${nome}, ${lider_id || null}, ${endereco || ''}, ${dias_reuniao || ''}, ${horario || ''}, ${descricao || ''}, ${req.user.id})
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/celulas', async (req, res) => {
-    try {
-        const celulas = await sql`
-            SELECT 
-                c.*,
-                u.name as lider_nome,
-                COUNT(cm.id) as total_membros,
-                (SELECT COUNT(*) FROM celula_membros cm2 WHERE cm2.celula_id = c.id AND cm2.is_active = true) as membros_ativos,
-                (SELECT COUNT(*) FROM celula_decisoes cd WHERE cd.celula_id = c.id AND cd.tipo = 'batismo') as batizados,
-                (SELECT COUNT(*) FROM celula_decisoes cd WHERE cd.celula_id = c.id AND cd.tipo = 'decisao') as decisoes
-            FROM celulas c
-            LEFT JOIN users u ON c.lider_id = u.id
-            LEFT JOIN celula_membros cm ON c.id = cm.celula_id AND cm.is_active = true
-            WHERE c.is_active = true
-            GROUP BY c.id, u.name
-            ORDER BY c.nome
-        `;
-        res.json(celulas);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/celulas/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const celula = await sql`
-            SELECT c.*, u.name as lider_nome, u.phone as lider_telefone, u.email as lider_email
-            FROM celulas c
-            LEFT JOIN users u ON c.lider_id = u.id
-            WHERE c.id = ${id} AND c.is_active = true
-        `;
-        if (celula.length === 0) return res.status(404).json({ error: 'Célula não encontrada' });
-        
-        const membros = await sql`
-            SELECT m.id, m.name, m.phone, m.email, cm.data_entrada
-            FROM celula_membros cm
-            JOIN members m ON cm.membro_id = m.id
-            WHERE cm.celula_id = ${id} AND cm.is_active = true
-            ORDER BY m.name
-        `;
-        
-        const decisoes = await sql`
-            SELECT cd.*, m.name as membro_nome
-            FROM celula_decisoes cd
-            LEFT JOIN members m ON cd.membro_id = m.id
-            WHERE cd.celula_id = ${id}
-            ORDER BY cd.data_decisao DESC
-            LIMIT 20
-        `;
-        
-        res.json({ ...celula[0], membros, decisoes });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.put('/api/celulas/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { nome, lider_id, endereco, dias_reuniao, horario, descricao } = req.body;
-        
-        const result = await sql`
-            UPDATE celulas 
-            SET nome = COALESCE(${nome}, nome), lider_id = COALESCE(${lider_id}, lider_id),
-                endereco = COALESCE(${endereco}, endereco), dias_reuniao = COALESCE(${dias_reuniao}, dias_reuniao),
-                horario = COALESCE(${horario}, horario), descricao = COALESCE(${descricao}, descricao)
-            WHERE id = ${id}
-            RETURNING *
-        `;
-        if (result.length === 0) return res.status(404).json({ error: 'Célula não encontrada' });
-        res.json(result[0]);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/celulas/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        await sql`UPDATE celulas SET is_active = false WHERE id = ${req.params.id}`;
-        res.json({ message: 'Célula removida' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/celulas/:id/membros', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { membro_id } = req.body;
-        if (!membro_id) return res.status(400).json({ error: 'Membro é obrigatório' });
-        
-        await sql`
-            INSERT INTO celula_membros (celula_id, membro_id)
-            VALUES (${id}, ${membro_id})
-            ON CONFLICT (celula_id, membro_id) DO UPDATE SET is_active = true, data_entrada = CURRENT_DATE
-        `;
-        
-        await atualizarEstatisticasCelula(id);
-        res.json({ message: 'Membro adicionado à célula' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/celulas/:id/membros/:membro_id', auth, async (req, res) => {
-    try {
-        const { id, membro_id } = req.params;
-        await sql`
-            UPDATE celula_membros SET is_active = false 
-            WHERE celula_id = ${id} AND membro_id = ${membro_id}
-        `;
-        await atualizarEstatisticasCelula(id);
-        res.json({ message: 'Membro removido da célula' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/celulas/:id/decisoes', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { membro_id, tipo, observacao } = req.body;
-        if (!tipo || !['batismo', 'decisao'].includes(tipo)) {
-            return res.status(400).json({ error: 'Tipo inválido. Use "batismo" ou "decisao"' });
-        }
-        
-        const result = await sql`
-            INSERT INTO celula_decisoes (celula_id, membro_id, tipo, observacao)
-            VALUES (${id}, ${membro_id || null}, ${tipo}, ${observacao || ''})
-            RETURNING *
-        `;
-        await atualizarEstatisticasCelula(id);
-        res.status(201).json(result[0]);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-async function atualizarEstatisticasCelula(celula_id) {
-    try {
-        const hoje = new Date().toISOString().split('T')[0];
-        const membros = await sql`
-            SELECT COUNT(*) as total FROM celula_membros 
-            WHERE celula_id = ${celula_id} AND is_active = true
-        `;
-        const batizados = await sql`
-            SELECT COUNT(*) as total FROM celula_decisoes 
-            WHERE celula_id = ${celula_id} AND tipo = 'batismo' 
-            AND data_decisao >= CURRENT_DATE - INTERVAL '30 days'
-        `;
-        const decisoes = await sql`
-            SELECT COUNT(*) as total FROM celula_decisoes 
-            WHERE celula_id = ${celula_id} AND tipo = 'decisao' 
-            AND data_decisao >= CURRENT_DATE - INTERVAL '30 days'
-        `;
-        await sql`
-            INSERT INTO celula_estatisticas (celula_id, data_registro, total_membros, batizados, aceitaram_jesus)
-            VALUES (${celula_id}, ${hoje}, ${membros[0].total}, ${batizados[0].total}, ${decisoes[0].total})
-            ON CONFLICT (celula_id, data_registro) 
-            DO UPDATE SET total_membros = ${membros[0].total}, batizados = ${batizados[0].total}, aceitaram_jesus = ${decisoes[0].total}
-        `;
-    } catch (error) {
-        console.error('❌ Erro ao atualizar estatísticas:', error);
-    }
-}
-
-// ============================================
-// ===== ROTAS DE LIVES =====
-// ============================================
-
-app.post('/api/lives/start', auth, async (req, res) => {
-    try {
-        const { titulo, descricao } = req.body;
-        if (req.user.role !== 'pastor') {
-            return res.status(403).json({ error: 'Apenas o pastor pode iniciar uma transmissão ao vivo.' });
-        }
-
-        const activeLive = await sql`SELECT * FROM lives WHERE status = 'live'`;
-        if (activeLive.length > 0) {
-            return res.status(400).json({ error: 'Já existe uma live ativa' });
-        }
-
-        const streamKey = 'live_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
-
-        const result = await sql`
-            INSERT INTO lives (titulo, descricao, status, stream_key, iniciada_por, started_at)
-            VALUES (${titulo || 'Live NJ Cabuçu'}, ${descricao || ''}, 'live', ${streamKey}, ${req.user.id}, NOW())
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao iniciar live:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/lives/end/:id', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        console.log(`📝 Encerrando live ${id}...`);
-        
-        const live = await sql`SELECT * FROM lives WHERE id = ${id}`;
-        if (live.length === 0) {
-            return res.status(404).json({ error: 'Live não encontrada' });
-        }
-        
-        if (live[0].status === 'ended') {
-            return res.status(400).json({ error: 'Live já foi encerrada' });
-        }
-
-        const result = await sql`
-            UPDATE lives 
-            SET status = 'ended', ended_at = NOW() 
-            WHERE id = ${id} 
-            RETURNING *
-        `;
-        
-        await sql`
-            UPDATE live_viewers 
-            SET left_at = NOW() 
-            WHERE live_id = ${id} AND left_at IS NULL
-        `;
-        
-        console.log(`✅ Live ${id} encerrada com sucesso!`);
-        res.json({ 
-            message: 'Live encerrada com sucesso',
-            live: result[0]
-        });
-    } catch (error) {
-        console.error('❌ Erro ao encerrar live:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/lives/active', async (req, res) => {
-    try {
-        const lives = await sql`
-            SELECT l.*, u.name as iniciada_por_nome
-            FROM lives l
-            LEFT JOIN users u ON l.iniciada_por = u.id
-            WHERE l.status = 'live'
-            ORDER BY l.started_at DESC
-        `;
-        
-        if (lives.length === 0) {
-            return res.json({ 
-                status: 'offline', 
-                message: 'Nenhuma live ativa' 
-            });
-        }
-        
-        const live = lives[0];
-        
-        const viewers = await sql`
-            SELECT COUNT(*) as total FROM live_viewers 
-            WHERE live_id = ${live.id} AND left_at IS NULL
-        `;
-        
-        live.viewers = viewers[0]?.total || 0;
-        
-        res.json(live);
-    } catch (error) {
-        console.error('❌ Erro ao verificar live:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/lives/history', auth, async (req, res) => {
-    try {
-        const lives = await sql`
-            SELECT l.*, u.name as iniciada_por_nome
-            FROM lives l
-            LEFT JOIN users u ON l.iniciada_por = u.id
-            WHERE l.status != 'offline'
-            ORDER BY l.created_at DESC
-            LIMIT 50
-        `;
-        res.json(lives);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/lives/:id/viewer', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { viewer_id } = req.body;
-
-        await sql`
-            INSERT INTO live_viewers (live_id, viewer_id)
-            VALUES (${id}, ${viewer_id || 'anonymous_' + Date.now()})
-            ON CONFLICT (live_id, viewer_id) DO NOTHING
-        `;
-
-        const count = await sql`
-            SELECT COUNT(*) as total FROM live_viewers 
-            WHERE live_id = ${id} AND left_at IS NULL
-        `;
-
-        await sql`UPDATE lives SET viewers = ${count[0].total} WHERE id = ${id}`;
-        res.json({ viewers: count[0].total });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE REFLEXÕES =====
-// ============================================
-
-app.get('/api/pastor-reflections', async (req, res) => {
-    try {
-        const reflections = await sql`
-            SELECT r.*, u.name as created_by_name
-            FROM pastor_reflections r
-            LEFT JOIN users u ON r.created_by = u.id
-            ORDER BY r.created_at DESC
-        `;
-        res.json(reflections);
-    } catch (error) {
-        console.error('❌ Erro ao buscar reflexões:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/pastor-reflections', auth, pastorOnly, async (req, res) => {
-    try {
-        const { title, description, link } = req.body;
-        if (!title || !link) {
-            return res.status(400).json({ error: 'Título e link são obrigatórios' });
-        }
-
-        const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/;
-        if (!youtubeRegex.test(link)) {
-            return res.status(400).json({ error: 'Link inválido. Use um link do YouTube.' });
-        }
-
-        const result = await sql`
-            INSERT INTO pastor_reflections (title, description, link, created_by)
-            VALUES (${title}, ${description || ''}, ${link}, ${req.user.id})
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao criar reflexão:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/pastor-reflections/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        await sql`DELETE FROM pastor_reflections WHERE id = ${req.params.id}`;
-        res.json({ message: 'Reflexão removida' });
-    } catch (error) {
-        console.error('❌ Erro ao remover reflexão:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE MÚSICAS =====
-// ============================================
-
-app.get('/api/songs', auth, async (req, res) => {
-    try {
-        const { department_id } = req.query;
-        let query = `SELECT * FROM songs`;
-        const params = [];
-        if (department_id) {
-            query += ` WHERE department_id = $1`;
-            params.push(department_id);
-        }
-        query += ` ORDER BY title`;
-        const songs = await sql(query, params);
-        res.json(songs);
-    } catch (error) {
-        console.error('❌ Erro ao buscar músicas:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/songs', auth, async (req, res) => {
-    try {
-        const { title, artist, key, lyrics, youtube_url, department_id } = req.body;
-        
-        console.log('📝 Recebendo música:', { title, artist, key, department_id });
-        
-        if (!title || title.trim() === '') {
-            return res.status(400).json({ error: 'Título é obrigatório' });
-        }
-
-        const deptId = department_id || req.user.department_id;
-        if (!deptId) {
-            return res.status(400).json({ error: 'Departamento não informado' });
-        }
-
-        const existing = await sql`
-            SELECT * FROM songs WHERE title ILIKE ${title.trim()} AND department_id = ${deptId}
-        `;
-        
-        if (existing.length > 0) {
-            return res.status(400).json({ error: 'Esta música já está cadastrada neste departamento' });
-        }
-
-        const result = await sql`
-            INSERT INTO songs (title, artist, key, lyrics, youtube_url, department_id, created_by)
-            VALUES (
-                ${title.trim()}, 
-                ${artist || ''}, 
-                ${key || 'C'}, 
-                ${lyrics || ''}, 
-                ${youtube_url || ''}, 
-                ${deptId}, 
-                ${req.user.id}
-            )
-            RETURNING *
-        `;
-        
-        console.log('✅ Música criada com sucesso! ID:', result[0].id);
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao criar música:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/songs/:id', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        await sql`DELETE FROM songs WHERE id = ${id}`;
-        res.json({ message: 'Música removida' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.put('/api/songs/:id/chords', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { chords, key } = req.body;
-        
-        if (!chords) {
-            return res.status(400).json({ error: 'Cifra é obrigatória' });
-        }
-
-        const song = await sql`SELECT * FROM songs WHERE id = ${id}`;
-        if (song.length === 0) {
-            return res.status(404).json({ error: 'Música não encontrada' });
-        }
-
-        const isLeader = req.user.role === 'lider' || req.user.role === 'pastor' || req.user.is_leader;
-        if (!isLeader && song[0].created_by !== req.user.id) {
-            return res.status(403).json({ error: 'Sem permissão para editar' });
-        }
-
-        await sql`
-            UPDATE songs 
-            SET lyrics = ${chords}, key = ${key || song[0].key || 'C'}
-            WHERE id = ${id}
-        `;
-        
-        res.json({ message: 'Cifra atualizada com sucesso' });
-    } catch (error) {
-        console.error('❌ Erro ao salvar cifra:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/songs/by-key/:key', auth, async (req, res) => {
-    try {
-        const { key } = req.params;
-        const { department_id } = req.query;
-        
-        let query = `SELECT * FROM songs WHERE key = $1`;
-        const params = [key];
-        
-        if (department_id) {
-            query += ` AND department_id = $2`;
-            params.push(department_id);
-        }
-        
-        query += ` ORDER BY title`;
-        const songs = await sql(query, params);
-        res.json(songs);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTA PARA BUSCAR MÚSICA NO YOUTUBE =====
-// ============================================
-
-app.get('/api/youtube-search', auth, async (req, res) => {
-    try {
-        const { query } = req.query;
-        
-        console.log('🔍 Busca recebida:', query);
-        
-        if (!query || query.trim() === '') {
-            return res.status(400).json({ error: 'Digite o nome da música' });
-        }
-
-        const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
-        console.log('🔑 Chave API presente:', YOUTUBE_API_KEY ? '✅ Sim' : '❌ Não');
-        
-        if (!YOUTUBE_API_KEY) {
-            console.error('❌ Chave da API do YouTube não encontrada no .env');
-            return res.status(500).json({ 
-                error: 'Chave da API do YouTube não configurada. Adicione YOUTUBE_API_KEY no .env e reinicie o servidor.' 
-            });
-        }
-
-        const searchQuery = encodeURIComponent(query + ' música gospel');
-        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${searchQuery}&type=video&key=${YOUTUBE_API_KEY}`;
-        
-        console.log('📡 Fazendo requisição para YouTube...');
-
-        const response = await fetch(url);
-        const data = await response.json();
-        
-        console.log('📊 Status da resposta:', response.status);
-        
-        if (data.error) {
-            console.error('❌ Erro na API do YouTube:', JSON.stringify(data.error, null, 2));
-            
-            if (data.error.code === 403) {
-                return res.status(403).json({ 
-                    error: 'Limite de requisições da API do YouTube excedido. Tente novamente mais tarde.' 
-                });
-            }
-            
-            if (data.error.code === 400) {
-                return res.status(400).json({ 
-                    error: 'Chave da API inválida. Verifique se a chave está correta e se a API do YouTube está ativada.' 
-                });
-            }
-            
-            return res.status(500).json({ 
-                error: data.error.message || 'Erro na API do YouTube' 
-            });
-        }
-        
-        if (!data.items || data.items.length === 0) {
-            return res.json({ results: [] });
-        }
-        
-        const results = data.items.map(item => ({
-            title: item.snippet.title,
-            videoId: item.id.videoId,
-            url: `https://www.youtube.com/watch?v=${item.id.videoId}`,
-            thumbnail: item.snippet.thumbnails?.default?.url || '',
-            channelTitle: item.snippet.channelTitle
-        }));
-        
-        console.log(`✅ Encontrados ${results.length} resultados`);
-        res.json({ results });
-        
-    } catch (error) {
-        console.error('❌ Erro ao buscar no YouTube:', error);
-        res.status(500).json({ error: 'Erro ao buscar músicas: ' + error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE ESCALAS - COM JSONB =====
-// ============================================
-
-app.post('/api/worship-scales', auth, async (req, res) => {
-    try {
-        const { department_id, event_date, leader_id, minister_id, songs, song_ids, palette, rehearsal, musicians } = req.body;
-
-        console.log('📝 Recebendo requisição de escala:', {
-            department_id,
-            event_date,
-            leader_id,
-            minister_id,
-            songs,
-            song_ids,
-            palette,
-            rehearsal,
-            musicians
-        });
-
-        if (!department_id || !event_date) {
-            return res.status(400).json({ error: 'Departamento e data são obrigatórios' });
-        }
-
-        const dept = await sql`SELECT * FROM departments WHERE id = ${department_id} AND is_active = true`;
-        if (dept.length === 0) {
-            return res.status(404).json({ error: 'Departamento não encontrado' });
-        }
-
-        let songsArray = [];
-        if (Array.isArray(songs)) {
-            songsArray = songs.map(s => String(s));
-        } else if (typeof songs === 'string') {
-            try {
-                const parsed = JSON.parse(songs);
-                songsArray = Array.isArray(parsed) ? parsed.map(s => String(s)) : [String(songs)];
-            } catch (e) {
-                songsArray = [String(songs)];
-            }
-        }
-
-        let songIdsArray = [];
-        if (Array.isArray(song_ids)) {
-            songIdsArray = song_ids.map(id => parseInt(id)).filter(id => !isNaN(id));
-        } else if (typeof song_ids === 'string') {
-            try {
-                const parsed = JSON.parse(song_ids);
-                if (Array.isArray(parsed)) {
-                    songIdsArray = parsed.map(id => parseInt(id)).filter(id => !isNaN(id));
-                }
-            } catch (e) {
-                songIdsArray = [];
-            }
-        }
-
-        let musiciansArray = [];
-        if (Array.isArray(musicians)) {
-            musiciansArray = musicians.map(id => parseInt(id)).filter(id => !isNaN(id));
-        } else if (typeof musicians === 'string') {
-            try {
-                const parsed = JSON.parse(musicians);
-                if (Array.isArray(parsed)) {
-                    musiciansArray = parsed.map(id => parseInt(id)).filter(id => !isNaN(id));
-                }
-            } catch (e) {
-                musiciansArray = [];
-            }
-        }
-
-        const songsStr = JSON.stringify(songsArray);
-        const songIdsStr = JSON.stringify(songIdsArray);
-        const musiciansStr = JSON.stringify(musiciansArray);
-
-        console.log('📝 Salvando como strings:', {
-            songsStr,
-            songIdsStr,
-            musiciansStr
-        });
-
-        const result = await sql`
-            INSERT INTO worship_scales (
-                department_id, 
-                event_date, 
-                leader_id, 
-                minister_id, 
-                songs, 
-                song_ids, 
-                palette, 
-                rehearsal, 
-                musician_ids
-            )
-            VALUES (
-                ${department_id}, 
-                ${event_date}, 
-                ${leader_id || null}, 
-                ${minister_id || null}, 
-                ${songsStr}::jsonb, 
-                ${songIdsStr}::jsonb, 
-                ${palette || 'Azul, Prata, Branco, Dourado'}, 
-                ${rehearsal || false}, 
-                ${musiciansStr}::jsonb
-            )
-            RETURNING *
-        `;
-        
-        console.log('✅ Escala criada com sucesso! ID:', result[0].id);
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao criar escala:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/worship-scales', auth, async (req, res) => {
-    try {
-        const { department_id } = req.query;
-        console.log(`📝 Buscando escalas para departamento ${department_id || 'todos'}`);
-        
-        let query = `
-            SELECT ws.*, 
-                   u1.name as leader_name, 
-                   u2.name as minister_name
-            FROM worship_scales ws
-            LEFT JOIN users u1 ON ws.leader_id = u1.id
-            LEFT JOIN users u2 ON ws.minister_id = u2.id
-        `;
-        const params = [];
-        if (department_id) {
-            query += ` WHERE ws.department_id = $1`;
-            params.push(department_id);
-        } else if (req.user.department_id) {
-            query += ` WHERE ws.department_id = $1`;
-            params.push(req.user.department_id);
-        }
-        query += ` ORDER BY ws.event_date DESC`;
-        
-        const scales = await sql(query, params);
-        
-        const processedScales = scales.map(scale => {
-            let songs = [];
-            let songIds = [];
-            let musicianIds = [];
-            
-            try {
-                if (scale.songs) {
-                    if (typeof scale.songs === 'string') {
-                        songs = JSON.parse(scale.songs);
-                    } else if (Array.isArray(scale.songs)) {
-                        songs = scale.songs;
-                    } else if (typeof scale.songs === 'object') {
-                        songs = scale.songs;
-                    }
-                }
-            } catch (e) { 
-                console.log('⚠️ Erro ao parsear songs:', e);
-                songs = []; 
-            }
-            
-            try {
-                if (scale.song_ids) {
-                    if (typeof scale.song_ids === 'string') {
-                        songIds = JSON.parse(scale.song_ids);
-                    } else if (Array.isArray(scale.song_ids)) {
-                        songIds = scale.song_ids;
-                    } else if (typeof scale.song_ids === 'object') {
-                        songIds = scale.song_ids;
-                    }
-                }
-            } catch (e) { 
-                console.log('⚠️ Erro ao parsear song_ids:', e);
-                songIds = []; 
-            }
-            
-            try {
-                if (scale.musician_ids) {
-                    if (typeof scale.musician_ids === 'string') {
-                        musicianIds = JSON.parse(scale.musician_ids);
-                    } else if (Array.isArray(scale.musician_ids)) {
-                        musicianIds = scale.musician_ids;
-                    } else if (typeof scale.musician_ids === 'object') {
-                        musicianIds = scale.musician_ids;
-                    }
-                }
-            } catch (e) { 
-                console.log('⚠️ Erro ao parsear musician_ids:', e);
-                musicianIds = []; 
-            }
-            
+        <!-- TABS -->
+        <div class="tabs-wrapper">
+            <div class="tabs" id="tabsContainer">
+                <button class="tab-btn active" onclick="showTab('dashboard')"><i class="fas fa-chart-pie"></i> Dashboard</button>
+                <button class="tab-btn" onclick="showTab('live')"><i class="fas fa-broadcast-tower"></i> Live</button>
+                <button class="tab-btn" onclick="showTab('vendas')"><i class="fas fa-shopping-cart"></i> Vendas</button>
+                <button class="tab-btn" onclick="showTab('usuarios')"><i class="fas fa-users"></i> Usuários</button>
+                <button class="tab-btn" onclick="showTab('oracoes')"><i class="fas fa-pray"></i> Orações</button>
+                <button class="tab-btn" onclick="showTab('estudos')"><i class="fas fa-book"></i> Estudos</button>
+                <button class="tab-btn" onclick="showTab('eventos')"><i class="fas fa-calendar"></i> Eventos</button>
+                <button class="tab-btn" onclick="showTab('produtos')"><i class="fas fa-box"></i> Produtos</button>
+                <button class="tab-btn" onclick="showTab('carousel')"><i class="fas fa-images"></i> Carrossel</button>
+                <button class="tab-btn" onclick="showTab('doacoes')"><i class="fas fa-hand-holding-heart"></i> Doações</button>
+                <button class="tab-btn" onclick="showTab('inscricoes')"><i class="fas fa-clipboard-list"></i> Inscrições</button>
+                <button class="tab-btn" onclick="showTab('departamentos')"><i class="fas fa-building"></i> Departamentos</button>
+                <button class="tab-btn" onclick="showTab('membros')"><i class="fas fa-user-plus"></i> Membros</button>
+                <button class="tab-btn" onclick="showTab('frequencia')"><i class="fas fa-calendar-check"></i> Frequência</button>
+                <button class="tab-btn" onclick="showTab('tesouraria')"><i class="fas fa-hand-holding-heart"></i> Dízimos</button>
+                <button class="tab-btn" onclick="showTab('contas')"><i class="fas fa-receipt"></i> Contas</button>
+                <button class="tab-btn" onclick="showTab('celulas')"><i class="fas fa-users"></i> Células</button>
+                <button class="tab-btn" onclick="showTab('aniversariantes')"><i class="fas fa-birthday-cake"></i> Aniversários</button>
+                <button class="tab-btn" onclick="showTab('reflexoes')"><i class="fas fa-video"></i> Reflexões</button>
+                <button class="tab-btn" onclick="showTab('sobre')"><i class="fas fa-info-circle"></i> Sobre Nós</button>
+                <button class="tab-btn" onclick="showTab('config')"><i class="fas fa-cog"></i> Config</button>
+            </div>
+
+            <!-- DASHBOARD -->
+            <div id="tab-dashboard" class="tab-content active">
+                <div class="section-title"><i class="fas fa-chart-pie"></i> Resumo Financeiro</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.4rem; margin-bottom:0.5rem;">
+                    <div style="background:#f8f9fa; padding:0.4rem; border-radius:6px; text-align:center;">
+                        <div style="font-size:0.5rem;color:#888;">Total Vendas</div>
+                        <div style="font-size:0.9rem;font-weight:700;color:var(--primary);" id="totalSalesValue">R$ 0</div>
+                    </div>
+                    <div style="background:#f8f9fa; padding:0.4rem; border-radius:6px; text-align:center;">
+                        <div style="font-size:0.5rem;color:#888;">Ticket Médio</div>
+                        <div style="font-size:0.9rem;font-weight:700;color:var(--primary);" id="avgSalesValue">R$ 0</div>
+                    </div>
+                    <div style="background:#f8f9fa; padding:0.4rem; border-radius:6px; text-align:center;">
+                        <div style="font-size:0.5rem;color:#888;">Total Vendas</div>
+                        <div style="font-size:0.9rem;font-weight:700;color:var(--primary);" id="totalSalesCount">0</div>
+                    </div>
+                </div>
+                <div style="font-size:0.7rem;font-weight:600;color:#333;margin-bottom:0.2rem;">📅 Vendas por Dia</div>
+                <div class="bar-chart" id="barChart"></div>
+            </div>
+
+            <!-- LIVE -->
+            <div id="tab-live" class="tab-content">
+                <div class="section-title"><i class="fas fa-broadcast-tower"></i> Transmissão ao Vivo</div>
+                <div id="liveStatus" style="margin-bottom:1rem; padding:0.8rem; border-radius:8px; text-align:center; background:#f8f9fa;">
+                    <span id="liveIndicator" class="live-indicator"><i class="fas fa-circle"></i> OFFLINE</span>
+                    <div id="liveInfo" style="margin-top:0.3rem; font-size:0.7rem; color:#888;">Nenhuma live ativa no momento</div>
+                </div>
+                <div class="card" style="margin-bottom:1rem;">
+                    <div class="flex-between mb-1">
+                        <h4 style="font-size:0.8rem;">🎥 Controles da Live</h4>
+                        <span id="liveViewers" style="font-size:0.7rem; color:#888;"><i class="fas fa-eye"></i> 0 espectadores</span>
+                    </div>
+                    <div id="captureArea">
+                        <video id="localVideo" autoplay muted playsinline style="display:none;"></video>
+                        <div id="placeholderMessage" class="placeholder">
+                            <i class="fas fa-video"></i>
+                            <span>Clique em "Iniciar Live" para começar a transmissão</span>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.5rem;">
+                        <div style="flex:1; min-width:120px;">
+                            <input type="text" id="liveTitle" placeholder="Título da Live" value="Culto NJ Cabuçu" style="width:100%; padding:0.3rem 0.5rem; border:2px solid #e0e0e0; border-radius:6px; font-size:0.7rem;">
+                        </div>
+                        <div style="flex:1; min-width:120px;">
+                            <input type="text" id="liveDesc" placeholder="Descrição" value="Transmissão ao vivo" style="width:100%; padding:0.3rem 0.5rem; border:2px solid #e0e0e0; border-radius:6px; font-size:0.7rem;">
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:0.5rem; margin-top:0.5rem; flex-wrap:wrap;">
+                        <button onclick="startLive()" id="startLiveBtn" class="btn btn-success" style="flex:1; padding:0.5rem;">
+                            <i class="fas fa-play"></i> Iniciar Live
+                        </button>
+                        <button onclick="stopLive()" id="stopLiveBtn" class="btn btn-danger" style="flex:1; padding:0.5rem; display:none;">
+                            <i class="fas fa-stop"></i> Encerrar Live
+                        </button>
+                        <button onclick="toggleCamera()" id="toggleCamBtn" class="btn btn-warning" style="flex:1; padding:0.5rem;">
+                            <i class="fas fa-camera"></i> Ligar/Desligar Câmera
+                        </button>
+                        <button onclick="switchCamera()" id="switchCamBtn" class="btn btn-info" style="flex:1; padding:0.5rem;">
+                            <i class="fas fa-sync"></i> Trocar Câmera
+                        </button>
+                        <button onclick="toggleScreenShare()" id="screenShareBtn" class="btn btn-primary" style="flex:1; padding:0.5rem;">
+                            <i class="fas fa-desktop"></i> Compartilhar Tela
+                        </button>
+                    </div>
+                </div>
+                <div class="section-title" style="margin-top:1rem;"><i class="fas fa-history"></i> Histórico de Lives</div>
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead><tr><th>Título</th><th>Iniciada por</th><th>Data</th><th>Duração</th><th>Espectadores</th></tr></thead>
+                        <tbody id="liveHistoryList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- VENDAS -->
+            <div id="tab-vendas" class="tab-content">
+                <div class="section-title"><i class="fas fa-shopping-cart"></i> Vendas</div>
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead><tr><th>Cliente</th><th>Produto</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
+                        <tbody id="ordersList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- USUÁRIOS -->
+            <div id="tab-usuarios" class="tab-content">
+                <div class="flex-between mb-1">
+                    <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-users"></i> Usuários</div>
+                    <button onclick="openUserModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
+                </div>
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead><tr><th>Nome</th><th>Cargo</th><th>Ações</th></tr></thead>
+                        <tbody id="usersList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ORAÇÕES -->
+            <div id="tab-oracoes" class="tab-content">
+                <div class="section-title"><i class="fas fa-pray"></i> Pedidos de Oração</div>
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead><tr><th>Nome</th><th>Pedido</th><th>Status</th><th>Ações</th></tr></thead>
+                        <tbody id="prayersList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ESTUDOS -->
+            <div id="tab-estudos" class="tab-content">
+                <div class="flex-between mb-1">
+                    <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-book"></i> Estudos</div>
+                    <button onclick="openStudyModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
+                </div>
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead><tr><th>Título</th><th>Imagem</th><th>PDF</th><th>Ações</th></tr></thead>
+                        <tbody id="studiesList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- EVENTOS -->
+            <div id="tab-eventos" class="tab-content">
+                <div class="flex-between mb-1">
+                    <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-calendar"></i> Eventos</div>
+                    <button onclick="openEventModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
+                </div>
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead><tr><th>Título</th><th>Data</th><th>Valor</th><th>Ações</th></tr></thead>
+                        <tbody id="eventsList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PRODUTOS -->
+            <div id="tab-produtos" class="tab-content">
+                <div class="flex-between mb-1">
+                    <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-box"></i> Produtos</div>
+                    <button onclick="openProductModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
+                </div>
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead><tr><th>Nome</th><th>Preço</th><th>Ações</th></tr></thead>
+                        <tbody id="productsList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- CARROSSEL -->
+            <div id="tab-carousel" class="tab-content">
+                <div class="flex-between mb-1">
+                    <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-images"></i> Carrossel</div>
+                    <button onclick="openCarouselModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Nova</button>
+                </div>
+                <div id="carouselList" class="carousel-grid"></div>
+            </div>
+
+            <!-- DOAÇÕES -->
+            <div id="tab-doacoes" class="tab-content">
+                <div class="section-title"><i class="fas fa-hand-holding-heart"></i> Doações</div>
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead><tr><th>Doador</th><th>Tipo</th><th>Valor</th><th>Data</th></tr></thead>
+                        <tbody id="donationsList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- INSCRIÇÕES -->
+            <div id="tab-inscricoes" class="tab-content">
+                <div class="flex-between mb-1">
+                    <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-clipboard-list"></i> Inscrições</div>
+                    <div class="registration-filters">
+                        <button onclick="filterRegistrations('all')" class="btn btn-primary btn-sm active-filter" data-filter="all">Todos</button>
+                        <button onclick="filterRegistrations('baptism')" class="btn btn-outline btn-sm" data-filter="baptism">Batismo</button>
+                        <button onclick="filterRegistrations('volunteer')" class="btn btn-outline btn-sm" data-filter="volunteer">Voluntários</button>
+                        <button onclick="filterRegistrations('event')" class="btn btn-outline btn-sm" data-filter="event">Eventos</button>
+                        <button onclick="filterRegistrations('department')" class="btn btn-outline btn-sm" data-filter="department">Departamentos</button>
+                    </div>
+                </div>
+                <div style="margin-bottom:0.3rem; font-size:0.5rem; color:#888;">Clique em <strong>"Aprovar"</strong> para confirmar a inscrição</div>
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead><tr><th>Nome</th><th>Tipo</th><th>Evento/Depto</th><th>Status</th><th>Data</th><th>Ações</th></tr></thead>
+                        <tbody id="registrationsList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- DEPARTAMENTOS -->
+            <div id="tab-departamentos" class="tab-content">
+                <div class="flex-between mb-1">
+                    <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-building"></i> Departamentos</div>
+                    <button onclick="openDeptModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
+                </div>
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead><tr><th>Nome</th><th>Líder</th><th>Ações</th></tr></thead>
+                        <tbody id="departmentsList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- MEMBROS -->
+            <div id="tab-membros" class="tab-content">
+                <div class="flex-between mb-1">
+                    <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-user-plus"></i> Membros</div>
+                    <button onclick="openMemberModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Novo</button>
+                </div>
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead><tr><th>Nome</th><th>Telefone</th><th>Depto</th><th>Ações</th></tr></thead>
+                        <tbody id="membersList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- FREQUÊNCIA -->
+            <div id="tab-frequencia" class="tab-content">
+                <div class="section-title"><i class="fas fa-calendar-check"></i> Frequência</div>
+                <div class="form-row" style="grid-template-columns:1fr 1fr; gap:0.3rem;">
+                    <div class="form-group"><label>Data</label><input type="date" id="attendanceDate"></div>
+                    <div class="form-group"><label>Tipo</label>
+                        <select id="attendanceService">
+                            <option value="domingo">Domingo</option>
+                            <option value="quarta">Quarta</option>
+                            <option value="sabado">Sábado</option>
+                            <option value="especial">Especial</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="loadAllMembersForAttendance()" class="btn btn-primary btn-block" style="margin-bottom:0.5rem; padding:0.3rem; font-size:0.65rem;">
+                    <i class="fas fa-sync"></i> Carregar Membros
+                </button>
+                <div class="freq-grid">
+                    <div class="freq-box">
+                        <h4>👥 Selecionar</h4>
+                        <div style="display:flex; gap:0.2rem; margin-bottom:0.2rem; flex-wrap:wrap;">
+                            <input type="text" id="memberSearch" placeholder="🔍 Buscar..." style="flex:1; padding:0.2rem 0.4rem; border-radius:4px; border:2px solid #e0e0e0; font-size:0.6rem; min-width:60px;">
+                            <button onclick="toggleSelectAll()" class="btn btn-warning btn-xs"><i class="fas fa-check-double"></i></button>
+                            <button onclick="clearSelection()" class="btn btn-danger btn-xs"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div style="background:#fff; border-radius:4px; border:1px solid #e8e8e8; padding:0.2rem; max-height:150px; overflow-y:auto;">
+                            <div id="membersListContainer"><p style="color:#888; text-align:center; padding:0.2rem; font-size:0.6rem;">Carregue os membros</p></div>
+                        </div>
+                        <div style="display:flex; gap:0.2rem; margin-top:0.2rem; font-size:0.55rem; flex-wrap:wrap;">
+                            <span style="background:#e8e8e8; padding:0.05rem 0.4rem; border-radius:20px;">
+                                <i class="fas fa-check-circle" style="color:#28a745;"></i> <span id="selectedCount">0</span>
+                            </span>
+                            <span style="background:#e8e8e8; padding:0.05rem 0.4rem; border-radius:20px;">
+                                <i class="fas fa-users"></i> Total: <span id="totalCount">0</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="freq-box">
+                        <h4>📋 Registrar</h4>
+                        <div id="attendanceSummary" style="margin-bottom:0.2rem; min-height:20px;"><p style="color:#888; font-size:0.6rem;">Nenhum selecionado</p></div>
+                        <button onclick="registerMultipleAttendance()" class="btn btn-success btn-block" style="padding:0.25rem; font-size:0.6rem;">
+                            <i class="fas fa-check-circle"></i> Registrar Selecionados
+                        </button>
+                        <button onclick="registerAllAttendance()" class="btn btn-primary btn-block" style="margin-top:0.15rem; padding:0.25rem; font-size:0.6rem;">
+                            <i class="fas fa-users"></i> Registrar Todos
+                        </button>
+                        <div style="margin-top:0.3rem;">
+                            <h4 style="font-size:0.6rem; margin-bottom:0.1rem;">📊 Registros</h4>
+                            <div id="attendanceList" style="max-height:100px; overflow-y:auto; font-size:0.55rem; background:#fff; border-radius:4px; padding:0.15rem;">
+                                <p style="color:#888; text-align:center;">Selecione uma data</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TESOURARIA -->
+            <div id="tab-tesouraria" class="tab-content">
+                <div class="flex-between mb-1">
+                    <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-hand-holding-heart"></i> Dízimos e Ofertas</div>
+                    <button onclick="openTitheModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Registrar</button>
+                </div>
+                <div id="titheSummary" style="font-size:0.6rem; margin-bottom:0.2rem;"></div>
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead><tr><th>Membro</th><th>Tipo</th><th>Valor</th><th>Data</th></tr></thead>
+                        <tbody id="tithesList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- CONTAS -->
+            <div id="tab-contas" class="tab-content">
+                <div class="flex-between mb-1">
+                    <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-receipt"></i> Contas a Pagar</div>
+                    <button onclick="openBillModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Nova</button>
+                </div>
+                <div id="billSummary" style="font-size:0.6rem; margin-bottom:0.2rem;"></div>
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead><tr><th>Descrição</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead>
+                        <tbody id="billsList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- CÉLULAS -->
+            <div id="tab-celulas" class="tab-content">
+                <div class="flex-between mb-1">
+                    <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-users"></i> Células</div>
+                    <button onclick="openCelulaModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Nova Célula</button>
+                </div>
+                <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom:0.8rem;">
+                    <div class="stat-card"><div class="number" id="totalCelulasStats">0</div><div class="label">Total de Células</div></div>
+                    <div class="stat-card"><div class="number" id="totalMembrosCelulaStats">0</div><div class="label">Membros em Células</div></div>
+                    <div class="stat-card"><div class="number" id="totalBatizadosCelulaStats">0</div><div class="label">Batizados</div></div>
+                </div>
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead><tr><th style="width:20%;">Nome</th><th style="width:15%;">Líder</th><th style="width:10%;">Membros</th><th style="width:10%;">Batizados</th><th style="width:10%;">Decisões</th><th style="width:35%;">Ações</th></tr></thead>
+                        <tbody id="celulasList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ANIVERSARIANTES -->
+            <div id="tab-aniversariantes" class="tab-content">
+                <div class="section-title"><i class="fas fa-birthday-cake"></i> Aniversariantes</div>
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead><tr><th>Nome</th><th>Data</th><th>Idade</th></tr></thead>
+                        <tbody id="birthdaysList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- REFLEXÕES -->
+            <div id="tab-reflexoes" class="tab-content">
+                <div class="flex-between mb-1">
+                    <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-video"></i> Reflexões do Pastor</div>
+                    <button onclick="openReflectionModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Nova Reflexão</button>
+                </div>
+                <p style="font-size:0.6rem; color:#888; margin-bottom:0.5rem;">Adicione links do YouTube para mensagens, pregações e reflexões.</p>
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead><tr><th>Título</th><th>Descrição</th><th>Link</th><th>Ações</th></tr></thead>
+                        <tbody id="reflectionsList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SOBRE NÓS -->
+            <div id="tab-sobre" class="tab-content">
+                <div class="flex-between mb-1">
+                    <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-info-circle"></i> Editar Sobre Nós</div>
+                    <button onclick="saveAbout()" class="btn btn-success btn-sm"><i class="fas fa-save"></i> Salvar</button>
+                </div>
+                <p style="font-size:0.6rem; color:#888; margin-bottom:0.5rem;">Edite os textos que aparecem na seção "Sobre Nós" do site.</p>
+                <div class="about-editor">
+                    <div class="about-card">
+                        <div class="title">❤️ Nossa Missão</div>
+                        <textarea id="aboutMission" rows="4">Levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.</textarea>
+                    </div>
+                    <div class="about-card">
+                        <div class="title">👁️ Nossa Visão</div>
+                        <textarea id="aboutVision" rows="4">Ser uma igreja relevante, que transforma vidas e impacta a comunidade com o evangelho.</textarea>
+                    </div>
+                    <div class="about-card">
+                        <div class="title">🤝 Nossos Valores</div>
+                        <textarea id="aboutValues" rows="4">Amor, fé, esperança, serviço e comunhão. Vivemos os valores do Reino de Deus.</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONFIG -->
+            <div id="tab-config" class="tab-content">
+                <div class="section-title"><i class="fas fa-cog"></i> Configurações</div>
+                <div class="form-group"><label>Cor Primária</label><input type="color" id="configPrimary" value="#0D47A1" onchange="saveConfig('primary_color', this.value)"></div>
+                <div class="form-group"><label>Título do Site</label><input type="text" id="configTitle" value="NJ Cabuçu" onchange="saveConfig('site_title', this.value)"></div>
+                <div class="form-group"><label>WhatsApp</label><input type="text" id="configWhatsapp" value="5521985345627" onchange="saveConfig('whatsapp', this.value)"></div>
+                <div class="section-title" style="margin-top:1rem; border-bottom-color: #888;"><i class="fas fa-clock"></i> Horários dos Cultos (Contador)</div>
+                <p style="font-size:0.6rem; color:#888; margin-bottom:0.5rem;">Configure os dias e horários dos cultos para o contador regressivo no site.</p>
+                <div id="cultosContainer">
+                    <div style="display:flex; gap:0.5rem; align-items:center; margin-bottom:0.3rem; flex-wrap:wrap;">
+                        <select id="cultoDia" style="padding:0.3rem 0.5rem; border:2px solid #e0e0e0; border-radius:6px; font-size:0.7rem; flex:1; min-width:100px;">
+                            <option value="0">Domingo</option>
+                            <option value="1">Segunda</option>
+                            <option value="2">Terça</option>
+                            <option value="3">Quarta</option>
+                            <option value="4">Quinta</option>
+                            <option value="5">Sexta</option>
+                            <option value="6">Sábado</option>
+                        </select>
+                        <input type="number" id="cultoHora" placeholder="Hora" value="18" min="0" max="23" style="width:60px; padding:0.3rem 0.5rem; border:2px solid #e0e0e0; border-radius:6px; font-size:0.7rem;">
+                        <input type="number" id="cultoMinuto" placeholder="Min" value="0" min="0" max="59" style="width:60px; padding:0.3rem 0.5rem; border:2px solid #e0e0e0; border-radius:6px; font-size:0.7rem;">
+                        <button onclick="addCulto()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Adicionar</button>
+                    </div>
+                    <div id="cultosList" style="display:flex; flex-wrap:wrap; gap:0.3rem; margin-top:0.3rem;"></div>
+                </div>
+                <button onclick="saveCultos()" class="btn btn-primary btn-sm" style="margin-top:0.3rem;"><i class="fas fa-save"></i> Salvar Horários</button>
+                <div style="margin-top:1rem;">
+                    <button onclick="loadConfig()" class="btn btn-outline btn-sm"><i class="fas fa-sync"></i> Recarregar Configurações</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- MODAIS -->
+    <!-- ========================================================== -->
+
+    <!-- USUÁRIO -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('userModal')">&times;</button>
+            <h3><i class="fas fa-user-plus"></i> Novo Usuário</h3>
+            <div class="form-group"><label>Nome</label><input type="text" id="userName"></div>
+            <div class="form-group"><label>Email</label><input type="email" id="userEmail"></div>
+            <div class="form-group"><label>Senha</label><input type="password" id="userPassword" minlength="6"></div>
+            <div class="form-row">
+                <div class="form-group"><label>Cargo</label>
+                    <select id="userRole">
+                        <option value="fiel">Fiel</option>
+                        <option value="lider">Líder</option>
+                        <option value="colaborador">Colaborador</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Depto</label>
+                    <select id="userDepartmentSelect"><option value="">Nenhum</option></select>
+                </div>
+            </div>
+            <button onclick="saveUser()" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
+        </div>
+    </div>
+
+    <!-- MEMBRO -->
+    <div class="modal" id="memberModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('memberModal')">&times;</button>
+            <h3><i class="fas fa-user"></i> Membro</h3>
+            <div class="form-group"><label>Nome</label><input type="text" id="memberName"></div>
+            <div class="form-group"><label>Email</label><input type="email" id="memberEmail"></div>
+            <div class="form-group"><label>Telefone</label><input type="tel" id="memberPhone"></div>
+            <div class="form-row">
+                <div class="form-group"><label>Nascimento</label><input type="date" id="memberBirth"></div>
+                <div class="form-group"><label>Estado</label>
+                    <select id="memberMarital">
+                        <option value="solteiro">Solteiro</option>
+                        <option value="casado">Casado</option>
+                        <option value="divorciado">Divorciado</option>
+                        <option value="viuvo">Viúvo</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group"><label>Cônjuge</label><input type="text" id="memberSpouse"></div>
+            <div class="form-group"><label>Depto</label>
+                <select id="memberDepartment"><option value="">Selecione</option></select>
+            </div>
+            <div class="form-group"><label>Obs</label><textarea id="memberNotes" rows="2"></textarea></div>
+            <button onclick="saveMember()" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
+        </div>
+    </div>
+
+    <!-- DÍZIMO -->
+    <div class="modal" id="titheModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('titheModal')">&times;</button>
+            <h3><i class="fas fa-hand-holding-heart"></i> Dízimo</h3>
+            <div class="form-group"><label>Membro</label>
+                <select id="titheMember"><option value="">Visitante</option></select>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Tipo</label>
+                    <select id="titheType">
+                        <option value="dizimo">Dízimo</option>
+                        <option value="oferta">Oferta</option>
+                        <option value="missoes">Missões</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Valor</label><input type="number" id="titheAmount" step="0.01"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Data</label><input type="date" id="titheDate"></div>
+                <div class="form-group"><label>Método</label>
+                    <select id="titheMethod">
+                        <option value="dinheiro">Dinheiro</option>
+                        <option value="pix">PIX</option>
+                        <option value="cartao">Cartão</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="saveTithe()" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
+        </div>
+    </div>
+
+    <!-- CONTA -->
+    <div class="modal" id="billModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('billModal')">&times;</button>
+            <h3><i class="fas fa-receipt"></i> Conta</h3>
+            <div class="form-group"><label>Descrição</label><input type="text" id="billDescription"></div>
+            <div class="form-row">
+                <div class="form-group"><label>Categoria</label>
+                    <select id="billCategory">
+                        <option value="agua">Água</option><option value="luz">Luz</option>
+                        <option value="internet">Internet</option><option value="aluguel">Aluguel</option>
+                        <option value="outros">Outros</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Valor</label><input type="number" id="billAmount" step="0.01"></div>
+            </div>
+            <div class="form-group"><label>Vencimento</label><input type="date" id="billDueDate"></div>
+            <button onclick="saveBill()" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
+        </div>
+    </div>
+
+    <!-- ESTUDO -->
+    <div class="modal" id="studyModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('studyModal')">&times;</button>
+            <h3><i class="fas fa-book"></i> Estudo</h3>
+            <div class="form-group"><label>Título *</label><input type="text" id="studyTitle" placeholder="Digite o título do estudo"></div>
+            <div class="form-group"><label>Descrição</label><textarea id="studyDescription" rows="3" placeholder="Descrição do estudo"></textarea></div>
+            <div class="form-group">
+                <label>Imagem (capa)</label>
+                <div class="file-input-wrapper">
+                    <input type="file" id="studyImage" accept="image/*">
+                    <div class="file-label" id="studyImageLabel">
+                        <i class="fas fa-image"></i> <span>Clique para selecionar uma imagem</span>
+                        <span class="file-name" id="studyImageName"></span>
+                    </div>
+                </div>
+                <small style="color:#888;font-size:0.6rem;">Formatos: JPG, PNG, GIF (máx 5MB)</small>
+            </div>
+            <div class="form-group">
+                <label>Link do Arquivo (Google Drive, Dropbox, etc)</label>
+                <input type="url" id="studyFileUrl" placeholder="https://drive.google.com/...">
+                <small style="color:#888;font-size:0.6rem;">Ou use o campo abaixo para enviar um PDF</small>
+            </div>
+            <div class="form-group">
+                <label>Ou envie um PDF</label>
+                <div class="file-input-wrapper">
+                    <input type="file" id="studyPdf" accept=".pdf">
+                    <div class="file-label" id="studyPdfLabel">
+                        <i class="fas fa-file-pdf"></i> <span>Clique para selecionar um PDF</span>
+                        <span class="file-name" id="studyPdfName"></span>
+                    </div>
+                </div>
+                <small style="color:#888;font-size:0.6rem;">PDF até 5MB</small>
+            </div>
+            <button onclick="submitStudy()" class="btn btn-primary btn-block" style="padding:0.3rem;">
+                <i class="fas fa-save"></i> Salvar Estudo
+            </button>
+            <div id="studyResult" class="study-result"></div>
+        </div>
+    </div>
+
+    <!-- EVENTO -->
+    <div class="modal" id="eventModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('eventModal')">&times;</button>
+            <h3><i class="fas fa-calendar"></i> Evento</h3>
+            <form id="eventForm" enctype="multipart/form-data">
+                <div class="form-group"><label>Título *</label><input type="text" name="title" required></div>
+                <div class="form-group"><label>Descrição</label><textarea name="description" rows="2"></textarea></div>
+                <div class="form-group"><label>Data *</label><input type="datetime-local" name="date" required></div>
+                <div class="form-group"><label>Imagem</label><input type="file" name="image" accept="image/*"></div>
+                <div class="form-group"><label>Preço</label><input type="number" name="price" step="0.01" value="0"></div>
+                <button type="submit" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- PRODUTO -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('productModal')">&times;</button>
+            <h3><i class="fas fa-box"></i> Produto</h3>
+            <form id="productForm" enctype="multipart/form-data">
+                <div class="form-group"><label>Nome *</label><input type="text" name="name" required></div>
+                <div class="form-group"><label>Descrição</label><textarea name="description" rows="2"></textarea></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Preço *</label><input type="number" name="price" step="0.01" required></div>
+                    <div class="form-group"><label>Estoque</label><input type="number" name="stock" value="10"></div>
+                </div>
+                <div class="form-group"><label>Categoria</label><input type="text" name="category"></div>
+                <div class="form-group"><label>Imagem</label><input type="file" name="image" accept="image/*"></div>
+                <button type="submit" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- CARROSSEL -->
+    <div class="modal" id="carouselModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('carouselModal')">&times;</button>
+            <h3><i class="fas fa-images"></i> Imagem</h3>
+            <form id="carouselForm" enctype="multipart/form-data">
+                <div class="form-group"><label>Título</label><input type="text" name="title"></div>
+                <div class="form-group"><label>Subtítulo</label><input type="text" name="subtitle"></div>
+                <div class="form-group"><label>Descrição</label><textarea name="description" rows="2"></textarea></div>
+                <div class="form-group"><label>Imagem *</label><input type="file" name="image" accept="image/*" required></div>
+                <div class="form-group"><label>Link</label><input type="url" name="link" placeholder="https://"></div>
+                <button type="submit" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- DEPARTAMENTO -->
+    <div class="modal" id="deptModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('deptModal')">&times;</button>
+            <h3><i class="fas fa-building"></i> Departamento</h3>
+            <div class="form-group"><label>Nome</label><input type="text" id="deptName"></div>
+            <div class="form-group"><label>Descrição</label><textarea id="deptDesc" rows="2"></textarea></div>
+            <button onclick="saveDepartment()" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
+        </div>
+    </div>
+
+    <!-- CÉLULA -->
+    <div class="modal" id="celulaModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('celulaModal')">&times;</button>
+            <h3><i class="fas fa-home"></i> Nova Célula</h3>
+            <div class="form-group"><label>Nome da Célula *</label><input type="text" id="celulaNome"></div>
+            <div class="form-group"><label>Líder</label>
+                <select id="celulaLider"><option value="">Selecione um líder</option></select>
+            </div>
+            <div class="form-group"><label>Endereço</label><input type="text" id="celulaEndereco" placeholder="Rua, número, bairro"></div>
+            <div class="form-row">
+                <div class="form-group"><label>Dias de Reunião</label><input type="text" id="celulaDias" placeholder="Ex: Terças e Quintas"></div>
+                <div class="form-group"><label>Horário</label><input type="text" id="celulaHorario" placeholder="Ex: 19:30"></div>
+            </div>
+            <div class="form-group"><label>Descrição</label><textarea id="celulaDescricao" rows="2"></textarea></div>
+            <button onclick="saveCelula()" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
+        </div>
+    </div>
+
+    <!-- ADICIONAR MEMBRO À CÉLULA -->
+    <div class="modal" id="addMembroCelulaModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('addMembroCelulaModal')">&times;</button>
+            <h3><i class="fas fa-user-plus"></i> Adicionar Membro à Célula</h3>
+            <div class="form-group"><label>Membro</label>
+                <select id="addMembroSelect"><option value="">Selecione um membro</option></select>
+            </div>
+            <button onclick="addMembroCelula()" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-user-plus"></i> Adicionar</button>
+        </div>
+    </div>
+
+    <!-- REGISTRAR DECISÃO -->
+    <div class="modal" id="decisaoCelulaModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('decisaoCelulaModal')">&times;</button>
+            <h3><i class="fas fa-cross"></i> Registrar Decisão</h3>
+            <div class="form-group"><label>Tipo</label>
+                <select id="decisaoTipo">
+                    <option value="batismo">Batismo</option>
+                    <option value="decisao">Aceitou Jesus</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Membro</label>
+                <select id="decisaoMembro"><option value="">Selecione um membro</option></select>
+            </div>
+            <div class="form-group"><label>Observação</label><textarea id="decisaoObs" rows="2"></textarea></div>
+            <button onclick="saveDecisaoCelula()" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Registrar</button>
+        </div>
+    </div>
+
+    <!-- REFLEXÃO -->
+    <div class="modal" id="reflectionModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('reflectionModal')">&times;</button>
+            <h3><i class="fas fa-video"></i> Reflexão do Pastor</h3>
+            <div class="form-group"><label>Título *</label><input type="text" id="reflectionTitle" placeholder="Ex: Mensagem de Domingo"></div>
+            <div class="form-group"><label>Descrição</label><textarea id="reflectionDesc" rows="2" placeholder="Breve descrição da reflexão"></textarea></div>
+            <div class="form-group"><label>Link do YouTube *</label><input type="url" id="reflectionLink" placeholder="https://www.youtube.com/watch?v=..."></div>
+            <button onclick="saveReflection()" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
+        </div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- SCRIPTS -->
+    <!-- ========================================================== -->
+    <script>
+        // ============================================
+        // ===== TOKEN E HEADERS =====
+        // ============================================
+        const token = localStorage.getItem('token');
+        if (!token) { window.location.href = '/login'; }
+
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (user.role !== 'pastor') {
+            alert('Apenas o pastor tem acesso.');
+            window.location.href = '/departamento';
+        }
+
+        document.getElementById('userNameDisplay').textContent = user.name || 'Pastor';
+
+        function getHeaders() {
             return {
-                ...scale,
-                songs: Array.isArray(songs) ? songs : [],
-                song_ids: Array.isArray(songIds) ? songIds : [],
-                musician_ids: Array.isArray(musicianIds) ? musicianIds : []
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
             };
-        });
-        
-        console.log(`✅ Encontradas ${processedScales.length} escalas`);
-        res.json(processedScales);
-    } catch (error) {
-        console.error('❌ Erro ao buscar escalas:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        console.log(`📝 Buscando detalhes da escala ${id}`);
-        
-        const scale = await sql`
-            SELECT ws.*, 
-                   u1.name as leader_name, 
-                   u2.name as minister_name,
-                   u3.name as created_by_name
-            FROM worship_scales ws
-            LEFT JOIN users u1 ON ws.leader_id = u1.id
-            LEFT JOIN users u2 ON ws.minister_id = u2.id
-            LEFT JOIN users u3 ON ws.created_by = u3.id
-            WHERE ws.id = ${id}
-        `;
-        
-        if (scale.length === 0) {
-            return res.status(404).json({ error: 'Escala não encontrada' });
         }
 
-        let musicians = [];
-        let musicianIds = [];
-        try {
-            if (scale[0].musician_ids) {
-                let musicianData = scale[0].musician_ids;
-                if (typeof musicianData === 'string') {
-                    musicianIds = JSON.parse(musicianData);
-                } else if (Array.isArray(musicianData)) {
-                    musicianIds = musicianData;
-                } else if (typeof musicianData === 'object') {
-                    musicianIds = musicianData;
+        // ============================================
+        // ===== UTILITÁRIOS =====
+        // ============================================
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+
+        function showNotification(msg, type = 'info') {
+            const old = document.querySelector('.notification');
+            if (old) old.remove();
+            const div = document.createElement('div');
+            div.className = 'notification ' + type;
+            div.textContent = msg;
+            document.body.appendChild(div);
+            setTimeout(() => {
+                div.style.opacity = '0';
+                div.style.transition = 'opacity 0.4s';
+                setTimeout(() => div.remove(), 400);
+            }, 3500);
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('open');
+            document.body.style.overflow = 'auto';
+        }
+
+        document.querySelectorAll('.modal').forEach(m => {
+            m.addEventListener('click', (e) => {
+                if (e.target === m) {
+                    m.classList.remove('open');
+                    document.body.style.overflow = 'auto';
                 }
-                if (musicianIds.length > 0) {
-                    musicians = await sql`
-                        SELECT id, name, email FROM users WHERE id = ANY(${musicianIds})
-                    `;
-                }
-            }
-        } catch (e) {
-            console.log('⚠️ Erro ao parsear musician_ids:', e);
-            musicianIds = [];
-        }
-
-        let songs = [];
-        let songIds = [];
-        try {
-            if (scale[0].song_ids) {
-                let songData = scale[0].song_ids;
-                if (typeof songData === 'string') {
-                    songIds = JSON.parse(songData);
-                } else if (Array.isArray(songData)) {
-                    songIds = songData;
-                } else if (typeof songData === 'object') {
-                    songIds = songData;
-                }
-                if (songIds.length > 0) {
-                    songs = await sql`
-                        SELECT id, title, key, lyrics FROM songs WHERE id = ANY(${songIds})
-                    `;
-                }
-            }
-        } catch (e) {
-            console.log('⚠️ Erro ao parsear song_ids:', e);
-            songIds = [];
-        }
-
-        let songsList = [];
-        try {
-            if (scale[0].songs) {
-                if (typeof scale[0].songs === 'string') {
-                    songsList = JSON.parse(scale[0].songs);
-                } else if (Array.isArray(scale[0].songs)) {
-                    songsList = scale[0].songs;
-                } else if (typeof scale[0].songs === 'object') {
-                    songsList = scale[0].songs;
-                }
-            }
-        } catch (e) {
-            songsList = [];
-        }
-
-        const result = { 
-            ...scale[0], 
-            musicians, 
-            songs: Array.isArray(songsList) ? songsList : [],
-            song_ids: Array.isArray(songIds) ? songIds : [],
-            musician_ids: Array.isArray(musicianIds) ? musicianIds : []
-        };
-        res.json(result);
-    } catch (error) {
-        console.error('❌ Erro ao buscar detalhes da escala:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/worship-scales/:id', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        await sql`DELETE FROM worship_scales WHERE id = ${id}`;
-        res.json({ message: 'Escala removida' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/worship-scales/member/:userId', auth, async (req, res) => {
-    try {
-        const userId = req.params.userId;
-        console.log(`📝 Buscando escalas para usuário ${userId}`);
-        
-        if (parseInt(userId) !== req.user.id && req.user.role !== 'pastor' && !req.user.is_leader) {
-            console.log(`⚠️ Usuário ${req.user.id} tentou acessar escalas de ${userId}`);
-            return res.status(403).json({ error: 'Acesso negado' });
-        }
-
-        const scales = await sql`
-            SELECT ws.*, 
-                   u1.name as leader_name, 
-                   u2.name as minister_name
-            FROM worship_scales ws
-            LEFT JOIN users u1 ON ws.leader_id = u1.id
-            LEFT JOIN users u2 ON ws.minister_id = u2.id
-            WHERE ws.leader_id = ${userId} 
-               OR ws.minister_id = ${userId}
-               OR EXISTS (SELECT 1 FROM jsonb_array_elements_text(COALESCE(ws.musician_ids, '[]'::jsonb)) AS m WHERE m::int = ${userId})
-            ORDER BY ws.event_date DESC
-        `;
-        console.log(`✅ Encontradas ${scales.length} escalas para o usuário`);
-        res.json(scales);
-    } catch (error) {
-        console.error('❌ Erro ao buscar minhas escalas:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.put('/api/worship-scales/:id/songs', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { songs, song_ids } = req.body;
-
-        const scale = await sql`SELECT * FROM worship_scales WHERE id = ${id}`;
-        if (scale.length === 0) {
-            return res.status(404).json({ error: 'Escala não encontrada' });
-        }
-
-        const isMinister = scale[0].minister_id === req.user.id;
-        const isLeader = req.user.role === 'lider' || req.user.role === 'pastor' || req.user.is_leader;
-        if (!isMinister && !isLeader) {
-            return res.status(403).json({ error: 'Apenas o ministro ou líder podem editar as músicas' });
-        }
-
-        const songsJson = JSON.stringify(songs || []);
-        const songIdsJson = JSON.stringify(song_ids || []);
-
-        await sql`
-            UPDATE worship_scales 
-            SET songs = ${songsJson}::jsonb, song_ids = ${songIdsJson}::jsonb
-            WHERE id = ${id}
-        `;
-        res.json({ message: 'Músicas atualizadas com sucesso' });
-    } catch (error) {
-        console.error('❌ Erro ao atualizar músicas da escala:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/worship-scales/:id/share', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        
-        const scale = await sql`
-            SELECT ws.*, 
-                   u1.name as leader_name, 
-                   u2.name as minister_name,
-                   u3.name as created_by_name
-            FROM worship_scales ws
-            LEFT JOIN users u1 ON ws.leader_id = u1.id
-            LEFT JOIN users u2 ON ws.minister_id = u2.id
-            LEFT JOIN users u3 ON ws.created_by = u3.id
-            WHERE ws.id = ${id}
-        `;
-        
-        if (scale.length === 0) {
-            return res.status(404).json({ error: 'Escala não encontrada' });
-        }
-        
-        const s = scale[0];
-        const eventDate = new Date(s.event_date);
-        
-        let songs = [];
-        try {
-            if (s.songs) {
-                if (typeof s.songs === 'string') {
-                    songs = JSON.parse(s.songs);
-                } else if (Array.isArray(s.songs)) {
-                    songs = s.songs;
-                } else if (typeof s.songs === 'object') {
-                    songs = s.songs;
-                }
-            }
-        } catch { songs = []; }
-        
-        let musicianIds = [];
-        try {
-            if (s.musician_ids) {
-                if (typeof s.musician_ids === 'string') {
-                    musicianIds = JSON.parse(s.musician_ids);
-                } else if (Array.isArray(s.musician_ids)) {
-                    musicianIds = s.musician_ids;
-                } else if (typeof s.musician_ids === 'object') {
-                    musicianIds = s.musician_ids;
-                }
-            }
-        } catch { musicianIds = []; }
-        
-        let musicians = [];
-        if (musicianIds.length > 0) {
-            musicians = await sql`
-                SELECT name FROM users WHERE id = ANY(${musicianIds})
-            `;
-        }
-        
-        let message = `🎵 *ESCALA DE LOUVOR* 🎵\n\n`;
-        message += `📅 *Data:* ${eventDate.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' })}\n`;
-        message += `🕐 *Horário:* ${eventDate.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' })}\n\n`;
-        message += `👑 *Líder:* ${s.leader_name || 'Não definido'}\n`;
-        message += `🎤 *Ministro:* ${s.minister_name || 'Não definido'}\n\n`;
-        
-        if (songs.length > 0) {
-            message += `🎶 *MÚSICAS:*\n`;
-            songs.forEach((song, i) => {
-                message += `${i+1}. ${song}\n`;
             });
-            message += `\n`;
-        }
-        
-        if (s.palette) {
-            message += `🎨 *Paleta:* ${s.palette}\n\n`;
-        }
-        
-        if (s.rehearsal) {
-            message += `🎤 *Com ensaio*\n\n`;
-        }
-        
-        if (musicians.length > 0) {
-            message += `🎸 *Músicos:*\n`;
-            musicians.forEach(m => {
-                message += `- ${m.name}\n`;
-            });
-            message += `\n`;
-        }
-        
-        message += `\n🙏 *"Cantai ao Senhor um novo cântico!"* (Salmo 96:1)`;
-        
-        const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-        
-        res.json({ 
-            message, 
-            whatsapp_url: whatsappUrl,
-            scale: s
-        });
-    } catch (error) {
-        console.error('❌ Erro ao gerar compartilhamento:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE DISPONIBILIDADE =====
-// ============================================
-
-app.post('/api/availability', auth, async (req, res) => {
-    try {
-        console.log('📝 Recebendo requisição de disponibilidade:', req.body);
-        
-        const { user_id, date, department_id } = req.body;
-
-        if (!user_id || !date) {
-            console.log('❌ Campos obrigatórios faltando:', { user_id, date });
-            return res.status(400).json({ error: 'Usuário e data são obrigatórios' });
-        }
-
-        let deptId = department_id || req.user.department_id;
-        if (!deptId) {
-            console.log('❌ Departamento não informado');
-            return res.status(400).json({ error: 'Departamento não informado' });
-        }
-
-        const formattedDate = new Date(date).toISOString().split('T')[0];
-        console.log('📅 Data formatada:', formattedDate);
-
-        const existing = await sql`
-            SELECT * FROM availability 
-            WHERE user_id = ${user_id} AND date = ${formattedDate}
-        `;
-
-        if (existing.length > 0) {
-            console.log('⚠️ Data já cadastrada:', formattedDate);
-            return res.status(400).json({ error: 'Data já cadastrada' });
-        }
-
-        const result = await sql`
-            INSERT INTO availability (user_id, date, department_id)
-            VALUES (${user_id}, ${formattedDate}, ${deptId})
-            RETURNING *
-        `;
-        
-        console.log('✅ Disponibilidade salva com sucesso:', result[0]);
-        res.status(201).json({ message: 'Disponibilidade adicionada', data: result[0] });
-    } catch (error) {
-        console.error('❌ Erro ao adicionar disponibilidade:', error);
-        res.status(500).json({ error: error.message, stack: error.stack });
-    }
-});
-
-app.get('/api/availability/:userId', auth, async (req, res) => {
-    try {
-        const userId = req.params.userId;
-        console.log(`📝 Buscando disponibilidade para usuário ${userId}`);
-        
-        if (parseInt(userId) !== req.user.id && req.user.role !== 'pastor' && !req.user.is_leader) {
-            console.log(`⚠️ Usuário ${req.user.id} tentou acessar disponibilidade de ${userId}`);
-            return res.status(403).json({ error: 'Acesso negado' });
-        }
-
-        const availability = await sql`
-            SELECT * FROM availability 
-            WHERE user_id = ${userId} 
-            ORDER BY date ASC
-        `;
-        console.log(`✅ Encontrados ${availability.length} registros de disponibilidade`);
-        res.json(availability);
-    } catch (error) {
-        console.error('❌ Erro ao buscar disponibilidade:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/availability/:id', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        console.log(`📝 Removendo disponibilidade ${id}`);
-        
-        await sql`DELETE FROM availability WHERE id = ${id}`;
-        console.log('✅ Disponibilidade removida');
-        res.json({ message: 'Disponibilidade removida' });
-    } catch (error) {
-        console.error('❌ Erro ao remover disponibilidade:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/availability/date/:date', auth, async (req, res) => {
-    try {
-        const { date } = req.params;
-        const { department_id } = req.query;
-        console.log(`📝 Buscando disponíveis para data ${date}, departamento ${department_id}`);
-
-        const formattedDate = new Date(date).toISOString().split('T')[0];
-
-        let query = `
-            SELECT u.id, u.name, u.email 
-            FROM availability a
-            JOIN users u ON a.user_id = u.id
-            WHERE DATE(a.date) = $1
-        `;
-        const params = [formattedDate];
-        if (department_id) {
-            query += ` AND a.department_id = $2`;
-            params.push(department_id);
-        }
-        const available = await sql(query, params);
-        console.log(`✅ Encontrados ${available.length} disponíveis`);
-        res.json(available);
-    } catch (error) {
-        console.error('❌ Erro ao buscar disponíveis:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/availability/date/:date/department/:deptId', auth, async (req, res) => {
-    try {
-        const { date, deptId } = req.params;
-        console.log(`📝 Buscando disponíveis para data ${date}, departamento ${deptId}`);
-
-        if (!date || !deptId) {
-            return res.status(400).json({ error: 'Data e departamento são obrigatórios' });
-        }
-
-        const formattedDate = new Date(date).toISOString().split('T')[0];
-        console.log(`📅 Data formatada: ${formattedDate}`);
-
-        const dept = await sql`SELECT * FROM departments WHERE id = ${deptId} AND is_active = true`;
-        if (dept.length === 0) {
-            return res.status(404).json({ error: 'Departamento não encontrado' });
-        }
-
-        const available = await sql`
-            SELECT 
-                u.id, 
-                u.name, 
-                u.email, 
-                u.phone, 
-                u.role,
-                u.is_leader,
-                COALESCE(dm.role, 'membro') as member_role
-            FROM availability a
-            JOIN users u ON a.user_id = u.id
-            LEFT JOIN department_members dm ON u.id = dm.user_id AND dm.department_id = ${deptId}
-            WHERE DATE(a.date) = ${formattedDate}
-            AND a.department_id = ${deptId}
-            AND u.id IS NOT NULL
-            ORDER BY u.name
-        `;
-        
-        console.log(`✅ Encontrados ${available.length} membros disponíveis`);
-        res.json(available);
-    } catch (error) {
-        console.error('❌ Erro ao buscar disponíveis:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE CONFIGURAÇÕES =====
-// ============================================
-
-app.get('/api/settings', async (req, res) => {
-    try {
-        const settings = await sql`SELECT * FROM site_settings`;
-        const obj = {};
-        settings.forEach(s => obj[s.key] = s.value);
-        
-        if (!obj.cultos) {
-            obj.cultos = JSON.stringify([
-                { dia: 0, hora: 18, minuto: 0, label: 'Domingo 18:00' },
-                { dia: 3, hora: 20, minuto: 0, label: 'Quarta 20:00' },
-                { dia: 2, hora: 9, minuto: 0, label: 'Terça 09:00' }
-            ]);
-        }
-        if (!obj.primary_color) obj.primary_color = '#0D47A1';
-        if (!obj.site_title) obj.site_title = 'NJ Cabuçu';
-        if (!obj.whatsapp) obj.whatsapp = '5521985345627';
-        if (!obj.about_mission) obj.about_mission = 'Levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.';
-        if (!obj.about_vision) obj.about_vision = 'Ser uma igreja relevante, que transforma vidas e impacta a comunidade com o evangelho.';
-        if (!obj.about_values) obj.about_values = 'Amor, fé, esperança, serviço e comunhão. Vivemos os valores do Reino de Deus.';
-        
-        res.json(obj);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/settings', auth, pastorOnly, async (req, res) => {
-    try {
-        const { key, value } = req.body;
-        await sql`
-            INSERT INTO site_settings (key, value) VALUES (${key}, ${value})
-            ON CONFLICT (key) DO UPDATE SET value = ${value}
-        `;
-        res.json({ message: 'Configuração atualizada' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE MERCADO PAGO =====
-// ============================================
-
-app.post('/api/create-pix-payment', async (req, res) => {
-    try {
-        const { amount, description, email, name, phone, cpf } = req.body;
-
-        if (!process.env.MP_ACCESS_TOKEN || !PaymentService) {
-            return res.status(500).json({ error: 'Mercado Pago não configurado' });
-        }
-
-        const valor = parseFloat(amount);
-        if (isNaN(valor) || valor <= 0) {
-            return res.status(400).json({ error: 'Valor inválido' });
-        }
-
-        const externalReference = `NJ-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
-
-        const paymentData = {
-            body: {
-                transaction_amount: valor,
-                description: description || 'Pagamento NJ Cabuçu',
-                payment_method_id: 'pix',
-                payer: {
-                    email: email || 'cliente@email.com',
-                    first_name: name || 'Cliente',
-                    phone: { number: phone || '' },
-                    identification: { type: 'CPF', number: cpf || '12345678909' }
-                },
-                external_reference: externalReference,
-                notification_url: `${process.env.PUBLIC_URL || 'https://igrejanjcabucurj.vercel.app'}/api/webhook`
-            }
-        };
-
-        const payment = await PaymentService.create(paymentData);
-        const paymentLink = payment.point_of_interaction?.transaction_data?.ticket_url || 
-                           `https://www.mercadopago.com.br/payments/${payment.id}`;
-
-        res.json({
-            payment_id: payment.id,
-            status: payment.status,
-            payment_link: paymentLink,
-            external_reference: externalReference,
-            qr_code: payment.point_of_interaction?.transaction_data?.qr_code || '',
-            qr_code_base64: payment.point_of_interaction?.transaction_data?.qr_code_base64 || ''
-        });
-    } catch (error) {
-        console.error('❌ Erro MP PIX:', error);
-        res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
-    }
-});
-
-app.post('/api/create-card-payment-fallback', async (req, res) => {
-    try {
-        const { amount, description, email, name, phone, cpf, card_number, card_expiry, card_cvv, installments } = req.body;
-
-        if (!process.env.MP_ACCESS_TOKEN || !PaymentService) {
-            return res.status(500).json({ error: 'Mercado Pago não configurado' });
-        }
-
-        const valor = parseFloat(amount);
-        if (isNaN(valor) || valor <= 0) {
-            return res.status(400).json({ error: 'Valor inválido' });
-        }
-
-        if (!card_number || card_number.length < 16) {
-            return res.status(400).json({ error: 'Número do cartão inválido' });
-        }
-        if (!card_expiry || !card_expiry.includes('/')) {
-            return res.status(400).json({ error: 'Data de validade inválida' });
-        }
-        if (!card_cvv || card_cvv.length < 3) {
-            return res.status(400).json({ error: 'CVV inválido' });
-        }
-
-        const tokenData = {
-            card_number: card_number.replace(/\s/g, ''),
-            expiration_month: parseInt(card_expiry.split('/')[0]),
-            expiration_year: parseInt('20' + card_expiry.split('/')[1]),
-            security_code: card_cvv,
-            cardholder: {
-                name: name || 'Cliente',
-                identification: { type: 'CPF', number: cpf || '12345678909' }
-            }
-        };
-
-        const tokenResponse = await fetch('https://api.mercadopago.com/v1/card_tokens', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.MP_ACCESS_TOKEN}`
-            },
-            body: JSON.stringify(tokenData)
         });
 
-        const tokenResult = await tokenResponse.json();
-        if (tokenResult.error) {
-            const testToken = 'test_' + Date.now();
-            return await processCardPayment(testToken, valor, description, email, name, phone, cpf, installments, res);
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
         }
 
-        return await processCardPayment(tokenResult.id, valor, description, email, name, phone, cpf, installments, res);
-    } catch (error) {
-        console.error('❌ Erro MP cartão:', error);
-        res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
-    }
-});
+        // ============================================
+        // ===== TABS =====
+        // ============================================
+        function showTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(c => c.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.querySelector(`.tab-btn[onclick*="${tab}"]`)?.classList.add('active');
 
-async function processCardPayment(token, valor, description, email, name, phone, cpf, installments, res) {
-    try {
-        const paymentData = {
-            body: {
-                transaction_amount: valor,
-                description: description || 'Pagamento NJ Cabuçu',
-                payment_method_id: 'credit_card',
-                installments: parseInt(installments) || 1,
-                token: token,
-                payer: {
-                    email: email || 'cliente@email.com',
-                    first_name: name || 'Cliente',
-                    phone: { number: phone || '' },
-                    identification: { type: 'CPF', number: cpf || '12345678909' }
-                },
-                external_reference: `NJ-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-                notification_url: `${process.env.PUBLIC_URL || 'https://igrejanjcabucurj.vercel.app'}/api/webhook`
-            }
-        };
-
-        const payment = await PaymentService.create(paymentData);
-        if (payment.status === 'approved') {
-            await enviarEmailConfirmacao({
-                email: email,
-                nome: name,
-                tipo: 'pagamento_cartao',
-                valor: valor,
-                data: new Date(),
-                status: 'approved',
-                paymentId: payment.id,
-                detalhes: 'Pagamento com Cartão de Crédito'
-            });
-        }
-        res.json({
-            payment_id: payment.id,
-            status: payment.status,
-            status_detail: payment.status_detail,
-            external_reference: payment.external_reference
-        });
-    } catch (error) {
-        console.error('❌ Erro ao processar pagamento:', error);
-        res.status(500).json({ error: 'Erro ao processar pagamento: ' + (error.message || 'Erro desconhecido') });
-    }
-}
-
-app.post('/api/webhook', async (req, res) => {
-    try {
-        console.log('📝 Webhook recebido:', JSON.stringify(req.body, null, 2));
-        const { data, type } = req.body;
-        if (type === 'payment' && data && data.id) {
-            const paymentId = data.id;
-            console.log(`✅ Pagamento ${paymentId} confirmado!`);
-            if (PaymentService) {
-                try {
-                    const payment = await PaymentService.get({ id: paymentId });
-                    if (payment.status === 'approved') {
-                        await sql`
-                            UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}
-                        `;
-                        await sql`
-                            UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}
-                        `;
-                        const orders = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
-                        const donations = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
-                        const item = orders[0] || donations[0];
-                        if (item) {
-                            await enviarEmailConfirmacao({
-                                email: item.user_email || 'cliente@email.com',
-                                nome: item.user_name || 'Cliente',
-                                tipo: item.type || 'pagamento',
-                                valor: item.amount || item.total || 0,
-                                data: new Date(),
-                                status: 'approved',
-                                paymentId: paymentId,
-                                detalhes: 'Pagamento confirmado via webhook'
-                            });
-                        }
-                        console.log('✅ Pagamento aprovado e email enviado!');
+            const handlers = {
+                'carousel': loadCarouselAdmin,
+                'departamentos': loadDepartments,
+                'membros': loadMembers,
+                'celulas': loadCelulas,
+                'live': () => { checkLiveStatus();
+                    loadLiveHistory(); },
+                'frequencia': () => {
+                    setDefaultAttendanceDate();
+                    if (allMembers.length > 0) {
+                        renderMembersList();
+                        const date = document.getElementById('attendanceDate').value;
+                        if (date) loadAttendanceHistory(date);
                     }
-                } catch (error) {
-                    console.error('❌ Erro:', error);
+                },
+                'tesouraria': () => { loadTithes();
+                    loadTitheSummary(); },
+                'contas': () => { loadBills();
+                    loadBillSummary(); },
+                'aniversariantes': loadBirthdaysAdmin,
+                'config': loadConfig,
+                'sobre': loadAbout,
+                'inscricoes': loadRegistrations,
+                'reflexoes': loadReflectionsAdmin
+            };
+
+            if (handlers[tab]) handlers[tab]();
+
+            const el = document.getElementById('tab-' + tab);
+            if (el) {
+                const top = el.getBoundingClientRect().top + window.pageYOffset - 80;
+                window.scrollTo({ top, behavior: 'smooth' });
+            }
+        }
+
+        // ============================================
+        // ===== LOAD EVENTS - CORRIGIDO =====
+        // ============================================
+        async function loadEvents() {
+            try {
+                const res = await fetch('/api/events', { headers: getHeaders() });
+                const events = await res.json();
+                const tbody = document.getElementById('eventsList');
+                if (!events || !events.length) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum evento cadastrado</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = events.map(e => `
+                    <tr>
+                        <td>${e.title}</td>
+                        <td>${new Date(e.date).toLocaleDateString('pt-BR')}</td>
+                        <td>${parseFloat(e.price||0)>0 ? 'R$ '+parseFloat(e.price).toFixed(2) : 'Grátis'}</td>
+                        <td><button onclick="deleteEvent(${e.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button></td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error('Erro ao carregar eventos:', e);
+                document.getElementById('eventsList').innerHTML = '<tr><td colspan="4" class="text-center" style="color:#dc3545;">Erro ao carregar</td></tr>';
+            }
+        }
+
+        // ============================================
+        // ===== LOAD PRODUCTS - CORRIGIDO =====
+        // ============================================
+        async function loadProducts() {
+            try {
+                const res = await fetch('/api/products', { headers: getHeaders() });
+                const products = await res.json();
+                const tbody = document.getElementById('productsList');
+                if (!products || !products.length) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum produto cadastrado</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = products.map(p => `
+                    <tr>
+                        <td>${p.name}</td>
+                        <td>R$ ${parseFloat(p.price).toFixed(2)}</td>
+                        <td><button onclick="deleteProduct(${p.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button></td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error('Erro ao carregar produtos:', e);
+                document.getElementById('productsList').innerHTML = '<tr><td colspan="3" class="text-center" style="color:#dc3545;">Erro ao carregar</td></tr>';
+            }
+        }
+
+        // ============================================
+        // ===== LOAD STUDIES - CORRIGIDO =====
+        // ============================================
+        function loadStudies(studies) {
+            const tbody = document.getElementById('studiesList');
+            if (!studies || !studies.length) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum estudo cadastrado</td></tr>';
+                return;
+            }
+            tbody.innerHTML = studies.map(s => `
+                <tr>
+                    <td>${s.title}</td>
+                    <td>${s.image_base64 ? '✅' : '-'}</td>
+                    <td>${s.file_url || s.file_base64 ? '✅' : '-'}</td>
+                    <td>
+                        ${s.file_url ? `<a href="${s.file_url}" target="_blank" class="btn btn-primary btn-xs"><i class="fas fa-download"></i></a>` : ''}
+                        <button onclick="deleteStudy(${s.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ============================================
+        // ===== CARREGAR DASHBOARD =====
+        // ============================================
+        async function loadDashboard() {
+            showLoading();
+            try {
+                const [users, prayers, orders, donations, studies, events, celulas, lives] = await Promise.all([
+                    fetch('/api/users', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
+                    fetch('/api/prayers', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
+                    fetch('/api/orders', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
+                    fetch('/api/donations', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
+                    fetch('/api/studies', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
+                    fetch('/api/events', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
+                    fetch('/api/celulas', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
+                    fetch('/api/lives/history', { headers: getHeaders() }).then(r => r.json()).catch(() => [])
+                ]);
+
+                const unreadPrayers = prayers.filter(p => !p.is_read).length;
+                const totalDonations = donations.reduce((s, d) => s + parseFloat(d.amount || 0), 0);
+
+                document.getElementById('totalUsers').textContent = users.length;
+                document.getElementById('totalPrayers').textContent = unreadPrayers;
+                document.getElementById('totalOrders').textContent = orders.length;
+                document.getElementById('totalDonations').textContent = 'R$' + totalDonations.toFixed(0);
+                document.getElementById('totalStudies').textContent = studies.length;
+                document.getElementById('totalCelulas').textContent = celulas.length;
+                document.getElementById('totalLives').textContent = lives.length;
+
+                loadUsers(users);
+                loadPrayers(prayers);
+                loadOrders(orders);
+                loadDonations(donations);
+                loadStudies(studies);
+                loadEvents();
+                loadProducts();
+                loadRegistrations();
+                loadMembers();
+                loadBirthdaysAdmin();
+                loadSalesStats();
+                loadCelulas();
+                loadLiveHistory();
+                loadReflectionsAdmin();
+            } catch (e) { console.error('Erro:', e); }
+            hideLoading();
+        }
+
+        // ============================================
+        // ===== SALES STATS =====
+        // ============================================
+        async function loadSalesStats() {
+            try {
+                const res = await fetch('/api/sales-stats', { headers: getHeaders() });
+                const data = await res.json();
+                if (data.error) return;
+
+                document.getElementById('totalSalesValue').textContent = 'R$ ' + parseFloat(data.total?.total || 0).toFixed(0);
+                document.getElementById('totalSalesCount').textContent = data.total?.count || 0;
+                const avg = data.total?.count > 0 ? data.total.total / data.total.count : 0;
+                document.getElementById('avgSalesValue').textContent = 'R$ ' + avg.toFixed(0);
+
+                const chart = document.getElementById('barChart');
+                if (data.byDay?.length) {
+                    const max = Math.max(...data.byDay.map(d => parseFloat(d.total || 0)), 1);
+                    chart.innerHTML = data.byDay.slice(0, 7).map(d => {
+                        const h = (parseFloat(d.total || 0) / max) * 100;
+                        const label = new Date(d.date).toLocaleDateString('pt-BR', { weekday: 'short' });
+                        return `<div class="bar-item">
+                            <div class="bar" style="height:${Math.max(h, 4)}%;"></div>
+                            <div class="bar-value">R$ ${parseFloat(d.total||0).toFixed(0)}</div>
+                            <div class="bar-label">${label}</div>
+                        </div>`;
+                    }).join('');
+                } else {
+                    chart.innerHTML = '<p style="color:#888;font-size:0.65rem;text-align:center;width:100%;">Nenhuma venda</p>';
+                }
+            } catch (e) { console.error('Erro:', e); }
+        }
+
+        // ============================================
+        // ===== LISTAS =====
+        // ============================================
+        function loadUsers(users) {
+            const tbody = document.getElementById('usersList');
+            if (!users?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+            const roleMap = { pastor: 'Pastor', lider: 'Líder', colaborador: 'Colaborador', fiel: 'Fiel' };
+            const badgeMap = { pastor: 'badge-pastor', lider: 'badge-lider', colaborador: 'badge-colaborador', fiel: 'badge-fiel' };
+            tbody.innerHTML = users.map(u => `
+                <tr>
+                    <td>${u.name}</td>
+                    <td><span class="${badgeMap[u.role]||'badge-fiel'}">${roleMap[u.role]||u.role}</span></td>
+                    <td>
+                        <button onclick="resetPassword('${u.email}')" class="btn btn-warning btn-xs" title="Resetar senha"><i class="fas fa-key"></i></button>
+                        <button onclick="deleteUser(${u.id})" class="btn btn-danger btn-xs" title="Remover"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function loadPrayers(prayers) {
+            const tbody = document.getElementById('prayersList');
+            if (!prayers?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+            tbody.innerHTML = prayers.slice(0, 30).map(p => `
+                <tr>
+                    <td>${p.name||'Anônimo'}</td>
+                    <td>${p.request.substring(0, 35)}${p.request.length>35?'...':''}</td>
+                    <td>${p.is_read ? '✅' : '📩'}</td>
+                    <td>${!p.is_read ? `<button onclick="markPrayerRead(${p.id})" class="btn btn-success btn-xs"><i class="fas fa-check"></i></button>` : ''}</td>
+                </tr>
+            `).join('');
+        }
+
+        function loadOrders(orders) {
+            const tbody = document.getElementById('ordersList');
+            if (!orders?.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
+            tbody.innerHTML = orders.slice(0, 30).map(o => {
+                let items = [];
+                try { items = JSON.parse(o.items || '[]'); } catch { items = []; }
+                const pn = items.length ? items.map(i => i.name).join(', ') : '-';
+                return `<tr>
+                    <td>${o.user_name||'Anônimo'}</td>
+                    <td>${pn}</td>
+                    <td>R$ ${parseFloat(o.total||0).toFixed(2)}</td>
+                    <td><span class="status status-${o.status||'pending'}">${o.status||'Pendente'}</span></td>
+                    <td>${new Date(o.created_at).toLocaleDateString('pt-BR')}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function loadDonations(donations) {
+            const tbody = document.getElementById('donationsList');
+            if (!donations?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
+            tbody.innerHTML = donations.slice(0, 30).map(d => `
+                <tr>
+                    <td>${d.user_name||'Anônimo'}</td>
+                    <td>${d.type||'-'}</td>
+                    <td>R$ ${parseFloat(d.amount||0).toFixed(2)}</td>
+                    <td>${new Date(d.created_at).toLocaleDateString('pt-BR')}</td>
+                </tr>
+            `).join('');
+        }
+
+        // ============================================
+        // ===== STUDY SUBMIT - CORRIGIDO =====
+        // ============================================
+        async function submitStudy() {
+            const title = document.getElementById('studyTitle').value.trim();
+            const description = document.getElementById('studyDescription').value.trim();
+            const fileUrl = document.getElementById('studyFileUrl').value.trim();
+            const imageFile = document.getElementById('studyImage').files[0];
+            const pdfFile = document.getElementById('studyPdf').files[0];
+            const resultDiv = document.getElementById('studyResult');
+
+            resultDiv.className = 'study-result';
+            resultDiv.style.display = 'none';
+
+            if (!title) {
+                showNotification('❌ Digite o título do estudo!', 'error');
+                return;
+            }
+
+            if (!imageFile && !pdfFile && !fileUrl) {
+                showNotification('❌ Adicione pelo menos uma imagem, PDF ou link!', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('description', description || '');
+            if (fileUrl) formData.append('file_url', fileUrl);
+            if (imageFile) formData.append('image', imageFile);
+            if (pdfFile) formData.append('file', pdfFile);
+
+            resultDiv.className = 'study-result loading';
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '⏳ Enviando estudo...';
+
+            try {
+                const response = await fetch('/api/studies', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || 'Erro ao criar estudo');
+                }
+
+                resultDiv.className = 'study-result success';
+                resultDiv.innerHTML = '✅ Estudo criado com sucesso!';
+
+                closeModal('studyModal');
+                document.getElementById('studyTitle').value = '';
+                document.getElementById('studyDescription').value = '';
+                document.getElementById('studyFileUrl').value = '';
+                document.getElementById('studyImage').value = '';
+                document.getElementById('studyPdf').value = '';
+                document.getElementById('studyImageName').textContent = '';
+                document.getElementById('studyPdfName').textContent = '';
+
+                await loadDashboard();
+
+                showNotification('✅ Estudo criado com sucesso!', 'success');
+
+                setTimeout(() => {
+                    resultDiv.style.display = 'none';
+                }, 3000);
+
+            } catch (error) {
+                console.error('❌ Erro:', error);
+                resultDiv.className = 'study-result error';
+                resultDiv.innerHTML = '❌ ' + error.message;
+                showNotification('❌ ' + error.message, 'error');
+            }
+        }
+
+        // ============================================
+        // ===== EVENT FORM - CORRIGIDO =====
+        // ============================================
+        document.getElementById('eventForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            showLoading();
+            try {
+                const formData = new FormData(this);
+                const response = await fetch('/api/events', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
+                    body: formData
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Erro ao criar');
+
+                closeModal('eventModal');
+                this.reset();
+                await loadEvents();
+                await loadDashboard();
+
+                showNotification('✅ Evento criado com sucesso!', 'success');
+            } catch (e) {
+                showNotification('❌ ' + e.message, 'error');
+                console.error(e);
+            }
+            hideLoading();
+        });
+
+        // ============================================
+        // ===== PRODUCT FORM - CORRIGIDO =====
+        // ============================================
+        document.getElementById('productForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            showLoading();
+            try {
+                const formData = new FormData(this);
+                const response = await fetch('/api/products', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
+                    body: formData
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Erro ao criar');
+
+                closeModal('productModal');
+                this.reset();
+                await loadProducts();
+                await loadDashboard();
+
+                showNotification('✅ Produto criado com sucesso!', 'success');
+            } catch (e) {
+                showNotification('❌ ' + e.message, 'error');
+                console.error(e);
+            }
+            hideLoading();
+        });
+
+        // ============================================
+        // ===== CAROUSEL FORM - CORRIGIDO =====
+        // ============================================
+        document.getElementById('carouselForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            showLoading();
+            try {
+                const formData = new FormData(this);
+                const response = await fetch('/api/carousel', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
+                    body: formData
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Erro ao criar');
+
+                closeModal('carouselModal');
+                this.reset();
+                await loadCarouselAdmin();
+                await loadDashboard();
+
+                showNotification('✅ Imagem adicionada ao carrossel!', 'success');
+            } catch (e) {
+                showNotification('❌ ' + e.message, 'error');
+                console.error(e);
+            }
+            hideLoading();
+        });
+
+        // ============================================
+        // ===== FUNÇÕES DE PRODUTOS E EVENTOS =====
+        // ============================================
+        async function deleteProduct(id) {
+            if (!confirm('Remover?')) return;
+            try {
+                await fetch('/api/products/' + id, { method: 'DELETE', headers: getHeaders() });
+                await loadProducts();
+                await loadDashboard();
+                showNotification('✅ Produto removido!', 'success');
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+        }
+
+        async function deleteEvent(id) {
+            if (!confirm('Remover?')) return;
+            try {
+                await fetch('/api/events/' + id, { method: 'DELETE', headers: getHeaders() });
+                await loadEvents();
+                await loadDashboard();
+                showNotification('✅ Evento removido!', 'success');
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+        }
+
+        async function deleteStudy(id) {
+            if (!confirm('Remover?')) return;
+            try {
+                await fetch('/api/studies/' + id, { method: 'DELETE', headers: getHeaders() });
+                await loadDashboard();
+                showNotification('✅ Estudo removido!', 'success');
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+        }
+
+        async function deleteCarousel(id) {
+            if (!confirm('Remover?')) return;
+            try {
+                await fetch('/api/carousel/' + id, { method: 'DELETE', headers: getHeaders() });
+                await loadCarouselAdmin();
+                await loadDashboard();
+                showNotification('✅ Imagem removida!', 'success');
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+        }
+
+        // ============================================
+        // ===== REGISTRATIONS =====
+        // ============================================
+        let currentFilter = 'all';
+
+        async function loadRegistrations() {
+            try {
+                const res = await fetch('/api/registrations', { headers: getHeaders() });
+                const data = await res.json();
+                const tbody = document.getElementById('registrationsList');
+                if (!data?.length) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="color:#888;">Nenhuma inscrição</td></tr>';
+                    return;
+                }
+                const typeMap = { baptism: 'Batismo', volunteer: 'Voluntário', event: 'Evento', department: 'Depto' };
+                tbody.innerHTML = data.slice(0, 30).map(r => `
+                    <tr data-type="${r.type}">
+                        <td>${r.name}</td>
+                        <td>${typeMap[r.type]||r.type}</td>
+                        <td>${r.department_name||r.event_name||'-'}</td>
+                        <td><span class="status status-${r.status||'pending'}">${r.status||'Pendente'}</span></td>
+                        <td>${new Date(r.created_at).toLocaleDateString('pt-BR')}</td>
+                        <td>
+                            ${r.status !== 'approved' ? `<button onclick="approveRegistration(${r.id})" class="btn btn-success btn-xs"><i class="fas fa-check"></i> Aprovar</button>` : '<span style="color:#28a745;font-size:0.5rem;">✅ Aprovado</span>'}
+                            <button onclick="deleteRegistration(${r.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+                filterRegistrations(currentFilter);
+            } catch (e) { console.error('Erro:', e); }
+        }
+
+        async function approveRegistration(id) {
+            if (!confirm('Confirmar esta inscrição?')) return;
+            try {
+                const response = await fetch(`/api/registrations/${id}/approve`, {
+                    method: 'PUT',
+                    headers: getHeaders()
+                });
+                if (!response.ok) throw new Error('Erro ao aprovar');
+                showNotification('✅ Inscrição aprovada!', 'success');
+                loadRegistrations();
+            } catch (e) {
+                showNotification('❌ ' + e.message, 'error');
+            }
+        }
+
+        async function deleteRegistration(id) {
+            if (!confirm('Remover esta inscrição?')) return;
+            try {
+                await fetch(`/api/registrations/${id}`, {
+                    method: 'DELETE',
+                    headers: getHeaders()
+                });
+                showNotification('✅ Inscrição removida!', 'success');
+                loadRegistrations();
+            } catch (e) {
+                showNotification('❌ ' + e.message, 'error');
+            }
+        }
+
+        function filterRegistrations(type) {
+            currentFilter = type;
+            document.querySelectorAll('.registration-filters .btn').forEach(b => {
+                b.classList.remove('active', 'btn-primary');
+                b.classList.add('btn-outline');
+                if (b.dataset.filter === type) {
+                    b.classList.add('active', 'btn-primary');
+                    b.classList.remove('btn-outline');
+                }
+            });
+            const rows = document.querySelectorAll('#registrationsList tr');
+            rows.forEach(row => {
+                if (type === 'all') {
+                    row.style.display = '';
+                } else {
+                    const rowType = row.dataset.type || '';
+                    row.style.display = rowType === type ? '' : 'none';
+                }
+            });
+        }
+
+        // ============================================
+        // ===== CARROSSEL ADMIN =====
+        // ============================================
+        async function loadCarouselAdmin() {
+            try {
+                const res = await fetch('/api/carousel', { headers: getHeaders() });
+                const data = await res.json();
+                const container = document.getElementById('carouselList');
+                if (!data?.length) { container.innerHTML = '<p class="text-center" style="color:#888;font-size:0.65rem;">Nenhuma</p>'; return; }
+                container.innerHTML = data.map(img => {
+                    const src = img.image_url || (img.image_base64 ? `data:image/jpeg;base64,${img.image_base64}` : 'https://via.placeholder.com/200x120/0D47A1/fff?text=NJ');
+                    return `<div class="carousel-item">
+                        <img src="${src}" alt="${img.title||'Slide'}">
+                        <div class="title">${img.title||'Sem título'}</div>
+                        <button onclick="deleteCarousel(${img.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button>
+                    </div>`;
+                }).join('');
+            } catch (e) { console.error('Erro:', e); }
+        }
+
+        // ============================================
+        // ===== DEPARTMENTS =====
+        // ============================================
+        async function loadDepartments() {
+            try {
+                const res = await fetch('/api/departments', { headers: getHeaders() });
+                const data = await res.json();
+                const tbody = document.getElementById('departmentsList');
+                if (!data?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+                tbody.innerHTML = data.map(d => `
+                    <tr>
+                        <td>${d.name}</td>
+                        <td>${d.leader_name||'Sem líder'}</td>
+                        <td><button onclick="deleteDepartment(${d.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button></td>
+                    </tr>
+                `).join('');
+            } catch (e) { console.error('Erro:', e); }
+        }
+
+        async function deleteDepartment(id) {
+            if (!confirm('Remover?')) return;
+            try {
+                await fetch('/api/departments/' + id, { method: 'DELETE', headers: getHeaders() });
+                loadDepartments();
+                showNotification('✅ Departamento removido!', 'success');
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+        }
+
+        function openDeptModal() {
+            document.getElementById('deptName').value = '';
+            document.getElementById('deptDesc').value = '';
+            openModal('deptModal');
+        }
+
+        async function saveDepartment() {
+            const name = document.getElementById('deptName').value.trim();
+            const desc = document.getElementById('deptDesc').value.trim();
+            if (!name) { showNotification('Digite o nome!', 'error'); return; }
+            try {
+                await fetch('/api/departments', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    body: JSON.stringify({ name, description: desc })
+                });
+                closeModal('deptModal');
+                loadDepartments();
+                showNotification('✅ Departamento criado!', 'success');
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+        }
+
+        // ============================================
+        // ===== MEMBROS =====
+        // ============================================
+        async function loadMembers() {
+            try {
+                const res = await fetch('/api/members', { headers: getHeaders() });
+                const data = await res.json();
+                const tbody = document.getElementById('membersList');
+                if (!data?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+                tbody.innerHTML = data.map(m => `
+                    <tr>
+                        <td>${m.name}</td>
+                        <td>${m.phone||'-'}</td>
+                        <td>${m.department_name||'-'}</td>
+                        <td>
+                            <button onclick="viewMember(${m.id})" class="btn btn-primary btn-xs"><i class="fas fa-eye"></i></button>
+                            <button onclick="deleteMember(${m.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) { console.error('Erro:', e); }
+        }
+
+        async function openMemberModal() {
+            try {
+                const depts = await fetch('/api/departments', { headers: getHeaders() }).then(r => r.json());
+                const select = document.getElementById('memberDepartment');
+                select.innerHTML = '<option value="">Selecione</option>' + depts.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+                document.getElementById('memberName').value = '';
+                document.getElementById('memberEmail').value = '';
+                document.getElementById('memberPhone').value = '';
+                document.getElementById('memberBirth').value = '';
+                document.getElementById('memberMarital').value = 'solteiro';
+                document.getElementById('memberSpouse').value = '';
+                document.getElementById('memberNotes').value = '';
+                openModal('memberModal');
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+        }
+
+        async function saveMember() {
+            const data = {
+                name: document.getElementById('memberName').value.trim(),
+                email: document.getElementById('memberEmail').value.trim(),
+                phone: document.getElementById('memberPhone').value.trim(),
+                birth_date: document.getElementById('memberBirth').value || null,
+                marital_status: document.getElementById('memberMarital').value,
+                spouse_name: document.getElementById('memberSpouse').value.trim(),
+                department_id: document.getElementById('memberDepartment').value || null,
+                notes: document.getElementById('memberNotes').value.trim()
+            };
+            if (!data.name) { showNotification('Nome é obrigatório!', 'error'); return; }
+            try {
+                await fetch('/api/members', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    body: JSON.stringify(data)
+                });
+                closeModal('memberModal');
+                loadMembers();
+                showNotification('✅ Membro cadastrado!', 'success');
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+        }
+
+        async function viewMember(id) {
+            try {
+                const res = await fetch('/api/members/' + id, { headers: getHeaders() });
+                const data = await res.json();
+                let msg = `👤 ${data.name}\n📧 ${data.email||'-'}\n📱 ${data.phone||'-'}\n🎂 ${data.birth_date ? new Date(data.birth_date).toLocaleDateString('pt-BR') : '-'}\n💑 ${data.marital_status||'-'}`;
+                if (data.spouse_name) msg += `\n👰 ${data.spouse_name}`;
+                if (data.department_name) msg += `\n🏛️ ${data.department_name}`;
+                alert(msg);
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+        }
+
+        async function deleteMember(id) {
+            if (!confirm('Remover?')) return;
+            try {
+                await fetch('/api/members/' + id, { method: 'DELETE', headers: getHeaders() });
+                loadMembers();
+                showNotification('✅ Membro removido!', 'success');
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+        }
+
+        // ============================================
+        // ===== FREQUÊNCIA =====
+        // ============================================
+        let allMembers = [];
+        let selectedMembers = new Set();
+        let attendanceFilteredMembers = [];
+
+        function setDefaultAttendanceDate() {
+            const today = new Date();
+            const dateInput = document.getElementById('attendanceDate');
+            if (dateInput) {
+                const y = today.getFullYear();
+                const m = String(today.getMonth() + 1).padStart(2, '0');
+                const d = String(today.getDate()).padStart(2, '0');
+                dateInput.value = `${y}-${m}-${d}`;
+            }
+        }
+
+        async function loadAllMembersForAttendance() {
+            const date = document.getElementById('attendanceDate').value;
+            if (!date) { showNotification('Selecione uma data!', 'error'); return; }
+            try {
+                showNotification('Carregando...', 'info');
+                const res = await fetch('/api/members', { headers: getHeaders() });
+                allMembers = await res.json();
+                if (!allMembers?.length) {
+                    showNotification('Nenhum membro!', 'error');
+                    document.getElementById('membersListContainer').innerHTML = '<p style="color:#888;text-align:center;font-size:0.6rem;">Nenhum</p>';
+                    return;
+                }
+                selectedMembers.clear();
+                await checkExistingAttendance(date);
+                renderMembersList();
+                updateSummary();
+                loadAttendanceHistory(date);
+                showNotification(`✅ ${allMembers.length} membros`, 'success');
+            } catch (e) {
+                showNotification('❌ ' + e.message, 'error');
+            }
+        }
+
+        async function checkExistingAttendance(date) {
+            try {
+                const res = await fetch(`/api/attendance/date/${date}`, { headers: getHeaders() });
+                const existing = await res.json();
+                if (existing?.length) {
+                    existing.forEach(r => { if (r.present) selectedMembers.add(r.member_id); });
+                }
+                document.getElementById('selectedCount').textContent = selectedMembers.size;
+            } catch (e) { console.error(e); }
+        }
+
+        function renderMembersList() {
+            const container = document.getElementById('membersListContainer');
+            const search = document.getElementById('memberSearch')?.value.toLowerCase().trim() || '';
+            let filtered = allMembers;
+            if (search) filtered = allMembers.filter(m => m.name.toLowerCase().includes(search) || (m.email && m.email.toLowerCase().includes(search)));
+            attendanceFilteredMembers = filtered;
+            document.getElementById('totalCount').textContent = filtered.length;
+            if (!filtered.length) {
+                container.innerHTML = '<p style="color:#888;text-align:center;font-size:0.6rem;">Nenhum</p>';
+                return;
+            }
+            let html = '';
+            filtered.forEach(m => {
+                const checked = selectedMembers.has(m.id) ? 'checked' : '';
+                const bg = checked ? 'background:#d4edda;' : '';
+                html += `<div class="member-row" data-id="${m.id}" style="${bg}">
+                    <input type="checkbox" class="member-checkbox" value="${m.id}" ${checked} onchange="toggleMember(${m.id})">
+                    <div class="member-info" onclick="toggleMember(${m.id})">
+                        <div class="member-name">${m.name}</div>
+                        <div class="member-dept">${m.department_name||'Sem depto'}</div>
+                    </div>
+                    <span style="font-size:0.5rem;color:#888;">${m.phone||''}</span>
+                </div>`;
+            });
+            container.innerHTML = html;
+            document.getElementById('selectedCount').textContent = selectedMembers.size;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('memberSearch')?.addEventListener('input', renderMembersList);
+        });
+
+        function toggleMember(id) {
+            if (selectedMembers.has(id)) selectedMembers.delete(id);
+            else selectedMembers.add(id);
+            const row = document.querySelector(`.member-row[data-id="${id}"]`);
+            if (row) {
+                const cb = row.querySelector('.member-checkbox');
+                if (cb) cb.checked = selectedMembers.has(id);
+                row.style.background = selectedMembers.has(id) ? '#d4edda' : '';
+            }
+            document.getElementById('selectedCount').textContent = selectedMembers.size;
+            updateSummary();
+        }
+
+        function toggleSelectAll() {
+            const visible = attendanceFilteredMembers.length ? attendanceFilteredMembers : allMembers;
+            if (!visible.length) { showNotification('Nenhum membro!', 'error'); return; }
+            const allSelected = visible.every(m => selectedMembers.has(m.id));
+            if (allSelected) visible.forEach(m => selectedMembers.delete(m.id));
+            else visible.forEach(m => selectedMembers.add(m.id));
+            renderMembersList();
+            updateSummary();
+        }
+
+        function clearSelection() {
+            selectedMembers.clear();
+            renderMembersList();
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const container = document.getElementById('attendanceSummary');
+            const total = selectedMembers.size;
+            container.innerHTML = total ? `<div style="background:#d4edda;padding:0.15rem 0.4rem;border-radius:4px;font-size:0.6rem;"><strong>${total}</strong> selecionados</div>` : '<p style="color:#888;font-size:0.6rem;">Nenhum selecionado</p>';
+        }
+
+        async function registerMultipleAttendance() {
+            const date = document.getElementById('attendanceDate').value;
+            const service = document.getElementById('attendanceService').value;
+            if (!date) { showNotification('Selecione a data!', 'error'); return; }
+            if (!selectedMembers.size) { showNotification('Selecione membros!', 'error'); return; }
+            if (!confirm(`Registrar ${selectedMembers.size} membros?`)) return;
+            let success = 0, errors = 0;
+            for (const id of selectedMembers) {
+                try {
+                    await fetch('/api/attendance', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                        body: JSON.stringify({ member_id: id, event_date: date, service_type: service, present: true })
+                    });
+                    success++;
+                } catch (e) { errors++; }
+            }
+            showNotification(`✅ ${success} registrados ${errors ? '⚠️ '+errors+' erros' : ''}`, 'success');
+            await checkExistingAttendance(date);
+            renderMembersList();
+            loadAttendanceHistory(date);
+        }
+
+        async function registerAllAttendance() {
+            const date = document.getElementById('attendanceDate').value;
+            if (!date) { showNotification('Selecione a data!', 'error'); return; }
+            if (!allMembers.length) { showNotification('Carregue os membros!', 'error'); return; }
+            allMembers.forEach(m => selectedMembers.add(m.id));
+            renderMembersList();
+            updateSummary();
+            await registerMultipleAttendance();
+        }
+
+        async function loadAttendanceHistory(date) {
+            if (!date) {
+                document.getElementById('attendanceList').innerHTML = '<p style="color:#888;text-align:center;font-size:0.55rem;">Selecione uma data</p>';
+                return;
+            }
+            try {
+                const res = await fetch(`/api/attendance/date/${date}`, { headers: getHeaders() });
+                const records = await res.json();
+                const container = document.getElementById('attendanceList');
+                if (!records?.length) {
+                    container.innerHTML = `<p style="color:#888;text-align:center;font-size:0.55rem;">Nenhum registro</p>`;
+                    return;
+                }
+                const presentes = records.filter(r => r.present).length;
+                let html = `<div style="font-size:0.5rem;color:#666;margin-bottom:0.1rem;"><strong>${records.length}</strong> registros ✅ ${presentes} ❌ ${records.length - presentes}</div>`;
+                records.slice(0, 15).forEach(r => {
+                    const m = allMembers.find(x => x.id === r.member_id);
+                    const name = m ? m.name : '#' + r.member_id;
+                    html += `<div style="display:flex;justify-content:space-between;padding:0.05rem 0;border-bottom:1px solid #f0f0f0;font-size:0.5rem;">
+                        <span>${name}</span>
+                        <span class="status ${r.present ? 'status-approved' : 'status-pending'}">${r.present ? '✅' : '❌'}</span>
+                    </div>`;
+                });
+                container.innerHTML = html;
+            } catch (e) { console.error(e); }
+        }
+
+        // ============================================
+        // ===== TITHES =====
+        // ============================================
+        async function openTitheModal() {
+            try {
+                const members = await fetch('/api/members', { headers: getHeaders() }).then(r => r.json());
+                const select = document.getElementById('titheMember');
+                select.innerHTML = '<option value="">Visitante</option>' + members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+                document.getElementById('titheAmount').value = '';
+                document.getElementById('titheDate').value = new Date().toISOString().split('T')[0];
+                document.getElementById('titheType').value = 'dizimo';
+                document.getElementById('titheMethod').value = 'dinheiro';
+                openModal('titheModal');
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+        }
+
+        async function saveTithe() {
+            const member_id = document.getElementById('titheMember').value;
+            const type = document.getElementById('titheType').value;
+            const amount = parseFloat(document.getElementById('titheAmount').value);
+            const payment_date = document.getElementById('titheDate').value;
+            const payment_method = document.getElementById('titheMethod').value;
+            if (!amount || amount <= 0) { showNotification('Valor inválido!', 'error'); return; }
+            try {
+                await fetch('/api/tithes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    body: JSON.stringify({ member_id: member_id || null, member_name: null, type, amount, payment_date, payment_method, description: '' })
+                });
+                closeModal('titheModal');
+                loadTithes();
+                loadTitheSummary();
+                showNotification('✅ Dízimo registrado!', 'success');
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+        }
+
+        async function loadTithes() {
+            try {
+                const res = await fetch('/api/tithes', { headers: getHeaders() });
+                const data = await res.json();
+                const tbody = document.getElementById('tithesList');
+                if (!data?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+                tbody.innerHTML = data.slice(0, 30).map(t => `
+                    <tr>
+                        <td>${t.member_name||'Visitante'}</td>
+                        <td>${t.type}</td>
+                        <td>R$ ${parseFloat(t.amount).toFixed(2)}</td>
+                        <td>${new Date(t.payment_date).toLocaleDateString('pt-BR')}</td>
+                    </tr>
+                `).join('');
+            } catch (e) { console.error('Erro:', e); }
+        }
+
+        async function loadTitheSummary() {
+            try {
+                const res = await fetch('/api/tithes/summary', { headers: getHeaders() });
+                const data = await res.json();
+                const div = document.getElementById('titheSummary');
+                if (!data.by_type?.length) { div.innerHTML = ''; return; }
+                div.innerHTML = data.by_type.map(t => `<span><strong>${t.type}:</strong> R$ ${parseFloat(t.total).toFixed(0)}</span> `).join('') +
+                    `<span><strong>Total:</strong> R$ ${parseFloat(data.total).toFixed(0)}</span>`;
+            } catch (e) { console.error('Erro:', e); }
+        }
+
+        // ============================================
+        // ===== BILLS =====
+        // ============================================
+        function openBillModal() {
+            document.getElementById('billDescription').value = '';
+            document.getElementById('billCategory').value = 'agua';
+            document.getElementById('billAmount').value = '';
+            document.getElementById('billDueDate').value = '';
+            openModal('billModal');
+        }
+
+        async function saveBill() {
+            const desc = document.getElementById('billDescription').value.trim();
+            const cat = document.getElementById('billCategory').value;
+            const amount = parseFloat(document.getElementById('billAmount').value);
+            const due = document.getElementById('billDueDate').value;
+            if (!desc || !amount || !due) { showNotification('Preencha todos os campos!', 'error'); return; }
+            try {
+                await fetch('/api/bills', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    body: JSON.stringify({ description: desc, category: cat, amount, due_date: due, notes: '' })
+                });
+                closeModal('billModal');
+                loadBills();
+                loadBillSummary();
+                showNotification('✅ Conta criada!', 'success');
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+        }
+
+        async function loadBills() {
+            try {
+                const res = await fetch('/api/bills', { headers: getHeaders() });
+                const data = await res.json();
+                const tbody = document.getElementById('billsList');
+                if (!data?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
+                tbody.innerHTML = data.map(b => `
+                    <tr>
+                        <td>${b.description}</td>
+                        <td>R$ ${parseFloat(b.amount).toFixed(2)}</td>
+                        <td><span class="status ${b.paid ? 'status-approved' : 'status-pending'}">${b.paid ? '✅' : '⏳'}</span></td>
+                        <td>
+                            ${!b.paid ? `<button onclick="payBill(${b.id})" class="btn btn-success btn-xs"><i class="fas fa-check"></i></button>` : ''}
+                            <button onclick="deleteBill(${b.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) { console.error('Erro:', e); }
+        }
+
+        async function payBill(id) {
+            if (!confirm('Pagar?')) return;
+            try {
+                await fetch('/api/bills/' + id + '/pay', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    body: JSON.stringify({ payment_date: new Date().toISOString().split('T')[0], payment_method: 'dinheiro' })
+                });
+                loadBills();
+                loadBillSummary();
+                showNotification('✅ Conta paga!', 'success');
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+        }
+
+        async function deleteBill(id) {
+            if (!confirm('Remover?')) return;
+            try {
+                await fetch('/api/bills/' + id, { method: 'DELETE', headers: getHeaders() });
+                loadBills();
+                loadBillSummary();
+                showNotification('✅ Conta removida!', 'success');
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+        }
+
+        async function loadBillSummary() {
+            try {
+                const res = await fetch('/api/bills/summary', { headers: getHeaders() });
+                const data = await res.json();
+                const div = document.getElementById('billSummary');
+                if (!data.summary) { div.innerHTML = ''; return; }
+                div.innerHTML = `<span style="color:#dc3545;">⏳ R$ ${parseFloat(data.summary.pending||0).toFixed(0)}</span> 
+                    <span style="color:#28a745;">✅ R$ ${parseFloat(data.summary.paid_total||0).toFixed(0)}</span>`;
+            } catch (e) { console.error('Erro:', e); }
+        }
+
+        // ============================================
+        // ===== CÉLULAS =====
+        // ============================================
+        let celulaAtual = null;
+        let celulaAddMembroId = null;
+        let celulaDecisaoId = null;
+
+        async function loadCelulas() {
+            try {
+                const res = await fetch('/api/celulas', { headers: getHeaders() });
+                const data = await res.json();
+                const tbody = document.getElementById('celulasList');
+
+                let totalCelulas = data.length;
+                let totalMembros = 0, totalBatizados = 0;
+
+                if (!data?.length) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="color:#888;">Nenhuma célula cadastrada</td></tr>';
+                    document.getElementById('totalCelulasStats').textContent = '0';
+                    document.getElementById('totalMembrosCelulaStats').textContent = '0';
+                    document.getElementById('totalBatizadosCelulaStats').textContent = '0';
+                    return;
+                }
+
+                for (const celula of data) {
+                    totalMembros += celula.membros_ativos || 0;
+                    totalBatizados += celula.batizados || 0;
+                }
+
+                document.getElementById('totalCelulasStats').textContent = totalCelulas;
+                document.getElementById('totalMembrosCelulaStats').textContent = totalMembros;
+                document.getElementById('totalBatizadosCelulaStats').textContent = totalBatizados;
+
+                tbody.innerHTML = data.map(c => `
+                    <tr>
+                        <td><strong>${c.nome}</strong></td>
+                        <td>${c.lider_nome || 'Sem líder'}</td>
+                        <td>${c.membros_ativos || 0}</td>
+                        <td>${c.batizados || 0}</td>
+                        <td>${c.decisoes || 0}</td>
+                        <td>
+                            <button onclick="verCelula(${c.id})" class="btn btn-primary btn-xs" title="Ver detalhes"><i class="fas fa-eye"></i></button>
+                            <button onclick="openAddMembroCelula(${c.id})" class="btn btn-success btn-xs" title="Adicionar membro"><i class="fas fa-user-plus"></i></button>
+                            <button onclick="openDecisaoCelula(${c.id})" class="btn btn-warning btn-xs" title="Registrar decisão"><i class="fas fa-cross"></i></button>
+                            <button onclick="deleteCelula(${c.id})" class="btn btn-danger btn-xs" title="Remover"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error('Erro:', e);
+                showNotification('❌ Erro ao carregar células', 'error');
+            }
+        }
+
+        async function openCelulaModal() {
+            document.getElementById('celulaNome').value = '';
+            document.getElementById('celulaEndereco').value = '';
+            document.getElementById('celulaDias').value = '';
+            document.getElementById('celulaHorario').value = '';
+            document.getElementById('celulaDescricao').value = '';
+
+            try {
+                const users = await fetch('/api/users', { headers: getHeaders() }).then(r => r.json());
+                const select = document.getElementById('celulaLider');
+                select.innerHTML = '<option value="">Selecione um líder</option>';
+                users.filter(u => u.role === 'lider' || u.is_leader).forEach(u => {
+                    select.innerHTML += `<option value="${u.id}">${u.name} (${u.role})</option>`;
+                });
+            } catch (e) { console.error(e); }
+
+            celulaAtual = null;
+            openModal('celulaModal');
+        }
+
+        async function saveCelula() {
+            const nome = document.getElementById('celulaNome').value.trim();
+            const lider_id = document.getElementById('celulaLider').value || null;
+            const endereco = document.getElementById('celulaEndereco').value.trim();
+            const dias_reuniao = document.getElementById('celulaDias').value.trim();
+            const horario = document.getElementById('celulaHorario').value.trim();
+            const descricao = document.getElementById('celulaDescricao').value.trim();
+
+            if (!nome) {
+                showNotification('Digite o nome da célula!', 'error');
+                return;
+            }
+
+            try {
+                const method = celulaAtual ? 'PUT' : 'POST';
+                const url = celulaAtual ? `/api/celulas/${celulaAtual}` : '/api/celulas';
+
+                await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    body: JSON.stringify({ nome, lider_id, endereco, dias_reuniao, horario, descricao })
+                });
+
+                closeModal('celulaModal');
+                loadCelulas();
+                showNotification('✅ Célula salva com sucesso!', 'success');
+            } catch (e) {
+                showNotification('❌ ' + e.message, 'error');
+            }
+        }
+
+        async function deleteCelula(id) {
+            if (!confirm('Remover esta célula?')) return;
+            try {
+                await fetch(`/api/celulas/${id}`, { method: 'DELETE', headers: getHeaders() });
+                loadCelulas();
+                showNotification('✅ Célula removida!', 'success');
+            } catch (e) {
+                showNotification('❌ ' + e.message, 'error');
+            }
+        }
+
+        async function verCelula(id) {
+            try {
+                const res = await fetch(`/api/celulas/${id}`, { headers: getHeaders() });
+                const data = await res.json();
+
+                let msg = `🏠 ${data.nome}\n`;
+                msg += `👤 Líder: ${data.lider_nome || 'Sem líder'}\n`;
+                msg += `📍 ${data.endereco || 'Endereço não informado'}\n`;
+                msg += `📅 ${data.dias_reuniao || 'Dias não informados'}\n`;
+                msg += `🕐 ${data.horario || 'Horário não informado'}\n`;
+                msg += `\n📊 Estatísticas:\n`;
+                msg += `👥 Membros: ${data.membros?.length || 0}\n`;
+                msg += `✝️ Batizados: ${data.decisoes?.filter(d => d.tipo === 'batismo').length || 0}\n`;
+                msg += `🙏 Aceitaram Jesus: ${data.decisoes?.filter(d => d.tipo === 'decisao').length || 0}\n`;
+
+                if (data.membros?.length) {
+                    msg += `\n👥 Membros da Célula:\n`;
+                    data.membros.forEach(m => {
+                        msg += `   - ${m.name} (desde ${new Date(m.data_entrada).toLocaleDateString('pt-BR')})\n`;
+                    });
+                }
+
+                alert(msg);
+            } catch (e) {
+                showNotification('❌ Erro ao buscar célula', 'error');
+            }
+        }
+
+        async function openAddMembroCelula(celulaId) {
+            celulaAddMembroId = celulaId;
+            try {
+                const members = await fetch('/api/members', { headers: getHeaders() }).then(r => r.json());
+                const select = document.getElementById('addMembroSelect');
+                select.innerHTML = '<option value="">Selecione um membro</option>';
+                members.forEach(m => {
+                    select.innerHTML += `<option value="${m.id}">${m.name} ${m.phone ? '- ' + m.phone : ''}</option>`;
+                });
+                openModal('addMembroCelulaModal');
+            } catch (e) {
+                showNotification('❌ ' + e.message, 'error');
+            }
+        }
+
+        async function addMembroCelula() {
+            const membro_id = document.getElementById('addMembroSelect').value;
+            if (!membro_id) {
+                showNotification('Selecione um membro!', 'error');
+                return;
+            }
+
+            try {
+                await fetch(`/api/celulas/${celulaAddMembroId}/membros`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    body: JSON.stringify({ membro_id })
+                });
+                closeModal('addMembroCelulaModal');
+                loadCelulas();
+                showNotification('✅ Membro adicionado à célula!', 'success');
+            } catch (e) {
+                showNotification('❌ ' + e.message, 'error');
+            }
+        }
+
+        async function openDecisaoCelula(celulaId) {
+            celulaDecisaoId = celulaId;
+            try {
+                const members = await fetch('/api/members', { headers: getHeaders() }).then(r => r.json());
+                const select = document.getElementById('decisaoMembro');
+                select.innerHTML = '<option value="">Selecione um membro</option>';
+                members.forEach(m => {
+                    select.innerHTML += `<option value="${m.id}">${m.name}</option>`;
+                });
+                document.getElementById('decisaoTipo').value = 'batismo';
+                document.getElementById('decisaoObs').value = '';
+                openModal('decisaoCelulaModal');
+            } catch (e) {
+                showNotification('❌ ' + e.message, 'error');
+            }
+        }
+
+        async function saveDecisaoCelula() {
+            const tipo = document.getElementById('decisaoTipo').value;
+            const membro_id = document.getElementById('decisaoMembro').value || null;
+            const observacao = document.getElementById('decisaoObs').value.trim();
+
+            try {
+                await fetch(`/api/celulas/${celulaDecisaoId}/decisoes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    body: JSON.stringify({ tipo, membro_id, observacao })
+                });
+                closeModal('decisaoCelulaModal');
+                loadCelulas();
+                showNotification('✅ Decisão registrada!', 'success');
+            } catch (e) {
+                showNotification('❌ ' + e.message, 'error');
+            }
+        }
+
+        // ============================================
+        // ===== ANIVERSARIANTES =====
+        // ============================================
+        async function loadBirthdaysAdmin() {
+            try {
+                const res = await fetch('/api/birthdays', { headers: getHeaders() });
+                const data = await res.json();
+                const tbody = document.getElementById('birthdaysList');
+                if (!data?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+                const today = new Date();
+                tbody.innerHTML = data.map(b => {
+                    const birth = new Date(b.birth_date);
+                    let idade = today.getFullYear() - birth.getFullYear();
+                    if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) idade--;
+                    const isToday = birth.getMonth() === today.getMonth() && birth.getDate() === today.getDate();
+                    return `<tr class="${isToday ? 'birthday-today' : ''}">
+                        <td>${b.name} ${isToday ? '🎉' : ''}</td>
+                        <td>${birth.toLocaleDateString('pt-BR')}</td>
+                        <td>${idade} anos</td>
+                    </tr>`;
+                }).join('');
+            } catch (e) { console.error('Erro:', e); }
+        }
+
+        // ============================================
+        // ===== REFLEXÕES =====
+        // ============================================
+        async function loadReflectionsAdmin() {
+            try {
+                const res = await fetch('/api/pastor-reflections', { headers: getHeaders() });
+                const data = await res.json();
+                const tbody = document.getElementById('reflectionsList');
+                if (!data?.length) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma reflexão cadastrada</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = data.map(r => `
+                    <tr>
+                        <td>${r.title}</td>
+                        <td>${r.description || '-'}</td>
+                        <td><a href="${r.link}" target="_blank" style="color:var(--primary);font-size:0.6rem;">${r.link.substring(0, 30)}...</a></td>
+                        <td>
+                            <button onclick="deleteReflection(${r.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error('Erro ao carregar reflexões:', e);
+                document.getElementById('reflectionsList').innerHTML = '<tr><td colspan="4" class="text-center" style="color:#dc3545;">Erro ao carregar</td></tr>';
+            }
+        }
+
+        function openReflectionModal() {
+            document.getElementById('reflectionTitle').value = '';
+            document.getElementById('reflectionDesc').value = '';
+            document.getElementById('reflectionLink').value = '';
+            openModal('reflectionModal');
+        }
+
+        async function saveReflection() {
+            const title = document.getElementById('reflectionTitle').value.trim();
+            const description = document.getElementById('reflectionDesc').value.trim();
+            const link = document.getElementById('reflectionLink').value.trim();
+
+            if (!title || !link) {
+                showNotification('Título e Link são obrigatórios!', 'error');
+                return;
+            }
+
+            const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/;
+            if (!youtubeRegex.test(link)) {
+                showNotification('Link inválido! Use um link do YouTube.', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/pastor-reflections', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    body: JSON.stringify({ title, description, link })
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error || 'Erro ao salvar');
+                }
+                closeModal('reflectionModal');
+                loadReflectionsAdmin();
+                showNotification('✅ Reflexão salva com sucesso!', 'success');
+            } catch (e) {
+                showNotification('❌ ' + e.message, 'error');
+            }
+        }
+
+        async function deleteReflection(id) {
+            if (!confirm('Remover esta reflexão?')) return;
+            try {
+                await fetch(`/api/pastor-reflections/${id}`, { method: 'DELETE', headers: getHeaders() });
+                loadReflectionsAdmin();
+                showNotification('✅ Reflexão removida!', 'success');
+            } catch (e) {
+                showNotification('❌ ' + e.message, 'error');
+            }
+        }
+
+        // ============================================
+        // ===== AÇÕES GERAIS =====
+        // ============================================
+        async function markPrayerRead(id) {
+            try {
+                await fetch('/api/prayers/' + id + '/read', { method: 'PUT', headers: getHeaders() });
+                await loadDashboard();
+                showNotification('✅ Oração marcada como lida!', 'success');
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+        }
+
+        async function deleteUser(id) {
+            if (!confirm('Remover este usuário?')) return;
+            try {
+                await fetch('/api/users/' + id, { method: 'DELETE', headers: getHeaders() });
+                await loadDashboard();
+                showNotification('✅ Usuário removido!', 'success');
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+        }
+
+        async function resetPassword(email) {
+            if (!confirm('Resetar senha para 123456?')) return;
+            try {
+                await fetch('/api/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    body: JSON.stringify({ email })
+                });
+                showNotification('✅ Senha resetada para 123456!', 'success');
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+        }
+
+        // ============================================
+        // ===== USUÁRIOS =====
+        // ============================================
+        async function openUserModal() {
+            document.getElementById('userName').value = '';
+            document.getElementById('userEmail').value = '';
+            document.getElementById('userPassword').value = '';
+            document.getElementById('userRole').value = 'fiel';
+            try {
+                const res = await fetch('/api/departments', { headers: getHeaders() });
+                const depts = await res.json();
+                const select = document.getElementById('userDepartmentSelect');
+                select.innerHTML = '<option value="">Nenhum</option>';
+                depts.forEach(d => { select.innerHTML += `<option value="${d.id}">${d.name}</option>`; });
+            } catch (e) { console.error(e); }
+            openModal('userModal');
+        }
+
+        async function saveUser() {
+            const name = document.getElementById('userName').value.trim();
+            const email = document.getElementById('userEmail').value.trim().toLowerCase();
+            const password = document.getElementById('userPassword').value;
+            const role = document.getElementById('userRole').value;
+            const dept = document.getElementById('userDepartmentSelect').value;
+            if (!name || !email || !password || password.length < 6) {
+                showNotification('Preencha todos os campos!', 'error');
+                return;
+            }
+            const btn = document.querySelector('#userModal .btn-primary');
+            if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; }
+            try {
+                const res = await fetch('/api/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    body: JSON.stringify({ name, email, password, role, department_id: dept || null })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Erro ao criar');
+                closeModal('userModal');
+                showNotification('✅ Usuário criado com sucesso!', 'success');
+                await loadDashboard();
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); } finally {
+                if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Salvar'; }
+            }
+        }
+
+        // ============================================
+        // ===== CONFIG =====
+        // ============================================
+        let cultosList = [];
+
+        async function loadConfig() {
+            try {
+                const res = await fetch('/api/settings');
+                const data = await res.json();
+                if (data.primary_color) document.getElementById('configPrimary').value = data.primary_color;
+                if (data.site_title) document.getElementById('configTitle').value = data.site_title;
+                if (data.whatsapp) document.getElementById('configWhatsapp').value = data.whatsapp;
+                await loadCultos();
+            } catch (e) { console.error('Erro:', e); }
+        }
+
+        async function loadCultos() {
+            try {
+                const res = await fetch('/api/settings');
+                const settings = await res.json();
+                if (settings.cultos) {
+                    try {
+                        cultosList = JSON.parse(settings.cultos);
+                    } catch {
+                        cultosList = [
+                            { dia: 0, hora: 18, minuto: 0, label: 'Domingo 18:00' },
+                            { dia: 3, hora: 20, minuto: 0, label: 'Quarta 20:00' },
+                            { dia: 2, hora: 9, minuto: 0, label: 'Terça 09:00' }
+                        ];
+                    }
+                } else {
+                    cultosList = [
+                        { dia: 0, hora: 18, minuto: 0, label: 'Domingo 18:00' },
+                        { dia: 3, hora: 20, minuto: 0, label: 'Quarta 20:00' },
+                        { dia: 2, hora: 9, minuto: 0, label: 'Terça 09:00' }
+                    ];
+                }
+                renderCultos();
+            } catch (e) { console.error('Erro ao carregar cultos:', e); }
+        }
+
+        function renderCultos() {
+            const container = document.getElementById('cultosList');
+            const dias = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+            container.innerHTML = cultosList.map((c, i) => `
+                <span style="background:var(--secondary);padding:0.1rem 0.6rem;border-radius:var(--radius-full);font-size:0.6rem;display:inline-flex;align-items:center;gap:0.3rem;">
+                    ${dias[c.dia]} ${String(c.hora).padStart(2,'0')}:${String(c.minuto).padStart(2,'0')}
+                    <button onclick="removeCulto(${i})" class="btn btn-danger btn-xs" style="font-size:0.4rem;padding:0.05rem 0.25rem;"><i class="fas fa-times"></i></button>
+                </span>
+            `).join('');
+        }
+
+        function addCulto() {
+            const dia = parseInt(document.getElementById('cultoDia').value);
+            const hora = parseInt(document.getElementById('cultoHora').value) || 0;
+            const minuto = parseInt(document.getElementById('cultoMinuto').value) || 0;
+
+            if (hora < 0 || hora > 23) {
+                showNotification('Hora inválida (0-23)', 'error');
+                return;
+            }
+            if (minuto < 0 || minuto > 59) {
+                showNotification('Minuto inválido (0-59)', 'error');
+                return;
+            }
+
+            const dias = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+            const label = `${dias[dia]} ${String(hora).padStart(2,'0')}:${String(minuto).padStart(2,'0')}`;
+
+            cultosList.push({ dia, hora, minuto, label });
+            renderCultos();
+            showNotification('✅ Horário adicionado', 'success');
+        }
+
+        function removeCulto(index) {
+            cultosList.splice(index, 1);
+            renderCultos();
+        }
+
+        async function saveCultos() {
+            try {
+                const res = await fetch('/api/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    body: JSON.stringify({ key: 'cultos', value: JSON.stringify(cultosList) })
+                });
+                if (!res.ok) throw new Error('Erro ao salvar');
+                showNotification('✅ Horários salvos com sucesso!', 'success');
+            } catch (e) {
+                showNotification('❌ ' + e.message, 'error');
+            }
+        }
+
+        async function saveConfig(key, value) {
+            try {
+                await fetch('/api/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    body: JSON.stringify({ key, value })
+                });
+                if (key === 'primary_color') document.documentElement.style.setProperty('--primary', value);
+                showNotification('✅ Configuração salva!', 'success');
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+        }
+
+        // ============================================
+        // ===== SOBRE NÓS =====
+        // ============================================
+        async function loadAbout() {
+            try {
+                const res = await fetch('/api/settings');
+                const data = await res.json();
+                if (data.about_mission) document.getElementById('aboutMission').value = data.about_mission;
+                if (data.about_vision) document.getElementById('aboutVision').value = data.about_vision;
+                if (data.about_values) document.getElementById('aboutValues').value = data.about_values;
+            } catch (e) { console.error('Erro:', e); }
+        }
+
+        async function saveAbout() {
+            const mission = document.getElementById('aboutMission').value.trim();
+            const vision = document.getElementById('aboutVision').value.trim();
+            const values = document.getElementById('aboutValues').value.trim();
+
+            try {
+                showNotification('🔄 Salvando...', 'info');
+                await Promise.all([
+                    fetch('/api/settings', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                        body: JSON.stringify({ key: 'about_mission', value: mission })
+                    }),
+                    fetch('/api/settings', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                        body: JSON.stringify({ key: 'about_vision', value: vision })
+                    }),
+                    fetch('/api/settings', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                        body: JSON.stringify({ key: 'about_values', value: values })
+                    })
+                ]);
+                showNotification('✅ Sobre Nós atualizado com sucesso!', 'success');
+            } catch (e) {
+                showNotification('❌ Erro ao salvar: ' + e.message, 'error');
+            }
+        }
+
+        // ============================================
+        // ===== UPLOAD FORMS =====
+        // ============================================
+        function openEventModal() { openModal('eventModal'); }
+        function openProductModal() { openModal('productModal'); }
+        function openCarouselModal() { openModal('carouselModal'); }
+        function openStudyModal() { openModal('studyModal'); }
+
+        // FILE INPUT HANDLERS
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('studyImage')?.addEventListener('change', function() {
+                const name = this.files[0] ? this.files[0].name : '';
+                document.getElementById('studyImageName').textContent = name;
+                if (name) {
+                    document.getElementById('studyImageLabel').querySelector('span').textContent = 'Arquivo selecionado:';
+                } else {
+                    document.getElementById('studyImageLabel').querySelector('span').textContent = 'Clique para selecionar uma imagem';
+                }
+            });
+
+            document.getElementById('studyPdf')?.addEventListener('change', function() {
+                const name = this.files[0] ? this.files[0].name : '';
+                document.getElementById('studyPdfName').textContent = name;
+                if (name) {
+                    document.getElementById('studyPdfLabel').querySelector('span').textContent = 'Arquivo selecionado:';
+                } else {
+                    document.getElementById('studyPdfLabel').querySelector('span').textContent = 'Clique para selecionar um PDF';
+                }
+            });
+        });
+
+        // ============================================
+        // ===== LIVE =====
+        // ============================================
+        let localStream = null;
+        let isLiveActive = false;
+        let liveId = null;
+        let liveInterval = null;
+        let currentCamera = 'user';
+        let liveStatusInterval = null;
+
+        async function checkLiveStatus() {
+            try {
+                const res = await fetch('/api/lives/active');
+                const data = await res.json();
+
+                if (data.status === 'live') {
+                    isLiveActive = true;
+                    liveId = data.id;
+
+                    const indicator = document.getElementById('liveIndicator');
+                    if (indicator) {
+                        indicator.className = 'live-indicator live';
+                        indicator.innerHTML = '<i class="fas fa-circle"></i> AO VIVO';
+                    }
+
+                    const info = document.getElementById('liveInfo');
+                    if (info) {
+                        info.textContent = `📺 ${data.titulo || 'Live'} - Iniciada por ${data.iniciada_por_nome || 'Pastor'}`;
+                    }
+
+                    const startBtn = document.getElementById('startLiveBtn');
+                    const stopBtn = document.getElementById('stopLiveBtn');
+                    if (startBtn) startBtn.style.display = 'none';
+                    if (stopBtn) stopBtn.style.display = 'inline-flex';
+
+                    const viewers = document.getElementById('liveViewers');
+                    if (viewers) {
+                        viewers.innerHTML = `<i class="fas fa-eye"></i> ${data.viewers || 0} espectadores`;
+                    }
+
+                    if (liveInterval) clearInterval(liveInterval);
+                    liveInterval = setInterval(updateViewers, 10000);
+
+                } else {
+                    isLiveActive = false;
+                    liveId = null;
+
+                    const indicator = document.getElementById('liveIndicator');
+                    if (indicator) {
+                        indicator.className = 'live-indicator';
+                        indicator.innerHTML = '<i class="fas fa-circle"></i> OFFLINE';
+                    }
+
+                    const info = document.getElementById('liveInfo');
+                    if (info) {
+                        info.textContent = 'Nenhuma live ativa no momento';
+                    }
+
+                    const startBtn = document.getElementById('startLiveBtn');
+                    const stopBtn = document.getElementById('stopLiveBtn');
+                    if (startBtn) startBtn.style.display = 'inline-flex';
+                    if (stopBtn) stopBtn.style.display = 'none';
+
+                    if (liveInterval) {
+                        clearInterval(liveInterval);
+                        liveInterval = null;
+                    }
+
+                    const video = document.getElementById('localVideo');
+                    if (video && video.srcObject) {
+                        video.srcObject.getTracks().forEach(track => track.stop());
+                        video.srcObject = null;
+                        video.style.display = 'none';
+                        const placeholder = document.getElementById('placeholderMessage');
+                        if (placeholder) placeholder.style.display = 'flex';
+                    }
+                }
+            } catch (e) {
+                console.error('Erro ao verificar live:', e);
+            }
+        }
+
+        async function updateViewers() {
+            if (!liveId) return;
+            try {
+                const res = await fetch(`/api/lives/${liveId}/viewer`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ viewer_id: 'admin_' + Date.now() })
+                });
+                const data = await res.json();
+                const viewers = document.getElementById('liveViewers');
+                if (viewers) {
+                    viewers.innerHTML = `<i class="fas fa-eye"></i> ${data.viewers || 0} espectadores`;
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function startMediaCapture(deviceId = null) {
+            try {
+                if (localStream) {
+                    localStream.getTracks().forEach(track => track.stop());
+                    localStream = null;
+                }
+
+                const constraints = {
+                    video: { facingMode: currentCamera, width: { ideal: 1280 }, height: { ideal: 720 } },
+                    audio: true
+                };
+
+                if (deviceId) {
+                    constraints.video = { deviceId: { exact: deviceId } };
+                }
+
+                localStream = await navigator.mediaDevices.getUserMedia(constraints);
+                const video = document.getElementById('localVideo');
+                if (video) {
+                    video.srcObject = localStream;
+                    video.style.display = 'block';
+                }
+                const placeholder = document.getElementById('placeholderMessage');
+                if (placeholder) placeholder.style.display = 'none';
+
+                return localStream;
+            } catch (e) {
+                console.error('Erro ao acessar câmera:', e);
+                throw new Error('Não foi possível acessar a câmera/microfone. Verifique as permissões.');
+            }
+        }
+
+        async function startLive() {
+            const titulo = document.getElementById('liveTitle').value.trim() || 'Live NJ Cabuçu';
+            const descricao = document.getElementById('liveDesc').value.trim() || '';
+
+            try {
+                await startMediaCapture();
+
+                const res = await fetch('/api/lives/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    body: JSON.stringify({ titulo, descricao })
+                });
+
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+
+                liveId = data.id;
+                isLiveActive = true;
+
+                const indicator = document.getElementById('liveIndicator');
+                if (indicator) {
+                    indicator.className = 'live-indicator live';
+                    indicator.innerHTML = '<i class="fas fa-circle"></i> AO VIVO';
+                }
+
+                const info = document.getElementById('liveInfo');
+                if (info) {
+                    info.textContent = `📺 ${titulo} - Ao vivo!`;
+                }
+
+                const startBtn = document.getElementById('startLiveBtn');
+                const stopBtn = document.getElementById('stopLiveBtn');
+                if (startBtn) startBtn.style.display = 'none';
+                if (stopBtn) stopBtn.style.display = 'inline-flex';
+
+                const video = document.getElementById('localVideo');
+                if (video) {
+                    video.style.display = 'block';
+                }
+                const placeholder = document.getElementById('placeholderMessage');
+                if (placeholder) placeholder.style.display = 'none';
+
+                showNotification('✅ Live iniciada com sucesso!', 'success');
+
+                if (liveInterval) clearInterval(liveInterval);
+                liveInterval = setInterval(updateViewers, 10000);
+
+                loadLiveHistory();
+
+            } catch (e) {
+                console.error('Erro:', e);
+                showNotification('❌ ' + e.message, 'error');
+            }
+        }
+
+        async function stopLive() {
+            try {
+                const res = await fetch('/api/lives/active');
+                const data = await res.json();
+
+                if (data.status !== 'live') {
+                    showNotification('⚠️ Nenhuma live ativa para encerrar.', 'error');
+                    return;
+                }
+
+                const liveIdToStop = data.id;
+                const liveTitle = data.titulo || 'Live';
+
+                if (!confirm(`Deseja encerrar a transmissão "${liveTitle}"?`)) {
+                    return;
+                }
+
+                showNotification('🔄 Encerrando live...', 'info');
+
+                const response = await fetch(`/api/lives/end/${liveIdToStop}`, {
+                    method: 'POST',
+                    headers: getHeaders()
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || 'Erro ao encerrar live');
+                }
+
+                isLiveActive = false;
+                liveId = null;
+
+                const indicator = document.getElementById('liveIndicator');
+                if (indicator) {
+                    indicator.className = 'live-indicator';
+                    indicator.innerHTML = '<i class="fas fa-circle"></i> OFFLINE';
+                }
+
+                const info = document.getElementById('liveInfo');
+                if (info) {
+                    info.textContent = 'Live encerrada com sucesso!';
+                }
+
+                const startBtn = document.getElementById('startLiveBtn');
+                const stopBtn = document.getElementById('stopLiveBtn');
+                if (startBtn) startBtn.style.display = 'inline-flex';
+                if (stopBtn) stopBtn.style.display = 'none';
+
+                const video = document.getElementById('localVideo');
+                if (video) {
+                    video.style.display = 'none';
+                    if (video.srcObject) {
+                        video.srcObject.getTracks().forEach(track => track.stop());
+                        video.srcObject = null;
+                    }
+                }
+                const placeholder = document.getElementById('placeholderMessage');
+                if (placeholder) placeholder.style.display = 'flex';
+
+                if (liveInterval) {
+                    clearInterval(liveInterval);
+                    liveInterval = null;
+                }
+
+                showNotification('✅ Live encerrada com sucesso!', 'success');
+
+                loadLiveHistory();
+
+            } catch (error) {
+                console.error('❌ Erro ao encerrar live:', error);
+                showNotification('❌ Erro ao encerrar live: ' + error.message, 'error');
+            }
+        }
+
+        async function switchCamera() {
+            if (!localStream) {
+                showNotification('Inicie a live primeiro!', 'error');
+                return;
+            }
+
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(d => d.kind === 'videoinput');
+
+                if (videoDevices.length < 2) {
+                    showNotification('⚠️ Apenas uma câmera disponível', 'info');
+                    return;
+                }
+
+                const currentDeviceId = localStream.getVideoTracks()[0]?.getSettings().deviceId;
+                let nextDevice = videoDevices.find(d => d.deviceId !== currentDeviceId);
+
+                if (!nextDevice) {
+                    nextDevice = videoDevices[0];
+                }
+
+                await startMediaCapture(nextDevice.deviceId);
+                showNotification(`📷 Trocou para: ${nextDevice.label || 'Câmera'}`, 'success');
+                currentCamera = nextDevice.deviceId;
+
+            } catch (e) {
+                showNotification('❌ Erro ao trocar câmera: ' + e.message, 'error');
+            }
+        }
+
+        function toggleCamera() {
+            if (!localStream) {
+                showNotification('Inicie a live primeiro!', 'error');
+                return;
+            }
+            const videoTrack = localStream.getVideoTracks()[0];
+            if (videoTrack) {
+                videoTrack.enabled = !videoTrack.enabled;
+                showNotification(videoTrack.enabled ? '📷 Câmera ativada' : '📷 Câmera desativada', 'info');
+            }
+        }
+
+        async function toggleScreenShare() {
+            if (!localStream) {
+                showNotification('Inicie a live primeiro!', 'error');
+                return;
+            }
+
+            try {
+                const screenStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+                    audio: true
+                });
+
+                const videoTrack = screenStream.getVideoTracks()[0];
+                const oldVideoTrack = localStream.getVideoTracks()[0];
+
+                if (oldVideoTrack) {
+                    localStream.removeTrack(oldVideoTrack);
+                    oldVideoTrack.stop();
+                }
+
+                localStream.addTrack(videoTrack);
+                const video = document.getElementById('localVideo');
+                if (video) {
+                    video.srcObject = localStream;
+                }
+
+                videoTrack.onended = () => {
+                    startMediaCapture(currentCamera);
+                };
+
+                showNotification('📺 Compartilhando tela!', 'success');
+            } catch (e) {
+                if (e.name !== 'AbortError') {
+                    showNotification('❌ Erro ao compartilhar tela: ' + e.message, 'error');
                 }
             }
         }
-        res.json({ received: true });
-    } catch (error) {
-        console.error('❌ Erro webhook:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
 
-app.get('/api/check-payment/:paymentId', async (req, res) => {
-    try {
-        const { paymentId } = req.params;
-        if (!PaymentService) {
-            return res.status(500).json({ error: 'Mercado Pago não configurado' });
-        }
-        const payment = await PaymentService.get({ id: paymentId });
-        if (payment.status === 'approved') {
-            const orders = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
-            const donations = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
-            const item = orders[0] || donations[0];
-            if (item) {
-                await enviarEmailConfirmacao({
-                    email: item.user_email || 'cliente@email.com',
-                    nome: item.user_name || 'Cliente',
-                    tipo: item.type || 'pagamento',
-                    valor: item.amount || item.total || 0,
-                    data: new Date(),
-                    status: 'approved',
-                    paymentId: paymentId,
-                    detalhes: 'Pagamento confirmado'
-                });
+        async function loadLiveHistory() {
+            try {
+                const res = await fetch('/api/lives/history', { headers: getHeaders() });
+                const data = await res.json();
+                const tbody = document.getElementById('liveHistoryList');
+
+                if (!data?.length) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhuma transmissão realizada</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.slice(0, 20).map(l => {
+                    const duracao = l.started_at && l.ended_at ?
+                        Math.floor((new Date(l.ended_at) - new Date(l.started_at)) / 60000) + 'min' :
+                        l.status === 'live' ? 'Em andamento' : 'Interrompida';
+                    return `
+                        <tr>
+                            <td>${l.titulo || 'Live'}</td>
+                            <td>${l.iniciada_por_nome || 'Pastor'}</td>
+                            <td>${l.started_at ? new Date(l.started_at).toLocaleDateString('pt-BR') + ' ' + new Date(l.started_at).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}) : '-'}</td>
+                            <td>${duracao}</td>
+                            <td>${l.viewers || 0}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error('Erro ao carregar histórico:', e);
+                document.getElementById('liveHistoryList').innerHTML = '<tr><td colspan="5" class="text-center" style="color:#dc3545;">Erro ao carregar histórico</td></tr>';
             }
         }
-        res.json({
-            id: payment.id,
-            status: payment.status,
-            status_detail: payment.status_detail
+
+        function startLiveStatusChecker() {
+            if (liveStatusInterval) clearInterval(liveStatusInterval);
+            liveStatusInterval = setInterval(checkLiveStatus, 5000);
+        }
+
+        // ============================================
+        // ===== INICIALIZAÇÃO =====
+        // ============================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadDashboard();
+            await loadConfig();
+            setDefaultAttendanceDate();
+            await loadAbout();
+            checkLiveStatus();
+            startLiveStatusChecker();
         });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
 
-app.post('/api/update-payment-status', async (req, res) => {
-    try {
-        const { payment_id, status } = req.body;
-        await sql`
-            UPDATE orders SET status = ${status} WHERE payment_id = ${payment_id}
-        `;
-        await sql`
-            UPDATE donations SET status = ${status} WHERE payment_id = ${payment_id}
-        `;
-        if (status === 'approved') {
-            const orders = await sql`SELECT * FROM orders WHERE payment_id = ${payment_id}`;
-            const donations = await sql`SELECT * FROM donations WHERE payment_id = ${payment_id}`;
-            const item = orders[0] || donations[0];
-            if (item) {
-                await enviarEmailConfirmacao({
-                    email: item.user_email || 'cliente@email.com',
-                    nome: item.user_name || 'Cliente',
-                    tipo: item.type || 'pagamento',
-                    valor: item.amount || item.total || 0,
-                    data: new Date(),
-                    status: 'approved',
-                    paymentId: payment_id,
-                    detalhes: 'Pagamento confirmado'
-                });
-            }
-        }
-        res.json({ message: 'Status atualizado' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE YOUTUBE E TRANSPOSIÇÃO =====
-// ============================================
-
-app.post('/api/youtube-song', auth, async (req, res) => {
-    try {
-        const { url } = req.body;
-        
-        const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/;
-        const match = url.match(youtubeRegex);
-        
-        if (!match) {
-            return res.status(400).json({ error: 'Link do YouTube inválido' });
-        }
-        
-        const videoId = match[1];
-        
-        res.json({
-            video_id: videoId,
-            embed_url: `https://www.youtube.com/embed/${videoId}`,
-            watch_url: `https://www.youtube.com/watch?v=${videoId}`
-        });
-    } catch (error) {
-        console.error('❌ Erro ao buscar música do YouTube:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/transpose-chord', auth, async (req, res) => {
-    try {
-        const { lyrics, fromKey, toKey } = req.body;
-        
-        if (!lyrics || !fromKey || !toKey) {
-            return res.status(400).json({ error: 'Dados incompletos para transposição' });
-        }
-        
-        const transposed = transposeChords(lyrics, fromKey, toKey);
-        res.json({ transposed });
-    } catch (error) {
-        console.error('❌ Erro na transposição:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-function transposeChords(lyrics, fromKey, toKey) {
-    const chordMap = {
-        'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3,
-        'E': 4, 'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8,
-        'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11
-    };
-    
-    const chordNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    
-    const from = chordMap[fromKey];
-    const to = chordMap[toKey];
-    
-    if (from === undefined || to === undefined) {
-        return lyrics;
-    }
-    
-    const diff = (to - from + 12) % 12;
-    
-    const chordRegex = /([A-G][#b]?)(maj|m|min|dim|aug|sus|add|\d|\(|\)|)?/g;
-    
-    return lyrics.replace(chordRegex, (match, chord, suffix) => {
-        const baseIndex = chordMap[chord];
-        if (baseIndex === undefined) return match;
-        
-        const newIndex = (baseIndex + diff) % 12;
-        const newChord = chordNames[newIndex];
-        
-        return newChord + (suffix || '');
-    });
-}
-
-// ============================================
-// ===== PDF DE INSCRIÇÃO =====
-// ============================================
-
-app.get('/api/registration-pdf/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const reg = await sql`SELECT * FROM registrations WHERE id = ${id}`;
-        if (reg.length === 0) return res.status(404).json({ error: 'Não encontrado' });
-        
-        const html = `
-        <!DOCTYPE html>
-        <html>
-        <head><meta charset="UTF-8"><title>Comprovante</title></head>
-        <body style="font-family:Arial;max-width:600px;margin:2rem auto;padding:2rem;">
-            <h1 style="color:#0D47A1;">🙏 NJ Cabuçu</h1>
-            <h2>Comprovante de Inscrição</h2>
-            <p><strong>Protocolo:</strong> #${String(reg[0].id).padStart(6, '0')}</p>
-            <p><strong>Nome:</strong> ${reg[0].name}</p>
-            <p><strong>Email:</strong> ${reg[0].email || '-'}</p>
-            <p><strong>Telefone:</strong> ${reg[0].phone || '-'}</p>
-            ${reg[0].event_name ? `<p><strong>Evento:</strong> ${reg[0].event_name}</p>` : ''}
-            ${reg[0].department_name ? `<p><strong>Departamento:</strong> ${reg[0].department_name}</p>` : ''}
-            <p><strong>Status:</strong> ${reg[0].status === 'approved' ? '✅ Confirmado' : '⏳ Pendente'}</p>
-            <hr>
-            <p style="color:#888;font-size:0.8rem;">NJ Cabuçu - João 8:32</p>
-        </body>
-        </html>
-        `;
-        res.setHeader('Content-Type', 'text/html');
-        res.send(html);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== SERVE HTML =====
-// ============================================
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-
-app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-});
-
-app.get('/departamento', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'departamento.html'));
-});
-
-app.get('/secretaria', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'secretaria.html'));
-});
-
-// ============================================
-// ===== INICIAR =====
-// ============================================
-
-app.listen(PORT, () => {
-    console.log('');
-    console.log('🔥 NJ Cabuçu rodando na porta ' + PORT);
-    console.log('🌐 ' + BASE_URL);
-    console.log('');
-    console.log('📋 Credenciais: pastor@njcabucu.com / admin123');
-    console.log('');
-    console.log('💰 Mercado Pago: ' + (process.env.MP_ACCESS_TOKEN ? '✅ Configurado' : '⚠️ Não configurado'));
-    console.log('📧 Email: ' + (transporter ? '✅ Configurado' : '⚠️ Não configurado'));
-    console.log('📹 Sistema de Live: ✅ Configurado');
-    console.log('🎥 Reflexões do Pastor: ✅ Configurado');
-    console.log('⏰ Horários dos Cultos: ✅ Configurado via site_settings');
-    console.log('🎵 Módulo Louvor: ✅ Configurado');
-    console.log('🙏 Módulo Oração: ✅ Configurado');
-    console.log('📅 Módulo Secretaria: ✅ Configurado');
-    console.log('💰 Módulo Tesouraria: ✅ Configurado');
-    console.log('📋 Módulo de Disponibilidade: ✅ Configurado');
-    console.log('');
-});
+        // ============================================
+        // ===== EXPOSED FUNCTIONS =====
+        // ============================================
+        window.filterRegistrations = filterRegistrations;
+        window.approveRegistration = approveRegistration;
+        window.deleteRegistration = deleteRegistration;
+        window.showTab = showTab;
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+        window.logout = logout;
+        window.loadCelulas = loadCelulas;
+        window.openCelulaModal = openCelulaModal;
+        window.saveCelula = saveCelula;
+        window.verCelula = verCelula;
+        window.deleteCelula = deleteCelula;
+        window.openAddMembroCelula = openAddMembroCelula;
+        window.addMembroCelula = addMembroCelula;
+        window.openDecisaoCelula = openDecisaoCelula;
+        window.saveDecisaoCelula = saveDecisaoCelula;
+        window.markPrayerRead = markPrayerRead;
+        window.deleteUser = deleteUser;
+        window.resetPassword = resetPassword;
+        window.deleteStudy = deleteStudy;
+        window.deleteEvent = deleteEvent;
+        window.deleteProduct = deleteProduct;
+        window.deleteCarousel = deleteCarousel;
+        window.deleteDepartment = deleteDepartment;
+        window.openUserModal = openUserModal;
+        window.saveUser = saveUser;
+        window.openDeptModal = openDeptModal;
+        window.saveDepartment = saveDepartment;
+        window.openMemberModal = openMemberModal;
+        window.saveMember = saveMember;
+        window.viewMember = viewMember;
+        window.deleteMember = deleteMember;
+        window.loadAllMembersForAttendance = loadAllMembersForAttendance;
+        window.toggleSelectAll = toggleSelectAll;
+        window.clearSelection = clearSelection;
+        window.registerMultipleAttendance = registerMultipleAttendance;
+        window.registerAllAttendance = registerAllAttendance;
+        window.openTitheModal = openTitheModal;
+        window.saveTithe = saveTithe;
+        window.openBillModal = openBillModal;
+        window.saveBill = saveBill;
+        window.payBill = payBill;
+        window.deleteBill = deleteBill;
+        window.loadConfig = loadConfig;
+        window.saveConfig = saveConfig;
+        window.saveAbout = saveAbout;
+        window.openStudyModal = openStudyModal;
+        window.submitStudy = submitStudy;
+        window.openEventModal = openEventModal;
+        window.openProductModal = openProductModal;
+        window.openCarouselModal = openCarouselModal;
+        window.startLive = startLive;
+        window.stopLive = stopLive;
+        window.toggleCamera = toggleCamera;
+        window.switchCamera = switchCamera;
+        window.toggleScreenShare = toggleScreenShare;
+        window.checkLiveStatus = checkLiveStatus;
+        window.loadLiveHistory = loadLiveHistory;
+        window.loadReflectionsAdmin = loadReflectionsAdmin;
+        window.openReflectionModal = openReflectionModal;
+        window.saveReflection = saveReflection;
+        window.deleteReflection = deleteReflection;
+        window.addCulto = addCulto;
+        window.removeCulto = removeCulto;
+        window.saveCultos = saveCultos;
+        window.loadCultos = loadCultos;
+        window.loadEvents = loadEvents;
+        window.loadProducts = loadProducts;
+        window.loadDashboard = loadDashboard;
+    </script>
+</body>
+</html>

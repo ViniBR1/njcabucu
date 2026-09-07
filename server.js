@@ -198,9 +198,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const BASE_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
 
-// ===== MIDDLEWARES =====
+// ===== MIDDLEWARES - CORRIGIDO =====
 app.use(cors({
-    origin: ['https://igrejanjcabucurj.vercel.app', 'http://localhost:3000', 'http://localhost:3001', '*'],
+    origin: ['https://igrejanjcabucurj.vercel.app', 'http://localhost:3000', 'http://localhost:3001'],
     credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -209,6 +209,34 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Servir arquivos estáticos da pasta public
 app.use(express.static('public'));
 app.use('/uploads', express.static('public/uploads'));
+
+// ============================================
+// ===== MULTER - CORRIGIDO =====
+// ============================================
+const storage = multer.memoryStorage();
+
+const upload = multer({
+    storage: storage,
+    limits: { 
+        fileSize: 10 * 1024 * 1024
+    },
+    fileFilter: function (req, file, cb) {
+        const allowedTypes = /jpeg|jpg|png|gif|webp|pdf/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype);
+        
+        if (mimetype && extname) {
+            return cb(null, true);
+        } else {
+            cb(new Error('Apenas imagens (JPG, PNG, GIF, WEBP) e PDFs são permitidos!'));
+        }
+    }
+});
+
+const uploadFields = upload.fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'file', maxCount: 1 }
+]);
 
 // ============================================
 // ===== ROTAS PWA =====
@@ -246,34 +274,6 @@ app.get('/icons/:file', (req, res) => {
         res.status(404).json({ error: 'Ícone não encontrado' });
     }
 });
-
-// ============================================
-// ===== MULTER =====
-// ============================================
-const storage = multer.memoryStorage();
-
-const upload = multer({
-    storage: storage,
-    limits: { 
-        fileSize: 10 * 1024 * 1024
-    },
-    fileFilter: function (req, file, cb) {
-        const allowedTypes = /jpeg|jpg|png|gif|webp|pdf/;
-        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = allowedTypes.test(file.mimetype);
-        
-        if (mimetype && extname) {
-            return cb(null, true);
-        } else {
-            cb(new Error('Apenas imagens (JPG, PNG, GIF, WEBP) e PDFs são permitidos!'));
-        }
-    }
-});
-
-const uploadFields = upload.fields([
-    { name: 'image', maxCount: 1 },
-    { name: 'file', maxCount: 1 }
-]);
 
 // ============================================
 // ===== FUNÇÕES DE AUTENTICAÇÃO =====
@@ -1148,6 +1148,1197 @@ app.delete('/api/departments/:id/members/:userId', auth, async (req, res) => {
 });
 
 // ============================================
+// ===== ROTAS DE ESTUDOS - CORRIGIDO =====
+// ============================================
+
+app.post('/api/studies', auth, uploadFields, async (req, res) => {
+    try {
+        console.log('📝 Recebendo estudo...');
+        console.log('📋 Body:', req.body);
+        console.log('📎 Files:', req.files ? Object.keys(req.files) : 'Nenhum arquivo');
+        
+        const { title, description, file_url } = req.body;
+        let image_base64 = null;
+        let file_base64 = null;
+        
+        if (req.files && req.files.image && req.files.image.length > 0) {
+            image_base64 = req.files.image[0].buffer.toString('base64');
+            console.log('✅ Imagem processada com sucesso!');
+        }
+        
+        if (req.files && req.files.file && req.files.file.length > 0) {
+            file_base64 = req.files.file[0].buffer.toString('base64');
+            console.log('✅ PDF processado com sucesso!');
+        }
+
+        if (!title || title.trim() === '') {
+            console.log('❌ Título não informado');
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Título é obrigatório' 
+            });
+        }
+
+        if (!image_base64 && !file_base64 && !file_url) {
+            console.log('❌ Nenhum arquivo ou link enviado');
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Envie pelo menos uma imagem, PDF ou link' 
+            });
+        }
+
+        const result = await sql`
+            INSERT INTO studies (title, description, file_url, image_base64, file_base64)
+            VALUES (
+                ${title.trim()}, 
+                ${description || ''}, 
+                ${file_url || ''}, 
+                ${image_base64 || ''},
+                ${file_base64 || ''}
+            )
+            RETURNING id, title, description, file_url
+        `;
+        
+        console.log('✅ Estudo criado com sucesso! ID:', result[0].id);
+        
+        res.status(201).json({ 
+            success: true, 
+            message: 'Estudo criado com sucesso!',
+            study: result[0] 
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao criar estudo:', error);
+        res.status(500).json({ 
+            success: false,
+            error: error.message || 'Erro interno do servidor'
+        });
+    }
+});
+
+app.get('/api/studies/:id/pdf', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const study = await sql`SELECT * FROM studies WHERE id = ${id}`;
+        
+        if (study.length === 0) {
+            return res.status(404).json({ error: 'Estudo não encontrado' });
+        }
+        
+        const s = study[0];
+        
+        if (s.file_base64) {
+            const pdfBuffer = Buffer.from(s.file_base64, 'base64');
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="${s.title || 'estudo'}.pdf"`);
+            return res.send(pdfBuffer);
+        }
+        
+        if (s.file_url) {
+            return res.redirect(s.file_url);
+        }
+        
+        res.status(404).json({ error: 'PDF não disponível para este estudo' });
+    } catch (error) {
+        console.error('❌ Erro ao baixar PDF:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/studies', async (req, res) => {
+    try {
+        const studies = await sql`SELECT * FROM studies ORDER BY created_at DESC`;
+        res.json(studies);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/studies/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM studies WHERE id = ${req.params.id}`;
+        res.json({ message: 'Estudo removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTAS DE PRODUTOS - CORRIGIDO =====
+// ============================================
+
+app.post('/api/products', auth, upload.single('image'), async (req, res) => {
+    try {
+        console.log('📝 Criando produto...');
+        console.log('📋 Body:', req.body);
+        console.log('📎 File:', req.file ? '✅ Recebido' : '❌ Nenhum');
+        
+        const { name, description, price, stock, category } = req.body;
+        let image_base64 = null;
+        if (req.file) {
+            image_base64 = req.file.buffer.toString('base64');
+        }
+
+        if (!name || !name.trim()) {
+            return res.status(400).json({ error: 'Nome é obrigatório' });
+        }
+
+        const result = await sql`
+            INSERT INTO products (name, description, price, image_base64, stock, category)
+            VALUES (${name.trim()}, ${description || ''}, ${parseFloat(price) || 0}, ${image_base64}, ${parseInt(stock) || 0}, ${category || ''})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar produto:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/products', async (req, res) => {
+    try {
+        const products = await sql`SELECT * FROM products ORDER BY name`;
+        res.json(products);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/products/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM products WHERE id = ${req.params.id}`;
+        res.json({ message: 'Produto removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTAS DE EVENTOS - CORRIGIDO =====
+// ============================================
+
+app.post('/api/events', auth, upload.single('image'), async (req, res) => {
+    try {
+        console.log('📝 Criando evento...');
+        console.log('📋 Body:', req.body);
+        console.log('📎 File:', req.file ? '✅ Recebido' : '❌ Nenhum');
+        
+        const { title, description, date, price } = req.body;
+        let image_base64 = null;
+        if (req.file) {
+            image_base64 = req.file.buffer.toString('base64');
+        }
+
+        if (!title || !title.trim()) {
+            return res.status(400).json({ error: 'Título é obrigatório' });
+        }
+
+        const result = await sql`
+            INSERT INTO events (title, description, date, image_base64, price)
+            VALUES (${title.trim()}, ${description || ''}, ${date || new Date()}, ${image_base64}, ${parseFloat(price) || 0})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar evento:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/events', async (req, res) => {
+    try {
+        const events = await sql`SELECT * FROM events ORDER BY date DESC`;
+        res.json(events);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/events/active', async (req, res) => {
+    try {
+        const events = await sql`
+            SELECT id, title, description, date, price, image_base64
+            FROM events 
+            WHERE date >= NOW() 
+            ORDER BY date ASC
+        `;
+        res.json(events);
+    } catch (error) {
+        console.error('❌ Erro ao buscar eventos ativos:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/events/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM events WHERE id = ${req.params.id}`;
+        res.json({ message: 'Evento removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTAS DE CARROSSEL =====
+// ============================================
+
+app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, res) => {
+    try {
+        const { title, subtitle, description, link } = req.body;
+        if (!req.file) {
+            return res.status(400).json({ error: 'Imagem é obrigatória' });
+        }
+
+        const image_base64 = req.file.buffer.toString('base64');
+
+        const result = await sql`
+            INSERT INTO carousel_images (title, subtitle, description, image_base64, link, order_position)
+            VALUES (${title || ''}, ${subtitle || ''}, ${description || ''}, ${image_base64}, ${link || ''}, 
+                (SELECT COALESCE(MAX(order_position), 0) + 1 FROM carousel_images))
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/carousel', async (req, res) => {
+    try {
+        const images = await sql`
+            SELECT * FROM carousel_images WHERE active = true ORDER BY order_position, created_at
+        `;
+        res.json(images);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/carousel/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM carousel_images WHERE id = ${req.params.id}`;
+        res.json({ message: 'Imagem removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTAS DE ORAÇÕES =====
+// ============================================
+
+app.post('/api/prayers', async (req, res) => {
+    try {
+        const { name, request } = req.body;
+        const result = await sql`
+            INSERT INTO prayers (name, request)
+            VALUES (${name || 'Anônimo'}, ${request})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/prayers', auth, async (req, res) => {
+    try {
+        const prayers = await sql`SELECT * FROM prayers ORDER BY created_at DESC`;
+        res.json(prayers);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/prayers/:id/read', auth, async (req, res) => {
+    try {
+        await sql`UPDATE prayers SET is_read = TRUE WHERE id = ${req.params.id}`;
+        res.json({ message: 'Marcado como lido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTAS DE PEDIDOS =====
+// ============================================
+
+app.post('/api/orders', async (req, res) => {
+    try {
+        const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status } = req.body;
+        
+        console.log('📝 Criando pedido para:', user_email);
+        
+        const result = await sql`
+            INSERT INTO orders (user_name, user_email, user_phone, items, total, payment_id, payment_method, status)
+            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(items)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
+            RETURNING *
+        `;
+        
+        const emailEnviado = await enviarEmailConfirmacao({
+            email: user_email,
+            nome: user_name,
+            tipo: 'compra',
+            valor: total,
+            data: new Date(),
+            status: status || 'pending',
+            paymentId: payment_id,
+            detalhes: `Items: ${items.map(i => i.name).join(', ')}`
+        });
+        
+        if (emailEnviado) {
+            console.log('✅ Email de confirmação enviado para:', user_email);
+        } else {
+            console.log('⚠️ Falha ao enviar email para:', user_email);
+        }
+        
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar pedido:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/orders', auth, async (req, res) => {
+    try {
+        const orders = await sql`SELECT * FROM orders ORDER BY created_at DESC`;
+        res.json(orders);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
+    try {
+        const totalSales = await sql`
+            SELECT COUNT(*) as count, COALESCE(SUM(total), 0) as total FROM orders WHERE status = 'approved'
+        `;
+        const salesByDay = await sql`
+            SELECT 
+                DATE(created_at) as date, 
+                COUNT(*) as count, 
+                COALESCE(SUM(total), 0) as total 
+            FROM orders 
+            WHERE created_at >= NOW() - INTERVAL '7 days' AND status = 'approved'
+            GROUP BY DATE(created_at)
+            ORDER BY date DESC
+        `;
+        res.json({
+            total: totalSales[0] || { count: 0, total: 0 },
+            byDay: salesByDay || []
+        });
+    } catch (error) {
+        console.error('❌ Erro nas estatísticas:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTAS DE INSCRIÇÕES =====
+// ============================================
+
+app.post('/api/registrations', async (req, res) => {
+    try {
+        const { type, name, email, phone, department_name, event_name, details, amount, is_paid, birth_date, baptism_date, baptism_date_id } = req.body;
+        
+        let finalDetails = details || '';
+        if (type === 'baptism' && birth_date) {
+            finalDetails = `Data de Nascimento: ${new Date(birth_date).toLocaleDateString('pt-BR')}\n`;
+            if (baptism_date) {
+                finalDetails += `Data do Batismo: ${new Date(baptism_date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}\n`;
+            }
+            finalDetails += details || '';
+            
+            if (baptism_date_id) {
+                await sql`
+                    UPDATE baptism_dates 
+                    SET current_participants = current_participants + 1 
+                    WHERE id = ${baptism_date_id}
+                `;
+            }
+        }
+
+        const result = await sql`
+            INSERT INTO registrations (type, name, email, phone, department_name, event_name, details, amount, is_paid)
+            VALUES (${type}, ${name}, ${email || ''}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${finalDetails || ''}, ${parseFloat(amount) || 0}, ${is_paid || false})
+            RETURNING *
+        `;
+        
+        const tipoLabel = {
+            baptism: 'Batismo',
+            volunteer: 'Voluntário',
+            event: 'Evento',
+            department: 'Departamento'
+        };
+        await enviarEmailConfirmacao({
+            email: email,
+            nome: name,
+            tipo: 'inscricao',
+            valor: parseFloat(amount) || 0,
+            data: new Date(),
+            status: 'pending',
+            paymentId: `REG-${result[0].id}`,
+            detalhes: `Inscrição para ${tipoLabel[type] || type}\n${event_name ? 'Evento: ' + event_name : ''}\n${department_name ? 'Departamento: ' + department_name : ''}`
+        });
+        
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro inscrição:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/registrations', auth, async (req, res) => {
+    try {
+        const registrations = await sql`SELECT * FROM registrations ORDER BY created_at DESC`;
+        res.json(registrations);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/registrations/:id/approve', auth, async (req, res) => {
+    try {
+        await sql`UPDATE registrations SET status = 'approved' WHERE id = ${req.params.id}`;
+        res.json({ message: 'Inscrição aprovada' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/registrations/:id', auth, async (req, res) => {
+    try {
+        await sql`DELETE FROM registrations WHERE id = ${req.params.id}`;
+        res.json({ message: 'Inscrição removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTAS DE DOAÇÕES =====
+// ============================================
+
+app.post('/api/donations', async (req, res) => {
+    try {
+        const { user_name, user_email, user_phone, type, amount, payment_id, payment_method, status } = req.body;
+        
+        console.log('📝 Registrando doação de:', user_email);
+        
+        const result = await sql`
+            INSERT INTO donations (user_name, user_email, user_phone, type, amount, payment_id, payment_method, status)
+            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${type}, ${amount}, ${payment_id}, ${payment_method}, ${status || 'pending'})
+            RETURNING *
+        `;
+        
+        const emailEnviado = await enviarEmailConfirmacao({
+            email: user_email,
+            nome: user_name,
+            tipo: type || 'doacao',
+            valor: amount,
+            data: new Date(),
+            status: status || 'pending',
+            paymentId: payment_id,
+            detalhes: `Doação de ${type}`
+        });
+        
+        if (emailEnviado) {
+            console.log('✅ Email de confirmação enviado para:', user_email);
+        }
+        
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar doação:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/donations', auth, async (req, res) => {
+    try {
+        const donations = await sql`SELECT * FROM donations ORDER BY created_at DESC`;
+        res.json(donations);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTAS DE ANIVERSARIANTES =====
+// ============================================
+
+app.get('/api/birthdays', async (req, res) => {
+    try {
+        const today = new Date();
+        const currentMonth = today.getMonth() + 1;
+        
+        const birthdayMembers = await sql`
+            SELECT id, name, birth_date, phone, department_name
+            FROM members 
+            WHERE is_active = true 
+            AND EXTRACT(MONTH FROM birth_date) = ${currentMonth}
+            ORDER BY EXTRACT(DAY FROM birth_date)
+        `;
+        res.json(birthdayMembers);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTAS DE MEMBROS =====
+// ============================================
+
+app.post('/api/members', auth, async (req, res) => {
+    try {
+        const { name, email, phone, birth_date, marital_status, spouse_name, children, baptism_date, baptism_place, address, department_id, department_name, notes } = req.body;
+
+        if (!name) {
+            return res.status(400).json({ error: 'Nome é obrigatório' });
+        }
+
+        const result = await sql`
+            INSERT INTO members (name, email, phone, birth_date, marital_status, spouse_name, children, baptism_date, baptism_place, address, department_id, department_name, notes, created_by)
+            VALUES (${name}, ${email}, ${phone}, ${birth_date}, ${marital_status}, ${spouse_name}, ${children}, ${baptism_date}, ${baptism_place}, ${address}, ${department_id}, ${department_name}, ${notes}, ${req.user.id})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/members', auth, async (req, res) => {
+    try {
+        const members = await sql`
+            SELECT * FROM members 
+            WHERE is_active = true 
+            ORDER BY name
+        `;
+        res.json(members);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/members/:id', auth, async (req, res) => {
+    try {
+        await sql`UPDATE members SET is_active = false WHERE id = ${req.params.id}`;
+        res.json({ message: 'Membro removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTAS DE FREQUÊNCIA =====
+// ============================================
+
+app.post('/api/attendance', auth, async (req, res) => {
+    try {
+        const { member_id, event_date, service_type, present } = req.body;
+        if (!member_id || !event_date) {
+            return res.status(400).json({ error: 'Membro e data são obrigatórios' });
+        }
+
+        const result = await sql`
+            INSERT INTO attendance (member_id, event_date, service_type, present, check_in_time)
+            VALUES (${member_id}, ${event_date}, ${service_type || 'domingo'}, ${present || false}, ${present ? new Date() : null})
+            ON CONFLICT (member_id, event_date, service_type) 
+            DO UPDATE SET present = ${present || false}, check_in_time = ${present ? new Date() : null}
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/attendance/date/:date', auth, async (req, res) => {
+    try {
+        const { date } = req.params;
+        const records = await sql`
+            SELECT a.*, m.name as member_name
+            FROM attendance a
+            LEFT JOIN members m ON a.member_id = m.id
+            WHERE a.event_date = ${date}
+            ORDER BY a.created_at DESC
+        `;
+        res.json(records);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/attendance/:memberId', auth, async (req, res) => {
+    try {
+        const { memberId } = req.params;
+        const { limit } = req.query;
+        
+        let query = `
+            SELECT * FROM attendance 
+            WHERE member_id = ${memberId} 
+            ORDER BY event_date DESC
+        `;
+        if (limit) {
+            query += ` LIMIT ${parseInt(limit)}`;
+        }
+        
+        const records = await sql(query);
+        res.json(records);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/attendance/stats/:memberId', auth, async (req, res) => {
+    try {
+        const { memberId } = req.params;
+        
+        const stats = await sql`
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN present = true THEN 1 ELSE 0 END) as present,
+                SUM(CASE WHEN present = false THEN 1 ELSE 0 END) as absent
+            FROM attendance 
+            WHERE member_id = ${memberId}
+        `;
+        
+        const total = stats[0]?.total || 0;
+        const present = stats[0]?.present || 0;
+        const percentage = total > 0 ? Math.round((present / total) * 100) : 0;
+        
+        res.json({
+            total,
+            present,
+            absent: stats[0]?.absent || 0,
+            percentage
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTAS DE DÍZIMOS =====
+// ============================================
+
+app.post('/api/tithes', auth, async (req, res) => {
+    try {
+        const { member_id, member_name, type, amount, payment_method, payment_date, description } = req.body;
+        
+        console.log('📝 Registrando dízimo de:', member_name || 'Visitante');
+        
+        if (!type || !amount) {
+            return res.status(400).json({ error: 'Tipo e valor são obrigatórios' });
+        }
+
+        const result = await sql`
+            INSERT INTO tithes (member_id, member_name, type, amount, payment_method, payment_date, description, received_by)
+            VALUES (${member_id || null}, ${member_name || ''}, ${type}, ${amount}, ${payment_method || 'dinheiro'}, ${payment_date || new Date()}, ${description || ''}, ${req.user.id})
+            RETURNING *
+        `;
+        
+        const user = await sql`SELECT email, name FROM users WHERE id = ${req.user.id}`;
+        if (user.length > 0) {
+            await enviarEmailConfirmacao({
+                email: user[0].email,
+                nome: user[0].name,
+                tipo: type,
+                valor: amount,
+                data: new Date(),
+                status: 'approved',
+                paymentId: `TITHE-${result[0].id}`,
+                detalhes: `${type} registrado por ${member_name || 'Visitante'}`
+            });
+        }
+        
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao registrar dízimo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/tithes', auth, async (req, res) => {
+    try {
+        const tithes = await sql`SELECT * FROM tithes ORDER BY payment_date DESC`;
+        res.json(tithes);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/tithes/summary', auth, async (req, res) => {
+    try {
+        const result = await sql`
+            SELECT type, COUNT(*) as count, SUM(amount) as total
+            FROM tithes
+            GROUP BY type
+        `;
+        const total = result.reduce((sum, r) => sum + parseFloat(r.total), 0);
+        res.json({ by_type: result, total });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTAS DE CONTAS =====
+// ============================================
+
+app.post('/api/bills', auth, async (req, res) => {
+    try {
+        const { description, category, amount, due_date, notes } = req.body;
+        if (!description || !category || !amount || !due_date) {
+            return res.status(400).json({ error: 'Preencha todos os campos obrigatórios' });
+        }
+
+        const result = await sql`
+            INSERT INTO bills (description, category, amount, due_date, notes, created_by)
+            VALUES (${description}, ${category}, ${amount}, ${due_date}, ${notes || ''}, ${req.user.id})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/bills', auth, async (req, res) => {
+    try {
+        const bills = await sql`SELECT * FROM bills ORDER BY due_date ASC, paid ASC`;
+        res.json(bills);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/bills/:id/pay', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { payment_date, payment_method } = req.body;
+
+        const result = await sql`
+            UPDATE bills SET paid = true, payment_date = ${payment_date || new Date()}, payment_method = ${payment_method || 'dinheiro'}
+            WHERE id = ${id}
+            RETURNING *
+        `;
+        if (result.length === 0) {
+            return res.status(404).json({ error: 'Conta não encontrada' });
+        }
+        res.json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/bills/:id', auth, async (req, res) => {
+    try {
+        await sql`DELETE FROM bills WHERE id = ${req.params.id}`;
+        res.json({ message: 'Conta removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/bills/summary', auth, async (req, res) => {
+    try {
+        const summary = await sql`
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN paid = false THEN amount ELSE 0 END) as pending,
+                SUM(CASE WHEN paid = true THEN amount ELSE 0 END) as paid_total,
+                COUNT(CASE WHEN paid = false THEN 1 ELSE 0 END) as pending_count,
+                COUNT(CASE WHEN paid = true THEN 1 ELSE 0 END) as paid_count
+            FROM bills
+        `;
+        res.json({ summary: summary[0] });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTAS DE CÉLULAS =====
+// ============================================
+
+app.post('/api/celulas', auth, pastorOnly, async (req, res) => {
+    try {
+        const { nome, lider_id, endereco, dias_reuniao, horario, descricao } = req.body;
+        if (!nome) return res.status(400).json({ error: 'Nome da célula é obrigatório' });
+
+        const result = await sql`
+            INSERT INTO celulas (nome, lider_id, endereco, dias_reuniao, horario, descricao, created_by)
+            VALUES (${nome}, ${lider_id || null}, ${endereco || ''}, ${dias_reuniao || ''}, ${horario || ''}, ${descricao || ''}, ${req.user.id})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/celulas', async (req, res) => {
+    try {
+        const celulas = await sql`
+            SELECT 
+                c.*,
+                u.name as lider_nome,
+                COUNT(cm.id) as total_membros,
+                (SELECT COUNT(*) FROM celula_membros cm2 WHERE cm2.celula_id = c.id AND cm2.is_active = true) as membros_ativos,
+                (SELECT COUNT(*) FROM celula_decisoes cd WHERE cd.celula_id = c.id AND cd.tipo = 'batismo') as batizados,
+                (SELECT COUNT(*) FROM celula_decisoes cd WHERE cd.celula_id = c.id AND cd.tipo = 'decisao') as decisoes
+            FROM celulas c
+            LEFT JOIN users u ON c.lider_id = u.id
+            LEFT JOIN celula_membros cm ON c.id = cm.celula_id AND cm.is_active = true
+            WHERE c.is_active = true
+            GROUP BY c.id, u.name
+            ORDER BY c.nome
+        `;
+        res.json(celulas);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/celulas/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const celula = await sql`
+            SELECT c.*, u.name as lider_nome, u.phone as lider_telefone, u.email as lider_email
+            FROM celulas c
+            LEFT JOIN users u ON c.lider_id = u.id
+            WHERE c.id = ${id} AND c.is_active = true
+        `;
+        if (celula.length === 0) return res.status(404).json({ error: 'Célula não encontrada' });
+        
+        const membros = await sql`
+            SELECT m.id, m.name, m.phone, m.email, cm.data_entrada
+            FROM celula_membros cm
+            JOIN members m ON cm.membro_id = m.id
+            WHERE cm.celula_id = ${id} AND cm.is_active = true
+            ORDER BY m.name
+        `;
+        
+        const decisoes = await sql`
+            SELECT cd.*, m.name as membro_nome
+            FROM celula_decisoes cd
+            LEFT JOIN members m ON cd.membro_id = m.id
+            WHERE cd.celula_id = ${id}
+            ORDER BY cd.data_decisao DESC
+            LIMIT 20
+        `;
+        
+        res.json({ ...celula[0], membros, decisoes });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/celulas/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { nome, lider_id, endereco, dias_reuniao, horario, descricao } = req.body;
+        
+        const result = await sql`
+            UPDATE celulas 
+            SET nome = COALESCE(${nome}, nome), lider_id = COALESCE(${lider_id}, lider_id),
+                endereco = COALESCE(${endereco}, endereco), dias_reuniao = COALESCE(${dias_reuniao}, dias_reuniao),
+                horario = COALESCE(${horario}, horario), descricao = COALESCE(${descricao}, descricao)
+            WHERE id = ${id}
+            RETURNING *
+        `;
+        if (result.length === 0) return res.status(404).json({ error: 'Célula não encontrada' });
+        res.json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/celulas/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`UPDATE celulas SET is_active = false WHERE id = ${req.params.id}`;
+        res.json({ message: 'Célula removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/celulas/:id/membros', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { membro_id } = req.body;
+        if (!membro_id) return res.status(400).json({ error: 'Membro é obrigatório' });
+        
+        await sql`
+            INSERT INTO celula_membros (celula_id, membro_id)
+            VALUES (${id}, ${membro_id})
+            ON CONFLICT (celula_id, membro_id) DO UPDATE SET is_active = true, data_entrada = CURRENT_DATE
+        `;
+        
+        await atualizarEstatisticasCelula(id);
+        res.json({ message: 'Membro adicionado à célula' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/celulas/:id/membros/:membro_id', auth, async (req, res) => {
+    try {
+        const { id, membro_id } = req.params;
+        await sql`
+            UPDATE celula_membros SET is_active = false 
+            WHERE celula_id = ${id} AND membro_id = ${membro_id}
+        `;
+        await atualizarEstatisticasCelula(id);
+        res.json({ message: 'Membro removido da célula' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/celulas/:id/decisoes', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { membro_id, tipo, observacao } = req.body;
+        if (!tipo || !['batismo', 'decisao'].includes(tipo)) {
+            return res.status(400).json({ error: 'Tipo inválido. Use "batismo" ou "decisao"' });
+        }
+        
+        const result = await sql`
+            INSERT INTO celula_decisoes (celula_id, membro_id, tipo, observacao)
+            VALUES (${id}, ${membro_id || null}, ${tipo}, ${observacao || ''})
+            RETURNING *
+        `;
+        await atualizarEstatisticasCelula(id);
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+async function atualizarEstatisticasCelula(celula_id) {
+    try {
+        const hoje = new Date().toISOString().split('T')[0];
+        const membros = await sql`
+            SELECT COUNT(*) as total FROM celula_membros 
+            WHERE celula_id = ${celula_id} AND is_active = true
+        `;
+        const batizados = await sql`
+            SELECT COUNT(*) as total FROM celula_decisoes 
+            WHERE celula_id = ${celula_id} AND tipo = 'batismo' 
+            AND data_decisao >= CURRENT_DATE - INTERVAL '30 days'
+        `;
+        const decisoes = await sql`
+            SELECT COUNT(*) as total FROM celula_decisoes 
+            WHERE celula_id = ${celula_id} AND tipo = 'decisao' 
+            AND data_decisao >= CURRENT_DATE - INTERVAL '30 days'
+        `;
+        await sql`
+            INSERT INTO celula_estatisticas (celula_id, data_registro, total_membros, batizados, aceitaram_jesus)
+            VALUES (${celula_id}, ${hoje}, ${membros[0].total}, ${batizados[0].total}, ${decisoes[0].total})
+            ON CONFLICT (celula_id, data_registro) 
+            DO UPDATE SET total_membros = ${membros[0].total}, batizados = ${batizados[0].total}, aceitaram_jesus = ${decisoes[0].total}
+        `;
+    } catch (error) {
+        console.error('❌ Erro ao atualizar estatísticas:', error);
+    }
+}
+
+// ============================================
+// ===== ROTAS DE LIVES =====
+// ============================================
+
+app.post('/api/lives/start', auth, async (req, res) => {
+    try {
+        const { titulo, descricao } = req.body;
+        if (req.user.role !== 'pastor') {
+            return res.status(403).json({ error: 'Apenas o pastor pode iniciar uma transmissão ao vivo.' });
+        }
+
+        const activeLive = await sql`SELECT * FROM lives WHERE status = 'live'`;
+        if (activeLive.length > 0) {
+            return res.status(400).json({ error: 'Já existe uma live ativa' });
+        }
+
+        const streamKey = 'live_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+
+        const result = await sql`
+            INSERT INTO lives (titulo, descricao, status, stream_key, iniciada_por, started_at)
+            VALUES (${titulo || 'Live NJ Cabuçu'}, ${descricao || ''}, 'live', ${streamKey}, ${req.user.id}, NOW())
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao iniciar live:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/lives/end/:id', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        console.log(`📝 Encerrando live ${id}...`);
+        
+        const live = await sql`SELECT * FROM lives WHERE id = ${id}`;
+        if (live.length === 0) {
+            return res.status(404).json({ error: 'Live não encontrada' });
+        }
+        
+        if (live[0].status === 'ended') {
+            return res.status(400).json({ error: 'Live já foi encerrada' });
+        }
+
+        const result = await sql`
+            UPDATE lives 
+            SET status = 'ended', ended_at = NOW() 
+            WHERE id = ${id} 
+            RETURNING *
+        `;
+        
+        await sql`
+            UPDATE live_viewers 
+            SET left_at = NOW() 
+            WHERE live_id = ${id} AND left_at IS NULL
+        `;
+        
+        console.log(`✅ Live ${id} encerrada com sucesso!`);
+        res.json({ 
+            message: 'Live encerrada com sucesso',
+            live: result[0]
+        });
+    } catch (error) {
+        console.error('❌ Erro ao encerrar live:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/lives/active', async (req, res) => {
+    try {
+        const lives = await sql`
+            SELECT l.*, u.name as iniciada_por_nome
+            FROM lives l
+            LEFT JOIN users u ON l.iniciada_por = u.id
+            WHERE l.status = 'live'
+            ORDER BY l.started_at DESC
+        `;
+        
+        if (lives.length === 0) {
+            return res.json({ 
+                status: 'offline', 
+                message: 'Nenhuma live ativa' 
+            });
+        }
+        
+        const live = lives[0];
+        
+        const viewers = await sql`
+            SELECT COUNT(*) as total FROM live_viewers 
+            WHERE live_id = ${live.id} AND left_at IS NULL
+        `;
+        
+        live.viewers = viewers[0]?.total || 0;
+        
+        res.json(live);
+    } catch (error) {
+        console.error('❌ Erro ao verificar live:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/lives/history', auth, async (req, res) => {
+    try {
+        const lives = await sql`
+            SELECT l.*, u.name as iniciada_por_nome
+            FROM lives l
+            LEFT JOIN users u ON l.iniciada_por = u.id
+            WHERE l.status != 'offline'
+            ORDER BY l.created_at DESC
+            LIMIT 50
+        `;
+        res.json(lives);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/lives/:id/viewer', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { viewer_id } = req.body;
+
+        await sql`
+            INSERT INTO live_viewers (live_id, viewer_id)
+            VALUES (${id}, ${viewer_id || 'anonymous_' + Date.now()})
+            ON CONFLICT (live_id, viewer_id) DO NOTHING
+        `;
+
+        const count = await sql`
+            SELECT COUNT(*) as total FROM live_viewers 
+            WHERE live_id = ${id} AND left_at IS NULL
+        `;
+
+        await sql`UPDATE lives SET viewers = ${count[0].total} WHERE id = ${id}`;
+        res.json({ viewers: count[0].total });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ROTAS DE REFLEXÕES =====
+// ============================================
+
+app.get('/api/pastor-reflections', async (req, res) => {
+    try {
+        const reflections = await sql`
+            SELECT r.*, u.name as created_by_name
+            FROM pastor_reflections r
+            LEFT JOIN users u ON r.created_by = u.id
+            ORDER BY r.created_at DESC
+        `;
+        res.json(reflections);
+    } catch (error) {
+        console.error('❌ Erro ao buscar reflexões:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/pastor-reflections', auth, pastorOnly, async (req, res) => {
+    try {
+        const { title, description, link } = req.body;
+        if (!title || !link) {
+            return res.status(400).json({ error: 'Título e link são obrigatórios' });
+        }
+
+        const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/;
+        if (!youtubeRegex.test(link)) {
+            return res.status(400).json({ error: 'Link inválido. Use um link do YouTube.' });
+        }
+
+        const result = await sql`
+            INSERT INTO pastor_reflections (title, description, link, created_by)
+            VALUES (${title}, ${description || ''}, ${link}, ${req.user.id})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar reflexão:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/pastor-reflections/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM pastor_reflections WHERE id = ${req.params.id}`;
+        res.json({ message: 'Reflexão removida' });
+    } catch (error) {
+        console.error('❌ Erro ao remover reflexão:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
 // ===== ROTAS DE MÚSICAS =====
 // ============================================
 
@@ -1977,1183 +3168,6 @@ app.get('/api/availability/date/:date/department/:deptId', auth, async (req, res
         res.json(available);
     } catch (error) {
         console.error('❌ Erro ao buscar disponíveis:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE ESTUDOS =====
-// ============================================
-
-app.post('/api/studies', auth, uploadFields, async (req, res) => {
-    try {
-        console.log('📝 Recebendo estudo...');
-        console.log('📋 Body:', req.body);
-        console.log('📎 Files:', req.files ? Object.keys(req.files) : 'Nenhum arquivo');
-        
-        const { title, description, file_url } = req.body;
-        let image_base64 = null;
-        let file_base64 = null;
-        
-        if (req.files && req.files.image && req.files.image.length > 0) {
-            image_base64 = req.files.image[0].buffer.toString('base64');
-            console.log('✅ Imagem processada com sucesso!');
-        }
-        
-        if (req.files && req.files.file && req.files.file.length > 0) {
-            file_base64 = req.files.file[0].buffer.toString('base64');
-            console.log('✅ PDF processado com sucesso!');
-        }
-
-        if (!title || title.trim() === '') {
-            console.log('❌ Título não informado');
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Título é obrigatório' 
-            });
-        }
-
-        if (!image_base64 && !file_base64 && !file_url) {
-            console.log('❌ Nenhum arquivo ou link enviado');
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Envie pelo menos uma imagem, PDF ou link' 
-            });
-        }
-
-        const result = await sql`
-            INSERT INTO studies (title, description, file_url, image_base64, file_base64)
-            VALUES (
-                ${title.trim()}, 
-                ${description || ''}, 
-                ${file_url || ''}, 
-                ${image_base64 || ''},
-                ${file_base64 || ''}
-            )
-            RETURNING id, title, description, file_url
-        `;
-        
-        console.log('✅ Estudo criado com sucesso! ID:', result[0].id);
-        
-        res.status(201).json({ 
-            success: true, 
-            message: 'Estudo criado com sucesso!',
-            study: result[0] 
-        });
-        
-    } catch (error) {
-        console.error('❌ Erro ao criar estudo:', error);
-        res.status(500).json({ 
-            success: false,
-            error: error.message || 'Erro interno do servidor'
-        });
-    }
-});
-
-app.get('/api/studies/:id/pdf', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const study = await sql`SELECT * FROM studies WHERE id = ${id}`;
-        
-        if (study.length === 0) {
-            return res.status(404).json({ error: 'Estudo não encontrado' });
-        }
-        
-        const s = study[0];
-        
-        if (s.file_base64) {
-            const pdfBuffer = Buffer.from(s.file_base64, 'base64');
-            res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', `attachment; filename="${s.title || 'estudo'}.pdf"`);
-            return res.send(pdfBuffer);
-        }
-        
-        if (s.file_url) {
-            return res.redirect(s.file_url);
-        }
-        
-        res.status(404).json({ error: 'PDF não disponível para este estudo' });
-    } catch (error) {
-        console.error('❌ Erro ao baixar PDF:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/studies', async (req, res) => {
-    try {
-        const studies = await sql`SELECT * FROM studies ORDER BY created_at DESC`;
-        res.json(studies);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/studies/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        await sql`DELETE FROM studies WHERE id = ${req.params.id}`;
-        res.json({ message: 'Estudo removido' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE PRODUTOS =====
-// ============================================
-
-app.post('/api/products', auth, upload.single('image'), async (req, res) => {
-    try {
-        const { name, description, price, stock, category } = req.body;
-        let image_base64 = null;
-        if (req.file) {
-            image_base64 = req.file.buffer.toString('base64');
-        }
-
-        const result = await sql`
-            INSERT INTO products (name, description, price, image_base64, stock, category)
-            VALUES (${name}, ${description}, ${parseFloat(price)}, ${image_base64}, ${parseInt(stock) || 0}, ${category || ''})
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao criar produto:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/products', async (req, res) => {
-    try {
-        const products = await sql`SELECT * FROM products ORDER BY name`;
-        res.json(products);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/products/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        await sql`DELETE FROM products WHERE id = ${req.params.id}`;
-        res.json({ message: 'Produto removido' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE EVENTOS =====
-// ============================================
-
-app.post('/api/events', auth, upload.single('image'), async (req, res) => {
-    try {
-        const { title, description, date, price } = req.body;
-        let image_base64 = null;
-        if (req.file) {
-            image_base64 = req.file.buffer.toString('base64');
-        }
-
-        const result = await sql`
-            INSERT INTO events (title, description, date, image_base64, price)
-            VALUES (${title}, ${description}, ${date || new Date()}, ${image_base64}, ${parseFloat(price) || 0})
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao criar evento:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/events', async (req, res) => {
-    try {
-        const events = await sql`SELECT * FROM events ORDER BY date DESC`;
-        res.json(events);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/events/active', async (req, res) => {
-    try {
-        const events = await sql`
-            SELECT id, title, description, date, price, image_base64
-            FROM events 
-            WHERE date >= NOW() 
-            ORDER BY date ASC
-        `;
-        res.json(events);
-    } catch (error) {
-        console.error('❌ Erro ao buscar eventos ativos:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/events/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        await sql`DELETE FROM events WHERE id = ${req.params.id}`;
-        res.json({ message: 'Evento removido' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE ORAÇÕES =====
-// ============================================
-
-app.post('/api/prayers', async (req, res) => {
-    try {
-        const { name, request } = req.body;
-        const result = await sql`
-            INSERT INTO prayers (name, request)
-            VALUES (${name || 'Anônimo'}, ${request})
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/prayers', auth, async (req, res) => {
-    try {
-        const prayers = await sql`SELECT * FROM prayers ORDER BY created_at DESC`;
-        res.json(prayers);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.put('/api/prayers/:id/read', auth, async (req, res) => {
-    try {
-        await sql`UPDATE prayers SET is_read = TRUE WHERE id = ${req.params.id}`;
-        res.json({ message: 'Marcado como lido' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE PEDIDOS =====
-// ============================================
-
-app.post('/api/orders', async (req, res) => {
-    try {
-        const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status } = req.body;
-        
-        console.log('📝 Criando pedido para:', user_email);
-        
-        const result = await sql`
-            INSERT INTO orders (user_name, user_email, user_phone, items, total, payment_id, payment_method, status)
-            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(items)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
-            RETURNING *
-        `;
-        
-        const emailEnviado = await enviarEmailConfirmacao({
-            email: user_email,
-            nome: user_name,
-            tipo: 'compra',
-            valor: total,
-            data: new Date(),
-            status: status || 'pending',
-            paymentId: payment_id,
-            detalhes: `Items: ${items.map(i => i.name).join(', ')}`
-        });
-        
-        if (emailEnviado) {
-            console.log('✅ Email de confirmação enviado para:', user_email);
-        } else {
-            console.log('⚠️ Falha ao enviar email para:', user_email);
-        }
-        
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao criar pedido:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/orders', auth, async (req, res) => {
-    try {
-        const orders = await sql`SELECT * FROM orders ORDER BY created_at DESC`;
-        res.json(orders);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
-    try {
-        const totalSales = await sql`
-            SELECT COUNT(*) as count, COALESCE(SUM(total), 0) as total FROM orders WHERE status = 'approved'
-        `;
-        const salesByDay = await sql`
-            SELECT 
-                DATE(created_at) as date, 
-                COUNT(*) as count, 
-                COALESCE(SUM(total), 0) as total 
-            FROM orders 
-            WHERE created_at >= NOW() - INTERVAL '7 days' AND status = 'approved'
-            GROUP BY DATE(created_at)
-            ORDER BY date DESC
-        `;
-        res.json({
-            total: totalSales[0] || { count: 0, total: 0 },
-            byDay: salesByDay || []
-        });
-    } catch (error) {
-        console.error('❌ Erro nas estatísticas:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE INSCRIÇÕES =====
-// ============================================
-
-app.post('/api/registrations', async (req, res) => {
-    try {
-        const { type, name, email, phone, department_name, event_name, details, amount, is_paid, birth_date, baptism_date, baptism_date_id } = req.body;
-        
-        let finalDetails = details || '';
-        if (type === 'baptism' && birth_date) {
-            finalDetails = `Data de Nascimento: ${new Date(birth_date).toLocaleDateString('pt-BR')}\n`;
-            if (baptism_date) {
-                finalDetails += `Data do Batismo: ${new Date(baptism_date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}\n`;
-            }
-            finalDetails += details || '';
-            
-            if (baptism_date_id) {
-                await sql`
-                    UPDATE baptism_dates 
-                    SET current_participants = current_participants + 1 
-                    WHERE id = ${baptism_date_id}
-                `;
-            }
-        }
-
-        const result = await sql`
-            INSERT INTO registrations (type, name, email, phone, department_name, event_name, details, amount, is_paid)
-            VALUES (${type}, ${name}, ${email || ''}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${finalDetails || ''}, ${parseFloat(amount) || 0}, ${is_paid || false})
-            RETURNING *
-        `;
-        
-        const tipoLabel = {
-            baptism: 'Batismo',
-            volunteer: 'Voluntário',
-            event: 'Evento',
-            department: 'Departamento'
-        };
-        await enviarEmailConfirmacao({
-            email: email,
-            nome: name,
-            tipo: 'inscricao',
-            valor: parseFloat(amount) || 0,
-            data: new Date(),
-            status: 'pending',
-            paymentId: `REG-${result[0].id}`,
-            detalhes: `Inscrição para ${tipoLabel[type] || type}\n${event_name ? 'Evento: ' + event_name : ''}\n${department_name ? 'Departamento: ' + department_name : ''}`
-        });
-        
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro inscrição:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/registrations', auth, async (req, res) => {
-    try {
-        const registrations = await sql`SELECT * FROM registrations ORDER BY created_at DESC`;
-        res.json(registrations);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.put('/api/registrations/:id/approve', auth, async (req, res) => {
-    try {
-        await sql`UPDATE registrations SET status = 'approved' WHERE id = ${req.params.id}`;
-        res.json({ message: 'Inscrição aprovada' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/registrations/:id', auth, async (req, res) => {
-    try {
-        await sql`DELETE FROM registrations WHERE id = ${req.params.id}`;
-        res.json({ message: 'Inscrição removida' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE DOAÇÕES =====
-// ============================================
-
-app.post('/api/donations', async (req, res) => {
-    try {
-        const { user_name, user_email, user_phone, type, amount, payment_id, payment_method, status } = req.body;
-        
-        console.log('📝 Registrando doação de:', user_email);
-        
-        const result = await sql`
-            INSERT INTO donations (user_name, user_email, user_phone, type, amount, payment_id, payment_method, status)
-            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${type}, ${amount}, ${payment_id}, ${payment_method}, ${status || 'pending'})
-            RETURNING *
-        `;
-        
-        const emailEnviado = await enviarEmailConfirmacao({
-            email: user_email,
-            nome: user_name,
-            tipo: type || 'doacao',
-            valor: amount,
-            data: new Date(),
-            status: status || 'pending',
-            paymentId: payment_id,
-            detalhes: `Doação de ${type}`
-        });
-        
-        if (emailEnviado) {
-            console.log('✅ Email de confirmação enviado para:', user_email);
-        }
-        
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao criar doação:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/donations', auth, async (req, res) => {
-    try {
-        const donations = await sql`SELECT * FROM donations ORDER BY created_at DESC`;
-        res.json(donations);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE ANIVERSARIANTES =====
-// ============================================
-
-app.get('/api/birthdays', async (req, res) => {
-    try {
-        const today = new Date();
-        const currentMonth = today.getMonth() + 1;
-        
-        const birthdayMembers = await sql`
-            SELECT id, name, birth_date, phone, department_name
-            FROM members 
-            WHERE is_active = true 
-            AND EXTRACT(MONTH FROM birth_date) = ${currentMonth}
-            ORDER BY EXTRACT(DAY FROM birth_date)
-        `;
-        res.json(birthdayMembers);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE MEMBROS =====
-// ============================================
-
-app.post('/api/members', auth, async (req, res) => {
-    try {
-        const { name, email, phone, birth_date, marital_status, spouse_name, children, baptism_date, baptism_place, address, department_id, department_name, notes } = req.body;
-
-        if (!name) {
-            return res.status(400).json({ error: 'Nome é obrigatório' });
-        }
-
-        const result = await sql`
-            INSERT INTO members (name, email, phone, birth_date, marital_status, spouse_name, children, baptism_date, baptism_place, address, department_id, department_name, notes, created_by)
-            VALUES (${name}, ${email}, ${phone}, ${birth_date}, ${marital_status}, ${spouse_name}, ${children}, ${baptism_date}, ${baptism_place}, ${address}, ${department_id}, ${department_name}, ${notes}, ${req.user.id})
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/members', auth, async (req, res) => {
-    try {
-        const members = await sql`
-            SELECT * FROM members 
-            WHERE is_active = true 
-            ORDER BY name
-        `;
-        res.json(members);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/members/:id', auth, async (req, res) => {
-    try {
-        await sql`UPDATE members SET is_active = false WHERE id = ${req.params.id}`;
-        res.json({ message: 'Membro removido' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE FREQUÊNCIA =====
-// ============================================
-
-app.post('/api/attendance', auth, async (req, res) => {
-    try {
-        const { member_id, event_date, service_type, present } = req.body;
-        if (!member_id || !event_date) {
-            return res.status(400).json({ error: 'Membro e data são obrigatórios' });
-        }
-
-        const result = await sql`
-            INSERT INTO attendance (member_id, event_date, service_type, present, check_in_time)
-            VALUES (${member_id}, ${event_date}, ${service_type || 'domingo'}, ${present || false}, ${present ? new Date() : null})
-            ON CONFLICT (member_id, event_date, service_type) 
-            DO UPDATE SET present = ${present || false}, check_in_time = ${present ? new Date() : null}
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/attendance/date/:date', auth, async (req, res) => {
-    try {
-        const { date } = req.params;
-        const records = await sql`
-            SELECT a.*, m.name as member_name
-            FROM attendance a
-            LEFT JOIN members m ON a.member_id = m.id
-            WHERE a.event_date = ${date}
-            ORDER BY a.created_at DESC
-        `;
-        res.json(records);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/attendance/:memberId', auth, async (req, res) => {
-    try {
-        const { memberId } = req.params;
-        const { limit } = req.query;
-        
-        let query = `
-            SELECT * FROM attendance 
-            WHERE member_id = ${memberId} 
-            ORDER BY event_date DESC
-        `;
-        if (limit) {
-            query += ` LIMIT ${parseInt(limit)}`;
-        }
-        
-        const records = await sql(query);
-        res.json(records);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/attendance/stats/:memberId', auth, async (req, res) => {
-    try {
-        const { memberId } = req.params;
-        
-        const stats = await sql`
-            SELECT 
-                COUNT(*) as total,
-                SUM(CASE WHEN present = true THEN 1 ELSE 0 END) as present,
-                SUM(CASE WHEN present = false THEN 1 ELSE 0 END) as absent
-            FROM attendance 
-            WHERE member_id = ${memberId}
-        `;
-        
-        const total = stats[0]?.total || 0;
-        const present = stats[0]?.present || 0;
-        const percentage = total > 0 ? Math.round((present / total) * 100) : 0;
-        
-        res.json({
-            total,
-            present,
-            absent: stats[0]?.absent || 0,
-            percentage
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE DÍZIMOS =====
-// ============================================
-
-app.post('/api/tithes', auth, async (req, res) => {
-    try {
-        const { member_id, member_name, type, amount, payment_method, payment_date, description } = req.body;
-        
-        console.log('📝 Registrando dízimo de:', member_name || 'Visitante');
-        
-        if (!type || !amount) {
-            return res.status(400).json({ error: 'Tipo e valor são obrigatórios' });
-        }
-
-        const result = await sql`
-            INSERT INTO tithes (member_id, member_name, type, amount, payment_method, payment_date, description, received_by)
-            VALUES (${member_id || null}, ${member_name || ''}, ${type}, ${amount}, ${payment_method || 'dinheiro'}, ${payment_date || new Date()}, ${description || ''}, ${req.user.id})
-            RETURNING *
-        `;
-        
-        const user = await sql`SELECT email, name FROM users WHERE id = ${req.user.id}`;
-        if (user.length > 0) {
-            await enviarEmailConfirmacao({
-                email: user[0].email,
-                nome: user[0].name,
-                tipo: type,
-                valor: amount,
-                data: new Date(),
-                status: 'approved',
-                paymentId: `TITHE-${result[0].id}`,
-                detalhes: `${type} registrado por ${member_name || 'Visitante'}`
-            });
-        }
-        
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao registrar dízimo:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/tithes', auth, async (req, res) => {
-    try {
-        const tithes = await sql`SELECT * FROM tithes ORDER BY payment_date DESC`;
-        res.json(tithes);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/tithes/summary', auth, async (req, res) => {
-    try {
-        const result = await sql`
-            SELECT type, COUNT(*) as count, SUM(amount) as total
-            FROM tithes
-            GROUP BY type
-        `;
-        const total = result.reduce((sum, r) => sum + parseFloat(r.total), 0);
-        res.json({ by_type: result, total });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE CONTAS =====
-// ============================================
-
-app.post('/api/bills', auth, async (req, res) => {
-    try {
-        const { description, category, amount, due_date, notes } = req.body;
-        if (!description || !category || !amount || !due_date) {
-            return res.status(400).json({ error: 'Preencha todos os campos obrigatórios' });
-        }
-
-        const result = await sql`
-            INSERT INTO bills (description, category, amount, due_date, notes, created_by)
-            VALUES (${description}, ${category}, ${amount}, ${due_date}, ${notes || ''}, ${req.user.id})
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/bills', auth, async (req, res) => {
-    try {
-        const bills = await sql`SELECT * FROM bills ORDER BY due_date ASC, paid ASC`;
-        res.json(bills);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.put('/api/bills/:id/pay', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { payment_date, payment_method } = req.body;
-
-        const result = await sql`
-            UPDATE bills SET paid = true, payment_date = ${payment_date || new Date()}, payment_method = ${payment_method || 'dinheiro'}
-            WHERE id = ${id}
-            RETURNING *
-        `;
-        if (result.length === 0) {
-            return res.status(404).json({ error: 'Conta não encontrada' });
-        }
-        res.json(result[0]);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/bills/:id', auth, async (req, res) => {
-    try {
-        await sql`DELETE FROM bills WHERE id = ${req.params.id}`;
-        res.json({ message: 'Conta removida' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/bills/summary', auth, async (req, res) => {
-    try {
-        const summary = await sql`
-            SELECT 
-                COUNT(*) as total,
-                SUM(CASE WHEN paid = false THEN amount ELSE 0 END) as pending,
-                SUM(CASE WHEN paid = true THEN amount ELSE 0 END) as paid_total,
-                COUNT(CASE WHEN paid = false THEN 1 ELSE 0 END) as pending_count,
-                COUNT(CASE WHEN paid = true THEN 1 ELSE 0 END) as paid_count
-            FROM bills
-        `;
-        res.json({ summary: summary[0] });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE CARROSSEL =====
-// ============================================
-
-app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, res) => {
-    try {
-        const { title, subtitle, description, link } = req.body;
-        if (!req.file) {
-            return res.status(400).json({ error: 'Imagem é obrigatória' });
-        }
-
-        const image_base64 = req.file.buffer.toString('base64');
-
-        const result = await sql`
-            INSERT INTO carousel_images (title, subtitle, description, image_base64, link, order_position)
-            VALUES (${title || ''}, ${subtitle || ''}, ${description || ''}, ${image_base64}, ${link || ''}, 
-                (SELECT COALESCE(MAX(order_position), 0) + 1 FROM carousel_images))
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/carousel', async (req, res) => {
-    try {
-        const images = await sql`
-            SELECT * FROM carousel_images WHERE active = true ORDER BY order_position, created_at
-        `;
-        res.json(images);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/carousel/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        await sql`DELETE FROM carousel_images WHERE id = ${req.params.id}`;
-        res.json({ message: 'Imagem removida' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE REFLEXÕES =====
-// ============================================
-
-app.get('/api/pastor-reflections', async (req, res) => {
-    try {
-        const reflections = await sql`
-            SELECT r.*, u.name as created_by_name
-            FROM pastor_reflections r
-            LEFT JOIN users u ON r.created_by = u.id
-            ORDER BY r.created_at DESC
-        `;
-        res.json(reflections);
-    } catch (error) {
-        console.error('❌ Erro ao buscar reflexões:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/pastor-reflections', auth, pastorOnly, async (req, res) => {
-    try {
-        const { title, description, link } = req.body;
-        if (!title || !link) {
-            return res.status(400).json({ error: 'Título e link são obrigatórios' });
-        }
-
-        const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/;
-        if (!youtubeRegex.test(link)) {
-            return res.status(400).json({ error: 'Link inválido. Use um link do YouTube.' });
-        }
-
-        const result = await sql`
-            INSERT INTO pastor_reflections (title, description, link, created_by)
-            VALUES (${title}, ${description || ''}, ${link}, ${req.user.id})
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao criar reflexão:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/pastor-reflections/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        await sql`DELETE FROM pastor_reflections WHERE id = ${req.params.id}`;
-        res.json({ message: 'Reflexão removida' });
-    } catch (error) {
-        console.error('❌ Erro ao remover reflexão:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ============================================
-// ===== ROTAS DE CÉLULAS =====
-// ============================================
-
-app.post('/api/celulas', auth, pastorOnly, async (req, res) => {
-    try {
-        const { nome, lider_id, endereco, dias_reuniao, horario, descricao } = req.body;
-        if (!nome) return res.status(400).json({ error: 'Nome da célula é obrigatório' });
-
-        const result = await sql`
-            INSERT INTO celulas (nome, lider_id, endereco, dias_reuniao, horario, descricao, created_by)
-            VALUES (${nome}, ${lider_id || null}, ${endereco || ''}, ${dias_reuniao || ''}, ${horario || ''}, ${descricao || ''}, ${req.user.id})
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/celulas', async (req, res) => {
-    try {
-        const celulas = await sql`
-            SELECT 
-                c.*,
-                u.name as lider_nome,
-                COUNT(cm.id) as total_membros,
-                (SELECT COUNT(*) FROM celula_membros cm2 WHERE cm2.celula_id = c.id AND cm2.is_active = true) as membros_ativos,
-                (SELECT COUNT(*) FROM celula_decisoes cd WHERE cd.celula_id = c.id AND cd.tipo = 'batismo') as batizados,
-                (SELECT COUNT(*) FROM celula_decisoes cd WHERE cd.celula_id = c.id AND cd.tipo = 'decisao') as decisoes
-            FROM celulas c
-            LEFT JOIN users u ON c.lider_id = u.id
-            LEFT JOIN celula_membros cm ON c.id = cm.celula_id AND cm.is_active = true
-            WHERE c.is_active = true
-            GROUP BY c.id, u.name
-            ORDER BY c.nome
-        `;
-        res.json(celulas);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/celulas/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const celula = await sql`
-            SELECT c.*, u.name as lider_nome, u.phone as lider_telefone, u.email as lider_email
-            FROM celulas c
-            LEFT JOIN users u ON c.lider_id = u.id
-            WHERE c.id = ${id} AND c.is_active = true
-        `;
-        if (celula.length === 0) return res.status(404).json({ error: 'Célula não encontrada' });
-        
-        const membros = await sql`
-            SELECT m.id, m.name, m.phone, m.email, cm.data_entrada
-            FROM celula_membros cm
-            JOIN members m ON cm.membro_id = m.id
-            WHERE cm.celula_id = ${id} AND cm.is_active = true
-            ORDER BY m.name
-        `;
-        
-        const decisoes = await sql`
-            SELECT cd.*, m.name as membro_nome
-            FROM celula_decisoes cd
-            LEFT JOIN members m ON cd.membro_id = m.id
-            WHERE cd.celula_id = ${id}
-            ORDER BY cd.data_decisao DESC
-            LIMIT 20
-        `;
-        
-        res.json({ ...celula[0], membros, decisoes });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.put('/api/celulas/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { nome, lider_id, endereco, dias_reuniao, horario, descricao } = req.body;
-        
-        const result = await sql`
-            UPDATE celulas 
-            SET nome = COALESCE(${nome}, nome), lider_id = COALESCE(${lider_id}, lider_id),
-                endereco = COALESCE(${endereco}, endereco), dias_reuniao = COALESCE(${dias_reuniao}, dias_reuniao),
-                horario = COALESCE(${horario}, horario), descricao = COALESCE(${descricao}, descricao)
-            WHERE id = ${id}
-            RETURNING *
-        `;
-        if (result.length === 0) return res.status(404).json({ error: 'Célula não encontrada' });
-        res.json(result[0]);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/celulas/:id', auth, pastorOnly, async (req, res) => {
-    try {
-        await sql`UPDATE celulas SET is_active = false WHERE id = ${req.params.id}`;
-        res.json({ message: 'Célula removida' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/celulas/:id/membros', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { membro_id } = req.body;
-        if (!membro_id) return res.status(400).json({ error: 'Membro é obrigatório' });
-        
-        await sql`
-            INSERT INTO celula_membros (celula_id, membro_id)
-            VALUES (${id}, ${membro_id})
-            ON CONFLICT (celula_id, membro_id) DO UPDATE SET is_active = true, data_entrada = CURRENT_DATE
-        `;
-        
-        await atualizarEstatisticasCelula(id);
-        res.json({ message: 'Membro adicionado à célula' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.delete('/api/celulas/:id/membros/:membro_id', auth, async (req, res) => {
-    try {
-        const { id, membro_id } = req.params;
-        await sql`
-            UPDATE celula_membros SET is_active = false 
-            WHERE celula_id = ${id} AND membro_id = ${membro_id}
-        `;
-        await atualizarEstatisticasCelula(id);
-        res.json({ message: 'Membro removido da célula' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/celulas/:id/decisoes', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { membro_id, tipo, observacao } = req.body;
-        if (!tipo || !['batismo', 'decisao'].includes(tipo)) {
-            return res.status(400).json({ error: 'Tipo inválido. Use "batismo" ou "decisao"' });
-        }
-        
-        const result = await sql`
-            INSERT INTO celula_decisoes (celula_id, membro_id, tipo, observacao)
-            VALUES (${id}, ${membro_id || null}, ${tipo}, ${observacao || ''})
-            RETURNING *
-        `;
-        await atualizarEstatisticasCelula(id);
-        res.status(201).json(result[0]);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-async function atualizarEstatisticasCelula(celula_id) {
-    try {
-        const hoje = new Date().toISOString().split('T')[0];
-        const membros = await sql`
-            SELECT COUNT(*) as total FROM celula_membros 
-            WHERE celula_id = ${celula_id} AND is_active = true
-        `;
-        const batizados = await sql`
-            SELECT COUNT(*) as total FROM celula_decisoes 
-            WHERE celula_id = ${celula_id} AND tipo = 'batismo' 
-            AND data_decisao >= CURRENT_DATE - INTERVAL '30 days'
-        `;
-        const decisoes = await sql`
-            SELECT COUNT(*) as total FROM celula_decisoes 
-            WHERE celula_id = ${celula_id} AND tipo = 'decisao' 
-            AND data_decisao >= CURRENT_DATE - INTERVAL '30 days'
-        `;
-        await sql`
-            INSERT INTO celula_estatisticas (celula_id, data_registro, total_membros, batizados, aceitaram_jesus)
-            VALUES (${celula_id}, ${hoje}, ${membros[0].total}, ${batizados[0].total}, ${decisoes[0].total})
-            ON CONFLICT (celula_id, data_registro) 
-            DO UPDATE SET total_membros = ${membros[0].total}, batizados = ${batizados[0].total}, aceitaram_jesus = ${decisoes[0].total}
-        `;
-    } catch (error) {
-        console.error('❌ Erro ao atualizar estatísticas:', error);
-    }
-}
-
-// ============================================
-// ===== ROTAS DE LIVES (CORRIGIDAS) =====
-// ============================================
-
-app.post('/api/lives/start', auth, async (req, res) => {
-    try {
-        const { titulo, descricao } = req.body;
-        if (req.user.role !== 'pastor') {
-            return res.status(403).json({ error: 'Apenas o pastor pode iniciar uma transmissão ao vivo.' });
-        }
-
-        const activeLive = await sql`SELECT * FROM lives WHERE status = 'live'`;
-        if (activeLive.length > 0) {
-            return res.status(400).json({ error: 'Já existe uma live ativa' });
-        }
-
-        const streamKey = 'live_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
-
-        const result = await sql`
-            INSERT INTO lives (titulo, descricao, status, stream_key, iniciada_por, started_at)
-            VALUES (${titulo || 'Live NJ Cabuçu'}, ${descricao || ''}, 'live', ${streamKey}, ${req.user.id}, NOW())
-            RETURNING *
-        `;
-        res.status(201).json(result[0]);
-    } catch (error) {
-        console.error('❌ Erro ao iniciar live:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ===== ENCERRAR LIVE (CORRIGIDO) =====
-app.post('/api/lives/end/:id', auth, async (req, res) => {
-    try {
-        const { id } = req.params;
-        console.log(`📝 Encerrando live ${id}...`);
-        
-        const live = await sql`SELECT * FROM lives WHERE id = ${id}`;
-        if (live.length === 0) {
-            return res.status(404).json({ error: 'Live não encontrada' });
-        }
-        
-        if (live[0].status === 'ended') {
-            return res.status(400).json({ error: 'Live já foi encerrada' });
-        }
-
-        const result = await sql`
-            UPDATE lives 
-            SET status = 'ended', ended_at = NOW() 
-            WHERE id = ${id} 
-            RETURNING *
-        `;
-        
-        await sql`
-            UPDATE live_viewers 
-            SET left_at = NOW() 
-            WHERE live_id = ${id} AND left_at IS NULL
-        `;
-        
-        console.log(`✅ Live ${id} encerrada com sucesso!`);
-        res.json({ 
-            message: 'Live encerrada com sucesso',
-            live: result[0]
-        });
-    } catch (error) {
-        console.error('❌ Erro ao encerrar live:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ===== VERIFICAR STATUS DA LIVE (CORRIGIDO) =====
-app.get('/api/lives/active', async (req, res) => {
-    try {
-        const lives = await sql`
-            SELECT l.*, u.name as iniciada_por_nome
-            FROM lives l
-            LEFT JOIN users u ON l.iniciada_por = u.id
-            WHERE l.status = 'live'
-            ORDER BY l.started_at DESC
-        `;
-        
-        if (lives.length === 0) {
-            return res.json({ 
-                status: 'offline', 
-                message: 'Nenhuma live ativa' 
-            });
-        }
-        
-        const live = lives[0];
-        
-        const viewers = await sql`
-            SELECT COUNT(*) as total FROM live_viewers 
-            WHERE live_id = ${live.id} AND left_at IS NULL
-        `;
-        
-        live.viewers = viewers[0]?.total || 0;
-        
-        res.json(live);
-    } catch (error) {
-        console.error('❌ Erro ao verificar live:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/lives/history', auth, async (req, res) => {
-    try {
-        const lives = await sql`
-            SELECT l.*, u.name as iniciada_por_nome
-            FROM lives l
-            LEFT JOIN users u ON l.iniciada_por = u.id
-            WHERE l.status != 'offline'
-            ORDER BY l.created_at DESC
-            LIMIT 50
-        `;
-        res.json(lives);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.post('/api/lives/:id/viewer', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { viewer_id } = req.body;
-
-        await sql`
-            INSERT INTO live_viewers (live_id, viewer_id)
-            VALUES (${id}, ${viewer_id || 'anonymous_' + Date.now()})
-            ON CONFLICT (live_id, viewer_id) DO NOTHING
-        `;
-
-        const count = await sql`
-            SELECT COUNT(*) as total FROM live_viewers 
-            WHERE live_id = ${id} AND left_at IS NULL
-        `;
-
-        await sql`UPDATE lives SET viewers = ${count[0].total} WHERE id = ${id}`;
-        res.json({ viewers: count[0].total });
-    } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });

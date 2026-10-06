@@ -7,12 +7,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        /* ===== ESTILOS COMPLETOS ===== */
         * { margin:0; padding:0; box-sizing:border-box; }
         :root {
             --primary: #0D47A1;
             --primary-light: #1565C0;
             --primary-gradient: linear-gradient(135deg, #0D47A1, #1565C0);
+            --secondary: #E8F0FE;
             --bg: #f0f4f8;
             --card-bg: #ffffff;
             --shadow: 0 2px 12px rgba(0,0,0,0.05);
@@ -35,13 +35,10 @@
             padding-bottom: 2rem;
         }
 
-        /* ===== LOADING ===== */
         .loading-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background: rgba(255,255,255,0.92);
             backdrop-filter: blur(6px);
             display: flex;
@@ -54,8 +51,7 @@
         }
         .loading-overlay.hidden { opacity: 0; pointer-events: none; }
         .loading-spinner {
-            width: 44px;
-            height: 44px;
+            width: 44px; height: 44px;
             border: 4px solid #e0e0e0;
             border-top-color: var(--primary);
             border-radius: 50%;
@@ -64,7 +60,6 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .loading-text { font-size: 0.9rem; color: var(--primary); font-weight: 600; }
 
-        /* ===== HEADER ===== */
         .header {
             background: #1a1a2e;
             padding: 0 1.5rem;
@@ -80,8 +75,7 @@
         }
         .logo { display: flex; align-items: center; gap: 0.6rem; }
         .logo-icon {
-            width: 36px;
-            height: 36px;
+            width: 36px; height: 36px;
             border-radius: 50%;
             background: var(--primary-gradient);
             display: flex;
@@ -131,6 +125,8 @@
         .btn-success:hover { background: #218838; }
         .btn-warning { background: #ffc107; color: #1a1a1a; }
         .btn-warning:hover { background: #e0a800; }
+        .btn-info { background: #17a2b8; color: #fff; }
+        .btn-info:hover { background: #138496; }
         .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
         .btn-outline:hover { background: var(--primary); color: #fff; }
         .btn-sm { padding: 0.12rem 0.5rem; font-size: 0.55rem; }
@@ -141,7 +137,6 @@
 
         .container { width: 100%; max-width: 1400px; margin: 0 auto; padding: 0.8rem 1rem; overflow-x: hidden; }
 
-        /* ===== STATS ===== */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -156,13 +151,13 @@
             border: 1px solid rgba(0,0,0,0.04);
             box-shadow: var(--shadow);
             transition: var(--transition);
+            cursor: pointer;
         }
         .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
         .stat-card .number { font-size: 1.2rem; font-weight: 800; color: var(--primary); line-height: 1.2; }
         .stat-card .label { font-size: 0.5rem; color: #888; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
         .stat-card .icon { font-size: 1rem; color: var(--primary-light); margin-bottom: 0.1rem; }
 
-        /* ===== TABS ===== */
         .tabs-wrapper {
             background: var(--card-bg);
             border-radius: var(--radius);
@@ -228,7 +223,6 @@
         }
         .tab-content .section-title i { font-size: 0.9rem; }
 
-        /* ===== TABLES ===== */
         .table-wrapper {
             width: 100%;
             overflow: hidden;
@@ -337,10 +331,8 @@
         .modal {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background: rgba(0,0,0,0.5);
             backdrop-filter: blur(6px);
             z-index: 9999;
@@ -433,7 +425,9 @@
             border-radius: 4px;
             gap: 0.2rem;
             font-size: 0.6rem;
+            cursor: pointer;
         }
+        .member-row:hover { background: #f0f4ff; }
         .member-row .member-checkbox { width: 12px; height: 12px; flex-shrink: 0; cursor: pointer; }
         .member-row .member-info { flex: 1; min-width: 0; }
         .member-row .member-name { font-weight: 500; font-size: 0.6rem; }
@@ -611,13 +605,11 @@
 </head>
 <body>
 
-    <!-- ===== LOADING ===== -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
         <div class="loading-text">Carregando...</div>
     </div>
 
-    <!-- ===== HEADER ===== -->
     <header class="header">
         <div class="logo">
             <div class="logo-icon">NJ</div>
@@ -630,21 +622,18 @@
         </div>
     </header>
 
-    <!-- ===== CONTAINER ===== -->
     <div class="container">
 
-        <!-- ===== STATS ===== -->
         <div class="stats-grid" id="statsGrid">
-            <div class="stat-card"><div class="icon"><i class="fas fa-users"></i></div><div class="number" id="totalUsers">0</div><div class="label">Membros</div></div>
-            <div class="stat-card"><div class="icon"><i class="fas fa-pray"></i></div><div class="number" id="totalPrayers">0</div><div class="label">Orações</div></div>
-            <div class="stat-card"><div class="icon"><i class="fas fa-shopping-cart"></i></div><div class="number" id="totalOrders">0</div><div class="label">Vendas</div></div>
-            <div class="stat-card"><div class="icon"><i class="fas fa-hand-holding-heart"></i></div><div class="number" id="totalDonations">R$0</div><div class="label">Doações</div></div>
-            <div class="stat-card"><div class="icon"><i class="fas fa-book"></i></div><div class="number" id="totalStudies">0</div><div class="label">Estudos</div></div>
-            <div class="stat-card"><div class="icon"><i class="fas fa-home"></i></div><div class="number" id="totalCelulas">0</div><div class="label">Células</div></div>
-            <div class="stat-card"><div class="icon"><i class="fas fa-broadcast-tower"></i></div><div class="number" id="totalLives">0</div><div class="label">Lives</div></div>
+            <div class="stat-card" onclick="showTab('usuarios')"><div class="icon"><i class="fas fa-users"></i></div><div class="number" id="totalUsers">0</div><div class="label">Membros</div></div>
+            <div class="stat-card" onclick="showTab('oracoes')"><div class="icon"><i class="fas fa-pray"></i></div><div class="number" id="totalPrayers">0</div><div class="label">Orações</div></div>
+            <div class="stat-card" onclick="showTab('vendas')"><div class="icon"><i class="fas fa-shopping-cart"></i></div><div class="number" id="totalOrders">0</div><div class="label">Vendas</div></div>
+            <div class="stat-card" onclick="showTab('doacoes')"><div class="icon"><i class="fas fa-hand-holding-heart"></i></div><div class="number" id="totalDonations">R$0</div><div class="label">Doações</div></div>
+            <div class="stat-card" onclick="showTab('estudos')"><div class="icon"><i class="fas fa-book"></i></div><div class="number" id="totalStudies">0</div><div class="label">Estudos</div></div>
+            <div class="stat-card" onclick="showTab('celulas')"><div class="icon"><i class="fas fa-home"></i></div><div class="number" id="totalCelulas">0</div><div class="label">Células</div></div>
+            <div class="stat-card" onclick="showTab('live')"><div class="icon"><i class="fas fa-broadcast-tower"></i></div><div class="number" id="totalLives">0</div><div class="label">Lives</div></div>
         </div>
 
-        <!-- ===== TABS ===== -->
         <div class="tabs-wrapper">
             <div class="tabs" id="tabsContainer">
                 <button class="tab-btn active" onclick="showTab('dashboard')"><i class="fas fa-chart-pie"></i> Dashboard</button>
@@ -670,7 +659,7 @@
                 <button class="tab-btn" onclick="showTab('config')"><i class="fas fa-cog"></i> Config</button>
             </div>
 
-            <!-- ===== DASHBOARD ===== -->
+            <!-- DASHBOARD -->
             <div id="tab-dashboard" class="tab-content active">
                 <div class="section-title"><i class="fas fa-chart-pie"></i> Resumo Financeiro</div>
                 <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.4rem; margin-bottom:0.5rem;">
@@ -683,7 +672,7 @@
                         <div style="font-size:0.9rem;font-weight:700;color:var(--primary);" id="avgSalesValue">R$ 0</div>
                     </div>
                     <div style="background:#f8f9fa; padding:0.4rem; border-radius:6px; text-align:center;">
-                        <div style="font-size:0.5rem;color:#888;">Total Vendas</div>
+                        <div style="font-size:0.5rem;color:#888;">Qtd Vendas</div>
                         <div style="font-size:0.9rem;font-weight:700;color:var(--primary);" id="totalSalesCount">0</div>
                     </div>
                 </div>
@@ -691,7 +680,7 @@
                 <div class="bar-chart" id="barChart"></div>
             </div>
 
-            <!-- ===== LIVE ===== -->
+            <!-- LIVE -->
             <div id="tab-live" class="tab-content">
                 <div class="section-title"><i class="fas fa-broadcast-tower"></i> Transmissão ao Vivo</div>
                 <div id="liveStatus" style="margin-bottom:1rem; padding:0.8rem; border-radius:8px; text-align:center; background:#f8f9fa;">
@@ -745,7 +734,7 @@
                 </div>
             </div>
 
-            <!-- ===== VENDAS ===== -->
+            <!-- VENDAS -->
             <div id="tab-vendas" class="tab-content">
                 <div class="section-title"><i class="fas fa-shopping-cart"></i> Vendas</div>
                 <div class="table-wrapper">
@@ -756,7 +745,7 @@
                 </div>
             </div>
 
-            <!-- ===== USUÁRIOS ===== -->
+            <!-- USUÁRIOS -->
             <div id="tab-usuarios" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-users"></i> Usuários</div>
@@ -770,7 +759,7 @@
                 </div>
             </div>
 
-            <!-- ===== ORAÇÕES ===== -->
+            <!-- ORAÇÕES -->
             <div id="tab-oracoes" class="tab-content">
                 <div class="section-title"><i class="fas fa-pray"></i> Pedidos de Oração</div>
                 <div class="table-wrapper">
@@ -781,7 +770,7 @@
                 </div>
             </div>
 
-            <!-- ===== ESTUDOS ===== -->
+            <!-- ESTUDOS -->
             <div id="tab-estudos" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-book"></i> Estudos</div>
@@ -795,7 +784,7 @@
                 </div>
             </div>
 
-            <!-- ===== EVENTOS ===== -->
+            <!-- EVENTOS -->
             <div id="tab-eventos" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-calendar"></i> Eventos</div>
@@ -809,7 +798,7 @@
                 </div>
             </div>
 
-            <!-- ===== PRODUTOS ===== -->
+            <!-- PRODUTOS -->
             <div id="tab-produtos" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-box"></i> Produtos</div>
@@ -823,7 +812,7 @@
                 </div>
             </div>
 
-            <!-- ===== CARROSSEL ===== -->
+            <!-- CARROSSEL -->
             <div id="tab-carousel" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-images"></i> Carrossel</div>
@@ -832,7 +821,7 @@
                 <div id="carouselList" class="carousel-grid"></div>
             </div>
 
-            <!-- ===== DOAÇÕES ===== -->
+            <!-- DOAÇÕES -->
             <div id="tab-doacoes" class="tab-content">
                 <div class="section-title"><i class="fas fa-hand-holding-heart"></i> Doações</div>
                 <div class="table-wrapper">
@@ -843,7 +832,7 @@
                 </div>
             </div>
 
-            <!-- ===== INSCRIÇÕES ===== -->
+            <!-- INSCRIÇÕES -->
             <div id="tab-inscricoes" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-clipboard-list"></i> Inscrições</div>
@@ -864,7 +853,7 @@
                 </div>
             </div>
 
-            <!-- ===== DEPARTAMENTOS ===== -->
+            <!-- DEPARTAMENTOS -->
             <div id="tab-departamentos" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-building"></i> Departamentos</div>
@@ -878,7 +867,7 @@
                 </div>
             </div>
 
-            <!-- ===== MEMBROS ===== -->
+            <!-- MEMBROS -->
             <div id="tab-membros" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-user-plus"></i> Membros</div>
@@ -892,7 +881,7 @@
                 </div>
             </div>
 
-            <!-- ===== FREQUÊNCIA ===== -->
+            <!-- FREQUÊNCIA -->
             <div id="tab-frequencia" class="tab-content">
                 <div class="section-title"><i class="fas fa-calendar-check"></i> Frequência</div>
                 <div class="form-row" style="grid-template-columns:1fr 1fr; gap:0.3rem;">
@@ -948,7 +937,7 @@
                 </div>
             </div>
 
-            <!-- ===== TESOURARIA ===== -->
+            <!-- TESOURARIA -->
             <div id="tab-tesouraria" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-hand-holding-heart"></i> Dízimos e Ofertas</div>
@@ -963,7 +952,7 @@
                 </div>
             </div>
 
-            <!-- ===== CONTAS ===== -->
+            <!-- CONTAS -->
             <div id="tab-contas" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-receipt"></i> Contas a Pagar</div>
@@ -978,7 +967,7 @@
                 </div>
             </div>
 
-            <!-- ===== CÉLULAS ===== -->
+            <!-- CÉLULAS -->
             <div id="tab-celulas" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-users"></i> Células</div>
@@ -997,7 +986,7 @@
                 </div>
             </div>
 
-            <!-- ===== ANIVERSARIANTES ===== -->
+            <!-- ANIVERSARIANTES -->
             <div id="tab-aniversariantes" class="tab-content">
                 <div class="section-title"><i class="fas fa-birthday-cake"></i> Aniversariantes</div>
                 <div class="table-wrapper">
@@ -1008,7 +997,7 @@
                 </div>
             </div>
 
-            <!-- ===== REFLEXÕES ===== -->
+            <!-- REFLEXÕES -->
             <div id="tab-reflexoes" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-video"></i> Reflexões do Pastor</div>
@@ -1023,7 +1012,7 @@
                 </div>
             </div>
 
-            <!-- ===== SOBRE NÓS ===== -->
+            <!-- SOBRE NÓS -->
             <div id="tab-sobre" class="tab-content">
                 <div class="flex-between mb-1">
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-info-circle"></i> Editar Sobre Nós</div>
@@ -1046,7 +1035,7 @@
                 </div>
             </div>
 
-            <!-- ===== CONFIG ===== -->
+            <!-- CONFIG -->
             <div id="tab-config" class="tab-content">
                 <div class="section-title"><i class="fas fa-cog"></i> Configurações</div>
                 <div class="form-group"><label>Cor Primária</label><input type="color" id="configPrimary" value="#0D47A1" onchange="saveConfig('primary_color', this.value)"></div>
@@ -1079,11 +1068,7 @@
         </div>
     </div>
 
-    <!-- ========================================================== -->
-    <!-- ===== MODAIS ===== -->
-    <!-- ========================================================== -->
-
-    <!-- USUÁRIO -->
+    <!-- MODAIS -->
     <div class="modal" id="userModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('userModal')">&times;</button>
@@ -1107,7 +1092,6 @@
         </div>
     </div>
 
-    <!-- MEMBRO -->
     <div class="modal" id="memberModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('memberModal')">&times;</button>
@@ -1135,7 +1119,6 @@
         </div>
     </div>
 
-    <!-- DÍZIMO -->
     <div class="modal" id="titheModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('titheModal')">&times;</button>
@@ -1167,7 +1150,6 @@
         </div>
     </div>
 
-    <!-- CONTA -->
     <div class="modal" id="billModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('billModal')">&times;</button>
@@ -1188,7 +1170,6 @@
         </div>
     </div>
 
-    <!-- ESTUDO -->
     <div class="modal" id="studyModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('studyModal')">&times;</button>
@@ -1209,7 +1190,6 @@
             <div class="form-group">
                 <label>Link do Arquivo (Google Drive, Dropbox, etc)</label>
                 <input type="url" id="studyFileUrl" placeholder="https://drive.google.com/...">
-                <small style="color:#888;font-size:0.6rem;">Ou use o campo abaixo para enviar um PDF</small>
             </div>
             <div class="form-group">
                 <label>Ou envie um PDF</label>
@@ -1220,16 +1200,12 @@
                         <span class="file-name" id="studyPdfName"></span>
                     </div>
                 </div>
-                <small style="color:#888;font-size:0.6rem;">PDF até 5MB</small>
             </div>
-            <button onclick="submitStudy()" class="btn btn-primary btn-block" style="padding:0.3rem;">
-                <i class="fas fa-save"></i> Salvar Estudo
-            </button>
+            <button onclick="submitStudy()" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar Estudo</button>
             <div id="studyResult" class="study-result"></div>
         </div>
     </div>
 
-    <!-- EVENTO -->
     <div class="modal" id="eventModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('eventModal')">&times;</button>
@@ -1245,7 +1221,6 @@
         </div>
     </div>
 
-    <!-- PRODUTO -->
     <div class="modal" id="productModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('productModal')">&times;</button>
@@ -1264,7 +1239,6 @@
         </div>
     </div>
 
-    <!-- CARROSSEL -->
     <div class="modal" id="carouselModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('carouselModal')">&times;</button>
@@ -1280,7 +1254,6 @@
         </div>
     </div>
 
-    <!-- DEPARTAMENTO -->
     <div class="modal" id="deptModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('deptModal')">&times;</button>
@@ -1291,7 +1264,6 @@
         </div>
     </div>
 
-    <!-- CÉLULA -->
     <div class="modal" id="celulaModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('celulaModal')">&times;</button>
@@ -1310,7 +1282,6 @@
         </div>
     </div>
 
-    <!-- ADICIONAR MEMBRO À CÉLULA -->
     <div class="modal" id="addMembroCelulaModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('addMembroCelulaModal')">&times;</button>
@@ -1322,7 +1293,6 @@
         </div>
     </div>
 
-    <!-- REGISTRAR DECISÃO -->
     <div class="modal" id="decisaoCelulaModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('decisaoCelulaModal')">&times;</button>
@@ -1341,24 +1311,20 @@
         </div>
     </div>
 
-    <!-- REFLEXÃO -->
     <div class="modal" id="reflectionModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('reflectionModal')">&times;</button>
             <h3><i class="fas fa-video"></i> Reflexão do Pastor</h3>
             <div class="form-group"><label>Título *</label><input type="text" id="reflectionTitle" placeholder="Ex: Mensagem de Domingo"></div>
-            <div class="form-group"><label>Descrição</label><textarea id="reflectionDesc" rows="2" placeholder="Breve descrição da reflexão"></textarea></div>
+            <div class="form-group"><label>Descrição</label><textarea id="reflectionDesc" rows="2" placeholder="Breve descrição"></textarea></div>
             <div class="form-group"><label>Link do YouTube *</label><input type="url" id="reflectionLink" placeholder="https://www.youtube.com/watch?v=..."></div>
             <button onclick="saveReflection()" class="btn btn-primary btn-block" style="padding:0.3rem;"><i class="fas fa-save"></i> Salvar</button>
         </div>
     </div>
 
-    <!-- ========================================================== -->
-    <!-- ===== SCRIPTS ===== -->
-    <!-- ========================================================== -->
     <script>
         // ============================================
-        // ===== TOKEN E HEADERS =====
+        // TOKEN E HEADERS
         // ============================================
         const token = localStorage.getItem('token');
         if (!token) { window.location.href = '/login'; }
@@ -1371,15 +1337,21 @@
 
         document.getElementById('userNameDisplay').textContent = user.name || 'Pastor';
 
-        // ===== FUNÇÃO CORRIGIDA =====
         function getHeaders() {
             return {
                 'Authorization': 'Bearer ' + localStorage.getItem('token')
             };
         }
 
+        function getJsonHeaders() {
+            return {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                'Content-Type': 'application/json'
+            };
+        }
+
         // ============================================
-        // ===== UTILITÁRIOS =====
+        // UTILITÁRIOS
         // ============================================
         function showLoading() {
             document.getElementById('loadingOverlay').classList.remove('hidden');
@@ -1429,7 +1401,7 @@
         }
 
         // ============================================
-        // ===== TABS =====
+        // TABS - CORRIGIDO
         // ============================================
         function showTab(tab) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -1438,12 +1410,12 @@
             document.querySelector(`.tab-btn[onclick*="${tab}"]`)?.classList.add('active');
 
             const handlers = {
+                'dashboard': loadDashboard,
                 'carousel': loadCarouselAdmin,
                 'departamentos': loadDepartments,
                 'membros': loadMembers,
                 'celulas': loadCelulas,
-                'live': () => { checkLiveStatus();
-                    loadLiveHistory(); },
+                'live': () => { checkLiveStatus(); loadLiveHistory(); },
                 'frequencia': () => {
                     setDefaultAttendanceDate();
                     if (allMembers.length > 0) {
@@ -1452,15 +1424,55 @@
                         if (date) loadAttendanceHistory(date);
                     }
                 },
-                'tesouraria': () => { loadTithes();
-                    loadTitheSummary(); },
-                'contas': () => { loadBills();
-                    loadBillSummary(); },
+                'tesouraria': () => { loadTithes(); loadTitheSummary(); },
+                'contas': () => { loadBills(); loadBillSummary(); },
                 'aniversariantes': loadBirthdaysAdmin,
                 'config': loadConfig,
                 'sobre': loadAbout,
                 'inscricoes': loadRegistrations,
-                'reflexoes': loadReflectionsAdmin
+                'reflexoes': loadReflectionsAdmin,
+                'vendas': async () => {
+                    try {
+                        const orders = await fetch('/api/orders', { headers: getHeaders() }).then(r => r.json());
+                        loadOrders(orders || []);
+                    } catch (e) { console.error('Erro ao carregar vendas:', e); }
+                },
+                'usuarios': async () => {
+                    try {
+                        const users = await fetch('/api/users', { headers: getHeaders() }).then(r => r.json());
+                        loadUsers(users || []);
+                    } catch (e) { console.error('Erro ao carregar usuários:', e); }
+                },
+                'oracoes': async () => {
+                    try {
+                        const prayers = await fetch('/api/prayers', { headers: getHeaders() }).then(r => r.json());
+                        loadPrayers(prayers || []);
+                    } catch (e) { console.error('Erro ao carregar orações:', e); }
+                },
+                'estudos': async () => {
+                    try {
+                        const studies = await fetch('/api/studies', { headers: getHeaders() }).then(r => r.json());
+                        loadStudies(studies || []);
+                    } catch (e) { console.error('Erro ao carregar estudos:', e); }
+                },
+                'eventos': async () => {
+                    try {
+                        const events = await fetch('/api/events', { headers: getHeaders() }).then(r => r.json());
+                        loadEvents(events || []);
+                    } catch (e) { console.error('Erro ao carregar eventos:', e); }
+                },
+                'produtos': async () => {
+                    try {
+                        const products = await fetch('/api/products', { headers: getHeaders() }).then(r => r.json());
+                        loadProducts(products || []);
+                    } catch (e) { console.error('Erro ao carregar produtos:', e); }
+                },
+                'doacoes': async () => {
+                    try {
+                        const donations = await fetch('/api/donations', { headers: getHeaders() }).then(r => r.json());
+                        loadDonations(donations || []);
+                    } catch (e) { console.error('Erro ao carregar doações:', e); }
+                }
             };
 
             if (handlers[tab]) handlers[tab]();
@@ -1473,7 +1485,7 @@
         }
 
         // ============================================
-        // ===== DASHBOARD =====
+        // DASHBOARD
         // ============================================
         async function loadDashboard() {
             showLoading();
@@ -1518,17 +1530,13 @@
             hideLoading();
         }
 
-        // ============================================
-        // ===== SALES STATS =====
-        // ============================================
         async function loadSalesStats() {
             try {
                 const res = await fetch('/api/sales-stats', { headers: getHeaders() });
                 const data = await res.json();
                 if (data.error) return;
 
-                document.getElementById('totalSalesValue').textContent = 'R$ ' + parseFloat(data.total?.total || 0)
-                    .toFixed(0);
+                document.getElementById('totalSalesValue').textContent = 'R$ ' + parseFloat(data.total?.total || 0).toFixed(0);
                 document.getElementById('totalSalesCount').textContent = data.total?.count || 0;
                 const avg = data.total?.count > 0 ? data.total.total / data.total.count : 0;
                 document.getElementById('avgSalesValue').textContent = 'R$ ' + avg.toFixed(0);
@@ -1552,15 +1560,13 @@
         }
 
         // ============================================
-        // ===== LISTAS =====
+        // LISTAS
         // ============================================
         function loadUsers(users) {
             const tbody = document.getElementById('usersList');
-            if (!users?.length) { tbody.innerHTML =
-                    '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+            if (!users?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
             const roleMap = { pastor: 'Pastor', lider: 'Líder', colaborador: 'Colaborador', fiel: 'Fiel' };
-            const badgeMap = { pastor: 'badge-pastor', lider: 'badge-lider', colaborador: 'badge-colaborador',
-                fiel: 'badge-fiel' };
+            const badgeMap = { pastor: 'badge-pastor', lider: 'badge-lider', colaborador: 'badge-colaborador', fiel: 'badge-fiel' };
             tbody.innerHTML = users.map(u => `
                 <tr>
                     <td>${u.name}</td>
@@ -1575,8 +1581,7 @@
 
         function loadPrayers(prayers) {
             const tbody = document.getElementById('prayersList');
-            if (!prayers?.length) { tbody.innerHTML =
-                '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+            if (!prayers?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
             tbody.innerHTML = prayers.slice(0, 30).map(p => `
                 <tr>
                     <td>${p.name||'Anônimo'}</td>
@@ -1589,8 +1594,7 @@
 
         function loadOrders(orders) {
             const tbody = document.getElementById('ordersList');
-            if (!orders?.length) { tbody.innerHTML =
-                '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
+            if (!orders?.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
             tbody.innerHTML = orders.slice(0, 30).map(o => {
                 let items = [];
                 try { items = JSON.parse(o.items || '[]'); } catch { items = []; }
@@ -1607,8 +1611,7 @@
 
         function loadDonations(donations) {
             const tbody = document.getElementById('donationsList');
-            if (!donations?.length) { tbody.innerHTML =
-                '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
+            if (!donations?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
             tbody.innerHTML = donations.slice(0, 30).map(d => `
                 <tr>
                     <td>${d.user_name||'Anônimo'}</td>
@@ -1621,8 +1624,7 @@
 
         function loadStudies(studies) {
             const tbody = document.getElementById('studiesList');
-            if (!studies?.length) { tbody.innerHTML =
-                    '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum estudo cadastrado</td></tr>'; return; }
+            if (!studies?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum estudo cadastrado</td></tr>'; return; }
             tbody.innerHTML = studies.map(s => `
                 <tr>
                     <td>${s.title}</td>
@@ -1638,8 +1640,7 @@
 
         function loadEvents(events) {
             const tbody = document.getElementById('eventsList');
-            if (!events?.length) { tbody.innerHTML =
-                '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+            if (!events?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
             tbody.innerHTML = events.map(e => `
                 <tr>
                     <td>${e.title}</td>
@@ -1651,7 +1652,7 @@
         }
 
         // ============================================
-        // ===== STUDY - CORRIGIDO =====
+        // ESTUDO
         // ============================================
         async function submitStudy() {
             const title = document.getElementById('studyTitle').value.trim();
@@ -1664,15 +1665,8 @@
             resultDiv.className = 'study-result';
             resultDiv.style.display = 'none';
 
-            if (!title) {
-                showNotification('❌ Digite o título do estudo!', 'error');
-                return;
-            }
-
-            if (!imageFile && !pdfFile && !fileUrl) {
-                showNotification('❌ Adicione pelo menos uma imagem, PDF ou link!', 'error');
-                return;
-            }
+            if (!title) { showNotification('❌ Digite o título do estudo!', 'error'); return; }
+            if (!imageFile && !pdfFile && !fileUrl) { showNotification('❌ Adicione pelo menos uma imagem, PDF ou link!', 'error'); return; }
 
             const formData = new FormData();
             formData.append('title', title);
@@ -1688,17 +1682,12 @@
             try {
                 const response = await fetch('/api/studies', {
                     method: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + localStorage.getItem('token')
-                    },
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
                     body: formData
                 });
 
                 const result = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(result.error || 'Erro ao criar estudo');
-                }
+                if (!response.ok) throw new Error(result.error || 'Erro ao criar estudo');
 
                 resultDiv.className = 'study-result success';
                 resultDiv.innerHTML = '✅ Estudo criado com sucesso!';
@@ -1713,7 +1702,6 @@
                 document.getElementById('studyPdf').value = '';
 
             } catch (error) {
-                console.error('❌ Erro:', error);
                 resultDiv.className = 'study-result error';
                 resultDiv.innerHTML = '❌ ' + error.message;
                 showNotification('❌ ' + error.message, 'error');
@@ -1721,7 +1709,7 @@
         }
 
         // ============================================
-        // ===== EVENT FORM - CORRIGIDO =====
+        // FORMS UPLOAD
         // ============================================
         document.getElementById('eventForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -1730,9 +1718,7 @@
                 const formData = new FormData(this);
                 const response = await fetch('/api/events', {
                     method: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + localStorage.getItem('token')
-                    },
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
                     body: formData
                 });
                 const result = await response.json();
@@ -1743,14 +1729,10 @@
                 this.reset();
             } catch (e) {
                 showNotification('❌ ' + e.message, 'error');
-                console.error(e);
             }
             hideLoading();
         });
 
-        // ============================================
-        // ===== PRODUCT FORM - CORRIGIDO =====
-        // ============================================
         document.getElementById('productForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
             showLoading();
@@ -1758,9 +1740,7 @@
                 const formData = new FormData(this);
                 const response = await fetch('/api/products', {
                     method: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + localStorage.getItem('token')
-                    },
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
                     body: formData
                 });
                 const result = await response.json();
@@ -1771,14 +1751,10 @@
                 this.reset();
             } catch (e) {
                 showNotification('❌ ' + e.message, 'error');
-                console.error(e);
             }
             hideLoading();
         });
 
-        // ============================================
-        // ===== CAROUSEL FORM - CORRIGIDO =====
-        // ============================================
         document.getElementById('carouselForm')?.addEventListener('submit', async function(e) {
             e.preventDefault();
             showLoading();
@@ -1786,9 +1762,7 @@
                 const formData = new FormData(this);
                 const response = await fetch('/api/carousel', {
                     method: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + localStorage.getItem('token')
-                    },
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
                     body: formData
                 });
                 const result = await response.json();
@@ -1799,21 +1773,22 @@
                 this.reset();
             } catch (e) {
                 showNotification('❌ ' + e.message, 'error');
-                console.error(e);
             }
             hideLoading();
         });
 
         // ============================================
-        // ===== FUNÇÕES DE PRODUTOS E EVENTOS =====
+        // PRODUTOS
         // ============================================
-        async function loadProducts() {
+        async function loadProducts(productsParam) {
             try {
-                const res = await fetch('/api/products', { headers: getHeaders() });
-                const products = await res.json();
+                let products = productsParam;
+                if (!products) {
+                    const res = await fetch('/api/products', { headers: getHeaders() });
+                    products = await res.json();
+                }
                 const tbody = document.getElementById('productsList');
-                if (!products?.length) { tbody.innerHTML =
-                    '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+                if (!products?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
                 tbody.innerHTML = products.map(p => `
                     <tr>
                         <td>${p.name}</td>
@@ -1852,7 +1827,7 @@
         }
 
         // ============================================
-        // ===== REGISTRATIONS =====
+        // REGISTRATIONS
         // ============================================
         let currentFilter = 'all';
 
@@ -1862,8 +1837,7 @@
                 const data = await res.json();
                 const tbody = document.getElementById('registrationsList');
                 if (!data?.length) {
-                    tbody.innerHTML =
-                        '<tr><td colspan="6" class="text-center" style="color:#888;">Nenhuma inscrição</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="color:#888;">Nenhuma inscrição</td></tr>';
                     return;
                 }
                 const typeMap = { baptism: 'Batismo', volunteer: 'Voluntário', event: 'Evento', department: 'Depto' };
@@ -1902,10 +1876,7 @@
         async function deleteRegistration(id) {
             if (!confirm('Remover esta inscrição?')) return;
             try {
-                await fetch(`/api/registrations/${id}`, {
-                    method: 'DELETE',
-                    headers: getHeaders()
-                });
+                await fetch(`/api/registrations/${id}`, { method: 'DELETE', headers: getHeaders() });
                 showNotification('✅ Inscrição removida!', 'success');
                 loadRegistrations();
             } catch (e) {
@@ -1935,19 +1906,16 @@
         }
 
         // ============================================
-        // ===== CARROSSEL ADMIN =====
+        // CARROSSEL ADMIN
         // ============================================
         async function loadCarouselAdmin() {
             try {
                 const res = await fetch('/api/carousel', { headers: getHeaders() });
                 const data = await res.json();
                 const container = document.getElementById('carouselList');
-                if (!data?.length) { container.innerHTML =
-                    '<p class="text-center" style="color:#888;font-size:0.65rem;">Nenhuma</p>'; return; }
+                if (!data?.length) { container.innerHTML = '<p class="text-center" style="color:#888;font-size:0.65rem;">Nenhuma</p>'; return; }
                 container.innerHTML = data.map(img => {
-                    const src = img.image_url || (img.image_base64 ?
-                        `data:image/jpeg;base64,${img.image_base64}` :
-                        'https://via.placeholder.com/200x120/0D47A1/fff?text=NJ');
+                    const src = img.image_url || (img.image_base64 ? `data:image/jpeg;base64,${img.image_base64}` : '');
                     return `<div class="carousel-item">
                         <img src="${src}" alt="${img.title||'Slide'}">
                         <div class="title">${img.title||'Sem título'}</div>
@@ -1967,15 +1935,14 @@
         }
 
         // ============================================
-        // ===== DEPARTMENTS =====
+        // DEPARTMENTS
         // ============================================
         async function loadDepartments() {
             try {
                 const res = await fetch('/api/departments', { headers: getHeaders() });
                 const data = await res.json();
                 const tbody = document.getElementById('departmentsList');
-                if (!data?.length) { tbody.innerHTML =
-                    '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+                if (!data?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
                 tbody.innerHTML = data.map(d => `
                     <tr>
                         <td>${d.name}</td>
@@ -2008,7 +1975,7 @@
             try {
                 await fetch('/api/departments', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getJsonHeaders(),
                     body: JSON.stringify({ name, description: desc })
                 });
                 closeModal('deptModal');
@@ -2018,15 +1985,14 @@
         }
 
         // ============================================
-        // ===== MEMBROS =====
+        // MEMBROS
         // ============================================
         async function loadMembers() {
             try {
                 const res = await fetch('/api/members', { headers: getHeaders() });
                 const data = await res.json();
                 const tbody = document.getElementById('membersList');
-                if (!data?.length) { tbody.innerHTML =
-                    '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+                if (!data?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
                 tbody.innerHTML = data.map(m => `
                     <tr>
                         <td>${m.name}</td>
@@ -2045,8 +2011,7 @@
             try {
                 const depts = await fetch('/api/departments', { headers: getHeaders() }).then(r => r.json());
                 const select = document.getElementById('memberDepartment');
-                select.innerHTML = '<option value="">Selecione</option>' + depts.map(d =>
-                    `<option value="${d.id}">${d.name}</option>`).join('');
+                select.innerHTML = '<option value="">Selecione</option>' + depts.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
                 document.getElementById('memberName').value = '';
                 document.getElementById('memberEmail').value = '';
                 document.getElementById('memberPhone').value = '';
@@ -2073,7 +2038,7 @@
             try {
                 await fetch('/api/members', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getJsonHeaders(),
                     body: JSON.stringify(data)
                 });
                 closeModal('memberModal');
@@ -2086,9 +2051,7 @@
             try {
                 const res = await fetch('/api/members/' + id, { headers: getHeaders() });
                 const data = await res.json();
-                let msg =
-                    `👤 ${data.name}\n📧 ${data.email||'-'}\n📱 ${data.phone||'-'}\n🎂 ${data.birth_date ? new Date(data.birth_date).toLocaleDateString('pt-BR') : '-'}\n💑 ${data.marital_status||'-'}`;
-                if (data.spouse_name) msg += `\n👰 ${data.spouse_name}`;
+                let msg = `👤 ${data.name}\n📧 ${data.email||'-'}\n📱 ${data.phone||'-'}\n🎂 ${data.birth_date ? new Date(data.birth_date).toLocaleDateString('pt-BR') : '-'}`;
                 if (data.department_name) msg += `\n🏛️ ${data.department_name}`;
                 alert(msg);
             } catch (e) { showNotification('❌ ' + e.message, 'error'); }
@@ -2104,9 +2067,8 @@
         }
 
         // ============================================
-        // ===== CÉLULAS =====
+        // CÉLULAS
         // ============================================
-        let celulaAtual = null;
         let celulaAddMembroId = null;
         let celulaDecisaoId = null;
 
@@ -2117,12 +2079,10 @@
                 const tbody = document.getElementById('celulasList');
 
                 let totalCelulas = data.length;
-                let totalMembros = 0,
-                    totalBatizados = 0;
+                let totalMembros = 0, totalBatizados = 0;
 
                 if (!data?.length) {
-                    tbody.innerHTML =
-                        '<tr><td colspan="6" class="text-center" style="color:#888;">Nenhuma célula cadastrada</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="color:#888;">Nenhuma célula cadastrada</td></tr>';
                     document.getElementById('totalCelulasStats').textContent = '0';
                     document.getElementById('totalMembrosCelulaStats').textContent = '0';
                     document.getElementById('totalBatizadosCelulaStats').textContent = '0';
@@ -2146,16 +2106,15 @@
                         <td>${c.batizados || 0}</td>
                         <td>${c.decisoes || 0}</td>
                         <td>
-                            <button onclick="verCelula(${c.id})" class="btn btn-primary btn-xs" title="Ver detalhes"><i class="fas fa-eye"></i></button>
-                            <button onclick="openAddMembroCelula(${c.id})" class="btn btn-success btn-xs" title="Adicionar membro"><i class="fas fa-user-plus"></i></button>
-                            <button onclick="openDecisaoCelula(${c.id})" class="btn btn-warning btn-xs" title="Registrar decisão"><i class="fas fa-cross"></i></button>
-                            <button onclick="deleteCelula(${c.id})" class="btn btn-danger btn-xs" title="Remover"><i class="fas fa-trash"></i></button>
+                            <button onclick="verCelula(${c.id})" class="btn btn-primary btn-xs"><i class="fas fa-eye"></i></button>
+                            <button onclick="openAddMembroCelula(${c.id})" class="btn btn-success btn-xs"><i class="fas fa-user-plus"></i></button>
+                            <button onclick="openDecisaoCelula(${c.id})" class="btn btn-warning btn-xs"><i class="fas fa-cross"></i></button>
+                            <button onclick="deleteCelula(${c.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
                 `).join('');
             } catch (e) {
                 console.error('Erro:', e);
-                showNotification('❌ Erro ao carregar células', 'error');
             }
         }
 
@@ -2171,11 +2130,10 @@
                 const select = document.getElementById('celulaLider');
                 select.innerHTML = '<option value="">Selecione um líder</option>';
                 users.filter(u => u.role === 'lider' || u.is_leader).forEach(u => {
-                    select.innerHTML += `<option value="${u.id}">${u.name} (${u.role})</option>`;
+                    select.innerHTML += `<option value="${u.id}">${u.name}</option>`;
                 });
             } catch (e) { console.error(e); }
 
-            celulaAtual = null;
             openModal('celulaModal');
         }
 
@@ -2187,24 +2145,17 @@
             const horario = document.getElementById('celulaHorario').value.trim();
             const descricao = document.getElementById('celulaDescricao').value.trim();
 
-            if (!nome) {
-                showNotification('Digite o nome da célula!', 'error');
-                return;
-            }
+            if (!nome) { showNotification('Digite o nome da célula!', 'error'); return; }
 
             try {
-                const method = celulaAtual ? 'PUT' : 'POST';
-                const url = celulaAtual ? `/api/celulas/${celulaAtual}` : '/api/celulas';
-
-                await fetch(url, {
-                    method,
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                await fetch('/api/celulas', {
+                    method: 'POST',
+                    headers: getJsonHeaders(),
                     body: JSON.stringify({ nome, lider_id, endereco, dias_reuniao, horario, descricao })
                 });
-
                 closeModal('celulaModal');
                 loadCelulas();
-                showNotification('✅ Célula salva com sucesso!', 'success');
+                showNotification('✅ Célula salva!', 'success');
             } catch (e) {
                 showNotification('❌ ' + e.message, 'error');
             }
@@ -2226,23 +2177,8 @@
                 const res = await fetch(`/api/celulas/${id}`, { headers: getHeaders() });
                 const data = await res.json();
 
-                let msg = `🏠 ${data.nome}\n`;
-                msg += `👤 Líder: ${data.lider_nome || 'Sem líder'}\n`;
-                msg += `📍 ${data.endereco || 'Endereço não informado'}\n`;
-                msg += `📅 ${data.dias_reuniao || 'Dias não informados'}\n`;
-                msg += `🕐 ${data.horario || 'Horário não informado'}\n`;
-                msg += `\n📊 Estatísticas:\n`;
-                msg += `👥 Membros: ${data.membros?.length || 0}\n`;
-                msg += `✝️ Batizados: ${data.decisoes?.filter(d => d.tipo === 'batismo').length || 0}\n`;
-                msg += `🙏 Aceitaram Jesus: ${data.decisoes?.filter(d => d.tipo === 'decisao').length || 0}\n`;
-
-                if (data.membros?.length) {
-                    msg += `\n👥 Membros da Célula:\n`;
-                    data.membros.forEach(m => {
-                        msg +=
-                            `   - ${m.name} (desde ${new Date(m.data_entrada).toLocaleDateString('pt-BR')})\n`;
-                    });
-                }
+                let msg = `🏠 ${data.nome}\n👤 Líder: ${data.lider_nome || 'Sem líder'}\n📍 ${data.endereco || '-'}\n📅 ${data.dias_reuniao || '-'}\n🕐 ${data.horario || '-'}\n`;
+                msg += `\n📊 Estatísticas:\n👥 Membros: ${data.membros?.length || 0}`;
 
                 alert(msg);
             } catch (e) {
@@ -2257,33 +2193,26 @@
                 const select = document.getElementById('addMembroSelect');
                 select.innerHTML = '<option value="">Selecione um membro</option>';
                 members.forEach(m => {
-                    select.innerHTML += `<option value="${m.id}">${m.name} ${m.phone ? '- ' + m.phone : ''}</option>`;
+                    select.innerHTML += `<option value="${m.id}">${m.name}</option>`;
                 });
                 openModal('addMembroCelulaModal');
-            } catch (e) {
-                showNotification('❌ ' + e.message, 'error');
-            }
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
         }
 
         async function addMembroCelula() {
             const membro_id = document.getElementById('addMembroSelect').value;
-            if (!membro_id) {
-                showNotification('Selecione um membro!', 'error');
-                return;
-            }
+            if (!membro_id) { showNotification('Selecione um membro!', 'error'); return; }
 
             try {
                 await fetch(`/api/celulas/${celulaAddMembroId}/membros`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getJsonHeaders(),
                     body: JSON.stringify({ membro_id })
                 });
                 closeModal('addMembroCelulaModal');
                 loadCelulas();
-                showNotification('✅ Membro adicionado à célula!', 'success');
-            } catch (e) {
-                showNotification('❌ ' + e.message, 'error');
-            }
+                showNotification('✅ Membro adicionado!', 'success');
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
         }
 
         async function openDecisaoCelula(celulaId) {
@@ -2298,9 +2227,7 @@
                 document.getElementById('decisaoTipo').value = 'batismo';
                 document.getElementById('decisaoObs').value = '';
                 openModal('decisaoCelulaModal');
-            } catch (e) {
-                showNotification('❌ ' + e.message, 'error');
-            }
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
         }
 
         async function saveDecisaoCelula() {
@@ -2311,19 +2238,17 @@
             try {
                 await fetch(`/api/celulas/${celulaDecisaoId}/decisoes`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getJsonHeaders(),
                     body: JSON.stringify({ tipo, membro_id, observacao })
                 });
                 closeModal('decisaoCelulaModal');
                 loadCelulas();
                 showNotification('✅ Decisão registrada!', 'success');
-            } catch (e) {
-                showNotification('❌ ' + e.message, 'error');
-            }
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
         }
 
         // ============================================
-        // ===== FREQUÊNCIA =====
+        // FREQUÊNCIA
         // ============================================
         let allMembers = [];
         let selectedMembers = new Set();
@@ -2349,8 +2274,7 @@
                 allMembers = await res.json();
                 if (!allMembers?.length) {
                     showNotification('Nenhum membro!', 'error');
-                    document.getElementById('membersListContainer').innerHTML =
-                        '<p style="color:#888;text-align:center;font-size:0.6rem;">Nenhum</p>';
+                    document.getElementById('membersListContainer').innerHTML = '<p style="color:#888;text-align:center;font-size:0.6rem;">Nenhum</p>';
                     return;
                 }
                 selectedMembers.clear();
@@ -2379,8 +2303,7 @@
             const container = document.getElementById('membersListContainer');
             const search = document.getElementById('memberSearch')?.value.toLowerCase().trim() || '';
             let filtered = allMembers;
-            if (search) filtered = allMembers.filter(m => m.name.toLowerCase().includes(search) || (m.email && m.email
-                .toLowerCase().includes(search)));
+            if (search) filtered = allMembers.filter(m => m.name.toLowerCase().includes(search) || (m.email && m.email.toLowerCase().includes(search)));
             attendanceFilteredMembers = filtered;
             document.getElementById('totalCount').textContent = filtered.length;
             if (!filtered.length) {
@@ -2451,15 +2374,13 @@
             if (!date) { showNotification('Selecione a data!', 'error'); return; }
             if (!selectedMembers.size) { showNotification('Selecione membros!', 'error'); return; }
             if (!confirm(`Registrar ${selectedMembers.size} membros?`)) return;
-            let success = 0,
-                errors = 0;
+            let success = 0, errors = 0;
             for (const id of selectedMembers) {
                 try {
                     await fetch('/api/attendance', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json', ...getHeaders() },
-                        body: JSON.stringify({ member_id: id, event_date: date, service_type: service,
-                            present: true })
+                        headers: getJsonHeaders(),
+                        body: JSON.stringify({ member_id: id, event_date: date, service_type: service, present: true })
                     });
                     success++;
                 } catch (e) { errors++; }
@@ -2482,8 +2403,7 @@
 
         async function loadAttendanceHistory(date) {
             if (!date) {
-                document.getElementById('attendanceList').innerHTML =
-                    '<p style="color:#888;text-align:center;font-size:0.55rem;">Selecione uma data</p>';
+                document.getElementById('attendanceList').innerHTML = '<p style="color:#888;text-align:center;font-size:0.55rem;">Selecione uma data</p>';
                 return;
             }
             try {
@@ -2491,13 +2411,11 @@
                 const records = await res.json();
                 const container = document.getElementById('attendanceList');
                 if (!records?.length) {
-                    container.innerHTML =
-                        `<p style="color:#888;text-align:center;font-size:0.55rem;">Nenhum registro</p>`;
+                    container.innerHTML = `<p style="color:#888;text-align:center;font-size:0.55rem;">Nenhum registro</p>`;
                     return;
                 }
                 const presentes = records.filter(r => r.present).length;
-                let html =
-                    `<div style="font-size:0.5rem;color:#666;margin-bottom:0.1rem;"><strong>${records.length}</strong> registros ✅ ${presentes} ❌ ${records.length - presentes}</div>`;
+                let html = `<div style="font-size:0.5rem;color:#666;margin-bottom:0.1rem;"><strong>${records.length}</strong> registros ✅ ${presentes} ❌ ${records.length - presentes}</div>`;
                 records.slice(0, 15).forEach(r => {
                     const m = allMembers.find(x => x.id === r.member_id);
                     const name = m ? m.name : '#' + r.member_id;
@@ -2511,14 +2429,13 @@
         }
 
         // ============================================
-        // ===== TITHES =====
+        // TITHES
         // ============================================
         async function openTitheModal() {
             try {
                 const members = await fetch('/api/members', { headers: getHeaders() }).then(r => r.json());
                 const select = document.getElementById('titheMember');
-                select.innerHTML = '<option value="">Visitante</option>' + members.map(m =>
-                    `<option value="${m.id}">${m.name}</option>`).join('');
+                select.innerHTML = '<option value="">Visitante</option>' + members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
                 document.getElementById('titheAmount').value = '';
                 document.getElementById('titheDate').value = new Date().toISOString().split('T')[0];
                 document.getElementById('titheType').value = 'dizimo';
@@ -2537,14 +2454,13 @@
             try {
                 await fetch('/api/tithes', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
-                    body: JSON.stringify({ member_id: member_id || null, member_name: null, type, amount,
-                        payment_date, payment_method, description: '' })
+                    headers: getJsonHeaders(),
+                    body: JSON.stringify({ member_id: member_id || null, type, amount, payment_date, payment_method, description: '' })
                 });
                 closeModal('titheModal');
                 loadTithes();
                 loadTitheSummary();
-                showNotification('✅ Registrado!', 'success');
+                showNotification('✅ Registrado! Email enviado!', 'success');
             } catch (e) { showNotification('❌ ' + e.message, 'error'); }
         }
 
@@ -2553,8 +2469,7 @@
                 const res = await fetch('/api/tithes', { headers: getHeaders() });
                 const data = await res.json();
                 const tbody = document.getElementById('tithesList');
-                if (!data?.length) { tbody.innerHTML =
-                    '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+                if (!data?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
                 tbody.innerHTML = data.slice(0, 30).map(t => `
                     <tr>
                         <td>${t.member_name||'Visitante'}</td>
@@ -2572,14 +2487,13 @@
                 const data = await res.json();
                 const div = document.getElementById('titheSummary');
                 if (!data.by_type?.length) { div.innerHTML = ''; return; }
-                div.innerHTML = data.by_type.map(t =>
-                    `<span><strong>${t.type}:</strong> R$ ${parseFloat(t.total).toFixed(0)}</span> `).join('') +
+                div.innerHTML = data.by_type.map(t => `<span><strong>${t.type}:</strong> R$ ${parseFloat(t.total).toFixed(0)}</span> `).join('') +
                     `<span><strong>Total:</strong> R$ ${parseFloat(data.total).toFixed(0)}</span>`;
             } catch (e) { console.error('Erro:', e); }
         }
 
         // ============================================
-        // ===== BILLS =====
+        // BILLS
         // ============================================
         function openBillModal() {
             document.getElementById('billDescription').value = '';
@@ -2598,7 +2512,7 @@
             try {
                 await fetch('/api/bills', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getJsonHeaders(),
                     body: JSON.stringify({ description: desc, category: cat, amount, due_date: due, notes: '' })
                 });
                 closeModal('billModal');
@@ -2613,8 +2527,7 @@
                 const res = await fetch('/api/bills', { headers: getHeaders() });
                 const data = await res.json();
                 const tbody = document.getElementById('billsList');
-                if (!data?.length) { tbody.innerHTML =
-                    '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
+                if (!data?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma</td></tr>'; return; }
                 tbody.innerHTML = data.map(b => `
                     <tr>
                         <td>${b.description}</td>
@@ -2634,9 +2547,8 @@
             try {
                 await fetch('/api/bills/' + id + '/pay', {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
-                    body: JSON.stringify({ payment_date: new Date().toISOString().split('T')[0],
-                        payment_method: 'dinheiro' })
+                    headers: getJsonHeaders(),
+                    body: JSON.stringify({ payment_date: new Date().toISOString().split('T')[0], payment_method: 'dinheiro' })
                 });
                 loadBills();
                 loadBillSummary();
@@ -2666,23 +2578,20 @@
         }
 
         // ============================================
-        // ===== ANIVERSARIANTES =====
+        // ANIVERSARIANTES
         // ============================================
         async function loadBirthdaysAdmin() {
             try {
                 const res = await fetch('/api/birthdays', { headers: getHeaders() });
                 const data = await res.json();
                 const tbody = document.getElementById('birthdaysList');
-                if (!data?.length) { tbody.innerHTML =
-                    '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+                if (!data?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
                 const today = new Date();
                 tbody.innerHTML = data.map(b => {
                     const birth = new Date(b.birth_date);
                     let idade = today.getFullYear() - birth.getFullYear();
-                    if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() &&
-                            today.getDate() < birth.getDate())) idade--;
-                    const isToday = birth.getMonth() === today.getMonth() && birth.getDate() === today
-                        .getDate();
+                    if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) idade--;
+                    const isToday = birth.getMonth() === today.getMonth() && birth.getDate() === today.getDate();
                     return `<tr class="${isToday ? 'birthday-today' : ''}">
                         <td>${b.name} ${isToday ? '🎉' : ''}</td>
                         <td>${birth.toLocaleDateString('pt-BR')}</td>
@@ -2693,7 +2602,7 @@
         }
 
         // ============================================
-        // ===== REFLEXÕES =====
+        // REFLEXÕES
         // ============================================
         async function loadReflectionsAdmin() {
             try {
@@ -2701,8 +2610,7 @@
                 const data = await res.json();
                 const tbody = document.getElementById('reflectionsList');
                 if (!data?.length) {
-                    tbody.innerHTML =
-                        '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma reflexão cadastrada</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhuma reflexão cadastrada</td></tr>';
                     return;
                 }
                 tbody.innerHTML = data.map(r => `
@@ -2710,15 +2618,12 @@
                         <td>${r.title}</td>
                         <td>${r.description || '-'}</td>
                         <td><a href="${r.link}" target="_blank" style="color:var(--primary);font-size:0.6rem;">${r.link.substring(0, 30)}...</a></td>
-                        <td>
-                            <button onclick="deleteReflection(${r.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button>
-                        </td>
+                        <td><button onclick="deleteReflection(${r.id})" class="btn btn-danger btn-xs"><i class="fas fa-trash"></i></button></td>
                     </tr>
                 `).join('');
             } catch (e) {
                 console.error('Erro ao carregar reflexões:', e);
-                document.getElementById('reflectionsList').innerHTML =
-                    '<tr><td colspan="4" class="text-center" style="color:#dc3545;">Erro ao carregar</td></tr>';
+                document.getElementById('reflectionsList').innerHTML = '<tr><td colspan="4" class="text-center" style="color:#dc3545;">Erro ao carregar</td></tr>';
             }
         }
 
@@ -2734,21 +2639,15 @@
             const description = document.getElementById('reflectionDesc').value.trim();
             const link = document.getElementById('reflectionLink').value.trim();
 
-            if (!title || !link) {
-                showNotification('Título e Link são obrigatórios!', 'error');
-                return;
-            }
+            if (!title || !link) { showNotification('Título e Link são obrigatórios!', 'error'); return; }
 
             const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/;
-            if (!youtubeRegex.test(link)) {
-                showNotification('Link inválido! Use um link do YouTube.', 'error');
-                return;
-            }
+            if (!youtubeRegex.test(link)) { showNotification('Link inválido do YouTube!', 'error'); return; }
 
             try {
                 const res = await fetch('/api/pastor-reflections', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getJsonHeaders(),
                     body: JSON.stringify({ title, description, link })
                 });
                 if (!res.ok) {
@@ -2757,7 +2656,7 @@
                 }
                 closeModal('reflectionModal');
                 loadReflectionsAdmin();
-                showNotification('✅ Reflexão salva com sucesso!', 'success');
+                showNotification('✅ Reflexão salva!', 'success');
             } catch (e) {
                 showNotification('❌ ' + e.message, 'error');
             }
@@ -2775,7 +2674,7 @@
         }
 
         // ============================================
-        // ===== AÇÕES GERAIS =====
+        // AÇÕES GERAIS
         // ============================================
         async function markPrayerRead(id) {
             try {
@@ -2799,7 +2698,7 @@
             try {
                 await fetch('/api/reset-password', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getJsonHeaders(),
                     body: JSON.stringify({ email })
                 });
                 showNotification('✅ Senha resetada!', 'success');
@@ -2807,7 +2706,7 @@
         }
 
         // ============================================
-        // ===== USUÁRIOS =====
+        // USUÁRIOS
         // ============================================
         async function openUserModal() {
             document.getElementById('userName').value = '';
@@ -2834,13 +2733,10 @@
                 showNotification('Preencha todos os campos!', 'error');
                 return;
             }
-            const btn = document.querySelector('#userModal .btn-primary');
-            if (btn) { btn.disabled = true;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; }
             try {
                 const res = await fetch('/api/users', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getJsonHeaders(),
                     body: JSON.stringify({ name, email, password, role, department_id: dept || null })
                 });
                 const data = await res.json();
@@ -2848,14 +2744,11 @@
                 closeModal('userModal');
                 showNotification('✅ Usuário criado!', 'success');
                 loadDashboard();
-            } catch (e) { showNotification('❌ ' + e.message, 'error'); } finally {
-                if (btn) { btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-save"></i> Salvar'; }
-            }
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
         }
 
         // ============================================
-        // ===== CONFIG =====
+        // CONFIG
         // ============================================
         let cultosList = [];
 
@@ -2875,9 +2768,8 @@
                 const res = await fetch('/api/settings');
                 const settings = await res.json();
                 if (settings.cultos) {
-                    try {
-                        cultosList = JSON.parse(settings.cultos);
-                    } catch {
+                    try { cultosList = JSON.parse(settings.cultos); }
+                    catch {
                         cultosList = [
                             { dia: 0, hora: 18, minuto: 0, label: 'Domingo 18:00' },
                             { dia: 3, hora: 20, minuto: 0, label: 'Quarta 20:00' },
@@ -2911,14 +2803,8 @@
             const hora = parseInt(document.getElementById('cultoHora').value) || 0;
             const minuto = parseInt(document.getElementById('cultoMinuto').value) || 0;
 
-            if (hora < 0 || hora > 23) {
-                showNotification('Hora inválida (0-23)', 'error');
-                return;
-            }
-            if (minuto < 0 || minuto > 59) {
-                showNotification('Minuto inválido (0-59)', 'error');
-                return;
-            }
+            if (hora < 0 || hora > 23) { showNotification('Hora inválida', 'error'); return; }
+            if (minuto < 0 || minuto > 59) { showNotification('Minuto inválido', 'error'); return; }
 
             const dias = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
             const label = `${dias[dia]} ${String(hora).padStart(2,'0')}:${String(minuto).padStart(2,'0')}`;
@@ -2937,21 +2823,19 @@
             try {
                 const res = await fetch('/api/settings', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getJsonHeaders(),
                     body: JSON.stringify({ key: 'cultos', value: JSON.stringify(cultosList) })
                 });
                 if (!res.ok) throw new Error('Erro ao salvar');
-                showNotification('✅ Horários salvos com sucesso!', 'success');
-            } catch (e) {
-                showNotification('❌ ' + e.message, 'error');
-            }
+                showNotification('✅ Horários salvos!', 'success');
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
         }
 
         async function saveConfig(key, value) {
             try {
                 await fetch('/api/settings', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getJsonHeaders(),
                     body: JSON.stringify({ key, value })
                 });
                 if (key === 'primary_color') document.documentElement.style.setProperty('--primary', value);
@@ -2960,7 +2844,7 @@
         }
 
         // ============================================
-        // ===== SOBRE NÓS =====
+        // SOBRE NÓS
         // ============================================
         async function loadAbout() {
             try {
@@ -2980,65 +2864,36 @@
             try {
                 showNotification('🔄 Salvando...', 'info');
                 await Promise.all([
-                    fetch('/api/settings', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', ...getHeaders() },
-                        body: JSON.stringify({ key: 'about_mission', value: mission })
-                    }),
-                    fetch('/api/settings', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', ...getHeaders() },
-                        body: JSON.stringify({ key: 'about_vision', value: vision })
-                    }),
-                    fetch('/api/settings', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', ...getHeaders() },
-                        body: JSON.stringify({ key: 'about_values', value: values })
-                    })
+                    fetch('/api/settings', { method: 'POST', headers: getJsonHeaders(), body: JSON.stringify({ key: 'about_mission', value: mission }) }),
+                    fetch('/api/settings', { method: 'POST', headers: getJsonHeaders(), body: JSON.stringify({ key: 'about_vision', value: vision }) }),
+                    fetch('/api/settings', { method: 'POST', headers: getJsonHeaders(), body: JSON.stringify({ key: 'about_values', value: values }) })
                 ]);
-                showNotification('✅ Sobre Nós atualizado com sucesso!', 'success');
-            } catch (e) {
-                showNotification('❌ Erro ao salvar: ' + e.message, 'error');
-            }
+                showNotification('✅ Sobre Nós atualizado!', 'success');
+            } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
         }
 
         // ============================================
-        // ===== UPLOAD FORMS - CORRIGIDOS =====
+        // MODAIS OPEN
         // ============================================
         function openEventModal() { openModal('eventModal'); }
         function openProductModal() { openModal('productModal'); }
         function openCarouselModal() { openModal('carouselModal'); }
         function openStudyModal() { openModal('studyModal'); }
 
-        // FILE INPUT HANDLERS
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('studyImage')?.addEventListener('change', function() {
                 const name = this.files[0] ? this.files[0].name : '';
                 document.getElementById('studyImageName').textContent = name;
-                if (name) {
-                    document.getElementById('studyImageLabel').querySelector('span').textContent =
-                        'Arquivo selecionado:';
-                } else {
-                    document.getElementById('studyImageLabel').querySelector('span').textContent =
-                        'Clique para selecionar uma imagem';
-                }
             });
 
             document.getElementById('studyPdf')?.addEventListener('change', function() {
                 const name = this.files[0] ? this.files[0].name : '';
                 document.getElementById('studyPdfName').textContent = name;
-                if (name) {
-                    document.getElementById('studyPdfLabel').querySelector('span').textContent =
-                        'Arquivo selecionado:';
-                } else {
-                    document.getElementById('studyPdfLabel').querySelector('span').textContent =
-                        'Clique para selecionar um PDF';
-                }
             });
         });
 
         // ============================================
-        // ===== LIVE =====
+        // LIVE
         // ============================================
         let localStream = null;
         let isLiveActive = false;
@@ -3091,9 +2946,7 @@
                     }
 
                     const info = document.getElementById('liveInfo');
-                    if (info) {
-                        info.textContent = 'Nenhuma live ativa no momento';
-                    }
+                    if (info) info.textContent = 'Nenhuma live ativa no momento';
 
                     const startBtn = document.getElementById('startLiveBtn');
                     const stopBtn = document.getElementById('stopLiveBtn');
@@ -3104,19 +2957,8 @@
                         clearInterval(liveInterval);
                         liveInterval = null;
                     }
-
-                    const video = document.getElementById('localVideo');
-                    if (video && video.srcObject) {
-                        video.srcObject.getTracks().forEach(track => track.stop());
-                        video.srcObject = null;
-                        video.style.display = 'none';
-                        const placeholder = document.getElementById('placeholderMessage');
-                        if (placeholder) placeholder.style.display = 'flex';
-                    }
                 }
-            } catch (e) {
-                console.error('Erro ao verificar live:', e);
-            }
+            } catch (e) { console.error('Erro:', e); }
         }
 
         async function updateViewers() {
@@ -3129,9 +2971,7 @@
                 });
                 const data = await res.json();
                 const viewers = document.getElementById('liveViewers');
-                if (viewers) {
-                    viewers.innerHTML = `<i class="fas fa-eye"></i> ${data.viewers || 0} espectadores`;
-                }
+                if (viewers) viewers.innerHTML = `<i class="fas fa-eye"></i> ${data.viewers || 0} espectadores`;
             } catch (e) { console.error(e); }
         }
 
@@ -3147,9 +2987,7 @@
                     audio: true
                 };
 
-                if (deviceId) {
-                    constraints.video = { deviceId: { exact: deviceId } };
-                }
+                if (deviceId) constraints.video = { deviceId: { exact: deviceId } };
 
                 localStream = await navigator.mediaDevices.getUserMedia(constraints);
                 const video = document.getElementById('localVideo');
@@ -3163,7 +3001,7 @@
                 return localStream;
             } catch (e) {
                 console.error('Erro ao acessar câmera:', e);
-                throw new Error('Não foi possível acessar a câmera/microfone. Verifique as permissões.');
+                throw new Error('Não foi possível acessar a câmera/microfone.');
             }
         }
 
@@ -3176,7 +3014,7 @@
 
                 const res = await fetch('/api/lives/start', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...getHeaders() },
+                    headers: getJsonHeaders(),
                     body: JSON.stringify({ titulo, descricao })
                 });
 
@@ -3193,23 +3031,14 @@
                 }
 
                 const info = document.getElementById('liveInfo');
-                if (info) {
-                    info.textContent = `📺 ${titulo} - Ao vivo!`;
-                }
+                if (info) info.textContent = `📺 ${titulo} - Ao vivo!`;
 
                 const startBtn = document.getElementById('startLiveBtn');
                 const stopBtn = document.getElementById('stopLiveBtn');
                 if (startBtn) startBtn.style.display = 'none';
                 if (stopBtn) stopBtn.style.display = 'inline-flex';
 
-                const video = document.getElementById('localVideo');
-                if (video) {
-                    video.style.display = 'block';
-                }
-                const placeholder = document.getElementById('placeholderMessage');
-                if (placeholder) placeholder.style.display = 'none';
-
-                showNotification('✅ Live iniciada com sucesso!', 'success');
+                showNotification('✅ Live iniciada!', 'success');
 
                 if (liveInterval) clearInterval(liveInterval);
                 liveInterval = setInterval(updateViewers, 10000);
@@ -3224,22 +3053,20 @@
 
         async function stopLive() {
             try {
-                const res = await fetch('/api/lives/active');
-                const data = await res.json();
+                const checkRes = await fetch('/api/lives/active');
+                const activeData = await checkRes.json();
 
-                if (data.status !== 'live') {
-                    showNotification('⚠️ Nenhuma live ativa para encerrar.', 'error');
+                if (activeData.status !== 'live') {
+                    showNotification('⚠️ Nenhuma live ativa.', 'error');
                     return;
                 }
 
-                const liveIdToStop = data.id;
-                const liveTitle = data.titulo || 'Live';
+                const liveIdToStop = activeData.id;
+                const liveTitle = activeData.titulo || 'Live';
 
-                if (!confirm(`Deseja encerrar a transmissão "${liveTitle}"?`)) {
-                    return;
-                }
+                if (!confirm(`Deseja encerrar "${liveTitle}"?`)) return;
 
-                showNotification('🔄 Encerrando live...', 'info');
+                showNotification('🔄 Encerrando...', 'info');
 
                 const response = await fetch(`/api/lives/end/${liveIdToStop}`, {
                     method: 'POST',
@@ -3247,10 +3074,7 @@
                 });
 
                 const result = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(result.error || 'Erro ao encerrar live');
-                }
+                if (!response.ok) throw new Error(result.error || 'Erro');
 
                 isLiveActive = false;
                 liveId = null;
@@ -3262,9 +3086,7 @@
                 }
 
                 const info = document.getElementById('liveInfo');
-                if (info) {
-                    info.textContent = 'Live encerrada com sucesso!';
-                }
+                if (info) info.textContent = 'Live encerrada com sucesso!';
 
                 const startBtn = document.getElementById('startLiveBtn');
                 const stopBtn = document.getElementById('stopLiveBtn');
@@ -3287,65 +3109,43 @@
                     liveInterval = null;
                 }
 
-                showNotification('✅ Live encerrada com sucesso!', 'success');
-
+                showNotification('✅ Live encerrada!', 'success');
                 loadLiveHistory();
 
             } catch (error) {
-                console.error('❌ Erro ao encerrar live:', error);
-                showNotification('❌ Erro ao encerrar live: ' + error.message, 'error');
+                console.error('❌ Erro:', error);
+                showNotification('❌ Erro: ' + error.message, 'error');
             }
         }
 
         async function switchCamera() {
-            if (!localStream) {
-                showNotification('Inicie a live primeiro!', 'error');
-                return;
-            }
-
+            if (!localStream) { showNotification('Inicie a live primeiro!', 'error'); return; }
             try {
                 const devices = await navigator.mediaDevices.enumerateDevices();
                 const videoDevices = devices.filter(d => d.kind === 'videoinput');
 
-                if (videoDevices.length < 2) {
-                    showNotification('⚠️ Apenas uma câmera disponível', 'info');
-                    return;
-                }
+                if (videoDevices.length < 2) { showNotification('⚠️ Apenas uma câmera', 'info'); return; }
 
                 const currentDeviceId = localStream.getVideoTracks()[0]?.getSettings().deviceId;
                 let nextDevice = videoDevices.find(d => d.deviceId !== currentDeviceId);
-
-                if (!nextDevice) {
-                    nextDevice = videoDevices[0];
-                }
+                if (!nextDevice) nextDevice = videoDevices[0];
 
                 await startMediaCapture(nextDevice.deviceId);
                 showNotification(`📷 Trocou para: ${nextDevice.label || 'Câmera'}`, 'success');
-                currentCamera = nextDevice.deviceId;
-
-            } catch (e) {
-                showNotification('❌ Erro ao trocar câmera: ' + e.message, 'error');
-            }
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
         }
 
         function toggleCamera() {
-            if (!localStream) {
-                showNotification('Inicie a live primeiro!', 'error');
-                return;
-            }
+            if (!localStream) { showNotification('Inicie a live primeiro!', 'error'); return; }
             const videoTrack = localStream.getVideoTracks()[0];
             if (videoTrack) {
                 videoTrack.enabled = !videoTrack.enabled;
-                showNotification(videoTrack.enabled ? '📷 Câmera ativada' : '📷 Câmera desativada', 'info');
+                showNotification(videoTrack.enabled ? '📷 Câmera ON' : '📷 Câmera OFF', 'info');
             }
         }
 
         async function toggleScreenShare() {
-            if (!localStream) {
-                showNotification('Inicie a live primeiro!', 'error');
-                return;
-            }
-
+            if (!localStream) { showNotification('Inicie a live primeiro!', 'error'); return; }
             try {
                 const screenStream = await navigator.mediaDevices.getDisplayMedia({
                     video: { width: { ideal: 1280 }, height: { ideal: 720 } },
@@ -3362,19 +3162,13 @@
 
                 localStream.addTrack(videoTrack);
                 const video = document.getElementById('localVideo');
-                if (video) {
-                    video.srcObject = localStream;
-                }
+                if (video) video.srcObject = localStream;
 
-                videoTrack.onended = () => {
-                    startMediaCapture(currentCamera);
-                };
+                videoTrack.onended = () => { startMediaCapture(currentCamera); };
 
                 showNotification('📺 Compartilhando tela!', 'success');
             } catch (e) {
-                if (e.name !== 'AbortError') {
-                    showNotification('❌ Erro ao compartilhar tela: ' + e.message, 'error');
-                }
+                if (e.name !== 'AbortError') showNotification('❌ ' + e.message, 'error');
             }
         }
 
@@ -3385,29 +3179,26 @@
                 const tbody = document.getElementById('liveHistoryList');
 
                 if (!data?.length) {
-                    tbody.innerHTML =
-                        '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhuma transmissão realizada</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhuma transmissão</td></tr>';
                     return;
                 }
 
                 tbody.innerHTML = data.slice(0, 20).map(l => {
                     const duracao = l.started_at && l.ended_at ?
                         Math.floor((new Date(l.ended_at) - new Date(l.started_at)) / 60000) + 'min' :
-                        l.status === 'live' ? 'Em andamento' : 'Interrompida';
+                        l.status === 'live' ? 'Em andamento' : '-';
                     return `
                         <tr>
                             <td>${l.titulo || 'Live'}</td>
                             <td>${l.iniciada_por_nome || 'Pastor'}</td>
-                            <td>${l.started_at ? new Date(l.started_at).toLocaleDateString('pt-BR') + ' ' + new Date(l.started_at).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}) : '-'}</td>
+                            <td>${l.started_at ? new Date(l.started_at).toLocaleDateString('pt-BR') : '-'}</td>
                             <td>${duracao}</td>
                             <td>${l.viewers || 0}</td>
                         </tr>
                     `;
                 }).join('');
             } catch (e) {
-                console.error('Erro ao carregar histórico:', e);
-                document.getElementById('liveHistoryList').innerHTML =
-                    '<tr><td colspan="5" class="text-center" style="color:#dc3545;">Erro ao carregar histórico</td></tr>';
+                console.error('Erro:', e);
             }
         }
 
@@ -3417,7 +3208,7 @@
         }
 
         // ============================================
-        // ===== INICIALIZAÇÃO =====
+        // INICIALIZAÇÃO
         // ============================================
         document.addEventListener('DOMContentLoaded', async () => {
             loadDashboard();
@@ -3429,7 +3220,7 @@
         });
 
         // ============================================
-        // ===== EXPOSED FUNCTIONS =====
+        // EXPOSED FUNCTIONS
         // ============================================
         window.filterRegistrations = filterRegistrations;
         window.approveRegistration = approveRegistration;
@@ -3497,6 +3288,7 @@
         window.removeCulto = removeCulto;
         window.saveCultos = saveCultos;
         window.loadCultos = loadCultos;
+        window.toggleMember = toggleMember;
     </script>
 </body>
 </html>

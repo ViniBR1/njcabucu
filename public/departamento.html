@@ -11,6 +11,7 @@
             --primary: #0D47A1;
             --primary-light: #1565C0;
             --primary-gradient: linear-gradient(135deg, #0D47A1, #1565C0);
+            --secondary: #E8F0FE;
             --bg: #f0f4f8;
             --card-bg: #ffffff;
             --shadow: 0 2px 20px rgba(0,0,0,0.06);
@@ -1243,6 +1244,7 @@
                 const btn = document.createElement('button');
                 btn.className = 'tab-btn' + (tabId === 'dashboard' ? ' active' : '');
                 btn.innerHTML = `<i class="fas ${tab.icon}"></i> ${tab.label}`;
+                btn.setAttribute('data-tab', tabId);
                 btn.onclick = () => showTab(tabId);
                 container.appendChild(btn);
             });
@@ -1259,34 +1261,37 @@
         }
 
         // ================================================
-        // SHOW TAB
+        // SHOW TAB - CORRIGIDO
         // ================================================
         function showTab(tabId) {
+            // Remove active de todos os botões e conteúdos
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => {
-                if (b.textContent.trim().toLowerCase().includes(tabId) ||
-                    b.querySelector('i')?.className.includes(tabId)) {
-                    b.classList.add('active');
-                }
-            });
-
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            // Adiciona active no botão correto (pelo data-tab)
+            const activeBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            // Adiciona active no conteúdo correto
             const el = document.getElementById('tab-' + tabId);
             if (el) el.classList.add('active');
 
-            switch (tabId) {
-                case 'dashboard': loadDashboard(); break;
-                case 'disponibilidade': loadAvailability(); generateDateSelector(); break;
-                case 'escalas': loadScales(); loadMusicCheckboxGrid(); break;
-                case 'minhas-escalas': loadMyScales(); break;
-                case 'musicas': loadSongs(); break;
-                case 'oracoes': loadPrayers(); break;
-                case 'eventos': loadEvents(); break;
-                case 'tesouraria': loadTithes(); loadBills(); break;
-                case 'equipe': loadTeam(); break;
-                case 'membros': loadMembers(); break;
-                case 'criar-usuario': loadDepartmentsForSelect(); break;
-            }
+            // Handlers por tab
+            const handlers = {
+                'dashboard': loadDashboard,
+                'disponibilidade': () => { loadAvailability(); generateDateSelector(); },
+                'escalas': () => { loadScales(); loadMusicCheckboxGrid(); },
+                'minhas-escalas': loadMyScales,
+                'musicas': loadSongs,
+                'oracoes': loadPrayers,
+                'eventos': loadEvents,
+                'tesouraria': () => { loadTithes(); loadBills(); },
+                'equipe': loadTeam,
+                'membros': loadMembers,
+                'criar-usuario': loadDepartmentsForSelect
+            };
+
+            if (handlers[tabId]) handlers[tabId]();
         }
 
         // ================================================
@@ -1500,7 +1505,7 @@
         }
 
         // ================================================
-        // ESCALAS - CORRIGIDAS
+        // ESCALAS
         // ================================================
         async function loadAvailableMembersForScale() {
             const date = document.getElementById('scaleDate').value;
@@ -1529,7 +1534,6 @@
                 members = allMembersData;
                 
                 console.log(`✅ Encontrados ${availableMembers.length} membros disponíveis de ${allMembersData.length} total`);
-                console.log('📋 Disponíveis:', availableMembers.map(m => ({ id: m.id, name: m.name, role: m.member_role || m.role })));
 
                 const container = document.getElementById('availableMembersList');
                 if (!availableMembers.length) {
@@ -1563,13 +1567,17 @@
         }
 
         // ================================================
-        // FUNÇÃO PARA ATUALIZAR OS SELECTS - CORRIGIDA
-        // AGORA TODOS PODEM SER MINISTROS OU MÚSICOS
+        // FUNÇÃO PARA ATUALIZAR OS SELECTS - COM GUARD
         // ================================================
         function updateScaleSelects() {
+            if (!members || members.length === 0) {
+                console.warn('⚠️ members vazio, aguardando carregamento');
+                return;
+            }
+            
             const availableIds = new Set(availableMembers.map(m => m.id));
             
-            // MINISTRO - AGORA QUALQUER MEMBRO DISPONÍVEL PODE SER MINISTRO
+            // MINISTRO
             const ministerSelect = document.getElementById('scaleMinister');
             const allAvailable = members.filter(m => availableIds.has(m.id));
             
@@ -1586,9 +1594,8 @@
                 });
             }
             
-            // MÚSICOS - AGORA QUALQUER MEMBRO DISPONÍVEL PODE SER MÚSICO
+            // MÚSICOS
             const musiciansSelect = document.getElementById('scaleMusicians');
-            
             musiciansSelect.innerHTML = '';
             if (!allAvailable.length) {
                 const opt = document.createElement('option');
@@ -1618,7 +1625,6 @@
             document.getElementById('createScaleForm').classList.remove('hidden');
             document.getElementById('createScaleForm').scrollIntoView({ behavior: 'smooth' });
             
-            // Carrega as músicas ANTES de mostrar o formulário
             loadSongsForCheckbox();
             
             const dateInput = document.getElementById('scaleDate');
@@ -1733,7 +1739,6 @@
 
                 container.innerHTML = scales.map(s => {
                     const eventDate = new Date(s.event_date);
-                    // Verifica se songs é um array ou string
                     let songsList = [];
                     try {
                         if (typeof s.songs === 'string') {
@@ -2011,15 +2016,13 @@
         }
 
         // ================================================
-        // FUNÇÃO PARA CARREGAR MÚSICAS NO CHECKBOX
+        // CARREGAR MÚSICAS NO CHECKBOX
         // ================================================
         function loadMusicCheckboxGrid() {
             const container = document.getElementById('musicCheckboxGrid');
             if (!container) return;
             
-            // Verifica se as músicas já foram carregadas
             if (!songs || songs.length === 0) {
-                // Tenta carregar as músicas novamente
                 loadSongsForCheckbox();
                 return;
             }
@@ -2032,9 +2035,6 @@
             `).join('');
         }
 
-        // ================================================
-        // FUNÇÃO PARA CARREGAR MÚSICAS ESPECIFICAMENTE PARA O CHECKBOX
-        // ================================================
         async function loadSongsForCheckbox() {
             try {
                 console.log('📝 Carregando músicas para o checkbox...');
@@ -2067,7 +2067,7 @@
         }
 
         // ================================================
-        // FUNÇÃO PARA BUSCAR MÚSICA NO YOUTUBE
+        // BUSCAR MÚSICA NO YOUTUBE
         // ================================================
         async function searchYoutubeMusic() {
             const query = document.getElementById('youtubeSearchInput').value.trim();
@@ -2119,14 +2119,10 @@
             }
         }
 
-        // ================================================
-        // FUNÇÃO PARA SELECIONAR VÍDEO DO YOUTUBE
-        // ================================================
         function selectYoutubeVideo(videoId, title) {
             document.getElementById('newMusicTitle').value = title;
             document.getElementById('newMusicYoutube').value = `https://www.youtube.com/watch?v=${videoId}`;
             
-            // Fecha os resultados
             document.getElementById('youtubeSearchResults').innerHTML = `
                 <div style="background:#d4edda;padding:0.5rem;border-radius:8px;color:#155724;">
                     ✅ Vídeo selecionado: <strong>${title}</strong>
@@ -2338,21 +2334,6 @@
         function getSelectedMusicIds() {
             const checkboxes = document.querySelectorAll('#musicCheckboxGrid .music-checkbox:checked');
             return Array.from(checkboxes).map(cb => parseInt(cb.value));
-        }
-
-        function loadMusicCheckboxGrid() {
-            const container = document.getElementById('musicCheckboxGrid');
-            if (!container) return;
-            if (!songs || !songs.length) {
-                container.innerHTML = '<p class="text-muted">Nenhuma música cadastrada.</p>';
-                return;
-            }
-            container.innerHTML = songs.map(s => `
-                <label>
-                    <input type="checkbox" class="music-checkbox" value="${s.id}" data-title="${s.title}">
-                    ${s.title} (${s.key || 'C'})
-                </label>
-            `).join('');
         }
 
         function openMinisterMusicModal(scaleId) {
@@ -2666,7 +2647,7 @@
                     })
                 });
                 closeModal('newTitheModal');
-                showNotification('✅ Registrado!', 'success');
+                showNotification('✅ Registrado! Email enviado!', 'success');
                 loadTithes();
             } catch (e) {
                 showNotification('❌ Erro: ' + e.message, 'error');
@@ -2758,7 +2739,7 @@
         }
 
         // ================================================
-        // EQUIPE - CORRIGIDO
+        // EQUIPE
         // ================================================
         async function loadTeam() {
             try {
@@ -2772,8 +2753,6 @@
                     container.innerHTML = '<p class="text-muted">Nenhum membro na equipe.</p>';
                     return;
                 }
-                
-                console.log('👥 Membros carregados:', members);
                 
                 const roleLabels = {
                     lider: '👑 Líder',
@@ -2814,7 +2793,7 @@
         }
 
         // ================================================
-        // GERENCIAR MEMBROS - CORRIGIDO
+        // GERENCIAR MEMBROS
         // ================================================
         async function loadMembers() {
             try {
@@ -2828,8 +2807,6 @@
                     container.innerHTML = '<p class="text-muted">Nenhum membro neste departamento.</p>';
                     return;
                 }
-                
-                console.log('👥 Membros carregados para gerenciamento:', members);
                 
                 const roleLabels = {
                     lider: '<span class="role-badge leader">👑 Líder</span>',
@@ -2970,11 +2947,11 @@
                 const select = document.getElementById('newUserDepartment');
                 select.innerHTML = '<option value="">Selecione um departamento</option>';
                 depts.forEach(d => {
-                    const selected = d.id == user.department_id ? 'selected' : '';
+                    const selected = String(d.id) === String(user.department_id) ? 'selected' : '';
                     select.innerHTML += `<option value="${d.id}" ${selected}>${d.name}</option>`;
                 });
                 if (isLeader && user.department_id) {
-                    select.value = user.department_id;
+                    select.value = String(user.department_id);
                 }
             } catch (e) {
                 console.error('Erro ao carregar departamentos:', e);
@@ -3079,6 +3056,57 @@
             loadDashboard();
             loadDepartmentsForSelect();
         });
+
+        // ================================================
+        // EXPOSED FUNCTIONS (necessário para onclick inline)
+        // ================================================
+        window.logout = logout;
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+        window.showTab = showTab;
+        window.toggleDateSelection = toggleDateSelection;
+        window.addMultipleAvailability = addMultipleAvailability;
+        window.deleteAvailability = deleteAvailability;
+        window.showCreateScale = showCreateScale;
+        window.hideCreateScale = hideCreateScale;
+        window.saveScale = saveScale;
+        window.viewScaleDetails = viewScaleDetails;
+        window.deleteScale = deleteScale;
+        window.shareScaleWhatsApp = shareScaleWhatsApp;
+        window.openMinisterMusicModal = openMinisterMusicModal;
+        window.addYoutubeToScale = addYoutubeToScale;
+        window.saveMinisterSongs = saveMinisterSongs;
+        window.viewSong = viewSong;
+        window.viewSongByName = viewSongByName;
+        window.transposeSong = transposeSong;
+        window.resetTranspose = resetTranspose;
+        window.deleteSong = deleteSong;
+        window.openAddMusicModal = openAddMusicModal;
+        window.openYoutubeMusicModal = openYoutubeMusicModal;
+        window.selectYoutubeVideo = selectYoutubeVideo;
+        window.searchYoutubeMusic = searchYoutubeMusic;
+        window.saveYoutubeSong = saveYoutubeSong;
+        window.saveMusic = saveMusic;
+        window.fetchYoutubeSong = fetchYoutubeSong;
+        window.openNewPrayerModal = openNewPrayerModal;
+        window.submitPrayer = submitPrayer;
+        window.markPrayerRead = markPrayerRead;
+        window.openNewEventModal = openNewEventModal;
+        window.saveEvent = saveEvent;
+        window.deleteEvent = deleteEvent;
+        window.openNewTitheModal = openNewTitheModal;
+        window.saveTithe = saveTithe;
+        window.openNewBillModal = openNewBillModal;
+        window.saveBill = saveBill;
+        window.payBill = payBill;
+        window.deleteBill = deleteBill;
+        window.openAddMemberModal = openAddMemberModal;
+        window.addMember = addMember;
+        window.changeMemberRole = changeMemberRole;
+        window.removeMember = removeMember;
+        window.createUserByLeader = createUserByLeader;
+        window.loadAvailableMembersForScale = loadAvailableMembersForScale;
+        window.loadSongsForCheckbox = loadSongsForCheckbox;
     </script>
 </body>
 </html>

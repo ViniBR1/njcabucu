@@ -296,10 +296,20 @@
             text-decoration: none;
             cursor: pointer;
         }
-        .logo img {
+        /* ===== LOGO CSS (nova) ===== */
+        .logo-icon-css {
+            width: 36px;
             height: 36px;
-            width: auto;
-            filter: brightness(0) invert(1);
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0D47A1, #1565C0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: #fff;
+            flex-shrink: 0;
+            font-family: 'Inter', sans-serif;
         }
         .logo span {
             font-weight: 800;
@@ -1151,6 +1161,7 @@
         .modal-content .btn { width: 100%; justify-content: center; margin-top: 0.4rem; }
 
         .modal-bible .modal-content { max-width: 740px; }
+        .modal-carousel .modal-content { max-width: 640px; }
         .bible-container {
             display: flex;
             gap: 1rem;
@@ -1327,7 +1338,7 @@
 
         @media (max-width: 768px) {
             .header { padding: 0 0.6rem; }
-            .logo img { height: 30px; }
+            .logo-icon-css { width: 30px; height: 30px; font-size: 0.75rem; }
             .logo span { font-size: 0.95rem; }
             .header-actions .btn span { display: inline; font-size: 0.5rem; }
             .header-actions .btn { padding: 0.2rem 0.5rem; font-size: 0.55rem; min-width: 36px; justify-content: center; }
@@ -1391,15 +1402,7 @@
 
     <header class="header" id="mainHeader">
         <a href="/" class="logo">
-            <img src="https://raw.githubusercontent.com/ViniBR1/njcabucu/main/public/logo-nj.png" 
-                 alt="NJ Cabuçu" 
-                 id="logoImg"
-                 style="height:36px; width:auto;" 
-                 onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='block'">
-            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAACXBIWXMAAAsTAAALEwEAmpwYAAADU0lEQVR4nO2dT2gUURzHv5PZbJpsSNlUFtRDsUdBo2cqkoTtQRB6UirIvuTgqRfBQwRBD4KKGEgLgfTQFA/KogcRrSJ4UBHEP1AJhSzZ1JpN/jR7e6dP3s535n3nzpsPDGx/szvzmS/fvO/73o+ZzZFSBMdxOB1OQY1nKpVKERERnUwmU38pADKZjKIoKul0elXf7hBdPp9XRAQEQOKZz4qIdC6XC7sz7btbw7o1rLvnmVh9fZGOqFQqkRQolUoGZv39/QGSiUSAi8JLLUDn8/li6TsqFAoR35lMZucr8IUA/V2LxWJwGS2s2+Wyy+WyQfodQjq2fD4fXMblK5t8ISiKso2C6bUoiu37cD1i/k8sBAzD4Pz9fdR/fTX6jH4Bx/5QwDAHCDKZTOH8yb9wWDa0e1/jCgw7TRR2bMfIq23FkM/nI175crk8tVPG6HipCqMTZeh1+O6Qv7+/6D/95vL5fA5DIHLlx8wUjh7fMxfgePpcG28POeaDiI+nMXK0hc8pQQLB6pARwB6cMxwgo+Nl9JzqwPj5TuJzSgQCyQwOQuT41XrMPzEe2y7qGNTmAYmAwwCZnNn79gQyNLOcfhLf1HpEAneIoRliit+QaNf6eIP7HjEMmCEuSgCewh0yUisgmS+9fiOaiIifx6+OQX27G8bJbggEAhlsMdaJhFA3TYZmpn3/kRCYQwTBMs5nDQ4GJRtBwTEhghfJzuU7Wl5LcFACd4iI3FweX50H5Ap5QCKv+3T3AQFzhnxCc2zMckO1QsgBPF0g2Bm93pMvBHlAxHjhcWjTLhBJ0KEEkc7tvtO3VSRJ0B7PEJFEDop8IShHZHE4JHMwgQERkGf5eKZt5gsB2SFcjohIOp2+Dt9Ogr4/v+ucTkcKxWIxQHp6egJka5MmaUydTkdKpVLRJIlIpVKoBgKAxng8JinTNI3Pf7cN/Z2dnWn7AMjAvxqG8TEBnBiGcSwTnAAMw3hT3wExMTOjiRPHcQwwAI7jKAAzMUlhGEYvQH8nN+i5YRi9pH4Xgq2trS7Wyy8G4LgK9LqQnDnO2v4H0jOlbj5q1J0AAAAASUVORK5CYII=" 
-                 alt="NJ Cabuçu" 
-                 id="logoFallback"
-                 style="height:36px; width:auto; display:none;">
+            <div class="logo-icon-css">NJ</div>
             <span>NJ Cabuçu <small>Igreja</small></span>
         </a>
         <div class="header-actions">
@@ -1837,7 +1840,7 @@
                             <option value="1rs">1 Reis</option><option value="2rs">2 Reis</option>
                             <option value="1cr">1 Crônicas</option><option value="2cr">2 Crônicas</option>
                             <option value="ed">Esdras</option><option value="ne">Neemias</option>
-                            <option value="et">Ester</option><option value="jó">Jó</option>
+                            <option value="et">Ester</option><option value="jo">Jó</option>
                             <option value="sl" selected>Salmos</option><option value="pv">Provérbios</option>
                             <option value="ec">Eclesiastes</option><option value="ct">Cânticos</option>
                             <option value="is">Isaías</option><option value="jr">Jeremias</option>
@@ -1850,7 +1853,7 @@
                             <option value="ag">Ageu</option><option value="zc">Zacarias</option>
                             <option value="ml">Malaquias</option>
                             <option value="mt">Mateus</option><option value="mc">Marcos</option>
-                            <option value="lc">Lucas</option><option value="jo">João</option>
+                            <option value="lc">Lucas</option><option value="joao">João</option>
                             <option value="at">Atos</option><option value="rm">Romanos</option>
                             <option value="1co">1 Coríntios</option><option value="2co">2 Coríntios</option>
                             <option value="gl">Gálatas</option><option value="ef">Efésios</option>
@@ -2631,13 +2634,13 @@
             'dt': 'Deuteronômio', 'js': 'Josué', 'jz': 'Juízes', 'rt': 'Rute',
             '1sm': '1 Samuel', '2sm': '2 Samuel', '1rs': '1 Reis', '2rs': '2 Reis',
             '1cr': '1 Crônicas', '2cr': '2 Crônicas', 'ed': 'Esdras', 'ne': 'Neemias',
-            'et': 'Ester', 'jó': 'Jó', 'sl': 'Salmos', 'pv': 'Provérbios',
+            'et': 'Ester', 'jo': 'Jó', 'sl': 'Salmos', 'pv': 'Provérbios',
             'ec': 'Eclesiastes', 'ct': 'Cânticos', 'is': 'Isaías', 'jr': 'Jeremias',
             'lm': 'Lamentações', 'ez': 'Ezequiel', 'dn': 'Daniel', 'os': 'Oseias',
             'jl': 'Joel', 'am': 'Amós', 'ob': 'Obadias', 'jn': 'Jonas',
             'mq': 'Miqueias', 'na': 'Naum', 'hc': 'Habacuque', 'sf': 'Sofonias',
             'ag': 'Ageu', 'zc': 'Zacarias', 'ml': 'Malaquias',
-            'mt': 'Mateus', 'mc': 'Marcos', 'lc': 'Lucas', 'jo': 'João',
+            'mt': 'Mateus', 'mc': 'Marcos', 'lc': 'Lucas', 'joao': 'João',
             'at': 'Atos', 'rm': 'Romanos', '1co': '1 Coríntios', '2co': '2 Coríntios',
             'gl': 'Gálatas', 'ef': 'Efésios', 'fp': 'Filipenses', 'cl': 'Colossenses',
             '1ts': '1 Tessalonicenses', '2ts': '2 Tessalonicenses', '1tm': '1 Timóteo', '2tm': '2 Timóteo',
@@ -3935,8 +3938,7 @@
                     html += `<option value="" disabled>Nenhuma data de batismo disponível</option>`;
                 }
                 html += `</select></div>`;
-                html +=
-                    `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Observações adicionais..."></textarea></div>`;
+                html +=                    `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Observações adicionais..."></textarea></div>`;
             }
 
             if (type === 'volunteer') {

@@ -16,8 +16,12 @@
       "dest": "server.js"
     },
     {
-      "src": "/static/(.*)",
-      "dest": "/public/$1"
+      "src": "/manifest.json",
+      "dest": "server.js"
+    },
+    {
+      "src": "/sw.js",
+      "dest": "server.js"
     },
     {
       "src": "/(.*)",
@@ -31,6 +35,7 @@
     "MP_PUBLIC_KEY": "APP_USR-9cbd3a18-e58d-4091-920b-ab3cd0faa588",
     "PUBLIC_URL": "https://igrejanjcabucurj.vercel.app",
     "EMAIL_USER": "mvini440@gmail.com",
-    "EMAIL_PASS": "26588772"
+    "EMAIL_PASS": "COLE_AQUI_A_SENHA_DE_APP_DO_GMAIL",
+    "YOUTUBE_API_KEY": ""
   }
 }

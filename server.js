@@ -281,64 +281,6 @@ async function enviarEmailCompra(dados) {
     }
 }
 
-async function enviarEmailConfirmacao(dados) {
-    console.log('📧 Enviando email genérico para:', dados.email);
-    
-    if (!transporter) return false;
-
-    const { email, nome, tipo, valor, data, status, paymentId, detalhes } = dados;
-
-    if (!email || !email.includes('@')) return false;
-
-    const statusText = status === 'approved' ? '✅ APROVADO' : '⏳ PENDENTE';
-    const statusColor = status === 'approved' ? '#28a745' : '#ffc107';
-
-    const html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <style>
-            body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; }
-            .header { background: #0D47A1; color: #fff; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
-            .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0; border-top: none; }
-            .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e0e0e0; }
-            .status { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: 700; background: ${statusColor}; color: #fff; }
-        </style>
-    </head>
-    <body>
-        <div class="header">
-            <h1>🙏 NJ Cabuçu</h1>
-            <p>Comprovante de ${tipo}</p>
-        </div>
-        <div class="content">
-            <div style="text-align: center; margin-bottom: 20px;">
-                <span class="status">${statusText}</span>
-            </div>
-            <div class="info-row"><span>Nome</span><span>${nome}</span></div>
-            <div class="info-row"><span>Email</span><span>${email}</span></div>
-            <div class="info-row"><span>Valor</span><span>R$ ${parseFloat(valor || 0).toFixed(2)}</span></div>
-            <div class="info-row"><span>Data</span><span>${new Date(data).toLocaleDateString('pt-BR')}</span></div>
-            <div class="info-row"><span>ID</span><span>${paymentId || '-'}</span></div>
-        </div>
-    </body>
-    </html>
-    `;
-
-    try {
-        await transporter.sendMail({
-            from: `"NJ Cabuçu" <${process.env.EMAIL_USER}>`,
-            to: email,
-            subject: `💰 Comprovante - NJ Cabuçu`,
-            html: html
-        });
-        return true;
-    } catch (error) {
-        console.error('❌ Erro email:', error.message);
-        return false;
-    }
-}
-
 // ============================================
 // ===== APP =====
 // ============================================
@@ -383,7 +325,7 @@ const uploadFields = upload.fields([
 // ===== ROTAS PWA =====
 // ============================================
 app.get('/manifest.json', (req, res) => {
-    const filePath = path.join(__dirname, 'manifest.json');
+    const filePath = path.join(__dirname, 'public', 'manifest.json');
     if (fs.existsSync(filePath)) {
         res.setHeader('Content-Type', 'application/json');
         res.sendFile(filePath);
@@ -393,13 +335,22 @@ app.get('/manifest.json', (req, res) => {
 });
 
 app.get('/sw.js', (req, res) => {
-    const filePath = path.join(__dirname, 'sw.js');
+    const filePath = path.join(__dirname, 'public', 'sw.js');
     if (fs.existsSync(filePath)) {
         res.setHeader('Content-Type', 'application/javascript');
         res.setHeader('Service-Worker-Allowed', '/');
         res.sendFile(filePath);
     } else {
         res.status(404).json({ error: 'sw.js não encontrado' });
+    }
+});
+
+app.get('/icons/:file', (req, res) => {
+    const filePath = path.join(__dirname, 'public', 'icons', req.params.file);
+    if (fs.existsSync(filePath)) {
+        res.sendFile(filePath);
+    } else {
+        res.status(404).json({ error: 'Ícone não encontrado' });
     }
 });
 
@@ -423,13 +374,6 @@ const auth = (req, res, next) => {
 const pastorOnly = (req, res, next) => {
     if (req.user?.role !== 'pastor') {
         return res.status(403).json({ error: 'Apenas o pastor' });
-    }
-    next();
-};
-
-const leaderOnly = (req, res, next) => {
-    if (req.user?.role !== 'lider' && req.user?.role !== 'pastor' && !req.user?.is_leader) {
-        return res.status(403).json({ error: 'Apenas líderes' });
     }
     next();
 };
@@ -533,8 +477,20 @@ async function initDB() {
             status VARCHAR(50) DEFAULT 'pending',
             payment_id VARCHAR(100),
             payment_method VARCHAR(50),
+            email_sent BOOLEAN DEFAULT false,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
+
+        // Garantir coluna email_sent em orders
+        await sql`
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='orders' AND column_name='email_sent') THEN
+                    ALTER TABLE orders ADD COLUMN email_sent BOOLEAN DEFAULT false;
+                END IF;
+            END $$;
+        `;
 
         // REGISTRATIONS
         await sql`CREATE TABLE IF NOT EXISTS registrations (
@@ -563,8 +519,20 @@ async function initDB() {
             payment_id VARCHAR(100),
             payment_method VARCHAR(50),
             status VARCHAR(50) DEFAULT 'pending',
+            email_sent BOOLEAN DEFAULT false,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
+
+        // Garantir coluna email_sent em donations
+        await sql`
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='donations' AND column_name='email_sent') THEN
+                    ALTER TABLE donations ADD COLUMN email_sent BOOLEAN DEFAULT false;
+                END IF;
+            END $$;
+        `;
 
         // CAROUSEL
         await sql`CREATE TABLE IF NOT EXISTS carousel_images (
@@ -938,7 +906,6 @@ app.post('/api/users', auth, pastorOnly, async (req, res) => {
         
         res.status(201).json(result[0]);
     } catch (error) {
-        console.error('❌ Erro ao criar usuário:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1014,7 +981,6 @@ app.post('/api/users-by-leader', auth, async (req, res) => {
 
         if (isLeader) {
             await sql`UPDATE departments SET leader_id = ${result[0].id} WHERE id = ${deptId}`;
-            console.log(`✅ ${name} definido como líder do departamento ${dept[0].name}`);
         }
 
         res.status(201).json({ 
@@ -1090,20 +1056,16 @@ app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
 
 app.get('/api/departments/:id/members', auth, async (req, res) => {
     try {
-        const deptId = req.params.id;
-        
         const members = await sql`
             SELECT u.id, u.name, u.email, u.phone, u.role, u.is_leader, 
                    dm.role as member_role, dm.joined_at
             FROM users u
             JOIN department_members dm ON u.id = dm.user_id
-            WHERE dm.department_id = ${deptId}
+            WHERE dm.department_id = ${req.params.id}
             ORDER BY u.name
         `;
-        
         res.json(members);
     } catch (error) {
-        console.error('❌ Erro ao buscar membros:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1440,7 +1402,7 @@ app.put('/api/prayers/:id/read', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== PEDIDOS (COM EMAIL) =====
+// ===== PEDIDOS =====
 // ============================================
 
 app.post('/api/orders', async (req, res) => {
@@ -1455,17 +1417,7 @@ app.post('/api/orders', async (req, res) => {
             RETURNING *
         `;
         
-        // 📧 ENVIAR EMAIL DE COMPRA
-        if (user_email && user_email.includes('@')) {
-            await enviarEmailCompra({
-                email: user_email,
-                nome: user_name,
-                items: items || [],
-                total: total,
-                data: new Date(),
-                paymentId: payment_id
-            });
-        }
+        // ⚠️ EMAIL NÃO É ENVIADO AQUI! Será enviado depois via /api/send-confirmation-email
         
         res.status(201).json(result[0]);
     } catch (error) {
@@ -1531,21 +1483,6 @@ app.post('/api/registrations', async (req, res) => {
             RETURNING *
         `;
         
-        // 📧 ENVIAR EMAIL DE INSCRIÇÃO
-        if (email && email.includes('@')) {
-            const tipoLabel = { baptism: 'Batismo', volunteer: 'Voluntário', event: 'Evento', department: 'Departamento' };
-            await enviarEmailConfirmacao({
-                email: email,
-                nome: name,
-                tipo: 'inscricao',
-                valor: parseFloat(amount) || 0,
-                data: new Date(),
-                status: 'pending',
-                paymentId: `REG-${result[0].id}`,
-                detalhes: `Inscrição para ${tipoLabel[type] || type}`
-            });
-        }
-        
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro inscrição:', error);
@@ -1581,7 +1518,7 @@ app.delete('/api/registrations/:id', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== DOAÇÕES (COM EMAIL) =====
+// ===== DOAÇÕES =====
 // ============================================
 
 app.post('/api/donations', async (req, res) => {
@@ -1596,17 +1533,7 @@ app.post('/api/donations', async (req, res) => {
             RETURNING *
         `;
         
-        // 📧 ENVIAR EMAIL DE DÍZIMO/OFERTA
-        if (user_email && user_email.includes('@')) {
-            await enviarEmailDizimoOferta({
-                email: user_email,
-                nome: user_name,
-                tipo: type,
-                valor: amount,
-                data: new Date(),
-                paymentId: payment_id
-            });
-        }
+        // ⚠️ EMAIL NÃO É ENVIADO AQUI! Será enviado depois via /api/send-confirmation-email
         
         res.status(201).json(result[0]);
     } catch (error) {
@@ -1620,6 +1547,93 @@ app.get('/api/donations', auth, async (req, res) => {
         const donations = await sql`SELECT * FROM donations ORDER BY created_at DESC`;
         res.json(donations);
     } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ENVIAR EMAIL DE CONFIRMAÇÃO =====
+// ===== (chamado pelo frontend APÓS o toast) =====
+// ============================================
+app.post('/api/send-confirmation-email', async (req, res) => {
+    try {
+        const { payment_id } = req.body;
+        
+        if (!payment_id) {
+            return res.status(400).json({ error: 'payment_id é obrigatório' });
+        }
+
+        console.log('📧 Solicitação de email para:', payment_id);
+
+        const orders = await sql`SELECT * FROM orders WHERE payment_id = ${payment_id}`;
+        const donations = await sql`SELECT * FROM donations WHERE payment_id = ${payment_id}`;
+        
+        const item = orders[0] || donations[0];
+        const isOrder = orders.length > 0;
+        
+        if (!item) {
+            console.log('⚠️ Pagamento não encontrado:', payment_id);
+            return res.status(404).json({ error: 'Pagamento não encontrado' });
+        }
+
+        // Evita spam: só envia se ainda não foi enviado
+        if (item.email_sent) {
+            console.log('⚠️ Email já foi enviado para este pagamento');
+            return res.json({ 
+                success: true, 
+                message: 'Email já enviado anteriormente',
+                already_sent: true 
+            });
+        }
+
+        if (item.status !== 'approved') {
+            console.log('⚠️ Pagamento não aprovado ainda:', item.status);
+            return res.status(400).json({ 
+                error: 'Pagamento não foi aprovado',
+                status: item.status 
+            });
+        }
+
+        let emailEnviado = false;
+
+        if (isOrder) {
+            let items = [];
+            try { items = JSON.parse(item.items || '[]'); } catch {}
+            
+            emailEnviado = await enviarEmailCompra({
+                email: item.user_email,
+                nome: item.user_name,
+                items: items,
+                total: item.total,
+                data: new Date(),
+                paymentId: payment_id
+            });
+        } else {
+            emailEnviado = await enviarEmailDizimoOferta({
+                email: item.user_email,
+                nome: item.user_name,
+                tipo: item.type,
+                valor: item.amount,
+                data: new Date(),
+                paymentId: payment_id
+            });
+        }
+
+        if (emailEnviado) {
+            if (isOrder) {
+                await sql`UPDATE orders SET email_sent = true WHERE id = ${item.id}`;
+            } else {
+                await sql`UPDATE donations SET email_sent = true WHERE id = ${item.id}`;
+            }
+            
+            console.log('✅ Email enviado e marcado!');
+            return res.json({ success: true, message: 'Email enviado!' });
+        } else {
+            return res.status(500).json({ error: 'Falha ao enviar email' });
+        }
+
+    } catch (error) {
+        console.error('❌ Erro ao enviar email:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1723,14 +1737,12 @@ app.get('/api/attendance/date/:date', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== DÍZIMOS (COM EMAIL) =====
+// ===== DÍZIMOS =====
 // ============================================
 
 app.post('/api/tithes', auth, async (req, res) => {
     try {
         const { member_id, member_name, type, amount, payment_method, payment_date, description } = req.body;
-        
-        console.log('📝 Registrando dízimo de:', member_name || 'Visitante');
         
         if (!type || !amount) return res.status(400).json({ error: 'Tipo e valor são obrigatórios' });
 
@@ -1740,7 +1752,7 @@ app.post('/api/tithes', auth, async (req, res) => {
             RETURNING *
         `;
         
-        // 📧 BUSCAR EMAIL DO MEMBRO OU DO USUÁRIO LOGADO
+        // 📧 Buscar email do membro ou do usuário logado
         let targetEmail = null;
         let targetName = member_name || 'Irmão(ã)';
         
@@ -1760,7 +1772,7 @@ app.post('/api/tithes', auth, async (req, res) => {
             }
         }
         
-        // 📧 ENVIAR EMAIL
+        // 📧 Enviar email
         if (targetEmail && targetEmail.includes('@')) {
             await enviarEmailDizimoOferta({
                 email: targetEmail,
@@ -1774,7 +1786,6 @@ app.post('/api/tithes', auth, async (req, res) => {
         
         res.status(201).json(result[0]);
     } catch (error) {
-        console.error('❌ Erro ao registrar dízimo:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1936,14 +1947,12 @@ app.post('/api/celulas/:id/membros', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== LIVES (CORRIGIDO) =====
+// ===== LIVES =====
 // ============================================
 
 app.post('/api/lives/start', auth, async (req, res) => {
     try {
         const { titulo, descricao } = req.body;
-        
-        console.log('📝 Iniciando live:', { titulo, user: req.user.id });
         
         if (req.user.role !== 'pastor') {
             return res.status(403).json({ error: 'Apenas o pastor pode iniciar uma live' });
@@ -1961,7 +1970,6 @@ app.post('/api/lives/start', auth, async (req, res) => {
             VALUES (${titulo || 'Live NJ Cabuçu'}, ${descricao || ''}, 'live', ${streamKey}, ${req.user.id}, NOW())
             RETURNING *
         `;
-        console.log('✅ Live iniciada:', result[0].id);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao iniciar live:', error);
@@ -1973,30 +1981,17 @@ app.post('/api/lives/end/:id', auth, async (req, res) => {
     try {
         const { id } = req.params;
         
-        console.log(`📝 Encerrando live ${id}...`);
-        
         const live = await sql`SELECT * FROM lives WHERE id = ${id}`;
-        if (live.length === 0) {
-            return res.status(404).json({ error: 'Live não encontrada' });
-        }
+        if (live.length === 0) return res.status(404).json({ error: 'Live não encontrada' });
         
-        if (live[0].status === 'ended') {
-            return res.status(400).json({ error: 'Live já encerrada' });
-        }
-
-        if (req.user.role !== 'pastor' && live[0].iniciada_por !== req.user.id) {
-            return res.status(403).json({ error: 'Sem permissão' });
-        }
+        if (live[0].status === 'ended') return res.status(400).json({ error: 'Live já encerrada' });
 
         const result = await sql`
             UPDATE lives SET status = 'ended', ended_at = NOW() WHERE id = ${id} RETURNING *
         `;
         
-        await sql`
-            UPDATE live_viewers SET left_at = NOW() WHERE live_id = ${id} AND left_at IS NULL
-        `;
+        await sql`UPDATE live_viewers SET left_at = NOW() WHERE live_id = ${id} AND left_at IS NULL`;
         
-        console.log(`✅ Live ${id} encerrada!`);
         res.json({ message: 'Live encerrada!', live: result[0] });
     } catch (error) {
         console.error('❌ Erro ao encerrar live:', error);
@@ -2087,9 +2082,7 @@ app.post('/api/pastor-reflections', auth, pastorOnly, async (req, res) => {
         if (!title || !link) return res.status(400).json({ error: 'Título e link obrigatórios' });
 
         const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/;
-        if (!youtubeRegex.test(link)) {
-            return res.status(400).json({ error: 'Link inválido do YouTube' });
-        }
+        if (!youtubeRegex.test(link)) return res.status(400).json({ error: 'Link inválido do YouTube' });
 
         const result = await sql`
             INSERT INTO pastor_reflections (title, description, link, created_by)
@@ -2155,7 +2148,7 @@ app.post('/api/settings', auth, pastorOnly, async (req, res) => {
 });
 
 // ============================================
-// ===== MÚSICAS (SONGS) =====
+// ===== MÚSICAS =====
 // ============================================
 
 app.post('/api/songs', auth, async (req, res) => {
@@ -2171,7 +2164,6 @@ app.post('/api/songs', auth, async (req, res) => {
         `;
         res.status(201).json(result[0]);
     } catch (error) {
-        console.error('❌ Erro ao criar música:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -2190,7 +2182,6 @@ app.get('/api/songs', auth, async (req, res) => {
         }
         res.json(songs);
     } catch (error) {
-        console.error('❌ Erro ao buscar músicas:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -2224,7 +2215,6 @@ app.post('/api/availability', auth, async (req, res) => {
         `;
         res.status(201).json(result[0]);
     } catch (error) {
-        console.error('❌ Erro ao salvar disponibilidade:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -2256,7 +2246,6 @@ app.get('/api/availability/date/:date/department/:departmentId', auth, async (re
         `;
         res.json(result);
     } catch (error) {
-        console.error('❌ Erro ao buscar disponíveis:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -2319,7 +2308,6 @@ app.get('/api/worship-scales', auth, async (req, res) => {
         const scales = await sql(query);
         res.json(scales);
     } catch (error) {
-        console.error('❌ Erro ao buscar escalas:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -2338,7 +2326,6 @@ app.get('/api/worship-scales/member/:userId', auth, async (req, res) => {
         `;
         res.json(scales);
     } catch (error) {
-        console.error('❌ Erro ao buscar minhas escalas:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -2383,7 +2370,6 @@ app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
         
         res.json({ ...s, songs: songsDetails, musicians: musiciansDetails });
     } catch (error) {
-        console.error('❌ Erro:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -2406,7 +2392,6 @@ app.put('/api/worship-scales/:id/songs', auth, async (req, res) => {
         
         res.json(result[0]);
     } catch (error) {
-        console.error('❌ Erro:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -2488,7 +2473,6 @@ app.get('/api/youtube-search', auth, async (req, res) => {
             
             res.json({ results });
         } else {
-            // Fallback: gerar resultados de busca no YouTube
             const results = [
                 { videoId: 'dQw4w9WgXcQ', title: `${query} - Versão Original` },
                 { videoId: 'dQw4w9WgXcQ', title: `${query} - Ao Vivo` },
@@ -2497,7 +2481,6 @@ app.get('/api/youtube-search', auth, async (req, res) => {
             res.json({ results });
         }
     } catch (error) {
-        console.error('❌ Erro na busca do YouTube:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -2718,7 +2701,7 @@ app.post('/api/create-card-payment-fallback', async (req, res) => {
 
 app.post('/api/webhook', async (req, res) => {
     try {
-        console.log('📝 Webhook recebido:', JSON.stringify(req.body));
+        console.log('📝 Webhook recebido');
         const { data, type } = req.body;
         
         if (type === 'payment' && data?.id) {
@@ -2729,39 +2712,15 @@ app.post('/api/webhook', async (req, res) => {
                     const payment = await PaymentService.get({ id: paymentId });
                     
                     if (payment.status === 'approved') {
+                        // ⚠️ APENAS ATUALIZA STATUS NO BANCO
+                        // O email será enviado pelo frontend via /api/send-confirmation-email
                         await sql`UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}`;
                         await sql`UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}`;
                         
-                        const orders = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
-                        const donations = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
-                        const item = orders[0] || donations[0];
-                        
-                        if (item) {
-                            if (orders[0]) {
-                                let items = [];
-                                try { items = JSON.parse(item.items || '[]'); } catch {}
-                                await enviarEmailCompra({
-                                    email: item.user_email,
-                                    nome: item.user_name,
-                                    items: items,
-                                    total: item.total,
-                                    data: new Date(),
-                                    paymentId: paymentId
-                                });
-                            } else {
-                                await enviarEmailDizimoOferta({
-                                    email: item.user_email,
-                                    nome: item.user_name,
-                                    tipo: item.type,
-                                    valor: item.amount,
-                                    data: new Date(),
-                                    paymentId: paymentId
-                                });
-                            }
-                        }
+                        console.log('✅ Status atualizado via webhook');
                     }
                 } catch (error) {
-                    console.error('❌ Erro ao processar webhook:', error);
+                    console.error('❌ Erro webhook:', error);
                 }
             }
         }
@@ -2778,37 +2737,14 @@ app.get('/api/check-payment/:paymentId', async (req, res) => {
         
         const payment = await PaymentService.get({ id: req.params.paymentId });
         
-        if (payment.status === 'approved') {
-            const orders = await sql`SELECT * FROM orders WHERE payment_id = ${req.params.paymentId}`;
-            const donations = await sql`SELECT * FROM donations WHERE payment_id = ${req.params.paymentId}`;
-            const item = orders[0] || donations[0];
-            
-            if (item) {
-                if (orders[0]) {
-                    let items = [];
-                    try { items = JSON.parse(item.items || '[]'); } catch {}
-                    await enviarEmailCompra({
-                        email: item.user_email,
-                        nome: item.user_name,
-                        items: items,
-                        total: item.total,
-                        data: new Date(),
-                        paymentId: req.params.paymentId
-                    });
-                } else {
-                    await enviarEmailDizimoOferta({
-                        email: item.user_email,
-                        nome: item.user_name,
-                        tipo: item.type,
-                        valor: item.amount,
-                        data: new Date(),
-                        paymentId: req.params.paymentId
-                    });
-                }
-            }
-        }
+        // ⚠️ NÃO envia email aqui — apenas retorna o status
+        // O frontend chamará /api/send-confirmation-email depois
         
-        res.json({ id: payment.id, status: payment.status, status_detail: payment.status_detail });
+        res.json({ 
+            id: payment.id, 
+            status: payment.status, 
+            status_detail: payment.status_detail 
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

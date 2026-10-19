@@ -85,7 +85,9 @@
             font-size: 0.9rem;
             color: #fff;
             flex-shrink: 0;
+            overflow: hidden;
         }
+        .logo-icon img { width: 100%; height: 100%; object-fit: cover; }
         .logo h1 { font-size: 1.1rem; font-weight: 800; color: #fff; }
         .logo h1 span { color: #F5A623; }
 
@@ -225,20 +227,21 @@
 
         .table-wrapper {
             width: 100%;
-            overflow: hidden;
+            overflow-x: auto;
             border-radius: var(--radius-sm);
             border: 1px solid #f0f0f0;
             margin: 0.2rem 0;
+            -webkit-overflow-scrolling: touch;
         }
         .table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.6rem;
-            table-layout: fixed;
+            min-width: 500px;
         }
         .table th {
             text-align: left;
-            padding: 0.2rem 0.4rem;
+            padding: 0.3rem 0.5rem;
             border-bottom: 2px solid #e8e8e8;
             color: #666;
             font-weight: 600;
@@ -246,9 +249,10 @@
             text-transform: uppercase;
             letter-spacing: 0.3px;
             background: #fafafa;
+            white-space: nowrap;
         }
         .table td {
-            padding: 0.2rem 0.4rem;
+            padding: 0.35rem 0.5rem;
             border-bottom: 1px solid #f0f0f0;
             word-break: break-word;
             vertical-align: middle;
@@ -310,7 +314,7 @@
         .form-group textarea,
         .form-group select {
             width: 100%;
-            padding: 0.3rem 0.5rem;
+            padding: 0.4rem 0.5rem;
             border: 2px solid #e0e0e0;
             border-radius: var(--radius-sm);
             font-size: 0.75rem;
@@ -538,7 +542,7 @@
         }
         .file-input-wrapper .file-label {
             display: block;
-            padding: 0.3rem 0.5rem;
+            padding: 0.4rem 0.5rem;
             background: #f8f9fa;
             border: 2px dashed #e0e0e0;
             border-radius: var(--radius-sm);
@@ -567,6 +571,50 @@
         .study-result.error { display: block; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .study-result.loading { display: block; background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
 
+        /* ====== NOVO: ÁREA DE EXPORTAÇÃO DE DÍZIMOS ====== */
+        .export-panel {
+            background: linear-gradient(135deg, #f8f9fa, #e8f0fe);
+            border-radius: var(--radius-sm);
+            border: 1px solid #d6e3ff;
+            padding: 0.8rem;
+            margin-bottom: 0.8rem;
+        }
+        .export-panel .export-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .export-filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.4rem;
+            margin-bottom: 0.6rem;
+        }
+        .export-filters select,
+        .export-filters input {
+            padding: 0.4rem 0.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: var(--radius-sm);
+            font-size: 0.7rem;
+            font-family: var(--font);
+            background: #fff;
+        }
+        .export-actions {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+        .export-actions .btn {
+            flex: 1;
+            min-width: 100px;
+            justify-content: center;
+            padding: 0.5rem 0.6rem;
+        }
+
         @media (max-width: 768px) {
             .header { padding: 0 0.8rem; }
             .logo h1 { font-size: 0.95rem; }
@@ -588,6 +636,11 @@
             #captureArea video { max-height: 200px; }
             .header-actions .btn span { display: none; }
             .header-actions .btn { padding: 0.15rem 0.5rem; font-size: 0.55rem; }
+            .table { font-size: 0.55rem; }
+            .table th, .table td { padding: 0.25rem 0.35rem; }
+            .export-panel { padding: 0.6rem; }
+            .export-title { font-size: 0.7rem; }
+            .export-actions .btn { font-size: 0.6rem; padding: 0.4rem 0.5rem; }
         }
         @media (min-width: 769px) and (max-width: 1024px) {
             .stats-grid { grid-template-columns: repeat(3, 1fr); }
@@ -612,7 +665,7 @@
 
     <header class="header">
         <div class="logo">
-            <div class="logo-icon">NJ</div>
+            <div class="logo-icon" id="headerLogo">NJ</div>
             <h1>NJ <span>Admin</span></h1>
         </div>
         <div class="header-right">
@@ -943,10 +996,53 @@
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-hand-holding-heart"></i> Dízimos e Ofertas</div>
                     <button onclick="openTitheModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Registrar</button>
                 </div>
-                <div id="titheSummary" style="font-size:0.6rem; margin-bottom:0.2rem;"></div>
+                
+                <!-- ===== PAINEL DE EXPORTAÇÃO ===== -->
+                <div class="export-panel">
+                    <div class="export-title"><i class="fas fa-file-excel"></i> Exportar para Planilha (CSV/Excel)</div>
+                    <div class="export-filters">
+                        <select id="exportMonth">
+                            <option value="">Mês: Todos</option>
+                            <option value="1">Janeiro</option><option value="2">Fevereiro</option>
+                            <option value="3">Março</option><option value="4">Abril</option>
+                            <option value="5">Maio</option><option value="6">Junho</option>
+                            <option value="7">Julho</option><option value="8">Agosto</option>
+                            <option value="9">Setembro</option><option value="10">Outubro</option>
+                            <option value="11">Novembro</option><option value="12">Dezembro</option>
+                        </select>
+                        <select id="exportYear">
+                            <option value="">Ano: Todos</option>
+                        </select>
+                        <select id="exportType">
+                            <option value="">Tipo: Todos</option>
+                            <option value="dizimo">Dízimo</option>
+                            <option value="oferta">Oferta</option>
+                            <option value="missoes">Missões</option>
+                        </select>
+                        <select id="exportMethod">
+                            <option value="">Método: Todos</option>
+                            <option value="dinheiro">Dinheiro</option>
+                            <option value="pix">PIX</option>
+                            <option value="cartao">Cartão</option>
+                        </select>
+                    </div>
+                    <div class="export-actions">
+                        <button onclick="exportTithes('csv')" class="btn btn-success">
+                            <i class="fas fa-file-csv"></i> Baixar CSV
+                        </button>
+                        <button onclick="exportTithes('txt')" class="btn btn-primary">
+                            <i class="fas fa-file-alt"></i> Baixar TXT (Excel)
+                        </button>
+                    </div>
+                    <p style="font-size:0.55rem; color:#666; margin-top:0.4rem;">
+                        💡 O arquivo <strong>CSV</strong> abre direto no Excel/Google Sheets. O <strong>TXT</strong> mantém acentuação perfeita.
+                    </p>
+                </div>
+
+                <div id="titheSummary" style="font-size:0.65rem; margin-bottom:0.4rem; padding:0.4rem; background:#f8f9fa; border-radius:6px;"></div>
                 <div class="table-wrapper">
                     <table class="table">
-                        <thead><tr><th>Membro</th><th>Tipo</th><th>Valor</th><th>Data</th></tr></thead>
+                        <thead><tr><th>Membro</th><th>Tipo</th><th>Valor</th><th>Método</th><th>Data</th></tr></thead>
                         <tbody id="tithesList"></tbody>
                     </table>
                 </div>
@@ -1041,6 +1137,42 @@
                 <div class="form-group"><label>Cor Primária</label><input type="color" id="configPrimary" value="#0D47A1" onchange="saveConfig('primary_color', this.value)"></div>
                 <div class="form-group"><label>Título do Site</label><input type="text" id="configTitle" value="NJ Cabuçu" onchange="saveConfig('site_title', this.value)"></div>
                 <div class="form-group"><label>WhatsApp</label><input type="text" id="configWhatsapp" value="5521985345627" onchange="saveConfig('whatsapp', this.value)"></div>
+
+                <div class="section-title" style="margin-top:1rem; border-bottom-color:#888;">
+                    <i class="fas fa-image"></i> Logo da Igreja
+                </div>
+                <p style="font-size:0.6rem; color:#888; margin-bottom:0.5rem;">
+                    Envie a logo da igreja (PNG, JPG ou SVG, máx 2MB). Ela aparece no cabeçalho do site e na tela de login.
+                </p>
+
+                <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap; margin-bottom:0.5rem;">
+                    <div id="currentLogoPreview" style="
+                        width:70px; height:70px; border-radius:50%;
+                        background:linear-gradient(135deg,#0D47A1,#1565C0);
+                        display:flex; align-items:center; justify-content:center;
+                        font-weight:800; color:#fff; font-size:1.2rem; overflow:hidden;
+                        border:3px solid #e0e0e0; flex-shrink:0;
+                    ">NJ</div>
+
+                    <div style="flex:1; min-width:180px;">
+                        <div class="file-input-wrapper">
+                            <input type="file" id="logoFileInput" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml">
+                            <div class="file-label">
+                                <i class="fas fa-upload"></i> <span>Selecionar imagem da logo</span>
+                                <span class="file-name" id="logoFileName"></span>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:0.3rem; margin-top:0.3rem; flex-wrap:wrap;">
+                            <button onclick="uploadLogo()" class="btn btn-primary btn-sm">
+                                <i class="fas fa-save"></i> Salvar Logo
+                            </button>
+                            <button onclick="removeLogo()" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i> Remover
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="section-title" style="margin-top:1rem; border-bottom-color: #888;"><i class="fas fa-clock"></i> Horários dos Cultos (Contador)</div>
                 <p style="font-size:0.6rem; color:#888; margin-bottom:0.5rem;">Configure os dias e horários dos cultos para o contador regressivo no site.</p>
                 <div id="cultosContainer">
@@ -1338,28 +1470,18 @@
         document.getElementById('userNameDisplay').textContent = user.name || 'Pastor';
 
         function getHeaders() {
-            return {
-                'Authorization': 'Bearer ' + localStorage.getItem('token')
-            };
+            return { 'Authorization': 'Bearer ' + localStorage.getItem('token') };
         }
 
         function getJsonHeaders() {
-            return {
-                'Authorization': 'Bearer ' + localStorage.getItem('token'),
-                'Content-Type': 'application/json'
-            };
+            return { 'Authorization': 'Bearer ' + localStorage.getItem('token'), 'Content-Type': 'application/json' };
         }
 
         // ============================================
         // UTILITÁRIOS
         // ============================================
-        function showLoading() {
-            document.getElementById('loadingOverlay').classList.remove('hidden');
-        }
-
-        function hideLoading() {
-            document.getElementById('loadingOverlay').classList.add('hidden');
-        }
+        function showLoading() { document.getElementById('loadingOverlay').classList.remove('hidden'); }
+        function hideLoading() { document.getElementById('loadingOverlay').classList.add('hidden'); }
 
         function showNotification(msg, type = 'info') {
             const old = document.querySelector('.notification');
@@ -1375,22 +1497,12 @@
             }, 3500);
         }
 
-        function openModal(id) {
-            document.getElementById(id).classList.add('open');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('open');
-            document.body.style.overflow = 'auto';
-        }
+        function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
+        function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = 'auto'; }
 
         document.querySelectorAll('.modal').forEach(m => {
             m.addEventListener('click', (e) => {
-                if (e.target === m) {
-                    m.classList.remove('open');
-                    document.body.style.overflow = 'auto';
-                }
+                if (e.target === m) { m.classList.remove('open'); document.body.style.overflow = 'auto'; }
             });
         });
 
@@ -1401,7 +1513,7 @@
         }
 
         // ============================================
-        // TABS - CORRIGIDO
+        // TABS
         // ============================================
         function showTab(tab) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -1424,10 +1536,10 @@
                         if (date) loadAttendanceHistory(date);
                     }
                 },
-                'tesouraria': () => { loadTithes(); loadTitheSummary(); },
+                'tesouraria': () => { loadTithes(); loadTitheSummary(); populateExportYears(); },
                 'contas': () => { loadBills(); loadBillSummary(); },
                 'aniversariantes': loadBirthdaysAdmin,
-                'config': loadConfig,
+                'config': () => { loadConfig(); loadLogoPreview(); },
                 'sobre': loadAbout,
                 'inscricoes': loadRegistrations,
                 'reflexoes': loadReflectionsAdmin,
@@ -1558,6 +1670,81 @@
                 }
             } catch (e) { console.error('Erro:', e); }
         }
+
+        // ============================================
+        // LOGO
+        // ============================================
+        async function loadLogoPreview() {
+            try {
+                const res = await fetch('/api/settings');
+                const data = await res.json();
+                const preview = document.getElementById('currentLogoPreview');
+                const headerLogo = document.getElementById('headerLogo');
+                if (preview) {
+                    if (data.site_logo) {
+                        preview.innerHTML = `<img src="${data.site_logo}" alt="Logo" style="width:100%;height:100%;object-fit:cover;">`;
+                        if (headerLogo) headerLogo.innerHTML = `<img src="${data.site_logo}" alt="Logo" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+                    } else {
+                        preview.textContent = 'NJ';
+                        if (headerLogo) headerLogo.textContent = 'NJ';
+                    }
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function uploadLogo() {
+            const input = document.getElementById('logoFileInput');
+            if (!input.files || !input.files[0]) {
+                showNotification('Selecione uma imagem primeiro!', 'error');
+                return;
+            }
+            const file = input.files[0];
+            if (file.size > 2 * 1024 * 1024) {
+                showNotification('Imagem muito grande (máx 2MB)', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('logo', file);
+
+            try {
+                showNotification('🔄 Enviando logo...', 'info');
+                const res = await fetch('/api/settings/logo', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+                    body: formData
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Erro');
+
+                showNotification('✅ Logo salva!', 'success');
+                loadLogoPreview();
+                document.getElementById('logoFileInput').value = '';
+                document.getElementById('logoFileName').textContent = '';
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+        }
+
+        async function removeLogo() {
+            if (!confirm('Remover a logo personalizada e voltar ao padrão NJ?')) return;
+            try {
+                await fetch('/api/settings/logo', { method: 'DELETE', headers: getHeaders() });
+                showNotification('✅ Logo removida', 'success');
+                loadLogoPreview();
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+        }
+
+        document.getElementById('logoFileInput')?.addEventListener('change', function() {
+            const name = this.files[0] ? this.files[0].name : '';
+            document.getElementById('logoFileName').textContent = name;
+            if (this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('currentLogoPreview').innerHTML = 
+                        `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
 
         // ============================================
         // LISTAS
@@ -1727,9 +1914,7 @@
                 loadDashboard();
                 showNotification('✅ Evento criado!', 'success');
                 this.reset();
-            } catch (e) {
-                showNotification('❌ ' + e.message, 'error');
-            }
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
             hideLoading();
         });
 
@@ -1749,9 +1934,7 @@
                 loadDashboard();
                 showNotification('✅ Produto criado!', 'success');
                 this.reset();
-            } catch (e) {
-                showNotification('❌ ' + e.message, 'error');
-            }
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
             hideLoading();
         });
 
@@ -1771,9 +1954,7 @@
                 loadCarouselAdmin();
                 showNotification('✅ Imagem adicionada!', 'success');
                 this.reset();
-            } catch (e) {
-                showNotification('❌ ' + e.message, 'error');
-            }
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
             hideLoading();
         });
 
@@ -1861,16 +2042,11 @@
         async function approveRegistration(id) {
             if (!confirm('Confirmar esta inscrição?')) return;
             try {
-                const response = await fetch(`/api/registrations/${id}/approve`, {
-                    method: 'PUT',
-                    headers: getHeaders()
-                });
+                const response = await fetch(`/api/registrations/${id}/approve`, { method: 'PUT', headers: getHeaders() });
                 if (!response.ok) throw new Error('Erro ao aprovar');
                 showNotification('✅ Inscrição aprovada!', 'success');
                 loadRegistrations();
-            } catch (e) {
-                showNotification('❌ ' + e.message, 'error');
-            }
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
         }
 
         async function deleteRegistration(id) {
@@ -1879,9 +2055,7 @@
                 await fetch(`/api/registrations/${id}`, { method: 'DELETE', headers: getHeaders() });
                 showNotification('✅ Inscrição removida!', 'success');
                 loadRegistrations();
-            } catch (e) {
-                showNotification('❌ ' + e.message, 'error');
-            }
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
         }
 
         function filterRegistrations(type) {
@@ -1896,12 +2070,8 @@
             });
             const rows = document.querySelectorAll('#registrationsList tr');
             rows.forEach(row => {
-                if (type === 'all') {
-                    row.style.display = '';
-                } else {
-                    const rowType = row.dataset.type || '';
-                    row.style.display = rowType === type ? '' : 'none';
-                }
+                if (type === 'all') row.style.display = '';
+                else row.style.display = (row.dataset.type || '') === type ? '' : 'none';
             });
         }
 
@@ -1973,11 +2143,7 @@
             const desc = document.getElementById('deptDesc').value.trim();
             if (!name) { showNotification('Digite o nome!', 'error'); return; }
             try {
-                await fetch('/api/departments', {
-                    method: 'POST',
-                    headers: getJsonHeaders(),
-                    body: JSON.stringify({ name, description: desc })
-                });
+                await fetch('/api/departments', { method: 'POST', headers: getJsonHeaders(), body: JSON.stringify({ name, description: desc }) });
                 closeModal('deptModal');
                 loadDepartments();
                 showNotification('✅ Departamento criado!', 'success');
@@ -2036,11 +2202,7 @@
             };
             if (!data.name) { showNotification('Nome é obrigatório!', 'error'); return; }
             try {
-                await fetch('/api/members', {
-                    method: 'POST',
-                    headers: getJsonHeaders(),
-                    body: JSON.stringify(data)
-                });
+                await fetch('/api/members', { method: 'POST', headers: getJsonHeaders(), body: JSON.stringify(data) });
                 closeModal('memberModal');
                 loadMembers();
                 showNotification('✅ Membro cadastrado!', 'success');
@@ -2113,9 +2275,7 @@
                         </td>
                     </tr>
                 `).join('');
-            } catch (e) {
-                console.error('Erro:', e);
-            }
+            } catch (e) { console.error('Erro:', e); }
         }
 
         async function openCelulaModal() {
@@ -2124,7 +2284,6 @@
             document.getElementById('celulaDias').value = '';
             document.getElementById('celulaHorario').value = '';
             document.getElementById('celulaDescricao').value = '';
-
             try {
                 const users = await fetch('/api/users', { headers: getHeaders() }).then(r => r.json());
                 const select = document.getElementById('celulaLider');
@@ -2133,7 +2292,6 @@
                     select.innerHTML += `<option value="${u.id}">${u.name}</option>`;
                 });
             } catch (e) { console.error(e); }
-
             openModal('celulaModal');
         }
 
@@ -2144,21 +2302,13 @@
             const dias_reuniao = document.getElementById('celulaDias').value.trim();
             const horario = document.getElementById('celulaHorario').value.trim();
             const descricao = document.getElementById('celulaDescricao').value.trim();
-
             if (!nome) { showNotification('Digite o nome da célula!', 'error'); return; }
-
             try {
-                await fetch('/api/celulas', {
-                    method: 'POST',
-                    headers: getJsonHeaders(),
-                    body: JSON.stringify({ nome, lider_id, endereco, dias_reuniao, horario, descricao })
-                });
+                await fetch('/api/celulas', { method: 'POST', headers: getJsonHeaders(), body: JSON.stringify({ nome, lider_id, endereco, dias_reuniao, horario, descricao }) });
                 closeModal('celulaModal');
                 loadCelulas();
                 showNotification('✅ Célula salva!', 'success');
-            } catch (e) {
-                showNotification('❌ ' + e.message, 'error');
-            }
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
         }
 
         async function deleteCelula(id) {
@@ -2167,23 +2317,17 @@
                 await fetch(`/api/celulas/${id}`, { method: 'DELETE', headers: getHeaders() });
                 loadCelulas();
                 showNotification('✅ Célula removida!', 'success');
-            } catch (e) {
-                showNotification('❌ ' + e.message, 'error');
-            }
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
         }
 
         async function verCelula(id) {
             try {
                 const res = await fetch(`/api/celulas/${id}`, { headers: getHeaders() });
                 const data = await res.json();
-
                 let msg = `🏠 ${data.nome}\n👤 Líder: ${data.lider_nome || 'Sem líder'}\n📍 ${data.endereco || '-'}\n📅 ${data.dias_reuniao || '-'}\n🕐 ${data.horario || '-'}\n`;
                 msg += `\n📊 Estatísticas:\n👥 Membros: ${data.membros?.length || 0}`;
-
                 alert(msg);
-            } catch (e) {
-                showNotification('❌ Erro ao buscar célula', 'error');
-            }
+            } catch (e) { showNotification('❌ Erro ao buscar célula', 'error'); }
         }
 
         async function openAddMembroCelula(celulaId) {
@@ -2192,9 +2336,7 @@
                 const members = await fetch('/api/members', { headers: getHeaders() }).then(r => r.json());
                 const select = document.getElementById('addMembroSelect');
                 select.innerHTML = '<option value="">Selecione um membro</option>';
-                members.forEach(m => {
-                    select.innerHTML += `<option value="${m.id}">${m.name}</option>`;
-                });
+                members.forEach(m => { select.innerHTML += `<option value="${m.id}">${m.name}</option>`; });
                 openModal('addMembroCelulaModal');
             } catch (e) { showNotification('❌ ' + e.message, 'error'); }
         }
@@ -2202,13 +2344,8 @@
         async function addMembroCelula() {
             const membro_id = document.getElementById('addMembroSelect').value;
             if (!membro_id) { showNotification('Selecione um membro!', 'error'); return; }
-
             try {
-                await fetch(`/api/celulas/${celulaAddMembroId}/membros`, {
-                    method: 'POST',
-                    headers: getJsonHeaders(),
-                    body: JSON.stringify({ membro_id })
-                });
+                await fetch(`/api/celulas/${celulaAddMembroId}/membros`, { method: 'POST', headers: getJsonHeaders(), body: JSON.stringify({ membro_id }) });
                 closeModal('addMembroCelulaModal');
                 loadCelulas();
                 showNotification('✅ Membro adicionado!', 'success');
@@ -2221,9 +2358,7 @@
                 const members = await fetch('/api/members', { headers: getHeaders() }).then(r => r.json());
                 const select = document.getElementById('decisaoMembro');
                 select.innerHTML = '<option value="">Selecione um membro</option>';
-                members.forEach(m => {
-                    select.innerHTML += `<option value="${m.id}">${m.name}</option>`;
-                });
+                members.forEach(m => { select.innerHTML += `<option value="${m.id}">${m.name}</option>`; });
                 document.getElementById('decisaoTipo').value = 'batismo';
                 document.getElementById('decisaoObs').value = '';
                 openModal('decisaoCelulaModal');
@@ -2234,13 +2369,8 @@
             const tipo = document.getElementById('decisaoTipo').value;
             const membro_id = document.getElementById('decisaoMembro').value || null;
             const observacao = document.getElementById('decisaoObs').value.trim();
-
             try {
-                await fetch(`/api/celulas/${celulaDecisaoId}/decisoes`, {
-                    method: 'POST',
-                    headers: getJsonHeaders(),
-                    body: JSON.stringify({ tipo, membro_id, observacao })
-                });
+                await fetch(`/api/celulas/${celulaDecisaoId}/decisoes`, { method: 'POST', headers: getJsonHeaders(), body: JSON.stringify({ tipo, membro_id, observacao }) });
                 closeModal('decisaoCelulaModal');
                 loadCelulas();
                 showNotification('✅ Decisão registrada!', 'success');
@@ -2283,18 +2413,14 @@
                 updateSummary();
                 loadAttendanceHistory(date);
                 showNotification(`✅ ${allMembers.length} membros`, 'success');
-            } catch (e) {
-                showNotification('❌ ' + e.message, 'error');
-            }
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
         }
 
         async function checkExistingAttendance(date) {
             try {
                 const res = await fetch(`/api/attendance/date/${date}`, { headers: getHeaders() });
                 const existing = await res.json();
-                if (existing?.length) {
-                    existing.forEach(r => { if (r.present) selectedMembers.add(r.member_id); });
-                }
+                if (existing?.length) existing.forEach(r => { if (r.present) selectedMembers.add(r.member_id); });
                 document.getElementById('selectedCount').textContent = selectedMembers.size;
             } catch (e) { console.error(e); }
         }
@@ -2377,11 +2503,7 @@
             let success = 0, errors = 0;
             for (const id of selectedMembers) {
                 try {
-                    await fetch('/api/attendance', {
-                        method: 'POST',
-                        headers: getJsonHeaders(),
-                        body: JSON.stringify({ member_id: id, event_date: date, service_type: service, present: true })
-                    });
+                    await fetch('/api/attendance', { method: 'POST', headers: getJsonHeaders(), body: JSON.stringify({ member_id: id, event_date: date, service_type: service, present: true }) });
                     success++;
                 } catch (e) { errors++; }
             }
@@ -2429,8 +2551,10 @@
         }
 
         // ============================================
-        // TITHES
+        // TITHES + EXPORTAÇÃO
         // ============================================
+        let allTithes = [];
+
         async function openTitheModal() {
             try {
                 const members = await fetch('/api/members', { headers: getHeaders() }).then(r => r.json());
@@ -2452,11 +2576,7 @@
             const payment_method = document.getElementById('titheMethod').value;
             if (!amount || amount <= 0) { showNotification('Valor inválido!', 'error'); return; }
             try {
-                await fetch('/api/tithes', {
-                    method: 'POST',
-                    headers: getJsonHeaders(),
-                    body: JSON.stringify({ member_id: member_id || null, type, amount, payment_date, payment_method, description: '' })
-                });
+                await fetch('/api/tithes', { method: 'POST', headers: getJsonHeaders(), body: JSON.stringify({ member_id: member_id || null, type, amount, payment_date, payment_method, description: '' }) });
                 closeModal('titheModal');
                 loadTithes();
                 loadTitheSummary();
@@ -2468,16 +2588,19 @@
             try {
                 const res = await fetch('/api/tithes', { headers: getHeaders() });
                 const data = await res.json();
+                allTithes = data || [];
                 const tbody = document.getElementById('tithesList');
-                if (!data?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
+                if (!data?.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhum</td></tr>'; return; }
                 tbody.innerHTML = data.slice(0, 30).map(t => `
                     <tr>
                         <td>${t.member_name||'Visitante'}</td>
                         <td>${t.type}</td>
                         <td>R$ ${parseFloat(t.amount).toFixed(2)}</td>
+                        <td>${t.payment_method || '-'}</td>
                         <td>${new Date(t.payment_date).toLocaleDateString('pt-BR')}</td>
                     </tr>
                 `).join('');
+                populateExportYears();
             } catch (e) { console.error('Erro:', e); }
         }
 
@@ -2486,10 +2609,121 @@
                 const res = await fetch('/api/tithes/summary', { headers: getHeaders() });
                 const data = await res.json();
                 const div = document.getElementById('titheSummary');
-                if (!data.by_type?.length) { div.innerHTML = ''; return; }
-                div.innerHTML = data.by_type.map(t => `<span><strong>${t.type}:</strong> R$ ${parseFloat(t.total).toFixed(0)}</span> `).join('') +
-                    `<span><strong>Total:</strong> R$ ${parseFloat(data.total).toFixed(0)}</span>`;
+                if (!data.by_type?.length) { div.innerHTML = 'Nenhum registro'; return; }
+                div.innerHTML = data.by_type.map(t => `<span><strong>${t.type}:</strong> R$ ${parseFloat(t.total).toFixed(2)}</span> `).join('') +
+                    ` | <span><strong>TOTAL:</strong> R$ ${parseFloat(data.total).toFixed(2)}</span>`;
             } catch (e) { console.error('Erro:', e); }
+        }
+
+        // Popula o select de anos com base nos dízimos
+        function populateExportYears() {
+            const yearsSet = new Set();
+            allTithes.forEach(t => {
+                if (t.payment_date) {
+                    yearsSet.add(new Date(t.payment_date).getFullYear());
+                }
+            });
+            yearsSet.add(new Date().getFullYear());
+            const select = document.getElementById('exportYear');
+            const currentValue = select.value;
+            select.innerHTML = '<option value="">Ano: Todos</option>';
+            [...yearsSet].sort((a,b) => b-a).forEach(y => {
+                const opt = document.createElement('option');
+                opt.value = y;
+                opt.textContent = y;
+                select.appendChild(opt);
+            });
+            if (currentValue) select.value = currentValue;
+        }
+
+        // Exportação: filtra e gera CSV ou TXT
+        function exportTithes(format) {
+            const month = document.getElementById('exportMonth').value;
+            const year = document.getElementById('exportYear').value;
+            const type = document.getElementById('exportType').value;
+            const method = document.getElementById('exportMethod').value;
+
+            let filtered = [...allTithes];
+
+            if (month) {
+                filtered = filtered.filter(t => {
+                    if (!t.payment_date) return false;
+                    return (new Date(t.payment_date).getMonth() + 1) === parseInt(month);
+                });
+            }
+            if (year) {
+                filtered = filtered.filter(t => {
+                    if (!t.payment_date) return false;
+                    return new Date(t.payment_date).getFullYear() === parseInt(year);
+                });
+            }
+            if (type) filtered = filtered.filter(t => t.type === type);
+            if (method) filtered = filtered.filter(t => t.payment_method === method);
+
+            if (!filtered.length) {
+                showNotification('⚠️ Nenhum registro encontrado com esses filtros.', 'info');
+                return;
+            }
+
+            // Calcula total
+            const total = filtered.reduce((s, t) => s + parseFloat(t.amount || 0), 0);
+
+            // Cabeçalho
+            const header = ['Membro', 'Tipo', 'Valor (R$)', 'Método', 'Data'];
+
+            // Linhas
+            const rows = filtered.map(t => [
+                t.member_name || 'Visitante',
+                t.type || '-',
+                parseFloat(t.amount || 0).toFixed(2).replace('.', ','),
+                t.payment_method || '-',
+                t.payment_date ? new Date(t.payment_date).toLocaleDateString('pt-BR') : '-'
+            ]);
+
+            // Linha de total
+            rows.push(['', 'TOTAL', total.toFixed(2).replace('.', ','), '', '']);
+
+            // Nome do arquivo com data
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
+            if (format === 'csv') {
+                // CSV com separador ponto-e-vírgula (padrão brasileiro Excel)
+                const csvLines = [header.join(';')];
+                rows.forEach(r => {
+                    const line = r.map(cell => {
+                        const s = String(cell);
+                        if (s.includes(';') || s.includes('"') || s.includes('\n')) {
+                            return '"' + s.replace(/"/g, '""') + '"';
+                        }
+                        return s;
+                    }).join(';');
+                    csvLines.push(line);
+                });
+                // BOM UTF-8 para Excel reconhecer acentos
+                const csvContent = '\uFEFF' + csvLines.join('\r\n');
+                downloadFile(csvContent, `dizimos_${dateStr}.csv`, 'text/csv;charset=utf-8;');
+            } else {
+                // TXT com TAB (também abre bem no Excel, mantém acentos perfeitos)
+                const txtLines = [header.join('\t')];
+                rows.forEach(r => txtLines.push(r.join('\t')));
+                const txtContent = '\uFEFF' + txtLines.join('\r\n');
+                downloadFile(txtContent, `dizimos_${dateStr}.txt`, 'text/plain;charset=utf-8;');
+            }
+
+            showNotification(`✅ ${filtered.length} registros exportados!`, 'success');
+        }
+
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
         }
 
         // ============================================
@@ -2510,11 +2744,7 @@
             const due = document.getElementById('billDueDate').value;
             if (!desc || !amount || !due) { showNotification('Preencha todos os campos!', 'error'); return; }
             try {
-                await fetch('/api/bills', {
-                    method: 'POST',
-                    headers: getJsonHeaders(),
-                    body: JSON.stringify({ description: desc, category: cat, amount, due_date: due, notes: '' })
-                });
+                await fetch('/api/bills', { method: 'POST', headers: getJsonHeaders(), body: JSON.stringify({ description: desc, category: cat, amount, due_date: due, notes: '' }) });
                 closeModal('billModal');
                 loadBills();
                 loadBillSummary();
@@ -2545,11 +2775,7 @@
         async function payBill(id) {
             if (!confirm('Pagar?')) return;
             try {
-                await fetch('/api/bills/' + id + '/pay', {
-                    method: 'PUT',
-                    headers: getJsonHeaders(),
-                    body: JSON.stringify({ payment_date: new Date().toISOString().split('T')[0], payment_method: 'dinheiro' })
-                });
+                await fetch('/api/bills/' + id + '/pay', { method: 'PUT', headers: getJsonHeaders(), body: JSON.stringify({ payment_date: new Date().toISOString().split('T')[0], payment_method: 'dinheiro' }) });
                 loadBills();
                 loadBillSummary();
                 showNotification('✅ Paga!', 'success');
@@ -2638,18 +2864,11 @@
             const title = document.getElementById('reflectionTitle').value.trim();
             const description = document.getElementById('reflectionDesc').value.trim();
             const link = document.getElementById('reflectionLink').value.trim();
-
             if (!title || !link) { showNotification('Título e Link são obrigatórios!', 'error'); return; }
-
             const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/;
             if (!youtubeRegex.test(link)) { showNotification('Link inválido do YouTube!', 'error'); return; }
-
             try {
-                const res = await fetch('/api/pastor-reflections', {
-                    method: 'POST',
-                    headers: getJsonHeaders(),
-                    body: JSON.stringify({ title, description, link })
-                });
+                const res = await fetch('/api/pastor-reflections', { method: 'POST', headers: getJsonHeaders(), body: JSON.stringify({ title, description, link }) });
                 if (!res.ok) {
                     const err = await res.json();
                     throw new Error(err.error || 'Erro ao salvar');
@@ -2657,9 +2876,7 @@
                 closeModal('reflectionModal');
                 loadReflectionsAdmin();
                 showNotification('✅ Reflexão salva!', 'success');
-            } catch (e) {
-                showNotification('❌ ' + e.message, 'error');
-            }
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
         }
 
         async function deleteReflection(id) {
@@ -2668,9 +2885,7 @@
                 await fetch(`/api/pastor-reflections/${id}`, { method: 'DELETE', headers: getHeaders() });
                 loadReflectionsAdmin();
                 showNotification('✅ Reflexão removida!', 'success');
-            } catch (e) {
-                showNotification('❌ ' + e.message, 'error');
-            }
+            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
         }
 
         // ============================================
@@ -2696,11 +2911,7 @@
         async function resetPassword(email) {
             if (!confirm('Resetar para 123456?')) return;
             try {
-                await fetch('/api/reset-password', {
-                    method: 'POST',
-                    headers: getJsonHeaders(),
-                    body: JSON.stringify({ email })
-                });
+                await fetch('/api/reset-password', { method: 'POST', headers: getJsonHeaders(), body: JSON.stringify({ email }) });
                 showNotification('✅ Senha resetada!', 'success');
             } catch (e) { showNotification('❌ ' + e.message, 'error'); }
         }
@@ -2734,11 +2945,7 @@
                 return;
             }
             try {
-                const res = await fetch('/api/users', {
-                    method: 'POST',
-                    headers: getJsonHeaders(),
-                    body: JSON.stringify({ name, email, password, role, department_id: dept || null })
-                });
+                const res = await fetch('/api/users', { method: 'POST', headers: getJsonHeaders(), body: JSON.stringify({ name, email, password, role, department_id: dept || null }) });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || 'Erro');
                 closeModal('userModal');
@@ -2760,6 +2967,7 @@
                 if (data.site_title) document.getElementById('configTitle').value = data.site_title;
                 if (data.whatsapp) document.getElementById('configWhatsapp').value = data.whatsapp;
                 await loadCultos();
+                await loadLogoPreview();
             } catch (e) { console.error('Erro:', e); }
         }
 
@@ -2802,13 +3010,10 @@
             const dia = parseInt(document.getElementById('cultoDia').value);
             const hora = parseInt(document.getElementById('cultoHora').value) || 0;
             const minuto = parseInt(document.getElementById('cultoMinuto').value) || 0;
-
             if (hora < 0 || hora > 23) { showNotification('Hora inválida', 'error'); return; }
             if (minuto < 0 || minuto > 59) { showNotification('Minuto inválido', 'error'); return; }
-
             const dias = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
             const label = `${dias[dia]} ${String(hora).padStart(2,'0')}:${String(minuto).padStart(2,'0')}`;
-
             cultosList.push({ dia, hora, minuto, label });
             renderCultos();
             showNotification('✅ Horário adicionado', 'success');
@@ -2821,11 +3026,7 @@
 
         async function saveCultos() {
             try {
-                const res = await fetch('/api/settings', {
-                    method: 'POST',
-                    headers: getJsonHeaders(),
-                    body: JSON.stringify({ key: 'cultos', value: JSON.stringify(cultosList) })
-                });
+                const res = await fetch('/api/settings', { method: 'POST', headers: getJsonHeaders(), body: JSON.stringify({ key: 'cultos', value: JSON.stringify(cultosList) }) });
                 if (!res.ok) throw new Error('Erro ao salvar');
                 showNotification('✅ Horários salvos!', 'success');
             } catch (e) { showNotification('❌ ' + e.message, 'error'); }
@@ -2833,11 +3034,7 @@
 
         async function saveConfig(key, value) {
             try {
-                await fetch('/api/settings', {
-                    method: 'POST',
-                    headers: getJsonHeaders(),
-                    body: JSON.stringify({ key, value })
-                });
+                await fetch('/api/settings', { method: 'POST', headers: getJsonHeaders(), body: JSON.stringify({ key, value }) });
                 if (key === 'primary_color') document.documentElement.style.setProperty('--primary', value);
                 showNotification('✅ Salvo!', 'success');
             } catch (e) { showNotification('❌ ' + e.message, 'error'); }
@@ -2860,7 +3057,6 @@
             const mission = document.getElementById('aboutMission').value.trim();
             const vision = document.getElementById('aboutVision').value.trim();
             const values = document.getElementById('aboutValues').value.trim();
-
             try {
                 showNotification('🔄 Salvando...', 'info');
                 await Promise.all([
@@ -2882,13 +3078,10 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('studyImage')?.addEventListener('change', function() {
-                const name = this.files[0] ? this.files[0].name : '';
-                document.getElementById('studyImageName').textContent = name;
+                document.getElementById('studyImageName').textContent = this.files[0] ? this.files[0].name : '';
             });
-
             document.getElementById('studyPdf')?.addEventListener('change', function() {
-                const name = this.files[0] ? this.files[0].name : '';
-                document.getElementById('studyPdfName').textContent = name;
+                document.getElementById('studyPdfName').textContent = this.files[0] ? this.files[0].name : '';
             });
         });
 
@@ -2906,57 +3099,31 @@
             try {
                 const res = await fetch('/api/lives/active');
                 const data = await res.json();
-
                 if (data.status === 'live') {
-                    isLiveActive = true;
-                    liveId = data.id;
-
+                    isLiveActive = true; liveId = data.id;
                     const indicator = document.getElementById('liveIndicator');
-                    if (indicator) {
-                        indicator.className = 'live-indicator live';
-                        indicator.innerHTML = '<i class="fas fa-circle"></i> AO VIVO';
-                    }
-
+                    if (indicator) { indicator.className = 'live-indicator live'; indicator.innerHTML = '<i class="fas fa-circle"></i> AO VIVO'; }
                     const info = document.getElementById('liveInfo');
-                    if (info) {
-                        info.textContent = `📺 ${data.titulo || 'Live'} - Iniciada por ${data.iniciada_por_nome || 'Pastor'}`;
-                    }
-
+                    if (info) info.textContent = `📺 ${data.titulo || 'Live'} - Iniciada por ${data.iniciada_por_nome || 'Pastor'}`;
                     const startBtn = document.getElementById('startLiveBtn');
                     const stopBtn = document.getElementById('stopLiveBtn');
                     if (startBtn) startBtn.style.display = 'none';
                     if (stopBtn) stopBtn.style.display = 'inline-flex';
-
                     const viewers = document.getElementById('liveViewers');
-                    if (viewers) {
-                        viewers.innerHTML = `<i class="fas fa-eye"></i> ${data.viewers || 0} espectadores`;
-                    }
-
+                    if (viewers) viewers.innerHTML = `<i class="fas fa-eye"></i> ${data.viewers || 0} espectadores`;
                     if (liveInterval) clearInterval(liveInterval);
                     liveInterval = setInterval(updateViewers, 10000);
-
                 } else {
-                    isLiveActive = false;
-                    liveId = null;
-
+                    isLiveActive = false; liveId = null;
                     const indicator = document.getElementById('liveIndicator');
-                    if (indicator) {
-                        indicator.className = 'live-indicator';
-                        indicator.innerHTML = '<i class="fas fa-circle"></i> OFFLINE';
-                    }
-
+                    if (indicator) { indicator.className = 'live-indicator'; indicator.innerHTML = '<i class="fas fa-circle"></i> OFFLINE'; }
                     const info = document.getElementById('liveInfo');
                     if (info) info.textContent = 'Nenhuma live ativa no momento';
-
                     const startBtn = document.getElementById('startLiveBtn');
                     const stopBtn = document.getElementById('stopLiveBtn');
                     if (startBtn) startBtn.style.display = 'inline-flex';
                     if (stopBtn) stopBtn.style.display = 'none';
-
-                    if (liveInterval) {
-                        clearInterval(liveInterval);
-                        liveInterval = null;
-                    }
+                    if (liveInterval) { clearInterval(liveInterval); liveInterval = null; }
                 }
             } catch (e) { console.error('Erro:', e); }
         }
@@ -2964,11 +3131,7 @@
         async function updateViewers() {
             if (!liveId) return;
             try {
-                const res = await fetch(`/api/lives/${liveId}/viewer`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ viewer_id: 'admin_' + Date.now() })
-                });
+                const res = await fetch(`/api/lives/${liveId}/viewer`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ viewer_id: 'admin_' + Date.now() }) });
                 const data = await res.json();
                 const viewers = document.getElementById('liveViewers');
                 if (viewers) viewers.innerHTML = `<i class="fas fa-eye"></i> ${data.viewers || 0} espectadores`;
@@ -2977,27 +3140,14 @@
 
         async function startMediaCapture(deviceId = null) {
             try {
-                if (localStream) {
-                    localStream.getTracks().forEach(track => track.stop());
-                    localStream = null;
-                }
-
-                const constraints = {
-                    video: { facingMode: currentCamera, width: { ideal: 1280 }, height: { ideal: 720 } },
-                    audio: true
-                };
-
+                if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+                const constraints = { video: { facingMode: currentCamera, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: true };
                 if (deviceId) constraints.video = { deviceId: { exact: deviceId } };
-
                 localStream = await navigator.mediaDevices.getUserMedia(constraints);
                 const video = document.getElementById('localVideo');
-                if (video) {
-                    video.srcObject = localStream;
-                    video.style.display = 'block';
-                }
+                if (video) { video.srcObject = localStream; video.style.display = 'block'; }
                 const placeholder = document.getElementById('placeholderMessage');
                 if (placeholder) placeholder.style.display = 'none';
-
                 return localStream;
             } catch (e) {
                 console.error('Erro ao acessar câmera:', e);
@@ -3008,114 +3158,56 @@
         async function startLive() {
             const titulo = document.getElementById('liveTitle').value.trim() || 'Live NJ Cabuçu';
             const descricao = document.getElementById('liveDesc').value.trim() || '';
-
             try {
                 await startMediaCapture();
-
-                const res = await fetch('/api/lives/start', {
-                    method: 'POST',
-                    headers: getJsonHeaders(),
-                    body: JSON.stringify({ titulo, descricao })
-                });
-
+                const res = await fetch('/api/lives/start', { method: 'POST', headers: getJsonHeaders(), body: JSON.stringify({ titulo, descricao }) });
                 const data = await res.json();
                 if (data.error) throw new Error(data.error);
-
-                liveId = data.id;
-                isLiveActive = true;
-
+                liveId = data.id; isLiveActive = true;
                 const indicator = document.getElementById('liveIndicator');
-                if (indicator) {
-                    indicator.className = 'live-indicator live';
-                    indicator.innerHTML = '<i class="fas fa-circle"></i> AO VIVO';
-                }
-
+                if (indicator) { indicator.className = 'live-indicator live'; indicator.innerHTML = '<i class="fas fa-circle"></i> AO VIVO'; }
                 const info = document.getElementById('liveInfo');
                 if (info) info.textContent = `📺 ${titulo} - Ao vivo!`;
-
                 const startBtn = document.getElementById('startLiveBtn');
                 const stopBtn = document.getElementById('stopLiveBtn');
                 if (startBtn) startBtn.style.display = 'none';
                 if (stopBtn) stopBtn.style.display = 'inline-flex';
-
                 showNotification('✅ Live iniciada!', 'success');
-
                 if (liveInterval) clearInterval(liveInterval);
                 liveInterval = setInterval(updateViewers, 10000);
-
                 loadLiveHistory();
-
-            } catch (e) {
-                console.error('Erro:', e);
-                showNotification('❌ ' + e.message, 'error');
-            }
+            } catch (e) { console.error('Erro:', e); showNotification('❌ ' + e.message, 'error'); }
         }
 
         async function stopLive() {
             try {
                 const checkRes = await fetch('/api/lives/active');
                 const activeData = await checkRes.json();
-
-                if (activeData.status !== 'live') {
-                    showNotification('⚠️ Nenhuma live ativa.', 'error');
-                    return;
-                }
-
+                if (activeData.status !== 'live') { showNotification('⚠️ Nenhuma live ativa.', 'error'); return; }
                 const liveIdToStop = activeData.id;
                 const liveTitle = activeData.titulo || 'Live';
-
                 if (!confirm(`Deseja encerrar "${liveTitle}"?`)) return;
-
                 showNotification('🔄 Encerrando...', 'info');
-
-                const response = await fetch(`/api/lives/end/${liveIdToStop}`, {
-                    method: 'POST',
-                    headers: getHeaders()
-                });
-
+                const response = await fetch(`/api/lives/end/${liveIdToStop}`, { method: 'POST', headers: getHeaders() });
                 const result = await response.json();
                 if (!response.ok) throw new Error(result.error || 'Erro');
-
-                isLiveActive = false;
-                liveId = null;
-
+                isLiveActive = false; liveId = null;
                 const indicator = document.getElementById('liveIndicator');
-                if (indicator) {
-                    indicator.className = 'live-indicator';
-                    indicator.innerHTML = '<i class="fas fa-circle"></i> OFFLINE';
-                }
-
+                if (indicator) { indicator.className = 'live-indicator'; indicator.innerHTML = '<i class="fas fa-circle"></i> OFFLINE'; }
                 const info = document.getElementById('liveInfo');
                 if (info) info.textContent = 'Live encerrada com sucesso!';
-
                 const startBtn = document.getElementById('startLiveBtn');
                 const stopBtn = document.getElementById('stopLiveBtn');
                 if (startBtn) startBtn.style.display = 'inline-flex';
                 if (stopBtn) stopBtn.style.display = 'none';
-
                 const video = document.getElementById('localVideo');
-                if (video) {
-                    video.style.display = 'none';
-                    if (video.srcObject) {
-                        video.srcObject.getTracks().forEach(track => track.stop());
-                        video.srcObject = null;
-                    }
-                }
+                if (video) { video.style.display = 'none'; if (video.srcObject) { video.srcObject.getTracks().forEach(t => t.stop()); video.srcObject = null; } }
                 const placeholder = document.getElementById('placeholderMessage');
                 if (placeholder) placeholder.style.display = 'flex';
-
-                if (liveInterval) {
-                    clearInterval(liveInterval);
-                    liveInterval = null;
-                }
-
+                if (liveInterval) { clearInterval(liveInterval); liveInterval = null; }
                 showNotification('✅ Live encerrada!', 'success');
                 loadLiveHistory();
-
-            } catch (error) {
-                console.error('❌ Erro:', error);
-                showNotification('❌ Erro: ' + error.message, 'error');
-            }
+            } catch (error) { console.error('❌ Erro:', error); showNotification('❌ Erro: ' + error.message, 'error'); }
         }
 
         async function switchCamera() {
@@ -3123,13 +3215,10 @@
             try {
                 const devices = await navigator.mediaDevices.enumerateDevices();
                 const videoDevices = devices.filter(d => d.kind === 'videoinput');
-
                 if (videoDevices.length < 2) { showNotification('⚠️ Apenas uma câmera', 'info'); return; }
-
                 const currentDeviceId = localStream.getVideoTracks()[0]?.getSettings().deviceId;
                 let nextDevice = videoDevices.find(d => d.deviceId !== currentDeviceId);
                 if (!nextDevice) nextDevice = videoDevices[0];
-
                 await startMediaCapture(nextDevice.deviceId);
                 showNotification(`📷 Trocou para: ${nextDevice.label || 'Câmera'}`, 'success');
             } catch (e) { showNotification('❌ ' + e.message, 'error'); }
@@ -3147,29 +3236,16 @@
         async function toggleScreenShare() {
             if (!localStream) { showNotification('Inicie a live primeiro!', 'error'); return; }
             try {
-                const screenStream = await navigator.mediaDevices.getDisplayMedia({
-                    video: { width: { ideal: 1280 }, height: { ideal: 720 } },
-                    audio: true
-                });
-
+                const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } }, audio: true });
                 const videoTrack = screenStream.getVideoTracks()[0];
                 const oldVideoTrack = localStream.getVideoTracks()[0];
-
-                if (oldVideoTrack) {
-                    localStream.removeTrack(oldVideoTrack);
-                    oldVideoTrack.stop();
-                }
-
+                if (oldVideoTrack) { localStream.removeTrack(oldVideoTrack); oldVideoTrack.stop(); }
                 localStream.addTrack(videoTrack);
                 const video = document.getElementById('localVideo');
                 if (video) video.srcObject = localStream;
-
                 videoTrack.onended = () => { startMediaCapture(currentCamera); };
-
                 showNotification('📺 Compartilhando tela!', 'success');
-            } catch (e) {
-                if (e.name !== 'AbortError') showNotification('❌ ' + e.message, 'error');
-            }
+            } catch (e) { if (e.name !== 'AbortError') showNotification('❌ ' + e.message, 'error'); }
         }
 
         async function loadLiveHistory() {
@@ -3177,29 +3253,18 @@
                 const res = await fetch('/api/lives/history', { headers: getHeaders() });
                 const data = await res.json();
                 const tbody = document.getElementById('liveHistoryList');
-
-                if (!data?.length) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhuma transmissão</td></tr>';
-                    return;
-                }
-
+                if (!data?.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="color:#888;">Nenhuma transmissão</td></tr>'; return; }
                 tbody.innerHTML = data.slice(0, 20).map(l => {
-                    const duracao = l.started_at && l.ended_at ?
-                        Math.floor((new Date(l.ended_at) - new Date(l.started_at)) / 60000) + 'min' :
-                        l.status === 'live' ? 'Em andamento' : '-';
-                    return `
-                        <tr>
-                            <td>${l.titulo || 'Live'}</td>
-                            <td>${l.iniciada_por_nome || 'Pastor'}</td>
-                            <td>${l.started_at ? new Date(l.started_at).toLocaleDateString('pt-BR') : '-'}</td>
-                            <td>${duracao}</td>
-                            <td>${l.viewers || 0}</td>
-                        </tr>
-                    `;
+                    const duracao = l.started_at && l.ended_at ? Math.floor((new Date(l.ended_at) - new Date(l.started_at)) / 60000) + 'min' : l.status === 'live' ? 'Em andamento' : '-';
+                    return `<tr>
+                        <td>${l.titulo || 'Live'}</td>
+                        <td>${l.iniciada_por_nome || 'Pastor'}</td>
+                        <td>${l.started_at ? new Date(l.started_at).toLocaleDateString('pt-BR') : '-'}</td>
+                        <td>${duracao}</td>
+                        <td>${l.viewers || 0}</td>
+                    </tr>`;
                 }).join('');
-            } catch (e) {
-                console.error('Erro:', e);
-            }
+            } catch (e) { console.error('Erro:', e); }
         }
 
         function startLiveStatusChecker() {
@@ -3217,78 +3282,25 @@
             loadAbout();
             checkLiveStatus();
             startLiveStatusChecker();
+            loadLogoPreview();
         });
 
         // ============================================
         // EXPOSED FUNCTIONS
         // ============================================
-        window.filterRegistrations = filterRegistrations;
-        window.approveRegistration = approveRegistration;
-        window.deleteRegistration = deleteRegistration;
-        window.showTab = showTab;
-        window.openModal = openModal;
-        window.closeModal = closeModal;
-        window.logout = logout;
-        window.loadCelulas = loadCelulas;
-        window.openCelulaModal = openCelulaModal;
-        window.saveCelula = saveCelula;
-        window.verCelula = verCelula;
-        window.deleteCelula = deleteCelula;
-        window.openAddMembroCelula = openAddMembroCelula;
-        window.addMembroCelula = addMembroCelula;
-        window.openDecisaoCelula = openDecisaoCelula;
-        window.saveDecisaoCelula = saveDecisaoCelula;
-        window.markPrayerRead = markPrayerRead;
-        window.deleteUser = deleteUser;
-        window.resetPassword = resetPassword;
-        window.deleteStudy = deleteStudy;
-        window.deleteEvent = deleteEvent;
-        window.deleteProduct = deleteProduct;
-        window.deleteCarousel = deleteCarousel;
-        window.deleteDepartment = deleteDepartment;
-        window.openUserModal = openUserModal;
-        window.saveUser = saveUser;
-        window.openDeptModal = openDeptModal;
-        window.saveDepartment = saveDepartment;
-        window.openMemberModal = openMemberModal;
-        window.saveMember = saveMember;
-        window.viewMember = viewMember;
-        window.deleteMember = deleteMember;
-        window.loadAllMembersForAttendance = loadAllMembersForAttendance;
-        window.toggleSelectAll = toggleSelectAll;
-        window.clearSelection = clearSelection;
-        window.registerMultipleAttendance = registerMultipleAttendance;
-        window.registerAllAttendance = registerAllAttendance;
-        window.openTitheModal = openTitheModal;
-        window.saveTithe = saveTithe;
-        window.openBillModal = openBillModal;
-        window.saveBill = saveBill;
-        window.payBill = payBill;
-        window.deleteBill = deleteBill;
-        window.loadConfig = loadConfig;
-        window.saveConfig = saveConfig;
-        window.saveAbout = saveAbout;
-        window.openStudyModal = openStudyModal;
-        window.submitStudy = submitStudy;
-        window.openEventModal = openEventModal;
-        window.openProductModal = openProductModal;
-        window.openCarouselModal = openCarouselModal;
-        window.startLive = startLive;
-        window.stopLive = stopLive;
-        window.toggleCamera = toggleCamera;
-        window.switchCamera = switchCamera;
-        window.toggleScreenShare = toggleScreenShare;
-        window.checkLiveStatus = checkLiveStatus;
-        window.loadLiveHistory = loadLiveHistory;
-        window.loadReflectionsAdmin = loadReflectionsAdmin;
-        window.openReflectionModal = openReflectionModal;
-        window.saveReflection = saveReflection;
-        window.deleteReflection = deleteReflection;
-        window.addCulto = addCulto;
-        window.removeCulto = removeCulto;
-        window.saveCultos = saveCultos;
-        window.loadCultos = loadCultos;
-        window.toggleMember = toggleMember;
+        Object.assign(window, {
+            filterRegistrations, approveRegistration, deleteRegistration, showTab, openModal, closeModal, logout,
+            loadCelulas, openCelulaModal, saveCelula, verCelula, deleteCelula, openAddMembroCelula, addMembroCelula,
+            openDecisaoCelula, saveDecisaoCelula, markPrayerRead, deleteUser, resetPassword, deleteStudy, deleteEvent,
+            deleteProduct, deleteCarousel, deleteDepartment, openUserModal, saveUser, openDeptModal, saveDepartment,
+            openMemberModal, saveMember, viewMember, deleteMember, loadAllMembersForAttendance, toggleSelectAll,
+            clearSelection, registerMultipleAttendance, registerAllAttendance, openTitheModal, saveTithe, openBillModal,
+            saveBill, payBill, deleteBill, loadConfig, saveConfig, saveAbout, openStudyModal, submitStudy, openEventModal,
+            openProductModal, openCarouselModal, startLive, stopLive, toggleCamera, switchCamera, toggleScreenShare,
+            checkLiveStatus, loadLiveHistory, loadReflectionsAdmin, openReflectionModal, saveReflection, deleteReflection,
+            addCulto, removeCulto, saveCultos, loadCultos, toggleMember, uploadLogo, removeLogo, loadLogoPreview,
+            exportTithes, populateExportYears
+        });
     </script>
 </body>
 </html>

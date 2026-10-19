@@ -304,9 +304,9 @@ const upload = multer({
     storage: storage,
     limits: { fileSize: 10 * 1024 * 1024 },
     fileFilter: function (req, file, cb) {
-        const allowedTypes = /jpeg|jpg|png|gif|webp|pdf/;
+        const allowedTypes = /jpeg|jpg|png|gif|webp|pdf|svg/;
         const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = allowedTypes.test(file.mimetype);
+        const mimetype = allowedTypes.test(file.mimetype) || file.mimetype === 'image/svg+xml';
         
         if (mimetype && extname) {
             return cb(null, true);
@@ -2144,6 +2144,92 @@ app.post('/api/settings', auth, pastorOnly, async (req, res) => {
         res.json({ message: 'Configuração atualizada' });
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== LOGO PERSONALIZADA (NOVO) =====
+// ============================================
+app.post('/api/settings/logo', auth, pastorOnly, upload.single('logo'), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: 'Nenhuma imagem enviada' });
+        if (req.file.size > 2 * 1024 * 1024) return res.status(400).json({ error: 'Imagem muito grande (máx 2MB)' });
+        
+        const image_base64 = req.file.buffer.toString('base64');
+        const dataUrl = `data:${req.file.mimetype};base64,${image_base64}`;
+        
+        await sql`
+            INSERT INTO site_settings (key, value) VALUES ('site_logo', ${dataUrl})
+            ON CONFLICT (key) DO UPDATE SET value = ${dataUrl}, updated_at = NOW()
+        `;
+        res.json({ success: true, message: 'Logo atualizada com sucesso!', logo: dataUrl });
+    } catch (error) {
+        console.error('❌ Erro ao salvar logo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/settings/logo', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM site_settings WHERE key = 'site_logo'`;
+        res.json({ success: true, message: 'Logo removida. Voltando ao padrão.' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== BÍBLIA (PROXY) (NOVO) =====
+// ============================================
+app.get('/api/bible', async (req, res) => {
+    try {
+        const { book, chapter, verse } = req.query;
+        if (!book || !chapter) return res.status(400).json({ error: 'Livro e capítulo obrigatórios' });
+
+        const bookMap = {
+            'gn':'genesis','ex':'exodus','lv':'leviticus','nm':'numbers','dt':'deuteronomy',
+            'js':'joshua','jz':'judges','rt':'ruth','1sm':'1samuel','2sm':'2samuel',
+            '1rs':'1kings','2rs':'2kings','1cr':'1chronicles','2cr':'2chronicles',
+            'ed':'ezra','ne':'nehemiah','et':'esther','jo':'job','sl':'psalms',
+            'pv':'proverbs','ec':'ecclesiastes','ct':'songofsolomon','is':'isaiah',
+            'jr':'jeremiah','lm':'lamentations','ez':'ezekiel','dn':'daniel','os':'hosea',
+            'jl':'joel','am':'amos','ob':'obadiah','jn':'jonah','mq':'micah','na':'nahum',
+            'hc':'habakkuk','sf':'zephaniah','ag':'haggai','zc':'zechariah','ml':'malachi',
+            'mt':'matthew','mc':'mark','lc':'luke','joao':'john','at':'acts','rm':'romans',
+            '1co':'1corinthians','2co':'2corinthians','gl':'galatians','ef':'ephesians',
+            'fp':'philippians','cl':'colossians','1ts':'1thessalonians','2ts':'2thessalonians',
+            '1tm':'1timothy','2tm':'2timothy','tt':'titus','fm':'philemon','hb':'hebrews',
+            'tg':'james','1pe':'1peter','2pe':'2peter','1jo':'1john','2jo':'2john',
+            '3jo':'3john','jd':'jude','ap':'revelation'
+        };
+
+        const bookApiName = bookMap[book] || book;
+        let url = `https://bible-api.com/${bookApiName}+${chapter}`;
+        if (verse && parseInt(verse) > 0) url += `:${verse}`;
+        url += '?translation=almeida';
+
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
+
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeout);
+
+        if (!response.ok) {
+            if (response.status === 429) {
+                return res.status(429).json({ error: 'Muitas consultas. Aguarde alguns segundos e tente novamente.' });
+            }
+            throw new Error(`API bíblia: ${response.status}`);
+        }
+
+        const data = await response.json();
+        res.json(data);
+
+    } catch (error) {
+        console.error('❌ Erro bíblia:', error);
+        if (error.name === 'AbortError') {
+            return res.status(504).json({ error: 'A Bíblia demorou demais para responder. Tente de novo.' });
+        }
+        res.status(500).json({ error: error.message || 'Erro ao buscar' });
     }
 });
 

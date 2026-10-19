@@ -310,7 +310,9 @@
             color: #fff;
             flex-shrink: 0;
             font-family: 'Inter', sans-serif;
+            overflow: hidden;
         }
+        .logo-icon-css img { width: 100%; height: 100%; object-fit: cover; }
         .logo span {
             font-weight: 800;
             font-size: 1.1rem;
@@ -1402,7 +1404,7 @@
 
     <header class="header" id="mainHeader">
         <a href="/" class="logo">
-            <div class="logo-icon-css">NJ</div>
+            <div class="logo-icon-css" id="mainLogoIcon">NJ</div>
             <span>NJ Cabuçu <small>Igreja</small></span>
         </a>
         <div class="header-actions">
@@ -2004,14 +2006,11 @@
         // ============================================
         // ===== BOTÃO DE INSTALAÇÃO PWA =====
         // ============================================
-
         (function() {
             'use strict';
 
             let deferredPrompt = null;
             let showBannerState = true;
-            let installAttempts = 0;
-            const MAX_ATTEMPTS = 3;
             
             const banner = document.getElementById('installBanner');
             const fab = document.getElementById('installFab');
@@ -2024,35 +2023,25 @@
             }
 
             function isBannerClosed() {
-                try {
-                    return localStorage.getItem('pwa-banner-fechado') === 'true';
-                } catch {
-                    return false;
-                }
+                try { return localStorage.getItem('pwa-banner-fechado') === 'true'; }
+                catch { return false; }
             }
 
             function setBannerClosed() {
-                try {
-                    localStorage.setItem('pwa-banner-fechado', 'true');
-                } catch {}
+                try { localStorage.setItem('pwa-banner-fechado', 'true'); } catch {}
             }
 
             function updateUI() {
-                const installed = isStandalone();
-                const closed = isBannerClosed();
-
-                if (installed) {
+                if (isStandalone()) {
                     banner.style.display = 'none';
                     fab.style.display = 'none';
                     return;
                 }
-
-                if (closed) {
+                if (isBannerClosed()) {
                     banner.style.display = 'none';
                     fab.style.display = 'flex';
                     return;
                 }
-
                 if (showBannerState) {
                     banner.style.display = 'flex';
                     fab.style.display = 'none';
@@ -2064,32 +2053,22 @@
 
             async function handleInstall(e) {
                 if (e) e.preventDefault();
-                
-                console.log('📲 Botão de instalação clicado!');
-                console.log('deferredPrompt:', deferredPrompt);
-                console.log('isStandalone:', isStandalone());
-                
                 if (isStandalone()) {
                     showNotificationToast('✅ App já está instalado!');
                     banner.style.display = 'none';
                     fab.style.display = 'none';
                     return;
                 }
-                
                 if (deferredPrompt) {
                     try {
                         deferredPrompt.prompt();
                         const result = await deferredPrompt.userChoice;
-                        console.log('✅ Resultado da instalação:', result.outcome);
-                        
                         if (result.outcome === 'accepted') {
-                            console.log('✅ App instalado com sucesso!');
                             banner.style.display = 'none';
                             fab.style.display = 'none';
                             setBannerClosed();
                             showNotificationToast('✅ App instalado com sucesso! 🎉');
                         } else {
-                            console.log('❌ Instalação cancelada pelo usuário');
                             showNotificationToast('ℹ️ Instalação cancelada');
                         }
                         deferredPrompt = null;
@@ -2098,36 +2077,18 @@
                         console.error('❌ Erro na instalação:', error);
                     }
                 }
-                
-                installAttempts++;
-                if (installAttempts <= MAX_ATTEMPTS) {
-                    console.log(`🔄 Tentativa ${installAttempts} de ${MAX_ATTEMPTS}...`);
-                    const fakeEvent = new Event('beforeinstallprompt');
-                    window.dispatchEvent(fakeEvent);
-                    
-                    setTimeout(async () => {
-                        if (deferredPrompt) {
-                            await handleInstall(e);
-                        } else {
-                            showAlternativeInstall();
-                        }
-                    }, 1000);
-                    return;
-                }
-                
                 showAlternativeInstall();
             }
 
             function showAlternativeInstall() {
                 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
                 const isAndroid = /Android/.test(navigator.userAgent);
-                
                 if (isIOS) {
-                    alert('📱 Para instalar o NJ Cabuçu no seu iPhone/iPad:\n\n1. Toque no ícone de compartilhar 📤\n2. Role para baixo e toque em "Adicionar à Tela de Início"\n3. Toque em "Adicionar"');
+                    alert('📱 Para instalar no iPhone/iPad:\n\n1. Toque em compartilhar 📤\n2. Role e toque em "Adicionar à Tela de Início"\n3. Toque em "Adicionar"');
                 } else if (isAndroid) {
-                    alert('📱 Para instalar o NJ Cabuçu no seu Android:\n\n1. Toque nos 3 pontos ⋮ (canto superior direito)\n2. Selecione "Instalar app"\n3. Toque em "Instalar"');
+                    alert('📱 Para instalar no Android:\n\n1. Toque nos 3 pontos ⋮\n2. Selecione "Instalar app"\n3. Toque em "Instalar"');
                 } else {
-                    alert('📲 Para instalar o NJ Cabuçu como app:\n\n• Chrome/Edge: Toque nos 3 pontos ⋮ e selecione "Instalar app"\n• Safari: Toque no ícone de compartilhar 📤 e "Adicionar à Tela de Início"');
+                    alert('📲 Para instalar:\n\n• Chrome/Edge: 3 pontos ⋮ → "Instalar app"');
                 }
                 showNotificationToast('💡 Siga as instruções para instalar o app');
             }
@@ -2142,12 +2103,10 @@
             function showNotificationToast(message) {
                 const old = document.querySelector('.notification-toast');
                 if (old) old.remove();
-                
                 const div = document.createElement('div');
                 div.className = 'notification-toast';
                 div.textContent = message;
                 document.body.appendChild(div);
-                
                 setTimeout(() => {
                     div.style.opacity = '0';
                     div.style.transition = 'opacity 0.4s';
@@ -2156,11 +2115,8 @@
             }
 
             window.addEventListener('beforeinstallprompt', (e) => {
-                console.log('📥 Evento beforeinstallprompt DISPARADO!');
                 e.preventDefault();
                 deferredPrompt = e;
-                console.log('✅ deferredPrompt armazenado com sucesso!');
-                
                 if (!isBannerClosed() && !isStandalone()) {
                     showBannerState = true;
                     updateUI();
@@ -2168,96 +2124,45 @@
             });
 
             window.addEventListener('appinstalled', () => {
-                console.log('✅ App instalado com sucesso via evento!');
                 banner.style.display = 'none';
                 fab.style.display = 'none';
                 setBannerClosed();
                 showNotificationToast('✅ App instalado com sucesso! 🎉');
             });
 
-            if (installBtn) {
-                installBtn.addEventListener('click', handleInstall);
-                console.log('✅ Botão "Instalar" do banner configurado');
-            }
-
-            if (fab) {
-                fab.addEventListener('click', handleInstall);
-                console.log('✅ Botão flutuante configurado');
-            }
-
-            if (closeBtn) {
-                closeBtn.addEventListener('click', closeBanner);
-                console.log('✅ Botão "Fechar" do banner configurado');
-            }
+            if (installBtn) installBtn.addEventListener('click', handleInstall);
+            if (fab) fab.addEventListener('click', handleInstall);
+            if (closeBtn) closeBtn.addEventListener('click', closeBanner);
 
             function init() {
-                console.log('🚀 Inicializando sistema de instalação PWA...');
-                console.log('📱 Standalone:', isStandalone());
-                console.log('🔒 Banner fechado:', isBannerClosed());
-                
                 if (isStandalone()) {
                     banner.style.display = 'none';
                     fab.style.display = 'none';
-                    console.log('✅ App já está instalado');
                     return;
                 }
-
                 if (isBannerClosed()) {
                     showBannerState = false;
                     updateUI();
-                    console.log('✅ Banner já foi fechado, mostrando apenas o botão');
                     return;
                 }
-
                 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                
                 if (isIOS) {
-                    console.log('📱 Dispositivo iOS detectado');
                     setTimeout(() => {
                         if (!isStandalone() && !isBannerClosed()) {
                             showBannerState = true;
                             updateUI();
-                            console.log('✅ Banner mostrado para iOS');
                         }
                     }, 2000);
                     return;
                 }
-
                 setTimeout(() => {
                     if (!deferredPrompt && !isStandalone() && !isBannerClosed()) {
-                        console.log('⏳ beforeinstallprompt não foi acionado, tentando forçar...');
-                        const event = new Event('beforeinstallprompt');
-                        window.dispatchEvent(event);
-                        
-                        setTimeout(() => {
-                            if (!deferredPrompt && !isStandalone() && !isBannerClosed()) {
-                                console.log('⚠️ Prompt não disponível, mostrando botão');
-                                showBannerState = true;
-                                updateUI();
-                            }
-                        }, 2000);
+                        showBannerState = true;
+                        updateUI();
                     }
-                }, 1000);
-                
-                console.log('✅ Sistema de instalação PWA inicializado!');
+                }, 2000);
             }
-
             init();
-
-            window.__debugInstall = {
-                deferredPrompt: () => deferredPrompt,
-                showBannerState: () => showBannerState,
-                isStandalone: isStandalone,
-                isBannerClosed: isBannerClosed,
-                handleInstall: handleInstall,
-                forcePrompt: () => {
-                    const event = new Event('beforeinstallprompt');
-                    window.dispatchEvent(event);
-                }
-            };
-
-            console.log('✅ Sistema de instalação PWA carregado!');
-            console.log('🔧 Use window.__debugInstall.forcePrompt() para forçar o prompt');
         })();
 
         // ============================================
@@ -2294,6 +2199,21 @@
                 if (settings.about_mission) document.getElementById('aboutMissionText').textContent = settings.about_mission;
                 if (settings.about_vision) document.getElementById('aboutVisionText').textContent = settings.about_vision;
                 if (settings.about_values) document.getElementById('aboutValuesText').textContent = settings.about_values;
+
+                // ===== LOGO PERSONALIZADA =====
+                if (settings.site_logo) {
+                    const logoEl = document.getElementById('mainLogoIcon');
+                    if (logoEl) {
+                        logoEl.innerHTML = `<img src="${settings.site_logo}" alt="Logo" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+                    }
+                    let fav = document.querySelector("link[rel='icon']");
+                    if (!fav) {
+                        fav = document.createElement('link');
+                        fav.rel = 'icon';
+                        document.head.appendChild(fav);
+                    }
+                    fav.href = settings.site_logo;
+                }
             } catch (e) {
                 console.error('Erro ao carregar configurações:', e);
             }
@@ -2622,7 +2542,7 @@
         }
 
         // ============================================
-        // ===== BÍBLIA =====
+        // ===== BÍBLIA (CORRIGIDA - PROXY SERVIDOR) =====
         // ============================================
         function openBibleModal() {
             openModal('bibleModal');
@@ -2660,26 +2580,18 @@
                 return;
             }
 
-            resultDiv.innerHTML = '<p class="loading">⏳ Carregando...</p>';
+            resultDiv.innerHTML = '<p style="color:#888;">⏳ Carregando...</p>';
 
             try {
-                let url = `https://bible-api.com/${book}+${chapter}`;
-                if (verse && verse > 0) {
-                    url += `:${verse}`;
-                }
-                url += '?translation=almeida';
+                let url = `/api/bible?book=${encodeURIComponent(book)}&chapter=${chapter}`;
+                if (verse && parseInt(verse) > 0) url += `&verse=${verse}`;
 
                 const response = await fetch(url);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status} - ${response.statusText}`);
-                }
-
                 const data = await response.json();
 
-                if (data.error) {
+                if (!response.ok) {
                     resultDiv.innerHTML = `
-                        <p class="error-message">❌ ${data.error}</p>
+                        <p style="color:#dc3545;">❌ ${data.error || 'Erro ao buscar'}</p>
                         <p style="color:#888;margin-top:0.5rem;">Tente: Salmos 23, João 3:16, Romanos 8:28</p>
                     `;
                     return;
@@ -2688,58 +2600,64 @@
                 let html = '';
                 if (data.verses && data.verses.length > 0) {
                     data.verses.forEach(v => {
-                        html += `<p class="verse"><strong>${v.verse}</strong> ${v.text}</p>`;
+                        html += `<p class="verse"><strong>${v.verse}</strong> ${v.text.trim()}</p>`;
                     });
                 } else if (data.text) {
-                    html = `<p class="verse">${data.text}</p>`;
+                    html = `<p class="verse">${data.text.trim()}</p>`;
                 } else {
                     html = '<p style="color:#888;">Nenhum texto encontrado para esta referência.</p>';
                 }
 
                 html += `<p class="reference">📖 ${data.reference || bookNames[book] + ' ' + chapter}</p>`;
                 resultDiv.innerHTML = html;
+                resultDiv.scrollTop = 0;
 
             } catch (error) {
                 console.error('❌ Erro na busca:', error);
                 resultDiv.innerHTML = `
-                    <p class="error-message">❌ Erro ao buscar: ${error.message}</p>
-                    <p style="color:#888;margin-top:0.5rem;">Tente: Salmos 23, João 3:16, Romanos 8:28</p>
+                    <p style="color:#dc3545;">❌ Erro de conexão: ${error.message}</p>
+                    <p style="color:#888;margin-top:0.5rem;">Verifique sua internet e tente de novo.</p>
                 `;
             }
         }
 
         async function searchBibleRandom() {
             const resultDiv = document.getElementById('bibleResult');
-            resultDiv.innerHTML = '<p class="loading">⏳ Buscando versículo aleatório...</p>';
+            resultDiv.innerHTML = '<p style="color:#888;">⏳ Buscando versículo aleatório...</p>';
+
+            const randomRefs = [
+                { book: 'sl', chapter: 23 }, { book: 'joao', chapter: 3 }, { book: 'rm', chapter: 8 },
+                { book: 'fp', chapter: 4 }, { book: 'is', chapter: 41 }, { book: 'mt', chapter: 11 },
+                { book: 'sl', chapter: 91 }, { book: 'pv', chapter: 3 }, { book: 'hb', chapter: 11 },
+                { book: 'tg', chapter: 1 }, { book: '1co', chapter: 13 }, { book: 'ef', chapter: 2 }
+            ];
+            const pick = randomRefs[Math.floor(Math.random() * randomRefs.length)];
 
             try {
-                const response = await fetch('https://bible-api.com/?random=1&translation=almeida');
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
+                const url = `/api/bible?book=${pick.book}&chapter=${pick.chapter}`;
+                const response = await fetch(url);
                 const data = await response.json();
 
-                if (data.error) {
-                    resultDiv.innerHTML = `<p class="error-message">❌ ${data.error}</p>`;
+                if (!response.ok) {
+                    resultDiv.innerHTML = `<p style="color:#dc3545;">❌ ${data.error || 'Erro'}</p>`;
                     return;
                 }
 
                 let html = '';
                 if (data.verses && data.verses.length > 0) {
-                    data.verses.forEach(v => {
-                        html += `<p class="verse"><strong>${v.verse}</strong> ${v.text}</p>`;
-                    });
+                    const v = data.verses[Math.floor(Math.random() * data.verses.length)];
+                    html = `<p class="verse"><strong>${v.verse}</strong> ${v.text.trim()}</p>`;
                 } else if (data.text) {
-                    html = `<p class="verse">${data.text}</p>`;
+                    html = `<p class="verse">${data.text.trim()}</p>`;
                 }
 
-                html += `<p class="reference">📖 ${data.reference || 'Versículo aleatório'}</p>`;
+                html += `<p class="reference">📖 ${data.reference || ''}</p>`;
                 resultDiv.innerHTML = html;
 
             } catch (error) {
                 console.error('❌ Erro no versículo aleatório:', error);
                 resultDiv.innerHTML = `
-                    <p class="error-message">❌ Erro ao buscar versículo aleatório: ${error.message}</p>
-                    <p style="color:#888;margin-top:0.5rem;">Tente novamente ou faça uma busca manual.</p>
+                    <p style="color:#dc3545;">❌ Erro: ${error.message}</p>
                 `;
             }
         }

@@ -615,6 +615,40 @@
             padding: 0.5rem 0.6rem;
         }
 
+        .logo-panel {
+            background: linear-gradient(135deg, #fff9e6, #fff3cd);
+            border: 1px solid #ffc107;
+            border-radius: var(--radius-sm);
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        .logo-panel .logo-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #856404;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .logo-preview-box {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0D47A1, #1565C0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: #fff;
+            font-size: 1.5rem;
+            overflow: hidden;
+            border: 4px solid #fff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            flex-shrink: 0;
+        }
+        .logo-preview-box img { width: 100%; height: 100%; object-fit: cover; }
+
         @media (max-width: 768px) {
             .header { padding: 0 0.8rem; }
             .logo h1 { font-size: 0.95rem; }
@@ -641,6 +675,7 @@
             .export-panel { padding: 0.6rem; }
             .export-title { font-size: 0.7rem; }
             .export-actions .btn { font-size: 0.6rem; padding: 0.4rem 0.5rem; }
+            .logo-preview-box { width: 70px; height: 70px; font-size: 1.2rem; }
         }
         @media (min-width: 769px) and (max-width: 1024px) {
             .stats-grid { grid-template-columns: repeat(3, 1fr); }
@@ -996,8 +1031,7 @@
                     <div class="section-title" style="border-bottom:none;margin-bottom:0;"><i class="fas fa-hand-holding-heart"></i> Dízimos e Ofertas</div>
                     <button onclick="openTitheModal()" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Registrar</button>
                 </div>
-                
-                <!-- ===== PAINEL DE EXPORTAÇÃO ===== -->
+
                 <div class="export-panel">
                     <div class="export-title"><i class="fas fa-file-excel"></i> Exportar para Planilha (CSV/Excel)</div>
                     <div class="export-filters">
@@ -1010,9 +1044,7 @@
                             <option value="9">Setembro</option><option value="10">Outubro</option>
                             <option value="11">Novembro</option><option value="12">Dezembro</option>
                         </select>
-                        <select id="exportYear">
-                            <option value="">Ano: Todos</option>
-                        </select>
+                        <select id="exportYear"><option value="">Ano: Todos</option></select>
                         <select id="exportType">
                             <option value="">Tipo: Todos</option>
                             <option value="dizimo">Dízimo</option>
@@ -1138,43 +1170,26 @@
                 <div class="form-group"><label>Título do Site</label><input type="text" id="configTitle" value="NJ Cabuçu" onchange="saveConfig('site_title', this.value)"></div>
                 <div class="form-group"><label>WhatsApp</label><input type="text" id="configWhatsapp" value="5521985345627" onchange="saveConfig('whatsapp', this.value)"></div>
 
-                <div class="section-title" style="margin-top:1rem; border-bottom-color:#888;">
-                    <i class="fas fa-image"></i> Logo da Igreja
-                </div>
-                <p style="font-size:0.6rem; color:#888; margin-bottom:0.5rem;">
-                    Envie a logo da igreja (PNG, JPG ou SVG, máx 2MB). Ela aparece no cabeçalho do site e na tela de login.
-                </p>
-
-                <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap; margin-bottom:0.5rem;">
-                    <div id="currentLogoPreview" style="
-                        width:70px; height:70px; border-radius:50%;
-                        background:linear-gradient(135deg,#0D47A1,#1565C0);
-                        display:flex; align-items:center; justify-content:center;
-                        font-weight:800; color:#fff; font-size:1.2rem; overflow:hidden;
-                        border:3px solid #e0e0e0; flex-shrink:0;
-                    ">NJ</div>
-
-                    <div style="flex:1; min-width:180px;">
-                        <div class="file-input-wrapper">
-                            <input type="file" id="logoFileInput" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml">
-                            <div class="file-label">
-                                <i class="fas fa-upload"></i> <span>Selecionar imagem da logo</span>
-                                <span class="file-name" id="logoFileName"></span>
+                <div class="logo-panel">
+                    <div class="logo-title"><i class="fas fa-image"></i> Logo da Igreja</div>
+                    <p style="font-size:0.65rem; color:#856404; margin-bottom:0.6rem;">Envie a logo (PNG, JPG, SVG, máx 2MB). Convertida em base64 e salva no banco Neon.</p>
+                    <div style="display:flex; gap:0.8rem; align-items:center; flex-wrap:wrap; margin-bottom:0.6rem;">
+                        <div class="logo-preview-box" id="currentLogoPreview">NJ</div>
+                        <div style="flex:1; min-width:200px;">
+                            <div class="file-input-wrapper">
+                                <input type="file" id="logoFileInput" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml">
+                                <div class="file-label"><i class="fas fa-upload"></i> <span>Selecionar imagem</span> <span class="file-name" id="logoFileName"></span></div>
+                            </div>
+                            <div style="display:flex; gap:0.3rem; margin-top:0.4rem; flex-wrap:wrap;">
+                                <button onclick="uploadLogo()" class="btn btn-primary btn-sm"><i class="fas fa-save"></i> Salvar Logo</button>
+                                <button onclick="removeLogo()" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Remover</button>
                             </div>
                         </div>
-                        <div style="display:flex; gap:0.3rem; margin-top:0.3rem; flex-wrap:wrap;">
-                            <button onclick="uploadLogo()" class="btn btn-primary btn-sm">
-                                <i class="fas fa-save"></i> Salvar Logo
-                            </button>
-                            <button onclick="removeLogo()" class="btn btn-danger btn-sm">
-                                <i class="fas fa-trash"></i> Remover
-                            </button>
-                        </div>
                     </div>
+                    <div id="logoStatus" style="font-size:0.65rem; color:#666; margin-top:0.4rem;"></div>
                 </div>
 
                 <div class="section-title" style="margin-top:1rem; border-bottom-color: #888;"><i class="fas fa-clock"></i> Horários dos Cultos (Contador)</div>
-                <p style="font-size:0.6rem; color:#888; margin-bottom:0.5rem;">Configure os dias e horários dos cultos para o contador regressivo no site.</p>
                 <div id="cultosContainer">
                     <div style="display:flex; gap:0.5rem; align-items:center; margin-bottom:0.3rem; flex-wrap:wrap;">
                         <select id="cultoDia" style="padding:0.3rem 0.5rem; border:2px solid #e0e0e0; border-radius:6px; font-size:0.7rem; flex:1; min-width:100px;">
@@ -1672,56 +1687,103 @@
         }
 
         // ============================================
-        // LOGO
+        // LOGO — COM FALLBACK JSON BASE64
         // ============================================
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
         async function loadLogoPreview() {
             try {
                 const res = await fetch('/api/settings');
                 const data = await res.json();
                 const preview = document.getElementById('currentLogoPreview');
                 const headerLogo = document.getElementById('headerLogo');
-                if (preview) {
-                    if (data.site_logo) {
-                        preview.innerHTML = `<img src="${data.site_logo}" alt="Logo" style="width:100%;height:100%;object-fit:cover;">`;
-                        if (headerLogo) headerLogo.innerHTML = `<img src="${data.site_logo}" alt="Logo" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-                    } else {
-                        preview.textContent = 'NJ';
-                        if (headerLogo) headerLogo.textContent = 'NJ';
-                    }
+                const statusDiv = document.getElementById('logoStatus');
+                if (data.site_logo) {
+                    preview.innerHTML = `<img src="${data.site_logo}" alt="Logo">`;
+                    headerLogo.innerHTML = `<img src="${data.site_logo}" alt="Logo">`;
+                    if (statusDiv) statusDiv.innerHTML = `✅ <strong>Logo salva no banco</strong> (${Math.round(data.site_logo.length/1024)}KB)`;
+                } else {
+                    preview.textContent = 'NJ';
+                    headerLogo.textContent = 'NJ';
+                    if (statusDiv) statusDiv.innerHTML = `⚠️ Nenhuma logo personalizada salva. O padrão "NJ" será usado.`;
                 }
             } catch (e) { console.error(e); }
         }
 
         async function uploadLogo() {
+            console.log('═══════════════════════════════════');
+            console.log('📤 [UPLOAD LOGO] Iniciado');
             const input = document.getElementById('logoFileInput');
-            if (!input.files || !input.files[0]) {
-                showNotification('Selecione uma imagem primeiro!', 'error');
-                return;
-            }
+            const token = localStorage.getItem('token');
+            const statusDiv = document.getElementById('logoStatus');
+
+            if (!input) { showNotification('❌ Campo de arquivo não encontrado', 'error'); return; }
+            if (!input.files || input.files.length === 0) { showNotification('❌ Selecione uma imagem primeiro!', 'error'); return; }
+            if (!token) { showNotification('❌ Sessão expirada. Faça login novamente.', 'error'); return; }
+
             const file = input.files[0];
+            console.log('📄 Arquivo:', { name: file.name, size: file.size, type: file.type });
+
             if (file.size > 2 * 1024 * 1024) {
-                showNotification('Imagem muito grande (máx 2MB)', 'error');
+                showNotification(`❌ Imagem muito grande (${(file.size/1024/1024).toFixed(2)}MB). Máx 2MB.`, 'error');
                 return;
             }
 
-            const formData = new FormData();
-            formData.append('logo', file);
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp', 'image/svg+xml'];
+            if (!allowedTypes.includes(file.type)) { showNotification(`❌ Formato inválido: ${file.type}`, 'error'); return; }
 
             try {
                 showNotification('🔄 Enviando logo...', 'info');
-                const res = await fetch('/api/settings/logo', {
-                    method: 'POST',
-                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
-                    body: formData
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error || 'Erro');
+                if (statusDiv) statusDiv.innerHTML = '⏳ Enviando...';
 
-                showNotification('✅ Logo salva!', 'success');
+                console.log('🔧 Método 1: FormData em /api/settings/logo');
+                const formData = new FormData();
+                formData.append('logo', file);
+                let res = await fetch('/api/settings/logo', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: formData });
+                console.log('📥 Status método 1:', res.status);
+                let text = await res.text();
+                console.log('📥 Resposta método 1:', text.substring(0, 300));
+
+                if (!res.ok) {
+                    console.log('⚠️ Método 1 falhou. Tentando método 2: JSON base64 em /api/settings');
+                    if (statusDiv) statusDiv.innerHTML = '⏳ Tentando método alternativo (base64)...';
+                    const dataUrl = await fileToBase64(file);
+                    console.log('📦 Base64 gerado:', dataUrl.length, 'chars');
+                    res = await fetch('/api/settings', {
+                        method: 'POST',
+                        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ key: 'site_logo', value: dataUrl })
+                    });
+                    console.log('📥 Status método 2:', res.status);
+                    text = await res.text();
+                    console.log('📥 Resposta método 2:', text.substring(0, 300));
+                }
+
+                let data;
+                try { data = JSON.parse(text); } catch (parseErr) {
+                    throw new Error('Servidor não retornou JSON. Resposta: ' + text.substring(0, 150));
+                }
+                if (!res.ok) throw new Error(data.error || data.hint || 'Erro ' + res.status);
+
+                console.log('✅ Sucesso!', data);
+                showNotification('✅ Logo salva com sucesso!', 'success');
+                if (statusDiv) statusDiv.innerHTML = `✅ <strong>Logo salva!</strong>`;
                 loadLogoPreview();
-                document.getElementById('logoFileInput').value = '';
+                input.value = '';
                 document.getElementById('logoFileName').textContent = '';
-            } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+            } catch (err) {
+                console.error('❌❌❌ [UPLOAD] ERRO:', err);
+                showNotification('❌ ' + err.message, 'error');
+                if (statusDiv) statusDiv.innerHTML = `❌ <strong>Erro:</strong> ${err.message}`;
+            }
+            console.log('═══════════════════════════════════');
         }
 
         async function removeLogo() {
@@ -1733,16 +1795,12 @@
             } catch (e) { showNotification('❌ ' + e.message, 'error'); }
         }
 
-        document.getElementById('logoFileInput')?.addEventListener('change', function() {
+        document.getElementById('logoFileInput')?.addEventListener('change', async function() {
             const name = this.files[0] ? this.files[0].name : '';
             document.getElementById('logoFileName').textContent = name;
             if (this.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    document.getElementById('currentLogoPreview').innerHTML = 
-                        `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
-                };
-                reader.readAsDataURL(this.files[0]);
+                const dataUrl = await fileToBase64(this.files[0]);
+                document.getElementById('currentLogoPreview').innerHTML = `<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover;">`;
             }
         });
 
@@ -2615,7 +2673,6 @@
             } catch (e) { console.error('Erro:', e); }
         }
 
-        // Popula o select de anos com base nos dízimos
         function populateExportYears() {
             const yearsSet = new Set();
             allTithes.forEach(t => {
@@ -2636,7 +2693,6 @@
             if (currentValue) select.value = currentValue;
         }
 
-        // Exportação: filtra e gera CSV ou TXT
         function exportTithes(format) {
             const month = document.getElementById('exportMonth').value;
             const year = document.getElementById('exportYear').value;
@@ -2665,13 +2721,8 @@
                 return;
             }
 
-            // Calcula total
             const total = filtered.reduce((s, t) => s + parseFloat(t.amount || 0), 0);
-
-            // Cabeçalho
             const header = ['Membro', 'Tipo', 'Valor (R$)', 'Método', 'Data'];
-
-            // Linhas
             const rows = filtered.map(t => [
                 t.member_name || 'Visitante',
                 t.type || '-',
@@ -2679,16 +2730,12 @@
                 t.payment_method || '-',
                 t.payment_date ? new Date(t.payment_date).toLocaleDateString('pt-BR') : '-'
             ]);
-
-            // Linha de total
             rows.push(['', 'TOTAL', total.toFixed(2).replace('.', ','), '', '']);
 
-            // Nome do arquivo com data
             const now = new Date();
             const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
 
             if (format === 'csv') {
-                // CSV com separador ponto-e-vírgula (padrão brasileiro Excel)
                 const csvLines = [header.join(';')];
                 rows.forEach(r => {
                     const line = r.map(cell => {
@@ -2700,11 +2747,9 @@
                     }).join(';');
                     csvLines.push(line);
                 });
-                // BOM UTF-8 para Excel reconhecer acentos
                 const csvContent = '\uFEFF' + csvLines.join('\r\n');
                 downloadFile(csvContent, `dizimos_${dateStr}.csv`, 'text/csv;charset=utf-8;');
             } else {
-                // TXT com TAB (também abre bem no Excel, mantém acentos perfeitos)
                 const txtLines = [header.join('\t')];
                 rows.forEach(r => txtLines.push(r.join('\t')));
                 const txtContent = '\uFEFF' + txtLines.join('\r\n');

@@ -35,7 +35,7 @@
             --primary-gradient: linear-gradient(135deg, #0D47A1, #1565C0);
             --secondary: #E8F0FE;
             --accent: #F5A623;
-            --bg: #f0f2f5;
+            --bg: #000000;
             --card-bg: #ffffff;
             --shadow-sm: 0 2px 12px rgba(0,0,0,0.04);
             --shadow: 0 4px 24px rgba(0,0,0,0.06);
@@ -47,12 +47,12 @@
             --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             --header-h: 62px;
             --max-width: 1200px;
-            --fab-bottom: 90px;
+            --fab-bottom: 30px;
         }
-        html { scroll-behavior: smooth; }
+        html { scroll-behavior: smooth; background: #000000; }
         body {
             font-family: var(--font);
-            background: var(--bg);
+            background: #f0f2f5;
             color: #1a1a2e;
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
@@ -418,19 +418,20 @@
         }
 
         .hero {
-            margin-top: calc(var(--header-h) + 42px);
+            margin-top: calc(var(--header-h) + 32px);
             position: relative;
             width: 100%;
             height: 520px;
             max-height: 600px;
             overflow: hidden;
             border-radius: 0 0 24px 24px;
-            background: #0a0a1a;
+            background: #000000;
         }
         .hero-slides {
             display: flex;
             height: 100%;
             transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #000000;
         }
         .hero-slide {
             min-width: 100%;
@@ -440,6 +441,7 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            background: #000000;
         }
         .hero-slide .bg-image {
             position: absolute;
@@ -449,19 +451,19 @@
             height: 100%;
             object-fit: contain;
             object-position: center center;
-            background: #0a0a1a;
+            background: #000000;
         }
+        /* REMOVIDO EFEITO AZUL E HOVER DO CARROSSEL */
         .hero-slide .overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(13,71,161,0.65), rgba(10,58,122,0.45));
-            transition: var(--transition);
+            background: transparent;
         }
         .hero-slide:hover .overlay {
-            background: linear-gradient(135deg, rgba(13,71,161,0.45), rgba(10,58,122,0.25));
+            background: transparent;
         }
         .hero-content {
             position: relative;
@@ -481,14 +483,14 @@
             font-size: 2.2rem;
             font-weight: 900;
             margin-bottom: 0.3rem;
-            text-shadow: 0 4px 30px rgba(0,0,0,0.4);
+            text-shadow: 0 4px 30px rgba(0,0,0,0.8);
             line-height: 1.1;
         }
         .hero-content p {
             font-size: 1rem;
             opacity: 0.95;
             margin-bottom: 0.8rem;
-            text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+            text-shadow: 0 2px 20px rgba(0,0,0,0.8);
         }
         .hero-content .btn {
             pointer-events: all;
@@ -1017,6 +1019,7 @@
             font-size: 0.7rem;
         }
 
+        /* ===== BOTAO FLUTUANTE APENAS ICONES ===== */
         .fab {
             position: fixed;
             z-index: 9998;
@@ -1027,7 +1030,7 @@
             font-size: 1.4rem;
             color: #fff;
             cursor: pointer;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
             transition: var(--transition);
             display: flex;
             align-items: center;
@@ -1035,8 +1038,8 @@
             text-decoration: none;
         }
         .fab:hover {
-            transform: scale(1.08);
-            box-shadow: 0 6px 30px rgba(0,0,0,0.25);
+            transform: scale(1.1);
+            box-shadow: 0 6px 30px rgba(0,0,0,0.35);
         }
         .fab-whatsapp {
             bottom: var(--fab-bottom);
@@ -1070,21 +1073,9 @@
             justify-content: center;
             box-shadow: 0 2px 10px rgba(255,0,0,0.3);
         }
-        /* ===== FAB LABEL SEMPRE VISÍVEL ===== */
+        /* DESATIVADOS OS TEXTOS DOS BOTOES FLUTUANTES */
         .fab-label {
-            position: absolute;
-            right: 60px;
-            background: rgba(0,0,0,0.85);
-            color: #fff;
-            padding: 0.25rem 0.7rem;
-            border-radius: var(--radius-full);
-            font-size: 0.6rem;
-            font-weight: 600;
-            white-space: nowrap;
-            opacity: 1;
-            transition: var(--transition);
-            pointer-events: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+            display: none !important;
         }
 
         .modal {
@@ -1364,7 +1355,7 @@
             .hero {
                 height: 300px;
                 border-radius: 0 0 16px 16px;
-                margin-top: calc(var(--header-h) + 36px);
+                margin-top: calc(var(--header-h) + 32px);
             }
             .hero-content h1 { font-size: 1.4rem; }
             .hero-content p { font-size: 0.8rem; }
@@ -1384,14 +1375,9 @@
             .footer-content { grid-template-columns: 1fr; text-align: center; }
             .footer .social-links { justify-content: center; }
             .fab { width: 44px; height: 44px; font-size: 1.1rem; }
-            .fab-whatsapp { bottom: 70px; right: 12px; }
-            .fab-prayer { bottom: 126px; right: 12px; }
-            .fab-donation { bottom: 182px; right: 12px; }
-            .fab-label {
-                right: 52px;
-                font-size: 0.5rem;
-                padding: 0.15rem 0.5rem;
-            }
+            .fab-whatsapp { bottom: 20px; right: 12px; }
+            .fab-prayer { bottom: 72px; right: 12px; }
+            .fab-donation { bottom: 124px; right: 12px; }
         }
         @media (max-width: 480px) {
             .hero { height: 240px; }
@@ -1815,17 +1801,15 @@
         </div>
     </footer>
 
-    <a href="https://wa.me/5521985345627" target="_blank" class="fab fab-whatsapp" id="fabWhatsapp" title="Fale conosco">
+    <!-- BOTÕES FLUTUANTES SEM TEXTO (APENAS ÍCONES) -->
+    <a href="https://wa.me/5521985345627" target="_blank" class="fab fab-whatsapp" id="fabWhatsapp" title="WhatsApp">
         <i class="fab fa-whatsapp"></i>
-        <span class="fab-label">WhatsApp</span>
     </a>
     <button class="fab fab-prayer" onclick="scrollToSection('oracao')" title="Pedido de Oração">
         <i class="fas fa-pray"></i>
-        <span class="fab-label">Oração</span>
     </button>
     <button class="fab fab-donation" onclick="scrollToSection('dizimos')" title="Doar">
         <i class="fas fa-hand-holding-heart"></i>
-        <span class="fab-label">Doar</span>
     </button>
 
     <!-- MODAIS -->
@@ -2387,7 +2371,7 @@
         }
 
         // ============================================
-        // ===== CARROSSEL (sem clique para abrir modal) =====
+        // ===== CARROSSEL =====
         // ============================================
         async function loadCarouselFromServer() {
             try {
@@ -2474,8 +2458,6 @@
                     </div>
                 `;
 
-                // ⚠️ NÃO adiciona event listener de clique (só o "Saiba Mais" do link funciona)
-
                 slidesContainer.appendChild(slide);
 
                 const dot = document.createElement('button');
@@ -2513,38 +2495,6 @@
             if (slideCount > 1) {
                 slideInterval = setInterval(() => changeSlide(1), 5000);
             }
-        }
-
-        document.querySelector('.hero')?.addEventListener('mouseenter', () => {
-            clearInterval(slideInterval);
-        });
-        document.querySelector('.hero')?.addEventListener('mouseleave', startCarousel);
-
-        // Função mantida (mas não é mais chamada por clique)
-        function openCarouselInfo(index) {
-            const item = carouselData[index];
-            if (!item) return;
-
-            let imgSrc = item.image_url ||
-                (item.image_base64 ? `data:image/jpeg;base64,${item.image_base64}` :
-                    'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=800&h=400&fit=crop&crop=center');
-
-            document.getElementById('carouselInfoImage').src = imgSrc;
-            document.getElementById('carouselInfoImage').alt = item.title || 'Slide';
-            document.getElementById('carouselInfoTitle').textContent = item.title || 'Sem título';
-            document.getElementById('carouselInfoSubtitle').textContent = item.subtitle || '';
-            document.getElementById('carouselInfoDescription').innerHTML = item.description ||
-                'Sem descrição disponível.';
-
-            const link = document.getElementById('carouselInfoLink');
-            if (item.link) {
-                link.href = item.link;
-                link.style.display = 'inline-flex';
-            } else {
-                link.style.display = 'none';
-            }
-
-            openModal('carouselInfoModal');
         }
 
         // ============================================

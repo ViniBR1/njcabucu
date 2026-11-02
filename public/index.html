@@ -162,7 +162,6 @@
         .btn-bible { background: linear-gradient(135deg,#8B5A2B,#6d4420); color: #fff; }
         .btn-live { background: #ff0000; color: #fff; animation: pulse-live 1.5s infinite; }
         @keyframes pulse-live { 0%,100% { opacity: 1; } 50% { opacity: .65; } }
-        /* Ícone de perfil circular (substitui "Área Interna") */
         .btn-profile {
             width: 38px; height: 38px; padding: 0; border-radius: 50%;
             display: inline-flex; align-items: center; justify-content: center;
@@ -189,7 +188,7 @@
         .nav-btn:hover { color: #fff; background: rgba(255,255,255,.08); }
         .nav-btn.active { color: #fff; background: var(--primary-gradient); box-shadow: 0 2px 12px rgba(13,71,161,.4); }
 
-        /* ===== HERO CARROSSEL — proporção 16:9 sem cortar ===== */
+        /* ===== HERO CARROSSEL — IMAGEM INTEIRA (sem cortar) ===== */
         .hero-wrap {
             margin-top: calc(var(--header-h) + 34px);
             padding: 0 1rem;
@@ -199,7 +198,7 @@
         .hero {
             position: relative; width: 100%;
             aspect-ratio: 16 / 9;
-            max-height: 620px;
+            max-height: 600px;
             overflow: hidden;
             border-radius: 28px;
             background: #0b1220;
@@ -215,14 +214,13 @@
             display: flex; align-items: flex-end; justify-content: flex-start;
             flex-shrink: 0; background: #0b1220;
         }
+        /* CONTAIN = imagem inteira aparece, sem cortar (faixas escuras se necessário) */
         .hero-slide .bg-image {
             position: absolute; inset: 0; width: 100%; height: 100%;
-            object-fit: cover; object-position: center;
+            object-fit: contain;
+            object-position: center;
             background: #0b1220;
-            transform: scale(1.01);
-            transition: transform 6s ease;
         }
-        .hero-slide.active .bg-image { transform: scale(1.05); }
         .hero-slide .overlay {
             position: absolute; inset: 0;
             background: linear-gradient(90deg, rgba(4,10,22,.82) 0%, rgba(4,10,22,.45) 45%, rgba(4,10,22,.05) 100%);
@@ -264,7 +262,6 @@
         }
         .hero-content .btn:hover { transform: translateY(-2px) scale(1.02); background: #f1f5ff; }
 
-        /* controles do carrossel */
         .hero-controls {
             position: absolute; bottom: 1.4rem; left: 2.6rem;
             display: flex; gap: .5rem; z-index: 5; align-items: center;
@@ -336,10 +333,10 @@
         .countdown-bar .countdown-timer .time-block .label { font-size: .5rem; font-weight: 700; text-transform: uppercase; opacity: .7; letter-spacing: 1px; margin-top: .2rem; }
         .countdown-bar .next-culto-label { font-size: .68rem; opacity: .85; margin-top: .6rem; font-weight: 500; }
 
-        /* ===== QUICK SERVICES (4 itens: Ao Vivo, Dízimo, Oração, NJ Store) ===== */
+        /* ===== QUICK SERVICES (5 itens) ===== */
         .services-quick { margin: 1.2rem auto 1.6rem; max-width: var(--max-width); padding: 0 1rem; }
         .services-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: .7rem;
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: .6rem;
         }
         .service-item {
             position: relative; display: flex; flex-direction: column; align-items: center;
@@ -365,6 +362,9 @@
         .service-item p { font-size: .55rem; color: var(--muted); margin: 0; }
         .service-item.store { background: linear-gradient(135deg,#fff7ed,#ffedd5); border-color: #fed7aa; }
         .service-item.store .icon { background: linear-gradient(135deg,#f59e0b,#d97706); color: #fff; }
+        .service-item.inscricoes { background: linear-gradient(135deg,#f0fdf4,#dcfce7); border-color: #bbf7d0; }
+        .service-item.inscricoes .icon { background: linear-gradient(135deg,#22c55e,#16a34a); color: #fff; }
+        .service-item.inscricoes h4 { color: #166534; }
 
         /* ===== SECTION BASE ===== */
         .section { max-width: var(--max-width); margin: 2.6rem auto; padding: 0 1rem; scroll-margin-top: 110px; }
@@ -576,7 +576,7 @@
         }
         .modal-close:hover { color: #fff; background: var(--primary); transform: rotate(90deg); }
 
-        /* ===== FORMULÁRIOS MODERNOS (todos os modais + inscrições) ===== */
+        /* ===== FORMULÁRIOS MODERNOS ===== */
         .form-group { margin: .8rem 0; position: relative; }
         .form-group label {
             display: block; font-weight: 700; margin-bottom: .35rem;
@@ -739,7 +739,7 @@
             .hero-dot { width: 22px; height: 4px; }
             .hero-dot.active { width: 36px; }
 
-            .services-grid { grid-template-columns: repeat(2, 1fr); gap: .5rem; }
+            .services-grid { grid-template-columns: repeat(3, 1fr); gap: .5rem; }
             .service-item { padding: .9rem .4rem; }
             .service-item .icon { width: 36px; height: 36px; font-size: .9rem; }
             .service-item h4 { font-size: .65rem; }
@@ -767,6 +767,7 @@
             .hero { max-height: 260px; aspect-ratio: 16 / 11; }
             .hero-content h1 { font-size: 1.15rem; }
             .hero-content p { font-size: .72rem; }
+            .services-grid { grid-template-columns: repeat(2, 1fr); }
             .countdown-bar { padding: .7rem .8rem; }
             .countdown-bar .countdown-timer .time-block { min-width: 42px; padding: .25rem .4rem; }
             .countdown-bar .countdown-timer .time-block .num { font-size: .95rem; }
@@ -863,7 +864,7 @@
         </div>
     </div>
 
-    <!-- ===== SERVIÇOS RÁPIDOS (4 itens) ===== -->
+    <!-- ===== SERVIÇOS RÁPIDOS (5 itens: Ao Vivo, Dízimo, Oração, Inscrições, NJ Store) ===== -->
     <div class="services-quick">
         <div class="services-grid">
             <a href="#live" class="service-item" onclick="scrollToSection('live')">
@@ -880,6 +881,11 @@
                 <div class="icon"><i class="fas fa-pray"></i></div>
                 <h4>Oração</h4>
                 <p>Peça</p>
+            </a>
+            <a href="#inscricoes" class="service-item inscricoes" onclick="scrollToSection('inscricoes')">
+                <div class="icon"><i class="fas fa-clipboard-list"></i></div>
+                <h4>Inscrições</h4>
+                <p>Participe</p>
             </a>
             <a href="#loja" class="service-item store" onclick="scrollToSection('loja')">
                 <div class="icon"><i class="fas fa-store"></i></div>

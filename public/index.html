@@ -162,6 +162,15 @@
         .btn-bible { background: linear-gradient(135deg,#8B5A2B,#6d4420); color: #fff; }
         .btn-live { background: #ff0000; color: #fff; animation: pulse-live 1.5s infinite; }
         @keyframes pulse-live { 0%,100% { opacity: 1; } 50% { opacity: .65; } }
+        /* Ícone de perfil circular (substitui "Área Interna") */
+        .btn-profile {
+            width: 38px; height: 38px; padding: 0; border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,.08); color: #fff;
+            border: 1px solid rgba(255,255,255,.16);
+            font-size: 1rem; transition: var(--transition); text-decoration: none;
+        }
+        .btn-profile:hover { background: var(--primary); border-color: transparent; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(13,71,161,.4); }
         .menu-toggle { display: none; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); font-size: 1.1rem; color: #fff; cursor: pointer; padding: .4rem .6rem; border-radius: 10px; }
 
         /* ===== NAV ===== */
@@ -180,7 +189,7 @@
         .nav-btn:hover { color: #fff; background: rgba(255,255,255,.08); }
         .nav-btn.active { color: #fff; background: var(--primary-gradient); box-shadow: 0 2px 12px rgba(13,71,161,.4); }
 
-        /* ===== HERO CARROSSEL — NOVO FORMATO ===== */
+        /* ===== HERO CARROSSEL — proporção 16:9 sem cortar ===== */
         .hero-wrap {
             margin-top: calc(var(--header-h) + 34px);
             padding: 0 1rem;
@@ -189,7 +198,8 @@
         }
         .hero {
             position: relative; width: 100%;
-            height: 520px; max-height: 62vh;
+            aspect-ratio: 16 / 9;
+            max-height: 620px;
             overflow: hidden;
             border-radius: 28px;
             background: #0b1220;
@@ -209,10 +219,10 @@
             position: absolute; inset: 0; width: 100%; height: 100%;
             object-fit: cover; object-position: center;
             background: #0b1220;
-            transform: scale(1.02);
+            transform: scale(1.01);
             transition: transform 6s ease;
         }
-        .hero-slide.active .bg-image { transform: scale(1.08); }
+        .hero-slide.active .bg-image { transform: scale(1.05); }
         .hero-slide .overlay {
             position: absolute; inset: 0;
             background: linear-gradient(90deg, rgba(4,10,22,.82) 0%, rgba(4,10,22,.45) 45%, rgba(4,10,22,.05) 100%);
@@ -326,10 +336,10 @@
         .countdown-bar .countdown-timer .time-block .label { font-size: .5rem; font-weight: 700; text-transform: uppercase; opacity: .7; letter-spacing: 1px; margin-top: .2rem; }
         .countdown-bar .next-culto-label { font-size: .68rem; opacity: .85; margin-top: .6rem; font-weight: 500; }
 
-        /* ===== QUICK SERVICES — NJ STORE + PROFISSIONAL LADO A LADO ===== */
+        /* ===== QUICK SERVICES (4 itens: Ao Vivo, Dízimo, Oração, NJ Store) ===== */
         .services-quick { margin: 1.2rem auto 1.6rem; max-width: var(--max-width); padding: 0 1rem; }
         .services-grid {
-            display: grid; grid-template-columns: repeat(5, 1fr); gap: .6rem;
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: .7rem;
         }
         .service-item {
             position: relative; display: flex; flex-direction: column; align-items: center;
@@ -353,17 +363,8 @@
         .service-item:hover .icon { background: var(--primary-gradient); color: #fff; transform: scale(1.05); }
         .service-item h4 { font-size: .72rem; font-weight: 700; margin: 0; text-align: center; letter-spacing: -.2px; }
         .service-item p { font-size: .55rem; color: var(--muted); margin: 0; }
-        /* card especial Profissional ao lado da Loja */
         .service-item.store { background: linear-gradient(135deg,#fff7ed,#ffedd5); border-color: #fed7aa; }
         .service-item.store .icon { background: linear-gradient(135deg,#f59e0b,#d97706); color: #fff; }
-        .service-item.pro { background: linear-gradient(135deg,#eef2ff,#e0e7ff); border-color: #c7d2fe; }
-        .service-item.pro .icon { background: linear-gradient(135deg,#6366f1,#4f46e5); color: #fff; }
-        .service-item.pro h4 { color: #3730a3; }
-        .badge-pro {
-            position: absolute; top: 6px; right: 6px; background: #4f46e5; color: #fff;
-            font-size: .42rem; font-weight: 800; padding: .1rem .4rem; border-radius: 5px;
-            letter-spacing: .5px;
-        }
 
         /* ===== SECTION BASE ===== */
         .section { max-width: var(--max-width); margin: 2.6rem auto; padding: 0 1rem; scroll-margin-top: 110px; }
@@ -574,38 +575,80 @@
             width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
         }
         .modal-close:hover { color: #fff; background: var(--primary); transform: rotate(90deg); }
-        .modal-content .form-group { margin: .7rem 0; }
-        .modal-content .form-group label { display: block; font-weight: 700; margin-bottom: .25rem; font-size: .78rem; color: var(--ink); }
-        .modal-content .form-group input,
-        .modal-content .form-group textarea,
-        .modal-content .form-group select {
-            width: 100%; padding: .65rem .85rem; border: 2px solid var(--line);
-            border-radius: var(--radius-sm); font-size: .85rem; font-family: var(--font);
+
+        /* ===== FORMULÁRIOS MODERNOS (todos os modais + inscrições) ===== */
+        .form-group { margin: .8rem 0; position: relative; }
+        .form-group label {
+            display: block; font-weight: 700; margin-bottom: .35rem;
+            font-size: .74rem; color: var(--ink); letter-spacing: .2px;
+        }
+        .form-group label .req { color: #ef4444; margin-left: 2px; }
+        .form-control, .form-group input, .form-group textarea, .form-group select {
+            width: 100%; padding: .8rem 1rem; border: 2px solid var(--line);
+            border-radius: 14px; font-size: .88rem; font-family: var(--font);
             transition: var(--transition); background: #fafbff; color: var(--ink);
+            outline: none;
         }
-        .modal-content .form-group input:focus,
-        .modal-content .form-group textarea:focus,
-        .modal-content .form-group select:focus {
-            border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(13,71,161,.07);
+        .form-control:hover, .form-group input:hover, .form-group textarea:hover, .form-group select:hover {
+            border-color: #cbd5e1;
         }
-        .modal-content .form-row { display: flex; gap: .8rem; }
-        .modal-content .form-row>* { flex: 1; }
-        .modal-content .btn { width: 100%; justify-content: center; margin-top: .5rem; }
+        .form-control:focus, .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            border-color: var(--primary); background: #fff;
+            box-shadow: 0 0 0 4px rgba(13,71,161,.09);
+        }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+        .form-group select {
+            appearance: none; -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat; background-position: right .9rem center; background-size: 1.1rem;
+            padding-right: 2.6rem; cursor: pointer;
+        }
+        .form-group input[type="date"] { cursor: pointer; }
+        .form-hint { font-size: .68rem; color: var(--muted); margin-top: .3rem; display: block; }
+        .form-row { display: flex; gap: .8rem; }
+        .form-row>* { flex: 1; }
+
+        /* Formulário de inscrição moderno */
+        .reg-form-wrap {
+            background: #fff; border-radius: var(--radius); padding: 1.8rem;
+            border: 1px solid var(--line); box-shadow: var(--shadow);
+            animation: slideUp .4s cubic-bezier(.4,0,.2,1);
+        }
+        .reg-form-header {
+            display: flex; align-items: center; gap: .8rem; margin-bottom: 1.4rem;
+            padding-bottom: 1rem; border-bottom: 1px solid var(--line);
+        }
+        .reg-form-header .reg-icon {
+            width: 48px; height: 48px; border-radius: 14px;
+            background: var(--primary-gradient); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; flex-shrink: 0;
+            box-shadow: 0 6px 20px rgba(13,71,161,.3);
+        }
+        .reg-form-header h3 { font-size: 1.1rem; font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -.3px; }
+        .reg-form-header p { font-size: .72rem; color: var(--muted); margin: .1rem 0 0; }
+        .reg-btn-submit {
+            width: 100%; justify-content: center; margin-top: 1rem;
+            padding: .85rem 1.5rem; font-size: .88rem; border-radius: 14px;
+            background: var(--primary-gradient); box-shadow: 0 8px 24px rgba(13,71,161,.3);
+            font-weight: 700; gap: .5rem;
+        }
+        .reg-btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(13,71,161,.4); }
 
         .modal-bible .modal-content { max-width: 760px; }
         .modal-carousel .modal-content { max-width: 640px; }
         .bible-container { display: flex; gap: 1.2rem; flex-wrap: wrap; }
         .bible-input { flex: 1; min-width: 200px; }
         .bible-input select, .bible-input input {
-            width: 100%; padding: .6rem .8rem; margin: .3rem 0; border: 2px solid var(--line);
-            border-radius: var(--radius-sm); font-size: .85rem; font-family: var(--font);
-            transition: var(--transition); background: #fafbff;
+            width: 100%; padding: .7rem .9rem; margin: .3rem 0; border: 2px solid var(--line);
+            border-radius: 12px; font-size: .85rem; font-family: var(--font);
+            transition: var(--transition); background: #fafbff; outline: none;
         }
-        .bible-input select:focus, .bible-input input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(13,71,161,.07); }
+        .bible-input select:focus, .bible-input input:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px rgba(13,71,161,.09); }
         .bible-input .btn { width: 100%; justify-content: center; margin-top: .3rem; }
         .bible-result {
             flex: 2; min-width: 240px; background: #fafbff; padding: 1rem 1.2rem;
-            border-radius: var(--radius-sm); max-height: 340px; overflow-y: auto;
+            border-radius: 12px; max-height: 340px; overflow-y: auto;
             border: 1px solid var(--line);
         }
         .bible-result .verse { font-size: .9rem; line-height: 1.7; padding: .35rem 0; border-bottom: 1px solid #edf0f5; }
@@ -674,7 +717,7 @@
             .logo span { font-size: .95rem; }
             .header-actions .btn span { display: inline; font-size: .5rem; }
             .header-actions .btn { padding: .25rem .55rem; font-size: .55rem; min-width: 36px; justify-content: center; }
-            #adminBtn { display: inline-flex !important; }
+            .btn-profile { width: 34px; height: 34px; font-size: .9rem; }
             .menu-toggle { display: flex; align-items: center; justify-content: center; }
             .main-nav {
                 display: none; flex-direction: column; align-items: stretch;
@@ -685,7 +728,7 @@
             .nav-btn { width: 100%; text-align: center; padding: .5rem; font-size: .7rem; }
 
             .hero-wrap { padding: 0 .6rem; margin-top: calc(var(--header-h) + 36px); }
-            .hero { height: 340px; border-radius: 20px; }
+            .hero { border-radius: 20px; max-height: 340px; aspect-ratio: 16 / 10; }
             .hero-content { padding: 1.4rem 1.3rem 2.8rem; max-width: 100%; }
             .hero-content h1 { font-size: 1.4rem; }
             .hero-content p { font-size: .8rem; margin-bottom: .9rem; }
@@ -696,8 +739,8 @@
             .hero-dot { width: 22px; height: 4px; }
             .hero-dot.active { width: 36px; }
 
-            .services-grid { grid-template-columns: repeat(3, 1fr); gap: .5rem; }
-            .service-item { padding: .8rem .4rem; }
+            .services-grid { grid-template-columns: repeat(2, 1fr); gap: .5rem; }
+            .service-item { padding: .9rem .4rem; }
             .service-item .icon { width: 36px; height: 36px; font-size: .9rem; }
             .service-item h4 { font-size: .65rem; }
             .service-item p { display: none; }
@@ -716,12 +759,14 @@
             .fab-whatsapp { bottom: 20px; right: 14px; }
             .fab-prayer { bottom: 76px; right: 14px; }
             .fab-donation { bottom: 132px; right: 14px; }
+
+            .reg-form-wrap { padding: 1.3rem; }
+            .form-row { flex-direction: column; gap: 0; }
         }
         @media (max-width: 480px) {
-            .hero { height: 280px; }
-            .hero-content h1 { font-size: 1.2rem; }
-            .hero-content p { font-size: .75rem; }
-            .services-grid { grid-template-columns: repeat(2, 1fr); }
+            .hero { max-height: 260px; aspect-ratio: 16 / 11; }
+            .hero-content h1 { font-size: 1.15rem; }
+            .hero-content p { font-size: .72rem; }
             .countdown-bar { padding: .7rem .8rem; }
             .countdown-bar .countdown-timer .time-block { min-width: 42px; padding: .25rem .4rem; }
             .countdown-bar .countdown-timer .time-block .num { font-size: .95rem; }
@@ -745,8 +790,8 @@
             <a href="https://wa.me/5521985345627" target="_blank" class="btn btn-whatsapp btn-sm" id="whatsappBtn">
                 <i class="fab fa-whatsapp"></i> <span>WhatsApp</span>
             </a>
-            <a href="/login" class="btn btn-outline-light btn-sm" id="adminBtn">
-                <i class="fas fa-user"></i> <span>Área Interna</span>
+            <a href="/login" class="btn-profile" id="adminBtn" title="Área Interna" aria-label="Área Interna">
+                <i class="fas fa-user"></i>
             </a>
             <button class="menu-toggle" onclick="toggleMobileMenu()" aria-label="Menu">
                 <i class="fas fa-bars"></i>
@@ -786,7 +831,7 @@
 
     <button class="install-fab" id="installFab"><i class="fas fa-download"></i><span>Instalar App</span></button>
 
-    <!-- ===== HERO CARROSSEL NOVO ===== -->
+    <!-- ===== HERO CARROSSEL ===== -->
     <div class="hero-wrap">
         <section id="home" class="hero">
             <div class="hero-slides" id="heroSlides"></div>
@@ -818,7 +863,7 @@
         </div>
     </div>
 
-    <!-- ===== SERVIÇOS RÁPIDOS COM NJ STORE + PROFISSIONAL LADO A LADO ===== -->
+    <!-- ===== SERVIÇOS RÁPIDOS (4 itens) ===== -->
     <div class="services-quick">
         <div class="services-grid">
             <a href="#live" class="service-item" onclick="scrollToSection('live')">
@@ -840,12 +885,6 @@
                 <div class="icon"><i class="fas fa-store"></i></div>
                 <h4>NJ Store</h4>
                 <p>Produtos</p>
-            </a>
-            <a href="#inscricoes" class="service-item pro" onclick="scrollToSection('inscricoes')">
-                <div class="icon"><i class="fas fa-user-tie"></i></div>
-                <h4>Profissional</h4>
-                <p>Serviços</p>
-                <span class="badge-pro">PRO</span>
             </a>
         </div>
     </div>
@@ -952,7 +991,6 @@
         <div id="birthdayList" class="grid"></div>
     </section>
 
-    <!-- ===== ESTUDOS UNIFORMES ===== -->
     <section id="estudos" class="section">
         <div class="section-header">
             <span class="tag">Aprofunde-se</span>
@@ -1035,16 +1073,16 @@
             <div class="line"></div>
             <p class="subtitle">Compartilhe seu pedido de oração conosco</p>
         </div>
-        <div style="max-width:560px;margin:0 auto;">
+        <div style="max-width:560px;margin:0 auto;background:#fff;padding:1.8rem;border-radius:var(--radius);border:1px solid var(--line);box-shadow:var(--shadow-sm);">
             <div class="form-group">
-                <label>Seu nome (opcional)</label>
-                <input type="text" id="prayerName" placeholder="Ex: João" style="width:100%; padding:.7rem .9rem; border:2px solid var(--line); border-radius:12px; font-size:.85rem; font-family:var(--font); transition:var(--transition); background:#fafbff;">
+                <label>Seu nome <span style="color:var(--muted);font-weight:500;">(opcional)</span></label>
+                <input type="text" id="prayerName" placeholder="Ex: João">
             </div>
-            <div class="form-group" style="margin-top:.8rem;">
-                <label>Seu pedido de oração *</label>
-                <textarea id="prayerRequest" rows="4" placeholder="Digite seu pedido aqui..." style="width:100%; padding:.7rem .9rem; border:2px solid var(--line); border-radius:12px; font-size:.85rem; font-family:var(--font); transition:var(--transition); background:#fafbff; resize:vertical;"></textarea>
+            <div class="form-group">
+                <label>Seu pedido de oração <span class="req">*</span></label>
+                <textarea id="prayerRequest" rows="4" placeholder="Digite seu pedido aqui..."></textarea>
             </div>
-            <button onclick="submitPrayer()" class="btn btn-primary" style="width:100%;justify-content:center; padding:.7rem; margin-top:.8rem;">
+            <button onclick="submitPrayer()" class="btn btn-primary" style="width:100%;justify-content:center; padding:.8rem; margin-top:.4rem;border-radius:14px;">
                 <i class="fas fa-paper-plane"></i> Enviar Pedido
             </button>
             <div id="prayerMessage" style="display:none; margin-top:.8rem;" class="mt-1"></div>
@@ -1064,7 +1102,7 @@
             <button onclick="showRegistration('event')" class="btn btn-primary" style="padding:.55rem 1.2rem;"><i class="fas fa-calendar-plus"></i> Evento</button>
             <button onclick="showRegistration('department')" class="btn btn-primary" style="padding:.55rem 1.2rem;"><i class="fas fa-users"></i> Departamento</button>
         </div>
-        <div id="registrationForm" style="display:none; max-width:560px; margin:0 auto;"></div>
+        <div id="registrationForm" style="display:none; max-width:600px; margin:0 auto;"></div>
         <div id="registrationResult" style="display:none; margin-top:.8rem;" class="text-center mt-1"></div>
     </section>
 
@@ -1210,13 +1248,13 @@
     <div class="modal" id="donationModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('donationModal')">&times;</button>
-            <h3 id="donationTypeLabel" style="color:var(--primary);margin-bottom:.8rem;">💳 Dízimo</h3>
-            <div class="form-group"><label>Nome Completo *</label><input type="text" id="donationName"></div>
-            <div class="form-group"><label>E-mail *</label><input type="email" id="donationEmail"></div>
-            <div class="form-group"><label>Telefone *</label><input type="tel" id="donationPhone"></div>
-            <div class="form-group"><label>Valor (R$) *</label><input type="number" id="donationAmount" step="0.01" min="0.01" placeholder="10.00"></div>
+            <h3 id="donationTypeLabel" style="color:var(--primary);margin-bottom:1rem;">💳 Dízimo</h3>
+            <div class="form-group"><label>Nome Completo <span class="req">*</span></label><input type="text" id="donationName"></div>
+            <div class="form-group"><label>E-mail <span class="req">*</span></label><input type="email" id="donationEmail"></div>
+            <div class="form-group"><label>Telefone <span class="req">*</span></label><input type="tel" id="donationPhone"></div>
+            <div class="form-group"><label>Valor (R$) <span class="req">*</span></label><input type="number" id="donationAmount" step="0.01" min="0.01" placeholder="10.00"></div>
             <input type="hidden" id="donationType">
-            <button onclick="submitDonation()" class="btn btn-primary" style="justify-content:center;">
+            <button onclick="submitDonation()" class="btn btn-primary" style="justify-content:center;margin-top:.8rem;">
                 <i class="fas fa-credit-card"></i> Continuar para Pagamento
             </button>
         </div>
@@ -1225,12 +1263,12 @@
     <div class="modal" id="paymentModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('paymentModal')">&times;</button>
-            <h3 id="paymentTitle" style="color:var(--primary);margin-bottom:.8rem;">💳 Pagamento</h3>
+            <h3 id="paymentTitle" style="color:var(--primary);margin-bottom:1rem;">💳 Pagamento</h3>
             <div id="paymentForm">
-                <div class="form-group"><label>Nome Completo *</label><input type="text" id="payName"></div>
-                <div class="form-group"><label>E-mail *</label><input type="email" id="payEmail"></div>
-                <div class="form-group"><label>Telefone *</label><input type="tel" id="payPhone"></div>
-                <div class="form-group"><label>CPF *</label><input type="text" id="payCpf" placeholder="000.000.000-00"></div>
+                <div class="form-group"><label>Nome Completo <span class="req">*</span></label><input type="text" id="payName"></div>
+                <div class="form-group"><label>E-mail <span class="req">*</span></label><input type="email" id="payEmail"></div>
+                <div class="form-group"><label>Telefone <span class="req">*</span></label><input type="tel" id="payPhone"></div>
+                <div class="form-group"><label>CPF <span class="req">*</span></label><input type="text" id="payCpf" placeholder="000.000.000-00"></div>
                 <div class="form-group">
                     <label>Forma de Pagamento</label>
                     <select id="payMethod" onchange="togglePaymentMethod()">
@@ -1682,7 +1720,7 @@
         }
 
         // ============================================
-        // ===== CARROSSEL — NOVO FORMATO =====
+        // ===== CARROSSEL =====
         // ============================================
         async function loadCarouselFromServer() {
             try {
@@ -1696,19 +1734,19 @@
                         title: '🙏 Bem-Vindo à NJ Cabuçu',
                         subtitle: 'Uma comunidade que ama a Deus e ao próximo',
                         description: 'A NJ Cabuçu é uma comunidade cristã dedicada a levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.',
-                        image_url: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1200&h=500&fit=crop&crop=center',
+                        image_url: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1600&h=900&fit=crop&crop=center',
                         link: '#sobre'
                     }, {
                         title: '🎶 Venha nos Louvar',
                         subtitle: 'Nossos cultos são cheios de adoração',
                         description: 'Nossos cultos são marcados por louvores vibrantes e adoração sincera. Venha experimentar a presença de Deus!',
-                        image_url: 'https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1200&h=500&fit=crop&crop=center',
+                        image_url: 'https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1600&h=900&fit=crop&crop=center',
                         link: '#eventos'
                     }, {
                         title: '🤝 Faça Parte',
                         subtitle: 'Junte-se a nós e faça a diferença',
                         description: 'Acreditamos que a igreja não é um lugar, mas um povo. Venha fazer parte da nossa família!',
-                        image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1200&h=500&fit=crop&crop=center',
+                        image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1600&h=900&fit=crop&crop=center',
                         link: '#inscricoes'
                     }];
                 }
@@ -1720,19 +1758,19 @@
                     title: '🙏 Bem-Vindo à NJ Cabuçu',
                     subtitle: 'Uma comunidade que ama a Deus e ao próximo',
                     description: 'A NJ Cabuçu é uma comunidade cristã dedicada a levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.',
-                    image_url: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1200&h=500&fit=crop&crop=center',
+                    image_url: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1600&h=900&fit=crop&crop=center',
                     link: '#sobre'
                 }, {
                     title: '🎶 Venha nos Louvar',
                     subtitle: 'Nossos cultos são cheios de adoração',
                     description: 'Nossos cultos são marcados por louvores vibrantes e adoração sincera. Venha experimentar a presença de Deus!',
-                    image_url: 'https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1200&h=500&fit=crop&crop=center',
+                    image_url: 'https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1600&h=900&fit=crop&crop=center',
                     link: '#eventos'
                 }, {
                     title: '🤝 Faça Parte',
                     subtitle: 'Junte-se a nós e faça a diferença',
                     description: 'Acreditamos que a igreja não é um lugar, mas um povo. Venha fazer parte da nossa família!',
-                    image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1200&h=500&fit=crop&crop=center',
+                    image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1600&h=900&fit=crop&crop=center',
                     link: '#inscricoes'
                 }];
                 renderCarousel();
@@ -1755,7 +1793,7 @@
 
                 let imgSrc = item.image_url ||
                     (item.image_base64 ? `data:image/jpeg;base64,${item.image_base64}` :
-                        'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1200&h=500&fit=crop&crop=center');
+                        'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1600&h=900&fit=crop&crop=center');
 
                 slide.innerHTML = `
                     <img src="${imgSrc}" alt="${item.title || 'Slide'}" class="bg-image" loading="lazy">
@@ -1813,7 +1851,7 @@
         }
 
         // ============================================
-        // ===== BÍBLIA (PROXY SERVIDOR) =====
+        // ===== BÍBLIA =====
         // ============================================
         function openBibleModal() {
             openModal('bibleModal');
@@ -2252,9 +2290,6 @@
             }
         }
 
-        // ============================================
-        // ===== FUNÇÃO PARA BAIXAR PDF =====
-        // ============================================
         function downloadPdf(studyId) {
             showNotification('📄 Baixando PDF...', 'info');
             
@@ -3085,45 +3120,61 @@
 
             const types = {
                 baptism: {
-                    title: '✝️ Inscrição para Batismo',
-                    labels: { name: 'Nome Completo *', email: 'E-mail *', phone: 'Telefone *',
-                        birth_date: 'Data de Nascimento *',
-                        baptism_date: 'Selecione a Data do Batismo *', notes: 'Observações (opcional)' }
+                    title: 'Inscrição para Batismo',
+                    subtitle: 'Preencha os dados para se batizar',
+                    icon: 'fa-water',
+                    labels: { name: 'Nome Completo', email: 'E-mail', phone: 'Telefone / WhatsApp',
+                        birth_date: 'Data de Nascimento',
+                        baptism_date: 'Data do Batismo', notes: 'Observações (opcional)' }
                 },
                 volunteer: {
-                    title: '🙋 Cadastro de Voluntário',
-                    labels: { name: 'Nome Completo *', email: 'E-mail *', phone: 'Telefone *',
-                        department_select: 'Departamento que deseja atuar *',
+                    title: 'Cadastro de Voluntário',
+                    subtitle: 'Sirva com seus dons e talentos',
+                    icon: 'fa-hands-helping',
+                    labels: { name: 'Nome Completo', email: 'E-mail', phone: 'Telefone / WhatsApp',
+                        department_select: 'Departamento que deseja atuar',
                         availability: 'Disponibilidade (dias/horários)',
                         notes: 'Habilidades/Experiência (opcional)' }
                 },
                 event: {
-                    title: '🎯 Inscrição para Evento',
-                    labels: { name: 'Nome Completo *', email: 'E-mail *', phone: 'Telefone *',
-                        event_select: 'Selecione o Evento *', notes: 'Observações (opcional)' }
+                    title: 'Inscrição para Evento',
+                    subtitle: 'Garanta sua vaga no próximo evento',
+                    icon: 'fa-calendar-plus',
+                    labels: { name: 'Nome Completo', email: 'E-mail', phone: 'Telefone / WhatsApp',
+                        event_select: 'Selecione o Evento', notes: 'Observações (opcional)' }
                 },
                 department: {
-                    title: '📋 Entrar em um Departamento',
-                    labels: { name: 'Nome Completo *', email: 'E-mail *', phone: 'Telefone *',
-                        department_select: 'Selecione o Departamento *',
+                    title: 'Entrar em um Departamento',
+                    subtitle: 'Faça parte de um ministério',
+                    icon: 'fa-users',
+                    labels: { name: 'Nome Completo', email: 'E-mail', phone: 'Telefone / WhatsApp',
+                        department_select: 'Selecione o Departamento',
                         notes: 'Por que deseja participar? (opcional)' }
                 }
             };
 
             const t = types[type] || types.baptism;
-            let html =
-                `<h3 style="text-align:center;color:#0a2b5c;margin-bottom:0.8rem;">${t.title}</h3><div class="prayer-form">`;
-            html +=
-                `<div class="form-group"><label>${t.labels.name}</label><input type="text" id="regName" placeholder="Digite seu nome completo" required /></div>`;
-            html +=
-                `<div class="form-group"><label>${t.labels.email}</label><input type="email" id="regEmail" placeholder="seu@email.com" required /></div>`;
-            html +=
-                `<div class="form-group"><label>${t.labels.phone}</label><input type="tel" id="regPhone" placeholder="(11) 99999-9999" required /></div>`;
+
+            let html = `
+                <div class="reg-form-wrap">
+                    <div class="reg-form-header">
+                        <div class="reg-icon"><i class="fas ${t.icon}"></i></div>
+                        <div>
+                            <h3>${t.title}</h3>
+                            <p>${t.subtitle}</p>
+                        </div>
+                    </div>
+            `;
+
+            html += `<div class="form-group"><label>${t.labels.name} <span class="req">*</span></label><input type="text" id="regName" placeholder="Digite seu nome completo" required /></div>`;
+            html += `<div class="form-group"><label>${t.labels.email} <span class="req">*</span></label><input type="email" id="regEmail" placeholder="seu@email.com" required /></div>`;
+            html += `<div class="form-group"><label>${t.labels.phone} <span class="req">*</span></label><input type="tel" id="regPhone" placeholder="(21) 99999-9999" required /></div>`;
 
             if (type === 'baptism') {
-                html +=
-                    `<div class="form-group"><label>${t.labels.birth_date}</label><input type="date" id="regBirthDate" required /></div>`;
-                html +=                    `<div class="form-group"><label>${t.labels.baptism_date}</label><select id="regBaptismDate" required><option value="">Selecione uma data para o Batismo</option>`;
+                html += `<div class="form-row">`;
+                html += `<div class="form-group"><label>${t.labels.birth_date} <span class="req">*</span></label><input type="date" id="regBirthDate" required /></div>`;
+                html += `</div>`;
+                html += `<div class="form-group"><label>${t.labels.baptism_date} <span class="req">*</span></label><select id="regBaptismDate" required><option value="">Selecione uma data para o Batismo</option>`;
                 if (baptismDatesList && baptismDatesList.length > 0) {
                     baptismDatesList.forEach(d => {
                         const dateFormatted = new Date(d.date).toLocaleDateString('pt-BR', { day: 'numeric',
@@ -3138,25 +3189,21 @@
                     html += `<option value="" disabled>Nenhuma data de batismo disponível</option>`;
                 }
                 html += `</select></div>`;
-                html +=                    `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Observações adicionais..."></textarea></div>`;
+                html += `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Observações adicionais..."></textarea></div>`;
             }
 
             if (type === 'volunteer') {
-                html +=
-                    `<div class="form-group"><label>${t.labels.department_select}</label><select id="regDepartmentSelect" required><option value="">Selecione um departamento</option>`;
+                html += `<div class="form-group"><label>${t.labels.department_select} <span class="req">*</span></label><select id="regDepartmentSelect" required><option value="">Selecione um departamento</option>`;
                 if (departmentsList && departmentsList.length > 0) {
                     departmentsList.forEach(d => { html += `<option value="${d.id}">${d.name}</option>`; });
                 } else { html += `<option value="" disabled>Nenhum departamento disponível</option>`; }
                 html += `</select></div>`;
-                html +=
-                    `<div class="form-group"><label>${t.labels.availability}</label><input type="text" id="regAvailability" placeholder="Ex: Finais de semana, Terças e Quintas à noite" /></div>`;
-                html +=
-                    `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Conte-nos sobre suas habilidades e experiência..."></textarea></div>`;
+                html += `<div class="form-group"><label>${t.labels.availability}</label><input type="text" id="regAvailability" placeholder="Ex: Finais de semana, Terças e Quintas à noite" /></div>`;
+                html += `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Conte-nos sobre suas habilidades e experiência..."></textarea></div>`;
             }
 
             if (type === 'event') {
-                html +=
-                    `<div class="form-group"><label>${t.labels.event_select}</label><select id="regEventSelect" required><option value="">Selecione um evento</option>`;
+                html += `<div class="form-group"><label>${t.labels.event_select} <span class="req">*</span></label><select id="regEventSelect" required><option value="">Selecione um evento</option>`;
                 if (eventsList && eventsList.length > 0) {
                     eventsList.forEach(e => {
                         const dateFormatted = new Date(e.date).toLocaleDateString('pt-BR', { day: 'numeric',
@@ -3168,25 +3215,23 @@
                     });
                 } else { html += `<option value="" disabled>Nenhum evento disponível</option>`; }
                 html += `</select></div>`;
-                html +=
-                    `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Observações adicionais..."></textarea></div>`;
+                html += `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Observações adicionais..."></textarea></div>`;
             }
 
             if (type === 'department') {
-                html +=
-                    `<div class="form-group"><label>${t.labels.department_select}</label><select id="regDepartmentSelect" required><option value="">Selecione um departamento</option>`;
+                html += `<div class="form-group"><label>${t.labels.department_select} <span class="req">*</span></label><select id="regDepartmentSelect" required><option value="">Selecione um departamento</option>`;
                 if (departmentsList && departmentsList.length > 0) {
                     departmentsList.forEach(d => { html += `<option value="${d.id}">${d.name}</option>`; });
                 } else { html += `<option value="" disabled>Nenhum departamento disponível</option>`; }
                 html += `</select></div>`;
-                html +=
-                    `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Por que deseja participar? (opcional)"></textarea></div>`;
+                html += `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Por que deseja participar? (opcional)"></textarea></div>`;
             }
 
-            html +=
-                `<button onclick="submitRegistration('${type}')" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.4rem;font-size:0.8rem;padding:0.4rem;">
-                    <i class="fas fa-paper-plane"></i> Inscrever-se
-                </button></div>`;
+            html += `<button onclick="submitRegistration('${type}')" class="btn btn-primary reg-btn-submit">
+                        <i class="fas fa-paper-plane"></i> Inscrever-se
+                    </button>`;
+            html += `</div>`;
+
             container.innerHTML = html;
             container.scrollIntoView({ behavior: 'smooth' });
         }

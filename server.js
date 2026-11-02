@@ -1,3913 +1,2891 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>NJ Cabuçu - Igreja Nova Jerusalém</title>
-    
-    <!-- ===== PWA ===== -->
-    <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="/icons/icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="96x96" href="/icons/icon-96x96.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png">
-    <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512x512.png">
-    
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="NJ Cabuçu">
-    <meta name="theme-color" content="#0A2647">
-    <meta name="mobile-web-app-capable" content="yes">
-    
-    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512x512.png">
-    <link rel="shortcut icon" href="/icons/icon-72x72.png">
-    <!-- ===== FIM PWA ===== -->
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        :root {
-            --primary: #0A2647;
-            --primary-light: #144272;
-            --primary-dark: #061A33;
-            --primary-gradient: linear-gradient(135deg, #0A2647 0%, #144272 50%, #1A3A5C 100%);
-            --primary-gradient-hover: linear-gradient(135deg, #144272 0%, #1A3A5C 50%, #205295 100%);
-            --secondary: #E8F0FE;
-            --secondary-light: #F0F4FA;
-            --accent: #C9A84C;
-            --accent-light: #D4B96A;
-            --accent-gradient: linear-gradient(135deg, #C9A84C 0%, #D4B96A 100%);
-            --bg: #F5F7FA;
-            --bg-dark: #0A0E1A;
-            --card-bg: #ffffff;
-            --text-primary: #1A1A2E;
-            --text-secondary: #4A4A6A;
-            --text-muted: #8A8A9A;
-            --border-color: rgba(10, 38, 71, 0.06);
-            --shadow-xs: 0 1px 4px rgba(10, 38, 71, 0.04);
-            --shadow-sm: 0 2px 12px rgba(10, 38, 71, 0.06);
-            --shadow-md: 0 4px 24px rgba(10, 38, 71, 0.08);
-            --shadow-lg: 0 8px 40px rgba(10, 38, 71, 0.12);
-            --shadow-xl: 0 16px 64px rgba(10, 38, 71, 0.16);
-            --radius: 20px;
-            --radius-md: 14px;
-            --radius-sm: 10px;
-            --radius-xs: 6px;
-            --radius-full: 50px;
-            --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            --font-display: 'Playfair Display', serif;
-            --header-h: 68px;
-            --max-width: 1200px;
-            --fab-bottom: 30px;
-        }
-        html { scroll-behavior: smooth; background: var(--bg); }
-        body {
-            font-family: var(--font);
-            background: var(--bg);
-            color: var(--text-primary);
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-            padding-bottom: 80px;
-        }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { 
-            background: linear-gradient(180deg, var(--primary), var(--primary-light)); 
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover { background: var(--primary-light); }
-
-        /* ===== ANIMAÇÕES ===== */
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes slideUpBanner {
-            from { transform: translateY(100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        @keyframes pulse-live {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
-        }
-        @keyframes scaleIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        @keyframes slideInRight {
-            from { opacity: 0; transform: translateX(30px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        /* ===== BOTÃO DE INSTALAÇÃO PWA ===== */
-        .install-banner {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(135deg, #0A0E1A, #1A1A2E);
-            color: #ffffff;
-            padding: 16px 20px;
-            box-shadow: 0 -8px 40px rgba(0,0,0,0.6);
-            z-index: 99999;
-            border-top: 1px solid rgba(201, 168, 76, 0.15);
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-            animation: slideUpBanner 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .install-banner .banner-left {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .install-banner .banner-icon {
-            background: rgba(201, 168, 76, 0.12);
-            border-radius: 50%;
-            padding: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            border: 1px solid rgba(201, 168, 76, 0.2);
-        }
-
-        .install-banner .banner-icon i {
-            font-size: 22px;
-            color: #C9A84C;
-        }
-
-        .install-banner .banner-text {
-            flex: 1;
-        }
-
-        .install-banner .banner-text h4 {
-            font-weight: 700;
-            font-size: 14px;
-            margin: 0;
-            color: #fff;
-        }
-
-        .install-banner .banner-text p {
-            font-size: 12px;
-            opacity: 0.6;
-            margin: 2px 0 0;
-            color: #fff;
-        }
-
-        .install-banner .banner-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-shrink: 0;
-        }
-
-        .install-banner .btn-install {
-            background: linear-gradient(135deg, #C9A84C, #D4B96A);
-            color: #0A0E1A;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .install-banner .btn-install:hover {
-            transform: scale(1.03);
-            box-shadow: 0 4px 20px rgba(201, 168, 76, 0.3);
-        }
-
-        .install-banner .btn-close-banner {
-            background: transparent;
-            color: rgba(255,255,255,0.3);
-            border: none;
-            padding: 8px;
-            cursor: pointer;
-            font-size: 18px;
-            transition: all 0.2s;
-        }
-
-        .install-banner .btn-close-banner:hover {
-            color: #fff;
-            transform: rotate(90deg);
-        }
-
-        .install-fab {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background: linear-gradient(135deg, #0A0E1A, #1A1A2E);
-            color: #C9A84C;
-            border: 1px solid rgba(201, 168, 76, 0.2);
-            padding: 14px 24px;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            box-shadow: 0 8px 40px rgba(0,0,0,0.4);
-            z-index: 99998;
-            display: none;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-family: 'Inter', sans-serif;
-            animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .install-fab:hover {
-            transform: scale(1.05);
-            box-shadow: 0 12px 48px rgba(0,0,0,0.5);
-        }
-
-        .install-fab i { font-size: 18px; }
-
-        @media (max-width: 768px) {
-            .install-banner {
-                padding: 14px 16px;
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .install-banner .banner-actions {
-                justify-content: flex-end;
-                width: 100%;
-            }
-            .install-banner .btn-install {
-                padding: 8px 18px;
-                font-size: 13px;
-            }
-            .install-fab {
-                bottom: 16px;
-                right: 16px;
-                padding: 12px 18px;
-                font-size: 13px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .install-banner .banner-text h4 { font-size: 13px; }
-            .install-banner .banner-text p { font-size: 11px; }
-            .install-banner .btn-install {
-                padding: 6px 14px;
-                font-size: 12px;
-            }
-            .install-banner .banner-icon i { font-size: 18px; }
-            .install-fab {
-                padding: 10px 14px;
-                font-size: 12px;
-                bottom: 12px;
-                right: 12px;
-            }
-            .install-fab i { font-size: 15px; }
-        }
-
-        /* ===== HEADER ===== */
-        .header {
-            background: rgba(10, 14, 26, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 0 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(201, 168, 76, 0.08);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            height: var(--header-h);
-            transition: var(--transition);
-        }
-        .header.scrolled {
-            background: rgba(10, 14, 26, 0.98);
-            box-shadow: 0 4px 30px rgba(0,0,0,0.3);
-            border-bottom-color: rgba(201, 168, 76, 0.12);
-        }
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.7rem;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .logo-icon-css {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #C9A84C, #D4B96A);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 1rem;
-            color: #0A0E1A;
-            flex-shrink: 0;
-            font-family: 'Playfair Display', serif;
-            overflow: hidden;
-            box-shadow: 0 4px 16px rgba(201, 168, 76, 0.25);
-            transition: var(--transition);
-        }
-        .logo:hover .logo-icon-css {
-            transform: scale(1.05) rotate(-5deg);
-            box-shadow: 0 6px 24px rgba(201, 168, 76, 0.35);
-        }
-        .logo-icon-css img { width: 100%; height: 100%; object-fit: cover; }
-        .logo span {
-            font-weight: 800;
-            font-size: 1.15rem;
-            color: #fff;
-            font-family: 'Playfair Display', serif;
-            letter-spacing: -0.5px;
-        }
-        .logo span small {
-            font-weight: 400;
-            font-size: 0.5rem;
-            color: rgba(201, 168, 76, 0.8);
-            display: block;
-            margin-top: -2px;
-            font-family: 'Inter', sans-serif;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-        .header-actions {
-            display: flex;
-            gap: 0.4rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .btn {
-            padding: 0.4rem 0.9rem;
-            border-radius: var(--radius-full);
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition-fast);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.72rem;
-            text-decoration: none;
-            font-family: var(--font);
-            background: transparent;
-            color: #fff;
-        }
-        .btn-primary {
-            background: var(--primary-gradient);
-            color: #fff;
-            box-shadow: 0 4px 16px rgba(10, 38, 71, 0.25);
-        }
-        .btn-primary:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 8px 28px rgba(10, 38, 71, 0.35);
-        }
-        .btn-outline-light {
-            background: transparent;
-            color: #fff;
-            border: 1.5px solid rgba(255,255,255,0.2);
-        }
-        .btn-outline-light:hover { 
-            background: rgba(255,255,255,0.08); 
-            border-color: rgba(255,255,255,0.4);
-        }
-        .btn-whatsapp { 
-            background: #25D366; 
-            color: #fff; 
-            box-shadow: 0 4px 16px rgba(37, 211, 102, 0.25);
-        }
-        .btn-whatsapp:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 8px 28px rgba(37, 211, 102, 0.35);
-        }
-        .btn-sm { padding: 0.2rem 0.7rem; font-size: 0.65rem; }
-        .btn-bible { 
-            background: linear-gradient(135deg, #8B5A2B, #A0703A); 
-            color: #fff; 
-            box-shadow: 0 4px 16px rgba(139, 90, 43, 0.25);
-        }
-        .btn-bible:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 8px 28px rgba(139, 90, 43, 0.35);
-        }
-        .btn-live {
-            background: #ff0000;
-            color: #fff;
-            animation: pulse-live 1.5s infinite;
-            box-shadow: 0 4px 16px rgba(255, 0, 0, 0.25);
-        }
-        .menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.4rem;
-            color: #fff;
-            cursor: pointer;
-            padding: 0.3rem;
-            transition: var(--transition-fast);
-        }
-        .menu-toggle:hover { color: #C9A84C; }
-
-        /* ===== NAV ===== */
-        .main-nav {
-            background: rgba(10, 14, 26, 0.97);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 0.4rem 1rem;
-            display: flex;
-            justify-content: center;
-            gap: 0.15rem;
-            flex-wrap: wrap;
-            position: fixed;
-            top: var(--header-h);
-            left: 0;
-            right: 0;
-            z-index: 999;
-            border-bottom: 1px solid rgba(201, 168, 76, 0.06);
-            transition: var(--transition);
-        }
-        .main-nav.mobile-open { display: none; }
-        .nav-btn {
-            background: transparent;
-            border: none;
-            padding: 0.3rem 0.8rem;
-            border-radius: var(--radius-full);
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition-fast);
-            font-size: 0.68rem;
-            color: rgba(255,255,255,0.6);
-            font-family: var(--font);
-            white-space: nowrap;
-        }
-        .nav-btn:hover { 
-            color: #fff; 
-            background: rgba(201, 168, 76, 0.1); 
-        }
-        .nav-btn.active {
-            color: #0A0E1A;
-            background: linear-gradient(135deg, #C9A84C, #D4B96A);
-            box-shadow: 0 4px 16px rgba(201, 168, 76, 0.3);
-            font-weight: 700;
-        }
-
-        /* ===== HERO ===== */
-        .hero {
-            margin-top: calc(var(--header-h) + 38px);
-            position: relative;
-            width: 100%;
-            height: 560px;
-            max-height: 640px;
-            overflow: hidden;
-            border-radius: 0 0 32px 32px;
-            background: #0A0E1A;
-        }
-        .hero-slides {
-            display: flex;
-            height: 100%;
-            transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
-            background: #0A0E1A;
-        }
-        .hero-slide {
-            min-width: 100%;
-            height: 100%;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            background: #0A0E1A;
-        }
-        .hero-slide .bg-image {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center center;
-        }
-        .hero-slide .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                180deg,
-                rgba(10, 14, 26, 0.3) 0%,
-                rgba(10, 14, 26, 0.5) 50%,
-                rgba(10, 14, 26, 0.85) 100%
-            );
-        }
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            color: #fff;
-            max-width: 85%;
-            padding: 2rem;
-            text-align: center;
-            animation: fadeUp 0.9s ease;
-            pointer-events: none;
-        }
-        .hero-content h1 {
-            font-size: 2.8rem;
-            font-weight: 900;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 4px 40px rgba(0,0,0,0.6);
-            line-height: 1.15;
-            font-family: 'Playfair Display', serif;
-            letter-spacing: -1px;
-        }
-        .hero-content p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            margin-bottom: 1.2rem;
-            text-shadow: 0 2px 24px rgba(0,0,0,0.6);
-            font-weight: 300;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .hero-content .btn {
-            pointer-events: all;
-            font-size: 0.95rem;
-            padding: 0.6rem 2.2rem;
-            background: linear-gradient(135deg, #C9A84C, #D4B96A);
-            color: #0A0E1A;
-            font-weight: 700;
-            box-shadow: 0 8px 32px rgba(201, 168, 76, 0.35);
-            border-radius: var(--radius-full);
-        }
-        .hero-content .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 48px rgba(201, 168, 76, 0.45);
-        }
-
-        .hero-controls {
-            position: absolute;
-            bottom: 1.5rem;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 0.7rem;
-            z-index: 3;
-        }
-        .hero-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.25);
-            cursor: pointer;
-            transition: var(--transition);
-            border: 2px solid transparent;
-            padding: 0;
-        }
-        .hero-dot.active {
-            background: #C9A84C;
-            transform: scale(1.2);
-            border-color: rgba(201, 168, 76, 0.3);
-            box-shadow: 0 0 24px rgba(201, 168, 76, 0.3);
-        }
-        .hero-arrows {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 1.5rem;
-            z-index: 3;
-            pointer-events: none;
-        }
-        .hero-arrow {
-            pointer-events: all;
-            background: rgba(255,255,255,0.08);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-        }
-        .hero-arrow:hover { 
-            background: rgba(201, 168, 76, 0.2); 
-            border-color: rgba(201, 168, 76, 0.3);
-            transform: scale(1.08); 
-        }
-
-        .hero-live-badge {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            z-index: 5;
-            background: #ff0000;
-            color: #fff;
-            padding: 0.2rem 0.9rem;
-            border-radius: var(--radius-full);
-            font-size: 0.65rem;
-            font-weight: 700;
-            display: none;
-            animation: pulse-live 1.5s infinite;
-            box-shadow: 0 4px 24px rgba(255,0,0,0.4);
-        }
-
-        /* ===== LIVE BAR ===== */
-        .live-bar {
-            background: linear-gradient(135deg, #0A0E1A, #1A1A2E);
-            padding: 0.5rem 1rem;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-            border-bottom: 2px solid #C9A84C;
-        }
-        .live-bar.active { display: flex; }
-        .live-bar .live-indicator {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            color: #ff0000;
-            font-weight: 700;
-            font-size: 0.8rem;
-            animation: pulse-live 1.5s infinite;
-        }
-        .live-bar .live-indicator i { font-size: 0.5rem; }
-        .live-bar .live-info { color: rgba(255,255,255,0.6); font-size: 0.75rem; }
-        .live-bar .live-info strong { color: #fff; }
-        .live-bar .btn-watch {
-            background: #ff0000;
-            color: #fff;
-            border: none;
-            padding: 0.2rem 1.2rem;
-            border-radius: var(--radius-full);
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.7rem;
-            transition: var(--transition-fast);
-        }
-        .live-bar .btn-watch:hover { transform: scale(1.05); }
-
-        /* ===== COUNTDOWN ===== */
-        .countdown-section {
-            max-width: var(--max-width);
-            margin: 1.2rem auto 1.5rem;
-            padding: 0 1rem;
-        }
-        .countdown-bar {
-            background: var(--primary-gradient);
-            padding: 0.6rem 1.5rem;
-            border-radius: var(--radius-md);
-            text-align: center;
-            color: #fff;
-            box-shadow: var(--shadow-md);
-            border: 1px solid rgba(201, 168, 76, 0.1);
-            position: relative;
-            overflow: hidden;
-        }
-        .countdown-bar::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(201, 168, 76, 0.05) 0%, transparent 70%);
-            pointer-events: none;
-        }
-        .countdown-bar .countdown-label {
-            font-size: 0.6rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            opacity: 0.7;
-            margin-bottom: 0.2rem;
-            color: #C9A84C;
-        }
-        .countdown-bar .countdown-timer {
-            font-size: 1rem;
-            font-weight: 700;
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        .countdown-bar .countdown-timer .time-block {
-            display: flex;
-            align-items: center;
-            gap: 0.2rem;
-            background: rgba(255,255,255,0.08);
-            padding: 0.1rem 0.7rem;
-            border-radius: var(--radius-sm);
-            border: 1px solid rgba(255,255,255,0.06);
-        }
-        .countdown-bar .countdown-timer .time-block .num {
-            font-size: 1.2rem;
-            font-weight: 800;
-            min-width: 24px;
-            color: #C9A84C;
-        }
-        .countdown-bar .countdown-timer .time-block .label {
-            font-size: 0.5rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            opacity: 0.6;
-        }
-        .countdown-bar .next-culto-label {
-            font-size: 0.65rem;
-            opacity: 0.8;
-            margin-top: 0.1rem;
-            color: rgba(255,255,255,0.7);
-        }
-
-        /* ===== SERVICES QUICK ===== */
-        .services-quick {
-            margin: 1rem auto 1.8rem;
-            max-width: var(--max-width);
-            padding: 0 1rem;
-        }
-        .services-quick .services-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 0.5rem;
-            text-align: center;
-            background: #fff;
-            border-radius: var(--radius-md);
-            padding: 0.6rem 0.3rem;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-color);
-        }
-        .services-quick .service-item {
-            padding: 0.5rem 0.2rem;
-            border-radius: var(--radius-sm);
-            transition: var(--transition-fast);
-            cursor: pointer;
-            text-decoration: none;
-            color: var(--primary);
-            background: transparent;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.15rem;
-        }
-        .services-quick .service-item:hover {
-            background: var(--secondary-light);
-            transform: translateY(-3px);
-        }
-        .services-quick .service-item .icon {
-            font-size: 1.4rem;
-            color: var(--primary);
-            transition: var(--transition-fast);
-        }
-        .services-quick .service-item:hover .icon {
-            color: var(--accent);
-            transform: scale(1.1);
-        }
-        .services-quick .service-item h4 {
-            font-size: 0.62rem;
-            font-weight: 700;
-            margin: 0;
-            color: var(--text-primary);
-        }
-        .services-quick .service-item p {
-            font-size: 0.45rem;
-            color: var(--text-muted);
-            margin: 0;
-        }
-
-        /* ===== SECTIONS ===== */
-        .section {
-            max-width: var(--max-width);
-            margin: 2.5rem auto;
-            padding: 0 1rem;
-            scroll-margin-top: 120px;
-        }
-        .section-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        .section-header .tag {
-            display: inline-block;
-            background: linear-gradient(135deg, rgba(201, 168, 76, 0.12), rgba(201, 168, 76, 0.06));
-            color: #8B7332;
-            font-size: 0.6rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            padding: 0.25rem 1.2rem;
-            border-radius: var(--radius-full);
-            margin-bottom: 0.4rem;
-            border: 1px solid rgba(201, 168, 76, 0.15);
-        }
-        .section-header h2 {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--primary);
-            letter-spacing: -0.5px;
-            font-family: 'Playfair Display', serif;
-        }
-        .section-header .subtitle {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-top: 0.2rem;
-            max-width: 500px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .section-header .line {
-            width: 50px;
-            height: 3px;
-            background: linear-gradient(90deg, #C9A84C, #D4B96A);
-            border-radius: 10px;
-            margin: 0.5rem auto 0;
-        }
-
-        /* ===== GRID ===== */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 1.2rem;
-        }
-
-        /* ===== CARD ===== */
-        .card {
-            background: #ffffff;
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            border: 1px solid var(--border-color);
-            transition: var(--transition);
-            cursor: default;
-            display: flex;
-            flex-direction: column;
-            box-shadow: var(--shadow-xs);
-            position: relative;
-            overflow: hidden;
-        }
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #C9A84C, #D4B96A);
-            opacity: 0;
-            transition: var(--transition);
-        }
-        .card:hover {
-            transform: translateY(-6px);
-            box-shadow: var(--shadow-lg);
-            border-color: rgba(201, 168, 76, 0.2);
-        }
-        .card:hover::before {
-            opacity: 1;
-        }
-        .card .icon-wrapper {
-            width: 52px;
-            height: 52px;
-            border-radius: 16px;
-            background: linear-gradient(135deg, rgba(10, 38, 71, 0.06), rgba(10, 38, 71, 0.02));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            color: var(--primary);
-            margin-bottom: 0.8rem;
-            flex-shrink: 0;
-            transition: var(--transition);
-            border: 1px solid rgba(10, 38, 71, 0.04);
-        }
-        .card:hover .icon-wrapper {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: #fff;
-            transform: scale(1.05);
-        }
-        .card h3 {
-            font-size: 1.05rem;
-            color: var(--primary);
-            margin-bottom: 0.3rem;
-            font-weight: 700;
-            font-family: 'Playfair Display', serif;
-        }
-        .card p {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            line-height: 1.7;
-            flex: 1;
-        }
-        .card .btn-link {
-            margin-top: 0.6rem;
-            color: var(--primary);
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.82rem;
-            transition: var(--transition-fast);
-        }
-        .card .btn-link i { transition: transform 0.2s; }
-        .card .btn-link:hover i { transform: translateX(4px); }
-        .card .btn-link:hover { color: var(--accent); }
-
-        /* ===== CARD IMAGE ===== */
-        .card-image-wrapper {
-            width: 100%;
-            padding-bottom: 56%;
-            position: relative;
-            overflow: hidden;
-            border-radius: var(--radius-sm);
-            margin-bottom: 0.8rem;
-            background: #e8e8e8;
-            flex-shrink: 0;
-        }
-        .card-image-wrapper img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .card:hover .card-image-wrapper img { transform: scale(1.05); }
-
-        /* ===== VERSE BLOCK ===== */
-        .verse-block {
-            background: linear-gradient(135deg, rgba(10, 38, 71, 0.03), rgba(201, 168, 76, 0.04));
-            border-radius: var(--radius);
-            padding: 2rem 1.5rem;
-            text-align: center;
-            margin: 1.5rem 0;
-            border-left: 4px solid #C9A84C;
-            position: relative;
-            overflow: hidden;
-        }
-        .verse-block::before {
-            content: '"';
-            position: absolute;
-            top: -20px;
-            left: 20px;
-            font-size: 8rem;
-            font-family: 'Playfair Display', serif;
-            color: rgba(201, 168, 76, 0.06);
-            line-height: 1;
-            pointer-events: none;
-        }
-        .verse-block .verse-text {
-            font-size: 1.05rem;
-            font-weight: 500;
-            color: var(--text-primary);
-            font-style: italic;
-            line-height: 1.8;
-            position: relative;
-            z-index: 1;
-            font-family: 'Playfair Display', serif;
-        }
-        .verse-block .verse-ref {
-            display: block;
-            margin-top: 0.6rem;
-            font-weight: 700;
-            color: #8B7332;
-            font-size: 0.85rem;
-            font-style: normal;
-        }
-
-        /* ===== SCHEDULE ===== */
-        .schedule-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1rem;
-        }
-        .schedule-item {
-            background: #ffffff;
-            padding: 1.2rem 1rem;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border-color);
-            text-align: center;
-            box-shadow: var(--shadow-xs);
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-        }
-        .schedule-item:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-md);
-            border-color: rgba(201, 168, 76, 0.15);
-        }
-        .schedule-item .day {
-            font-weight: 700;
-            color: var(--primary);
-            font-size: 1rem;
-            font-family: 'Playfair Display', serif;
-        }
-        .schedule-item .time {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-top: 0.3rem;
-        }
-        .schedule-item .time i { 
-            margin-right: 0.4rem; 
-            color: #C9A84C; 
-        }
-
-        /* ===== REFLECTIONS ===== */
-        .reflection-card {
-            background: #fff;
-            border-radius: var(--radius);
-            overflow: hidden;
-            box-shadow: var(--shadow-xs);
-            transition: var(--transition);
-            cursor: pointer;
-            border: 1px solid var(--border-color);
-        }
-        .reflection-card:hover {
-            transform: translateY(-6px);
-            box-shadow: var(--shadow-lg);
-            border-color: rgba(201, 168, 76, 0.15);
-        }
-        .reflection-card .video-wrapper {
-            position: relative;
-            padding-bottom: 56.25%;
-            height: 0;
-            overflow: hidden;
-            background: #0A0E1A;
-        }
-        .reflection-card .video-wrapper iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
-        .reflection-card .info {
-            padding: 1rem 1.2rem;
-        }
-        .reflection-card .info h4 {
-            font-size: 1rem;
-            color: var(--primary);
-            margin-bottom: 0.2rem;
-            font-weight: 700;
-            font-family: 'Playfair Display', serif;
-        }
-        .reflection-card .info p {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin: 0;
-        }
-
-        /* ===== ADDRESS ===== */
-        .address-section { margin-top: 1.5rem; }
-        .address-card {
-            background: #fff;
-            border-radius: var(--radius);
-            padding: 1.8rem 1.5rem;
-            text-align: center;
-            max-width: 650px;
-            margin: 0 auto;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-sm);
-            transition: var(--transition);
-            cursor: pointer;
-        }
-        .address-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-            border-color: rgba(201, 168, 76, 0.15);
-        }
-        .address-card .address-icon { 
-            font-size: 2rem; 
-            color: var(--accent); 
-            margin-bottom: 0.3rem; 
-        }
-        .address-card .address-text { 
-            font-size: 1rem; 
-            font-weight: 600; 
-            color: var(--text-primary); 
-        }
-        .address-card .address-sub { 
-            font-size: 0.85rem; 
-            color: var(--text-muted); 
-        }
-        .address-card .address-actions {
-            display: flex;
-            gap: 0.6rem;
-            justify-content: center;
-            margin-top: 0.8rem;
-            flex-wrap: wrap;
-        }
-        .btn-map {
-            padding: 0.3rem 1.1rem;
-            border-radius: var(--radius-full);
-            border: none;
-            font-weight: 600;
-            font-size: 0.7rem;
-            cursor: pointer;
-            transition: var(--transition-fast);
-            font-family: var(--font);
-            background: var(--primary-gradient);
-            color: #fff;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-        .btn-map:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 6px 24px rgba(10, 38, 71, 0.3); 
-        }
-        .btn-map.waze { 
-            background: #1a1a2e; 
-        }
-        .btn-map.waze:hover { 
-            box-shadow: 0 6px 24px rgba(26, 26, 46, 0.3); 
-        }
-
-        /* ===== FOOTER ===== */
-        .footer {
-            background: linear-gradient(135deg, #0A0E1A 0%, #0A2647 100%);
-            color: #fff;
-            padding: 3rem 1rem 1rem;
-            margin-top: 3rem;
-            border-top: 3px solid #C9A84C;
-        }
-        .footer-content {
-            max-width: var(--max-width);
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 2rem;
-        }
-        .footer h4 {
-            font-size: 0.95rem;
-            margin-bottom: 0.6rem;
-            color: #C9A84C;
-            font-family: 'Playfair Display', serif;
-            font-weight: 700;
-        }
-        .footer p, .footer a {
-            opacity: 0.6;
-            line-height: 1.8;
-            font-size: 0.85rem;
-            color: #fff;
-            text-decoration: none;
-            transition: var(--transition-fast);
-        }
-        .footer a:hover { 
-            opacity: 1; 
-            color: #C9A84C; 
-        }
-        .footer .social-links {
-            display: flex;
-            gap: 0.6rem;
-            margin-top: 0.6rem;
-            flex-wrap: wrap;
-        }
-        .footer .social-links a {
-            color: #fff;
-            font-size: 1.1rem;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255,255,255,0.06);
-            text-decoration: none;
-            transition: var(--transition-fast);
-            opacity: 0.7;
-            border: 1px solid rgba(255,255,255,0.04);
-        }
-        .footer .social-links a:hover { 
-            background: #C9A84C; 
-            transform: translateY(-4px); 
-            opacity: 1;
-            box-shadow: 0 8px 24px rgba(201, 168, 76, 0.3);
-        }
-        .footer-bottom {
-            text-align: center;
-            padding-top: 1.5rem;
-            margin-top: 1.5rem;
-            border-top: 1px solid rgba(255,255,255,0.04);
-            opacity: 0.35;
-            font-size: 0.75rem;
-        }
-
-        /* ===== FAB ===== */
-        .fab {
-            position: fixed;
-            z-index: 9998;
-            border: none;
-            border-radius: 50%;
-            width: 56px;
-            height: 56px;
-            font-size: 1.5rem;
-            color: #fff;
-            cursor: pointer;
-            box-shadow: var(--shadow-lg);
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-        }
-        .fab:hover {
-            transform: scale(1.1) translateY(-2px);
-            box-shadow: var(--shadow-xl);
-        }
-        .fab-whatsapp {
-            bottom: var(--fab-bottom);
-            right: 20px;
-            background: #25D366;
-            box-shadow: 0 8px 32px rgba(37, 211, 102, 0.35);
-        }
-        .fab-whatsapp:hover {
-            box-shadow: 0 12px 48px rgba(37, 211, 102, 0.45);
-        }
-        .fab-prayer {
-            bottom: calc(var(--fab-bottom) + 70px);
-            right: 20px;
-            background: var(--primary-gradient);
-            box-shadow: 0 8px 32px rgba(10, 38, 71, 0.35);
-        }
-        .fab-prayer:hover {
-            box-shadow: 0 12px 48px rgba(10, 38, 71, 0.45);
-        }
-        .fab-donation {
-            bottom: calc(var(--fab-bottom) + 140px);
-            right: 20px;
-            background: linear-gradient(135deg, #C9A84C, #D4B96A);
-            color: #0A0E1A;
-            box-shadow: 0 8px 32px rgba(201, 168, 76, 0.35);
-        }
-        .fab-donation:hover {
-            box-shadow: 0 12px 48px rgba(201, 168, 76, 0.45);
-        }
-        .fab .badge {
-            position: absolute;
-            top: -4px;
-            right: -4px;
-            background: #ff0000;
-            color: #fff;
-            border-radius: 50%;
-            width: 22px;
-            height: 22px;
-            font-size: 0.55rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 12px rgba(255,0,0,0.3);
-        }
-
-        /* ===== MODAL ===== */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(10, 14, 26, 0.6);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.25s ease;
-        }
-        .modal.open { display: flex; }
-        .modal-content {
-            background: #fff;
-            padding: 2rem;
-            border-radius: var(--radius);
-            max-width: 520px;
-            width: 92%;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: var(--shadow-xl);
-            border: 1px solid var(--border-color);
-        }
-        .modal-close {
-            float: right;
-            cursor: pointer;
-            font-size: 1.3rem;
-            color: var(--text-muted);
-            background: none;
-            border: none;
-            transition: var(--transition-fast);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-close:hover { 
-            color: var(--text-primary); 
-            background: var(--bg);
-            transform: rotate(90deg); 
-        }
-        .modal-content .form-group { margin: 0.8rem 0; }
-        .modal-content .form-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 0.2rem;
-            font-size: 0.82rem;
-            color: var(--text-primary);
-        }
-        .modal-content .form-group input,
-        .modal-content .form-group textarea,
-        .modal-content .form-group select {
-            width: 100%;
-            padding: 0.65rem 0.9rem;
-            border: 2px solid #e8ecf2;
-            border-radius: var(--radius-sm);
-            font-size: 0.88rem;
-            font-family: var(--font);
-            transition: var(--transition-fast);
-            background: #fafbff;
-            color: var(--text-primary);
-        }
-        .modal-content .form-group input:focus,
-        .modal-content .form-group textarea:focus,
-        .modal-content .form-group select:focus {
-            border-color: var(--accent);
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(201, 168, 76, 0.1);
-            background: #fff;
-        }
-        .modal-content .form-row { display: flex; gap: 0.8rem; }
-        .modal-content .form-row>* { flex: 1; }
-        .modal-content .btn { 
-            width: 100%; 
-            justify-content: center; 
-            margin-top: 0.6rem;
-            padding: 0.7rem;
-            font-size: 0.88rem;
-        }
-
-        /* ===== BIBLE MODAL ===== */
-        .modal-bible .modal-content { max-width: 780px; }
-        .bible-container {
-            display: flex;
-            gap: 1.2rem;
-            flex-wrap: wrap;
-        }
-        .bible-input {
-            flex: 1;
-            min-width: 200px;
-        }
-        .bible-input select,
-        .bible-input input {
-            width: 100%;
-            padding: 0.55rem 0.9rem;
-            margin: 0.2rem 0;
-            border: 2px solid #e8ecf2;
-            border-radius: var(--radius-sm);
-            font-size: 0.88rem;
-            font-family: var(--font);
-            transition: var(--transition-fast);
-            background: #fafbff;
-            color: var(--text-primary);
-        }
-        .bible-input select:focus,
-        .bible-input input:focus {
-            border-color: var(--accent);
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(201, 168, 76, 0.1);
-        }
-        .bible-input .btn { 
-            width: 100%; 
-            justify-content: center; 
-            margin-top: 0.3rem;
-            padding: 0.6rem;
-            font-size: 0.82rem;
-        }
-        .bible-result {
-            flex: 2;
-            min-width: 240px;
-            background: #fafbff;
-            padding: 1.2rem;
-            border-radius: var(--radius-sm);
-            max-height: 340px;
-            overflow-y: auto;
-            border: 1px solid #eef1f6;
-        }
-        .bible-result .verse {
-            font-size: 0.92rem;
-            line-height: 1.8;
-            padding: 0.3rem 0;
-            border-bottom: 1px solid #edf0f5;
-            color: var(--text-secondary);
-        }
-        .bible-result .verse strong { 
-            color: var(--primary); 
-            font-weight: 700;
-            margin-right: 0.3rem;
-        }
-        .bible-result .reference {
-            font-weight: 700;
-            color: var(--accent);
-            margin-top: 0.5rem;
-            font-size: 0.85rem;
-        }
-
-        /* ===== NOTIFICATION ===== */
-        .notification {
-            position: fixed;
-            top: calc(var(--header-h) + 60px);
-            right: 16px;
-            padding: 0.7rem 1.2rem;
-            border-radius: var(--radius-sm);
-            font-weight: 500;
-            z-index: 99999;
-            max-width: 360px;
-            box-shadow: var(--shadow-lg);
-            animation: slideInRight 0.35s ease;
-            font-family: var(--font);
-            font-size: 0.82rem;
-            border-left: 4px solid;
-        }
-        .notification.success { 
-            background: #f0fdf4; 
-            color: #166534; 
-            border-left-color: #22c55e;
-        }
-        .notification.error { 
-            background: #fef2f2; 
-            color: #991b1b; 
-            border-left-color: #ef4444;
-        }
-        .notification.info { 
-            background: #eff6ff; 
-            color: #1e40af; 
-            border-left-color: #3b82f6;
-        }
-        .notification.warning { 
-            background: #fffbeb; 
-            color: #92400e; 
-            border-left-color: #f59e0b;
-        }
-
-        /* ===== LIVE PLAYER ===== */
-        .live-container {
-            background: #0A0E1A;
-            border-radius: var(--radius);
-            overflow: hidden;
-            position: relative;
-            max-width: 900px;
-            margin: 0 auto;
-            box-shadow: var(--shadow-xl);
-            border: 1px solid rgba(201, 168, 76, 0.1);
-        }
-        .live-player {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 320px;
-            background: #070B14;
-            position: relative;
-        }
-        .live-player video {
-            width: 100%;
-            height: 100%;
-            max-height: 500px;
-            object-fit: contain;
-            background: #000;
-        }
-        .live-offline {
-            color: rgba(255,255,255,0.4);
-            text-align: center;
-            padding: 2rem;
-        }
-        .live-offline i { 
-            font-size: 3rem; 
-            display: block; 
-            margin-bottom: 0.6rem; 
-            opacity: 0.3;
-            color: #C9A84C;
-        }
-        .live-offline span { font-size: 0.9rem; }
-        .live-offline p { font-size: 0.75rem; margin-top: 0.3rem; }
-        .live-badge {
-            position: absolute;
-            top: 16px;
-            left: 16px;
-            background: #ff0000;
-            color: #fff;
-            padding: 0.2rem 0.8rem;
-            border-radius: var(--radius-full);
-            font-size: 0.65rem;
-            font-weight: 700;
-            z-index: 10;
-            animation: pulse-live 1.5s infinite;
-        }
-        .live-info-box {
-            position: absolute;
-            bottom: 16px;
-            left: 16px;
-            right: 16px;
-            background: rgba(10, 14, 26, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 0.6rem 1rem;
-            border-radius: var(--radius-sm);
-            z-index: 10;
-            border: 1px solid rgba(255,255,255,0.06);
-        }
-        .live-info-box .live-title { 
-            color: #fff; 
-            font-weight: 700; 
-            font-size: 0.85rem; 
-            font-family: 'Playfair Display', serif;
-        }
-        .live-info-box .live-desc { 
-            color: rgba(255,255,255,0.5); 
-            font-size: 0.65rem; 
-        }
-        .live-info-box .live-viewers { 
-            color: rgba(255,255,255,0.5); 
-            font-size: 0.65rem; 
-        }
-        .live-info-box .live-dot { 
-            color: #ff0000; 
-            font-size: 0.5rem; 
-            animation: pulse-live 1.5s infinite; 
-        }
-
-        /* ===== TITHE ===== */
-        .tithe-options {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        .btn-donation {
-            background: var(--primary-gradient);
-            color: #fff;
-            border: none;
-            padding: 0.9rem 2.2rem;
-            font-size: 0.95rem;
-            border-radius: var(--radius-full);
-            cursor: pointer;
-            transition: var(--transition);
-            font-weight: 700;
-            font-family: var(--font);
-            box-shadow: 0 6px 24px rgba(10, 38, 71, 0.25);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.6rem;
-            border: 1px solid rgba(255,255,255,0.06);
-        }
-        .btn-donation:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(10, 38, 71, 0.35);
-            background: var(--primary-gradient-hover);
-        }
-
-        /* ===== BIRTHDAY ===== */
-        .birthday-card {
-            text-align: center;
-            border-left: 4px solid var(--primary);
-            padding: 1.2rem;
-        }
-        .birthday-card.today { 
-            border-color: #e91e63; 
-            background: linear-gradient(135deg, rgba(233, 30, 99, 0.03), transparent);
-        }
-        .birthday-card .emoji { font-size: 2rem; margin-bottom: 0.2rem; }
-        .birthday-card .name { 
-            font-size: 1rem; 
-            font-weight: 700; 
-            color: var(--primary); 
-            font-family: 'Playfair Display', serif;
-        }
-        .birthday-card .date { 
-            color: var(--text-secondary); 
-            font-size: 0.85rem; 
-        }
-        .birthday-card .age { 
-            color: var(--text-muted); 
-            font-size: 0.78rem; 
-        }
-
-        /* ===== STORE (NOVA SEÇÃO BONITA) ===== */
-        .store-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-        .store-card {
-            background: #fff;
-            border-radius: var(--radius);
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-xs);
-            transition: var(--transition);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-        .store-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-xl);
-            border-color: rgba(201, 168, 76, 0.2);
-        }
-        .store-card .store-image {
-            width: 100%;
-            padding-bottom: 70%;
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(135deg, #f0f2f5, #e8ecf2);
-        }
-        .store-card .store-image img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .store-card:hover .store-image img {
-            transform: scale(1.08);
-        }
-        .store-card .store-badge {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            background: linear-gradient(135deg, #C9A84C, #D4B96A);
-            color: #0A0E1A;
-            padding: 0.15rem 0.8rem;
-            border-radius: var(--radius-full);
-            font-size: 0.6rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            z-index: 2;
-            box-shadow: 0 4px 12px rgba(201, 168, 76, 0.3);
-        }
-        .store-card .store-body {
-            padding: 1.2rem 1.4rem 1.4rem;
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-        }
-        .store-card .store-body h3 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 0.3rem;
-            font-family: 'Playfair Display', serif;
-            line-height: 1.3;
-        }
-        .store-card .store-body .store-description {
-            font-size: 0.82rem;
-            color: var(--text-muted);
-            line-height: 1.6;
-            margin-bottom: 0.8rem;
-            flex: 1;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .store-card .store-body .store-price-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 0.8rem;
-        }
-        .store-card .store-body .store-price {
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: var(--primary);
-            font-family: 'Playfair Display', serif;
-            line-height: 1;
-        }
-        .store-card .store-body .store-price small {
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            font-family: 'Inter', sans-serif;
-        }
-        .store-card .store-body .store-old-price {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            text-decoration: line-through;
-            margin-left: 0.4rem;
-        }
-        .store-card .store-body .store-actions {
-            display: flex;
-            gap: 0.6rem;
-            margin-top: auto;
-        }
-        .store-card .store-body .btn-store {
-            flex: 1;
-            padding: 0.6rem 0.8rem;
-            border-radius: var(--radius-sm);
-            border: none;
-            font-weight: 600;
-            font-size: 0.82rem;
-            cursor: pointer;
-            transition: var(--transition-fast);
-            font-family: var(--font);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.4rem;
-        }
-        .store-card .store-body .btn-store-add {
-            background: var(--primary-gradient);
-            color: #fff;
-            box-shadow: 0 4px 16px rgba(10, 38, 71, 0.2);
-        }
-        .store-card .store-body .btn-store-add:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 28px rgba(10, 38, 71, 0.3);
-        }
-        .store-card .store-body .btn-store-buy {
-            background: linear-gradient(135deg, #C9A84C, #D4B96A);
-            color: #0A0E1A;
-            box-shadow: 0 4px 16px rgba(201, 168, 76, 0.25);
-        }
-        .store-card .store-body .btn-store-buy:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 28px rgba(201, 168, 76, 0.35);
-        }
-        .store-card .store-body .store-category {
-            display: inline-block;
-            background: var(--secondary-light);
-            color: var(--primary);
-            padding: 0.1rem 0.7rem;
-            border-radius: var(--radius-full);
-            font-size: 0.55rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.4rem;
-            align-self: flex-start;
-        }
-        .store-empty {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 3rem 1rem;
-            color: var(--text-muted);
-        }
-        .store-empty i {
-            font-size: 3rem;
-            color: rgba(10, 38, 71, 0.08);
-            display: block;
-            margin-bottom: 0.8rem;
-        }
-        .store-empty p {
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        /* ===== STUDIES ===== */
-        .studies-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-        .study-card {
-            background: #fff;
-            border-radius: var(--radius);
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow-xs);
-            transition: var(--transition);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-        .study-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-xl);
-            border-color: rgba(201, 168, 76, 0.2);
-        }
-        .study-card .study-image {
-            width: 100%;
-            padding-bottom: 60%;
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(135deg, #f0f2f5, #e8ecf2);
-        }
-        .study-card .study-image img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .study-card:hover .study-image img {
-            transform: scale(1.05);
-        }
-        .study-card .study-icon {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2.5rem;
-            color: rgba(10, 38, 71, 0.15);
-            z-index: 1;
-        }
-        .study-card .study-body {
-            padding: 1.2rem 1.4rem 1.4rem;
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-        }
-        .study-card .study-body h3 {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 0.3rem;
-            font-family: 'Playfair Display', serif;
-            line-height: 1.3;
-        }
-        .study-card .study-body .study-description {
-            font-size: 0.82rem;
-            color: var(--text-muted);
-            line-height: 1.6;
-            margin-bottom: 0.8rem;
-            flex: 1;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .study-card .study-body .study-actions {
-            display: flex;
-            gap: 0.6rem;
-            margin-top: auto;
-            flex-wrap: wrap;
-        }
-        .study-card .study-body .btn-study {
-            flex: 1;
-            min-width: 120px;
-            padding: 0.6rem 1rem;
-            border-radius: var(--radius-sm);
-            border: none;
-            font-weight: 600;
-            font-size: 0.82rem;
-            cursor: pointer;
-            transition: var(--transition-fast);
-            font-family: var(--font);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.4rem;
-            text-decoration: none;
-        }
-        .study-card .study-body .btn-study-pdf {
-            background: var(--primary-gradient);
-            color: #fff;
-            box-shadow: 0 4px 16px rgba(10, 38, 71, 0.2);
-        }
-        .study-card .study-body .btn-study-pdf:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 28px rgba(10, 38, 71, 0.3);
-        }
-        .study-card .study-body .btn-study-link {
-            background: linear-gradient(135deg, #C9A84C, #D4B96A);
-            color: #0A0E1A;
-            box-shadow: 0 4px 16px rgba(201, 168, 76, 0.2);
-        }
-        .study-card .study-body .btn-study-link:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 28px rgba(201, 168, 76, 0.3);
-        }
-        .study-empty {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 3rem 1rem;
-            color: var(--text-muted);
-        }
-        .study-empty i {
-            font-size: 3rem;
-            color: rgba(10, 38, 71, 0.08);
-            display: block;
-            margin-bottom: 0.8rem;
-        }
-        .study-empty p {
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 1024px) {
-            .hero-content h1 { font-size: 2.2rem; }
-        }
-        @media (max-width: 768px) {
-            .header { padding: 0 0.8rem; }
-            .logo-icon-css { width: 34px; height: 34px; font-size: 0.8rem; }
-            .logo span { font-size: 1rem; }
-            .header-actions .btn span { display: inline; font-size: 0.55rem; }
-            .header-actions .btn { 
-                padding: 0.25rem 0.6rem; 
-                font-size: 0.6rem; 
-                min-width: 36px; 
-                justify-content: center; 
-            }
-            #adminBtn { display: inline-flex !important; }
-            .menu-toggle { display: block; }
-            .main-nav {
-                display: none;
-                flex-direction: column;
-                align-items: stretch;
-                padding: 0.4rem 0.8rem;
-                top: var(--header-h);
-                background: #0A0E1A;
-                border-bottom: 1px solid rgba(201, 168, 76, 0.06);
-            }
-            .main-nav.mobile-open {
-                display: flex;
-                max-height: 480px;
-                padding: 0.5rem 0.8rem;
-                overflow-y: auto;
-            }
-            .nav-btn { 
-                width: 100%; 
-                text-align: center; 
-                padding: 0.4rem; 
-                font-size: 0.7rem; 
-            }
-            .hero {
-                height: 340px;
-                border-radius: 0 0 20px 20px;
-                margin-top: calc(var(--header-h) + 38px);
-            }
-            .hero-content h1 { font-size: 1.6rem; }
-            .hero-content p { font-size: 0.85rem; }
-            .hero-arrows .hero-arrow { width: 34px; height: 34px; font-size: 0.8rem; }
-            .hero-arrows { padding: 0 0.6rem; }
-            .services-quick .services-grid { 
-                grid-template-columns: repeat(5, 1fr); 
-                gap: 0.15rem; 
-                padding: 0.4rem 0.1rem; 
-            }
-            .services-quick .service-item .icon { font-size: 1.1rem; }
-            .services-quick .service-item h4 { font-size: 0.55rem; }
-            .services-quick .service-item p { display: none; }
-            .countdown-bar .countdown-timer { font-size: 0.85rem; gap: 0.3rem; }
-            .countdown-bar .countdown-timer .time-block .num { font-size: 1rem; min-width: 18px; }
-            .countdown-bar .countdown-timer .time-block { padding: 0.1rem 0.4rem; }
-            .section { padding: 0 0.8rem; margin: 2rem auto; }
-            .section-header h2 { font-size: 1.5rem; }
-            .grid { grid-template-columns: 1fr; gap: 1rem; }
-            .schedule-grid { grid-template-columns: 1fr; }
-            .footer-content { grid-template-columns: 1fr; text-align: center; }
-            .footer .social-links { justify-content: center; }
-            .fab { width: 48px; height: 48px; font-size: 1.2rem; }
-            .fab-whatsapp { bottom: 20px; right: 14px; }
-            .fab-prayer { bottom: 76px; right: 14px; }
-            .fab-donation { bottom: 132px; right: 14px; }
-            .store-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.2rem; }
-            .studies-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.2rem; }
-            .store-card .store-body { padding: 1rem 1.1rem 1.2rem; }
-            .store-card .store-body .store-price { font-size: 1.2rem; }
-            .study-card .study-body { padding: 1rem 1.1rem 1.2rem; }
-        }
-        @media (max-width: 480px) {
-            .hero { height: 280px; }
-            .hero-content h1 { font-size: 1.3rem; }
-            .services-quick .services-grid { grid-template-columns: repeat(3, 1fr); }
-            .services-quick .service-item .icon { font-size: 1rem; }
-            .services-quick .service-item h4 { font-size: 0.5rem; }
-            .countdown-bar { padding: 0.5rem 0.8rem; }
-            .countdown-bar .countdown-timer .time-block .num { font-size: 0.85rem; }
-            .store-grid { grid-template-columns: 1fr; }
-            .studies-grid { grid-template-columns: 1fr; }
-            .store-card .store-body .store-actions { flex-direction: column; }
-            .study-card .study-body .study-actions { flex-direction: column; }
-            .study-card .study-body .btn-study { min-width: 100%; }
-            .store-card .store-image { padding-bottom: 60%; }
-            .study-card .study-image { padding-bottom: 50%; }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- ===== HEADER ===== -->
-    <header class="header" id="mainHeader">
-        <a href="/" class="logo">
-            <div class="logo-icon-css" id="mainLogoIcon">NJ</div>
-            <span>NJ Cabuçu <small>Igreja Nova Jerusalém</small></span>
-        </a>
-        <div class="header-actions">
-            <button onclick="openBibleModal()" class="btn btn-bible btn-sm" title="Bíblia">
-                <i class="fas fa-bible"></i> <span>Bíblia</span>
-            </button>
-            <a href="#live" class="btn btn-live btn-sm" id="liveNavBtn" style="display:none;" onclick="scrollToSection('live')">
-                <i class="fas fa-circle"></i> <span>AO VIVO</span>
-            </a>
-            <a href="https://wa.me/5521985345627" target="_blank" class="btn btn-whatsapp btn-sm" id="whatsappBtn">
-                <i class="fab fa-whatsapp"></i> <span>WhatsApp</span>
-            </a>
-            <a href="/login" class="btn btn-outline-light btn-sm" id="adminBtn">
-                <i class="fas fa-user"></i> <span>Área Interna</span>
-            </a>
-            <button class="menu-toggle" onclick="toggleMobileMenu()" aria-label="Menu">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-    </header>
-
-    <!-- ===== NAV ===== -->
-    <nav class="main-nav" id="mainNav">
-        <button onclick="scrollToSection('home')" class="nav-btn active"><i class="fas fa-home"></i> Início</button>
-        <button onclick="scrollToSection('sobre')" class="nav-btn"><i class="fas fa-info-circle"></i> Sobre</button>
-        <button onclick="scrollToSection('live')" class="nav-btn" id="liveNavBtn2"><i class="fas fa-broadcast-tower"></i> Live</button>
-        <button onclick="scrollToSection('eventos')" class="nav-btn"><i class="fas fa-calendar"></i> Eventos</button>
-        <button onclick="scrollToSection('estudos')" class="nav-btn"><i class="fas fa-book"></i> Estudos</button>
-        <button onclick="scrollToSection('loja')" class="nav-btn"><i class="fas fa-store"></i> NJ Store</button>
-        <button onclick="scrollToSection('celulas')" class="nav-btn"><i class="fas fa-users"></i> Células</button>
-        <button onclick="scrollToSection('dizimos')" class="nav-btn"><i class="fas fa-hand-holding-heart"></i> Dízimos</button>
-        <button onclick="scrollToSection('oracao')" class="nav-btn"><i class="fas fa-pray"></i> Oração</button>
-        <button onclick="scrollToSection('inscricoes')" class="nav-btn"><i class="fas fa-clipboard-list"></i> Inscrições</button>
-        <button onclick="scrollToSection('aniversariantes')" class="nav-btn"><i class="fas fa-birthday-cake"></i> Aniversários</button>
-        <button onclick="scrollToSection('reflexoes')" class="nav-btn"><i class="fas fa-video"></i> Reflexões</button>
-    </nav>
-
-    <!-- ===== INSTALL BANNER ===== -->
-    <div class="install-banner" id="installBanner">
-        <div class="banner-left">
-            <div class="banner-icon">
-                <i class="fas fa-download"></i>
-            </div>
-            <div class="banner-text">
-                <h4>📱 NJ Cabuçu</h4>
-                <p>Instale o app na tela inicial do seu celular</p>
-            </div>
-        </div>
-        <div class="banner-actions">
-            <button class="btn-install" id="installBtn">
-                <i class="fas fa-download"></i>
-                Instalar
-            </button>
-            <button class="btn-close-banner" id="closeBannerBtn" aria-label="Fechar">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    </div>
-
-    <button class="install-fab" id="installFab">
-        <i class="fas fa-download"></i>
-        <span>Instalar App</span>
-    </button>
-
-    <!-- ===== HERO ===== -->
-    <section id="home" class="hero">
-        <div class="hero-slides" id="heroSlides"></div>
-        <div class="hero-arrows">
-            <button class="hero-arrow" onclick="changeSlide(-1)">❮</button>
-            <button class="hero-arrow" onclick="changeSlide(1)">❯</button>
-        </div>
-        <div class="hero-controls" id="heroControls"></div>
-        <div class="hero-live-badge" id="heroLiveBadge">
-            <i class="fas fa-circle"></i> AO VIVO
-        </div>
-    </section>
-
-    <!-- ===== LIVE BAR ===== -->
-    <div class="live-bar" id="liveBar">
-        <div class="live-indicator"><i class="fas fa-circle"></i> AO VIVO</div>
-        <div class="live-info"><strong id="liveBarTitle">Culto</strong> <span id="liveBarDesc">- Transmissão ao vivo</span></div>
-        <button class="btn-watch" onclick="scrollToSection('live')">Assistir <i class="fas fa-chevron-right"></i></button>
-    </div>
-
-    <!-- ===== COUNTDOWN ===== -->
-    <div class="countdown-section">
-        <div class="countdown-bar" id="countdownBar">
-            <div class="countdown-label">📅 Próximo Culto</div>
-            <div class="countdown-timer" id="countdownTimer">
-                <span class="time-block"><span class="num" id="cdDays">0</span><span class="label">d</span></span>
-                <span class="time-block"><span class="num" id="cdHours">0</span><span class="label">h</span></span>
-                <span class="time-block"><span class="num" id="cdMinutes">0</span><span class="label">min</span></span>
-                <span class="time-block"><span class="num" id="cdSeconds">0</span><span class="label">s</span></span>
-            </div>
-            <div class="next-culto-label" id="nextCultoLabel">Domingo às 18:00</div>
-        </div>
-    </div>
-
-    <!-- ===== SERVICES QUICK ===== -->
-    <div class="services-quick">
-        <div class="services-grid">
-            <a href="#live" class="service-item" onclick="scrollToSection('live')">
-                <div class="icon"><i class="fas fa-broadcast-tower"></i></div>
-                <h4>Ao Vivo</h4>
-                <p>Assista</p>
-            </a>
-            <a href="#dizimos" class="service-item" onclick="scrollToSection('dizimos')">
-                <div class="icon"><i class="fas fa-hand-holding-heart"></i></div>
-                <h4>Dízimo</h4>
-                <p>Contribua</p>
-            </a>
-            <a href="#oracao" class="service-item" onclick="scrollToSection('oracao')">
-                <div class="icon"><i class="fas fa-pray"></i></div>
-                <h4>Oração</h4>
-                <p>Peça</p>
-            </a>
-            <a href="#estudos" class="service-item" onclick="scrollToSection('estudos')">
-                <div class="icon"><i class="fas fa-book"></i></div>
-                <h4>Estudos</h4>
-                <p>Baixe</p>
-            </a>
-            <a href="#loja" class="service-item" onclick="scrollToSection('loja')">
-                <div class="icon"><i class="fas fa-store"></i></div>
-                <h4>Loja</h4>
-                <p>Produtos</p>
-            </a>
-        </div>
-    </div>
-
-    <!-- ===== SOBRE ===== -->
-    <section id="sobre" class="section">
-        <div class="section-header">
-            <span class="tag">Quem Somos</span>
-            <h2>Sobre Nós</h2>
-            <div class="line"></div>
-            <p class="subtitle">Conheça a história e missão da NJ Cabuçu</p>
-        </div>
-        <div class="grid">
-            <div class="card">
-                <div class="icon-wrapper"><i class="fas fa-heart"></i></div>
-                <h3>Nossa Missão</h3>
-                <p id="aboutMissionText">Levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.</p>
-            </div>
-            <div class="card">
-                <div class="icon-wrapper"><i class="fas fa-bible"></i></div>
-                <h3>Nossa Visão</h3>
-                <p id="aboutVisionText">Ser uma igreja relevante, que transforma vidas e impacta a comunidade com o evangelho.</p>
-            </div>
-            <div class="card">
-                <div class="icon-wrapper"><i class="fas fa-hand-holding-heart"></i></div>
-                <h3>Nossos Valores</h3>
-                <p id="aboutValuesText">Amor, fé, esperança, serviço e comunhão. Vivemos os valores do Reino de Deus.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== REFLEXÕES ===== -->
-    <section id="reflexoes" class="section">
-        <div class="section-header">
-            <span class="tag">Palavra do Pastor</span>
-            <h2>🎥 Reflexões</h2>
-            <div class="line"></div>
-            <p class="subtitle">Mensagens edificantes para o seu dia</p>
-        </div>
-        <div class="grid" id="reflectionsList">
-            <p style="text-align:center;color:var(--text-muted);grid-column:1/-1;">Carregando reflexões...</p>
-        </div>
-    </section>
-
-    <!-- ===== EVENTOS ===== -->
-    <section id="eventos" class="section">
-        <div class="section-header">
-            <span class="tag">Agenda</span>
-            <h2>📅 Próximos Eventos</h2>
-            <div class="line"></div>
-            <p class="subtitle">Participe dos nossos eventos e cultos especiais</p>
-        </div>
-        <div class="grid" id="eventsList"></div>
-    </section>
-
-    <!-- ===== VERSÍCULO ===== -->
-    <div class="section">
-        <div class="verse-block">
-            <div class="verse-text">
-                "Cada um contribua segundo tiver proposto no coração, não com tristeza ou por necessidade; porque Deus ama ao que dá com alegria."
-            </div>
-            <span class="verse-ref">2 Coríntios 9:7</span>
-        </div>
-    </div>
-
-    <!-- ===== HORÁRIOS ===== -->
-    <section id="horarios" class="section">
-        <div class="section-header">
-            <span class="tag">Horários</span>
-            <h2>Horários dos Cultos</h2>
-            <div class="line"></div>
-            <p class="subtitle">Venha nos visitar e adorar a Deus conosco</p>
-        </div>
-        <div class="schedule-grid">
-            <div class="schedule-item">
-                <div class="day">Terça-feira</div>
-                <div class="time"><i class="fas fa-clock"></i> Consagração 09:00</div>
-                <div class="time"><i class="fas fa-clock"></i> GC 19:30</div>
-            </div>
-            <div class="schedule-item">
-                <div class="day">Quarta-feira</div>
-                <div class="time"><i class="fas fa-clock"></i> Quarta Power 19:30</div>
-            </div>
-            <div class="schedule-item">
-                <div class="day">Domingo</div>
-                <div class="time"><i class="fas fa-clock"></i> Manhã dos Discípulos 08:30</div>
-                <div class="time"><i class="fas fa-clock"></i> ✨ Culto de Celebração 18:00</div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== CÉLULAS ===== -->
-    <section id="celulas" class="section">
-        <div class="section-header">
-            <span class="tag">Comunhão</span>
-            <h2>🏠 Nossas Células</h2>
-            <div class="line"></div>
-            <p class="subtitle">Encontre uma célula perto de você e faça parte</p>
-        </div>
-        <div id="celulasList" class="grid"></div>
-    </section>
-
-    <!-- ===== ANIVERSARIANTES ===== -->
-    <section id="aniversariantes" class="section">
-        <div class="section-header">
-            <span class="tag">Celebração</span>
-            <h2>🎂 Aniversariantes do Mês</h2>
-            <div class="line"></div>
-            <p class="subtitle">Celebre com nossos irmãos que estão fazendo aniversário</p>
-        </div>
-        <div id="birthdayList" class="grid"></div>
-    </section>
-
-    <!-- ===== ESTUDOS ===== -->
-    <section id="estudos" class="section">
-        <div class="section-header">
-            <span class="tag">Aprofunde-se</span>
-            <h2>📖 Estudos Bíblicos</h2>
-            <div class="line"></div>
-            <p class="subtitle">Materiais para edificação da sua fé</p>
-        </div>
-        <div class="studies-grid" id="studiesList">
-            <div class="study-empty">
-                <i class="fas fa-book-open"></i>
-                <p>Carregando estudos...</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== LOJA (NOVA SEÇÃO BONITA) ===== -->
-    <section id="loja" class="section">
-        <div class="section-header">
-            <span class="tag">Loja Oficial</span>
-            <h2>🛍️ NJ Store</h2>
-            <div class="line"></div>
-            <p class="subtitle">Adquira produtos exclusivos e apoie a obra de Deus</p>
-        </div>
-        <div class="store-grid" id="productsList">
-            <div class="store-empty">
-                <i class="fas fa-store"></i>
-                <p>Carregando produtos...</p>
-            </div>
-        </div>
-        <div style="text-align:center;margin-top:2rem;">
-            <button onclick="openCart()" class="btn btn-primary" style="padding:0.8rem 2rem;font-size:0.95rem;">
-                <i class="fas fa-shopping-cart"></i> Ver Carrinho (<span id="cartCount">0</span>)
-            </button>
-        </div>
-    </section>
-
-    <!-- ===== DÍZIMOS ===== -->
-    <section id="dizimos" class="section">
-        <div class="section-header">
-            <span class="tag">Contribuição</span>
-            <h2>💝 Dízimos e Ofertas</h2>
-            <div class="line"></div>
-            <p class="subtitle">"Honra ao Senhor com os teus bens" — Provérbios 3:9</p>
-        </div>
-        <div class="tithe-options">
-            <button onclick="openDonationForm('Dízimo')" class="btn-donation">
-                <i class="fas fa-percent"></i> Dízimo
-            </button>
-            <button onclick="openDonationForm('Oferta')" class="btn-donation">
-                <i class="fas fa-hand-holding-heart"></i> Oferta
-            </button>
-            <button onclick="openDonationForm('Missões')" class="btn-donation">
-                <i class="fas fa-globe-americas"></i> Missões
-            </button>
-        </div>
-        <div id="donationResult" style="display:none;" class="text-center mt-1"></div>
-    </section>
-
-    <!-- ===== LIVE ===== -->
-    <section id="live" class="section" style="display:none;">
-        <div class="section-header">
-            <span class="tag">Ao Vivo</span>
-            <h2>📺 Transmissão ao Vivo</h2>
-            <div class="line"></div>
-            <p class="subtitle">Assista agora a transmissão ao vivo da NJ Cabuçu</p>
-        </div>
-        <div class="live-container">
-            <div class="live-player" id="livePlayer">
-                <div id="liveOffline" class="live-offline">
-                    <i class="fas fa-broadcast-tower"></i>
-                    <span>Nenhuma transmissão ao vivo no momento</span>
-                    <p>Fique ligado, em breve começaremos!</p>
-                </div>
-                <video id="remoteVideo" autoplay playsinline style="display:none;"></video>
-                <div id="liveBadge" class="live-badge" style="display:none;">
-                    <i class="fas fa-circle"></i> AO VIVO
-                </div>
-                <div id="liveInfoBox" class="live-info-box" style="display:none;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.3rem;">
-                        <div>
-                            <div id="liveTitleDisplay" class="live-title"></div>
-                            <div id="liveDescDisplay" class="live-desc"></div>
-                        </div>
-                        <div style="display:flex; align-items:center; gap:0.5rem;">
-                            <span id="liveViewerCount" class="live-viewers"><i class="fas fa-eye"></i> 0</span>
-                            <span class="live-dot">●</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div style="text-align:center; margin-top:0.5rem;">
-            <span style="font-size:0.6rem; color:var(--text-muted);">Clique no player para expandir</span>
-        </div>
-    </section>
-
-    <!-- ===== ORAÇÃO ===== -->
-    <section id="oracao" class="section">
-        <div class="section-header">
-            <span class="tag">Comunicação com Deus</span>
-            <h2>🙏 Pedidos de Oração</h2>
-            <div class="line"></div>
-            <p class="subtitle">Compartilhe seu pedido de oração conosco</p>
-        </div>
-        <div style="max-width:560px;margin:0 auto;">
-            <div class="form-group">
-                <label>Seu nome (opcional)</label>
-                <input type="text" id="prayerName" placeholder="Ex: João" style="width:100%; padding:0.7rem 1rem; border:2px solid #e8ecf2; border-radius:var(--radius-sm); font-size:0.9rem; font-family:var(--font); transition:var(--transition-fast); background:#fafbff;">
-            </div>
-            <div class="form-group" style="margin-top:0.8rem;">
-                <label>Seu pedido de oração *</label>
-                <textarea id="prayerRequest" rows="4" placeholder="Digite seu pedido aqui..." style="width:100%; padding:0.7rem 1rem; border:2px solid #e8ecf2; border-radius:var(--radius-sm); font-size:0.9rem; font-family:var(--font); transition:var(--transition-fast); background:#fafbff; resize:vertical;"></textarea>
-            </div>
-            <button onclick="submitPrayer()" class="btn btn-primary" style="width:100%;justify-content:center; padding:0.8rem; margin-top:0.8rem; font-size:0.9rem;">
-                <i class="fas fa-paper-plane"></i> Enviar Pedido
-            </button>
-            <div id="prayerMessage" style="display:none;margin-top:0.8rem;" class="notification"></div>
-        </div>
-    </section>
-
-    <!-- ===== INSCRIÇÕES ===== -->
-    <section id="inscricoes" class="section">
-        <div class="section-header">
-            <span class="tag">Participe</span>
-            <h2>📋 Inscrições</h2>
-            <div class="line"></div>
-            <p class="subtitle">Participe das nossas atividades</p>
-        </div>
-        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;margin-bottom:1.5rem;">
-            <button onclick="showRegistration('baptism')" class="btn btn-primary" style="padding:0.6rem 1.4rem;"><i class="fas fa-water"></i> Batismo</button>
-            <button onclick="showRegistration('volunteer')" class="btn btn-primary" style="padding:0.6rem 1.4rem;"><i class="fas fa-hands-helping"></i> Voluntário</button>
-            <button onclick="showRegistration('event')" class="btn btn-primary" style="padding:0.6rem 1.4rem;"><i class="fas fa-calendar-plus"></i> Evento</button>
-            <button onclick="showRegistration('department')" class="btn btn-primary" style="padding:0.6rem 1.4rem;"><i class="fas fa-users"></i> Departamento</button>
-        </div>
-        <div id="registrationForm" style="display:none; max-width:560px; margin:0 auto;"></div>
-        <div id="registrationResult" style="display:none; margin-top:1rem;"></div>
-    </section>
-
-    <!-- ===== ENDEREÇO ===== -->
-    <div class="section">
-        <div class="address-section">
-            <div class="address-card" onclick="openMaps()">
-                <div class="address-icon">📍</div>
-                <div class="address-text">Av. Abílio Augusto Távora, Lote 01, Quadra 03</div>
-                <div class="address-sub">Cabuçu, Nova Iguaçu - RJ</div>
-                <div class="address-actions">
-                    <button class="btn-map" onclick="event.stopPropagation(); openMaps();">
-                        <i class="fas fa-map-marked-alt"></i> Google Maps
-                    </button>
-                    <button class="btn-map waze" onclick="event.stopPropagation(); openWaze();">
-                        <i class="fas fa-location-dot"></i> Waze
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== FOOTER ===== -->
-    <footer class="footer">
-        <div class="footer-content">
-            <div>
-                <h4>Igreja Nova Jerusalém</h4>
-                <p>Uma igreja que ama, acolhe e transforma vidas através do amor de Cristo desde 1990.</p>
-                <div class="social-links">
-                    <a href="https://www.instagram.com/novajerusalemcabucu/" target="_blank"><i class="fab fa-instagram"></i></a>
-                    <a href="https://wa.me/5521985345627" target="_blank"><i class="fab fa-whatsapp"></i></a>
-                    <a href="#" target="_blank"><i class="fab fa-youtube"></i></a>
-                    <a href="#" target="_blank"><i class="fab fa-facebook"></i></a>
-                </div>
-            </div>
-            <div>
-                <h4>Links Rápidos</h4>
-                <p><a href="#home">Início</a></p>
-                <p><a href="#live">Ao Vivo</a></p>
-                <p><a href="#eventos">Eventos</a></p>
-                <p><a href="#estudos">Estudos</a></p>
-            </div>
-            <div>
-                <h4>Ministérios</h4>
-                <p>Louvor</p>
-                <p>Kids</p>
-                <p>Diaconia</p>
-            </div>
-            <div>
-                <h4>Contato</h4>
-                <p>Av. Abílio Augusto Távora, 532</p>
-                <p>Nova Iguaçu - RJ</p>
-                <p>(21) 98534-5627</p>
-                <p>contato@igrejanovajerusalem.com</p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>© 2026 Igreja Nova Jerusalém - Todos os direitos reservados</p>
-        </div>
-    </footer>
-
-    <!-- ===== FAB ===== -->
-    <a href="https://wa.me/5521985345627" target="_blank" class="fab fab-whatsapp" id="fabWhatsapp" title="WhatsApp">
-        <i class="fab fa-whatsapp"></i>
-    </a>
-    <button class="fab fab-prayer" onclick="scrollToSection('oracao')" title="Pedido de Oração">
-        <i class="fas fa-pray"></i>
-    </button>
-    <button class="fab fab-donation" onclick="scrollToSection('dizimos')" title="Doar">
-        <i class="fas fa-hand-holding-heart"></i>
-    </button>
-
-    <!-- ===== MODAIS ===== -->
-    <div class="modal modal-bible" id="bibleModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal('bibleModal')">&times;</button>
-            <h2 style="color:var(--primary);margin-bottom:1rem;font-family:'Playfair Display',serif;">📖 Bíblia Online</h2>
-            <div class="bible-container">
-                <div class="bible-input">
-                    <div class="form-group">
-                        <label>📚 Livro</label>
-                        <select id="bibleBook">
-                            <option value="gn">Gênesis</option><option value="ex">Êxodo</option>
-                            <option value="lv">Levítico</option><option value="nm">Números</option>
-                            <option value="dt">Deuteronômio</option><option value="js">Josué</option>
-                            <option value="jz">Juízes</option><option value="rt">Rute</option>
-                            <option value="1sm">1 Samuel</option><option value="2sm">2 Samuel</option>
-                            <option value="1rs">1 Reis</option><option value="2rs">2 Reis</option>
-                            <option value="1cr">1 Crônicas</option><option value="2cr">2 Crônicas</option>
-                            <option value="ed">Esdras</option><option value="ne">Neemias</option>
-                            <option value="et">Ester</option><option value="jo">Jó</option>
-                            <option value="sl" selected>Salmos</option><option value="pv">Provérbios</option>
-                            <option value="ec">Eclesiastes</option><option value="ct">Cânticos</option>
-                            <option value="is">Isaías</option><option value="jr">Jeremias</option>
-                            <option value="lm">Lamentações</option><option value="ez">Ezequiel</option>
-                            <option value="dn">Daniel</option><option value="os">Oseias</option>
-                            <option value="jl">Joel</option><option value="am">Amós</option>
-                            <option value="ob">Obadias</option><option value="jn">Jonas</option>
-                            <option value="mq">Miqueias</option><option value="na">Naum</option>
-                            <option value="hc">Habacuque</option><option value="sf">Sofonias</option>
-                            <option value="ag">Ageu</option><option value="zc">Zacarias</option>
-                            <option value="ml">Malaquias</option>
-                            <option value="mt">Mateus</option><option value="mc">Marcos</option>
-                            <option value="lc">Lucas</option><option value="joao">João</option>
-                            <option value="at">Atos</option><option value="rm">Romanos</option>
-                            <option value="1co">1 Coríntios</option><option value="2co">2 Coríntios</option>
-                            <option value="gl">Gálatas</option><option value="ef">Efésios</option>
-                            <option value="fp">Filipenses</option><option value="cl">Colossenses</option>
-                            <option value="1ts">1 Tessalonicenses</option><option value="2ts">2 Tessalonicenses</option>
-                            <option value="1tm">1 Timóteo</option><option value="2tm">2 Timóteo</option>
-                            <option value="tt">Tito</option><option value="fm">Filemom</option>
-                            <option value="hb">Hebreus</option><option value="tg">Tiago</option>
-                            <option value="1pe">1 Pedro</option><option value="2pe">2 Pedro</option>
-                            <option value="1jo">1 João</option><option value="2jo">2 João</option>
-                            <option value="3jo">3 João</option><option value="jd">Judas</option>
-                            <option value="ap">Apocalipse</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>📖 Capítulo</label>
-                        <input type="number" id="bibleChapter" value="23" min="1" step="1">
-                    </div>
-                    <div class="form-group">
-                        <label>✏️ Versículo (opcional)</label>
-                        <input type="number" id="bibleVerse" placeholder="Ex: 1" min="1" step="1">
-                    </div>
-                    <button onclick="searchBible()" class="btn btn-primary">
-                        <i class="fas fa-search"></i> Buscar
-                    </button>
-                    <button onclick="searchBibleRandom()" class="btn btn-primary" style="background:linear-gradient(135deg,#C9A84C,#D4B96A);color:#0A0E1A;">
-                        <i class="fas fa-random"></i> Versículo Aleatório
-                    </button>
-                </div>
-                <div class="bible-result" id="bibleResult">
-                    <p style="color:var(--text-muted);">Selecione um livro e capítulo para buscar</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="donationModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal('donationModal')">&times;</button>
-            <h3 id="donationTypeLabel" style="font-family:'Playfair Display',serif;color:var(--primary);margin-bottom:1rem;">💳 Dízimo</h3>
-            <div class="form-group"><label>Nome Completo *</label><input type="text" id="donationName"></div>
-            <div class="form-group"><label>E-mail *</label><input type="email" id="donationEmail"></div>
-            <div class="form-group"><label>Telefone *</label><input type="tel" id="donationPhone"></div>
-            <div class="form-group"><label>Valor (R$) *</label><input type="number" id="donationAmount" step="0.01" min="0.01" placeholder="10.00"></div>
-            <input type="hidden" id="donationType">
-            <button onclick="submitDonation()" class="btn btn-primary">
-                <i class="fas fa-credit-card"></i> Continuar para Pagamento
-            </button>
-        </div>
-    </div>
-
-    <div class="modal" id="paymentModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal('paymentModal')">&times;</button>
-            <h3 id="paymentTitle" style="font-family:'Playfair Display',serif;color:var(--primary);margin-bottom:1rem;">💳 Pagamento</h3>
-            <div id="paymentForm">
-                <div class="form-group"><label>Nome Completo *</label><input type="text" id="payName"></div>
-                <div class="form-group"><label>E-mail *</label><input type="email" id="payEmail"></div>
-                <div class="form-group"><label>Telefone *</label><input type="tel" id="payPhone"></div>
-                <div class="form-group"><label>CPF *</label><input type="text" id="payCpf" placeholder="000.000.000-00"></div>
-                <div class="form-group">
-                    <label>Forma de Pagamento</label>
-                    <select id="payMethod" onchange="togglePaymentMethod()">
-                        <option value="pix">PIX</option>
-                        <option value="card">Cartão de Crédito</option>
-                    </select>
-                </div>
-                <div id="cardFields" style="display:none;">
-                    <div class="form-group"><label>Número do Cartão</label><input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19"></div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Validade</label><input type="text" id="cardExpiry" placeholder="MM/AA"></div>
-                        <div class="form-group"><label>CVV</label><input type="text" id="cardCvv" placeholder="123" maxlength="4"></div>
-                    </div>
-                    <div class="form-group"><label>Parcelas</label>
-                        <select id="cardInstallments">
-                            <option value="1">1x</option><option value="2">2x</option>
-                            <option value="3">3x</option><option value="4">4x</option>
-                            <option value="5">5x</option><option value="6">6x</option>
-                        </select>
-                    </div>
-                </div>
-                <div id="paymentTotal" style="text-align:center;font-size:1.3rem;font-weight:700;color:var(--primary);margin:0.8rem 0;font-family:'Playfair Display',serif;"></div>
-                <button onclick="processPayment()" class="btn btn-primary">
-                    <i class="fas fa-credit-card"></i> Pagar
-                </button>
-            </div>
-            <div id="paymentResult" style="display:none;" class="text-center"></div>
-        </div>
-    </div>
-
-    <div class="modal" id="cartModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal('cartModal')">&times;</button>
-            <h3 style="font-family:'Playfair Display',serif;color:var(--primary);margin-bottom:1rem;"><i class="fas fa-shopping-cart"></i> Carrinho</h3>
-            <div id="cartItems"><p style="text-align:center;color:var(--text-muted);">Carrinho vazio</p></div>
-            <div id="cartTotal" style="text-align:center;font-size:1.3rem;font-weight:700;color:var(--primary);margin:0.8rem 0;font-family:'Playfair Display',serif;"></div>
-            <button onclick="checkout()" class="btn btn-primary">
-                <i class="fas fa-credit-card"></i> Finalizar Compra
-            </button>
-        </div>
-    </div>
-
-    <div id="paymentReturnPage" style="display:none;max-width:500px;margin:2rem auto;padding:2rem;background:#fff;border-radius:var(--radius);text-align:center;box-shadow:var(--shadow-xl);border:1px solid var(--border-color);">
-        <div class="icon" id="returnIcon" style="font-size:3.5rem;margin-bottom:0.8rem;color:#C9A84C;">⏳</div>
-        <h2 id="returnTitle" style="font-size:1.6rem;color:var(--primary);margin-bottom:0.6rem;font-family:'Playfair Display',serif;">Aguardando Confirmação</h2>
-        <div class="message-box" id="returnMessageBox" style="padding:0.8rem;border-radius:var(--radius-sm);margin:0.8rem 0;background:#fef7e0;color:#7a6100;border:1px solid #f5e3b0;">
-            <span id="returnMessage">Seu pagamento está sendo processado. Aguarde a confirmação.</span>
-        </div>
-        <div style="background:var(--bg);padding:1rem 1.2rem;border-radius:var(--radius-sm);margin:0.8rem 0;text-align:left;border:1px solid #eef1f6;">
-            <p style="font-size:0.85rem;"><span style="font-weight:600;">Status:</span> <span id="returnStatusText">Pendente</span></p>
-            <p style="font-size:0.85rem;"><span style="font-weight:600;">ID do Pagamento:</span> <span id="returnPaymentId">-</span></p>
-        </div>
-        <a href="/" class="btn btn-primary" style="justify-content:center;"><i class="fas fa-home"></i> Voltar ao Site</a>
-        <p style="margin-top:1rem;font-size:0.7rem;color:var(--text-muted);">NJ Cabuçu — "E conhecereis a verdade, e a verdade vos libertará."</p>
-    </div>
-
-    <script>
-        // ============================================
-        // ===== SERVICE WORKER =====
-        // ============================================
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => console.log('✅ SW registrado:', registration))
-                    .catch(error => console.log('❌ Erro SW:', error));
-            });
-        }
-
-        // ============================================
-        // ===== BOTÃO DE INSTALAÇÃO PWA =====
-        // ============================================
-        (function() {
-            'use strict';
-            let deferredPrompt = null;
-            let showBannerState = true;
-            const banner = document.getElementById('installBanner');
-            const fab = document.getElementById('installFab');
-            const installBtn = document.getElementById('installBtn');
-            const closeBtn = document.getElementById('closeBannerBtn');
-
-            function isStandalone() {
-                return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-            }
-            function isBannerClosed() {
-                try { return localStorage.getItem('pwa-banner-fechado') === 'true'; } catch { return false; }
-            }
-            function setBannerClosed() {
-                try { localStorage.setItem('pwa-banner-fechado', 'true'); } catch {}
-            }
-            function updateUI() {
-                if (isStandalone()) { banner.style.display = 'none'; fab.style.display = 'none'; return; }
-                if (isBannerClosed()) { banner.style.display = 'none'; fab.style.display = 'flex'; return; }
-                if (showBannerState) { banner.style.display = 'flex'; fab.style.display = 'none'; }
-                else { banner.style.display = 'none'; fab.style.display = 'flex'; }
-            }
-            async function handleInstall(e) {
-                if (e) e.preventDefault();
-                if (isStandalone()) {
-                    showNotificationToast('✅ App já está instalado!');
-                    banner.style.display = 'none'; fab.style.display = 'none'; return;
-                }
-                if (deferredPrompt) {
-                    try {
-                        deferredPrompt.prompt();
-                        const result = await deferredPrompt.userChoice;
-                        if (result.outcome === 'accepted') {
-                            banner.style.display = 'none'; fab.style.display = 'none'; setBannerClosed();
-                            showNotificationToast('✅ App instalado com sucesso! 🎉');
-                        } else { showNotificationToast('ℹ️ Instalação cancelada'); }
-                        deferredPrompt = null; return;
-                    } catch (error) { console.error('❌ Erro:', error); }
-                }
-                showAlternativeInstall();
-            }
-            function showAlternativeInstall() {
-                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                const isAndroid = /Android/.test(navigator.userAgent);
-                if (isIOS) alert('📱 Para instalar no iPhone/iPad:\n\n1. Toque em compartilhar 📤\n2. Role e toque em "Adicionar à Tela de Início"\n3. Toque em "Adicionar"');
-                else if (isAndroid) alert('📱 Para instalar no Android:\n\n1. Toque nos 3 pontos ⋮\n2. Selecione "Instalar app"\n3. Toque em "Instalar"');
-                else alert('📲 Para instalar:\n\n• Chrome/Edge: 3 pontos ⋮ → "Instalar app"');
-                showNotificationToast('💡 Siga as instruções para instalar o app');
-            }
-            function closeBanner() {
-                setBannerClosed(); showBannerState = false; updateUI();
-                showNotificationToast('💡 Para instalar, acesse o menu do navegador');
-            }
-            function showNotificationToast(message) {
-                const old = document.querySelector('.notification-toast');
-                if (old) old.remove();
-                const div = document.createElement('div');
-                div.className = 'notification-toast';
-                div.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#0A0E1A;color:#C9A84C;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:500;z-index:999999;max-width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.5);animation:fadeIn 0.3s ease;border:1px solid rgba(201,168,76,0.15);';
-                div.textContent = message;
-                document.body.appendChild(div);
-                setTimeout(() => {
-                    div.style.opacity = '0'; div.style.transition = 'opacity 0.4s';
-                    setTimeout(() => div.remove(), 400);
-                }, 4000);
-            }
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault(); deferredPrompt = e;
-                if (!isBannerClosed() && !isStandalone()) { showBannerState = true; updateUI(); }
-            });
-            window.addEventListener('appinstalled', () => {
-                banner.style.display = 'none'; fab.style.display = 'none'; setBannerClosed();
-                showNotificationToast('✅ App instalado com sucesso! 🎉');
-            });
-            if (installBtn) installBtn.addEventListener('click', handleInstall);
-            if (fab) fab.addEventListener('click', handleInstall);
-            if (closeBtn) closeBtn.addEventListener('click', closeBanner);
-            function init() {
-                if (isStandalone()) { banner.style.display = 'none'; fab.style.display = 'none'; return; }
-                if (isBannerClosed()) { showBannerState = false; updateUI(); return; }
-                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                if (isIOS) {
-                    setTimeout(() => {
-                        if (!isStandalone() && !isBannerClosed()) { showBannerState = true; updateUI(); }
-                    }, 2000); return;
-                }
-                setTimeout(() => {
-                    if (!deferredPrompt && !isStandalone() && !isBannerClosed()) { showBannerState = true; updateUI(); }
-                }, 2000);
-            }
-            init();
-        })();
-
-        // ============================================
-        // ===== MAPAS =====
-        // ============================================
-        function openMaps() {
-            const endereco = 'Av. Abílio Augusto Távora, Lote 01, Quadra 03, Cabuçu, Nova Iguaçu - RJ';
-            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`, '_blank');
-        }
-        function openWaze() {
-            const endereco = 'Av. Abílio Augusto Távora, Lote 01, Quadra 03, Cabuçu, Nova Iguaçu - RJ';
-            window.open(`https://waze.com/ul?q=${encodeURIComponent(endereco)}`, '_blank');
-        }
-
-        // ============================================
-        // ===== CONFIGURAÇÕES =====
-        // ============================================
-        async function loadSettings() {
-            try {
-                const res = await fetch('/api/settings');
-                const settings = await res.json();
-                if (settings.primary_color) document.documentElement.style.setProperty('--primary', settings.primary_color);
-                if (settings.site_title) document.title = settings.site_title;
-                if (settings.whatsapp) {
-                    const btn = document.getElementById('whatsappBtn');
-                    btn.href = 'https://wa.me/55' + settings.whatsapp;
-                    document.getElementById('fabWhatsapp').href = 'https://wa.me/55' + settings.whatsapp;
-                }
-                if (settings.about_mission) document.getElementById('aboutMissionText').textContent = settings.about_mission;
-                if (settings.about_vision) document.getElementById('aboutVisionText').textContent = settings.about_vision;
-                if (settings.about_values) document.getElementById('aboutValuesText').textContent = settings.about_values;
-                if (settings.site_logo) {
-                    const logoEl = document.getElementById('mainLogoIcon');
-                    if (logoEl) logoEl.innerHTML = `<img src="${settings.site_logo}" alt="Logo" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-                    let fav = document.querySelector("link[rel='icon']");
-                    if (!fav) { fav = document.createElement('link'); fav.rel = 'icon'; document.head.appendChild(fav); }
-                    fav.href = settings.site_logo;
-                }
-            } catch (e) { console.error('Erro ao carregar configurações:', e); }
-        }
-
-        // ============================================
-        // ===== VARIÁVEIS GLOBAIS =====
-        // ============================================
-        let cart = [];
-        let currentSlide = 0;
-        let slideInterval;
-        let slideCount = 0;
-        let departmentsList = [];
-        let carouselData = [];
-        let paymentType = 'sale';
-        let donationType = '';
-        let _donationAmount = 0;
-        let statusCheckInterval = null;
-        let baptismDatesList = [];
-        let eventsList = [];
-        let liveIntervalCheck = null;
-        let countdownInterval = null;
-        let cultosData = [];
-
-        // ============================================
-        // ===== CONTADOR =====
-        // ============================================
-        async function loadCultosFromServer() {
-            try {
-                const res = await fetch('/api/settings');
-                const settings = await res.json();
-                if (settings.cultos) {
-                    try { cultosData = JSON.parse(settings.cultos); }
-                    catch { cultosData = [ { dia: 0, hora: 18, minuto: 0, label: 'Domingo 18:00' }, { dia: 3, hora: 20, minuto: 0, label: 'Quarta 20:00' }, { dia: 2, hora: 9, minuto: 0, label: 'Terça 09:00' } ]; }
-                } else {
-                    cultosData = [ { dia: 0, hora: 18, minuto: 0, label: 'Domingo 18:00' }, { dia: 3, hora: 20, minuto: 0, label: 'Quarta 20:00' }, { dia: 2, hora: 9, minuto: 0, label: 'Terça 09:00' } ];
-                }
-                startCountdown();
-            } catch (e) {
-                console.error('Erro ao carregar cultos:', e);
-                cultosData = [ { dia: 0, hora: 18, minuto: 0, label: 'Domingo 18:00' }, { dia: 3, hora: 20, minuto: 0, label: 'Quarta 20:00' }, { dia: 2, hora: 9, minuto: 0, label: 'Terça 09:00' } ];
-                startCountdown();
-            }
-        }
-        function startCountdown() {
-            if (countdownInterval) clearInterval(countdownInterval);
-            updateCountdown();
-            countdownInterval = setInterval(updateCountdown, 1000);
-        }
-        function updateCountdown() {
-            const now = new Date();
-            let nextCulto = null;
-            let minDiff = Infinity;
-            for (const culto of cultosData) {
-                let target = new Date(now);
-                target.setHours(culto.hora, culto.minuto, 0, 0);
-                let diff = target - now;
-                if (diff < 0) { target.setDate(target.getDate() + 7); diff = target - now; }
-                const dayDiff = (culto.dia - target.getDay() + 7) % 7;
-                if (dayDiff > 0) { target.setDate(target.getDate() + dayDiff); diff = target - now; }
-                if (diff < minDiff && diff > 0) { minDiff = diff; nextCulto = { target, label: culto.label }; }
-            }
-            if (!nextCulto) {
-                const fallback = new Date(now);
-                fallback.setHours(18, 0, 0, 0);
-                if (fallback <= now) fallback.setDate(fallback.getDate() + 1);
-                nextCulto = { target: fallback, label: 'Domingo 18:00' };
-            }
-            const diff = Math.max(0, nextCulto.target - now);
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-            document.getElementById('cdDays').textContent = String(days).padStart(2, '0');
-            document.getElementById('cdHours').textContent = String(hours).padStart(2, '0');
-            document.getElementById('cdMinutes').textContent = String(minutes).padStart(2, '0');
-            document.getElementById('cdSeconds').textContent = String(seconds).padStart(2, '0');
-            document.getElementById('nextCultoLabel').textContent = `📖 ${nextCulto.label}`;
-        }
-
-        // ============================================
-        // ===== HEADER SCROLL =====
-        // ============================================
-        window.addEventListener('scroll', () => {
-            const header = document.getElementById('mainHeader');
-            if (header) header.classList.toggle('scrolled', window.scrollY > 50);
+// ============================================
+// ===== NJ CABUÇU - SERVIDOR COMPLETO =====
+// ============================================
+
+require('dotenv').config();
+console.log('🚀 Iniciando NJ Cabuçu...');
+
+const express = require('express');
+const cors = require('cors');
+const { neon } = require('@neondatabase/serverless');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const { MercadoPagoConfig, Payment } = require('mercadopago');
+const nodemailer = require('nodemailer');
+
+// ============================================
+// ===== CONEXÃO NEON =====
+// ============================================
+if (!process.env.DATABASE_URL) {
+    console.error('❌ DATABASE_URL não encontrada!');
+    process.exit(1);
+}
+const sql = neon(process.env.DATABASE_URL);
+console.log('✅ Conectado ao Neon Database');
+
+// ============================================
+// ===== MERCADO PAGO =====
+// ============================================
+let PaymentService = null;
+try {
+    if (process.env.MP_ACCESS_TOKEN) {
+        const client = new MercadoPagoConfig({
+            accessToken: process.env.MP_ACCESS_TOKEN,
+            options: { timeout: 30000 }
         });
+        PaymentService = new Payment(client);
+        console.log('✅ Mercado Pago configurado');
+    }
+} catch (error) {
+    console.log('⚠️ Erro MP:', error.message);
+}
 
-        // ============================================
-        // ===== MENU MOBILE =====
-        // ============================================
-        function toggleMobileMenu() {
-            document.getElementById('mainNav').classList.toggle('mobile-open');
-        }
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.getElementById('mainNav').classList.remove('mobile-open');
-            });
+// ============================================
+// ===== EMAIL (NODEMAILER) =====
+// ============================================
+let transporter = null;
+try {
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+        transporter = nodemailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            },
+            tls: {
+                rejectUnauthorized: false
+            }
         });
-
-        // ============================================
-        // ===== NAVEGAÇÃO =====
-        // ============================================
-        function scrollToSection(id) {
-            const el = document.getElementById(id);
-            if (el) {
-                const offset = 120;
-                const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
-                window.scrollTo({ top, behavior: 'smooth' });
-                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                const map = { 'home':'Início', 'sobre':'Sobre', 'live':'Live', 'eventos':'Eventos', 'estudos':'Estudos', 'loja':'NJ Store', 'celulas':'Células', 'dizimos':'Dízimos', 'oracao':'Oração', 'inscricoes':'Inscrições', 'aniversariantes':'Aniversários', 'reflexoes':'Reflexões' };
-                document.querySelectorAll('.nav-btn').forEach(b => {
-                    if (b.textContent.includes(map[id])) b.classList.add('active');
-                });
+        transporter.verify((error, success) => {
+            if (error) {
+                console.error('❌ Erro ao conectar email:', error.message);
+            } else {
+                console.log('✅ Email configurado e verificado!');
             }
+        });
+    } else {
+        console.log('⚠️ Credenciais de email não configuradas');
+    }
+} catch (error) {
+    console.log('⚠️ Erro email:', error.message);
+}
+
+// ============================================
+// ===== FUNÇÕES DE EMAIL =====
+// ============================================
+async function enviarEmailDizimoOferta(dados) {
+    console.log('📧 Enviando email de dízimo/oferta para:', dados.email);
+    
+    if (!transporter) {
+        console.log('⚠️ Email não configurado');
+        return false;
+    }
+
+    const { email, nome, tipo, valor, data, paymentId } = dados;
+    
+    if (!email || !email.includes('@')) {
+        console.log('⚠️ Email inválido:', email);
+        return false;
+    }
+
+    const tipoLabel = tipo === 'dizimo' ? 'Dízimo' : tipo === 'oferta' ? 'Oferta' : tipo === 'missoes' ? 'Missões' : tipo;
+    const tipoEmoji = tipo === 'dizimo' ? '💰' : tipo === 'oferta' ? '🎁' : '🌍';
+
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; background: #f5f7fa; }
+            .container { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+            .header { background: linear-gradient(135deg, #0D47A1, #1565C0); color: #fff; padding: 30px; text-align: center; }
+            .header h1 { margin: 0; font-size: 28px; }
+            .header p { margin: 8px 0 0; opacity: 0.9; font-size: 14px; }
+            .content { padding: 30px; }
+            .value-box { background: #e8f5e9; border-radius: 12px; padding: 20px; text-align: center; margin: 20px 0; }
+            .value-box .value { font-size: 36px; font-weight: 800; color: #2e7d32; }
+            .value-box .label { font-size: 14px; color: #666; }
+            .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; }
+            .info-row:last-child { border-bottom: none; }
+            .label { font-weight: 600; color: #555; }
+            .value { font-weight: 500; }
+            .footer { text-align: center; padding: 20px; background: #f8f9fa; font-size: 12px; color: #888; }
+            .verse { font-style: italic; color: #0D47A1; text-align: center; margin: 20px 0; font-size: 14px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>${tipoEmoji} NJ Cabuçu</h1>
+                <p>Confirmação de ${tipoLabel}</p>
+            </div>
+            <div class="content">
+                <p>Olá, <strong>${nome || 'Irmão(ã)'}</strong>!</p>
+                <p>Recebemos seu ${tipoLabel.toLowerCase()} e agradecemos de coração pela sua fidelidade e generosidade.</p>
+                
+                <div class="value-box">
+                    <div class="value">R$ ${parseFloat(valor || 0).toFixed(2)}</div>
+                    <div class="label">Valor do ${tipoLabel}</div>
+                </div>
+                
+                <div class="info-row">
+                    <span class="label">Data</span>
+                    <span class="value">${new Date(data).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">ID da Transação</span>
+                    <span class="value">${paymentId || '-'}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Tipo</span>
+                    <span class="value">${tipoLabel}</span>
+                </div>
+                
+                <div class="verse">
+                    "Cada um contribua segundo tiver proposto no coração, não com tristeza ou por necessidade; porque Deus ama ao que dá com alegria."<br>
+                    <strong>2 Coríntios 9:7</strong>
+                </div>
+            </div>
+            <div class="footer">
+                <p>NJ Cabuçu - Igreja Nova Jerusalém</p>
+                <p>Este é um email automático. Não é necessário responder.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    `;
+
+    try {
+        const info = await transporter.sendMail({
+            from: `"NJ Cabuçu" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: `${tipoEmoji} Confirmação de ${tipoLabel} - NJ Cabuçu`,
+            html: html
+        });
+        console.log('✅ Email enviado para:', email, 'ID:', info.messageId);
+        return true;
+    } catch (error) {
+        console.error('❌ Erro ao enviar email:', error.message);
+        return false;
+    }
+}
+
+async function enviarEmailCompra(dados) {
+    console.log('📧 Enviando email de compra para:', dados.email);
+    
+    if (!transporter) {
+        console.log('⚠️ Email não configurado');
+        return false;
+    }
+
+    const { email, nome, items, total, data, paymentId } = dados;
+    
+    if (!email || !email.includes('@')) {
+        console.log('⚠️ Email inválido:', email);
+        return false;
+    }
+
+    const itemsHtml = (items || []).map(item => `
+        <tr>
+            <td style="padding: 8px; border-bottom: 1px solid #eee;">${item.name}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity || 1}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right;">R$ ${parseFloat(item.price).toFixed(2)}</td>
+        </tr>
+    `).join('');
+
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; background: #f5f7fa; }
+            .container { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+            .header { background: linear-gradient(135deg, #0D47A1, #1565C0); color: #fff; padding: 30px; text-align: center; }
+            .header h1 { margin: 0; font-size: 28px; }
+            .header p { margin: 8px 0 0; opacity: 0.9; font-size: 14px; }
+            .content { padding: 30px; }
+            .value-box { background: #e8f5e9; border-radius: 12px; padding: 20px; text-align: center; margin: 20px 0; }
+            .value-box .value { font-size: 36px; font-weight: 800; color: #2e7d32; }
+            .value-box .label { font-size: 14px; color: #666; }
+            .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            .items-table th { background: #f8f9fa; padding: 10px; text-align: left; font-size: 12px; color: #666; text-transform: uppercase; }
+            .footer { text-align: center; padding: 20px; background: #f8f9fa; font-size: 12px; color: #888; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>🛍️ NJ Store</h1>
+                <p>Confirmação de Compra</p>
+            </div>
+            <div class="content">
+                <p>Olá, <strong>${nome || 'Cliente'}</strong>!</p>
+                <p>Sua compra foi confirmada com sucesso! Obrigado por apoiar a obra de Deus.</p>
+                
+                <div class="value-box">
+                    <div class="value">R$ ${parseFloat(total || 0).toFixed(2)}</div>
+                    <div class="label">Total da Compra</div>
+                </div>
+                
+                <h3 style="color: #0D47A1;">Itens do Pedido</h3>
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th style="text-align: center;">Qtd</th>
+                            <th style="text-align: right;">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${itemsHtml}
+                    </tbody>
+                </table>
+                
+                <div class="info-row">
+                    <span class="label">Data</span>
+                    <span class="value">${new Date(data).toLocaleDateString('pt-BR')}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">ID do Pedido</span>
+                    <span class="value">${paymentId || '-'}</span>
+                </div>
+            </div>
+            <div class="footer">
+                <p>NJ Cabuçu - Igreja Nova Jerusalém</p>
+                <p>Este é um email automático. Não é necessário responder.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    `;
+
+    try {
+        const info = await transporter.sendMail({
+            from: `"NJ Cabuçu" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: `🛍️ Confirmação de Compra - NJ Store`,
+            html: html
+        });
+        console.log('✅ Email de compra enviado para:', email, 'ID:', info.messageId);
+        return true;
+    } catch (error) {
+        console.error('❌ Erro ao enviar email:', error.message);
+        return false;
+    }
+}
+
+// ============================================
+// ===== APP =====
+// ============================================
+const app = express();
+const PORT = process.env.PORT || 3000;
+const BASE_URL = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
+
+app.use(cors({
+    origin: ['https://igrejanjcabucurj.vercel.app', 'http://localhost:3000', 'http://localhost:3001'],
+    credentials: true
+}));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// ============================================
+// ===== MULTER =====
+// ============================================
+const storage = multer.memoryStorage();
+
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 10 * 1024 * 1024 },
+    fileFilter: function (req, file, cb) {
+        const allowedTypes = /jpeg|jpg|png|gif|webp|pdf|svg/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype) || file.mimetype === 'image/svg+xml';
+        
+        if (mimetype && extname) {
+            return cb(null, true);
+        } else {
+            cb(new Error('Apenas imagens e PDFs são permitidos!'));
+        }
+    }
+});
+
+const uploadFields = upload.fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'file', maxCount: 1 }
+]);
+
+// ============================================
+// ===== ROTAS PWA =====
+// ============================================
+app.get('/manifest.json', (req, res) => {
+    const filePath = path.join(__dirname, 'public', 'manifest.json');
+    if (fs.existsSync(filePath)) {
+        res.setHeader('Content-Type', 'application/json');
+        res.sendFile(filePath);
+    } else {
+        res.status(404).json({ error: 'manifest.json não encontrado' });
+    }
+});
+
+app.get('/sw.js', (req, res) => {
+    const filePath = path.join(__dirname, 'public', 'sw.js');
+    if (fs.existsSync(filePath)) {
+        res.setHeader('Content-Type', 'application/javascript');
+        res.setHeader('Service-Worker-Allowed', '/');
+        res.sendFile(filePath);
+    } else {
+        res.status(404).json({ error: 'sw.js não encontrado' });
+    }
+});
+
+app.get('/icons/:file', (req, res) => {
+    const filePath = path.join(__dirname, 'public', 'icons', req.params.file);
+    if (fs.existsSync(filePath)) {
+        res.sendFile(filePath);
+    } else {
+        res.status(404).json({ error: 'Ícone não encontrado' });
+    }
+});
+
+// ============================================
+// ===== FUNÇÕES DE AUTENTICAÇÃO =====
+// ============================================
+const hashPassword = async (pwd) => await bcrypt.hash(pwd, 10);
+const verifyPassword = async (pwd, hash) => await bcrypt.compare(pwd, hash);
+
+const auth = (req, res, next) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'Não autorizado' });
+    try {
+        req.user = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+        next();
+    } catch {
+        res.status(401).json({ error: 'Token inválido' });
+    }
+};
+
+const pastorOnly = (req, res, next) => {
+    if (req.user?.role !== 'pastor') {
+        return res.status(403).json({ error: 'Apenas o pastor' });
+    }
+    next();
+};
+
+// ============================================
+// ===== INICIALIZAR BANCO =====
+// ============================================
+async function initDB() {
+    console.log('📝 Criando/Verificando tabelas...');
+    
+    try {
+        // USERS
+        await sql`CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            email VARCHAR(100) UNIQUE NOT NULL,
+            password_hash VARCHAR(255) NOT NULL,
+            role VARCHAR(50) DEFAULT 'colaborador',
+            department_id INTEGER,
+            department_name VARCHAR(100),
+            first_login BOOLEAN DEFAULT true,
+            phone VARCHAR(20),
+            is_leader BOOLEAN DEFAULT false,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // DEPARTMENTS
+        await sql`CREATE TABLE IF NOT EXISTS departments (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            leader_id INTEGER,
+            description TEXT,
+            is_active BOOLEAN DEFAULT true,
+            created_by INTEGER,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // DEPARTMENT MEMBERS
+        await sql`CREATE TABLE IF NOT EXISTS department_members (
+            department_id INTEGER,
+            user_id INTEGER,
+            role VARCHAR(50) DEFAULT 'membro',
+            joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (department_id, user_id)
+        )`;
+
+        // STUDIES
+        await sql`CREATE TABLE IF NOT EXISTS studies (
+            id SERIAL PRIMARY KEY,
+            title VARCHAR(200) NOT NULL,
+            description TEXT,
+            file_url VARCHAR(500),
+            image_url VARCHAR(500),
+            image_base64 TEXT,
+            file_base64 TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // PRODUCTS
+        await sql`CREATE TABLE IF NOT EXISTS products (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(200) NOT NULL,
+            description TEXT,
+            price DECIMAL(10,2) NOT NULL,
+            image_url VARCHAR(500),
+            image_base64 TEXT,
+            stock INTEGER DEFAULT 0,
+            category VARCHAR(100),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // EVENTS
+        await sql`CREATE TABLE IF NOT EXISTS events (
+            id SERIAL PRIMARY KEY,
+            title VARCHAR(200) NOT NULL,
+            description TEXT,
+            date TIMESTAMP NOT NULL,
+            image_url VARCHAR(500),
+            image_base64 TEXT,
+            price DECIMAL(10,2) DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // PRAYERS
+        await sql`CREATE TABLE IF NOT EXISTS prayers (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100),
+            request TEXT NOT NULL,
+            is_read BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // ORDERS
+        await sql`CREATE TABLE IF NOT EXISTS orders (
+            id SERIAL PRIMARY KEY,
+            user_name VARCHAR(100),
+            user_email VARCHAR(100),
+            user_phone VARCHAR(20),
+            items TEXT,
+            total DECIMAL(10,2) NOT NULL,
+            status VARCHAR(50) DEFAULT 'pending',
+            payment_id VARCHAR(100),
+            payment_method VARCHAR(50),
+            email_sent BOOLEAN DEFAULT false,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // Garantir coluna email_sent em orders
+        await sql`
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='orders' AND column_name='email_sent') THEN
+                    ALTER TABLE orders ADD COLUMN email_sent BOOLEAN DEFAULT false;
+                END IF;
+            END $$;
+        `;
+
+        // REGISTRATIONS
+        await sql`CREATE TABLE IF NOT EXISTS registrations (
+            id SERIAL PRIMARY KEY,
+            type VARCHAR(50) NOT NULL,
+            name VARCHAR(100) NOT NULL,
+            email VARCHAR(100),
+            phone VARCHAR(20),
+            department_name VARCHAR(100),
+            event_name VARCHAR(200),
+            details TEXT,
+            status VARCHAR(50) DEFAULT 'pending',
+            amount DECIMAL(10,2) DEFAULT 0,
+            is_paid BOOLEAN DEFAULT false,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // DONATIONS
+        await sql`CREATE TABLE IF NOT EXISTS donations (
+            id SERIAL PRIMARY KEY,
+            user_name VARCHAR(100),
+            user_email VARCHAR(100),
+            user_phone VARCHAR(20),
+            type VARCHAR(50) NOT NULL,
+            amount DECIMAL(10,2) NOT NULL,
+            payment_id VARCHAR(100),
+            payment_method VARCHAR(50),
+            status VARCHAR(50) DEFAULT 'pending',
+            email_sent BOOLEAN DEFAULT false,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // Garantir coluna email_sent em donations
+        await sql`
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='donations' AND column_name='email_sent') THEN
+                    ALTER TABLE donations ADD COLUMN email_sent BOOLEAN DEFAULT false;
+                END IF;
+            END $$;
+        `;
+
+        // CAROUSEL
+        await sql`CREATE TABLE IF NOT EXISTS carousel_images (
+            id SERIAL PRIMARY KEY,
+            title VARCHAR(200),
+            subtitle VARCHAR(200),
+            description TEXT,
+            image_url VARCHAR(500),
+            image_base64 TEXT,
+            link VARCHAR(500),
+            order_position INTEGER DEFAULT 0,
+            active BOOLEAN DEFAULT true,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // SITE SETTINGS
+        await sql`CREATE TABLE IF NOT EXISTS site_settings (
+            id SERIAL PRIMARY KEY,
+            key VARCHAR(100) UNIQUE NOT NULL,
+            value TEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // MEMBERS
+        await sql`CREATE TABLE IF NOT EXISTS members (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            email VARCHAR(100),
+            phone VARCHAR(20),
+            birth_date DATE,
+            marital_status VARCHAR(20) DEFAULT 'solteiro',
+            spouse_name VARCHAR(100),
+            children TEXT,
+            baptism_date DATE,
+            baptism_place VARCHAR(100),
+            address TEXT,
+            department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
+            department_name VARCHAR(100),
+            is_active BOOLEAN DEFAULT true,
+            joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            notes TEXT,
+            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // ATTENDANCE
+        await sql`CREATE TABLE IF NOT EXISTS attendance (
+            id SERIAL PRIMARY KEY,
+            member_id INTEGER REFERENCES members(id) ON DELETE CASCADE,
+            event_date DATE NOT NULL,
+            service_type VARCHAR(50) DEFAULT 'domingo',
+            present BOOLEAN DEFAULT false,
+            check_in_time TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(member_id, event_date, service_type)
+        )`;
+
+        // TITHES
+        await sql`CREATE TABLE IF NOT EXISTS tithes (
+            id SERIAL PRIMARY KEY,
+            member_id INTEGER REFERENCES members(id) ON DELETE SET NULL,
+            member_name VARCHAR(100),
+            type VARCHAR(20) NOT NULL,
+            amount DECIMAL(10,2) NOT NULL,
+            payment_method VARCHAR(20) DEFAULT 'dinheiro',
+            payment_date DATE DEFAULT CURRENT_DATE,
+            description TEXT,
+            received_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // BILLS
+        await sql`CREATE TABLE IF NOT EXISTS bills (
+            id SERIAL PRIMARY KEY,
+            description VARCHAR(200) NOT NULL,
+            category VARCHAR(50) NOT NULL,
+            amount DECIMAL(10,2) NOT NULL,
+            due_date DATE NOT NULL,
+            paid BOOLEAN DEFAULT false,
+            payment_date DATE,
+            payment_method VARCHAR(20),
+            notes TEXT,
+            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // BAPTISM DATES
+        await sql`CREATE TABLE IF NOT EXISTS baptism_dates (
+            id SERIAL PRIMARY KEY,
+            date TIMESTAMP NOT NULL,
+            title VARCHAR(200) DEFAULT 'Batismo',
+            description TEXT,
+            max_participants INTEGER DEFAULT 20,
+            current_participants INTEGER DEFAULT 0,
+            is_active BOOLEAN DEFAULT true,
+            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // CÉLULAS
+        await sql`CREATE TABLE IF NOT EXISTS celulas (
+            id SERIAL PRIMARY KEY,
+            nome VARCHAR(100) NOT NULL,
+            lider_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            endereco TEXT,
+            dias_reuniao VARCHAR(100),
+            horario VARCHAR(50),
+            descricao TEXT,
+            is_active BOOLEAN DEFAULT true,
+            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS celula_membros (
+            id SERIAL PRIMARY KEY,
+            celula_id INTEGER REFERENCES celulas(id) ON DELETE CASCADE,
+            membro_id INTEGER REFERENCES members(id) ON DELETE CASCADE,
+            data_entrada DATE DEFAULT CURRENT_DATE,
+            is_active BOOLEAN DEFAULT true,
+            UNIQUE(celula_id, membro_id)
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS celula_estatisticas (
+            id SERIAL PRIMARY KEY,
+            celula_id INTEGER REFERENCES celulas(id) ON DELETE CASCADE,
+            data_registro DATE DEFAULT CURRENT_DATE,
+            total_membros INTEGER DEFAULT 0,
+            batizados INTEGER DEFAULT 0,
+            aceitaram_jesus INTEGER DEFAULT 0,
+            visitantes INTEGER DEFAULT 0,
+            novo_membros INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(celula_id, data_registro)
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS celula_decisoes (
+            id SERIAL PRIMARY KEY,
+            celula_id INTEGER REFERENCES celulas(id) ON DELETE CASCADE,
+            membro_id INTEGER REFERENCES members(id) ON DELETE SET NULL,
+            tipo VARCHAR(20) NOT NULL,
+            data_decisao DATE DEFAULT CURRENT_DATE,
+            observacao TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // LIVES
+        await sql`CREATE TABLE IF NOT EXISTS lives (
+            id SERIAL PRIMARY KEY,
+            titulo VARCHAR(200) NOT NULL,
+            descricao TEXT,
+            status VARCHAR(20) DEFAULT 'offline',
+            stream_key VARCHAR(100) UNIQUE,
+            iniciada_por INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            started_at TIMESTAMP,
+            ended_at TIMESTAMP,
+            viewers INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        await sql`CREATE TABLE IF NOT EXISTS live_viewers (
+            id SERIAL PRIMARY KEY,
+            live_id INTEGER REFERENCES lives(id) ON DELETE CASCADE,
+            viewer_id VARCHAR(100),
+            joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            left_at TIMESTAMP
+        )`;
+
+        // REFLEXÕES
+        await sql`CREATE TABLE IF NOT EXISTS pastor_reflections (
+            id SERIAL PRIMARY KEY,
+            title VARCHAR(200) NOT NULL,
+            description TEXT,
+            link VARCHAR(500) NOT NULL,
+            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // MÚSICAS
+        await sql`CREATE TABLE IF NOT EXISTS songs (
+            id SERIAL PRIMARY KEY,
+            title VARCHAR(200) NOT NULL,
+            artist VARCHAR(100),
+            key VARCHAR(10) DEFAULT 'C',
+            lyrics TEXT,
+            youtube_url VARCHAR(500),
+            department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE,
+            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // ESCALAS
+        await sql`CREATE TABLE IF NOT EXISTS worship_scales (
+            id SERIAL PRIMARY KEY,
+            department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE,
+            event_date TIMESTAMP NOT NULL,
+            leader_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            minister_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            songs jsonb DEFAULT '[]'::jsonb,
+            song_ids jsonb DEFAULT '[]'::jsonb,
+            palette VARCHAR(200),
+            rehearsal BOOLEAN DEFAULT false,
+            musician_ids jsonb DEFAULT '[]'::jsonb,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
+        // DISPONIBILIDADE
+        await sql`CREATE TABLE IF NOT EXISTS availability (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            date DATE NOT NULL,
+            department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, date)
+        )`;
+
+        console.log('✅ Todas as tabelas verificadas/criadas');
+
+        const existing = await sql`SELECT * FROM users WHERE email = 'pastor@njcabucu.com'`;
+        if (existing.length === 0) {
+            const hash = await hashPassword('admin123');
+            await sql`
+                INSERT INTO users (name, email, password_hash, role, department_name, first_login, is_leader)
+                VALUES ('Pastor', 'pastor@njcabucu.com', ${hash}, 'pastor', 'Administração', false, true)
+            `;
+            console.log('✅ Pastor criado: pastor@njcabucu.com / admin123');
         }
 
-        // ============================================
-        // ===== CARROSSEL =====
-        // ============================================
-        async function loadCarouselFromServer() {
-            try {
-                const res = await fetch('/api/carousel');
-                const data = await res.json();
-                if (data && data.length > 0) { carouselData = data; }
-                else {
-                    carouselData = [
-                        { title: '🙏 Bem-Vindo à NJ Cabuçu', subtitle: 'Uma comunidade que ama a Deus e ao próximo', description: 'A NJ Cabuçu é uma comunidade cristã dedicada a levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.', image_url: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1200&h=500&fit=crop&crop=center', link: '#sobre' },
-                        { title: '🎶 Venha nos Louvar', subtitle: 'Nossos cultos são cheios de adoração', description: 'Nossos cultos são marcados por louvores vibrantes e adoração sincera. Venha experimentar a presença de Deus!', image_url: 'https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1200&h=500&fit=crop&crop=center', link: '#eventos' },
-                        { title: '🤝 Faça Parte', subtitle: 'Junte-se a nós e faça a diferença', description: 'Acreditamos que a igreja não é um lugar, mas um povo. Venha fazer parte da nossa família!', image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1200&h=500&fit=crop&crop=center', link: '#inscricoes' }
-                    ];
-                }
-                renderCarousel();
-            } catch (e) {
-                console.error('Erro ao carregar carrossel:', e);
-                carouselData = [
-                    { title: '🙏 Bem-Vindo à NJ Cabuçu', subtitle: 'Uma comunidade que ama a Deus e ao próximo', description: 'A NJ Cabuçu é uma comunidade cristã dedicada a levar o amor de Deus a todas as pessoas.', image_url: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1200&h=500&fit=crop&crop=center', link: '#sobre' },
-                    { title: '🎶 Venha nos Louvar', subtitle: 'Nossos cultos são cheios de adoração', description: 'Nossos cultos são marcados por louvores vibrantes e adoração sincera. Venha experimentar a presença de Deus!', image_url: 'https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1200&h=500&fit=crop&crop=center', link: '#eventos' },
-                    { title: '🤝 Faça Parte', subtitle: 'Junte-se a nós e faça a diferença', description: 'Acreditamos que a igreja não é um lugar, mas um povo. Venha fazer parte da nossa família!', image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1200&h=500&fit=crop&crop=center', link: '#inscricoes' }
-                ];
-                renderCarousel();
+        console.log('🎉 Sistema pronto!');
+    } catch (error) {
+        console.error('❌ Erro:', error.message);
+    }
+}
+
+initDB();
+
+// ============================================
+// ===== AUTENTICAÇÃO =====
+// ============================================
+
+app.post('/api/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const users = await sql`SELECT * FROM users WHERE email = ${email}`;
+        if (users.length === 0) return res.status(401).json({ error: 'Usuário não encontrado' });
+        
+        const user = users[0];
+        const valid = await verifyPassword(password, user.password_hash);
+        if (!valid) return res.status(401).json({ error: 'Senha incorreta' });
+
+        const token = jwt.sign(
+            { id: user.id, email: user.email, role: user.role, is_leader: user.is_leader },
+            process.env.JWT_SECRET || 'secret',
+            { expiresIn: '7d' }
+        );
+
+        res.json({
+            token,
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                department_id: user.department_id,
+                department_name: user.department_name,
+                first_login: user.first_login || false,
+                phone: user.phone || '',
+                is_leader: user.is_leader || false
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/change-password', async (req, res) => {
+    try {
+        const { email, currentPassword, newPassword } = req.body;
+        const users = await sql`SELECT * FROM users WHERE email = ${email}`;
+        if (users.length === 0) return res.status(404).json({ error: 'Usuário não encontrado' });
+
+        const user = users[0];
+        if (!user.first_login && currentPassword) {
+            const valid = await verifyPassword(currentPassword, user.password_hash);
+            if (!valid) return res.status(401).json({ error: 'Senha atual incorreta' });
+        }
+
+        const hash = await hashPassword(newPassword);
+        await sql`UPDATE users SET password_hash = ${hash}, first_login = false WHERE id = ${user.id}`;
+        res.json({ message: 'Senha alterada com sucesso!' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== USUÁRIOS =====
+// ============================================
+
+app.get('/api/users', auth, async (req, res) => {
+    try {
+        let users;
+        if (req.user.role === 'pastor') {
+            users = await sql`
+                SELECT id, name, email, role, department_id, department_name, phone, first_login, is_leader, created_at
+                FROM users ORDER BY name
+            `;
+        } else {
+            const deptId = req.user.department_id;
+            if (!deptId) return res.json([]);
+            users = await sql`
+                SELECT id, name, email, role, department_id, department_name, phone, first_login, is_leader, created_at
+                FROM users WHERE department_id = ${deptId}
+                ORDER BY name
+            `;
+        }
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/users/all', auth, async (req, res) => {
+    try {
+        const users = await sql`
+            SELECT id, name, email, role, department_id, department_name, phone, first_login, is_leader, created_at
+            FROM users ORDER BY name
+        `;
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/users', auth, pastorOnly, async (req, res) => {
+    try {
+        const { name, email, password, role, department_name, phone, is_leader, department_id } = req.body;
+        
+        const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
+        if (existing.length > 0) {
+            return res.status(400).json({ error: 'Usuário já existe' });
+        }
+
+        const hash = await hashPassword(password || '123456');
+        
+        let deptId = department_id || null;
+        let deptName = department_name || null;
+        
+        if (deptId) {
+            const dept = await sql`SELECT name FROM departments WHERE id = ${deptId}`;
+            if (dept.length > 0) deptName = dept[0].name;
+        }
+
+        const result = await sql`
+            INSERT INTO users (name, email, password_hash, role, department_id, department_name, phone, first_login, is_leader)
+            VALUES (${name}, ${email}, ${hash}, ${role || 'colaborador'}, ${deptId}, ${deptName}, ${phone || ''}, true, ${is_leader || false})
+            RETURNING id, name, email, role, department_id, department_name, is_leader
+        `;
+        
+        if (deptId) {
+            const memberRole = is_leader ? 'lider' : 'membro';
+            await sql`
+                INSERT INTO department_members (department_id, user_id, role)
+                VALUES (${deptId}, ${result[0].id}, ${memberRole})
+                ON CONFLICT (department_id, user_id) DO UPDATE SET role = ${memberRole}
+            `;
+            
+            if (is_leader) {
+                await sql`UPDATE departments SET leader_id = ${result[0].id} WHERE id = ${deptId}`;
             }
         }
-        function renderCarousel() {
-            const slidesContainer = document.getElementById('heroSlides');
-            const controlsContainer = document.getElementById('heroControls');
-            if (!slidesContainer) return;
-            slidesContainer.innerHTML = '';
-            controlsContainer.innerHTML = '';
-            carouselData.forEach((item, index) => {
-                const slide = document.createElement('div');
-                slide.className = 'hero-slide';
-                slide.dataset.index = index;
-                let imgSrc = item.image_url || (item.image_base64 ? `data:image/jpeg;base64,${item.image_base64}` : 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1200&h=500&fit=crop&crop=center');
-                slide.innerHTML = `
-                    <img src="${imgSrc}" alt="${item.title || 'Slide'}" class="bg-image" loading="lazy">
-                    <div class="overlay"></div>
-                    <div class="hero-content">
-                        <h1>${item.title || ''}</h1>
-                        <p>${item.subtitle || ''}</p>
-                        ${item.link ? `<a href="${item.link}" class="btn btn-primary" onclick="event.stopPropagation(); scrollToSection('${item.link.replace('#', '')}')">
-                            <i class="fas fa-chevron-right"></i> Saiba Mais
-                        </a>` : ''}
-                    </div>
+        
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/users/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM users WHERE id = ${req.params.id}`;
+        res.json({ message: 'Usuário removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/reset-password', auth, pastorOnly, async (req, res) => {
+    try {
+        const { email } = req.body;
+        const hash = await hashPassword('123456');
+        await sql`UPDATE users SET password_hash = ${hash}, first_login = true WHERE email = ${email}`;
+        res.json({ message: 'Senha resetada para 123456' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/users-by-leader', auth, async (req, res) => {
+    try {
+        const { name, email, password, role, department_id } = req.body;
+
+        if (req.user.role !== 'lider' && req.user.role !== 'pastor' && !req.user.is_leader) {
+            return res.status(403).json({ error: 'Apenas líderes podem criar usuários' });
+        }
+
+        if (!name || !email || !password) {
+            return res.status(400).json({ error: 'Nome, e-mail e senha são obrigatórios' });
+        }
+
+        const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
+        if (existing.length > 0) {
+            return res.status(400).json({ error: 'E-mail já cadastrado' });
+        }
+
+        const deptId = department_id || req.user.department_id;
+        if (!deptId) {
+            return res.status(400).json({ error: 'Departamento não informado' });
+        }
+
+        const dept = await sql`SELECT * FROM departments WHERE id = ${deptId} AND is_active = true`;
+        if (dept.length === 0) {
+            return res.status(404).json({ error: 'Departamento não encontrado' });
+        }
+
+        const hash = await hashPassword(password);
+        const isLeader = (role === 'lider');
+
+        let userRole = 'colaborador';
+        if (role === 'lider') userRole = 'lider';
+        else if (role === 'ministro') userRole = 'ministro';
+        else if (role === 'musico') userRole = 'musico';
+        else userRole = 'colaborador';
+
+        const result = await sql`
+            INSERT INTO users (name, email, password_hash, role, department_id, department_name, phone, first_login, is_leader)
+            VALUES (${name}, ${email}, ${hash}, ${userRole}, ${deptId}, ${dept[0].name}, '', true, ${isLeader})
+            RETURNING id, name, email, role, department_id, department_name, is_leader
+        `;
+
+        const memberRole = isLeader ? 'lider' : (role || 'membro');
+        await sql`
+            INSERT INTO department_members (department_id, user_id, role)
+            VALUES (${deptId}, ${result[0].id}, ${memberRole})
+            ON CONFLICT (department_id, user_id) DO UPDATE SET role = ${memberRole}
+        `;
+
+        if (isLeader) {
+            await sql`UPDATE departments SET leader_id = ${result[0].id} WHERE id = ${deptId}`;
+        }
+
+        res.status(201).json({ 
+            success: true,
+            message: 'Usuário criado com sucesso!',
+            user: result[0],
+            department_name: dept[0].name,
+            member_role: memberRole
+        });
+    } catch (error) {
+        console.error('❌ Erro ao criar usuário por líder:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== DEPARTAMENTOS =====
+// ============================================
+
+app.post('/api/departments', auth, pastorOnly, async (req, res) => {
+    try {
+        const { name, description } = req.body;
+        const result = await sql`
+            INSERT INTO departments (name, description, created_by)
+            VALUES (${name}, ${description || ''}, ${req.user.id})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/departments', auth, async (req, res) => {
+    try {
+        const depts = await sql`
+            SELECT d.*, u.name as leader_name
+            FROM departments d
+            LEFT JOIN users u ON d.leader_id = u.id
+            WHERE d.is_active = true
+            ORDER BY d.name
+        `;
+        res.json(depts);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/departments/active', async (req, res) => {
+    try {
+        const depts = await sql`
+            SELECT id, name, description, leader_id
+            FROM departments WHERE is_active = true ORDER BY name
+        `;
+        res.json(depts);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/departments/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`UPDATE departments SET is_active = false WHERE id = ${req.params.id}`;
+        res.json({ message: 'Departamento removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== MEMBROS DO DEPARTAMENTO =====
+// ============================================
+
+app.get('/api/departments/:id/members', auth, async (req, res) => {
+    try {
+        const members = await sql`
+            SELECT u.id, u.name, u.email, u.phone, u.role, u.is_leader, 
+                   dm.role as member_role, dm.joined_at
+            FROM users u
+            JOIN department_members dm ON u.id = dm.user_id
+            WHERE dm.department_id = ${req.params.id}
+            ORDER BY u.name
+        `;
+        res.json(members);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/departments/:id/members', auth, async (req, res) => {
+    try {
+        const deptId = req.params.id;
+        const { user_id, role } = req.body;
+
+        if (!user_id) return res.status(400).json({ error: 'user_id é obrigatório' });
+
+        const user = await sql`SELECT * FROM users WHERE id = ${user_id}`;
+        if (user.length === 0) return res.status(404).json({ error: 'Usuário não encontrado' });
+
+        const dept = await sql`SELECT * FROM departments WHERE id = ${deptId} AND is_active = true`;
+        if (dept.length === 0) return res.status(404).json({ error: 'Departamento não encontrado' });
+
+        await sql`
+            INSERT INTO department_members (department_id, user_id, role)
+            VALUES (${deptId}, ${user_id}, ${role || 'membro'})
+            ON CONFLICT (department_id, user_id) DO UPDATE SET role = ${role || 'membro'}
+        `;
+
+        await sql`
+            UPDATE users SET department_id = ${deptId}, department_name = ${dept[0].name}
+            WHERE id = ${user_id}
+        `;
+
+        if (role === 'lider') {
+            await sql`UPDATE users SET is_leader = true WHERE id = ${user_id}`;
+            await sql`UPDATE departments SET leader_id = ${user_id} WHERE id = ${deptId}`;
+        }
+
+        res.status(201).json({ message: 'Membro adicionado com sucesso' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/departments/:id/members/:userId', auth, async (req, res) => {
+    try {
+        const deptId = req.params.id;
+        const userId = req.params.userId;
+        const { role } = req.body;
+
+        await sql`
+            UPDATE department_members SET role = ${role}
+            WHERE department_id = ${deptId} AND user_id = ${userId}
+        `;
+
+        if (role === 'lider') {
+            await sql`UPDATE users SET is_leader = true WHERE id = ${userId}`;
+            await sql`UPDATE departments SET leader_id = ${userId} WHERE id = ${deptId}`;
+        } else {
+            await sql`UPDATE users SET is_leader = false WHERE id = ${userId}`;
+        }
+
+        res.json({ message: 'Função atualizada com sucesso' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/departments/:id/members/:userId', auth, async (req, res) => {
+    try {
+        const deptId = req.params.id;
+        const userId = req.params.userId;
+
+        await sql`
+            DELETE FROM department_members
+            WHERE department_id = ${deptId} AND user_id = ${userId}
+        `;
+
+        const otherDepts = await sql`SELECT * FROM department_members WHERE user_id = ${userId}`;
+        if (otherDepts.length === 0) {
+            await sql`UPDATE users SET department_id = NULL, department_name = NULL, is_leader = false WHERE id = ${userId}`;
+        }
+
+        res.json({ message: 'Membro removido com sucesso' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ESTUDOS =====
+// ============================================
+
+app.post('/api/studies', auth, uploadFields, async (req, res) => {
+    try {
+        const { title, description, file_url } = req.body;
+        let image_base64 = null;
+        let file_base64 = null;
+        
+        if (req.files?.image?.[0]) {
+            image_base64 = req.files.image[0].buffer.toString('base64');
+        }
+        
+        if (req.files?.file?.[0]) {
+            file_base64 = req.files.file[0].buffer.toString('base64');
+        }
+
+        if (!title || title.trim() === '') {
+            return res.status(400).json({ success: false, error: 'Título é obrigatório' });
+        }
+
+        if (!image_base64 && !file_base64 && !file_url) {
+            return res.status(400).json({ success: false, error: 'Envie pelo menos uma imagem, PDF ou link' });
+        }
+
+        const result = await sql`
+            INSERT INTO studies (title, description, file_url, image_base64, file_base64)
+            VALUES (${title.trim()}, ${description || ''}, ${file_url || ''}, ${image_base64 || ''}, ${file_base64 || ''})
+            RETURNING id, title, description, file_url
+        `;
+        
+        res.status(201).json({ success: true, message: 'Estudo criado!', study: result[0] });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.get('/api/studies/:id/pdf', async (req, res) => {
+    try {
+        const study = await sql`SELECT * FROM studies WHERE id = ${req.params.id}`;
+        if (study.length === 0) return res.status(404).json({ error: 'Estudo não encontrado' });
+        
+        const s = study[0];
+        
+        if (s.file_base64) {
+            const pdfBuffer = Buffer.from(s.file_base64, 'base64');
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="${s.title || 'estudo'}.pdf"`);
+            return res.send(pdfBuffer);
+        }
+        
+        if (s.file_url) return res.redirect(s.file_url);
+        
+        res.status(404).json({ error: 'PDF não disponível' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/studies', async (req, res) => {
+    try {
+        const studies = await sql`SELECT * FROM studies ORDER BY created_at DESC`;
+        res.json(studies);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/studies/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM studies WHERE id = ${req.params.id}`;
+        res.json({ message: 'Estudo removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== PRODUTOS =====
+// ============================================
+
+app.post('/api/products', auth, upload.single('image'), async (req, res) => {
+    try {
+        const { name, description, price, stock, category } = req.body;
+        let image_base64 = null;
+        if (req.file) image_base64 = req.file.buffer.toString('base64');
+
+        if (!name || !name.trim()) return res.status(400).json({ error: 'Nome é obrigatório' });
+
+        const result = await sql`
+            INSERT INTO products (name, description, price, image_base64, stock, category)
+            VALUES (${name.trim()}, ${description || ''}, ${parseFloat(price) || 0}, ${image_base64}, ${parseInt(stock) || 0}, ${category || ''})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/products', async (req, res) => {
+    try {
+        const products = await sql`SELECT * FROM products ORDER BY name`;
+        res.json(products);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/products/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM products WHERE id = ${req.params.id}`;
+        res.json({ message: 'Produto removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== EVENTOS =====
+// ============================================
+
+app.post('/api/events', auth, upload.single('image'), async (req, res) => {
+    try {
+        const { title, description, date, price } = req.body;
+        let image_base64 = null;
+        if (req.file) image_base64 = req.file.buffer.toString('base64');
+
+        if (!title || !title.trim()) return res.status(400).json({ error: 'Título é obrigatório' });
+
+        const result = await sql`
+            INSERT INTO events (title, description, date, image_base64, price)
+            VALUES (${title.trim()}, ${description || ''}, ${date || new Date()}, ${image_base64}, ${parseFloat(price) || 0})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/events', async (req, res) => {
+    try {
+        const events = await sql`SELECT * FROM events ORDER BY date DESC`;
+        res.json(events);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/events/active', async (req, res) => {
+    try {
+        const events = await sql`
+            SELECT id, title, description, date, price, image_base64
+            FROM events WHERE date >= NOW() ORDER BY date ASC
+        `;
+        res.json(events);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/events/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM events WHERE id = ${req.params.id}`;
+        res.json({ message: 'Evento removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== CARROSSEL =====
+// ============================================
+
+app.post('/api/carousel', auth, pastorOnly, upload.single('image'), async (req, res) => {
+    try {
+        const { title, subtitle, description, link } = req.body;
+        if (!req.file) return res.status(400).json({ error: 'Imagem é obrigatória' });
+
+        const image_base64 = req.file.buffer.toString('base64');
+
+        const result = await sql`
+            INSERT INTO carousel_images (title, subtitle, description, image_base64, link, order_position)
+            VALUES (${title || ''}, ${subtitle || ''}, ${description || ''}, ${image_base64}, ${link || ''}, 
+                (SELECT COALESCE(MAX(order_position), 0) + 1 FROM carousel_images))
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/carousel', async (req, res) => {
+    try {
+        const images = await sql`
+            SELECT * FROM carousel_images WHERE active = true ORDER BY order_position, created_at
+        `;
+        res.json(images);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/carousel/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM carousel_images WHERE id = ${req.params.id}`;
+        res.json({ message: 'Imagem removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ORAÇÕES =====
+// ============================================
+
+app.post('/api/prayers', async (req, res) => {
+    try {
+        const { name, request } = req.body;
+        const result = await sql`
+            INSERT INTO prayers (name, request)
+            VALUES (${name || 'Anônimo'}, ${request})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/prayers', auth, async (req, res) => {
+    try {
+        const prayers = await sql`SELECT * FROM prayers ORDER BY created_at DESC`;
+        res.json(prayers);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/prayers/:id/read', auth, async (req, res) => {
+    try {
+        await sql`UPDATE prayers SET is_read = TRUE WHERE id = ${req.params.id}`;
+        res.json({ message: 'Marcado como lido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== PEDIDOS =====
+// ============================================
+
+app.post('/api/orders', async (req, res) => {
+    try {
+        const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status } = req.body;
+        
+        console.log('📝 Criando pedido para:', user_email);
+        
+        const result = await sql`
+            INSERT INTO orders (user_name, user_email, user_phone, items, total, payment_id, payment_method, status)
+            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(items)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
+            RETURNING *
+        `;
+        
+        // ⚠️ EMAIL NÃO É ENVIADO AQUI! Será enviado depois via /api/send-confirmation-email
+        
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar pedido:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/orders', auth, async (req, res) => {
+    try {
+        const orders = await sql`SELECT * FROM orders ORDER BY created_at DESC`;
+        res.json(orders);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
+    try {
+        const totalSales = await sql`
+            SELECT COUNT(*) as count, COALESCE(SUM(total), 0) as total FROM orders WHERE status = 'approved'
+        `;
+        const salesByDay = await sql`
+            SELECT DATE(created_at) as date, COUNT(*) as count, COALESCE(SUM(total), 0) as total 
+            FROM orders 
+            WHERE created_at >= NOW() - INTERVAL '7 days' AND status = 'approved'
+            GROUP BY DATE(created_at) ORDER BY date DESC
+        `;
+        res.json({ total: totalSales[0] || { count: 0, total: 0 }, byDay: salesByDay || [] });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== INSCRIÇÕES =====
+// ============================================
+
+app.post('/api/registrations', async (req, res) => {
+    try {
+        const { type, name, email, phone, department_name, event_name, details, amount, is_paid, birth_date, baptism_date, baptism_date_id } = req.body;
+        
+        let finalDetails = details || '';
+        if (type === 'baptism' && birth_date) {
+            finalDetails = `Data de Nascimento: ${new Date(birth_date).toLocaleDateString('pt-BR')}\n`;
+            if (baptism_date) {
+                finalDetails += `Data do Batismo: ${new Date(baptism_date).toLocaleDateString('pt-BR')}\n`;
+            }
+            finalDetails += details || '';
+            
+            if (baptism_date_id) {
+                await sql`
+                    UPDATE baptism_dates 
+                    SET current_participants = current_participants + 1 
+                    WHERE id = ${baptism_date_id}
                 `;
-                slidesContainer.appendChild(slide);
-                const dot = document.createElement('button');
-                dot.className = 'hero-dot' + (index === 0 ? ' active' : '');
-                dot.onclick = () => goToSlide(index);
-                controlsContainer.appendChild(dot);
-            });
-            slideCount = carouselData.length;
-            currentSlide = 0;
-            startCarousel();
-        }
-        function goToSlide(index) {
-            const slides = document.querySelector('.hero-slides');
-            const dots = document.querySelectorAll('.hero-dot');
-            if (!slides || index < 0 || index >= slideCount) return;
-            currentSlide = index;
-            slides.style.transform = `translateX(-${currentSlide * 100}%)`;
-            dots.forEach((dot, i) => { dot.classList.toggle('active', i === currentSlide); });
-        }
-        function changeSlide(direction) {
-            if (slideCount === 0) return;
-            let newIndex = (currentSlide + direction + slideCount) % slideCount;
-            goToSlide(newIndex);
-        }
-        function startCarousel() {
-            if (slideInterval) clearInterval(slideInterval);
-            if (slideCount > 1) slideInterval = setInterval(() => changeSlide(1), 6000);
+            }
         }
 
-        // ============================================
-        // ===== BÍBLIA =====
-        // ============================================
-        function openBibleModal() {
-            openModal('bibleModal');
-            setTimeout(() => searchBible(), 300);
+        const result = await sql`
+            INSERT INTO registrations (type, name, email, phone, department_name, event_name, details, amount, is_paid)
+            VALUES (${type}, ${name}, ${email || ''}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${finalDetails || ''}, ${parseFloat(amount) || 0}, ${is_paid || false})
+            RETURNING *
+        `;
+        
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro inscrição:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/registrations', auth, async (req, res) => {
+    try {
+        const registrations = await sql`SELECT * FROM registrations ORDER BY created_at DESC`;
+        res.json(registrations);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/registrations/:id/approve', auth, async (req, res) => {
+    try {
+        await sql`UPDATE registrations SET status = 'approved' WHERE id = ${req.params.id}`;
+        res.json({ message: 'Inscrição aprovada' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/registrations/:id', auth, async (req, res) => {
+    try {
+        await sql`DELETE FROM registrations WHERE id = ${req.params.id}`;
+        res.json({ message: 'Inscrição removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== DOAÇÕES =====
+// ============================================
+
+app.post('/api/donations', async (req, res) => {
+    try {
+        const { user_name, user_email, user_phone, type, amount, payment_id, payment_method, status } = req.body;
+        
+        console.log('📝 Registrando doação de:', user_email);
+        
+        const result = await sql`
+            INSERT INTO donations (user_name, user_email, user_phone, type, amount, payment_id, payment_method, status)
+            VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${type}, ${amount}, ${payment_id}, ${payment_method}, ${status || 'pending'})
+            RETURNING *
+        `;
+        
+        // ⚠️ EMAIL NÃO É ENVIADO AQUI! Será enviado depois via /api/send-confirmation-email
+        
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar doação:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/donations', auth, async (req, res) => {
+    try {
+        const donations = await sql`SELECT * FROM donations ORDER BY created_at DESC`;
+        res.json(donations);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ENVIAR EMAIL DE CONFIRMAÇÃO =====
+// ===== (chamado pelo frontend APÓS o toast) =====
+// ============================================
+app.post('/api/send-confirmation-email', async (req, res) => {
+    try {
+        const { payment_id } = req.body;
+        
+        if (!payment_id) {
+            return res.status(400).json({ error: 'payment_id é obrigatório' });
         }
-        const bookNames = {
-            'gn': 'Gênesis', 'ex': 'Êxodo', 'lv': 'Levítico', 'nm': 'Números', 'dt': 'Deuteronômio', 'js': 'Josué', 'jz': 'Juízes', 'rt': 'Rute', '1sm': '1 Samuel', '2sm': '2 Samuel', '1rs': '1 Reis', '2rs': '2 Reis', '1cr': '1 Crônicas', '2cr': '2 Crônicas', 'ed': 'Esdras', 'ne': 'Neemias', 'et': 'Ester', 'jo': 'Jó', 'sl': 'Salmos', 'pv': 'Provérbios', 'ec': 'Eclesiastes', 'ct': 'Cânticos', 'is': 'Isaías', 'jr': 'Jeremias', 'lm': 'Lamentações', 'ez': 'Ezequiel', 'dn': 'Daniel', 'os': 'Oseias', 'jl': 'Joel', 'am': 'Amós', 'ob': 'Obadias', 'jn': 'Jonas', 'mq': 'Miqueias', 'na': 'Naum', 'hc': 'Habacuque', 'sf': 'Sofonias', 'ag': 'Ageu', 'zc': 'Zacarias', 'ml': 'Malaquias', 'mt': 'Mateus', 'mc': 'Marcos', 'lc': 'Lucas', 'joao': 'João', 'at': 'Atos', 'rm': 'Romanos', '1co': '1 Coríntios', '2co': '2 Coríntios', 'gl': 'Gálatas', 'ef': 'Efésios', 'fp': 'Filipenses', 'cl': 'Colossenses', '1ts': '1 Tessalonicenses', '2ts': '2 Tessalonicenses', '1tm': '1 Timóteo', '2tm': '2 Timóteo', 'tt': 'Tito', 'fm': 'Filemom', 'hb': 'Hebreus', 'tg': 'Tiago', '1pe': '1 Pedro', '2pe': '2 Pedro', '1jo': '1 João', '2jo': '2 João', '3jo': '3 João', 'jd': 'Judas', 'ap': 'Apocalipse'
+
+        console.log('📧 Solicitação de email para:', payment_id);
+
+        const orders = await sql`SELECT * FROM orders WHERE payment_id = ${payment_id}`;
+        const donations = await sql`SELECT * FROM donations WHERE payment_id = ${payment_id}`;
+        
+        const item = orders[0] || donations[0];
+        const isOrder = orders.length > 0;
+        
+        if (!item) {
+            console.log('⚠️ Pagamento não encontrado:', payment_id);
+            return res.status(404).json({ error: 'Pagamento não encontrado' });
+        }
+
+        // Evita spam: só envia se ainda não foi enviado
+        if (item.email_sent) {
+            console.log('⚠️ Email já foi enviado para este pagamento');
+            return res.json({ 
+                success: true, 
+                message: 'Email já enviado anteriormente',
+                already_sent: true 
+            });
+        }
+
+        if (item.status !== 'approved') {
+            console.log('⚠️ Pagamento não aprovado ainda:', item.status);
+            return res.status(400).json({ 
+                error: 'Pagamento não foi aprovado',
+                status: item.status 
+            });
+        }
+
+        let emailEnviado = false;
+
+        if (isOrder) {
+            let items = [];
+            try { items = JSON.parse(item.items || '[]'); } catch {}
+            
+            emailEnviado = await enviarEmailCompra({
+                email: item.user_email,
+                nome: item.user_name,
+                items: items,
+                total: item.total,
+                data: new Date(),
+                paymentId: payment_id
+            });
+        } else {
+            emailEnviado = await enviarEmailDizimoOferta({
+                email: item.user_email,
+                nome: item.user_name,
+                tipo: item.type,
+                valor: item.amount,
+                data: new Date(),
+                paymentId: payment_id
+            });
+        }
+
+        if (emailEnviado) {
+            if (isOrder) {
+                await sql`UPDATE orders SET email_sent = true WHERE id = ${item.id}`;
+            } else {
+                await sql`UPDATE donations SET email_sent = true WHERE id = ${item.id}`;
+            }
+            
+            console.log('✅ Email enviado e marcado!');
+            return res.json({ success: true, message: 'Email enviado!' });
+        } else {
+            return res.status(500).json({ error: 'Falha ao enviar email' });
+        }
+
+    } catch (error) {
+        console.error('❌ Erro ao enviar email:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ANIVERSARIANTES =====
+// ============================================
+
+app.get('/api/birthdays', async (req, res) => {
+    try {
+        const currentMonth = new Date().getMonth() + 1;
+        const birthdayMembers = await sql`
+            SELECT id, name, birth_date, phone, department_name
+            FROM members 
+            WHERE is_active = true 
+            AND EXTRACT(MONTH FROM birth_date) = ${currentMonth}
+            ORDER BY EXTRACT(DAY FROM birth_date)
+        `;
+        res.json(birthdayMembers);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== MEMBROS =====
+// ============================================
+
+app.post('/api/members', auth, async (req, res) => {
+    try {
+        const { name, email, phone, birth_date, marital_status, spouse_name, children, baptism_date, baptism_place, address, department_id, department_name, notes } = req.body;
+
+        if (!name) return res.status(400).json({ error: 'Nome é obrigatório' });
+
+        const result = await sql`
+            INSERT INTO members (name, email, phone, birth_date, marital_status, spouse_name, children, baptism_date, baptism_place, address, department_id, department_name, notes, created_by)
+            VALUES (${name}, ${email}, ${phone}, ${birth_date}, ${marital_status}, ${spouse_name}, ${children}, ${baptism_date}, ${baptism_place}, ${address}, ${department_id}, ${department_name}, ${notes}, ${req.user.id})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/members', auth, async (req, res) => {
+    try {
+        const members = await sql`
+            SELECT * FROM members WHERE is_active = true ORDER BY name
+        `;
+        res.json(members);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/members/:id', auth, async (req, res) => {
+    try {
+        await sql`UPDATE members SET is_active = false WHERE id = ${req.params.id}`;
+        res.json({ message: 'Membro removido' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== FREQUÊNCIA =====
+// ============================================
+
+app.post('/api/attendance', auth, async (req, res) => {
+    try {
+        const { member_id, event_date, service_type, present } = req.body;
+        if (!member_id || !event_date) return res.status(400).json({ error: 'Membro e data são obrigatórios' });
+
+        const result = await sql`
+            INSERT INTO attendance (member_id, event_date, service_type, present, check_in_time)
+            VALUES (${member_id}, ${event_date}, ${service_type || 'domingo'}, ${present || false}, ${present ? new Date() : null})
+            ON CONFLICT (member_id, event_date, service_type) 
+            DO UPDATE SET present = ${present || false}, check_in_time = ${present ? new Date() : null}
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/attendance/date/:date', auth, async (req, res) => {
+    try {
+        const records = await sql`
+            SELECT a.*, m.name as member_name
+            FROM attendance a
+            LEFT JOIN members m ON a.member_id = m.id
+            WHERE a.event_date = ${req.params.date}
+            ORDER BY a.created_at DESC
+        `;
+        res.json(records);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== DÍZIMOS =====
+// ============================================
+
+app.post('/api/tithes', auth, async (req, res) => {
+    try {
+        const { member_id, member_name, type, amount, payment_method, payment_date, description } = req.body;
+        
+        if (!type || !amount) return res.status(400).json({ error: 'Tipo e valor são obrigatórios' });
+
+        const result = await sql`
+            INSERT INTO tithes (member_id, member_name, type, amount, payment_method, payment_date, description, received_by)
+            VALUES (${member_id || null}, ${member_name || ''}, ${type}, ${amount}, ${payment_method || 'dinheiro'}, ${payment_date || new Date()}, ${description || ''}, ${req.user.id})
+            RETURNING *
+        `;
+        
+        // 📧 Buscar email do membro ou do usuário logado
+        let targetEmail = null;
+        let targetName = member_name || 'Irmão(ã)';
+        
+        if (member_id) {
+            const member = await sql`SELECT email, name FROM members WHERE id = ${member_id}`;
+            if (member.length > 0 && member[0].email) {
+                targetEmail = member[0].email;
+                targetName = member[0].name;
+            }
+        }
+        
+        if (!targetEmail) {
+            const userData = await sql`SELECT email, name FROM users WHERE id = ${req.user.id}`;
+            if (userData.length > 0) {
+                targetEmail = userData[0].email;
+                targetName = userData[0].name;
+            }
+        }
+        
+        // 📧 Enviar email
+        if (targetEmail && targetEmail.includes('@')) {
+            await enviarEmailDizimoOferta({
+                email: targetEmail,
+                nome: targetName,
+                tipo: type,
+                valor: amount,
+                data: payment_date || new Date(),
+                paymentId: `TITHE-${result[0].id}`
+            });
+        }
+        
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/tithes', auth, async (req, res) => {
+    try {
+        const tithes = await sql`SELECT * FROM tithes ORDER BY payment_date DESC`;
+        res.json(tithes);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/tithes/summary', auth, async (req, res) => {
+    try {
+        const result = await sql`
+            SELECT type, COUNT(*) as count, SUM(amount) as total FROM tithes GROUP BY type
+        `;
+        const total = result.reduce((sum, r) => sum + parseFloat(r.total), 0);
+        res.json({ by_type: result, total });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== CONTAS =====
+// ============================================
+
+app.post('/api/bills', auth, async (req, res) => {
+    try {
+        const { description, category, amount, due_date, notes } = req.body;
+        if (!description || !category || !amount || !due_date) {
+            return res.status(400).json({ error: 'Preencha todos os campos' });
+        }
+
+        const result = await sql`
+            INSERT INTO bills (description, category, amount, due_date, notes, created_by)
+            VALUES (${description}, ${category}, ${amount}, ${due_date}, ${notes || ''}, ${req.user.id})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/bills', auth, async (req, res) => {
+    try {
+        const bills = await sql`SELECT * FROM bills ORDER BY due_date ASC, paid ASC`;
+        res.json(bills);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/bills/:id/pay', auth, async (req, res) => {
+    try {
+        const { payment_date, payment_method } = req.body;
+        const result = await sql`
+            UPDATE bills SET paid = true, payment_date = ${payment_date || new Date()}, payment_method = ${payment_method || 'dinheiro'}
+            WHERE id = ${req.params.id}
+            RETURNING *
+        `;
+        if (result.length === 0) return res.status(404).json({ error: 'Conta não encontrada' });
+        res.json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/bills/:id', auth, async (req, res) => {
+    try {
+        await sql`DELETE FROM bills WHERE id = ${req.params.id}`;
+        res.json({ message: 'Conta removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/bills/summary', auth, async (req, res) => {
+    try {
+        const summary = await sql`
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN paid = false THEN amount ELSE 0 END) as pending,
+                SUM(CASE WHEN paid = true THEN amount ELSE 0 END) as paid_total,
+                COUNT(CASE WHEN paid = false THEN 1 ELSE 0 END) as pending_count,
+                COUNT(CASE WHEN paid = true THEN 1 ELSE 0 END) as paid_count
+            FROM bills
+        `;
+        res.json({ summary: summary[0] });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== CÉLULAS =====
+// ============================================
+
+app.post('/api/celulas', auth, pastorOnly, async (req, res) => {
+    try {
+        const { nome, lider_id, endereco, dias_reuniao, horario, descricao } = req.body;
+        if (!nome) return res.status(400).json({ error: 'Nome é obrigatório' });
+
+        const result = await sql`
+            INSERT INTO celulas (nome, lider_id, endereco, dias_reuniao, horario, descricao, created_by)
+            VALUES (${nome}, ${lider_id || null}, ${endereco || ''}, ${dias_reuniao || ''}, ${horario || ''}, ${descricao || ''}, ${req.user.id})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/celulas', async (req, res) => {
+    try {
+        const celulas = await sql`
+            SELECT c.*, u.name as lider_nome,
+                (SELECT COUNT(*) FROM celula_membros cm2 WHERE cm2.celula_id = c.id AND cm2.is_active = true) as membros_ativos,
+                (SELECT COUNT(*) FROM celula_decisoes cd WHERE cd.celula_id = c.id AND cd.tipo = 'batismo') as batizados,
+                (SELECT COUNT(*) FROM celula_decisoes cd WHERE cd.celula_id = c.id AND cd.tipo = 'decisao') as decisoes
+            FROM celulas c
+            LEFT JOIN users u ON c.lider_id = u.id
+            WHERE c.is_active = true
+            ORDER BY c.nome
+        `;
+        res.json(celulas);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/celulas/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`UPDATE celulas SET is_active = false WHERE id = ${req.params.id}`;
+        res.json({ message: 'Célula removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/celulas/:id/membros', auth, async (req, res) => {
+    try {
+        const { membro_id } = req.body;
+        if (!membro_id) return res.status(400).json({ error: 'Membro é obrigatório' });
+        
+        await sql`
+            INSERT INTO celula_membros (celula_id, membro_id)
+            VALUES (${req.params.id}, ${membro_id})
+            ON CONFLICT (celula_id, membro_id) DO UPDATE SET is_active = true
+        `;
+        res.json({ message: 'Membro adicionado' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== LIVES =====
+// ============================================
+
+app.post('/api/lives/start', auth, async (req, res) => {
+    try {
+        const { titulo, descricao } = req.body;
+        
+        if (req.user.role !== 'pastor') {
+            return res.status(403).json({ error: 'Apenas o pastor pode iniciar uma live' });
+        }
+
+        const activeLive = await sql`SELECT * FROM lives WHERE status = 'live'`;
+        if (activeLive.length > 0) {
+            return res.status(400).json({ error: 'Já existe uma live ativa' });
+        }
+
+        const streamKey = 'live_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+
+        const result = await sql`
+            INSERT INTO lives (titulo, descricao, status, stream_key, iniciada_por, started_at)
+            VALUES (${titulo || 'Live NJ Cabuçu'}, ${descricao || ''}, 'live', ${streamKey}, ${req.user.id}, NOW())
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao iniciar live:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/lives/end/:id', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const live = await sql`SELECT * FROM lives WHERE id = ${id}`;
+        if (live.length === 0) return res.status(404).json({ error: 'Live não encontrada' });
+        
+        if (live[0].status === 'ended') return res.status(400).json({ error: 'Live já encerrada' });
+
+        const result = await sql`
+            UPDATE lives SET status = 'ended', ended_at = NOW() WHERE id = ${id} RETURNING *
+        `;
+        
+        await sql`UPDATE live_viewers SET left_at = NOW() WHERE live_id = ${id} AND left_at IS NULL`;
+        
+        res.json({ message: 'Live encerrada!', live: result[0] });
+    } catch (error) {
+        console.error('❌ Erro ao encerrar live:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/lives/active', async (req, res) => {
+    try {
+        const lives = await sql`
+            SELECT l.*, u.name as iniciada_por_nome
+            FROM lives l
+            LEFT JOIN users u ON l.iniciada_por = u.id
+            WHERE l.status = 'live'
+            ORDER BY l.started_at DESC
+        `;
+        
+        if (lives.length === 0) {
+            return res.json({ status: 'offline', message: 'Nenhuma live ativa' });
+        }
+        
+        const live = lives[0];
+        const viewers = await sql`
+            SELECT COUNT(*) as total FROM live_viewers WHERE live_id = ${live.id} AND left_at IS NULL
+        `;
+        live.viewers = viewers[0]?.total || 0;
+        
+        res.json(live);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/lives/history', auth, async (req, res) => {
+    try {
+        const lives = await sql`
+            SELECT l.*, u.name as iniciada_por_nome
+            FROM lives l
+            LEFT JOIN users u ON l.iniciada_por = u.id
+            WHERE l.status != 'offline'
+            ORDER BY l.created_at DESC LIMIT 50
+        `;
+        res.json(lives);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/lives/:id/viewer', async (req, res) => {
+    try {
+        const { viewer_id } = req.body;
+        await sql`
+            INSERT INTO live_viewers (live_id, viewer_id)
+            VALUES (${req.params.id}, ${viewer_id || 'anonymous_' + Date.now()})
+            ON CONFLICT DO NOTHING
+        `;
+        const count = await sql`
+            SELECT COUNT(*) as total FROM live_viewers WHERE live_id = ${req.params.id} AND left_at IS NULL
+        `;
+        await sql`UPDATE lives SET viewers = ${count[0].total} WHERE id = ${req.params.id}`;
+        res.json({ viewers: count[0].total });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== REFLEXÕES =====
+// ============================================
+
+app.get('/api/pastor-reflections', async (req, res) => {
+    try {
+        const reflections = await sql`
+            SELECT r.*, u.name as created_by_name
+            FROM pastor_reflections r
+            LEFT JOIN users u ON r.created_by = u.id
+            ORDER BY r.created_at DESC
+        `;
+        res.json(reflections);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/pastor-reflections', auth, pastorOnly, async (req, res) => {
+    try {
+        const { title, description, link } = req.body;
+        if (!title || !link) return res.status(400).json({ error: 'Título e link obrigatórios' });
+
+        const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/;
+        if (!youtubeRegex.test(link)) return res.status(400).json({ error: 'Link inválido do YouTube' });
+
+        const result = await sql`
+            INSERT INTO pastor_reflections (title, description, link, created_by)
+            VALUES (${title}, ${description || ''}, ${link}, ${req.user.id})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/pastor-reflections/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM pastor_reflections WHERE id = ${req.params.id}`;
+        res.json({ message: 'Reflexão removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== CONFIGURAÇÕES =====
+// ============================================
+
+app.get('/api/settings', async (req, res) => {
+    try {
+        const settings = await sql`SELECT * FROM site_settings`;
+        const obj = {};
+        settings.forEach(s => obj[s.key] = s.value);
+        
+        if (!obj.cultos) {
+            obj.cultos = JSON.stringify([
+                { dia: 0, hora: 18, minuto: 0, label: 'Domingo 18:00' },
+                { dia: 3, hora: 20, minuto: 0, label: 'Quarta 20:00' },
+                { dia: 2, hora: 9, minuto: 0, label: 'Terça 09:00' }
+            ]);
+        }
+        if (!obj.primary_color) obj.primary_color = '#0D47A1';
+        if (!obj.site_title) obj.site_title = 'NJ Cabuçu';
+        if (!obj.whatsapp) obj.whatsapp = '5521985345627';
+        if (!obj.about_mission) obj.about_mission = 'Levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.';
+        if (!obj.about_vision) obj.about_vision = 'Ser uma igreja relevante, que transforma vidas e impacta a comunidade com o evangelho.';
+        if (!obj.about_values) obj.about_values = 'Amor, fé, esperança, serviço e comunhão.';
+        
+        res.json(obj);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/settings', auth, pastorOnly, async (req, res) => {
+    try {
+        const { key, value } = req.body;
+        await sql`
+            INSERT INTO site_settings (key, value) VALUES (${key}, ${value})
+            ON CONFLICT (key) DO UPDATE SET value = ${value}
+        `;
+        res.json({ message: 'Configuração atualizada' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== LOGO PERSONALIZADA (NOVO) =====
+// ============================================
+app.post('/api/settings/logo', auth, pastorOnly, upload.single('logo'), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: 'Nenhuma imagem enviada' });
+        if (req.file.size > 2 * 1024 * 1024) return res.status(400).json({ error: 'Imagem muito grande (máx 2MB)' });
+        
+        const image_base64 = req.file.buffer.toString('base64');
+        const dataUrl = `data:${req.file.mimetype};base64,${image_base64}`;
+        
+        await sql`
+            INSERT INTO site_settings (key, value) VALUES ('site_logo', ${dataUrl})
+            ON CONFLICT (key) DO UPDATE SET value = ${dataUrl}, updated_at = NOW()
+        `;
+        res.json({ success: true, message: 'Logo atualizada com sucesso!', logo: dataUrl });
+    } catch (error) {
+        console.error('❌ Erro ao salvar logo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/settings/logo', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`DELETE FROM site_settings WHERE key = 'site_logo'`;
+        res.json({ success: true, message: 'Logo removida. Voltando ao padrão.' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== BÍBLIA (PROXY) (NOVO) =====
+// ============================================
+app.get('/api/bible', async (req, res) => {
+    try {
+        const { book, chapter, verse } = req.query;
+        if (!book || !chapter) return res.status(400).json({ error: 'Livro e capítulo obrigatórios' });
+
+        const bookMap = {
+            'gn':'genesis','ex':'exodus','lv':'leviticus','nm':'numbers','dt':'deuteronomy',
+            'js':'joshua','jz':'judges','rt':'ruth','1sm':'1samuel','2sm':'2samuel',
+            '1rs':'1kings','2rs':'2kings','1cr':'1chronicles','2cr':'2chronicles',
+            'ed':'ezra','ne':'nehemiah','et':'esther','jo':'job','sl':'psalms',
+            'pv':'proverbs','ec':'ecclesiastes','ct':'songofsolomon','is':'isaiah',
+            'jr':'jeremiah','lm':'lamentations','ez':'ezekiel','dn':'daniel','os':'hosea',
+            'jl':'joel','am':'amos','ob':'obadiah','jn':'jonah','mq':'micah','na':'nahum',
+            'hc':'habakkuk','sf':'zephaniah','ag':'haggai','zc':'zechariah','ml':'malachi',
+            'mt':'matthew','mc':'mark','lc':'luke','joao':'john','at':'acts','rm':'romans',
+            '1co':'1corinthians','2co':'2corinthians','gl':'galatians','ef':'ephesians',
+            'fp':'philippians','cl':'colossians','1ts':'1thessalonians','2ts':'2thessalonians',
+            '1tm':'1timothy','2tm':'2timothy','tt':'titus','fm':'philemon','hb':'hebrews',
+            'tg':'james','1pe':'1peter','2pe':'2peter','1jo':'1john','2jo':'2john',
+            '3jo':'3john','jd':'jude','ap':'revelation'
         };
-        async function searchBible() {
-            const book = document.getElementById('bibleBook').value;
-            const chapter = document.getElementById('bibleChapter').value;
-            const verse = document.getElementById('bibleVerse').value;
-            const resultDiv = document.getElementById('bibleResult');
-            if (!chapter || chapter < 1) { resultDiv.innerHTML = '<p style="color:#dc3545;">⚠️ Digite um capítulo válido (mínimo 1).</p>'; return; }
-            resultDiv.innerHTML = '<p style="color:var(--text-muted);">⏳ Carregando...</p>';
-            try {
-                let url = `/api/bible?book=${encodeURIComponent(book)}&chapter=${chapter}`;
-                if (verse && parseInt(verse) > 0) url += `&verse=${verse}`;
-                const response = await fetch(url);
-                const data = await response.json();
-                if (!response.ok) {
-                    resultDiv.innerHTML = `<p style="color:#dc3545;">❌ ${data.error || 'Erro ao buscar'}</p><p style="color:var(--text-muted);margin-top:0.5rem;">Tente: Salmos 23, João 3:16, Romanos 8:28</p>`;
-                    return;
-                }
-                let html = '';
-                if (data.verses && data.verses.length > 0) {
-                    data.verses.forEach(v => { html += `<p class="verse"><strong>${v.verse}</strong> ${v.text.trim()}</p>`; });
-                } else if (data.text) { html = `<p class="verse">${data.text.trim()}</p>`; }
-                else { html = '<p style="color:var(--text-muted);">Nenhum texto encontrado para esta referência.</p>'; }
-                html += `<p class="reference">📖 ${data.reference || bookNames[book] + ' ' + chapter}</p>`;
-                resultDiv.innerHTML = html;
-                resultDiv.scrollTop = 0;
-            } catch (error) {
-                console.error('❌ Erro na busca:', error);
-                resultDiv.innerHTML = `<p style="color:#dc3545;">❌ Erro de conexão: ${error.message}</p><p style="color:var(--text-muted);margin-top:0.5rem;">Verifique sua internet e tente de novo.</p>`;
+
+        const bookApiName = bookMap[book] || book;
+        let url = `https://bible-api.com/${bookApiName}+${chapter}`;
+        if (verse && parseInt(verse) > 0) url += `:${verse}`;
+        url += '?translation=almeida';
+
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
+
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeout);
+
+        if (!response.ok) {
+            if (response.status === 429) {
+                return res.status(429).json({ error: 'Muitas consultas. Aguarde alguns segundos e tente novamente.' });
             }
+            throw new Error(`API bíblia: ${response.status}`);
         }
-        async function searchBibleRandom() {
-            const resultDiv = document.getElementById('bibleResult');
-            resultDiv.innerHTML = '<p style="color:var(--text-muted);">⏳ Buscando versículo aleatório...</p>';
-            const randomRefs = [ { book: 'sl', chapter: 23 }, { book: 'joao', chapter: 3 }, { book: 'rm', chapter: 8 }, { book: 'fp', chapter: 4 }, { book: 'is', chapter: 41 }, { book: 'mt', chapter: 11 }, { book: 'sl', chapter: 91 }, { book: 'pv', chapter: 3 }, { book: 'hb', chapter: 11 }, { book: 'tg', chapter: 1 }, { book: '1co', chapter: 13 }, { book: 'ef', chapter: 2 } ];
-            const pick = randomRefs[Math.floor(Math.random() * randomRefs.length)];
-            try {
-                const url = `/api/bible?book=${pick.book}&chapter=${pick.chapter}`;
-                const response = await fetch(url);
-                const data = await response.json();
-                if (!response.ok) { resultDiv.innerHTML = `<p style="color:#dc3545;">❌ ${data.error || 'Erro'}</p>`; return; }
-                let html = '';
-                if (data.verses && data.verses.length > 0) {
-                    const v = data.verses[Math.floor(Math.random() * data.verses.length)];
-                    html = `<p class="verse"><strong>${v.verse}</strong> ${v.text.trim()}</p>`;
-                } else if (data.text) { html = `<p class="verse">${data.text.trim()}</p>`; }
-                html += `<p class="reference">📖 ${data.reference || ''}</p>`;
-                resultDiv.innerHTML = html;
-            } catch (error) {
-                console.error('❌ Erro:', error);
-                resultDiv.innerHTML = `<p style="color:#dc3545;">❌ Erro: ${error.message}</p>`;
-            }
+
+        const data = await response.json();
+        res.json(data);
+
+    } catch (error) {
+        console.error('❌ Erro bíblia:', error);
+        if (error.name === 'AbortError') {
+            return res.status(504).json({ error: 'A Bíblia demorou demais para responder. Tente de novo.' });
         }
-        document.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const active = document.activeElement;
-                if (active && (active.id === 'bibleChapter' || active.id === 'bibleVerse' || active.id === 'bibleBook')) searchBible();
+        res.status(500).json({ error: error.message || 'Erro ao buscar' });
+    }
+});
+
+// ============================================
+// ===== MÚSICAS =====
+// ============================================
+
+app.post('/api/songs', auth, async (req, res) => {
+    try {
+        const { title, artist, key, lyrics, youtube_url, department_id } = req.body;
+        
+        if (!title) return res.status(400).json({ error: 'Título é obrigatório' });
+
+        const result = await sql`
+            INSERT INTO songs (title, artist, key, lyrics, youtube_url, department_id, created_by)
+            VALUES (${title}, ${artist || ''}, ${key || 'C'}, ${lyrics || ''}, ${youtube_url || ''}, ${department_id || null}, ${req.user.id})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/songs', auth, async (req, res) => {
+    try {
+        const { department_id } = req.query;
+        let songs;
+        
+        if (department_id) {
+            songs = await sql`
+                SELECT * FROM songs WHERE department_id = ${department_id} ORDER BY title
+            `;
+        } else {
+            songs = await sql`SELECT * FROM songs ORDER BY title`;
+        }
+        res.json(songs);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/songs/:id', auth, async (req, res) => {
+    try {
+        await sql`DELETE FROM songs WHERE id = ${req.params.id}`;
+        res.json({ message: 'Música removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== DISPONIBILIDADE =====
+// ============================================
+
+app.post('/api/availability', auth, async (req, res) => {
+    try {
+        const { user_id, date, department_id } = req.body;
+        
+        if (!user_id || !date) {
+            return res.status(400).json({ error: 'user_id e date são obrigatórios' });
+        }
+
+        const result = await sql`
+            INSERT INTO availability (user_id, date, department_id)
+            VALUES (${user_id}, ${date}, ${department_id || null})
+            ON CONFLICT (user_id, date) DO UPDATE SET department_id = ${department_id || null}
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/availability/:userId', auth, async (req, res) => {
+    try {
+        const result = await sql`
+            SELECT * FROM availability WHERE user_id = ${req.params.userId} ORDER BY date ASC
+        `;
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/availability/date/:date/department/:departmentId', auth, async (req, res) => {
+    try {
+        const { date, departmentId } = req.params;
+        
+        const result = await sql`
+            SELECT u.id, u.name, u.email, u.phone, u.role, u.is_leader,
+                   dm.role as member_role
+            FROM availability a
+            JOIN users u ON a.user_id = u.id
+            LEFT JOIN department_members dm ON u.id = dm.user_id AND dm.department_id = ${departmentId}
+            WHERE a.date = ${date}
+            AND (a.department_id = ${departmentId} OR a.department_id IS NULL)
+            ORDER BY u.name
+        `;
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/availability/:id', auth, async (req, res) => {
+    try {
+        await sql`DELETE FROM availability WHERE id = ${req.params.id}`;
+        res.json({ message: 'Disponibilidade removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== ESCALAS =====
+// ============================================
+
+app.post('/api/worship-scales', auth, async (req, res) => {
+    try {
+        const { department_id, event_date, leader_id, minister_id, songs, song_ids, palette, rehearsal, musicians } = req.body;
+        
+        if (!department_id || !event_date) {
+            return res.status(400).json({ error: 'department_id e event_date são obrigatórios' });
+        }
+
+        const songsJson = JSON.stringify(Array.isArray(songs) ? songs : []);
+        const songIdsJson = JSON.stringify(Array.isArray(song_ids) ? song_ids : []);
+        const musicianIdsJson = JSON.stringify(Array.isArray(musicians) ? musicians : []);
+
+        const result = await sql`
+            INSERT INTO worship_scales (department_id, event_date, leader_id, minister_id, songs, song_ids, palette, rehearsal, musician_ids)
+            VALUES (${department_id}, ${event_date}, ${leader_id || null}, ${minister_id || null},
+                ${songsJson}::jsonb, ${songIdsJson}::jsonb, ${palette || ''}, ${rehearsal || false}, ${musicianIdsJson}::jsonb)
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro ao criar escala:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/worship-scales', auth, async (req, res) => {
+    try {
+        const { department_id } = req.query;
+        
+        let query = `
+            SELECT ws.*, u1.name as leader_name, u2.name as minister_name
+            FROM worship_scales ws
+            LEFT JOIN users u1 ON ws.leader_id = u1.id
+            LEFT JOIN users u2 ON ws.minister_id = u2.id
+        `;
+        
+        if (department_id) {
+            query += ` WHERE ws.department_id = ${department_id}`;
+        }
+        
+        query += ` ORDER BY ws.event_date DESC`;
+        
+        const scales = await sql(query);
+        res.json(scales);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/worship-scales/member/:userId', auth, async (req, res) => {
+    try {
+        const scales = await sql`
+            SELECT ws.*, u1.name as leader_name, u2.name as minister_name
+            FROM worship_scales ws
+            LEFT JOIN users u1 ON ws.leader_id = u1.id
+            LEFT JOIN users u2 ON ws.minister_id = u2.id
+            WHERE ws.leader_id = ${req.params.userId} 
+               OR ws.minister_id = ${req.params.userId}
+               OR ws.musician_ids::text LIKE ${'%' + req.params.userId + '%'}
+            ORDER BY ws.event_date DESC
+        `;
+        res.json(scales);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
+    try {
+        const scale = await sql`
+            SELECT ws.*, u1.name as leader_name, u2.name as minister_name
+            FROM worship_scales ws
+            LEFT JOIN users u1 ON ws.leader_id = u1.id
+            LEFT JOIN users u2 ON ws.minister_id = u2.id
+            WHERE ws.id = ${req.params.id}
+        `;
+        
+        if (scale.length === 0) return res.status(404).json({ error: 'Escala não encontrada' });
+        
+        const s = scale[0];
+        
+        let songIds = [];
+        try {
+            songIds = typeof s.song_ids === 'string' ? JSON.parse(s.song_ids) : (s.song_ids || []);
+        } catch { songIds = []; }
+        
+        let songsDetails = [];
+        if (songIds.length > 0) {
+            songsDetails = await sql`
+                SELECT id, title, artist, key, lyrics, youtube_url FROM songs WHERE id = ANY(${songIds})
+            `;
+        }
+        
+        let musicianIds = [];
+        try {
+            musicianIds = typeof s.musician_ids === 'string' ? JSON.parse(s.musician_ids) : (s.musician_ids || []);
+        } catch { musicianIds = []; }
+        
+        let musiciansDetails = [];
+        if (musicianIds.length > 0) {
+            musiciansDetails = await sql`
+                SELECT id, name, role FROM users WHERE id = ANY(${musicianIds})
+            `;
+        }
+        
+        res.json({ ...s, songs: songsDetails, musicians: musiciansDetails });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/worship-scales/:id/songs', auth, async (req, res) => {
+    try {
+        const { songs, song_ids } = req.body;
+        
+        const songsJson = JSON.stringify(Array.isArray(songs) ? songs : []);
+        const songIdsJson = JSON.stringify(Array.isArray(song_ids) ? song_ids : []);
+        
+        const result = await sql`
+            UPDATE worship_scales 
+            SET songs = ${songsJson}::jsonb, song_ids = ${songIdsJson}::jsonb
+            WHERE id = ${req.params.id}
+            RETURNING *
+        `;
+        
+        if (result.length === 0) return res.status(404).json({ error: 'Escala não encontrada' });
+        
+        res.json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/worship-scales/:id/share', auth, async (req, res) => {
+    try {
+        const scale = await sql`
+            SELECT ws.*, u1.name as leader_name, u2.name as minister_name
+            FROM worship_scales ws
+            LEFT JOIN users u1 ON ws.leader_id = u1.id
+            LEFT JOIN users u2 ON ws.minister_id = u2.id
+            WHERE ws.id = ${req.params.id}
+        `;
+        
+        if (scale.length === 0) return res.status(404).json({ error: 'Escala não encontrada' });
+        
+        const s = scale[0];
+        const eventDate = new Date(s.event_date);
+        
+        let songsList = [];
+        try {
+            songsList = typeof s.songs === 'string' ? JSON.parse(s.songs) : (s.songs || []);
+        } catch { songsList = []; }
+        
+        const message = `🎵 *ESCALA DE LOUVOR* 🎵
+
+📅 *Data:* ${eventDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })} às ${eventDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+
+👤 *Líder:* ${s.leader_name || 'Não definido'}
+🎤 *Ministro:* ${s.minister_name || 'Não definido'}
+
+🎶 *Músicas:*
+${songsList.map((m, i) => `${i + 1}. ${m}`).join('\n') || 'Nenhuma'}
+
+🎨 *Paleta:* ${s.palette || 'Não definida'}
+${s.rehearsal ? '🎙️ *COM ENSAIO*' : ''}
+
+_Deus abençoe!_ 🙏`;
+
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        
+        res.json({ whatsapp_url: whatsappUrl, message });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/worship-scales/:id', auth, async (req, res) => {
+    try {
+        await sql`DELETE FROM worship_scales WHERE id = ${req.params.id}`;
+        res.json({ message: 'Escala removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== YOUTUBE =====
+// ============================================
+
+app.get('/api/youtube-search', auth, async (req, res) => {
+    try {
+        const { query } = req.query;
+        if (!query) return res.status(400).json({ error: 'Query é obrigatória' });
+
+        const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
+        
+        if (YOUTUBE_API_KEY) {
+            const response = await fetch(
+                `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}`
+            );
+            const data = await response.json();
+            
+            const results = data.items?.map(item => ({
+                videoId: item.id.videoId,
+                title: item.snippet.title,
+                thumbnail: item.snippet.thumbnails.default.url
+            })) || [];
+            
+            res.json({ results });
+        } else {
+            const results = [
+                { videoId: 'dQw4w9WgXcQ', title: `${query} - Versão Original` },
+                { videoId: 'dQw4w9WgXcQ', title: `${query} - Ao Vivo` },
+                { videoId: 'dQw4w9WgXcQ', title: `${query} - Playback` }
+            ];
+            res.json({ results });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/youtube-song', auth, async (req, res) => {
+    try {
+        const { url } = req.body;
+        
+        const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/;
+        const match = url.match(youtubeRegex);
+        
+        if (!match) return res.status(400).json({ error: 'Link do YouTube inválido' });
+        
+        const videoId = match[1];
+        
+        res.json({
+            video_id: videoId,
+            embed_url: `https://www.youtube.com/embed/${videoId}`,
+            watch_url: `https://www.youtube.com/watch?v=${videoId}`
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== TRANSPOSIÇÃO =====
+// ============================================
+
+app.post('/api/transpose-chord', auth, async (req, res) => {
+    try {
+        const { lyrics, fromKey, toKey } = req.body;
+        
+        if (!lyrics || !fromKey || !toKey) {
+            return res.status(400).json({ error: 'Dados incompletos' });
+        }
+        
+        const transposed = transposeChords(lyrics, fromKey, toKey);
+        res.json({ transposed });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+function transposeChords(lyrics, fromKey, toKey) {
+    const chordMap = {
+        'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3,
+        'E': 4, 'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8,
+        'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11
+    };
+    
+    const chordNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    
+    const from = chordMap[fromKey];
+    const to = chordMap[toKey];
+    
+    if (from === undefined || to === undefined) return lyrics;
+    
+    const diff = (to - from + 12) % 12;
+    
+    const chordRegex = /([A-G][#b]?)(maj|m|min|dim|aug|sus|add|\d|\(|\)|)?/g;
+    
+    return lyrics.replace(chordRegex, (match, chord, suffix) => {
+        const baseIndex = chordMap[chord];
+        if (baseIndex === undefined) return match;
+        
+        const newIndex = (baseIndex + diff) % 12;
+        const newChord = chordNames[newIndex];
+        
+        return newChord + (suffix || '');
+    });
+}
+
+// ============================================
+// ===== PDF INSCRIÇÃO =====
+// ============================================
+
+app.get('/api/registration-pdf/:id', async (req, res) => {
+    try {
+        const reg = await sql`SELECT * FROM registrations WHERE id = ${req.params.id}`;
+        if (reg.length === 0) return res.status(404).json({ error: 'Não encontrado' });
+        
+        const html = `
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="UTF-8"><title>Comprovante</title></head>
+        <body style="font-family:Arial;max-width:600px;margin:2rem auto;padding:2rem;">
+            <h1 style="color:#0D47A1;">🙏 NJ Cabuçu</h1>
+            <h2>Comprovante de Inscrição</h2>
+            <p><strong>Protocolo:</strong> #${String(reg[0].id).padStart(6, '0')}</p>
+            <p><strong>Nome:</strong> ${reg[0].name}</p>
+            <p><strong>Email:</strong> ${reg[0].email || '-'}</p>
+            <p><strong>Telefone:</strong> ${reg[0].phone || '-'}</p>
+            ${reg[0].event_name ? `<p><strong>Evento:</strong> ${reg[0].event_name}</p>` : ''}
+            ${reg[0].department_name ? `<p><strong>Departamento:</strong> ${reg[0].department_name}</p>` : ''}
+            <p><strong>Status:</strong> ${reg[0].status === 'approved' ? '✅ Confirmado' : '⏳ Pendente'}</p>
+            <hr>
+            <p style="color:#888;font-size:0.8rem;">NJ Cabuçu - João 8:32</p>
+        </body>
+        </html>
+        `;
+        res.setHeader('Content-Type', 'text/html');
+        res.send(html);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== MERCADO PAGO =====
+// ============================================
+
+app.post('/api/create-pix-payment', async (req, res) => {
+    try {
+        const { amount, description, email, name, phone, cpf } = req.body;
+
+        if (!process.env.MP_ACCESS_TOKEN || !PaymentService) {
+            return res.status(500).json({ error: 'Mercado Pago não configurado' });
+        }
+
+        const valor = parseFloat(amount);
+        if (isNaN(valor) || valor <= 0) return res.status(400).json({ error: 'Valor inválido' });
+
+        const externalReference = `NJ-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+
+        const payment = await PaymentService.create({
+            body: {
+                transaction_amount: valor,
+                description: description || 'Pagamento NJ Cabuçu',
+                payment_method_id: 'pix',
+                payer: {
+                    email: email || 'cliente@email.com',
+                    first_name: name || 'Cliente',
+                    phone: { number: phone || '' },
+                    identification: { type: 'CPF', number: cpf || '12345678909' }
+                },
+                external_reference: externalReference,
+                notification_url: `${process.env.PUBLIC_URL || 'https://igrejanjcabucurj.vercel.app'}/api/webhook`
             }
         });
 
-        // ============================================
-        // ===== LIVE =====
-        // ============================================
-        async function checkLiveStatusIndex() {
-            try {
-                const res = await fetch('/api/lives/active');
-                const data = await res.json();
-                const liveBar = document.getElementById('liveBar');
-                const liveSection = document.getElementById('live');
-                if (data.status === 'live') {
-                    liveBar.classList.add('active');
-                    document.getElementById('liveBarTitle').textContent = data.titulo || 'Live NJ Cabuçu';
-                    document.getElementById('liveBarDesc').textContent = data.descricao || '';
-                    liveSection.style.display = 'block';
-                    document.getElementById('liveOffline').style.display = 'none';
-                    document.getElementById('remoteVideo').style.display = 'block';
-                    document.getElementById('liveBadge').style.display = 'flex';
-                    document.getElementById('liveInfoBox').style.display = 'flex';
-                    document.getElementById('heroLiveBadge').style.display = 'flex';
-                    document.getElementById('liveNavBtn').style.display = 'inline-flex';
-                    document.getElementById('liveNavBtn2').style.display = 'inline-flex';
-                    document.getElementById('liveTitleDisplay').textContent = data.titulo || 'Live NJ Cabuçu';
-                    document.getElementById('liveDescDisplay').textContent = data.descricao || '';
-                    document.getElementById('liveViewerCount').textContent = data.viewers || 0;
-                    const viewerId = 'viewer_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
-                    await fetch(`/api/lives/${data.id}/viewer`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ viewer_id: viewerId }) });
-                    const video = document.getElementById('remoteVideo');
-                    if (data.stream_key) {
-                        const streamUrl = `/live/${data.stream_key}/index.m3u8`;
-                        if (video.canPlayType('application/vnd.apple.mpegurl')) video.src = streamUrl;
-                        else if (typeof Hls !== 'undefined') { const hls = new Hls(); hls.loadSource(streamUrl); hls.attachMedia(video); }
-                        else video.src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
-                    } else { video.src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'; }
-                    video.play().catch(e => console.log('Erro ao reproduzir:', e));
-                    if (liveIntervalCheck) clearInterval(liveIntervalCheck);
-                    liveIntervalCheck = setInterval(async () => {
-                        try {
-                            const res2 = await fetch('/api/lives/active');
-                            const data2 = await res2.json();
-                            if (data2.status === 'live') document.getElementById('liveViewerCount').textContent = data2.viewers || 0;
-                        } catch (e) {}
-                    }, 10000);
-                } else {
-                    liveBar.classList.remove('active');
-                    liveSection.style.display = 'none';
-                    document.getElementById('liveOffline').style.display = 'flex';
-                    document.getElementById('remoteVideo').style.display = 'none';
-                    document.getElementById('remoteVideo').src = '';
-                    document.getElementById('liveBadge').style.display = 'none';
-                    document.getElementById('liveInfoBox').style.display = 'none';
-                    document.getElementById('heroLiveBadge').style.display = 'none';
-                    document.getElementById('liveNavBtn').style.display = 'none';
-                    document.getElementById('liveNavBtn2').style.display = 'none';
-                    if (liveIntervalCheck) { clearInterval(liveIntervalCheck); liveIntervalCheck = null; }
-                }
-            } catch (e) { console.error('Erro ao verificar live:', e); }
+        const paymentLink = payment.point_of_interaction?.transaction_data?.ticket_url || 
+                           `https://www.mercadopago.com.br/payments/${payment.id}`;
+
+        res.json({
+            payment_id: payment.id,
+            status: payment.status,
+            payment_link: paymentLink,
+            external_reference: externalReference,
+            qr_code: payment.point_of_interaction?.transaction_data?.qr_code || '',
+            qr_code_base64: payment.point_of_interaction?.transaction_data?.qr_code_base64 || ''
+        });
+    } catch (error) {
+        console.error('❌ Erro MP PIX:', error);
+        res.status(500).json({ error: 'Erro: ' + error.message });
+    }
+});
+
+app.post('/api/create-card-payment-fallback', async (req, res) => {
+    try {
+        const { amount, description, email, name, phone, cpf, card_number, card_expiry, card_cvv, installments } = req.body;
+
+        if (!process.env.MP_ACCESS_TOKEN || !PaymentService) {
+            return res.status(500).json({ error: 'Mercado Pago não configurado' });
         }
-        document.getElementById('livePlayer')?.addEventListener('click', () => {
-            const video = document.getElementById('remoteVideo');
-            if (video.style.display !== 'none' && video.src) {
-                if (document.fullscreenElement) document.exitFullscreen();
-                else video.requestFullscreen?.();
+
+        const valor = parseFloat(amount);
+        if (isNaN(valor) || valor <= 0) return res.status(400).json({ error: 'Valor inválido' });
+
+        const tokenResponse = await fetch('https://api.mercadopago.com/v1/card_tokens', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.MP_ACCESS_TOKEN}`
+            },
+            body: JSON.stringify({
+                card_number: card_number.replace(/\s/g, ''),
+                expiration_month: parseInt(card_expiry.split('/')[0]),
+                expiration_year: parseInt('20' + card_expiry.split('/')[1]),
+                security_code: card_cvv,
+                cardholder: {
+                    name: name || 'Cliente',
+                    identification: { type: 'CPF', number: cpf || '12345678909' }
+                }
+            })
+        });
+
+        const tokenResult = await tokenResponse.json();
+        
+        const payment = await PaymentService.create({
+            body: {
+                transaction_amount: valor,
+                description: description || 'Pagamento NJ Cabuçu',
+                payment_method_id: 'credit_card',
+                installments: parseInt(installments) || 1,
+                token: tokenResult.id || 'test_token',
+                payer: {
+                    email: email || 'cliente@email.com',
+                    first_name: name || 'Cliente',
+                    phone: { number: phone || '' },
+                    identification: { type: 'CPF', number: cpf || '12345678909' }
+                },
+                external_reference: `NJ-${Date.now()}`,
+                notification_url: `${process.env.PUBLIC_URL || 'https://igrejanjcabucurj.vercel.app'}/api/webhook`
             }
         });
 
-        // ============================================
-        // ===== REFLEXÕES =====
-        // ============================================
-        async function loadReflections() {
-            const container = document.getElementById('reflectionsList');
-            try {
-                const res = await fetch('/api/pastor-reflections');
-                if (!res.ok) throw new Error('Erro ao carregar reflexões');
-                const data = await res.json();
-                if (data && data.length > 0) {
-                    container.innerHTML = data.map(item => {
-                        let videoId = '';
-                        if (item.link) {
-                            const url = new URL(item.link);
-                            if (url.hostname.includes('youtube.com') || url.hostname.includes('youtu.be')) {
-                                const match = item.link.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/);
-                                if (match) videoId = match[1];
-                            }
-                        }
-                        return `
-                            <div class="reflection-card">
-                                ${videoId ? `<div class="video-wrapper"><iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen loading="lazy"></iframe></div>` : `<div class="video-wrapper" style="background:#0A0E1A;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:0.85rem;">🎥 Vídeo indisponível</div>`}
-                                <div class="info">
-                                    <h4>${item.title || 'Reflexão'}</h4>
-                                    <p>${item.description || ''}</p>
-                                    ${item.link ? `<a href="${item.link}" target="_blank" style="color:var(--accent);font-weight:600;font-size:0.8rem;text-decoration:none;">Assistir no YouTube <i class="fas fa-external-link-alt"></i></a>` : ''}
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                } else {
-                    container.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--text-muted);grid-column:1/-1;"><i class="fas fa-video" style="font-size:2.5rem;color:rgba(10,38,71,0.08);display:block;margin-bottom:0.6rem;"></i><p>Nenhuma reflexão disponível no momento.</p></div>`;
-                }
-            } catch (e) {
-                console.error('Erro ao carregar reflexões:', e);
-                container.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--text-muted);grid-column:1/-1;"><i class="fas fa-exclamation-circle" style="font-size:2.5rem;color:rgba(10,38,71,0.08);display:block;margin-bottom:0.6rem;"></i><p>Erro ao carregar reflexões.</p></div>`;
-            }
-        }
-
-        // ============================================
-        // ===== CÉLULAS =====
-        // ============================================
-        async function loadCelulasIndex() {
-            try {
-                const res = await fetch('/api/celulas');
-                const data = await res.json();
-                const container = document.getElementById('celulasList');
-                if (!data || data.length === 0) {
-                    container.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--text-muted);grid-column:1/-1;"><i class="fas fa-users" style="font-size:2.5rem;color:rgba(10,38,71,0.08);display:block;margin-bottom:0.6rem;"></i><p>Nenhuma célula disponível no momento 🏠</p></div>`;
-                    return;
-                }
-                container.innerHTML = data.map(c => `
-                    <div class="card">
-                        <div class="icon-wrapper" style="background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;"><i class="fas fa-home"></i></div>
-                        <h3>${c.nome}</h3>
-                        <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:var(--text-secondary);margin:0.15rem 0;"><i class="fas fa-user" style="width:18px;color:var(--accent);"></i><span><strong>Líder:</strong> ${c.lider_nome || 'Sem líder'}</span></div>
-                        <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:var(--text-secondary);margin:0.15rem 0;"><i class="fas fa-map-pin" style="width:18px;color:var(--accent);"></i><span>${c.endereco || 'Endereço não informado'}</span></div>
-                        <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:var(--text-secondary);margin:0.15rem 0;"><i class="fas fa-calendar" style="width:18px;color:var(--accent);"></i><span>${c.dias_reuniao || 'Dias não informados'}</span></div>
-                        <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:var(--text-secondary);margin:0.15rem 0;"><i class="fas fa-clock" style="width:18px;color:var(--accent);"></i><span>${c.horario || 'Horário não informado'}</span></div>
-                        <div style="display:inline-block;background:var(--secondary-light);color:var(--primary);padding:0.15rem 0.8rem;border-radius:var(--radius-full);font-size:0.65rem;font-weight:700;margin-top:0.3rem;align-self:flex-start;"><i class="fas fa-users"></i> ${c.membros_ativos || 0} membros</div>
-                        ${c.descricao ? `<p style="margin-top:0.3rem;font-size:0.78rem;color:var(--text-muted);">${c.descricao}</p>` : ''}
-                        <a href="https://wa.me/5521985345627?text=Olá! Quero participar da célula ${c.nome}" target="_blank" class="btn btn-whatsapp" style="margin-top:0.5rem;width:100%;justify-content:center;font-size:0.75rem;padding:0.4rem;"><i class="fab fa-whatsapp"></i> Quero Participar</a>
-                    </div>
-                `).join('');
-            } catch (e) {
-                console.error('Erro:', e);
-                document.getElementById('celulasList').innerHTML = `<div style="text-align:center;padding:2rem;color:#dc3545;grid-column:1/-1;"><i class="fas fa-exclamation-circle" style="font-size:2rem;display:block;margin-bottom:0.4rem;"></i><p>Erro ao carregar células</p></div>`;
-            }
-        }
-
-        // ============================================
-        // ===== CARD IMAGE =====
-        // ============================================
-        function createCardImage(imageData, alt) {
-            if (!imageData) return '';
-            let src = imageData;
-            if (imageData.startsWith('/uploads')) src = imageData;
-            else if (imageData.startsWith('data:image')) src = imageData;
-            else if (imageData.length > 100 && !imageData.startsWith('http')) src = `data:image/jpeg;base64,${imageData}`;
-            return `<div class="card-image-wrapper"><img src="${src}" alt="${alt}" loading="lazy" onerror="this.style.display='none'"></div>`;
-        }
-
-        // ============================================
-        // ===== ESTUDOS (NOVO DESIGN) =====
-        // ============================================
-        async function loadStudies() {
-            try {
-                const res = await fetch('/api/studies');
-                const data = await res.json();
-                const container = document.getElementById('studiesList');
-                
-                if (!data || data.length === 0) {
-                    container.innerHTML = `<div class="study-empty"><i class="fas fa-book-open"></i><p>Nenhum estudo disponível no momento.</p></div>`;
-                    return;
-                }
-                
-                container.innerHTML = data.map(s => {
-                    const hasPdf = s.file_base64 || s.file_url;
-                    const hasImage = s.image_base64;
-                    
-                    let fileButton = '';
-                    if (s.file_base64) {
-                        fileButton = `<button onclick="downloadPdf('${s.id}')" class="btn-study btn-study-pdf"><i class="fas fa-file-pdf"></i> Baixar PDF</button>`;
-                    } else if (s.file_url) {
-                        const isDrive = s.file_url.includes('drive.google.com');
-                        const isYoutube = s.file_url.includes('youtube.com') || s.file_url.includes('youtu.be');
-                        let icon = 'fa-external-link-alt', label = 'Abrir Link';
-                        if (isDrive) { icon = 'fa-google-drive'; label = 'Ver no Drive'; }
-                        else if (isYoutube) { icon = 'fa-youtube'; label = 'Assistir'; }
-                        fileButton = `<a href="${s.file_url}" target="_blank" class="btn-study btn-study-link"><i class="fas ${icon}"></i> ${label}</a>`;
-                    }
-                    
-                    return `
-                        <div class="study-card">
-                            <div class="study-image">
-                                ${hasImage ? `<img src="${s.image_base64.startsWith('data:') ? s.image_base64 : 'data:image/jpeg;base64,' + s.image_base64}" alt="${s.title}" loading="lazy" onerror="this.style.display='none'">` : `<div class="study-icon"><i class="fas fa-book-open"></i></div>`}
-                            </div>
-                            <div class="study-body">
-                                <h3>${s.title}</h3>
-                                <div class="study-description">${s.description || 'Estudo bíblico para edificação da sua fé.'}</div>
-                                <div class="study-actions">
-                                    ${fileButton}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            } catch (e) { 
-                console.error('Erro ao carregar estudos:', e);
-                document.getElementById('studiesList').innerHTML = `<div class="study-empty"><i class="fas fa-exclamation-circle" style="color:#dc3545;"></i><p>Erro ao carregar estudos. Tente novamente.</p></div>`;
-            }
-        }
-
-        // ============================================
-        // ===== BAIXAR PDF =====
-        // ============================================
-        function downloadPdf(studyId) {
-            showNotification('📄 Baixando PDF...', 'info');
-            fetch(`/api/studies/${studyId}/pdf`, { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') } })
-                .then(response => { if (!response.ok) throw new Error('Erro ao baixar PDF'); return response.blob(); })
-                .then(blob => {
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url; a.download = `estudo-${studyId}.pdf`;
-                    document.body.appendChild(a); a.click(); a.remove();
-                    window.URL.revokeObjectURL(url);
-                    showNotification('✅ PDF baixado com sucesso!', 'success');
-                })
-                .catch(error => { console.error('Erro ao baixar PDF:', error); showNotification('❌ Erro ao baixar PDF: ' + error.message, 'error'); });
-        }
-
-        // ============================================
-        // ===== EVENTOS =====
-        // ============================================
-        async function loadEvents() {
-            try {
-                const res = await fetch('/api/events');
-                const data = await res.json();
-                const container = document.getElementById('eventsList');
-                if (!data || data.length === 0) {
-                    container.innerHTML = '<p style="text-align:center;color:var(--text-muted);grid-column:1/-1;">Nenhum evento disponível.</p>';
-                    return;
-                }
-                container.innerHTML = data.map(e => `
-                    <div class="card">
-                        ${e.image_base64 ? createCardImage(e.image_base64, e.title) : ''}
-                        <h3>${e.title}</h3>
-                        <p>${e.description || ''}</p>
-                        <p style="font-size:0.78rem;color:var(--text-secondary);margin:0.2rem 0;"><strong>Data:</strong> ${new Date(e.date).toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' })}</p>
-                        <p style="font-size:0.78rem;color:var(--text-secondary);"><strong>Valor:</strong> ${parseFloat(e.price || 0) > 0 ? 'R$ ' + parseFloat(e.price).toFixed(2) : 'Grátis'}</p>
-                        <button onclick="registerForEvent(${e.id}, '${e.title}', ${e.price || 0})" class="btn btn-primary" style="margin-top:0.5rem; background:linear-gradient(135deg,var(--primary),var(--primary-light)); font-size:0.78rem; padding:0.4rem 1.2rem;"><i class="fas fa-ticket-alt"></i> Inscrever-se</button>
-                    </div>
-                `).join('');
-            } catch (e) { console.error('Erro:', e); }
-        }
-        async function registerForEvent(eventId, eventName, price) {
-            const name = prompt('Seu nome completo:'); if (!name) return;
-            const email = prompt('Seu e-mail:'); if (!email) return;
-            const phone = prompt('Seu telefone (WhatsApp):'); if (!phone) return;
-            try {
-                const res = await fetch('/api/registrations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'event', name, email, phone, event_name: eventName, details: 'Inscrição para evento: ' + eventName, amount: parseFloat(price) || 0, is_paid: parseFloat(price) > 0 ? false : true }) });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error || 'Erro ao inscrever');
-                if (parseFloat(price) > 0) {
-                    alert('✅ Inscrição realizada! O evento é pago. Por favor, faça o pagamento para confirmar.');
-                    paymentType = 'donation'; donationType = 'Inscrição Evento - ' + eventName;
-                    document.getElementById('paymentTitle').textContent = '💳 Inscrição - ' + eventName;
-                    document.getElementById('paymentTotal').textContent = 'Valor: R$ ' + parseFloat(price).toFixed(2);
-                    document.getElementById('paymentForm').style.display = 'block';
-                    document.getElementById('paymentResult').style.display = 'none';
-                    _donationAmount = parseFloat(price);
-                    document.getElementById('payName').value = name; document.getElementById('payEmail').value = email; document.getElementById('payPhone').value = phone;
-                    openModal('paymentModal');
-                } else {
-                    const pdfUrl = `/api/registration-pdf/${data.id}`;
-                    if (confirm('✅ Inscrição realizada com sucesso! Deseja baixar o comprovante em PDF?')) window.open(pdfUrl, '_blank');
-                }
-            } catch (e) { alert('❌ Erro: ' + e.message); }
-        }
-
-        // ============================================
-        // ===== PRODUTOS (NOVO DESIGN BONITO) =====
-        // ============================================
-        async function loadProducts() {
-            try {
-                const res = await fetch('/api/products');
-                const data = await res.json();
-                const container = document.getElementById('productsList');
-                
-                if (!data || data.length === 0) {
-                    container.innerHTML = `<div class="store-empty"><i class="fas fa-store"></i><p>Nenhum produto disponível no momento.</p><p style="font-size:0.85rem;margin-top:0.3rem;">Em breve novidades na NJ Store!</p></div>`;
-                    return;
-                }
-                
-                container.innerHTML = data.map(p => {
-                    const price = parseFloat(p.price || 0);
-                    const hasImage = p.image_base64;
-                    const category = p.category || 'NJ Store';
-                    
-                    return `
-                        <div class="store-card">
-                            <div class="store-image">
-                                ${hasImage ? `<img src="${p.image_base64.startsWith('data:') ? p.image_base64 : 'data:image/jpeg;base64,' + p.image_base64}" alt="${p.name}" loading="lazy" onerror="this.style.display='none'">` : `<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:3rem;color:rgba(10,38,71,0.08);"><i class="fas fa-box"></i></div>`}
-                                <span class="store-badge">${category}</span>
-                            </div>
-                            <div class="store-body">
-                                <h3>${p.name}</h3>
-                                <div class="store-description">${p.description || 'Produto exclusivo NJ Cabuçu.'}</div>
-                                <div class="store-price-row">
-                                    <span class="store-price">R$ ${price.toFixed(2)}</span>
-                                </div>
-                                <div class="store-actions">
-                                    <button onclick="addToCart(${p.id})" class="btn-store btn-store-add">
-                                        <i class="fas fa-cart-plus"></i> Adicionar
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            } catch (e) { 
-                console.error('Erro ao carregar produtos:', e);
-                document.getElementById('productsList').innerHTML = `<div class="store-empty"><i class="fas fa-exclamation-circle" style="color:#dc3545;"></i><p>Erro ao carregar produtos. Tente novamente.</p></div>`;
-            }
-        }
-
-        // ============================================
-        // ===== ANIVERSARIANTES =====
-        // ============================================
-        async function loadBirthdays() {
-            try {
-                const res = await fetch('/api/birthdays');
-                const data = await res.json();
-                const container = document.getElementById('birthdayList');
-                if (!data || data.length === 0) {
-                    container.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--text-muted);grid-column:1/-1;"><i class="fas fa-birthday-cake" style="font-size:2.5rem;color:rgba(10,38,71,0.08);display:block;margin-bottom:0.6rem;"></i><p>Nenhum aniversariante este mês 🎉</p></div>`;
-                    return;
-                }
-                const sortedData = [...data].sort((a, b) => new Date(a.birth_date).getDate() - new Date(b.birth_date).getDate());
-                const today = new Date();
-                const todayMonth = today.getMonth();
-                const todayDay = today.getDate();
-                container.innerHTML = sortedData.map(person => {
-                    const birth = new Date(person.birth_date);
-                    let idade = today.getFullYear() - birth.getFullYear();
-                    const mesNiver = birth.getMonth();
-                    const diaNiver = birth.getDate();
-                    if (today.getMonth() < mesNiver || (today.getMonth() === mesNiver && today.getDate() < diaNiver)) idade--;
-                    const emojis = ['🎂', '🎈', '🎉', '🎊', '✨', '🌟', '💫', '🥳'];
-                    const emoji = emojis[person.id % emojis.length];
-                    const isToday = mesNiver === todayMonth && diaNiver === todayDay;
-                    return `
-                        <div class="card birthday-card ${isToday ? 'today' : ''}" style="text-align:center; border-left:4px solid ${isToday ? '#e91e63' : 'var(--accent)'}; padding:1.2rem;">
-                            <div style="font-size:2rem;">${emoji}</div>
-                            <div style="font-size:1rem;font-weight:700;color:var(--primary);font-family:'Playfair Display',serif;">${person.name}</div>
-                            <div style="color:var(--text-secondary);font-size:0.85rem;">${birth.toLocaleDateString('pt-BR', { day:'numeric', month:'long' })}</div>
-                            <div style="color:var(--text-muted);font-size:0.8rem;">🎯 ${idade} anos ${isToday ? '🎉 HOJE!' : ''}</div>
-                            ${person.phone ? `<div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;"><i class="fas fa-phone"></i> ${person.phone}</div>` : ''}
-                        </div>
-                    `;
-                }).join('');
-            } catch (e) {
-                console.error('Erro:', e);
-                document.getElementById('birthdayList').innerHTML = `<div style="text-align:center;padding:2rem;color:#dc3545;grid-column:1/-1;"><i class="fas fa-exclamation-circle" style="font-size:2rem;display:block;margin-bottom:0.4rem;"></i><p>Erro ao carregar aniversariantes</p></div>`;
-            }
-        }
-
-        // ============================================
-        // ===== CARRINHO =====
-        // ============================================
-        async function addToCart(productId) {
-            try {
-                const res = await fetch('/api/products');
-                const products = await res.json();
-                const product = products.find(p => p.id === productId);
-                if (product) {
-                    cart.push(product);
-                    document.getElementById('cartCount').textContent = cart.length;
-                    showNotification('✅ ' + product.name + ' adicionado ao carrinho!', 'success');
-                }
-            } catch (e) { console.error('Erro:', e); }
-        }
-        function openCart() {
-            const container = document.getElementById('cartItems');
-            const totalDiv = document.getElementById('cartTotal');
-            if (cart.length === 0) {
-                container.innerHTML = '<p style="text-align:center;color:var(--text-muted);">Carrinho vazio</p>';
-                totalDiv.textContent = '';
-            } else {
-                let total = 0;
-                container.innerHTML = cart.map((p, i) => `
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem;border-bottom:1px solid #eee;">
-                        <span style="font-size:0.85rem;">${p.name} - R$ ${parseFloat(p.price).toFixed(2)}</span>
-                        <button onclick="removeFromCart(${i})" class="btn btn-danger btn-sm" style="font-size:0.65rem;padding:0.15rem 0.5rem;background:#dc3545;color:#fff;"><i class="fas fa-times"></i></button>
-                    </div>
-                `).join('');
-                total = cart.reduce((sum, p) => sum + parseFloat(p.price), 0);
-                totalDiv.textContent = 'Total: R$ ' + total.toFixed(2);
-            }
-            openModal('cartModal');
-        }
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            document.getElementById('cartCount').textContent = cart.length;
-            openCart();
-        }
-        function checkout() {
-            if (cart.length === 0) { showNotification('Carrinho vazio!', 'error'); return; }
-            closeModal('cartModal');
-            paymentType = 'sale';
-            const total = cart.reduce((sum, p) => sum + parseFloat(p.price), 0);
-            document.getElementById('paymentTitle').textContent = '💳 NJ Store - Pagamento';
-            document.getElementById('paymentTotal').textContent = 'Total: R$ ' + total.toFixed(2);
-            document.getElementById('paymentForm').style.display = 'block';
-            document.getElementById('paymentResult').style.display = 'none';
-            openModal('paymentModal');
-        }
-
-        // ============================================
-        // ===== DÍZIMOS =====
-        // ============================================
-        function openDonationForm(type) {
-            document.getElementById('donationModal').classList.add('open');
-            document.getElementById('donationType').value = type;
-            document.getElementById('donationTypeLabel').textContent = '💳 ' + type;
-            document.getElementById('donationName').value = '';
-            document.getElementById('donationEmail').value = '';
-            document.getElementById('donationPhone').value = '';
-            document.getElementById('donationAmount').value = '';
-        }
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('open');
-            document.body.style.overflow = 'auto';
-            if (statusCheckInterval) { clearInterval(statusCheckInterval); statusCheckInterval = null; }
-        }
-        function openModal(id) {
-            document.getElementById(id).classList.add('open');
-            document.body.style.overflow = 'hidden';
-        }
-        document.querySelectorAll('.modal').forEach(m => {
-            m.addEventListener('click', (e) => {
-                if (e.target === m) {
-                    m.classList.remove('open');
-                    document.body.style.overflow = 'auto';
-                    if (statusCheckInterval) { clearInterval(statusCheckInterval); statusCheckInterval = null; }
-                }
-            });
+        res.json({
+            payment_id: payment.id,
+            status: payment.status,
+            status_detail: payment.status_detail
         });
-        async function submitDonation() {
-            const type = document.getElementById('donationType').value;
-            const name = document.getElementById('donationName').value.trim();
-            const email = document.getElementById('donationEmail').value.trim();
-            const phone = document.getElementById('donationPhone').value.trim();
-            const amount = document.getElementById('donationAmount').value.trim();
-            if (!name || !email || !phone || !amount) { showNotification('Preencha todos os campos!', 'error'); return; }
-            if (parseFloat(amount) <= 0) { showNotification('Valor inválido!', 'error'); return; }
-            donationType = type; paymentType = 'donation'; _donationAmount = parseFloat(amount);
-            closeModal('donationModal');
-            document.getElementById('paymentTitle').textContent = '💳 ' + type;
-            document.getElementById('paymentTotal').textContent = 'Valor: R$ ' + parseFloat(amount).toFixed(2);
-            document.getElementById('paymentForm').style.display = 'block';
-            document.getElementById('paymentResult').style.display = 'none';
-            document.getElementById('payName').value = name;
-            document.getElementById('payEmail').value = email;
-            document.getElementById('payPhone').value = phone;
-            openModal('paymentModal');
-        }
-        function togglePaymentMethod() {
-            const method = document.getElementById('payMethod').value;
-            const cardFields = document.getElementById('cardFields');
-            if (method === 'card') cardFields.style.display = 'block';
-            else cardFields.style.display = 'none';
-        }
+    } catch (error) {
+        console.error('❌ Erro MP cartão:', error);
+        res.status(500).json({ error: 'Erro: ' + error.message });
+    }
+});
 
-        // ============================================
-        // ===== SALVAR PEDIDO/DOAÇÃO =====
-        // ============================================
-        async function saveOrderOrDonation(name, email, phone, amount, paymentId, method, description) {
-            try {
-                if (paymentType === 'sale') {
-                    const itemsForOrder = cart.map(item => ({ id: item.id, name: item.name, price: parseFloat(item.price), quantity: 1 }));
-                    await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_name: name, user_email: email, user_phone: phone, items: itemsForOrder, total: amount, payment_id: paymentId, payment_method: method, status: 'pending' }) });
-                    cart = []; document.getElementById('cartCount').textContent = 0;
-                } else if (paymentType === 'donation') {
-                    await fetch('/api/donations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_name: name, user_email: email, user_phone: phone, type: donationType, amount, payment_id: paymentId, payment_method: method, status: 'pending' }) });
-                }
-                console.log('✅ Registro salvo com sucesso!');
-            } catch (error) { console.error('❌ Erro ao salvar:', error); }
-        }
-
-        // ============================================
-        // ===== VERIFICAR STATUS =====
-        // ============================================
-        async function checkPaymentStatus(paymentId) {
-            try {
-                showNotification('🔄 Verificando status do pagamento...', 'info');
-                const response = await fetch(`/api/check-payment/${paymentId}`, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } });
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    const altResponse = await fetch(`/api/payment-status/${paymentId}`, { headers: { 'Accept': 'application/json' } });
-                    if (!altResponse.ok) throw new Error('Não foi possível verificar o status.');
-                    const altData = await altResponse.json();
-                    return await processPaymentStatus(altData, paymentId);
-                }
-                const data = await response.json();
-                return await processPaymentStatus(data, paymentId);
-            } catch (error) {
-                console.error('Erro ao verificar status:', error);
-                showNotification('❌ Erro ao verificar status: ' + error.message, 'error');
-                return null;
-            }
-        }
-        async function processPaymentStatus(data, paymentId) {
-            if (data.status === 'approved') {
-                showNotification('✅ Pagamento confirmado! Obrigado! 🙏', 'success');
-                await fetch('/api/update-payment-status', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ payment_id: paymentId, status: 'approved' }) });
-                localStorage.removeItem('last_payment_id');
-                if (statusCheckInterval) { clearInterval(statusCheckInterval); statusCheckInterval = null; }
-                setTimeout(() => { closeModal('paymentModal'); if (paymentType === 'sale') { cart = []; document.getElementById('cartCount').textContent = 0; } }, 2000);
-                return true;
-            } else if (data.status === 'pending' || data.status === 'in_process') {
-                showNotification('⏳ Pagamento ainda pendente. Aguarde...', 'info');
-                return false;
-            } else if (data.status === 'rejected' || data.status === 'cancelled') {
-                showNotification('❌ Pagamento recusado ou cancelado.', 'error');
-                if (statusCheckInterval) { clearInterval(statusCheckInterval); statusCheckInterval = null; }
-                return false;
-            } else {
-                showNotification(`ℹ️ Status atual: ${data.status}`, 'info');
-                return false;
-            }
-        }
-        function verificarStatusAutomatico(paymentId) {
-            let tentativas = 0;
-            const maxTentativas = 12;
-            showNotification('🔄 Aguardando confirmação do pagamento...', 'info');
-            if (statusCheckInterval) { clearInterval(statusCheckInterval); statusCheckInterval = null; }
-            statusCheckInterval = setInterval(async () => {
-                tentativas++;
+app.post('/api/webhook', async (req, res) => {
+    try {
+        console.log('📝 Webhook recebido');
+        const { data, type } = req.body;
+        
+        if (type === 'payment' && data?.id) {
+            const paymentId = data.id;
+            
+            if (PaymentService) {
                 try {
-                    const response = await fetch(`/api/check-payment/${paymentId}`, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } });
-                    if (!response.ok) {
-                        if (tentativas >= maxTentativas) { clearInterval(statusCheckInterval); statusCheckInterval = null; showNotification('⏳ Tempo esgotado. Use o botão "Verificar Status" para checar.', 'info'); }
-                        return;
-                    }
-                    const data = await response.json();
-                    if (data.status === 'approved') {
-                        clearInterval(statusCheckInterval); statusCheckInterval = null;
-                        showNotification('✅ Pagamento confirmado! Obrigado! 🙏', 'success');
-                        await fetch('/api/update-payment-status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ payment_id: paymentId, status: 'approved' }) });
-                        localStorage.removeItem('last_payment_id');
-                        setTimeout(() => { closeModal('paymentModal'); if (paymentType === 'sale') { cart = []; document.getElementById('cartCount').textContent = 0; } }, 1500);
-                    } else if (data.status === 'rejected' || data.status === 'cancelled') {
-                        clearInterval(statusCheckInterval); statusCheckInterval = null;
-                        showNotification('❌ Pagamento recusado ou cancelado.', 'error');
+                    const payment = await PaymentService.get({ id: paymentId });
+                    
+                    if (payment.status === 'approved') {
+                        // ⚠️ APENAS ATUALIZA STATUS NO BANCO
+                        // O email será enviado pelo frontend via /api/send-confirmation-email
+                        await sql`UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}`;
+                        await sql`UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}`;
+                        
+                        console.log('✅ Status atualizado via webhook');
                     }
                 } catch (error) {
-                    console.error('Erro na verificação automática:', error);
-                    if (tentativas >= maxTentativas) { clearInterval(statusCheckInterval); statusCheckInterval = null; showNotification('⏳ Não foi possível confirmar automaticamente. Use o botão "Verificar Status".', 'info'); }
+                    console.error('❌ Erro webhook:', error);
                 }
-            }, 5000);
+            }
         }
+        res.json({ received: true });
+    } catch (error) {
+        console.error('❌ Erro webhook:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
 
-        // ============================================
-        // ===== VALIDAR CPF =====
-        // ============================================
-        function validarCPF(cpf) {
-            cpf = cpf.replace(/[^\d]/g, '');
-            if (cpf.length !== 11) return false;
-            if (/^(\d)\1{10}$/.test(cpf)) return false;
-            let soma = 0;
-            for (let i = 0; i < 9; i++) soma += parseInt(cpf.charAt(i)) * (10 - i);
-            let resto = 11 - (soma % 11);
-            if (resto === 10 || resto === 11) resto = 0;
-            if (resto !== parseInt(cpf.charAt(9))) return false;
-            soma = 0;
-            for (let i = 0; i < 10; i++) soma += parseInt(cpf.charAt(i)) * (11 - i);
-            resto = 11 - (soma % 11);
-            if (resto === 10 || resto === 11) resto = 0;
-            if (resto !== parseInt(cpf.charAt(10))) return false;
-            return true;
-        }
-
-        // ============================================
-        // ===== PROCESSAR PAGAMENTO =====
-        // ============================================
-        async function processPayment() {
-            const name = document.getElementById('payName').value.trim();
-            const email = document.getElementById('payEmail').value.trim();
-            const phone = document.getElementById('payPhone').value.trim();
-            const cpf = document.getElementById('payCpf').value.trim();
-            const method = document.getElementById('payMethod').value;
-            if (!name || !email || !phone || !cpf) { showNotification('Preencha todos os dados!', 'error'); return; }
-            let amount = 0, description = '';
-            if (paymentType === 'sale') { amount = cart.reduce((sum, p) => sum + parseFloat(p.price), 0); description = 'Compra NJ Store'; }
-            else if (paymentType === 'donation') { amount = _donationAmount || 0; description = donationType + ' - NJ Cabuçu'; }
-            if (amount <= 0) { showNotification('Valor inválido!', 'error'); return; }
-            if (!validarCPF(cpf)) { showNotification('CPF inválido! Digite um CPF válido.', 'error'); return; }
-            try {
-                showNotification('🔄 Processando pagamento...', 'info');
-                if (method === 'pix') {
-                    const paymentData = { amount, description, email, name, phone, cpf, paymentType };
-                    const response = await fetch('/api/create-pix-payment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(paymentData) });
-                    const payment = await response.json();
-                    if (payment.error) throw new Error(payment.error);
-                    await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'pix', description);
-                    const resultDiv = document.getElementById('paymentResult');
-                    resultDiv.style.display = 'block';
-                    document.getElementById('paymentForm').style.display = 'none';
-                    let qrHtml = `<h3 style="color:var(--primary);margin-bottom:0.6rem;font-family:'Playfair Display',serif;">✅ Pagamento PIX Gerado</h3><div style="text-align:center;padding:0.5rem;">`;
-                    if (payment.qr_code_base64) qrHtml += `<img src="data:image/png;base64,${payment.qr_code_base64}" style="max-width:180px;margin:0 auto;display:block;border-radius:8px;"><p style="margin:0.4rem 0;font-size:0.8rem;">Escaneie o QR Code com seu banco</p>`;
-                    if (payment.qr_code) {
-                        qrHtml += `<div style="background:#f4f6fc;padding:0.4rem;border-radius:8px;word-break:break-all;font-size:0.7rem;margin:0.4rem 0;border:1px solid #e0e0e0;"><strong>Código PIX:</strong><br>${payment.qr_code}</div><button onclick="navigator.clipboard.writeText('${payment.qr_code}')" class="btn btn-primary btn-sm" style="margin:0.2rem;font-size:0.7rem;"><i class="fas fa-copy"></i> Copiar código</button>`;
-                    }
-                    qrHtml += `<a href="${payment.payment_link}" target="_blank" class="btn btn-success" style="margin:0.2rem;display:inline-flex;font-size:0.8rem;background:#28a745;color:#fff;padding:0.4rem 1.2rem;border-radius:50px;text-decoration:none;"><i class="fas fa-external-link-alt"></i> Abrir no Mercado Pago</a><p style="margin-top:0.4rem;font-size:0.7rem;color:var(--text-muted);">Status: <strong>${payment.status}</strong></p><div style="display:flex;gap:0.4rem;justify-content:center;margin-top:0.4rem;flex-wrap:wrap;"><button onclick="checkPaymentStatus('${payment.payment_id}')" class="btn btn-primary btn-sm" style="font-size:0.7rem;"><i class="fas fa-sync"></i> Verificar Status</button><button onclick="closeModal('paymentModal')" class="btn btn-sm btn-outline-light" style="border:2px solid #888;color:#888;background:transparent;padding:0.2rem 0.8rem;border-radius:50px;cursor:pointer;font-size:0.7rem;"><i class="fas fa-check"></i> Concluir</button></div><p style="margin-top:0.4rem;font-size:0.65rem;color:var(--text-muted);">⏳ Aguardando pagamento... A verificação é automática!</p></div>`;
-                    resultDiv.innerHTML = qrHtml;
-                    localStorage.setItem('last_payment_id', payment.payment_id);
-                    verificarStatusAutomatico(payment.payment_id);
-                } else {
-                    const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
-                    const cardExpiry = document.getElementById('cardExpiry').value;
-                    const cardCvv = document.getElementById('cardCvv').value;
-                    const installments = document.getElementById('cardInstallments').value;
-                    if (!cardNumber || !cardExpiry || !cardCvv) { showNotification('Preencha os dados do cartão!', 'error'); return; }
-                    if (cardNumber.length < 16) { showNotification('Número do cartão inválido (16 dígitos)', 'error'); return; }
-                    if (!cardExpiry.includes('/') || cardExpiry.length < 5) { showNotification('Validade inválida (MM/AA)', 'error'); return; }
-                    if (cardCvv.length < 3) { showNotification('CVV inválido (3 dígitos)', 'error'); return; }
-                    const paymentData = { amount, description, email, name, phone, cpf, card_number: cardNumber, card_expiry: cardExpiry, card_cvv: cardCvv, installments: parseInt(installments) };
-                    const response = await fetch('/api/create-card-payment-fallback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(paymentData) });
-                    const payment = await response.json();
-                    if (payment.error) throw new Error(payment.error);
-                    await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'card', description);
-                    if (payment.status === 'approved') { showNotification('✅ Pagamento aprovado! Obrigado! 🙏', 'success'); cart = []; document.getElementById('cartCount').textContent = 0; closeModal('paymentModal'); }
-                    else { showNotification(`⏳ Pagamento ${payment.status}. Aguarde a confirmação.`, 'info'); closeModal('paymentModal'); verificarStatusAutomatico(payment.payment_id); }
-                }
-            } catch (error) {
-                console.error('Erro no pagamento:', error);
-                showNotification('❌ Erro: ' + error.message, 'error');
-            }
-        }
-
-        // ============================================
-        // ===== ORAÇÃO =====
-        // ============================================
-        async function submitPrayer() {
-            const name = document.getElementById('prayerName').value || 'Anônimo';
-            const request = document.getElementById('prayerRequest').value.trim();
-            const messageDiv = document.getElementById('prayerMessage');
-            if (!request) { showNotification('Digite seu pedido de oração!', 'error'); return; }
-            try {
-                const response = await fetch('/api/prayers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, request }) });
-                if (!response.ok) throw new Error('Erro ao enviar');
-                messageDiv.className = 'notification success';
-                messageDiv.textContent = '✅ Pedido de oração enviado com sucesso! Deus te abençoe! 🙏';
-                messageDiv.style.display = 'block';
-                document.getElementById('prayerRequest').value = '';
-                setTimeout(() => { messageDiv.style.display = 'none'; }, 5000);
-            } catch (error) { showNotification('❌ Erro: ' + error.message, 'error'); }
-        }
-
-        // ============================================
-        // ===== INSCRIÇÕES =====
-        // ============================================
-        async function loadDepartmentsForRegistration() {
-            try { const res = await fetch('/api/departments/active'); departmentsList = await res.json(); return departmentsList; }
-            catch (e) { console.error('Erro ao carregar departamentos:', e); return []; }
-        }
-        async function loadEventsForRegistration() {
-            try { const res = await fetch('/api/events/active'); eventsList = await res.json(); return eventsList; }
-            catch (e) { console.error('Erro ao carregar eventos:', e); return []; }
-        }
-        async function loadBaptismDatesForRegistration() {
-            try { const res = await fetch('/api/baptism-dates'); baptismDatesList = await res.json(); return baptismDatesList; }
-            catch (e) { console.error('Erro ao carregar datas de batismo:', e); return []; }
-        }
-        async function showRegistration(type) {
-            const container = document.getElementById('registrationForm');
-            const resultDiv = document.getElementById('registrationResult');
-            resultDiv.style.display = 'none';
-            resultDiv.innerHTML = '';
-            container.style.display = 'block';
-            container.innerHTML = '<p style="text-align:center;color:var(--text-muted);">⏳ Carregando...</p>';
-            if (type === 'department' || type === 'volunteer') await loadDepartmentsForRegistration();
-            if (type === 'event') await loadEventsForRegistration();
-            if (type === 'baptism') await loadBaptismDatesForRegistration();
-            const types = {
-                baptism: { title: '✝️ Inscrição para Batismo', labels: { name: 'Nome Completo *', email: 'E-mail *', phone: 'Telefone *', birth_date: 'Data de Nascimento *', baptism_date: 'Selecione a Data do Batismo *', notes: 'Observações (opcional)' } },
-                volunteer: { title: '🙋 Cadastro de Voluntário', labels: { name: 'Nome Completo *', email: 'E-mail *', phone: 'Telefone *', department_select: 'Departamento que deseja atuar *', availability: 'Disponibilidade (dias/horários)', notes: 'Habilidades/Experiência (opcional)' } },
-                event: { title: '🎯 Inscrição para Evento', labels: { name: 'Nome Completo *', email: 'E-mail *', phone: 'Telefone *', event_select: 'Selecione o Evento *', notes: 'Observações (opcional)' } },
-                department: { title: '📋 Entrar em um Departamento', labels: { name: 'Nome Completo *', email: 'E-mail *', phone: 'Telefone *', department_select: 'Selecione o Departamento *', notes: 'Por que deseja participar? (opcional)' } }
-            };
-            const t = types[type] || types.baptism;
-            let html = `<h3 style="text-align:center;color:var(--primary);margin-bottom:1rem;font-family:'Playfair Display',serif;">${t.title}</h3><div style="background:#fff;padding:1.5rem;border-radius:var(--radius);border:1px solid var(--border-color);box-shadow:var(--shadow-sm);">`;
-            html += `<div class="form-group"><label>${t.labels.name}</label><input type="text" id="regName" placeholder="Digite seu nome completo" required style="width:100%;padding:0.7rem 1rem;border:2px solid #e8ecf2;border-radius:var(--radius-sm);font-size:0.9rem;font-family:var(--font);background:#fafbff;" /></div>`;
-            html += `<div class="form-group"><label>${t.labels.email}</label><input type="email" id="regEmail" placeholder="seu@email.com" required style="width:100%;padding:0.7rem 1rem;border:2px solid #e8ecf2;border-radius:var(--radius-sm);font-size:0.9rem;font-family:var(--font);background:#fafbff;" /></div>`;
-            html += `<div class="form-group"><label>${t.labels.phone}</label><input type="tel" id="regPhone" placeholder="(11) 99999-9999" required style="width:100%;padding:0.7rem 1rem;border:2px solid #e8ecf2;border-radius:var(--radius-sm);font-size:0.9rem;font-family:var(--font);background:#fafbff;" /></div>`;
-            if (type === 'baptism') {
-                html += `<div class="form-group"><label>${t.labels.birth_date}</label><input type="date" id="regBirthDate" required style="width:100%;padding:0.7rem 1rem;border:2px solid #e8ecf2;border-radius:var(--radius-sm);font-size:0.9rem;font-family:var(--font);background:#fafbff;" /></div>`;
-                html += `<div class="form-group"><label>${t.labels.baptism_date}</label><select id="regBaptismDate" required style="width:100%;padding:0.7rem 1rem;border:2px solid #e8ecf2;border-radius:var(--radius-sm);font-size:0.9rem;font-family:var(--font);background:#fafbff;"><option value="">Selecione uma data para o Batismo</option>`;
-                if (baptismDatesList && baptismDatesList.length > 0) {
-                    baptismDatesList.forEach(d => {
-                        const dateFormatted = new Date(d.date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
-                        const participantes = d.current_participants || 0;
-                        const max = d.max_participants || 20;
-                        const disponivel = participantes < max;
-                        html += `<option value="${d.id}" ${!disponivel ? 'disabled' : ''}>${d.title || 'Batismo'} — ${dateFormatted} (${participantes}/${max}) ${disponivel ? '✅ Disponível' : '❌ Esgotado'}</option>`;
-                    });
-                } else { html += `<option value="" disabled>Nenhuma data de batismo disponível</option>`; }
-                html += `</select></div>`;
-                html += `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Observações adicionais..." style="width:100%;padding:0.7rem 1rem;border:2px solid #e8ecf2;border-radius:var(--radius-sm);font-size:0.9rem;font-family:var(--font);background:#fafbff;resize:vertical;"></textarea></div>`;
-            }
-            if (type === 'volunteer') {
-                html += `<div class="form-group"><label>${t.labels.department_select}</label><select id="regDepartmentSelect" required style="width:100%;padding:0.7rem 1rem;border:2px solid #e8ecf2;border-radius:var(--radius-sm);font-size:0.9rem;font-family:var(--font);background:#fafbff;"><option value="">Selecione um departamento</option>`;
-                if (departmentsList && departmentsList.length > 0) departmentsList.forEach(d => { html += `<option value="${d.id}">${d.name}</option>`; });
-                else html += `<option value="" disabled>Nenhum departamento disponível</option>`;
-                html += `</select></div>`;
-                html += `<div class="form-group"><label>${t.labels.availability}</label><input type="text" id="regAvailability" placeholder="Ex: Finais de semana, Terças e Quintas à noite" style="width:100%;padding:0.7rem 1rem;border:2px solid #e8ecf2;border-radius:var(--radius-sm);font-size:0.9rem;font-family:var(--font);background:#fafbff;" /></div>`;
-                html += `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Conte-nos sobre suas habilidades e experiência..." style="width:100%;padding:0.7rem 1rem;border:2px solid #e8ecf2;border-radius:var(--radius-sm);font-size:0.9rem;font-family:var(--font);background:#fafbff;resize:vertical;"></textarea></div>`;
-            }
-            if (type === 'event') {
-                html += `<div class="form-group"><label>${t.labels.event_select}</label><select id="regEventSelect" required style="width:100%;padding:0.7rem 1rem;border:2px solid #e8ecf2;border-radius:var(--radius-sm);font-size:0.9rem;font-family:var(--font);background:#fafbff;"><option value="">Selecione um evento</option>`;
-                if (eventsList && eventsList.length > 0) {
-                    eventsList.forEach(e => {
-                        const dateFormatted = new Date(e.date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
-                        const priceText = parseFloat(e.price || 0) > 0 ? `R$ ${parseFloat(e.price).toFixed(2)}` : 'Grátis';
-                        html += `<option value="${e.id}" data-price="${e.price || 0}">${e.title} — ${dateFormatted} (${priceText})</option>`;
-                    });
-                } else { html += `<option value="" disabled>Nenhum evento disponível</option>`; }
-                html += `</select></div>`;
-                html += `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Observações adicionais..." style="width:100%;padding:0.7rem 1rem;border:2px solid #e8ecf2;border-radius:var(--radius-sm);font-size:0.9rem;font-family:var(--font);background:#fafbff;resize:vertical;"></textarea></div>`;
-            }
-            if (type === 'department') {
-                html += `<div class="form-group"><label>${t.labels.department_select}</label><select id="regDepartmentSelect" required style="width:100%;padding:0.7rem 1rem;border:2px solid #e8ecf2;border-radius:var(--radius-sm);font-size:0.9rem;font-family:var(--font);background:#fafbff;"><option value="">Selecione um departamento</option>`;
-                if (departmentsList && departmentsList.length > 0) departmentsList.forEach(d => { html += `<option value="${d.id}">${d.name}</option>`; });
-                else html += `<option value="" disabled>Nenhum departamento disponível</option>`;
-                html += `</select></div>`;
-                html += `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Por que deseja participar? (opcional)" style="width:100%;padding:0.7rem 1rem;border:2px solid #e8ecf2;border-radius:var(--radius-sm);font-size:0.9rem;font-family:var(--font);background:#fafbff;resize:vertical;"></textarea></div>`;
-            }
-            html += `<button onclick="submitRegistration('${type}')" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.8rem;font-size:0.9rem;padding:0.7rem;"><i class="fas fa-paper-plane"></i> Inscrever-se</button></div>`;
-            container.innerHTML = html;
-            container.scrollIntoView({ behavior: 'smooth' });
-        }
-        async function submitRegistration(type) {
-            const name = document.getElementById('regName').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
-            const phone = document.getElementById('regPhone').value.trim();
-            const notes = document.getElementById('regNotes')?.value.trim() || '';
-            const resultDiv = document.getElementById('registrationResult');
-            if (!name || !email || !phone) { showNotification('⚠️ Preencha todos os campos obrigatórios!', 'error'); return; }
-            if (!email.includes('@')) { showNotification('⚠️ Digite um e-mail válido!', 'error'); return; }
-            let registrationData = { type, name, email, phone, details: notes };
-            try {
-                if (type === 'baptism') {
-                    const birthDate = document.getElementById('regBirthDate')?.value;
-                    const baptismDateId = document.getElementById('regBaptismDate')?.value;
-                    if (!birthDate) { showNotification('⚠️ Informe sua data de nascimento!', 'error'); return; }
-                    if (!baptismDateId) { showNotification('⚠️ Selecione uma data para o batismo!', 'error'); return; }
-                    const selectedDate = baptismDatesList.find(d => d.id == baptismDateId);
-                    if (!selectedDate) { showNotification('⚠️ Data de batismo não encontrada!', 'error'); return; }
-                    registrationData.birth_date = birthDate;
-                    registrationData.baptism_date = selectedDate.date;
-                    registrationData.baptism_date_id = baptismDateId;
-                    registrationData.event_name = selectedDate.title || 'Batismo';
-                    registrationData.details = `Data de Nascimento: ${new Date(birthDate).toLocaleDateString('pt-BR')}\nData do Batismo: ${new Date(selectedDate.date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}\n${notes}`;
-                }
-                if (type === 'volunteer') {
-                    const deptId = document.getElementById('regDepartmentSelect')?.value;
-                    const availability = document.getElementById('regAvailability')?.value.trim() || '';
-                    if (!deptId) { showNotification('⚠️ Selecione um departamento!', 'error'); return; }
-                    const dept = departmentsList.find(d => d.id == deptId);
-                    registrationData.department_name = dept ? dept.name : '';
-                    registrationData.department_id = deptId;
-                    registrationData.details = `Disponibilidade: ${availability || 'Não informada'}\n${notes}`;
-                }
-                if (type === 'department') {
-                    const deptId = document.getElementById('regDepartmentSelect')?.value;
-                    if (!deptId) { showNotification('⚠️ Selecione um departamento!', 'error'); return; }
-                    const dept = departmentsList.find(d => d.id == deptId);
-                    registrationData.department_name = dept ? dept.name : '';
-                    registrationData.department_id = deptId;
-                    registrationData.details = notes || 'Deseja participar deste departamento.';
-                }
-                if (type === 'event') {
-                    const eventId = document.getElementById('regEventSelect')?.value;
-                    if (!eventId) { showNotification('⚠️ Selecione um evento!', 'error'); return; }
-                    const event = eventsList.find(e => e.id == eventId);
-                    if (!event) { showNotification('⚠️ Evento não encontrado!', 'error'); return; }
-                    registrationData.event_name = event.title;
-                    registrationData.event_id = eventId;
-                    registrationData.amount = parseFloat(event.price || 0);
-                    registrationData.is_paid = parseFloat(event.price || 0) > 0 ? false : true;
-                    registrationData.details = `Evento: ${event.title}\nData: ${new Date(event.date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}\n${notes}`;
-                }
-                const response = await fetch('/api/registrations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(registrationData) });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error || 'Erro ao realizar inscrição');
-                resultDiv.className = 'notification success';
-                resultDiv.innerHTML = `<i class="fas fa-check-circle" style="font-size:1.3rem;display:block;margin-bottom:0.3rem;"></i><strong>✅ Inscrição realizada com sucesso!</strong><p style="margin-top:0.3rem;font-size:0.85rem;">Protocolo: #${String(data.id).padStart(6, '0')}</p>`;
-                resultDiv.style.display = 'block';
-                document.getElementById('registrationForm').style.display = 'none';
-                if (type === 'event' && parseFloat(registrationData.amount || 0) > 0) {
-                    if (confirm(`✅ Inscrição realizada! O evento é pago (R$ ${parseFloat(registrationData.amount).toFixed(2)}). Deseja fazer o pagamento agora?`)) {
-                        paymentType = 'donation'; donationType = 'Inscrição Evento - ' + registrationData.event_name;
-                        document.getElementById('paymentTitle').textContent = '💳 Inscrição - ' + registrationData.event_name;
-                        document.getElementById('paymentTotal').textContent = 'Valor: R$ ' + parseFloat(registrationData.amount).toFixed(2);
-                        document.getElementById('paymentForm').style.display = 'block';
-                        document.getElementById('paymentResult').style.display = 'none';
-                        _donationAmount = parseFloat(registrationData.amount);
-                        document.getElementById('payName').value = name;
-                        document.getElementById('payEmail').value = email;
-                        document.getElementById('payPhone').value = phone;
-                        openModal('paymentModal');
-                    }
-                } else {
-                    setTimeout(() => {
-                        if (confirm('✅ Deseja baixar o comprovante em PDF?')) window.open(`/api/registration-pdf/${data.id}`, '_blank');
-                    }, 500);
-                }
-                setTimeout(() => {
-                    resultDiv.style.display = 'none';
-                    document.getElementById('registrationForm').style.display = 'block';
-                    document.getElementById('registrationForm').innerHTML = `<p style="text-align:center;color:#28a745;padding:0.8rem;">✅ Inscrição concluída! Obrigado!</p>`;
-                }, 8000);
-            } catch (error) {
-                console.error('❌ Erro na inscrição:', error);
-                showNotification('❌ Erro: ' + error.message, 'error');
-                resultDiv.className = 'notification error';
-                resultDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message}`;
-                resultDiv.style.display = 'block';
-            }
-        }
-
-        // ============================================
-        // ===== NOTIFICAÇÕES =====
-        // ============================================
-        function showNotification(message, type = 'info') {
-            const div = document.createElement('div');
-            div.className = 'notification ' + type;
-            div.textContent = message;
-            document.body.appendChild(div);
-            setTimeout(() => { div.style.opacity = '0'; div.style.transition = 'opacity 0.4s'; setTimeout(() => div.remove(), 400); }, 4000);
-        }
-
-        // ============================================
-        // ===== INICIALIZAÇÃO =====
-        // ============================================
-        document.addEventListener('DOMContentLoaded', async () => {
-            await loadSettings();
-            await loadCultosFromServer();
-            const urlParams = new URLSearchParams(window.location.search);
-            const status = urlParams.get('status');
-            const paymentId = urlParams.get('payment_id');
-            if (status || paymentId) {
-                document.getElementById('mainHeader').style.display = 'none';
-                document.getElementById('mainNav').style.display = 'none';
-                document.querySelector('.hero').style.display = 'none';
-                document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-                document.querySelector('.footer').style.display = 'none';
-                document.querySelector('.services-quick').style.display = 'none';
-                document.querySelectorAll('.fab').forEach(f => f.style.display = 'none');
-                const returnPage = document.getElementById('paymentReturnPage');
-                returnPage.style.display = 'block';
-                let icon = '⏳', title = 'Aguardando Confirmação', message = 'Seu pagamento está sendo processado. Aguarde a confirmação.';
-                let msgClass = 'pending', statusText = 'Pendente';
-                if (status === 'approved') { icon = '✅'; title = 'Pagamento Confirmado!'; message = 'Obrigado pela sua contribuição! Deus abençoe! 🙏'; msgClass = 'success'; statusText = 'Aprovado'; }
-                else if (status === 'rejected') { icon = '❌'; title = 'Pagamento Recusado'; message = 'Infelizmente seu pagamento não foi aprovado. Tente novamente.'; msgClass = 'error'; statusText = 'Recusado'; }
-                document.getElementById('returnIcon').textContent = icon;
-                document.getElementById('returnIcon').style.color = msgClass === 'success' ? '#28a745' : msgClass === 'error' ? '#dc3545' : '#C9A84C';
-                document.getElementById('returnTitle').textContent = title;
-                document.getElementById('returnMessage').textContent = message;
-                document.getElementById('returnMessageBox').className = 'message-box ' + msgClass;
-                document.getElementById('returnStatusText').textContent = statusText;
-                document.getElementById('returnPaymentId').textContent = paymentId || '-';
-            } else {
-                loadCarouselFromServer();
-                loadStudies();
-                loadEvents();
-                loadProducts();
-                loadBirthdays();
-                loadCelulasIndex();
-                loadReflections();
-                checkLiveStatusIndex();
-                document.getElementById('cartCount').textContent = 0;
-            }
+app.get('/api/check-payment/:paymentId', async (req, res) => {
+    try {
+        if (!PaymentService) return res.status(500).json({ error: 'MP não configurado' });
+        
+        const payment = await PaymentService.get({ id: req.params.paymentId });
+        
+        // ⚠️ NÃO envia email aqui — apenas retorna o status
+        // O frontend chamará /api/send-confirmation-email depois
+        
+        res.json({ 
+            id: payment.id, 
+            status: payment.status, 
+            status_detail: payment.status_detail 
         });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                document.querySelectorAll('.modal.open').forEach(m => { m.classList.remove('open'); document.body.style.overflow = 'auto'; });
-                if (statusCheckInterval) { clearInterval(statusCheckInterval); statusCheckInterval = null; }
-            }
-        });
-    </script>
-</body>
-</html>
+app.post('/api/update-payment-status', async (req, res) => {
+    try {
+        const { payment_id, status } = req.body;
+        await sql`UPDATE orders SET status = ${status} WHERE payment_id = ${payment_id}`;
+        await sql`UPDATE donations SET status = ${status} WHERE payment_id = ${payment_id}`;
+        res.json({ message: 'Status atualizado' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
+// ===== SERVE HTML =====
+// ============================================
+
+app.use(express.static('public'));
+app.use('/uploads', express.static('public/uploads'));
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+app.get('/departamento', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'departamento.html'));
+});
+
+app.get('/secretaria', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'secretaria.html'));
+});
+
+// ============================================
+// ===== INICIAR =====
+// ============================================
+
+app.listen(PORT, () => {
+    console.log('');
+    console.log('🔥 NJ Cabuçu rodando na porta ' + PORT);
+    console.log('🌐 ' + BASE_URL);
+    console.log('');
+    console.log('📋 Credenciais: pastor@njcabucu.com / admin123');
+    console.log('');
+    console.log('💰 Mercado Pago: ' + (process.env.MP_ACCESS_TOKEN ? '✅' : '⚠️'));
+    console.log('📧 Email: ' + (transporter ? '✅' : '⚠️'));
+    console.log('');
+});

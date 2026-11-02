@@ -16,7 +16,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NJ Cabuçu">
-    <meta name="theme-color" content="#0D47A1">
+    <meta name="theme-color" content="#000000">
     <meta name="mobile-web-app-capable" content="yes">
 
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
@@ -33,12 +33,8 @@
             --primary-light: #1565C0;
             --primary-dark: #0A3A7A;
             --primary-gradient: linear-gradient(135deg, #0D47A1, #1565C0);
-            --primary-soft: linear-gradient(135deg, #E8F0FE, #F4F8FF);
             --secondary: #E8F0FE;
             --accent: #F5A623;
-            --gold: #C9A84C;
-            --bg: #000000;
-            --card-bg: #ffffff;
             --ink: #0f172a;
             --ink-soft: #475569;
             --muted: #94a3b8;
@@ -55,7 +51,7 @@
             --max-width: 1200px;
             --fab-bottom: 28px;
         }
-        html { scroll-behavior: smooth; background: #f5f7fb; }
+        html { scroll-behavior: smooth; background: #000; }
         body {
             font-family: var(--font);
             background: #f5f7fb;
@@ -63,10 +59,63 @@
             line-height: 1.65;
             -webkit-font-smoothing: antialiased;
             padding-bottom: 90px;
+            overflow-x: hidden;
         }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #eef2f8; }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+
+        /* ===== SPLASH SCREEN ===== */
+        #splashScreen {
+            position: fixed; inset: 0; z-index: 999999;
+            background: #000;
+            display: flex; align-items: center; justify-content: center;
+            flex-direction: column; gap: 1.5rem;
+            transition: opacity .6s cubic-bezier(.4,0,.2,1), visibility .6s;
+        }
+        #splashScreen.hidden {
+            opacity: 0; visibility: hidden; pointer-events: none;
+        }
+        .splash-logo {
+            width: 120px; height: 120px; border-radius: 28px;
+            background: linear-gradient(135deg, #1565C0, #0D47A1);
+            display: flex; align-items: center; justify-content: center;
+            font-family: var(--font); font-weight: 800; font-size: 2.4rem; color: #fff;
+            box-shadow: 0 20px 60px rgba(13,71,161,.55), inset 0 2px 0 rgba(255,255,255,.25);
+            overflow: hidden;
+            animation: splashPulse 1.4s ease-in-out infinite;
+        }
+        .splash-logo img { width: 100%; height: 100%; object-fit: cover; }
+        @keyframes splashPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 20px 60px rgba(13,71,161,.55), inset 0 2px 0 rgba(255,255,255,.25); }
+            50% { transform: scale(1.05); box-shadow: 0 24px 70px rgba(13,71,161,.7), inset 0 2px 0 rgba(255,255,255,.25); }
+        }
+        .splash-name {
+            color: #fff; font-family: var(--font); font-weight: 800; font-size: 1.3rem;
+            letter-spacing: -.5px; text-align: center;
+            animation: splashFade .8s ease;
+        }
+        .splash-name small {
+            display: block; font-size: .65rem; font-weight: 600; letter-spacing: 3px;
+            text-transform: uppercase; color: #64748b; margin-top: .2rem;
+        }
+        .splash-loader {
+            width: 40px; height: 3px; background: rgba(255,255,255,.1);
+            border-radius: 3px; overflow: hidden; margin-top: .5rem;
+        }
+        .splash-loader::before {
+            content: ''; display: block; height: 100%; width: 40%;
+            background: linear-gradient(90deg, #1565C0, #60a5fa);
+            border-radius: 3px; animation: splashLoad 1.4s ease-in-out infinite;
+        }
+        @keyframes splashLoad {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(350%); }
+        }
+        @keyframes splashFade {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
         /* ===== PWA ===== */
         .install-banner {
@@ -124,7 +173,7 @@
 
         /* ===== HEADER ===== */
         .header {
-            background: rgba(11,18,32,.92);
+            background: rgba(0,0,0,.92);
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
             padding: 0 1.2rem; display: flex; justify-content: space-between; align-items: center;
@@ -162,19 +211,34 @@
         .btn-bible { background: linear-gradient(135deg,#8B5A2B,#6d4420); color: #fff; }
         .btn-live { background: #ff0000; color: #fff; animation: pulse-live 1.5s infinite; }
         @keyframes pulse-live { 0%,100% { opacity: 1; } 50% { opacity: .65; } }
-        .btn-profile {
+
+        /* Botões circulares (WhatsApp + Perfil) */
+        .btn-icon-circle {
             width: 38px; height: 38px; padding: 0; border-radius: 50%;
             display: inline-flex; align-items: center; justify-content: center;
-            background: rgba(255,255,255,.08); color: #fff;
-            border: 1px solid rgba(255,255,255,.16);
             font-size: 1rem; transition: var(--transition); text-decoration: none;
         }
-        .btn-profile:hover { background: var(--primary); border-color: transparent; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(13,71,161,.4); }
+        .btn-icon-circle.whatsapp {
+            background: rgba(37,211,102,.15); color: #25D366;
+            border: 1px solid rgba(37,211,102,.35);
+        }
+        .btn-icon-circle.whatsapp:hover {
+            background: #25D366; color: #fff; border-color: transparent;
+            transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,211,102,.4);
+        }
+        .btn-icon-circle.profile {
+            background: rgba(255,255,255,.08); color: #fff;
+            border: 1px solid rgba(255,255,255,.16);
+        }
+        .btn-icon-circle.profile:hover {
+            background: var(--primary); border-color: transparent;
+            transform: translateY(-1px); box-shadow: 0 6px 20px rgba(13,71,161,.4);
+        }
         .menu-toggle { display: none; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); font-size: 1.1rem; color: #fff; cursor: pointer; padding: .4rem .6rem; border-radius: 10px; }
 
         /* ===== NAV ===== */
         .main-nav {
-            background: rgba(15,23,42,.94); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            background: rgba(10,10,10,.94); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             padding: .35rem 1rem; display: flex; justify-content: center; gap: .15rem; flex-wrap: wrap;
             position: fixed; top: var(--header-h); left: 0; right: 0; z-index: 999;
             border-bottom: 1px solid rgba(255,255,255,.05); transition: var(--transition);
@@ -188,21 +252,25 @@
         .nav-btn:hover { color: #fff; background: rgba(255,255,255,.08); }
         .nav-btn.active { color: #fff; background: var(--primary-gradient); box-shadow: 0 2px 12px rgba(13,71,161,.4); }
 
-        /* ===== HERO CARROSSEL — IMAGEM INTEIRA (sem cortar) ===== */
+        /* ===== TOPO PRETO + CARROSSEL COLADO ===== */
+        .top-black {
+            background: #000;
+            padding-top: calc(var(--header-h) + 34px);
+            padding-bottom: 0;
+        }
         .hero-wrap {
-            margin-top: calc(var(--header-h) + 34px);
-            padding: 0 1rem;
-            max-width: 1320px;
-            margin-left: auto; margin-right: auto;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            background: #000;
         }
         .hero {
             position: relative; width: 100%;
             aspect-ratio: 16 / 9;
-            max-height: 600px;
+            max-height: 620px;
             overflow: hidden;
-            border-radius: 28px;
-            background: #0b1220;
-            box-shadow: var(--shadow-lg), 0 0 0 1px rgba(13,71,161,.06);
+            border-radius: 0;
+            background: #000;
             isolation: isolate;
         }
         .hero-slides {
@@ -212,23 +280,23 @@
         .hero-slide {
             min-width: 100%; height: 100%; position: relative;
             display: flex; align-items: flex-end; justify-content: flex-start;
-            flex-shrink: 0; background: #0b1220;
+            flex-shrink: 0; background: #000;
         }
-        /* CONTAIN = imagem inteira aparece, sem cortar (faixas escuras se necessário) */
+        /* CONTAIN = imagem inteira sem cortar, fundo preto puro */
         .hero-slide .bg-image {
             position: absolute; inset: 0; width: 100%; height: 100%;
             object-fit: contain;
             object-position: center;
-            background: #0b1220;
+            background: #000;
         }
         .hero-slide .overlay {
             position: absolute; inset: 0;
-            background: linear-gradient(90deg, rgba(4,10,22,.82) 0%, rgba(4,10,22,.45) 45%, rgba(4,10,22,.05) 100%);
+            background: linear-gradient(90deg, rgba(0,0,0,.85) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.05) 100%);
             z-index: 1;
         }
         .hero-slide .overlay-bottom {
             position: absolute; inset: 0;
-            background: linear-gradient(0deg, rgba(4,10,22,.75) 0%, transparent 55%);
+            background: linear-gradient(0deg, rgba(0,0,0,.8) 0%, transparent 55%);
             z-index: 1;
         }
         .hero-content {
@@ -248,12 +316,12 @@
         .hero-eyebrow i { color: #60a5fa; }
         .hero-content h1 {
             font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 800;
-            margin-bottom: .6rem; text-shadow: 0 4px 30px rgba(0,0,0,.5);
+            margin-bottom: .6rem; text-shadow: 0 4px 30px rgba(0,0,0,.6);
             line-height: 1.12; letter-spacing: -.5px;
         }
         .hero-content p {
-            font-size: clamp(.85rem, 1.6vw, 1.02rem); opacity: .9; margin-bottom: 1.3rem;
-            text-shadow: 0 2px 16px rgba(0,0,0,.5); max-width: 520px; line-height: 1.6;
+            font-size: clamp(.85rem, 1.6vw, 1.02rem); opacity: .92; margin-bottom: 1.3rem;
+            text-shadow: 0 2px 16px rgba(0,0,0,.6); max-width: 520px; line-height: 1.6;
         }
         .hero-content .btn {
             pointer-events: all; font-size: .85rem; padding: .6rem 1.6rem;
@@ -417,7 +485,7 @@
         }
         .card:hover .card-image-wrapper img { transform: scale(1.06); }
 
-        /* ===== ESTUDOS UNIFORMES ===== */
+        /* ===== ESTUDOS ===== */
         .study-card {
             background: #fff; border-radius: var(--radius); overflow: hidden;
             border: 1px solid var(--line); box-shadow: var(--shadow-sm);
@@ -546,16 +614,10 @@
         .fab-whatsapp { bottom: var(--fab-bottom); right: 18px; background: #25D366; }
         .fab-prayer { bottom: calc(var(--fab-bottom) + 66px); right: 18px; background: var(--primary-gradient); }
         .fab-donation { bottom: calc(var(--fab-bottom) + 132px); right: 18px; background: linear-gradient(135deg,#f59e0b,#d97706); color: #fff; }
-        .fab .badge {
-            position: absolute; top: -4px; right: -4px; background: #ff0000; color: #fff;
-            border-radius: 50%; width: 20px; height: 20px; font-size: .5rem; font-weight: 700;
-            display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(255,0,0,.3);
-        }
-        .fab-label { display: none !important; }
 
         /* ===== MODAIS ===== */
         .modal {
-            display: none; position: fixed; inset: 0; background: rgba(4,10,22,.6);
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7);
             backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
             z-index: 9999; align-items: center; justify-content: center;
             animation: fadeIn .25s ease; padding: 1rem;
@@ -576,7 +638,7 @@
         }
         .modal-close:hover { color: #fff; background: var(--primary); transform: rotate(90deg); }
 
-        /* ===== FORMULÁRIOS MODERNOS ===== */
+        /* ===== FORMULÁRIOS ===== */
         .form-group { margin: .8rem 0; position: relative; }
         .form-group label {
             display: block; font-weight: 700; margin-bottom: .35rem;
@@ -608,7 +670,6 @@
         .form-row { display: flex; gap: .8rem; }
         .form-row>* { flex: 1; }
 
-        /* Formulário de inscrição moderno */
         .reg-form-wrap {
             background: #fff; border-radius: var(--radius); padding: 1.8rem;
             border: 1px solid var(--line); box-shadow: var(--shadow);
@@ -698,7 +759,6 @@
         }
         .btn-donation:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(13,71,161,.35); }
 
-        /* ===== BIRTHDAY ===== */
         .birthday-card { text-align: center; border-left: 4px solid var(--primary); padding: 1.2rem; }
         .birthday-card .emoji { font-size: 2rem; margin-bottom: .2rem; }
         .birthday-card .name { font-size: .98rem; font-weight: 800; color: var(--primary); }
@@ -707,7 +767,6 @@
         .birthday-card.today { border-color: #e91e63; background: linear-gradient(135deg,#fff,#fdf2f8); }
         .birthday-card.today .name { color: #e91e63; }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 900px) {
             .footer-content { grid-template-columns: 1fr 1fr; }
         }
@@ -717,18 +776,18 @@
             .logo span { font-size: .95rem; }
             .header-actions .btn span { display: inline; font-size: .5rem; }
             .header-actions .btn { padding: .25rem .55rem; font-size: .55rem; min-width: 36px; justify-content: center; }
-            .btn-profile { width: 34px; height: 34px; font-size: .9rem; }
+            .btn-icon-circle { width: 34px; height: 34px; font-size: .9rem; }
             .menu-toggle { display: flex; align-items: center; justify-content: center; }
             .main-nav {
                 display: none; flex-direction: column; align-items: stretch;
-                padding: .4rem .7rem; top: var(--header-h); background: #0f172a;
+                padding: .4rem .7rem; top: var(--header-h); background: #0a0a0a;
                 border-bottom: 1px solid rgba(255,255,255,.05);
             }
             .main-nav.mobile-open { display: flex; max-height: 460px; overflow-y: auto; padding: .5rem .7rem; }
             .nav-btn { width: 100%; text-align: center; padding: .5rem; font-size: .7rem; }
 
-            .hero-wrap { padding: 0 .6rem; margin-top: calc(var(--header-h) + 36px); }
-            .hero { border-radius: 20px; max-height: 340px; aspect-ratio: 16 / 10; }
+            .top-black { padding-top: calc(var(--header-h) + 36px); }
+            .hero { max-height: 340px; aspect-ratio: 16 / 10; }
             .hero-content { padding: 1.4rem 1.3rem 2.8rem; max-width: 100%; }
             .hero-content h1 { font-size: 1.4rem; }
             .hero-content p { font-size: .8rem; margin-bottom: .9rem; }
@@ -762,6 +821,9 @@
 
             .reg-form-wrap { padding: 1.3rem; }
             .form-row { flex-direction: column; gap: 0; }
+
+            .splash-logo { width: 90px; height: 90px; border-radius: 22px; font-size: 1.8rem; }
+            .splash-name { font-size: 1.1rem; }
         }
         @media (max-width: 480px) {
             .hero { max-height: 260px; aspect-ratio: 16 / 11; }
@@ -776,6 +838,16 @@
 </head>
 <body>
 
+    <!-- ===== SPLASH SCREEN ===== -->
+    <div id="splashScreen">
+        <div class="splash-logo" id="splashLogo">NJ</div>
+        <div class="splash-name">
+            NJ Cabuçu
+            <small>Igreja</small>
+        </div>
+        <div class="splash-loader"></div>
+    </div>
+
     <header class="header" id="mainHeader">
         <a href="/" class="logo">
             <div class="logo-icon-css" id="mainLogoIcon">NJ</div>
@@ -788,10 +860,10 @@
             <a href="#live" class="btn btn-live btn-sm" id="liveNavBtn" style="display:none;" onclick="scrollToSection('live')">
                 <i class="fas fa-circle"></i> <span>AO VIVO</span>
             </a>
-            <a href="https://wa.me/5521985345627" target="_blank" class="btn btn-whatsapp btn-sm" id="whatsappBtn">
-                <i class="fab fa-whatsapp"></i> <span>WhatsApp</span>
+            <a href="https://wa.me/5521985345627" target="_blank" class="btn-icon-circle whatsapp" id="whatsappBtn" title="WhatsApp" aria-label="WhatsApp">
+                <i class="fab fa-whatsapp"></i>
             </a>
-            <a href="/login" class="btn-profile" id="adminBtn" title="Área Interna" aria-label="Área Interna">
+            <a href="/login" class="btn-icon-circle profile" id="adminBtn" title="Área Interna" aria-label="Área Interna">
                 <i class="fas fa-user"></i>
             </a>
             <button class="menu-toggle" onclick="toggleMobileMenu()" aria-label="Menu">
@@ -815,7 +887,6 @@
         <button onclick="scrollToSection('reflexoes')" class="nav-btn"><i class="fas fa-video"></i> Reflexões</button>
     </nav>
 
-    <!-- ===== BANNER DE INSTALAÇÃO PWA ===== -->
     <div class="install-banner" id="installBanner">
         <div class="banner-left">
             <div class="banner-icon"><i class="fas fa-download"></i></div>
@@ -832,17 +903,19 @@
 
     <button class="install-fab" id="installFab"><i class="fas fa-download"></i><span>Instalar App</span></button>
 
-    <!-- ===== HERO CARROSSEL ===== -->
-    <div class="hero-wrap">
-        <section id="home" class="hero">
-            <div class="hero-slides" id="heroSlides"></div>
-            <div class="hero-arrows">
-                <button class="hero-arrow" onclick="changeSlide(-1)"><i class="fas fa-chevron-left"></i></button>
-                <button class="hero-arrow" onclick="changeSlide(1)"><i class="fas fa-chevron-right"></i></button>
-            </div>
-            <div class="hero-controls" id="heroControls"></div>
-            <div class="hero-live-badge" id="heroLiveBadge"><i class="fas fa-circle"></i> AO VIVO</div>
-        </section>
+    <!-- ===== TOPO PRETO + CARROSSEL COLADO ===== -->
+    <div class="top-black">
+        <div class="hero-wrap">
+            <section id="home" class="hero">
+                <div class="hero-slides" id="heroSlides"></div>
+                <div class="hero-arrows">
+                    <button class="hero-arrow" onclick="changeSlide(-1)"><i class="fas fa-chevron-left"></i></button>
+                    <button class="hero-arrow" onclick="changeSlide(1)"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div class="hero-controls" id="heroControls"></div>
+                <div class="hero-live-badge" id="heroLiveBadge"><i class="fas fa-circle"></i> AO VIVO</div>
+            </section>
+        </div>
     </div>
 
     <div class="live-bar" id="liveBar">
@@ -864,7 +937,7 @@
         </div>
     </div>
 
-    <!-- ===== SERVIÇOS RÁPIDOS (5 itens: Ao Vivo, Dízimo, Oração, Inscrições, NJ Store) ===== -->
+    <!-- ===== SERVIÇOS RÁPIDOS ===== -->
     <div class="services-quick">
         <div class="services-grid">
             <a href="#live" class="service-item" onclick="scrollToSection('live')">
@@ -883,12 +956,12 @@
                 <p>Peça</p>
             </a>
             <a href="#inscricoes" class="service-item inscricoes" onclick="scrollToSection('inscricoes')">
-                <div class="icon"><i class="fas fa-clipboard-list"></i></div>
+                <div class="icon"><i class="fas fa-file-signature"></i></div>
                 <h4>Inscrições</h4>
                 <p>Participe</p>
             </a>
             <a href="#loja" class="service-item store" onclick="scrollToSection('loja')">
-                <div class="icon"><i class="fas fa-store"></i></div>
+                <div class="icon"><i class="fas fa-bag-shopping"></i></div>
                 <h4>NJ Store</h4>
                 <p>Produtos</p>
             </a>
@@ -1332,6 +1405,37 @@
     </div>
 
     <script>
+        // ============================================
+        // ===== SPLASH SCREEN =====
+        // ============================================
+        (function() {
+            const splash = document.getElementById('splashScreen');
+            // Se já viu o splash nesta sessão, pula (opcional — remova se quiser sempre)
+            const jaViu = sessionStorage.getItem('splash-visto') === 'true';
+
+            // Carrega logo no splash se tiver no settings
+            fetch('/api/settings').then(r => r.json()).then(settings => {
+                if (settings && settings.site_logo) {
+                    const splashLogo = document.getElementById('splashLogo');
+                    if (splashLogo) {
+                        splashLogo.innerHTML = `<img src="${settings.site_logo}" alt="Logo" style="width:100%;height:100%;object-fit:cover;">`;
+                    }
+                }
+            }).catch(() => {});
+
+            if (jaViu) {
+                splash.classList.add('hidden');
+            } else {
+                // trava o scroll durante o splash
+                document.body.style.overflow = 'hidden';
+                setTimeout(() => {
+                    splash.classList.add('hidden');
+                    document.body.style.overflow = '';
+                    sessionStorage.setItem('splash-visto', 'true');
+                }, 1500);
+            }
+        })();
+
         // ============================================
         // ===== SERVICE WORKER =====
         // ============================================
@@ -2089,7 +2193,7 @@
         });
 
         // ============================================
-        // ===== REFLEXÕES DO PASTOR =====
+        // ===== REFLEXÕES =====
         // ============================================
         async function loadReflections() {
             const container = document.getElementById('reflectionsList');
@@ -2216,7 +2320,7 @@
         }
 
         // ============================================
-        // ===== ESTUDOS UNIFORMES =====
+        // ===== ESTUDOS =====
         // ============================================
         async function loadStudies() {
             try {
@@ -3388,7 +3492,7 @@
             if (status || paymentId) {
                 document.getElementById('mainHeader').style.display = 'none';
                 document.getElementById('mainNav').style.display = 'none';
-                document.querySelector('.hero-wrap').style.display = 'none';
+                document.querySelector('.top-black').style.display = 'none';
                 document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
                 document.querySelector('.footer').style.display = 'none';
                 document.querySelector('.services-quick').style.display = 'none';

@@ -83,17 +83,8 @@ overflow-x: hidden;
 @keyframes kenburns { 0% { transform: scale(1); } 100% { transform: scale(1.08); } }
 @keyframes fadeInFab { from { opacity: 0; transform: scale(0.9) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
-/* ===== BOTÃO DE INSTALAÇÃO PWA (mantido) ===== */
-.install-banner {
-position: fixed; bottom: 0; left: 0; right: 0;
-background: #000000; color: #ffffff;
-padding: 16px 20px;
-box-shadow: 0 -4px 30px rgba(0,0,0,0.5);
-z-index: 99999; border-top: 1px solid rgba(255,255,255,0.1);
-display: none; align-items: center; justify-content: space-between;
-flex-wrap: wrap; gap: 12px;
-animation: slideUpBanner 0.4s cubic-bezier(0.4,0,0.2,1);
-}
+/* ===== PWA INSTALL ===== */
+.install-banner { position: fixed; bottom: 0; left: 0; right: 0; background: #000000; color: #ffffff; padding: 16px 20px; box-shadow: 0 -4px 30px rgba(0,0,0,0.5); z-index: 99999; border-top: 1px solid rgba(255,255,255,0.1); display: none; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; animation: slideUpBanner 0.4s cubic-bezier(0.4,0,0.2,1); }
 .install-banner .banner-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 200px; }
 .install-banner .banner-icon { background: rgba(255,255,255,0.1); border-radius: 50%; padding: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .install-banner .banner-icon i { font-size: 22px; color: #fff; }
@@ -102,11 +93,10 @@ animation: slideUpBanner 0.4s cubic-bezier(0.4,0,0.2,1);
 .install-banner .banner-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .install-banner .btn-install { background: #ffffff; color: #000000; border: none; padding: 10px 24px; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-family: 'Inter', sans-serif; transition: all 0.2s; }
 .install-banner .btn-install:hover { background: #e8e8e8; transform: scale(1.02); }
-.install-banner .btn-install i { font-size: 16px; }
 .install-banner .btn-close-banner { background: transparent; color: rgba(255,255,255,0.5); border: none; padding: 8px; cursor: pointer; font-size: 18px; transition: all 0.2s; }
 .install-banner .btn-close-banner:hover { color: #fff; transform: rotate(90deg); }
 .install-fab { position: fixed; bottom: 24px; right: 24px; background: #000000; color: #ffffff; border: none; padding: 14px 24px; border-radius: 50px; font-weight: 600; font-size: 14px; cursor: pointer; box-shadow: 0 8px 30px rgba(0,0,0,0.35); z-index: 99998; display: none; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,0.1); font-family: 'Inter', sans-serif; animation: fadeInFab 0.5s cubic-bezier(0.4,0,0.2,1); transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
-.install-fab:hover { background: #1a1a1a; transform: scale(1.05); box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
+.install-fab:hover { background: #1a1a1a; transform: scale(1.05); }
 .install-fab i { font-size: 18px; }
 .notification-toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 500; z-index: 999999; max-width: 90%; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.3); animation: fadeInFab 0.3s ease; font-family: 'Inter', sans-serif; border: 1px solid rgba(255,255,255,0.1); }
 @media (max-width: 768px) {
@@ -120,7 +110,6 @@ animation: slideUpBanner 0.4s cubic-bezier(0.4,0,0.2,1);
 .install-banner .banner-text p { font-size: 11px; }
 .install-banner .btn-install { padding: 6px 14px; font-size: 12px; }
 .install-fab { padding: 10px 14px; font-size: 12px; bottom: 12px; right: 12px; }
-.install-fab i { font-size: 15px; }
 }
 
 /* ===== HEADER ===== */
@@ -463,7 +452,6 @@ transition: var(--transition);
 </head>
 <body>
 
-<!-- ===== HEADER (original) ===== -->
 <header class="header" id="mainHeader">
 <a href="/" class="logo">
 <div class="logo-icon-css" id="mainLogoIcon">NJ</div>
@@ -481,7 +469,6 @@ transition: var(--transition);
 </div>
 </header>
 
-<!-- ===== NAV (original) ===== -->
 <nav class="main-nav" id="mainNav">
 <button onclick="scrollToSection('home')" class="nav-btn active"><i class="fas fa-home"></i> Início</button>
 <button onclick="scrollToSection('sobre')" class="nav-btn"><i class="fas fa-info-circle"></i> Sobre</button>
@@ -497,7 +484,6 @@ transition: var(--transition);
 <button onclick="scrollToSection('reflexoes')" class="nav-btn"><i class="fas fa-video"></i> Reflexões</button>
 </nav>
 
-<!-- ===== BANNER DE INSTALAÇÃO PWA (original) ===== -->
 <div class="install-banner" id="installBanner">
 <div class="banner-left">
 <div class="banner-icon"><i class="fas fa-download"></i></div>
@@ -514,7 +500,6 @@ transition: var(--transition);
 
 <button class="install-fab" id="installFab"><i class="fas fa-download"></i><span>Instalar App</span></button>
 
-<!-- ===== HERO / CARROSSEL NOVO ===== -->
 <section id="home" class="hero">
 <div class="hero-carousel">
 <div class="hero-track" id="heroTrack"></div>
@@ -811,7 +796,6 @@ transition: var(--transition);
 <button class="fab fab-prayer" onclick="scrollToSection('oracao')" title="Pedido de Oração"><i class="fas fa-pray"></i></button>
 <button class="fab fab-donation" onclick="scrollToSection('dizimos')" title="Doar"><i class="fas fa-hand-holding-heart"></i></button>
 
-<!-- ===== MODAL BÍBLIA (original) ===== -->
 <div class="modal modal-bible" id="bibleModal">
 <div class="modal-content">
 <button class="modal-close" onclick="closeModal('bibleModal')">&times;</button>
@@ -835,7 +819,6 @@ transition: var(--transition);
 </div>
 </div>
 
-<!-- ===== MODAL CARROSSEL (original) ===== -->
 <div class="modal modal-carousel" id="carouselInfoModal">
 <div class="modal-content">
 <button class="modal-close" onclick="closeModal('carouselInfoModal')">&times;</button>
@@ -922,18 +905,12 @@ transition: var(--transition);
 </div>
 
 <script>
-// ============================================
-// ===== SERVICE WORKER (original) =====
-// ============================================
 if ('serviceWorker' in navigator) {
 window.addEventListener('load', () => {
-navigator.serviceWorker.register('/sw.js').then(registration => { console.log('✅ SW:', registration); }).catch(error => { console.log('❌ SW erro:', error); });
+navigator.serviceWorker.register('/sw.js').then(registration => { console.log('SW:', registration); }).catch(error => { console.log('Erro SW:', error); });
 });
 }
 
-// ============================================
-// ===== BOTÃO DE INSTALAÇÃO PWA (original) =====
-// ============================================
 (function() {
 'use strict';
 let deferredPrompt = null;
@@ -953,27 +930,27 @@ else { banner.style.display = 'none'; fab.style.display = 'flex'; }
 }
 async function handleInstall(e) {
 if (e) e.preventDefault();
-if (isStandalone()) { showNotificationToast('✅ App já está instalado!'); banner.style.display = 'none'; fab.style.display = 'none'; return; }
+if (isStandalone()) { showNotificationToast('App já está instalado!'); banner.style.display = 'none'; fab.style.display = 'none'; return; }
 if (deferredPrompt) {
 try {
 deferredPrompt.prompt();
 const result = await deferredPrompt.userChoice;
-if (result.outcome === 'accepted') { banner.style.display = 'none'; fab.style.display = 'none'; setBannerClosed(); showNotificationToast('✅ App instalado com sucesso! 🎉'); }
-else { showNotificationToast('ℹ️ Instalação cancelada'); }
+if (result.outcome === 'accepted') { banner.style.display = 'none'; fab.style.display = 'none'; setBannerClosed(); showNotificationToast('App instalado com sucesso!'); }
+else { showNotificationToast('Instalação cancelada'); }
 deferredPrompt = null; return;
-} catch (error) { console.error('❌ Erro na instalação:', error); }
+} catch (error) { console.error(error); }
 }
 showAlternativeInstall();
 }
 function showAlternativeInstall() {
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 const isAndroid = /Android/.test(navigator.userAgent);
-if (isIOS) alert('📱 Para instalar no iPhone/iPad:\n\n1. Toque em compartilhar 📤\n2. Role e toque em "Adicionar à Tela de Início"\n3. Toque em "Adicionar"');
-else if (isAndroid) alert('📱 Para instalar no Android:\n\n1. Toque nos 3 pontos ⋮\n2. Selecione "Instalar app"\n3. Toque em "Instalar"');
-else alert('📲 Para instalar:\n\n• Chrome/Edge: 3 pontos ⋮ → "Instalar app"');
-showNotificationToast('💡 Siga as instruções para instalar o app');
+if (isIOS) alert('Para instalar no iPhone/iPad:\n\n1. Toque em compartilhar\n2. Role e toque em "Adicionar à Tela de Início"\n3. Toque em "Adicionar"');
+else if (isAndroid) alert('Para instalar no Android:\n\n1. Toque nos 3 pontos\n2. Selecione "Instalar app"\n3. Toque em "Instalar"');
+else alert('Para instalar:\n\n• Chrome/Edge: 3 pontos → "Instalar app"');
+showNotificationToast('Siga as instruções para instalar o app');
 }
-function closeBanner() { setBannerClosed(); showBannerState = false; updateUI(); showNotificationToast('💡 Para instalar, acesse o menu do navegador'); }
+function closeBanner() { setBannerClosed(); showBannerState = false; updateUI(); showNotificationToast('Para instalar, acesse o menu do navegador'); }
 function showNotificationToast(message) {
 const old = document.querySelector('.notification-toast');
 if (old) old.remove();
@@ -984,7 +961,7 @@ document.body.appendChild(div);
 setTimeout(() => { div.style.opacity = '0'; div.style.transition = 'opacity 0.4s'; setTimeout(() => div.remove(), 400); }, 4000);
 }
 window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; if (!isBannerClosed() && !isStandalone()) { showBannerState = true; updateUI(); } });
-window.addEventListener('appinstalled', () => { banner.style.display = 'none'; fab.style.display = 'none'; setBannerClosed(); showNotificationToast('✅ App instalado com sucesso! 🎉'); });
+window.addEventListener('appinstalled', () => { banner.style.display = 'none'; fab.style.display = 'none'; setBannerClosed(); showNotificationToast('App instalado com sucesso!'); });
 if (installBtn) installBtn.addEventListener('click', handleInstall);
 if (fab) fab.addEventListener('click', handleInstall);
 if (closeBtn) closeBtn.addEventListener('click', closeBanner);
@@ -1009,8 +986,9 @@ if (settings.primary_color) document.documentElement.style.setProperty('--primar
 if (settings.site_title) document.title = settings.site_title;
 if (settings.whatsapp) {
 const btn = document.getElementById('whatsappBtn');
-btn.href = 'https://wa.me/55' + settings.whatsapp;
-document.getElementById('fabWhatsapp').href = 'https://wa.me/55' + settings.whatsapp;
+if (btn) btn.href = 'https://wa.me/55' + settings.whatsapp;
+const fab = document.getElementById('fabWhatsapp');
+if (fab) fab.href = 'https://wa.me/55' + settings.whatsapp;
 }
 if (settings.about_mission) document.getElementById('aboutMissionText').textContent = settings.about_mission;
 if (settings.about_vision) document.getElementById('aboutVisionText').textContent = settings.about_vision;
@@ -1046,17 +1024,10 @@ async function loadCultosFromServer() {
 try {
 const res = await fetch('/api/settings');
 const settings = await res.json();
-if (settings.cultos) {
-try { cultosData = JSON.parse(settings.cultos); }
-catch { cultosData = [{ dia:0, hora:18, minuto:0, label:'Domingo 18:00' },{ dia:3, hora:20, minuto:0, label:'Quarta 20:00' },{ dia:2, hora:9, minuto:0, label:'Terça 09:00' }]; }
-} else {
-cultosData = [{ dia:0, hora:18, minuto:0, label:'Domingo 18:00' },{ dia:3, hora:20, minuto:0, label:'Quarta 20:00' },{ dia:2, hora:9, minuto:0, label:'Terça 09:00' }];
-}
+if (settings.cultos) { try { cultosData = JSON.parse(settings.cultos); } catch { cultosData = [{ dia:0, hora:18, minuto:0, label:'Domingo 18:00' },{ dia:3, hora:20, minuto:0, label:'Quarta 20:00' },{ dia:2, hora:9, minuto:0, label:'Terça 09:00' }]; } }
+else { cultosData = [{ dia:0, hora:18, minuto:0, label:'Domingo 18:00' },{ dia:3, hora:20, minuto:0, label:'Quarta 20:00' },{ dia:2, hora:9, minuto:0, label:'Terça 09:00' }]; }
 startCountdown();
-} catch (e) {
-cultosData = [{ dia:0, hora:18, minuto:0, label:'Domingo 18:00' },{ dia:3, hora:20, minuto:0, label:'Quarta 20:00' },{ dia:2, hora:9, minuto:0, label:'Terça 09:00' }];
-startCountdown();
-}
+} catch (e) { cultosData = [{ dia:0, hora:18, minuto:0, label:'Domingo 18:00' },{ dia:3, hora:20, minuto:0, label:'Quarta 20:00' },{ dia:2, hora:9, minuto:0, label:'Terça 09:00' }]; startCountdown(); }
 }
 function startCountdown() { if (countdownInterval) clearInterval(countdownInterval); updateCountdown(); countdownInterval = setInterval(updateCountdown, 1000); }
 function updateCountdown() {
@@ -1085,7 +1056,6 @@ document.getElementById('nextCultoLabel').textContent = '📖 ' + nextCulto.labe
 }
 
 window.addEventListener('scroll', () => { const header = document.getElementById('mainHeader'); if (header) header.classList.toggle('scrolled', window.scrollY > 50); });
-
 function toggleMobileMenu() { document.getElementById('mainNav').classList.toggle('mobile-open'); }
 document.querySelectorAll('.nav-btn').forEach(btn => { btn.addEventListener('click', () => { document.getElementById('mainNav').classList.remove('mobile-open'); }); });
 
@@ -1108,15 +1078,14 @@ const data = await res.json();
 if (data && data.length > 0) { carouselData = data; }
 else {
 carouselData = [
-{ title: 'Bem-Vindo à NJ Cabuçu', subtitle: 'Uma comunidade que ama a Deus e ao próximo', description: 'A NJ Cabuçu é uma comunidade cristã dedicada a levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.', image_url: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1600&h=900&fit=crop', link: '#sobre' },
-{ title: 'Venha nos Louvar', subtitle: 'Nossos cultos são cheios de adoração', description: 'Nossos cultos são marcados por louvores vibrantes e adoração sincera. Venha experimentar a presença de Deus!', image_url: 'https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1600&h=900&fit=crop', link: '#eventos' },
-{ title: 'Faça Parte', subtitle: 'Junte-se a nós e faça a diferença', description: 'Acreditamos que a igreja não é um lugar, mas um povo. Venha fazer parte da nossa família!', image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1600&h=900&fit=crop', link: '#inscricoes' }
+{ title: 'Bem-Vindo à NJ Cabuçu', subtitle: 'Uma comunidade que ama a Deus e ao próximo', description: 'Dedicada a levar o amor de Deus a todas as pessoas.', image_url: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1600&h=900&fit=crop', link: '#sobre' },
+{ title: 'Venha nos Louvar', subtitle: 'Cultos marcados por adoração sincera', description: 'Venha experimentar a presença de Deus!', image_url: 'https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1600&h=900&fit=crop', link: '#horarios' },
+{ title: 'Faça Parte da Família', subtitle: 'A igreja não é um lugar, mas um povo', description: 'Venha fazer parte da nossa família!', image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1600&h=900&fit=crop', link: '#inscricoes' }
 ];
 }
 renderCarousel();
 } catch (e) {
-console.error('Erro carrossel:', e);
-carouselData = [{ title: 'Bem-Vindo à NJ Cabuçu', subtitle: 'Uma comunidade que ama a Deus', description: 'A NJ Cabuçu é uma comunidade cristã dedicada a levar o amor de Deus.', image_url: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1600&h=900&fit=crop', link: '#sobre' }];
+carouselData = [{ title: 'Bem-Vindo à NJ Cabuçu', subtitle: 'Uma comunidade que ama a Deus', description: 'Dedicada a levar o amor de Deus.', image_url: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1600&h=900&fit=crop', link: '#sobre' }];
 renderCarousel();
 }
 }
@@ -1162,26 +1131,9 @@ if (track) track.style.transform = 'translateX(-' + (currentSlide * 100) + '%)';
 const dots = document.querySelectorAll('.hero-dot');
 dots.forEach((d, i) => d.classList.toggle('active', i === currentSlide));
 }
-function goToSlide(index) {
-if (index < 0 || index >= slideCount) return;
-currentSlide = index;
-updateTrackPosition();
-resetProgress();
-}
-function changeSlide(dir) {
-if (slideCount === 0) return;
-let next = (currentSlide + dir + slideCount) % slideCount;
-currentSlide = next;
-updateTrackPosition();
-resetProgress();
-startCarousel();
-}
-function startCarousel() {
-if (slideInterval) clearInterval(slideInterval);
-if (slideCount <= 1) return;
-resetProgress();
-slideInterval = setInterval(() => { currentSlide = (currentSlide + 1) % slideCount; updateTrackPosition(); resetProgress(); }, SLIDE_DURATION);
-}
+function goToSlide(index) { if (index < 0 || index >= slideCount) return; currentSlide = index; updateTrackPosition(); resetProgress(); }
+function changeSlide(dir) { if (slideCount === 0) return; let next = (currentSlide + dir + slideCount) % slideCount; currentSlide = next; updateTrackPosition(); resetProgress(); startCarousel(); }
+function startCarousel() { if (slideInterval) clearInterval(slideInterval); if (slideCount <= 1) return; resetProgress(); slideInterval = setInterval(() => { currentSlide = (currentSlide + 1) % slideCount; updateTrackPosition(); resetProgress(); }, SLIDE_DURATION); }
 function resetProgress() {
 const fill = document.getElementById('heroProgressFill');
 if (!fill) return;
@@ -1192,9 +1144,6 @@ fill.style.transition = 'width ' + SLIDE_DURATION + 'ms linear';
 fill.style.width = '100%';
 }
 
-// ============================================
-// ===== BÍBLIA (original) =====
-// ============================================
 function openBibleModal() { openModal('bibleModal'); setTimeout(() => searchBible(), 300); }
 const bookNames = { gn:'Gênesis', ex:'Êxodo', lv:'Levítico', nm:'Números', dt:'Deuteronômio', js:'Josué', jz:'Juízes', rt:'Rute', '1sm':'1 Samuel', '2sm':'2 Samuel', '1rs':'1 Reis', '2rs':'2 Reis', '1cr':'1 Crônicas', '2cr':'2 Crônicas', ed:'Esdras', ne:'Neemias', et:'Ester', jo:'Jó', sl:'Salmos', pv:'Provérbios', ec:'Eclesiastes', ct:'Cânticos', is:'Isaías', jr:'Jeremias', lm:'Lamentações', ez:'Ezequiel', dn:'Daniel', os:'Oseias', jl:'Joel', am:'Amós', ob:'Obadias', jn:'Jonas', mq:'Miqueias', na:'Naum', hc:'Habacuque', sf:'Sofonias', ag:'Ageu', zc:'Zacarias', ml:'Malaquias', mt:'Mateus', mc:'Marcos', lc:'Lucas', joao:'João', at:'Atos', rm:'Romanos', '1co':'1 Coríntios', '2co':'2 Coríntios', gl:'Gálatas', ef:'Efésios', fp:'Filipenses', cl:'Colossenses', '1ts':'1 Tessalonicenses', '2ts':'2 Tessalonicenses', '1tm':'1 Timóteo', '2tm':'2 Timóteo', tt:'Tito', fm:'Filemom', hb:'Hebreus', tg:'Tiago', '1pe':'1 Pedro', '2pe':'2 Pedro', '1jo':'1 João', '2jo':'2 João', '3jo':'3 João', jd:'Judas', ap:'Apocalipse' };
 
@@ -1203,39 +1152,39 @@ const book = document.getElementById('bibleBook').value;
 const chapter = document.getElementById('bibleChapter').value;
 const verse = document.getElementById('bibleVerse').value;
 const resultDiv = document.getElementById('bibleResult');
-if (!chapter || chapter < 1) { resultDiv.innerHTML = '<p style="color:#dc3545;">⚠️ Digite um capítulo válido.</p>'; return; }
-resultDiv.innerHTML = '<p style="color:#888;">⏳ Carregando...</p>';
+if (!chapter || chapter < 1) { resultDiv.innerHTML = '<p style="color:#dc3545;">Digite um capítulo válido.</p>'; return; }
+resultDiv.innerHTML = '<p style="color:var(--text-muted);">Carregando...</p>';
 try {
 let url = '/api/bible?book=' + encodeURIComponent(book) + '&chapter=' + chapter;
 if (verse && parseInt(verse) > 0) url += '&verse=' + verse;
 const response = await fetch(url);
 const data = await response.json();
-if (!response.ok) { resultDiv.innerHTML = '<p style="color:#dc3545;">❌ ' + (data.error || 'Erro') + '</p><p style="color:#888;margin-top:0.5rem;">Tente: Salmos 23, João 3:16, Romanos 8:28</p>'; return; }
+if (!response.ok) { resultDiv.innerHTML = '<p style="color:#dc3545;">' + (data.error || 'Erro') + '</p>'; return; }
 let html = '';
 if (data.verses && data.verses.length > 0) { data.verses.forEach(v => { html += '<p class="verse"><strong>' + v.verse + '</strong> ' + v.text.trim() + '</p>'; }); }
 else if (data.text) { html = '<p class="verse">' + data.text.trim() + '</p>'; }
-else { html = '<p style="color:#888;">Nenhum texto encontrado.</p>'; }
-html += '<p class="reference">📖 ' + (data.reference || bookNames[book] + ' ' + chapter) + '</p>';
+else { html = '<p style="color:var(--text-muted);">Nenhum texto encontrado.</p>'; }
+html += '<p class="reference">' + (data.reference || bookNames[book] + ' ' + chapter) + '</p>';
 resultDiv.innerHTML = html;
 resultDiv.scrollTop = 0;
-} catch (error) { resultDiv.innerHTML = '<p style="color:#dc3545;">❌ Erro: ' + error.message + '</p><p style="color:#888;margin-top:0.5rem;">Verifique sua internet.</p>'; }
+} catch (error) { resultDiv.innerHTML = '<p style="color:#dc3545;">Erro: ' + error.message + '</p>'; }
 }
 async function searchBibleRandom() {
 const resultDiv = document.getElementById('bibleResult');
-resultDiv.innerHTML = '<p style="color:#888;">⏳ Buscando...</p>';
+resultDiv.innerHTML = '<p style="color:var(--text-muted);">Buscando...</p>';
 const refs = [{ book:'sl', chapter:23 },{ book:'joao', chapter:3 },{ book:'rm', chapter:8 },{ book:'fp', chapter:4 },{ book:'is', chapter:41 },{ book:'mt', chapter:11 },{ book:'sl', chapter:91 },{ book:'pv', chapter:3 },{ book:'hb', chapter:11 },{ book:'tg', chapter:1 },{ book:'1co', chapter:13 },{ book:'ef', chapter:2 }];
 const pick = refs[Math.floor(Math.random() * refs.length)];
 try {
 const url = '/api/bible?book=' + pick.book + '&chapter=' + pick.chapter;
 const response = await fetch(url);
 const data = await response.json();
-if (!response.ok) { resultDiv.innerHTML = '<p style="color:#dc3545;">❌ ' + (data.error || 'Erro') + '</p>'; return; }
+if (!response.ok) { resultDiv.innerHTML = '<p style="color:#dc3545;">' + (data.error || 'Erro') + '</p>'; return; }
 let html = '';
 if (data.verses && data.verses.length > 0) { const v = data.verses[Math.floor(Math.random() * data.verses.length)]; html = '<p class="verse"><strong>' + v.verse + '</strong> ' + v.text.trim() + '</p>'; }
 else if (data.text) { html = '<p class="verse">' + data.text.trim() + '</p>'; }
-html += '<p class="reference">📖 ' + (data.reference || '') + '</p>';
+html += '<p class="reference">' + (data.reference || '') + '</p>';
 resultDiv.innerHTML = html;
-} catch (error) { resultDiv.innerHTML = '<p style="color:#dc3545;">❌ Erro: ' + error.message + '</p>'; }
+} catch (error) { resultDiv.innerHTML = '<p style="color:#dc3545;">Erro: ' + error.message + '</p>'; }
 }
 document.addEventListener('keypress', (e) => {
 if (e.key === 'Enter') {
@@ -1244,9 +1193,6 @@ if (a && (a.id === 'bibleChapter' || a.id === 'bibleVerse' || a.id === 'bibleBoo
 }
 });
 
-// ============================================
-// ===== LIVE (original) =====
-// ============================================
 async function checkLiveStatusIndex() {
 try {
 const res = await fetch('/api/lives/active');
@@ -1255,7 +1201,7 @@ const liveBar = document.getElementById('liveBar');
 const liveSection = document.getElementById('live');
 if (data.status === 'live') {
 liveBar.classList.add('active');
-document.getElementById('liveBarTitle').textContent = data.titulo || 'Live NJ Cabuçu';
+document.getElementById('liveBarTitle').textContent = data.titulo || 'Live';
 document.getElementById('liveBarDesc').textContent = data.descricao || '';
 liveSection.style.display = 'block';
 document.getElementById('liveOffline').style.display = 'none';
@@ -1265,10 +1211,10 @@ document.getElementById('liveInfoBox').style.display = 'flex';
 document.getElementById('heroLiveBadge').style.display = 'flex';
 document.getElementById('liveNavBtn').style.display = 'inline-flex';
 document.getElementById('liveNavBtn2').style.display = 'inline-flex';
-document.getElementById('liveTitleDisplay').textContent = data.titulo || 'Live NJ Cabuçu';
+document.getElementById('liveTitleDisplay').textContent = data.titulo || 'Live';
 document.getElementById('liveDescDisplay').textContent = data.descricao || '';
 document.getElementById('liveViewerCount').textContent = data.viewers || 0;
-const viewerId = 'viewer_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
+const viewerId = 'viewer_' + Date.now();
 await fetch('/api/lives/' + data.id + '/viewer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ viewer_id: viewerId }) });
 const video = document.getElementById('remoteVideo');
 if (data.stream_key) {
@@ -1277,7 +1223,7 @@ if (video.canPlayType('application/vnd.apple.mpegurl')) { video.src = streamUrl;
 else if (typeof Hls !== 'undefined') { const hls = new Hls(); hls.loadSource(streamUrl); hls.attachMedia(video); }
 else { video.src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'; }
 } else { video.src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'; }
-video.play().catch(e => console.log('Erro ao reproduzir:', e));
+video.play().catch(e => console.log(e));
 if (liveIntervalCheck) clearInterval(liveIntervalCheck);
 liveIntervalCheck = setInterval(async () => {
 try { const res2 = await fetch('/api/lives/active'); const data2 = await res2.json(); if (data2.status === 'live') document.getElementById('liveViewerCount').textContent = data2.viewers || 0; } catch (e) {}
@@ -1295,7 +1241,7 @@ document.getElementById('liveNavBtn').style.display = 'none';
 document.getElementById('liveNavBtn2').style.display = 'none';
 if (liveIntervalCheck) { clearInterval(liveIntervalCheck); liveIntervalCheck = null; }
 }
-} catch (e) { console.error('Erro ao verificar live:', e); }
+} catch (e) { console.error(e); }
 }
 document.getElementById('livePlayer')?.addEventListener('click', () => {
 const video = document.getElementById('remoteVideo');
@@ -1314,8 +1260,8 @@ const data = await res.json();
 if (data && data.length > 0) {
 container.innerHTML = data.map(item => {
 let videoId = '';
-if (item.link) { const url = new URL(item.link); if (url.hostname.includes('youtube.com') || url.hostname.includes('youtu.be')) { const match = item.link.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/); if (match) videoId = match[1]; } }
-return '<div class="reflection-card">' + (videoId ? '<div class="video-wrapper"><iframe src="https://www.youtube.com/embed/' + videoId + '" allowfullscreen loading="lazy"></iframe></div>' : '<div class="video-wrapper" style="background:#0A0E1A;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:0.85rem;">🎥 Vídeo indisponível</div>') + '<div class="info"><h4>' + (item.title || 'Reflexão') + '</h4><p>' + (item.description || '') + '</p>' + (item.link ? '<a href="' + item.link + '" target="_blank" style="color:var(--accent);font-weight:600;font-size:0.8rem;text-decoration:none;">Assistir no YouTube <i class="fas fa-external-link-alt"></i></a>' : '') + '</div></div>';
+if (item.link) { const match = item.link.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/); if (match) videoId = match[1]; }
+return '<div class="reflection-card">' + (videoId ? '<div class="video-wrapper"><iframe src="https://www.youtube.com/embed/' + videoId + '" allowfullscreen loading="lazy"></iframe></div>' : '<div class="video-wrapper" style="background:#0A0E1A;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:0.85rem;">Vídeo indisponível</div>') + '<div class="info"><h4>' + (item.title || 'Reflexão') + '</h4><p>' + (item.description || '') + '</p>' + (item.link ? '<a href="' + item.link + '" target="_blank" style="color:var(--accent);font-weight:600;font-size:0.8rem;text-decoration:none;">Assistir no YouTube <i class="fas fa-external-link-alt"></i></a>' : '') + '</div></div>';
 }).join('');
 } else {
 container.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted);grid-column:1/-1;"><i class="fas fa-video" style="font-size:2.5rem;color:rgba(10,38,71,0.08);display:block;margin-bottom:0.6rem;"></i><p>Nenhuma reflexão disponível.</p></div>';
@@ -1331,7 +1277,7 @@ const res = await fetch('/api/celulas');
 const data = await res.json();
 const container = document.getElementById('celulasList');
 if (!data || data.length === 0) {
-container.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted);grid-column:1/-1;"><i class="fas fa-users" style="font-size:2.5rem;color:rgba(10,38,71,0.08);display:block;margin-bottom:0.6rem;"></i><p>Nenhuma célula disponível 🏠</p></div>';
+container.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted);grid-column:1/-1;"><i class="fas fa-users" style="font-size:2.5rem;color:rgba(10,38,71,0.08);display:block;margin-bottom:0.6rem;"></i><p>Nenhuma célula disponível</p></div>';
 return;
 }
 container.innerHTML = data.map(c => '<div class="card">' +
@@ -1345,7 +1291,7 @@ container.innerHTML = data.map(c => '<div class="card">' +
 (c.descricao ? '<p style="margin-top:0.3rem;font-size:0.78rem;color:var(--text-muted);">' + c.descricao + '</p>' : '') +
 '<a href="https://wa.me/5521985345627?text=Olá! Quero participar da célula ' + encodeURIComponent(c.nome) + '" target="_blank" class="btn btn-whatsapp" style="margin-top:0.5rem;width:100%;justify-content:center;font-size:0.75rem;padding:0.4rem;"><i class="fab fa-whatsapp"></i> Quero Participar</a>' +
 '</div>').join('');
-} catch (e) { console.error('Erro:', e); }
+} catch (e) { console.error(e); }
 }
 
 function createCardImage(imageData, alt) {
@@ -1389,7 +1335,7 @@ return '<div class="study-card">' +
 }
 
 function downloadPdf(studyId) {
-showNotification('📄 Baixando PDF...', 'info');
+showNotification('Baixando PDF...', 'info');
 fetch('/api/studies/' + studyId + '/pdf', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') } })
 .then(response => { if (!response.ok) throw new Error('Erro ao baixar PDF'); return response.blob(); })
 .then(blob => {
@@ -1398,9 +1344,9 @@ const a = document.createElement('a');
 a.href = url; a.download = 'estudo-' + studyId + '.pdf';
 document.body.appendChild(a); a.click(); a.remove();
 window.URL.revokeObjectURL(url);
-showNotification('✅ PDF baixado com sucesso!', 'success');
+showNotification('PDF baixado com sucesso!', 'success');
 })
-.catch(error => showNotification('❌ Erro ao baixar PDF: ' + error.message, 'error'));
+.catch(error => showNotification('Erro ao baixar PDF: ' + error.message, 'error'));
 }
 
 async function loadEvents() {
@@ -1417,7 +1363,7 @@ container.innerHTML = data.map(e => '<div class="card">' +
 '<p style="font-size:0.78rem;color:var(--text-secondary);"><strong>Valor:</strong> ' + (parseFloat(e.price || 0) > 0 ? 'R$ ' + parseFloat(e.price).toFixed(2) : 'Grátis') + '</p>' +
 '<button onclick="registerForEvent(' + e.id + ', \'' + e.title.replace(/'/g, "\\'") + '\', ' + (e.price || 0) + ')" class="btn btn-primary" style="margin-top:0.5rem; background:#28a745; font-size:0.78rem; padding:0.4rem 1.2rem;"><i class="fas fa-ticket-alt"></i> Inscrever-se</button>' +
 '</div>').join('');
-} catch (e) { console.error('Erro:', e); }
+} catch (e) { console.error(e); }
 }
 
 async function registerForEvent(eventId, eventName, price) {
@@ -1429,9 +1375,9 @@ const res = await fetch('/api/registrations', { method: 'POST', headers: { 'Cont
 const data = await res.json();
 if (!res.ok) throw new Error(data.error || 'Erro ao inscrever');
 if (parseFloat(price) > 0) {
-alert('✅ Inscrição realizada! O evento é pago. Por favor, faça o pagamento para confirmar.');
+alert('Inscrição realizada! O evento é pago. Faça o pagamento para confirmar.');
 paymentType = 'donation'; donationType = 'Inscrição Evento - ' + eventName;
-document.getElementById('paymentTitle').textContent = '💳 Inscrição - ' + eventName;
+document.getElementById('paymentTitle').textContent = 'Inscrição - ' + eventName;
 document.getElementById('paymentTotal').textContent = 'Valor: R$ ' + parseFloat(price).toFixed(2);
 document.getElementById('paymentForm').style.display = 'block';
 document.getElementById('paymentResult').style.display = 'none';
@@ -1442,9 +1388,9 @@ document.getElementById('payPhone').value = phone;
 openModal('paymentModal');
 } else {
 const pdfUrl = '/api/registration-pdf/' + data.id;
-if (confirm('✅ Inscrição realizada com sucesso! Deseja baixar o comprovante em PDF?')) window.open(pdfUrl, '_blank');
+if (confirm('Inscrição realizada! Deseja baixar o comprovante em PDF?')) window.open(pdfUrl, '_blank');
 }
-} catch (e) { alert('❌ Erro: ' + e.message); }
+} catch (e) { alert('Erro: ' + e.message); }
 }
 
 async function loadProducts() {
@@ -1477,7 +1423,7 @@ try {
 const res = await fetch('/api/birthdays');
 const data = await res.json();
 const container = document.getElementById('birthdayList');
-if (!data || data.length === 0) { container.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted);grid-column:1/-1;"><i class="fas fa-birthday-cake" style="font-size:2.5rem;color:rgba(10,38,71,0.08);display:block;margin-bottom:0.6rem;"></i><p>Nenhum aniversariante este mês 🎉</p></div>'; return; }
+if (!data || data.length === 0) { container.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted);grid-column:1/-1;"><i class="fas fa-birthday-cake" style="font-size:2.5rem;color:rgba(10,38,71,0.08);display:block;margin-bottom:0.6rem;"></i><p>Nenhum aniversariante este mês</p></div>'; return; }
 const sortedData = [...data].sort((a, b) => new Date(a.birth_date).getDate() - new Date(b.birth_date).getDate());
 const today = new Date();
 const todayMonth = today.getMonth();
@@ -1495,11 +1441,11 @@ return '<div class="card birthday-card ' + (isToday ? 'today' : '') + '" style="
 '<div style="font-size:2rem;">' + emoji + '</div>' +
 '<div style="font-size:1rem;font-weight:700;color:var(--primary);font-family:\'Playfair Display\',serif;">' + person.name + '</div>' +
 '<div style="color:var(--text-secondary);font-size:0.85rem;">' + birth.toLocaleDateString('pt-BR', { day:'numeric', month:'long' }) + '</div>' +
-'<div style="color:var(--text-muted);font-size:0.8rem;">🎯 ' + idade + ' anos ' + (isToday ? '🎉 HOJE!' : '') + '</div>' +
+'<div style="color:var(--text-muted);font-size:0.8rem;">' + idade + ' anos ' + (isToday ? 'HOJE!' : '') + '</div>' +
 (person.phone ? '<div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;"><i class="fas fa-phone"></i> ' + person.phone + '</div>' : '') +
 '</div>';
 }).join('');
-} catch (e) { console.error('Erro:', e); }
+} catch (e) { console.error(e); }
 }
 
 async function addToCart(productId) {
@@ -1510,9 +1456,9 @@ const product = products.find(p => p.id === productId);
 if (product) {
 cart.push(product);
 document.getElementById('cartCount').textContent = cart.length;
-showNotification('✅ ' + product.name + ' adicionado ao carrinho!', 'success');
+showNotification(product.name + ' adicionado ao carrinho!', 'success');
 }
-} catch (e) { console.error('Erro:', e); }
+} catch (e) { console.error(e); }
 }
 
 function openCart() {
@@ -1529,17 +1475,13 @@ totalDiv.textContent = 'Total: R$ ' + total.toFixed(2);
 }
 openModal('cartModal');
 }
-function removeFromCart(index) {
-cart.splice(index, 1);
-document.getElementById('cartCount').textContent = cart.length;
-openCart();
-}
+function removeFromCart(index) { cart.splice(index, 1); document.getElementById('cartCount').textContent = cart.length; openCart(); }
 function checkout() {
 if (cart.length === 0) { showNotification('Carrinho vazio!', 'error'); return; }
 closeModal('cartModal');
 paymentType = 'sale';
 const total = cart.reduce((sum, p) => sum + parseFloat(p.price), 0);
-document.getElementById('paymentTitle').textContent = '💳 NJ Store - Pagamento';
+document.getElementById('paymentTitle').textContent = 'NJ Store - Pagamento';
 document.getElementById('paymentTotal').textContent = 'Total: R$ ' + total.toFixed(2);
 document.getElementById('paymentForm').style.display = 'block';
 document.getElementById('paymentResult').style.display = 'none';
@@ -1549,7 +1491,7 @@ openModal('paymentModal');
 function openDonationForm(type) {
 document.getElementById('donationModal').classList.add('open');
 document.getElementById('donationType').value = type;
-document.getElementById('donationTypeLabel').textContent = '💳 ' + type;
+document.getElementById('donationTypeLabel').textContent = type;
 document.getElementById('donationName').value = '';
 document.getElementById('donationEmail').value = '';
 document.getElementById('donationPhone').value = '';
@@ -1560,10 +1502,7 @@ document.getElementById(id).classList.remove('open');
 document.body.style.overflow = 'auto';
 if (statusCheckInterval) { clearInterval(statusCheckInterval); statusCheckInterval = null; }
 }
-function openModal(id) {
-document.getElementById(id).classList.add('open');
-document.body.style.overflow = 'hidden';
-}
+function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
 document.querySelectorAll('.modal').forEach(m => {
 m.addEventListener('click', (e) => {
 if (e.target === m) {
@@ -1586,7 +1525,7 @@ donationType = type;
 paymentType = 'donation';
 _donationAmount = parseFloat(amount);
 closeModal('donationModal');
-document.getElementById('paymentTitle').textContent = '💳 ' + type;
+document.getElementById('paymentTitle').textContent = type;
 document.getElementById('paymentTotal').textContent = 'Valor: R$ ' + parseFloat(amount).toFixed(2);
 document.getElementById('paymentForm').style.display = 'block';
 document.getElementById('paymentResult').style.display = 'none';
@@ -1611,61 +1550,61 @@ document.getElementById('cartCount').textContent = 0;
 } else if (paymentType === 'donation') {
 await fetch('/api/donations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_name: name, user_email: email, user_phone: phone, type: donationType, amount: amount, payment_id: paymentId, payment_method: method, status: 'pending' }) });
 }
-} catch (error) { console.error('❌ Erro ao salvar:', error); }
+} catch (error) { console.error(error); }
 }
 
 async function checkPaymentStatus(paymentId) {
 try {
-showNotification('🔄 Verificando status...', 'info');
+showNotification('Verificando status...', 'info');
 const response = await fetch('/api/check-payment/' + paymentId, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } });
 const contentType = response.headers.get('content-type');
 if (!contentType || !contentType.includes('application/json')) {
 const altResponse = await fetch('/api/payment-status/' + paymentId, { headers: { 'Accept': 'application/json' } });
-if (!altResponse.ok) throw new Error('Não foi possível verificar o status.');
+if (!altResponse.ok) throw new Error('Não foi possível verificar');
 const altData = await altResponse.json();
 return await processPaymentStatus(altData, paymentId);
 }
 const data = await response.json();
 return await processPaymentStatus(data, paymentId);
-} catch (error) { showNotification('❌ Erro: ' + error.message, 'error'); return null; }
+} catch (error) { showNotification('Erro: ' + error.message, 'error'); return null; }
 }
 
 async function processPaymentStatus(data, paymentId) {
 if (data.status === 'approved') {
-showNotification('✅ Pagamento confirmado! Obrigado! 🙏', 'success');
+showNotification('Pagamento confirmado! Obrigado!', 'success');
 await fetch('/api/update-payment-status', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ payment_id: paymentId, status: 'approved' }) });
 localStorage.removeItem('last_payment_id');
 if (statusCheckInterval) { clearInterval(statusCheckInterval); statusCheckInterval = null; }
 setTimeout(() => { closeModal('paymentModal'); if (paymentType === 'sale') { cart = []; document.getElementById('cartCount').textContent = 0; } }, 2000);
 return true;
-} else if (data.status === 'pending' || data.status === 'in_process') { showNotification('⏳ Aguarde...', 'info'); return false; }
-else if (data.status === 'rejected' || data.status === 'cancelled') { showNotification('❌ Recusado.', 'error'); if (statusCheckInterval) { clearInterval(statusCheckInterval); statusCheckInterval = null; } return false; }
-else { showNotification('ℹ️ Status: ' + data.status, 'info'); return false; }
+} else if (data.status === 'pending' || data.status === 'in_process') { showNotification('Pagamento pendente. Aguarde...', 'info'); return false; }
+else if (data.status === 'rejected' || data.status === 'cancelled') { showNotification('Pagamento recusado.', 'error'); if (statusCheckInterval) { clearInterval(statusCheckInterval); statusCheckInterval = null; } return false; }
+else { showNotification('Status: ' + data.status, 'info'); return false; }
 }
 
 function verificarStatusAutomatico(paymentId) {
 let tentativas = 0;
 const maxTentativas = 12;
-showNotification('🔄 Aguardando confirmação...', 'info');
+showNotification('Aguardando confirmação...', 'info');
 if (statusCheckInterval) { clearInterval(statusCheckInterval); statusCheckInterval = null; }
 statusCheckInterval = setInterval(async () => {
 tentativas++;
 try {
 const response = await fetch('/api/check-payment/' + paymentId, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } });
-if (!response.ok) { if (tentativas >= maxTentativas) { clearInterval(statusCheckInterval); statusCheckInterval = null; showNotification('⏳ Use "Verificar Status"', 'info'); } return; }
+if (!response.ok) { if (tentativas >= maxTentativas) { clearInterval(statusCheckInterval); statusCheckInterval = null; showNotification('Use "Verificar Status"', 'info'); } return; }
 const data = await response.json();
 if (data.status === 'approved') {
 clearInterval(statusCheckInterval); statusCheckInterval = null;
-showNotification('✅ Confirmado! 🙏', 'success');
+showNotification('Confirmado! Obrigado!', 'success');
 await fetch('/api/update-payment-status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ payment_id: paymentId, status: 'approved' }) });
 localStorage.removeItem('last_payment_id');
 setTimeout(() => { closeModal('paymentModal'); if (paymentType === 'sale') { cart = []; document.getElementById('cartCount').textContent = 0; } }, 1500);
 } else if (data.status === 'rejected' || data.status === 'cancelled') {
 clearInterval(statusCheckInterval); statusCheckInterval = null;
-showNotification('❌ Recusado.', 'error');
+showNotification('Pagamento recusado.', 'error');
 }
 } catch (error) {
-if (tentativas >= maxTentativas) { clearInterval(statusCheckInterval); statusCheckInterval = null; showNotification('⏳ Use "Verificar Status"', 'info'); }
+if (tentativas >= maxTentativas) { clearInterval(statusCheckInterval); statusCheckInterval = null; showNotification('Use "Verificar Status"', 'info'); }
 }
 }, 5000);
 }
@@ -1700,7 +1639,7 @@ else if (paymentType === 'donation') { amount = _donationAmount || 0; descriptio
 if (amount <= 0) { showNotification('Valor inválido!', 'error'); return; }
 if (!validarCPF(cpf)) { showNotification('CPF inválido!', 'error'); return; }
 try {
-showNotification('🔄 Processando...', 'info');
+showNotification('Processando...', 'info');
 if (method === 'pix') {
 const paymentData = { amount, description, email, name, phone, cpf, paymentType };
 const response = await fetch('/api/create-pix-payment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(paymentData) });
@@ -1710,10 +1649,10 @@ await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'pix',
 const resultDiv = document.getElementById('paymentResult');
 resultDiv.style.display = 'block';
 document.getElementById('paymentForm').style.display = 'none';
-let qrHtml = '<h3 style="color:var(--primary);margin-bottom:0.6rem;font-family:\'Playfair Display\',serif;">✅ PIX Gerado</h3><div style="text-align:center;padding:0.5rem;">';
+let qrHtml = '<h3 style="color:var(--primary);margin-bottom:0.6rem;font-family:\'Playfair Display\',serif;">PIX Gerado</h3><div style="text-align:center;padding:0.5rem;">';
 if (payment.qr_code_base64) qrHtml += '<img src="data:image/png;base64,' + payment.qr_code_base64 + '" style="max-width:160px;margin:0 auto;display:block;border-radius:8px;"><p style="margin:0.3rem 0;font-size:0.75rem;">Escaneie o QR Code</p>';
 if (payment.qr_code) qrHtml += '<div style="background:#f4f6fc;padding:0.3rem;border-radius:8px;word-break:break-all;font-size:0.65rem;margin:0.3rem 0;border:1px solid #e0e0e0;"><strong>Código PIX:</strong><br>' + payment.qr_code + '</div><button onclick="navigator.clipboard.writeText(\'' + payment.qr_code + '\')" class="btn btn-primary btn-sm" style="margin:0.15rem;font-size:0.65rem;"><i class="fas fa-copy"></i> Copiar</button>';
-qrHtml += '<a href="' + payment.payment_link + '" target="_blank" class="btn btn-success" style="margin:0.15rem;display:inline-flex;font-size:0.75rem;"><i class="fas fa-external-link-alt"></i> Abrir no Mercado Pago</a><p style="margin-top:0.3rem;font-size:0.65rem;color:#888;">Status: <strong>' + payment.status + '</strong></p><div style="display:flex;gap:0.4rem;justify-content:center;margin-top:0.3rem;flex-wrap:wrap;"><button onclick="checkPaymentStatus(\'' + payment.payment_id + '\')" class="btn btn-primary btn-sm" style="font-size:0.65rem;"><i class="fas fa-sync"></i> Verificar</button><button onclick="closeModal(\'paymentModal\')" class="btn btn-sm btn-outline-light" style="border:2px solid #888;color:#888;background:transparent;padding:0.1rem 0.6rem;border-radius:50px;cursor:pointer;font-size:0.65rem;"><i class="fas fa-check"></i> Concluir</button></div><p style="margin-top:0.3rem;font-size:0.6rem;color:#999;">⏳ Aguardando pagamento...</p></div>';
+qrHtml += '<a href="' + payment.payment_link + '" target="_blank" class="btn btn-success" style="margin:0.15rem;display:inline-flex;font-size:0.75rem;"><i class="fas fa-external-link-alt"></i> Abrir no Mercado Pago</a><p style="margin-top:0.3rem;font-size:0.65rem;color:#888;">Status: <strong>' + payment.status + '</strong></p><div style="display:flex;gap:0.4rem;justify-content:center;margin-top:0.3rem;flex-wrap:wrap;"><button onclick="checkPaymentStatus(\'' + payment.payment_id + '\')" class="btn btn-primary btn-sm" style="font-size:0.65rem;"><i class="fas fa-sync"></i> Verificar</button><button onclick="closeModal(\'paymentModal\')" class="btn btn-sm btn-outline-light" style="border:2px solid #888;color:#888;background:transparent;padding:0.1rem 0.6rem;border-radius:50px;cursor:pointer;font-size:0.65rem;"><i class="fas fa-check"></i> Concluir</button></div><p style="margin-top:0.3rem;font-size:0.6rem;color:#999;">Aguardando pagamento...</p></div>';
 resultDiv.innerHTML = qrHtml;
 localStorage.setItem('last_payment_id', payment.payment_id);
 verificarStatusAutomatico(payment.payment_id);
@@ -1731,10 +1670,10 @@ const response = await fetch('/api/create-card-payment-fallback', { method: 'POS
 const payment = await response.json();
 if (payment.error) throw new Error(payment.error);
 await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'card', description);
-if (payment.status === 'approved') { showNotification('✅ Aprovado! 🙏', 'success'); cart = []; document.getElementById('cartCount').textContent = 0; closeModal('paymentModal'); }
-else { showNotification('⏳ ' + payment.status, 'info'); closeModal('paymentModal'); verificarStatusAutomatico(payment.payment_id); }
+if (payment.status === 'approved') { showNotification('Aprovado! Obrigado!', 'success'); cart = []; document.getElementById('cartCount').textContent = 0; closeModal('paymentModal'); }
+else { showNotification('Pagamento ' + payment.status, 'info'); closeModal('paymentModal'); verificarStatusAutomatico(payment.payment_id); }
 }
-} catch (error) { showNotification('❌ Erro: ' + error.message, 'error'); }
+} catch (error) { showNotification('Erro: ' + error.message, 'error'); }
 }
 
 async function submitPrayer() {
@@ -1746,11 +1685,11 @@ try {
 const response = await fetch('/api/prayers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, request }) });
 if (!response.ok) throw new Error('Erro ao enviar');
 messageDiv.className = 'notification success';
-messageDiv.textContent = '✅ Pedido de oração enviado! Deus te abençoe! 🙏';
+messageDiv.textContent = 'Pedido de oração enviado! Deus te abençoe!';
 messageDiv.style.display = 'block';
 document.getElementById('prayerRequest').value = '';
 setTimeout(() => { messageDiv.style.display = 'none'; }, 5000);
-} catch (error) { showNotification('❌ Erro: ' + error.message, 'error'); }
+} catch (error) { showNotification('Erro: ' + error.message, 'error'); }
 }
 
 async function loadDepartmentsForRegistration() { try { const res = await fetch('/api/departments/active'); departmentsList = await res.json(); return departmentsList; } catch (e) { return []; } }
@@ -1763,11 +1702,11 @@ const resultDiv = document.getElementById('registrationResult');
 resultDiv.style.display = 'none';
 resultDiv.innerHTML = '';
 container.style.display = 'block';
-container.innerHTML = '<p style="text-align:center;color:var(--text-muted);">⏳ Carregando...</p>';
+container.innerHTML = '<p style="text-align:center;color:var(--text-muted);">Carregando...</p>';
 if (type === 'department' || type === 'volunteer') await loadDepartmentsForRegistration();
 if (type === 'event') await loadEventsForRegistration();
 if (type === 'baptism') await loadBaptismDatesForRegistration();
-const titles = { baptism:'✝️ Inscrição para Batismo', volunteer:'🙋 Cadastro de Voluntário', event:'🎯 Inscrição para Evento', department:'📋 Entrar em um Departamento' };
+const titles = { baptism:'Inscrição para Batismo', volunteer:'Cadastro de Voluntário', event:'Inscrição para Evento', department:'Entrar em um Departamento' };
 let html = '<h3 style="text-align:center;color:var(--primary);margin-bottom:1rem;font-family:\'Playfair Display\',serif;">' + titles[type] + '</h3>';
 html += '<div style="background:#fff;padding:1.5rem;border-radius:var(--radius);border:1px solid var(--border-color);box-shadow:var(--shadow-sm);">';
 html += '<div style="margin-bottom:0.8rem;"><label style="display:block;font-weight:600;margin-bottom:0.2rem;font-size:0.85rem;">Nome Completo *</label><input type="text" id="regName" style="width:100%;padding:0.7rem 1rem;border:2px solid #e8ecf2;border-radius:var(--radius-sm);font-size:0.9rem;font-family:var(--font);background:#fafbff;"></div>';
@@ -1782,7 +1721,7 @@ const df = new Date(d.date).toLocaleDateString('pt-BR', { day:'numeric', month:'
 const pt = d.current_participants || 0;
 const max = d.max_participants || 20;
 const disp = pt < max;
-html += '<option value="' + d.id + '" ' + (!disp ? 'disabled' : '') + '>' + (d.title || 'Batismo') + ' — ' + df + ' (' + pt + '/' + max + ') ' + (disp ? '✅' : '❌') + '</option>';
+html += '<option value="' + d.id + '" ' + (!disp ? 'disabled' : '') + '>' + (d.title || 'Batismo') + ' - ' + df + ' (' + pt + '/' + max + ') ' + (disp ? 'Disponível' : 'Esgotado') + '</option>';
 });
 } else { html += '<option value="" disabled>Nenhuma data</option>'; }
 html += '</select></div>';
@@ -1802,7 +1741,7 @@ if (eventsList && eventsList.length > 0) {
 eventsList.forEach(e => {
 const df = new Date(e.date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
 const pt = parseFloat(e.price || 0) > 0 ? 'R$ ' + parseFloat(e.price).toFixed(2) : 'Grátis';
-html += '<option value="' + e.id + '" data-price="' + (e.price || 0) + '">' + e.title + ' — ' + df + ' (' + pt + ')</option>';
+html += '<option value="' + e.id + '" data-price="' + (e.price || 0) + '">' + e.title + ' - ' + df + ' (' + pt + ')</option>';
 });
 } else { html += '<option value="" disabled>Nenhum evento</option>'; }
 html += '</select></div>';
@@ -1819,17 +1758,17 @@ const email = document.getElementById('regEmail').value.trim();
 const phone = document.getElementById('regPhone').value.trim();
 const notes = document.getElementById('regNotes')?.value.trim() || '';
 const resultDiv = document.getElementById('registrationResult');
-if (!name || !email || !phone) { showNotification('⚠️ Preencha os campos obrigatórios!', 'error'); return; }
-if (!email.includes('@')) { showNotification('⚠️ E-mail inválido!', 'error'); return; }
+if (!name || !email || !phone) { showNotification('Preencha os campos obrigatórios!', 'error'); return; }
+if (!email.includes('@')) { showNotification('E-mail inválido!', 'error'); return; }
 let registrationData = { type, name, email, phone, details: notes };
 try {
 if (type === 'baptism') {
 const birthDate = document.getElementById('regBirthDate')?.value;
 const baptismDateId = document.getElementById('regBaptismDate')?.value;
-if (!birthDate) { showNotification('⚠️ Informe sua data de nascimento!', 'error'); return; }
-if (!baptismDateId) { showNotification('⚠️ Selecione uma data!', 'error'); return; }
+if (!birthDate) { showNotification('Informe sua data de nascimento!', 'error'); return; }
+if (!baptismDateId) { showNotification('Selecione uma data!', 'error'); return; }
 const selectedDate = baptismDatesList.find(d => d.id == baptismDateId);
-if (!selectedDate) { showNotification('⚠️ Data não encontrada!', 'error'); return; }
+if (!selectedDate) { showNotification('Data não encontrada!', 'error'); return; }
 registrationData.birth_date = birthDate;
 registrationData.baptism_date = selectedDate.date;
 registrationData.baptism_date_id = baptismDateId;
@@ -1839,7 +1778,7 @@ registrationData.details = 'Data de Nascimento: ' + new Date(birthDate).toLocale
 if (type === 'volunteer') {
 const deptId = document.getElementById('regDepartmentSelect')?.value;
 const availability = document.getElementById('regAvailability')?.value.trim() || '';
-if (!deptId) { showNotification('⚠️ Selecione um departamento!', 'error'); return; }
+if (!deptId) { showNotification('Selecione um departamento!', 'error'); return; }
 const dept = departmentsList.find(d => d.id == deptId);
 registrationData.department_name = dept ? dept.name : '';
 registrationData.department_id = deptId;
@@ -1847,7 +1786,7 @@ registrationData.details = 'Disponibilidade: ' + (availability || 'Não informad
 }
 if (type === 'department') {
 const deptId = document.getElementById('regDepartmentSelect')?.value;
-if (!deptId) { showNotification('⚠️ Selecione um departamento!', 'error'); return; }
+if (!deptId) { showNotification('Selecione um departamento!', 'error'); return; }
 const dept = departmentsList.find(d => d.id == deptId);
 registrationData.department_name = dept ? dept.name : '';
 registrationData.department_id = deptId;
@@ -1855,9 +1794,9 @@ registrationData.details = notes || 'Deseja participar deste departamento.';
 }
 if (type === 'event') {
 const eventId = document.getElementById('regEventSelect')?.value;
-if (!eventId) { showNotification('⚠️ Selecione um evento!', 'error'); return; }
+if (!eventId) { showNotification('Selecione um evento!', 'error'); return; }
 const event = eventsList.find(e => e.id == eventId);
-if (!event) { showNotification('⚠️ Evento não encontrado!', 'error'); return; }
+if (!event) { showNotification('Evento não encontrado!', 'error'); return; }
 registrationData.event_name = event.title;
 registrationData.event_id = eventId;
 registrationData.amount = parseFloat(event.price || 0);
@@ -1868,14 +1807,14 @@ const response = await fetch('/api/registrations', { method: 'POST', headers: { 
 const data = await response.json();
 if (!response.ok) throw new Error(data.error || 'Erro ao realizar inscrição');
 resultDiv.className = 'notification success';
-resultDiv.innerHTML = '<i class="fas fa-check-circle" style="font-size:1.2rem;display:block;margin-bottom:0.2rem;"></i><strong>✅ Inscrição realizada com sucesso!</strong><p style="margin-top:0.2rem;font-size:0.8rem;">Protocolo: #' + String(data.id).padStart(6, '0') + '</p>';
+resultDiv.innerHTML = '<strong>Inscrição realizada com sucesso!</strong><p style="margin-top:0.2rem;font-size:0.8rem;">Protocolo: #' + String(data.id).padStart(6, '0') + '</p>';
 resultDiv.style.display = 'block';
 document.getElementById('registrationForm').style.display = 'none';
 if (type === 'event' && parseFloat(registrationData.amount || 0) > 0) {
-if (confirm('✅ Inscrição realizada! O evento é pago (R$ ' + parseFloat(registrationData.amount).toFixed(2) + '). Deseja pagar agora?')) {
+if (confirm('Inscrição realizada! O evento é pago (R$ ' + parseFloat(registrationData.amount).toFixed(2) + '). Deseja pagar agora?')) {
 paymentType = 'donation';
 donationType = 'Inscrição Evento - ' + registrationData.event_name;
-document.getElementById('paymentTitle').textContent = '💳 Inscrição - ' + registrationData.event_name;
+document.getElementById('paymentTitle').textContent = 'Inscrição - ' + registrationData.event_name;
 document.getElementById('paymentTotal').textContent = 'Valor: R$ ' + parseFloat(registrationData.amount).toFixed(2);
 document.getElementById('paymentForm').style.display = 'block';
 document.getElementById('paymentResult').style.display = 'none';
@@ -1887,17 +1826,17 @@ openModal('paymentModal');
 }
 } else {
 setTimeout(() => {
-if (confirm('✅ Deseja baixar o comprovante em PDF?')) window.open('/api/registration-pdf/' + data.id, '_blank');
+if (confirm('Deseja baixar o comprovante em PDF?')) window.open('/api/registration-pdf/' + data.id, '_blank');
 }, 500);
 }
 setTimeout(() => {
 resultDiv.style.display = 'none';
 document.getElementById('registrationForm').style.display = 'block';
-document.getElementById('registrationForm').innerHTML = '<p style="text-align:center;color:#28a745;padding:0.6rem;">✅ Inscrição concluída! Obrigado!</p>';
+document.getElementById('registrationForm').innerHTML = '<p style="text-align:center;color:#28a745;padding:0.6rem;">Inscrição concluída! Obrigado!</p>';
 }, 8000);
 } catch (error) {
 resultDiv.className = 'notification error';
-resultDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + error.message;
+resultDiv.innerHTML = error.message;
 resultDiv.style.display = 'block';
 }
 }
@@ -1928,7 +1867,7 @@ const returnPage = document.getElementById('paymentReturnPage');
 returnPage.style.display = 'block';
 let icon = '⏳', title = 'Aguardando', message = 'Processando pagamento...', statusText = 'Pendente';
 let msgClass = 'pending';
-if (status === 'approved') { icon = '✅'; title = 'Pagamento Confirmado!'; message = 'Obrigado! Deus abençoe! 🙏'; msgClass = 'success'; statusText = 'Aprovado'; }
+if (status === 'approved') { icon = '✅'; title = 'Pagamento Confirmado!'; message = 'Obrigado! Deus abençoe!'; msgClass = 'success'; statusText = 'Aprovado'; }
 else if (status === 'rejected') { icon = '❌'; title = 'Pagamento Recusado'; message = 'Pagamento não aprovado.'; msgClass = 'error'; statusText = 'Recusado'; }
 document.getElementById('returnIcon').textContent = icon;
 document.getElementById('returnIcon').style.color = msgClass === 'success' ? '#28a745' : msgClass === 'error' ? '#dc3545' : '#c9a84c';

@@ -2,16 +2,27 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>NJ Cabuçu - Igreja Nova Jerusalém</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+<title>NJ Cabuçu - Igreja</title>
 
-<meta name="theme-color" content="#0A2647">
+<!-- ===== PWA ===== -->
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/icons/icon-72x72.png">
+<link rel="apple-touch-icon" sizes="96x96" href="/icons/icon-96x96.png">
+<link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512x512.png">
+
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="NJ Cabuçu">
+<meta name="theme-color" content="#0A2647">
+<meta name="mobile-web-app-capable" content="yes">
 
 <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512x512.png">
 <link rel="shortcut icon" href="/icons/icon-72x72.png">
+<!-- ===== FIM PWA ===== -->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -45,7 +56,7 @@
 --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 --font-display: 'Playfair Display', serif;
---header-h: 64px;
+--header-h: 68px;
 --max-width: 1200px;
 --fab-bottom: 30px;
 }
@@ -68,7 +79,49 @@ overflow-x: hidden;
 @keyframes pulse-live { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 @keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes slideUpBanner { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 @keyframes kenburns { 0% { transform: scale(1); } 100% { transform: scale(1.08); } }
+@keyframes fadeInFab { from { opacity: 0; transform: scale(0.9) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+/* ===== BOTÃO DE INSTALAÇÃO PWA (mantido) ===== */
+.install-banner {
+position: fixed; bottom: 0; left: 0; right: 0;
+background: #000000; color: #ffffff;
+padding: 16px 20px;
+box-shadow: 0 -4px 30px rgba(0,0,0,0.5);
+z-index: 99999; border-top: 1px solid rgba(255,255,255,0.1);
+display: none; align-items: center; justify-content: space-between;
+flex-wrap: wrap; gap: 12px;
+animation: slideUpBanner 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+.install-banner .banner-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 200px; }
+.install-banner .banner-icon { background: rgba(255,255,255,0.1); border-radius: 50%; padding: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.install-banner .banner-icon i { font-size: 22px; color: #fff; }
+.install-banner .banner-text h4 { font-weight: 700; font-size: 14px; margin: 0; color: #fff; }
+.install-banner .banner-text p { font-size: 12px; opacity: 0.7; margin: 2px 0 0; color: #fff; }
+.install-banner .banner-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.install-banner .btn-install { background: #ffffff; color: #000000; border: none; padding: 10px 24px; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+.install-banner .btn-install:hover { background: #e8e8e8; transform: scale(1.02); }
+.install-banner .btn-install i { font-size: 16px; }
+.install-banner .btn-close-banner { background: transparent; color: rgba(255,255,255,0.5); border: none; padding: 8px; cursor: pointer; font-size: 18px; transition: all 0.2s; }
+.install-banner .btn-close-banner:hover { color: #fff; transform: rotate(90deg); }
+.install-fab { position: fixed; bottom: 24px; right: 24px; background: #000000; color: #ffffff; border: none; padding: 14px 24px; border-radius: 50px; font-weight: 600; font-size: 14px; cursor: pointer; box-shadow: 0 8px 30px rgba(0,0,0,0.35); z-index: 99998; display: none; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,0.1); font-family: 'Inter', sans-serif; animation: fadeInFab 0.5s cubic-bezier(0.4,0,0.2,1); transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
+.install-fab:hover { background: #1a1a1a; transform: scale(1.05); box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
+.install-fab i { font-size: 18px; }
+.notification-toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 500; z-index: 999999; max-width: 90%; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.3); animation: fadeInFab 0.3s ease; font-family: 'Inter', sans-serif; border: 1px solid rgba(255,255,255,0.1); }
+@media (max-width: 768px) {
+.install-banner { padding: 14px 16px; flex-direction: column; align-items: stretch; }
+.install-banner .banner-actions { justify-content: flex-end; width: 100%; }
+.install-banner .btn-install { padding: 8px 18px; font-size: 13px; }
+.install-fab { bottom: 16px; right: 16px; padding: 12px 18px; font-size: 13px; }
+}
+@media (max-width: 480px) {
+.install-banner .banner-text h4 { font-size: 13px; }
+.install-banner .banner-text p { font-size: 11px; }
+.install-banner .btn-install { padding: 6px 14px; font-size: 12px; }
+.install-fab { padding: 10px 14px; font-size: 12px; bottom: 12px; right: 12px; }
+.install-fab i { font-size: 15px; }
+}
 
 /* ===== HEADER ===== */
 .header {
@@ -81,46 +134,20 @@ justify-content: space-between;
 align-items: center;
 border-bottom: 1px solid rgba(201,168,76,0.08);
 position: fixed;
-top: 0;
-left: 0;
-right: 0;
+top: 0; left: 0; right: 0;
 z-index: 1000;
 height: var(--header-h);
 transition: var(--transition);
 }
 .header.scrolled { background: rgba(10,14,26,0.99); box-shadow: 0 4px 30px rgba(0,0,0,0.3); }
 .logo { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; cursor: pointer; flex-shrink: 0; }
-.logo-icon-css {
-width: 38px; height: 38px; border-radius: 50%;
-background: linear-gradient(135deg,#C9A84C,#D4B96A);
-display: flex; align-items: center; justify-content: center;
-font-weight: 800; font-size: 0.9rem; color: #0A0E1A;
-flex-shrink: 0; font-family: 'Playfair Display', serif; overflow: hidden;
-box-shadow: 0 4px 16px rgba(201,168,76,0.25);
-}
+.logo-icon-css { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg,#C9A84C,#D4B96A); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; color: #0A0E1A; flex-shrink: 0; font-family: 'Playfair Display', serif; overflow: hidden; box-shadow: 0 4px 16px rgba(201,168,76,0.25); }
 .logo-icon-css img { width: 100%; height: 100%; object-fit: cover; }
 .logo-text { display: flex; flex-direction: column; line-height: 1.1; }
 .logo-text strong { font-weight: 800; font-size: 1rem; color: #fff; font-family: 'Playfair Display', serif; letter-spacing: -0.3px; }
 .logo-text small { font-weight: 400; font-size: 0.48rem; color: rgba(201,168,76,0.8); font-family: 'Inter', sans-serif; letter-spacing: 1.5px; text-transform: uppercase; }
-
-.header-actions { display: flex; gap: 0.35rem; align-items: center; flex-shrink: 0; }
-.btn {
-padding: 0.4rem 0.85rem;
-border-radius: var(--radius-full);
-border: none;
-font-weight: 600;
-cursor: pointer;
-display: inline-flex;
-align-items: center;
-gap: 0.35rem;
-font-size: 0.72rem;
-text-decoration: none;
-font-family: var(--font);
-background: transparent;
-color: #fff;
-transition: var(--transition-fast);
-white-space: nowrap;
-}
+.header-actions { display: flex; gap: 0.35rem; align-items: center; flex-shrink: 0; flex-wrap: wrap; }
+.btn { padding: 0.4rem 0.85rem; border-radius: var(--radius-full); border: none; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.72rem; text-decoration: none; font-family: var(--font); background: transparent; color: #fff; transition: var(--transition-fast); white-space: nowrap; }
 .btn-primary { background: var(--primary-gradient); color: #fff; box-shadow: 0 4px 16px rgba(10,38,71,0.25); }
 .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(10,38,71,0.35); }
 .btn-outline-light { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,0.2); }
@@ -130,275 +157,43 @@ white-space: nowrap;
 .btn-sm { padding: 0.3rem 0.65rem; font-size: 0.66rem; }
 .btn-bible { background: linear-gradient(135deg,#8B5A2B,#A0703A); color: #fff; }
 .btn-live { background: #ff0000; color: #fff; animation: pulse-live 1.5s infinite; }
-.menu-toggle {
-display: none;
-background: none;
-border: none;
-font-size: 1.35rem;
-color: #fff;
-cursor: pointer;
-padding: 0.3rem 0.4rem;
-flex-shrink: 0;
-}
+.btn-danger { background: #dc3545; color: #fff; }
+.btn-success { background: #28a745; color: #fff; }
+.menu-toggle { display: none; background: none; border: none; font-size: 1.35rem; color: #fff; cursor: pointer; padding: 0.3rem 0.4rem; flex-shrink: 0; }
 
 /* ===== NAV ===== */
-.main-nav {
-background: rgba(10,14,26,0.98);
-backdrop-filter: blur(20px);
-padding: 0.4rem 1rem;
-display: flex;
-justify-content: center;
-gap: 0.15rem;
-flex-wrap: wrap;
-position: fixed;
-top: var(--header-h);
-left: 0;
-right: 0;
-z-index: 999;
-border-bottom: 1px solid rgba(201,168,76,0.06);
-}
-.nav-btn {
-background: transparent;
-border: none;
-padding: 0.3rem 0.8rem;
-border-radius: var(--radius-full);
-font-weight: 600;
-cursor: pointer;
-font-size: 0.68rem;
-color: rgba(255,255,255,0.6);
-font-family: var(--font);
-white-space: nowrap;
-transition: var(--transition-fast);
-}
+.main-nav { background: rgba(10,14,26,0.98); backdrop-filter: blur(20px); padding: 0.4rem 1rem; display: flex; justify-content: center; gap: 0.15rem; flex-wrap: wrap; position: fixed; top: var(--header-h); left: 0; right: 0; z-index: 999; border-bottom: 1px solid rgba(201,168,76,0.06); }
+.nav-btn { background: transparent; border: none; padding: 0.3rem 0.8rem; border-radius: var(--radius-full); font-weight: 600; cursor: pointer; font-size: 0.68rem; color: rgba(255,255,255,0.6); font-family: var(--font); white-space: nowrap; transition: var(--transition-fast); }
 .nav-btn:hover { color: #fff; background: rgba(201,168,76,0.1); }
-.nav-btn.active {
-color: #0A0E1A;
-background: linear-gradient(135deg,#C9A84C,#D4B96A);
-box-shadow: 0 4px 16px rgba(201,168,76,0.3);
-font-weight: 700;
-}
+.nav-btn.active { color: #0A0E1A; background: linear-gradient(135deg,#C9A84C,#D4B96A); box-shadow: 0 4px 16px rgba(201,168,76,0.3); font-weight: 700; }
 
 /* ===== CARROSSEL ===== */
-.hero {
-margin-top: calc(var(--header-h) + 38px);
-position: relative;
-width: 100%;
-background: #0A0E1A;
-overflow: hidden;
-border-radius: 0 0 28px 28px;
-}
-.hero-carousel {
-position: relative;
-width: 100%;
-height: 600px;
-max-height: 75vh;
-min-height: 420px;
-overflow: hidden;
-}
-.hero-track {
-display: flex;
-height: 100%;
-transition: transform 0.85s cubic-bezier(0.65, 0, 0.35, 1);
-will-change: transform;
-}
-.hero-slide {
-flex: 0 0 100%;
-min-width: 100%;
-height: 100%;
-position: relative;
-display: flex;
-align-items: center;
-justify-content: center;
-background: #0A0E1A;
-overflow: hidden;
-}
-.hero-slide .slide-media {
-position: absolute;
-inset: 0;
-display: flex;
-align-items: center;
-justify-content: center;
-background: #000;
-z-index: 1;
-}
-.hero-slide .slide-media .blur-bg {
-position: absolute;
-inset: -30px;
-background-size: cover;
-background-position: center;
-filter: blur(40px) brightness(0.35);
-opacity: 0.7;
-z-index: 0;
-}
-.hero-slide .slide-media img {
-width: 100%;
-height: 100%;
-object-fit: contain;
-object-position: center center;
-display: block;
-position: relative;
-z-index: 1;
-animation: kenburns 14s ease-in-out infinite alternate;
-}
-.hero-slide .slide-overlay {
-position: absolute;
-inset: 0;
-background: linear-gradient(180deg,
-rgba(10,14,26,0.15) 0%,
-rgba(10,14,26,0.4) 45%,
-rgba(10,14,26,0.9) 100%);
-z-index: 2;
-pointer-events: none;
-}
-.hero-slide .slide-caption {
-position: relative;
-z-index: 3;
-color: #fff;
-max-width: 780px;
-padding: 2rem;
-text-align: center;
-animation: fadeUp 0.9s ease;
-pointer-events: none;
-}
-.hero-slide .slide-caption h1 {
-font-size: 2.8rem;
-font-weight: 900;
-line-height: 1.1;
-margin-bottom: 0.6rem;
-font-family: 'Playfair Display', serif;
-letter-spacing: -1.2px;
-text-shadow: 0 4px 40px rgba(0,0,0,0.8);
-}
-.hero-slide .slide-caption p {
-font-size: 1.1rem;
-font-weight: 300;
-opacity: 0.92;
-margin-bottom: 1.4rem;
-text-shadow: 0 2px 24px rgba(0,0,0,0.8);
-max-width: 620px;
-margin-left: auto;
-margin-right: auto;
-}
-.hero-slide .slide-caption .slide-cta {
-display: inline-flex;
-align-items: center;
-gap: 0.6rem;
-background: linear-gradient(135deg, #C9A84C, #D4B96A);
-color: #0A0E1A;
-padding: 0.85rem 2.2rem;
-border-radius: var(--radius-full);
-font-weight: 700;
-font-size: 0.9rem;
-text-decoration: none;
-border: none;
-cursor: pointer;
-font-family: var(--font);
-box-shadow: 0 10px 32px rgba(201,168,76,0.4);
-transition: var(--transition);
-pointer-events: all;
-}
+.hero { margin-top: calc(var(--header-h) + 38px); position: relative; width: 100%; background: #0A0E1A; overflow: hidden; border-radius: 0 0 28px 28px; }
+.hero-carousel { position: relative; width: 100%; height: 600px; max-height: 75vh; min-height: 420px; overflow: hidden; }
+.hero-track { display: flex; height: 100%; transition: transform 0.85s cubic-bezier(0.65, 0, 0.35, 1); will-change: transform; }
+.hero-slide { flex: 0 0 100%; min-width: 100%; height: 100%; position: relative; display: flex; align-items: center; justify-content: center; background: #0A0E1A; overflow: hidden; }
+.hero-slide .slide-media { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: #000; z-index: 1; }
+.hero-slide .slide-media .blur-bg { position: absolute; inset: -30px; background-size: cover; background-position: center; filter: blur(40px) brightness(0.35); opacity: 0.7; z-index: 0; }
+.hero-slide .slide-media img { width: 100%; height: 100%; object-fit: contain; object-position: center center; display: block; position: relative; z-index: 1; animation: kenburns 14s ease-in-out infinite alternate; }
+.hero-slide .slide-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10,14,26,0.15) 0%, rgba(10,14,26,0.4) 45%, rgba(10,14,26,0.9) 100%); z-index: 2; pointer-events: none; }
+.hero-slide .slide-caption { position: relative; z-index: 3; color: #fff; max-width: 780px; padding: 2rem; text-align: center; animation: fadeUp 0.9s ease; pointer-events: none; }
+.hero-slide .slide-caption h1 { font-size: 2.8rem; font-weight: 900; line-height: 1.1; margin-bottom: 0.6rem; font-family: 'Playfair Display', serif; letter-spacing: -1.2px; text-shadow: 0 4px 40px rgba(0,0,0,0.8); }
+.hero-slide .slide-caption p { font-size: 1.1rem; font-weight: 300; opacity: 0.92; margin-bottom: 1.4rem; text-shadow: 0 2px 24px rgba(0,0,0,0.8); max-width: 620px; margin-left: auto; margin-right: auto; }
+.hero-slide .slide-caption .slide-cta { display: inline-flex; align-items: center; gap: 0.6rem; background: linear-gradient(135deg, #C9A84C, #D4B96A); color: #0A0E1A; padding: 0.85rem 2.2rem; border-radius: var(--radius-full); font-weight: 700; font-size: 0.9rem; text-decoration: none; border: none; cursor: pointer; font-family: var(--font); box-shadow: 0 10px 32px rgba(201,168,76,0.4); transition: var(--transition); pointer-events: all; }
 .hero-slide .slide-caption .slide-cta:hover { transform: translateY(-3px); box-shadow: 0 16px 48px rgba(201,168,76,0.5); }
 
-.hero-nav {
-position: absolute;
-inset: 0;
-display: flex;
-align-items: center;
-justify-content: space-between;
-padding: 0 1.2rem;
-z-index: 10;
-pointer-events: none;
-}
-.hero-nav-btn {
-pointer-events: all;
-background: rgba(255,255,255,0.1);
-border: 1px solid rgba(255,255,255,0.2);
-backdrop-filter: blur(12px);
--webkit-backdrop-filter: blur(12px);
-width: 48px;
-height: 48px;
-border-radius: 50%;
-color: #fff;
-font-size: 1rem;
-cursor: pointer;
-display: flex;
-align-items: center;
-justify-content: center;
-transition: var(--transition);
-box-shadow: 0 4px 24px rgba(0,0,0,0.3);
-}
+.hero-nav { position: absolute; inset: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 1.2rem; z-index: 10; pointer-events: none; }
+.hero-nav-btn { pointer-events: all; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); width: 48px; height: 48px; border-radius: 50%; color: #fff; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition); box-shadow: 0 4px 24px rgba(0,0,0,0.3); }
 .hero-nav-btn:hover { background: rgba(201,168,76,0.35); border-color: rgba(201,168,76,0.6); transform: scale(1.08); }
-
-.hero-indicators {
-position: absolute;
-bottom: 1.8rem;
-left: 50%;
-transform: translateX(-50%);
-display: flex;
-gap: 0.7rem;
-z-index: 10;
-}
-.hero-dot {
-width: 30px;
-height: 4px;
-border-radius: 4px;
-background: rgba(255,255,255,0.3);
-border: none;
-cursor: pointer;
-padding: 0;
-transition: var(--transition);
-}
-.hero-dot.active {
-background: linear-gradient(90deg, #C9A84C, #D4B96A);
-width: 55px;
-box-shadow: 0 0 16px rgba(201,168,76,0.5);
-}
-
-.hero-progress {
-position: absolute;
-bottom: 0;
-left: 0;
-width: 100%;
-height: 3px;
-background: rgba(255,255,255,0.08);
-z-index: 10;
-overflow: hidden;
-}
-.hero-progress-fill {
-height: 100%;
-background: linear-gradient(90deg, #C9A84C, #D4B96A);
-width: 0%;
-}
-
-.hero-live-badge {
-position: absolute;
-top: 1rem;
-right: 1rem;
-z-index: 15;
-background: #ff0000;
-color: #fff;
-padding: 0.35rem 1rem;
-border-radius: var(--radius-full);
-font-size: 0.68rem;
-font-weight: 700;
-display: none;
-align-items: center;
-gap: 0.35rem;
-animation: pulse-live 1.5s infinite;
-box-shadow: 0 4px 20px rgba(255,0,0,0.4);
-}
+.hero-indicators { position: absolute; bottom: 1.8rem; left: 50%; transform: translateX(-50%); display: flex; gap: 0.7rem; z-index: 10; }
+.hero-dot { width: 30px; height: 4px; border-radius: 4px; background: rgba(255,255,255,0.3); border: none; cursor: pointer; padding: 0; transition: var(--transition); }
+.hero-dot.active { background: linear-gradient(90deg, #C9A84C, #D4B96A); width: 55px; box-shadow: 0 0 16px rgba(201,168,76,0.5); }
+.hero-progress { position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: rgba(255,255,255,0.08); z-index: 10; overflow: hidden; }
+.hero-progress-fill { height: 100%; background: linear-gradient(90deg, #C9A84C, #D4B96A); width: 0%; }
+.hero-live-badge { position: absolute; top: 1rem; right: 1rem; z-index: 15; background: #ff0000; color: #fff; padding: 0.35rem 1rem; border-radius: var(--radius-full); font-size: 0.68rem; font-weight: 700; display: none; align-items: center; gap: 0.35rem; animation: pulse-live 1.5s infinite; box-shadow: 0 4px 20px rgba(255,0,0,0.4); }
 
 /* ===== LIVE BAR ===== */
-.live-bar {
-background: linear-gradient(135deg,#0A0E1A,#1A1A2E);
-padding: 0.5rem 1rem;
-display: none;
-align-items: center;
-justify-content: center;
-gap: 1rem;
-flex-wrap: wrap;
-border-bottom: 2px solid #C9A84C;
-}
+.live-bar { background: linear-gradient(135deg,#0A0E1A,#1A1A2E); padding: 0.5rem 1rem; display: none; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap; border-bottom: 2px solid #C9A84C; }
 .live-bar.active { display: flex; }
 .live-bar .live-indicator { display: flex; align-items: center; gap: 0.4rem; color: #ff0000; font-weight: 700; font-size: 0.8rem; animation: pulse-live 1.5s infinite; }
 .live-bar .live-info { color: rgba(255,255,255,0.6); font-size: 0.75rem; }
@@ -407,15 +202,7 @@ border-bottom: 2px solid #C9A84C;
 
 /* ===== COUNTDOWN ===== */
 .countdown-section { max-width: var(--max-width); margin: 1.2rem auto 1.5rem; padding: 0 1rem; }
-.countdown-bar {
-background: var(--primary-gradient);
-padding: 0.7rem 1.5rem;
-border-radius: var(--radius-md);
-text-align: center;
-color: #fff;
-box-shadow: var(--shadow-md);
-border: 1px solid rgba(201,168,76,0.1);
-}
+.countdown-bar { background: var(--primary-gradient); padding: 0.7rem 1.5rem; border-radius: var(--radius-md); text-align: center; color: #fff; box-shadow: var(--shadow-md); border: 1px solid rgba(201,168,76,0.1); }
 .countdown-bar .countdown-label { font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; opacity: 0.7; margin-bottom: 0.2rem; color: #C9A84C; }
 .countdown-bar .countdown-timer { font-size: 1rem; font-weight: 700; display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap; }
 .countdown-bar .countdown-timer .time-block { display: flex; align-items: center; gap: 0.2rem; background: rgba(255,255,255,0.08); padding: 0.1rem 0.7rem; border-radius: var(--radius-sm); }
@@ -425,17 +212,7 @@ border: 1px solid rgba(201,168,76,0.1);
 
 /* ===== SERVICES QUICK ===== */
 .services-quick { margin: 1rem auto 1.8rem; max-width: var(--max-width); padding: 0 1rem; }
-.services-quick .services-grid {
-display: grid;
-grid-template-columns: repeat(5,1fr);
-gap: 0.5rem;
-text-align: center;
-background: #fff;
-border-radius: var(--radius-md);
-padding: 0.6rem 0.3rem;
-box-shadow: var(--shadow-sm);
-border: 1px solid var(--border-color);
-}
+.services-quick .services-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 0.5rem; text-align: center; background: #fff; border-radius: var(--radius-md); padding: 0.6rem 0.3rem; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); }
 .services-quick .service-item { padding: 0.5rem 0.2rem; border-radius: var(--radius-sm); cursor: pointer; text-decoration: none; color: var(--primary); display: flex; flex-direction: column; align-items: center; gap: 0.15rem; transition: var(--transition-fast); }
 .services-quick .service-item:hover { background: var(--secondary-light); transform: translateY(-3px); }
 .services-quick .service-item .icon { font-size: 1.4rem; color: var(--primary); transition: var(--transition-fast); }
@@ -446,19 +223,7 @@ border: 1px solid var(--border-color);
 /* ===== SECTIONS ===== */
 .section { max-width: var(--max-width); margin: 2.5rem auto; padding: 0 1rem; scroll-margin-top: 120px; }
 .section-header { text-align: center; margin-bottom: 2rem; }
-.section-header .tag {
-display: inline-block;
-background: linear-gradient(135deg, rgba(201,168,76,0.12), rgba(201,168,76,0.06));
-color: #8B7332;
-font-size: 0.6rem;
-font-weight: 700;
-text-transform: uppercase;
-letter-spacing: 2px;
-padding: 0.25rem 1.2rem;
-border-radius: var(--radius-full);
-margin-bottom: 0.4rem;
-border: 1px solid rgba(201,168,76,0.15);
-}
+.section-header .tag { display: inline-block; background: linear-gradient(135deg, rgba(201,168,76,0.12), rgba(201,168,76,0.06)); color: #8B7332; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; padding: 0.25rem 1.2rem; border-radius: var(--radius-full); margin-bottom: 0.4rem; border: 1px solid rgba(201,168,76,0.15); }
 .section-header h2 { font-size: 2rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; font-family: 'Playfair Display', serif; }
 .section-header .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.2rem; max-width: 500px; margin-left: auto; margin-right: auto; }
 .section-header .line { width: 50px; height: 3px; background: linear-gradient(90deg,#C9A84C,#D4B96A); border-radius: 10px; margin: 0.5rem auto 0; }
@@ -469,33 +234,17 @@ border: 1px solid rgba(201,168,76,0.15);
 .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg,#C9A84C,#D4B96A); opacity: 0; transition: var(--transition); }
 .card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: rgba(201,168,76,0.2); }
 .card:hover::before { opacity: 1; }
-.card .icon-wrapper {
-width: 52px; height: 52px; border-radius: 16px;
-background: linear-gradient(135deg, rgba(10,38,71,0.06), rgba(10,38,71,0.02));
-display: flex; align-items: center; justify-content: center;
-font-size: 1.3rem; color: var(--primary);
-margin-bottom: 0.8rem; flex-shrink: 0;
-border: 1px solid rgba(10,38,71,0.04);
-transition: var(--transition);
-}
+.card .icon-wrapper { width: 52px; height: 52px; border-radius: 16px; background: linear-gradient(135deg, rgba(10,38,71,0.06), rgba(10,38,71,0.02)); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: var(--primary); margin-bottom: 0.8rem; flex-shrink: 0; border: 1px solid rgba(10,38,71,0.04); transition: var(--transition); }
 .card:hover .icon-wrapper { background: linear-gradient(135deg,var(--primary),var(--primary-light)); color: #fff; }
 .card h3 { font-size: 1.05rem; color: var(--primary); margin-bottom: 0.3rem; font-weight: 700; font-family: 'Playfair Display', serif; }
 .card p { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.7; flex: 1; }
+.card .btn-link { margin-top: 0.6rem; color: var(--primary); font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; }
 
 .card-image-wrapper { width: 100%; padding-bottom: 56%; position: relative; overflow: hidden; border-radius: var(--radius-sm); margin-bottom: 0.8rem; background: #e8e8e8; flex-shrink: 0; }
 .card-image-wrapper img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
 .card:hover .card-image-wrapper img { transform: scale(1.05); }
 
-.verse-block {
-background: linear-gradient(135deg, rgba(10,38,71,0.03), rgba(201,168,76,0.04));
-border-radius: var(--radius);
-padding: 2rem 1.5rem;
-text-align: center;
-margin: 1.5rem 0;
-border-left: 4px solid #C9A84C;
-position: relative;
-overflow: hidden;
-}
+.verse-block { background: linear-gradient(135deg, rgba(10,38,71,0.03), rgba(201,168,76,0.04)); border-radius: var(--radius); padding: 2rem 1.5rem; text-align: center; margin: 1.5rem 0; border-left: 4px solid #C9A84C; position: relative; overflow: hidden; }
 .verse-block::before { content: '"'; position: absolute; top: -20px; left: 20px; font-size: 8rem; font-family: 'Playfair Display', serif; color: rgba(201,168,76,0.06); line-height: 1; }
 .verse-block .verse-text { font-size: 1.05rem; font-weight: 500; color: var(--text-primary); font-style: italic; line-height: 1.8; position: relative; z-index: 1; font-family: 'Playfair Display', serif; }
 .verse-block .verse-ref { display: block; margin-top: 0.6rem; font-weight: 700; color: #8B7332; font-size: 0.85rem; font-style: normal; }
@@ -556,6 +305,7 @@ overflow: hidden;
 .modal-content .btn { width: 100%; justify-content: center; margin-top: 0.6rem; padding: 0.7rem; font-size: 0.88rem; }
 
 .modal-bible .modal-content { max-width: 780px; }
+.modal-carousel .modal-content { max-width: 640px; }
 .bible-container { display: flex; gap: 1.2rem; flex-wrap: wrap; }
 .bible-input { flex: 1; min-width: 200px; }
 .bible-input select, .bible-input input { width: 100%; padding: 0.55rem 0.9rem; margin: 0.2rem 0; border: 2px solid #e8ecf2; border-radius: var(--radius-sm); font-size: 0.88rem; font-family: var(--font); background: #fafbff; color: var(--text-primary); }
@@ -565,21 +315,7 @@ overflow: hidden;
 .bible-result .verse strong { color: var(--primary); font-weight: 700; margin-right: 0.3rem; }
 .bible-result .reference { font-weight: 700; color: var(--accent); margin-top: 0.5rem; font-size: 0.85rem; }
 
-.notification {
-position: fixed;
-top: calc(var(--header-h) + 60px);
-right: 16px;
-padding: 0.7rem 1.2rem;
-border-radius: var(--radius-sm);
-font-weight: 500;
-z-index: 99999;
-max-width: 360px;
-box-shadow: var(--shadow-lg);
-animation: slideInRight 0.35s ease;
-font-family: var(--font);
-font-size: 0.82rem;
-border-left: 4px solid;
-}
+.notification { position: fixed; top: calc(var(--header-h) + 60px); right: 16px; padding: 0.7rem 1.2rem; border-radius: var(--radius-sm); font-weight: 500; z-index: 99999; max-width: 360px; box-shadow: var(--shadow-lg); animation: slideInRight 0.35s ease; font-family: var(--font); font-size: 0.82rem; border-left: 4px solid; }
 .notification.success { background: #f0fdf4; color: #166534; border-left-color: #22c55e; }
 .notification.error { background: #fef2f2; color: #991b1b; border-left-color: #ef4444; }
 .notification.info { background: #eff6ff; color: #1e40af; border-left-color: #3b82f6; }
@@ -661,15 +397,7 @@ border-left: 4px solid;
 .header-actions .btn i { font-size: 0.8rem; margin: 0; }
 #whatsappBtn { display: none; }
 .menu-toggle { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; }
-.main-nav {
-display: none;
-flex-direction: column;
-align-items: stretch;
-padding: 0.4rem 0.8rem;
-top: var(--header-h);
-background: #0A0E1A;
-border-bottom: 1px solid rgba(201,168,76,0.08);
-}
+.main-nav { display: none; flex-direction: column; align-items: stretch; padding: 0.4rem 0.8rem; top: var(--header-h); background: #0A0E1A; border-bottom: 1px solid rgba(201,168,76,0.08); }
 .main-nav.mobile-open { display: flex; max-height: 70vh; padding: 0.5rem 0.8rem; overflow-y: auto; }
 .nav-btn { width: 100%; text-align: center; padding: 0.55rem; font-size: 0.75rem; }
 
@@ -735,6 +463,7 @@ border-bottom: 1px solid rgba(201,168,76,0.08);
 </head>
 <body>
 
+<!-- ===== HEADER (original) ===== -->
 <header class="header" id="mainHeader">
 <a href="/" class="logo">
 <div class="logo-icon-css" id="mainLogoIcon">NJ</div>
@@ -752,6 +481,7 @@ border-bottom: 1px solid rgba(201,168,76,0.08);
 </div>
 </header>
 
+<!-- ===== NAV (original) ===== -->
 <nav class="main-nav" id="mainNav">
 <button onclick="scrollToSection('home')" class="nav-btn active"><i class="fas fa-home"></i> Início</button>
 <button onclick="scrollToSection('sobre')" class="nav-btn"><i class="fas fa-info-circle"></i> Sobre</button>
@@ -767,6 +497,24 @@ border-bottom: 1px solid rgba(201,168,76,0.08);
 <button onclick="scrollToSection('reflexoes')" class="nav-btn"><i class="fas fa-video"></i> Reflexões</button>
 </nav>
 
+<!-- ===== BANNER DE INSTALAÇÃO PWA (original) ===== -->
+<div class="install-banner" id="installBanner">
+<div class="banner-left">
+<div class="banner-icon"><i class="fas fa-download"></i></div>
+<div class="banner-text">
+<h4>📱 NJ Cabuçu</h4>
+<p>Instale o app na tela inicial do seu celular</p>
+</div>
+</div>
+<div class="banner-actions">
+<button class="btn-install" id="installBtn"><i class="fas fa-download"></i> Instalar</button>
+<button class="btn-close-banner" id="closeBannerBtn" aria-label="Fechar"><i class="fas fa-times"></i></button>
+</div>
+</div>
+
+<button class="install-fab" id="installFab"><i class="fas fa-download"></i><span>Instalar App</span></button>
+
+<!-- ===== HERO / CARROSSEL NOVO ===== -->
 <section id="home" class="hero">
 <div class="hero-carousel">
 <div class="hero-track" id="heroTrack"></div>
@@ -939,6 +687,7 @@ border-bottom: 1px solid rgba(201,168,76,0.08);
 <button onclick="openDonationForm('Oferta')" class="btn-donation"><i class="fas fa-hand-holding-heart"></i> Oferta</button>
 <button onclick="openDonationForm('Missões')" class="btn-donation"><i class="fas fa-globe-americas"></i> Missões</button>
 </div>
+<div id="donationResult" style="display:none;text-align:center;margin-top:1rem;"></div>
 </section>
 
 <section id="live" class="section" style="display:none;">
@@ -965,6 +714,7 @@ border-bottom: 1px solid rgba(201,168,76,0.08);
 </div>
 </div>
 </div>
+<div style="text-align:center;margin-top:0.5rem;"><span style="font-size:0.6rem;color:var(--text-muted);">Clique no player para expandir</span></div>
 </section>
 
 <section id="oracao" class="section">
@@ -1061,6 +811,7 @@ border-bottom: 1px solid rgba(201,168,76,0.08);
 <button class="fab fab-prayer" onclick="scrollToSection('oracao')" title="Pedido de Oração"><i class="fas fa-pray"></i></button>
 <button class="fab fab-donation" onclick="scrollToSection('dizimos')" title="Doar"><i class="fas fa-hand-holding-heart"></i></button>
 
+<!-- ===== MODAL BÍBLIA (original) ===== -->
 <div class="modal modal-bible" id="bibleModal">
 <div class="modal-content">
 <button class="modal-close" onclick="closeModal('bibleModal')">&times;</button>
@@ -1080,6 +831,20 @@ border-bottom: 1px solid rgba(201,168,76,0.08);
 <div class="bible-result" id="bibleResult">
 <p style="color:var(--text-muted);">Selecione um livro e capítulo para buscar</p>
 </div>
+</div>
+</div>
+</div>
+
+<!-- ===== MODAL CARROSSEL (original) ===== -->
+<div class="modal modal-carousel" id="carouselInfoModal">
+<div class="modal-content">
+<button class="modal-close" onclick="closeModal('carouselInfoModal')">&times;</button>
+<div id="carouselInfoContent">
+<img id="carouselInfoImage" src="" alt="" style="width:100%;height:200px;object-fit:cover;border-radius:var(--radius-sm);margin-bottom:0.6rem;">
+<h2 id="carouselInfoTitle" style="font-size:1.3rem;font-weight:800;color:var(--primary);margin-bottom:0.2rem;"></h2>
+<p id="carouselInfoSubtitle" style="color:var(--text-muted);font-size:0.9rem;margin-bottom:0.6rem;"></p>
+<div id="carouselInfoDescription" style="color:var(--text-secondary);line-height:1.6;"></div>
+<a id="carouselInfoLink" href="#" target="_blank" class="btn btn-primary" style="margin-top:0.8rem;display:inline-flex;"><i class="fas fa-external-link-alt"></i> Saiba Mais</a>
 </div>
 </div>
 </div>
@@ -1157,8 +922,84 @@ border-bottom: 1px solid rgba(201,168,76,0.08);
 </div>
 
 <script>
-function openMaps() { window.open('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('Av. Abílio Augusto Távora, Lote 01, Quadra 03, Cabuçu, Nova Iguaçu - RJ'), '_blank'); }
-function openWaze() { window.open('https://waze.com/ul?q=' + encodeURIComponent('Av. Abílio Augusto Távora, Lote 01, Quadra 03, Cabuçu, Nova Iguaçu - RJ'), '_blank'); }
+// ============================================
+// ===== SERVICE WORKER (original) =====
+// ============================================
+if ('serviceWorker' in navigator) {
+window.addEventListener('load', () => {
+navigator.serviceWorker.register('/sw.js').then(registration => { console.log('✅ SW:', registration); }).catch(error => { console.log('❌ SW erro:', error); });
+});
+}
+
+// ============================================
+// ===== BOTÃO DE INSTALAÇÃO PWA (original) =====
+// ============================================
+(function() {
+'use strict';
+let deferredPrompt = null;
+let showBannerState = true;
+const banner = document.getElementById('installBanner');
+const fab = document.getElementById('installFab');
+const installBtn = document.getElementById('installBtn');
+const closeBtn = document.getElementById('closeBannerBtn');
+function isStandalone() { return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; }
+function isBannerClosed() { try { return localStorage.getItem('pwa-banner-fechado') === 'true'; } catch { return false; } }
+function setBannerClosed() { try { localStorage.setItem('pwa-banner-fechado', 'true'); } catch {} }
+function updateUI() {
+if (isStandalone()) { banner.style.display = 'none'; fab.style.display = 'none'; return; }
+if (isBannerClosed()) { banner.style.display = 'none'; fab.style.display = 'flex'; return; }
+if (showBannerState) { banner.style.display = 'flex'; fab.style.display = 'none'; }
+else { banner.style.display = 'none'; fab.style.display = 'flex'; }
+}
+async function handleInstall(e) {
+if (e) e.preventDefault();
+if (isStandalone()) { showNotificationToast('✅ App já está instalado!'); banner.style.display = 'none'; fab.style.display = 'none'; return; }
+if (deferredPrompt) {
+try {
+deferredPrompt.prompt();
+const result = await deferredPrompt.userChoice;
+if (result.outcome === 'accepted') { banner.style.display = 'none'; fab.style.display = 'none'; setBannerClosed(); showNotificationToast('✅ App instalado com sucesso! 🎉'); }
+else { showNotificationToast('ℹ️ Instalação cancelada'); }
+deferredPrompt = null; return;
+} catch (error) { console.error('❌ Erro na instalação:', error); }
+}
+showAlternativeInstall();
+}
+function showAlternativeInstall() {
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const isAndroid = /Android/.test(navigator.userAgent);
+if (isIOS) alert('📱 Para instalar no iPhone/iPad:\n\n1. Toque em compartilhar 📤\n2. Role e toque em "Adicionar à Tela de Início"\n3. Toque em "Adicionar"');
+else if (isAndroid) alert('📱 Para instalar no Android:\n\n1. Toque nos 3 pontos ⋮\n2. Selecione "Instalar app"\n3. Toque em "Instalar"');
+else alert('📲 Para instalar:\n\n• Chrome/Edge: 3 pontos ⋮ → "Instalar app"');
+showNotificationToast('💡 Siga as instruções para instalar o app');
+}
+function closeBanner() { setBannerClosed(); showBannerState = false; updateUI(); showNotificationToast('💡 Para instalar, acesse o menu do navegador'); }
+function showNotificationToast(message) {
+const old = document.querySelector('.notification-toast');
+if (old) old.remove();
+const div = document.createElement('div');
+div.className = 'notification-toast';
+div.textContent = message;
+document.body.appendChild(div);
+setTimeout(() => { div.style.opacity = '0'; div.style.transition = 'opacity 0.4s'; setTimeout(() => div.remove(), 400); }, 4000);
+}
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; if (!isBannerClosed() && !isStandalone()) { showBannerState = true; updateUI(); } });
+window.addEventListener('appinstalled', () => { banner.style.display = 'none'; fab.style.display = 'none'; setBannerClosed(); showNotificationToast('✅ App instalado com sucesso! 🎉'); });
+if (installBtn) installBtn.addEventListener('click', handleInstall);
+if (fab) fab.addEventListener('click', handleInstall);
+if (closeBtn) closeBtn.addEventListener('click', closeBanner);
+function init() {
+if (isStandalone()) { banner.style.display = 'none'; fab.style.display = 'none'; return; }
+if (isBannerClosed()) { showBannerState = false; updateUI(); return; }
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+if (isIOS) { setTimeout(() => { if (!isStandalone() && !isBannerClosed()) { showBannerState = true; updateUI(); } }, 2000); return; }
+setTimeout(() => { if (!deferredPrompt && !isStandalone() && !isBannerClosed()) { showBannerState = true; updateUI(); } }, 2000);
+}
+init();
+})();
+
+function openMaps() { const endereco = 'Av. Abílio Augusto Távora, Lote 01, Quadra 03, Cabuçu, Nova Iguaçu - RJ'; window.open('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(endereco), '_blank'); }
+function openWaze() { const endereco = 'Av. Abílio Augusto Távora, Lote 01, Quadra 03, Cabuçu, Nova Iguaçu - RJ'; window.open('https://waze.com/ul?q=' + encodeURIComponent(endereco), '_blank'); }
 
 async function loadSettings() {
 try {
@@ -1168,9 +1009,8 @@ if (settings.primary_color) document.documentElement.style.setProperty('--primar
 if (settings.site_title) document.title = settings.site_title;
 if (settings.whatsapp) {
 const btn = document.getElementById('whatsappBtn');
-if (btn) btn.href = 'https://wa.me/55' + settings.whatsapp;
-const fab = document.getElementById('fabWhatsapp');
-if (fab) fab.href = 'https://wa.me/55' + settings.whatsapp;
+btn.href = 'https://wa.me/55' + settings.whatsapp;
+document.getElementById('fabWhatsapp').href = 'https://wa.me/55' + settings.whatsapp;
 }
 if (settings.about_mission) document.getElementById('aboutMissionText').textContent = settings.about_mission;
 if (settings.about_vision) document.getElementById('aboutVisionText').textContent = settings.about_vision;
@@ -1178,6 +1018,9 @@ if (settings.about_values) document.getElementById('aboutValuesText').textConten
 if (settings.site_logo) {
 const logoEl = document.getElementById('mainLogoIcon');
 if (logoEl) logoEl.innerHTML = '<img src="' + settings.site_logo + '" alt="Logo" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+let fav = document.querySelector("link[rel='icon']");
+if (!fav) { fav = document.createElement('link'); fav.rel = 'icon'; document.head.appendChild(fav); }
+fav.href = settings.site_logo;
 }
 } catch (e) { console.error('Erro config:', e); }
 }
@@ -1197,7 +1040,7 @@ let eventsList = [];
 let liveIntervalCheck = null;
 let countdownInterval = null;
 let cultosData = [];
-const SLIDE_DURATION = 6000;
+const SLIDE_DURATION = 5000;
 
 async function loadCultosFromServer() {
 try {
@@ -1215,15 +1058,10 @@ cultosData = [{ dia:0, hora:18, minuto:0, label:'Domingo 18:00' },{ dia:3, hora:
 startCountdown();
 }
 }
-function startCountdown() {
-if (countdownInterval) clearInterval(countdownInterval);
-updateCountdown();
-countdownInterval = setInterval(updateCountdown, 1000);
-}
+function startCountdown() { if (countdownInterval) clearInterval(countdownInterval); updateCountdown(); countdownInterval = setInterval(updateCountdown, 1000); }
 function updateCountdown() {
 const now = new Date();
-let nextCulto = null;
-let minDiff = Infinity;
+let nextCulto = null, minDiff = Infinity;
 for (const culto of cultosData) {
 let target = new Date(now);
 target.setHours(culto.hora, culto.minuto, 0, 0);
@@ -1233,12 +1071,7 @@ const dayDiff = (culto.dia - target.getDay() + 7) % 7;
 if (dayDiff > 0) { target.setDate(target.getDate() + dayDiff); diff = target - now; }
 if (diff < minDiff && diff > 0) { minDiff = diff; nextCulto = { target, label: culto.label }; }
 }
-if (!nextCulto) {
-const fallback = new Date(now);
-fallback.setHours(18,0,0,0);
-if (fallback <= now) fallback.setDate(fallback.getDate() + 1);
-nextCulto = { target: fallback, label: 'Domingo 18:00' };
-}
+if (!nextCulto) { const fallback = new Date(now); fallback.setHours(18,0,0,0); if (fallback <= now) fallback.setDate(fallback.getDate() + 1); nextCulto = { target: fallback, label: 'Domingo 18:00' }; }
 const diff = Math.max(0, nextCulto.target - now);
 const days = Math.floor(diff / (1000*60*60*24));
 const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
@@ -1251,20 +1084,15 @@ document.getElementById('cdSeconds').textContent = String(seconds).padStart(2,'0
 document.getElementById('nextCultoLabel').textContent = '📖 ' + nextCulto.label;
 }
 
-window.addEventListener('scroll', () => {
-const header = document.getElementById('mainHeader');
-if (header) header.classList.toggle('scrolled', window.scrollY > 50);
-});
+window.addEventListener('scroll', () => { const header = document.getElementById('mainHeader'); if (header) header.classList.toggle('scrolled', window.scrollY > 50); });
 
 function toggleMobileMenu() { document.getElementById('mainNav').classList.toggle('mobile-open'); }
-document.querySelectorAll('.nav-btn').forEach(btn => {
-btn.addEventListener('click', () => { document.getElementById('mainNav').classList.remove('mobile-open'); });
-});
+document.querySelectorAll('.nav-btn').forEach(btn => { btn.addEventListener('click', () => { document.getElementById('mainNav').classList.remove('mobile-open'); }); });
 
 function scrollToSection(id) {
 const el = document.getElementById(id);
 if (el) {
-const offset = 110;
+const offset = 120;
 const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
 window.scrollTo({ top, behavior: 'smooth' });
 document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -1280,17 +1108,15 @@ const data = await res.json();
 if (data && data.length > 0) { carouselData = data; }
 else {
 carouselData = [
-{ title: 'Bem-Vindo à NJ Cabuçu', subtitle: 'Uma comunidade que ama a Deus e ao próximo', image_url: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1600&h=900&fit=crop', link: '#sobre', linkLabel: 'Conheça a Igreja' },
-{ title: 'Venha nos Louvar', subtitle: 'Cultos marcados por adoração sincera e a presença de Deus', image_url: 'https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1600&h=900&fit=crop', link: '#horarios', linkLabel: 'Ver Horários' },
-{ title: 'Faça Parte da Família', subtitle: 'A igreja não é um lugar, mas um povo. Junte-se a nós!', image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1600&h=900&fit=crop', link: '#inscricoes', linkLabel: 'Quero Participar' }
+{ title: 'Bem-Vindo à NJ Cabuçu', subtitle: 'Uma comunidade que ama a Deus e ao próximo', description: 'A NJ Cabuçu é uma comunidade cristã dedicada a levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.', image_url: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1600&h=900&fit=crop', link: '#sobre' },
+{ title: 'Venha nos Louvar', subtitle: 'Nossos cultos são cheios de adoração', description: 'Nossos cultos são marcados por louvores vibrantes e adoração sincera. Venha experimentar a presença de Deus!', image_url: 'https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1600&h=900&fit=crop', link: '#eventos' },
+{ title: 'Faça Parte', subtitle: 'Junte-se a nós e faça a diferença', description: 'Acreditamos que a igreja não é um lugar, mas um povo. Venha fazer parte da nossa família!', image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1600&h=900&fit=crop', link: '#inscricoes' }
 ];
 }
 renderCarousel();
 } catch (e) {
 console.error('Erro carrossel:', e);
-carouselData = [
-{ title: 'Bem-Vindo à NJ Cabuçu', subtitle: 'Uma comunidade que ama a Deus', image_url: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1600&h=900&fit=crop', link: '#sobre', linkLabel: 'Saiba Mais' }
-];
+carouselData = [{ title: 'Bem-Vindo à NJ Cabuçu', subtitle: 'Uma comunidade que ama a Deus', description: 'A NJ Cabuçu é uma comunidade cristã dedicada a levar o amor de Deus.', image_url: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1600&h=900&fit=crop', link: '#sobre' }];
 renderCarousel();
 }
 }
@@ -1312,7 +1138,7 @@ const slideHtml = '<div class="hero-slide">' +
 '<div class="slide-caption">' +
 '<h1>' + (item.title || '') + '</h1>' +
 '<p>' + (item.subtitle || '') + '</p>' +
-(item.link ? '<a href="' + item.link + '" class="slide-cta" onclick="event.stopPropagation(); scrollToSection(\'' + item.link.replace('#','') + '\')">' + (item.linkLabel || 'Saiba Mais') + ' <i class="fas fa-arrow-right"></i></a>' : '') +
+(item.link ? '<a href="' + item.link + '" class="slide-cta" onclick="event.stopPropagation(); scrollToSection(\'' + item.link.replace('#','') + '\')">Saiba Mais <i class="fas fa-arrow-right"></i></a>' : '') +
 '</div>' +
 '</div>';
 const slide = document.createElement('div');
@@ -1336,15 +1162,12 @@ if (track) track.style.transform = 'translateX(-' + (currentSlide * 100) + '%)';
 const dots = document.querySelectorAll('.hero-dot');
 dots.forEach((d, i) => d.classList.toggle('active', i === currentSlide));
 }
-
 function goToSlide(index) {
 if (index < 0 || index >= slideCount) return;
 currentSlide = index;
 updateTrackPosition();
 resetProgress();
-startCarousel();
 }
-
 function changeSlide(dir) {
 if (slideCount === 0) return;
 let next = (currentSlide + dir + slideCount) % slideCount;
@@ -1353,18 +1176,12 @@ updateTrackPosition();
 resetProgress();
 startCarousel();
 }
-
 function startCarousel() {
 if (slideInterval) clearInterval(slideInterval);
 if (slideCount <= 1) return;
 resetProgress();
-slideInterval = setInterval(() => {
-currentSlide = (currentSlide + 1) % slideCount;
-updateTrackPosition();
-resetProgress();
-}, SLIDE_DURATION);
+slideInterval = setInterval(() => { currentSlide = (currentSlide + 1) % slideCount; updateTrackPosition(); resetProgress(); }, SLIDE_DURATION);
 }
-
 function resetProgress() {
 const fill = document.getElementById('heroProgressFill');
 if (!fill) return;
@@ -1375,6 +1192,9 @@ fill.style.transition = 'width ' + SLIDE_DURATION + 'ms linear';
 fill.style.width = '100%';
 }
 
+// ============================================
+// ===== BÍBLIA (original) =====
+// ============================================
 function openBibleModal() { openModal('bibleModal'); setTimeout(() => searchBible(), 300); }
 const bookNames = { gn:'Gênesis', ex:'Êxodo', lv:'Levítico', nm:'Números', dt:'Deuteronômio', js:'Josué', jz:'Juízes', rt:'Rute', '1sm':'1 Samuel', '2sm':'2 Samuel', '1rs':'1 Reis', '2rs':'2 Reis', '1cr':'1 Crônicas', '2cr':'2 Crônicas', ed:'Esdras', ne:'Neemias', et:'Ester', jo:'Jó', sl:'Salmos', pv:'Provérbios', ec:'Eclesiastes', ct:'Cânticos', is:'Isaías', jr:'Jeremias', lm:'Lamentações', ez:'Ezequiel', dn:'Daniel', os:'Oseias', jl:'Joel', am:'Amós', ob:'Obadias', jn:'Jonas', mq:'Miqueias', na:'Naum', hc:'Habacuque', sf:'Sofonias', ag:'Ageu', zc:'Zacarias', ml:'Malaquias', mt:'Mateus', mc:'Marcos', lc:'Lucas', joao:'João', at:'Atos', rm:'Romanos', '1co':'1 Coríntios', '2co':'2 Coríntios', gl:'Gálatas', ef:'Efésios', fp:'Filipenses', cl:'Colossenses', '1ts':'1 Tessalonicenses', '2ts':'2 Tessalonicenses', '1tm':'1 Timóteo', '2tm':'2 Timóteo', tt:'Tito', fm:'Filemom', hb:'Hebreus', tg:'Tiago', '1pe':'1 Pedro', '2pe':'2 Pedro', '1jo':'1 João', '2jo':'2 João', '3jo':'3 João', jd:'Judas', ap:'Apocalipse' };
 
@@ -1384,27 +1204,26 @@ const chapter = document.getElementById('bibleChapter').value;
 const verse = document.getElementById('bibleVerse').value;
 const resultDiv = document.getElementById('bibleResult');
 if (!chapter || chapter < 1) { resultDiv.innerHTML = '<p style="color:#dc3545;">⚠️ Digite um capítulo válido.</p>'; return; }
-resultDiv.innerHTML = '<p style="color:var(--text-muted);">⏳ Carregando...</p>';
+resultDiv.innerHTML = '<p style="color:#888;">⏳ Carregando...</p>';
 try {
 let url = '/api/bible?book=' + encodeURIComponent(book) + '&chapter=' + chapter;
 if (verse && parseInt(verse) > 0) url += '&verse=' + verse;
 const response = await fetch(url);
 const data = await response.json();
-if (!response.ok) { resultDiv.innerHTML = '<p style="color:#dc3545;">❌ ' + (data.error || 'Erro') + '</p>'; return; }
+if (!response.ok) { resultDiv.innerHTML = '<p style="color:#dc3545;">❌ ' + (data.error || 'Erro') + '</p><p style="color:#888;margin-top:0.5rem;">Tente: Salmos 23, João 3:16, Romanos 8:28</p>'; return; }
 let html = '';
 if (data.verses && data.verses.length > 0) { data.verses.forEach(v => { html += '<p class="verse"><strong>' + v.verse + '</strong> ' + v.text.trim() + '</p>'; }); }
 else if (data.text) { html = '<p class="verse">' + data.text.trim() + '</p>'; }
-else { html = '<p style="color:var(--text-muted);">Nenhum texto encontrado.</p>'; }
+else { html = '<p style="color:#888;">Nenhum texto encontrado.</p>'; }
 html += '<p class="reference">📖 ' + (data.reference || bookNames[book] + ' ' + chapter) + '</p>';
 resultDiv.innerHTML = html;
-} catch (error) {
-resultDiv.innerHTML = '<p style="color:#dc3545;">❌ Erro: ' + error.message + '</p>';
-}
+resultDiv.scrollTop = 0;
+} catch (error) { resultDiv.innerHTML = '<p style="color:#dc3545;">❌ Erro: ' + error.message + '</p><p style="color:#888;margin-top:0.5rem;">Verifique sua internet.</p>'; }
 }
 async function searchBibleRandom() {
 const resultDiv = document.getElementById('bibleResult');
-resultDiv.innerHTML = '<p style="color:var(--text-muted);">⏳ Buscando...</p>';
-const refs = [{ book:'sl', chapter:23 },{ book:'joao', chapter:3 },{ book:'rm', chapter:8 },{ book:'fp', chapter:4 },{ book:'sl', chapter:91 },{ book:'pv', chapter:3 },{ book:'hb', chapter:11 },{ book:'1co', chapter:13 }];
+resultDiv.innerHTML = '<p style="color:#888;">⏳ Buscando...</p>';
+const refs = [{ book:'sl', chapter:23 },{ book:'joao', chapter:3 },{ book:'rm', chapter:8 },{ book:'fp', chapter:4 },{ book:'is', chapter:41 },{ book:'mt', chapter:11 },{ book:'sl', chapter:91 },{ book:'pv', chapter:3 },{ book:'hb', chapter:11 },{ book:'tg', chapter:1 },{ book:'1co', chapter:13 },{ book:'ef', chapter:2 }];
 const pick = refs[Math.floor(Math.random() * refs.length)];
 try {
 const url = '/api/bible?book=' + pick.book + '&chapter=' + pick.chapter;
@@ -1421,10 +1240,13 @@ resultDiv.innerHTML = html;
 document.addEventListener('keypress', (e) => {
 if (e.key === 'Enter') {
 const a = document.activeElement;
-if (a && (a.id === 'bibleChapter' || a.id === 'bibleVerse')) searchBible();
+if (a && (a.id === 'bibleChapter' || a.id === 'bibleVerse' || a.id === 'bibleBook')) searchBible();
 }
 });
 
+// ============================================
+// ===== LIVE (original) =====
+// ============================================
 async function checkLiveStatusIndex() {
 try {
 const res = await fetch('/api/lives/active');
@@ -1446,25 +1268,42 @@ document.getElementById('liveNavBtn2').style.display = 'inline-flex';
 document.getElementById('liveTitleDisplay').textContent = data.titulo || 'Live NJ Cabuçu';
 document.getElementById('liveDescDisplay').textContent = data.descricao || '';
 document.getElementById('liveViewerCount').textContent = data.viewers || 0;
-const viewerId = 'viewer_' + Date.now();
+const viewerId = 'viewer_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
 await fetch('/api/lives/' + data.id + '/viewer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ viewer_id: viewerId }) });
 const video = document.getElementById('remoteVideo');
-video.src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
-video.play().catch(e => console.log(e));
+if (data.stream_key) {
+const streamUrl = '/live/' + data.stream_key + '/index.m3u8';
+if (video.canPlayType('application/vnd.apple.mpegurl')) { video.src = streamUrl; }
+else if (typeof Hls !== 'undefined') { const hls = new Hls(); hls.loadSource(streamUrl); hls.attachMedia(video); }
+else { video.src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'; }
+} else { video.src = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'; }
+video.play().catch(e => console.log('Erro ao reproduzir:', e));
 if (liveIntervalCheck) clearInterval(liveIntervalCheck);
 liveIntervalCheck = setInterval(async () => {
-try { const r = await fetch('/api/lives/active'); const d = await r.json(); if (d.status === 'live') document.getElementById('liveViewerCount').textContent = d.viewers || 0; } catch(e) {}
+try { const res2 = await fetch('/api/lives/active'); const data2 = await res2.json(); if (data2.status === 'live') document.getElementById('liveViewerCount').textContent = data2.viewers || 0; } catch (e) {}
 }, 10000);
 } else {
 liveBar.classList.remove('active');
 liveSection.style.display = 'none';
+document.getElementById('liveOffline').style.display = 'flex';
+document.getElementById('remoteVideo').style.display = 'none';
+document.getElementById('remoteVideo').src = '';
+document.getElementById('liveBadge').style.display = 'none';
+document.getElementById('liveInfoBox').style.display = 'none';
 document.getElementById('heroLiveBadge').style.display = 'none';
 document.getElementById('liveNavBtn').style.display = 'none';
 document.getElementById('liveNavBtn2').style.display = 'none';
 if (liveIntervalCheck) { clearInterval(liveIntervalCheck); liveIntervalCheck = null; }
 }
-} catch (e) { console.error(e); }
+} catch (e) { console.error('Erro ao verificar live:', e); }
 }
+document.getElementById('livePlayer')?.addEventListener('click', () => {
+const video = document.getElementById('remoteVideo');
+if (video.style.display !== 'none' && video.src) {
+if (document.fullscreenElement) document.exitFullscreen();
+else video.requestFullscreen?.();
+}
+});
 
 async function loadReflections() {
 const container = document.getElementById('reflectionsList');
@@ -1473,21 +1312,11 @@ const res = await fetch('/api/pastor-reflections');
 if (!res.ok) throw new Error('Erro');
 const data = await res.json();
 if (data && data.length > 0) {
-let html = '';
-data.forEach(item => {
+container.innerHTML = data.map(item => {
 let videoId = '';
-if (item.link) {
-const match = item.link.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/);
-if (match) videoId = match[1];
-}
-html += '<div class="reflection-card">';
-if (videoId) html += '<div class="video-wrapper"><iframe src="https://www.youtube.com/embed/' + videoId + '" allowfullscreen loading="lazy"></iframe></div>';
-else html += '<div class="video-wrapper" style="background:#0A0E1A;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:0.85rem;">🎥 Vídeo indisponível</div>';
-html += '<div class="info"><h4>' + (item.title || 'Reflexão') + '</h4><p>' + (item.description || '') + '</p>';
-if (item.link) html += '<a href="' + item.link + '" target="_blank" style="color:var(--accent);font-weight:600;font-size:0.8rem;text-decoration:none;">Assistir no YouTube <i class="fas fa-external-link-alt"></i></a>';
-html += '</div></div>';
-});
-container.innerHTML = html;
+if (item.link) { const url = new URL(item.link); if (url.hostname.includes('youtube.com') || url.hostname.includes('youtu.be')) { const match = item.link.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/); if (match) videoId = match[1]; } }
+return '<div class="reflection-card">' + (videoId ? '<div class="video-wrapper"><iframe src="https://www.youtube.com/embed/' + videoId + '" allowfullscreen loading="lazy"></iframe></div>' : '<div class="video-wrapper" style="background:#0A0E1A;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3);font-size:0.85rem;">🎥 Vídeo indisponível</div>') + '<div class="info"><h4>' + (item.title || 'Reflexão') + '</h4><p>' + (item.description || '') + '</p>' + (item.link ? '<a href="' + item.link + '" target="_blank" style="color:var(--accent);font-weight:600;font-size:0.8rem;text-decoration:none;">Assistir no YouTube <i class="fas fa-external-link-alt"></i></a>' : '') + '</div></div>';
+}).join('');
 } else {
 container.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted);grid-column:1/-1;"><i class="fas fa-video" style="font-size:2.5rem;color:rgba(10,38,71,0.08);display:block;margin-bottom:0.6rem;"></i><p>Nenhuma reflexão disponível.</p></div>';
 }
@@ -1505,22 +1334,18 @@ if (!data || data.length === 0) {
 container.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted);grid-column:1/-1;"><i class="fas fa-users" style="font-size:2.5rem;color:rgba(10,38,71,0.08);display:block;margin-bottom:0.6rem;"></i><p>Nenhuma célula disponível 🏠</p></div>';
 return;
 }
-let html = '';
-data.forEach(c => {
-html += '<div class="card">';
-html += '<div class="icon-wrapper" style="background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;"><i class="fas fa-home"></i></div>';
-html += '<h3>' + c.nome + '</h3>';
-html += '<div style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:var(--text-secondary);margin:0.15rem 0;"><i class="fas fa-user" style="width:18px;color:var(--accent);"></i><span><strong>Líder:</strong> ' + (c.lider_nome || 'Sem líder') + '</span></div>';
-html += '<div style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:var(--text-secondary);margin:0.15rem 0;"><i class="fas fa-map-pin" style="width:18px;color:var(--accent);"></i><span>' + (c.endereco || 'Não informado') + '</span></div>';
-html += '<div style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:var(--text-secondary);margin:0.15rem 0;"><i class="fas fa-calendar" style="width:18px;color:var(--accent);"></i><span>' + (c.dias_reuniao || 'Não informado') + '</span></div>';
-html += '<div style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:var(--text-secondary);margin:0.15rem 0;"><i class="fas fa-clock" style="width:18px;color:var(--accent);"></i><span>' + (c.horario || 'Não informado') + '</span></div>';
-html += '<div style="display:inline-block;background:var(--secondary-light);color:var(--primary);padding:0.15rem 0.8rem;border-radius:var(--radius-full);font-size:0.65rem;font-weight:700;margin-top:0.3rem;align-self:flex-start;"><i class="fas fa-users"></i> ' + (c.membros_ativos || 0) + ' membros</div>';
-if (c.descricao) html += '<p style="margin-top:0.3rem;font-size:0.78rem;color:var(--text-muted);">' + c.descricao + '</p>';
-html += '<a href="https://wa.me/5521985345627?text=Quero participar da célula ' + encodeURIComponent(c.nome) + '" target="_blank" class="btn btn-whatsapp" style="margin-top:0.5rem;width:100%;justify-content:center;font-size:0.75rem;padding:0.4rem;"><i class="fab fa-whatsapp"></i> Quero Participar</a>';
-html += '</div>';
-});
-container.innerHTML = html;
-} catch (e) { console.error(e); }
+container.innerHTML = data.map(c => '<div class="card">' +
+'<div class="icon-wrapper" style="background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;"><i class="fas fa-home"></i></div>' +
+'<h3>' + c.nome + '</h3>' +
+'<div style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:var(--text-secondary);margin:0.15rem 0;"><i class="fas fa-user" style="width:18px;color:var(--accent);"></i><span><strong>Líder:</strong> ' + (c.lider_nome || 'Sem líder') + '</span></div>' +
+'<div style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:var(--text-secondary);margin:0.15rem 0;"><i class="fas fa-map-pin" style="width:18px;color:var(--accent);"></i><span>' + (c.endereco || 'Não informado') + '</span></div>' +
+'<div style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:var(--text-secondary);margin:0.15rem 0;"><i class="fas fa-calendar" style="width:18px;color:var(--accent);"></i><span>' + (c.dias_reuniao || 'Não informado') + '</span></div>' +
+'<div style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:var(--text-secondary);margin:0.15rem 0;"><i class="fas fa-clock" style="width:18px;color:var(--accent);"></i><span>' + (c.horario || 'Não informado') + '</span></div>' +
+'<div style="display:inline-block;background:var(--secondary-light);color:var(--primary);padding:0.15rem 0.8rem;border-radius:var(--radius-full);font-size:0.65rem;font-weight:700;margin-top:0.3rem;align-self:flex-start;"><i class="fas fa-users"></i> ' + (c.membros_ativos || 0) + ' membros</div>' +
+(c.descricao ? '<p style="margin-top:0.3rem;font-size:0.78rem;color:var(--text-muted);">' + c.descricao + '</p>' : '') +
+'<a href="https://wa.me/5521985345627?text=Olá! Quero participar da célula ' + encodeURIComponent(c.nome) + '" target="_blank" class="btn btn-whatsapp" style="margin-top:0.5rem;width:100%;justify-content:center;font-size:0.75rem;padding:0.4rem;"><i class="fab fa-whatsapp"></i> Quero Participar</a>' +
+'</div>').join('');
+} catch (e) { console.error('Erro:', e); }
 }
 
 function createCardImage(imageData, alt) {
@@ -1537,12 +1362,8 @@ try {
 const res = await fetch('/api/studies');
 const data = await res.json();
 const container = document.getElementById('studiesList');
-if (!data || data.length === 0) {
-container.innerHTML = '<div class="study-empty"><i class="fas fa-book-open"></i><p>Nenhum estudo disponível.</p></div>';
-return;
-}
-let html = '';
-data.forEach(s => {
+if (!data || data.length === 0) { container.innerHTML = '<div class="study-empty"><i class="fas fa-book-open"></i><p>Nenhum estudo disponível.</p></div>'; return; }
+container.innerHTML = data.map(s => {
 const hasImage = s.image_base64;
 let fileButton = '';
 if (s.file_base64) { fileButton = '<button onclick="downloadPdf(' + s.id + ')" class="btn-study btn-study-pdf"><i class="fas fa-file-pdf"></i> Baixar PDF</button>'; }
@@ -1554,36 +1375,32 @@ if (isDrive) { icon = 'fa-google-drive'; label = 'Ver no Drive'; }
 else if (isYoutube) { icon = 'fa-youtube'; label = 'Assistir'; }
 fileButton = '<a href="' + s.file_url + '" target="_blank" class="btn-study btn-study-link"><i class="fas ' + icon + '"></i> ' + label + '</a>';
 }
-html += '<div class="study-card">';
-html += '<div class="study-image">';
-if (hasImage) html += '<img src="' + (s.image_base64.startsWith('data:') ? s.image_base64 : 'data:image/jpeg;base64,' + s.image_base64) + '" alt="' + s.title + '" loading="lazy" onerror="this.style.display=\'none\'">';
-else html += '<div class="study-icon"><i class="fas fa-book-open"></i></div>';
-html += '</div>';
-html += '<div class="study-body">';
-html += '<h3>' + s.title + '</h3>';
-html += '<div class="study-description">' + (s.description || 'Estudo bíblico para edificação da sua fé.') + '</div>';
-html += '<div class="study-actions">' + fileButton + '</div>';
-html += '</div></div>';
-});
-container.innerHTML = html;
-} catch (e) {
-container.innerHTML = '<div class="study-empty"><i class="fas fa-exclamation-circle" style="color:#dc3545;"></i><p>Erro ao carregar estudos.</p></div>';
-}
+return '<div class="study-card">' +
+'<div class="study-image">' +
+(hasImage ? '<img src="' + (s.image_base64.startsWith('data:') ? s.image_base64 : 'data:image/jpeg;base64,' + s.image_base64) + '" alt="' + s.title + '" loading="lazy" onerror="this.style.display=\'none\'">' : '<div class="study-icon"><i class="fas fa-book-open"></i></div>') +
+'</div>' +
+'<div class="study-body">' +
+'<h3>' + s.title + '</h3>' +
+'<div class="study-description">' + (s.description || 'Estudo bíblico para edificação da sua fé.') + '</div>' +
+'<div class="study-actions">' + fileButton + '</div>' +
+'</div></div>';
+}).join('');
+} catch (e) { container.innerHTML = '<div class="study-empty"><i class="fas fa-exclamation-circle" style="color:#dc3545;"></i><p>Erro ao carregar estudos.</p></div>'; }
 }
 
 function downloadPdf(studyId) {
 showNotification('📄 Baixando PDF...', 'info');
 fetch('/api/studies/' + studyId + '/pdf', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') } })
-.then(r => { if (!r.ok) throw new Error('Erro'); return r.blob(); })
+.then(response => { if (!response.ok) throw new Error('Erro ao baixar PDF'); return response.blob(); })
 .then(blob => {
-const url = URL.createObjectURL(blob);
+const url = window.URL.createObjectURL(blob);
 const a = document.createElement('a');
 a.href = url; a.download = 'estudo-' + studyId + '.pdf';
 document.body.appendChild(a); a.click(); a.remove();
-URL.revokeObjectURL(url);
-showNotification('✅ PDF baixado!', 'success');
+window.URL.revokeObjectURL(url);
+showNotification('✅ PDF baixado com sucesso!', 'success');
 })
-.catch(e => showNotification('❌ Erro: ' + e.message, 'error'));
+.catch(error => showNotification('❌ Erro ao baixar PDF: ' + error.message, 'error'));
 }
 
 async function loadEvents() {
@@ -1592,40 +1409,40 @@ const res = await fetch('/api/events');
 const data = await res.json();
 const container = document.getElementById('eventsList');
 if (!data || data.length === 0) { container.innerHTML = '<p style="text-align:center;color:var(--text-muted);grid-column:1/-1;">Nenhum evento disponível.</p>'; return; }
-let html = '';
-data.forEach(e => {
-html += '<div class="card">';
-if (e.image_base64) html += createCardImage(e.image_base64, e.title);
-html += '<h3>' + e.title + '</h3>';
-html += '<p>' + (e.description || '') + '</p>';
-html += '<p style="font-size:0.78rem;color:var(--text-secondary);margin:0.2rem 0;"><strong>Data:</strong> ' + new Date(e.date).toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' }) + '</p>';
-html += '<p style="font-size:0.78rem;color:var(--text-secondary);"><strong>Valor:</strong> ' + (parseFloat(e.price || 0) > 0 ? 'R$ ' + parseFloat(e.price).toFixed(2) : 'Grátis') + '</p>';
-html += '<button onclick="registerForEvent(' + e.id + ', \'' + e.title.replace(/'/g, "\\'") + '\', ' + (e.price || 0) + ')" class="btn btn-primary" style="margin-top:0.5rem;font-size:0.78rem;padding:0.4rem 1.2rem;"><i class="fas fa-ticket-alt"></i> Inscrever-se</button>';
-html += '</div>';
-});
-container.innerHTML = html;
-} catch (e) { console.error(e); }
+container.innerHTML = data.map(e => '<div class="card">' +
+(e.image_base64 ? createCardImage(e.image_base64, e.title) : '') +
+'<h3>' + e.title + '</h3>' +
+'<p>' + (e.description || '') + '</p>' +
+'<p style="font-size:0.78rem;color:var(--text-secondary);margin:0.2rem 0;"><strong>Data:</strong> ' + new Date(e.date).toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' }) + '</p>' +
+'<p style="font-size:0.78rem;color:var(--text-secondary);"><strong>Valor:</strong> ' + (parseFloat(e.price || 0) > 0 ? 'R$ ' + parseFloat(e.price).toFixed(2) : 'Grátis') + '</p>' +
+'<button onclick="registerForEvent(' + e.id + ', \'' + e.title.replace(/'/g, "\\'") + '\', ' + (e.price || 0) + ')" class="btn btn-primary" style="margin-top:0.5rem; background:#28a745; font-size:0.78rem; padding:0.4rem 1.2rem;"><i class="fas fa-ticket-alt"></i> Inscrever-se</button>' +
+'</div>').join('');
+} catch (e) { console.error('Erro:', e); }
 }
+
 async function registerForEvent(eventId, eventName, price) {
 const name = prompt('Seu nome completo:'); if (!name) return;
 const email = prompt('Seu e-mail:'); if (!email) return;
-const phone = prompt('Seu telefone:'); if (!phone) return;
+const phone = prompt('Seu telefone (WhatsApp):'); if (!phone) return;
 try {
-const res = await fetch('/api/registrations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type:'event', name, email, phone, event_name: eventName, details: 'Inscrição: ' + eventName, amount: parseFloat(price) || 0, is_paid: parseFloat(price) > 0 ? false : true }) });
+const res = await fetch('/api/registrations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'event', name, email, phone, event_name: eventName, details: 'Inscrição para evento: ' + eventName, amount: parseFloat(price) || 0, is_paid: parseFloat(price) > 0 ? false : true }) });
 const data = await res.json();
-if (!res.ok) throw new Error(data.error || 'Erro');
+if (!res.ok) throw new Error(data.error || 'Erro ao inscrever');
 if (parseFloat(price) > 0) {
-alert('✅ Inscrição realizada! Faça o pagamento.');
+alert('✅ Inscrição realizada! O evento é pago. Por favor, faça o pagamento para confirmar.');
 paymentType = 'donation'; donationType = 'Inscrição Evento - ' + eventName;
 document.getElementById('paymentTitle').textContent = '💳 Inscrição - ' + eventName;
 document.getElementById('paymentTotal').textContent = 'Valor: R$ ' + parseFloat(price).toFixed(2);
 document.getElementById('paymentForm').style.display = 'block';
 document.getElementById('paymentResult').style.display = 'none';
 _donationAmount = parseFloat(price);
-document.getElementById('payName').value = name; document.getElementById('payEmail').value = email; document.getElementById('payPhone').value = phone;
+document.getElementById('payName').value = name;
+document.getElementById('payEmail').value = email;
+document.getElementById('payPhone').value = phone;
 openModal('paymentModal');
 } else {
-if (confirm('✅ Inscrição realizada! Baixar comprovante?')) window.open('/api/registration-pdf/' + data.id, '_blank');
+const pdfUrl = '/api/registration-pdf/' + data.id;
+if (confirm('✅ Inscrição realizada com sucesso! Deseja baixar o comprovante em PDF?')) window.open(pdfUrl, '_blank');
 }
 } catch (e) { alert('❌ Erro: ' + e.message); }
 }
@@ -1635,32 +1452,24 @@ try {
 const res = await fetch('/api/products');
 const data = await res.json();
 const container = document.getElementById('productsList');
-if (!data || data.length === 0) {
-container.innerHTML = '<div class="store-empty"><i class="fas fa-store"></i><p>Nenhum produto disponível.</p><p style="font-size:0.85rem;margin-top:0.3rem;">Em breve novidades!</p></div>';
-return;
-}
-let html = '';
-data.forEach(p => {
+if (!data || data.length === 0) { container.innerHTML = '<div class="store-empty"><i class="fas fa-store"></i><p>Nenhum produto disponível.</p><p style="font-size:0.85rem;margin-top:0.3rem;">Em breve novidades!</p></div>'; return; }
+container.innerHTML = data.map(p => {
 const price = parseFloat(p.price || 0);
 const hasImage = p.image_base64;
 const category = p.category || 'NJ Store';
-html += '<div class="store-card">';
-html += '<div class="store-image">';
-if (hasImage) html += '<img src="' + (p.image_base64.startsWith('data:') ? p.image_base64 : 'data:image/jpeg;base64,' + p.image_base64) + '" alt="' + p.name + '" loading="lazy" onerror="this.style.display=\'none\'">';
-else html += '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:3rem;color:rgba(10,38,71,0.08);"><i class="fas fa-box"></i></div>';
-html += '<span class="store-badge">' + category + '</span>';
-html += '</div>';
-html += '<div class="store-body">';
-html += '<h3>' + p.name + '</h3>';
-html += '<div class="store-description">' + (p.description || 'Produto exclusivo NJ Cabuçu.') + '</div>';
-html += '<div class="store-price-row"><span class="store-price">R$ ' + price.toFixed(2) + '</span></div>';
-html += '<div class="store-actions"><button onclick="addToCart(' + p.id + ')" class="btn-store btn-store-add"><i class="fas fa-cart-plus"></i> Adicionar</button></div>';
-html += '</div></div>';
-});
-container.innerHTML = html;
-} catch (e) {
-container.innerHTML = '<div class="store-empty"><i class="fas fa-exclamation-circle" style="color:#dc3545;"></i><p>Erro ao carregar produtos.</p></div>';
-}
+return '<div class="store-card">' +
+'<div class="store-image">' +
+(hasImage ? '<img src="' + (p.image_base64.startsWith('data:') ? p.image_base64 : 'data:image/jpeg;base64,' + p.image_base64) + '" alt="' + p.name + '" loading="lazy" onerror="this.style.display=\'none\'">' : '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:3rem;color:rgba(10,38,71,0.08);"><i class="fas fa-box"></i></div>') +
+'<span class="store-badge">' + category + '</span>' +
+'</div>' +
+'<div class="store-body">' +
+'<h3>' + p.name + '</h3>' +
+'<div class="store-description">' + (p.description || 'Produto exclusivo NJ Cabuçu.') + '</div>' +
+'<div class="store-price-row"><span class="store-price">R$ ' + price.toFixed(2) + '</span></div>' +
+'<div class="store-actions"><button onclick="addToCart(' + p.id + ')" class="btn-store btn-store-add"><i class="fas fa-cart-plus"></i> Adicionar</button></div>' +
+'</div></div>';
+}).join('');
+} catch (e) { container.innerHTML = '<div class="store-empty"><i class="fas fa-exclamation-circle" style="color:#dc3545;"></i><p>Erro ao carregar produtos.</p></div>'; }
 }
 
 async function loadBirthdays() {
@@ -1668,34 +1477,29 @@ try {
 const res = await fetch('/api/birthdays');
 const data = await res.json();
 const container = document.getElementById('birthdayList');
-if (!data || data.length === 0) {
-container.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted);grid-column:1/-1;"><i class="fas fa-birthday-cake" style="font-size:2.5rem;color:rgba(10,38,71,0.08);display:block;margin-bottom:0.6rem;"></i><p>Nenhum aniversariante este mês 🎉</p></div>';
-return;
-}
-const sorted = [...data].sort((a, b) => new Date(a.birth_date).getDate() - new Date(b.birth_date).getDate());
+if (!data || data.length === 0) { container.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted);grid-column:1/-1;"><i class="fas fa-birthday-cake" style="font-size:2.5rem;color:rgba(10,38,71,0.08);display:block;margin-bottom:0.6rem;"></i><p>Nenhum aniversariante este mês 🎉</p></div>'; return; }
+const sortedData = [...data].sort((a, b) => new Date(a.birth_date).getDate() - new Date(b.birth_date).getDate());
 const today = new Date();
 const todayMonth = today.getMonth();
 const todayDay = today.getDate();
-let html = '';
-sorted.forEach(person => {
+container.innerHTML = sortedData.map(person => {
 const birth = new Date(person.birth_date);
 let idade = today.getFullYear() - birth.getFullYear();
 const mesNiver = birth.getMonth();
 const diaNiver = birth.getDate();
 if (today.getMonth() < mesNiver || (today.getMonth() === mesNiver && today.getDate() < diaNiver)) idade--;
-const emojis = ['🎂','🎈','🎉','🎊','✨','🌟','💫','🥳'];
+const emojis = ['🎂', '🎈', '🎉', '🎊', '✨', '🌟', '💫', '🥳'];
 const emoji = emojis[person.id % emojis.length];
 const isToday = mesNiver === todayMonth && diaNiver === todayDay;
-html += '<div class="card birthday-card' + (isToday ? ' today' : '') + '" style="text-align:center;border-left:4px solid ' + (isToday ? '#e91e63' : 'var(--accent)') + ';padding:1.2rem;">';
-html += '<div style="font-size:2rem;">' + emoji + '</div>';
-html += '<div style="font-size:1rem;font-weight:700;color:var(--primary);font-family:\'Playfair Display\',serif;">' + person.name + '</div>';
-html += '<div style="color:var(--text-secondary);font-size:0.85rem;">' + birth.toLocaleDateString('pt-BR', { day:'numeric', month:'long' }) + '</div>';
-html += '<div style="color:var(--text-muted);font-size:0.8rem;">🎯 ' + idade + ' anos ' + (isToday ? '🎉 HOJE!' : '') + '</div>';
-if (person.phone) html += '<div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;"><i class="fas fa-phone"></i> ' + person.phone + '</div>';
-html += '</div>';
-});
-container.innerHTML = html;
-} catch (e) { console.error(e); }
+return '<div class="card birthday-card ' + (isToday ? 'today' : '') + '" style="text-align:center; border-left:4px solid ' + (isToday ? '#e91e63' : 'var(--accent)') + '; padding:1.2rem;">' +
+'<div style="font-size:2rem;">' + emoji + '</div>' +
+'<div style="font-size:1rem;font-weight:700;color:var(--primary);font-family:\'Playfair Display\',serif;">' + person.name + '</div>' +
+'<div style="color:var(--text-secondary);font-size:0.85rem;">' + birth.toLocaleDateString('pt-BR', { day:'numeric', month:'long' }) + '</div>' +
+'<div style="color:var(--text-muted);font-size:0.8rem;">🎯 ' + idade + ' anos ' + (isToday ? '🎉 HOJE!' : '') + '</div>' +
+(person.phone ? '<div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;"><i class="fas fa-phone"></i> ' + person.phone + '</div>' : '') +
+'</div>';
+}).join('');
+} catch (e) { console.error('Erro:', e); }
 }
 
 async function addToCart(productId) {
@@ -1706,10 +1510,11 @@ const product = products.find(p => p.id === productId);
 if (product) {
 cart.push(product);
 document.getElementById('cartCount').textContent = cart.length;
-showNotification('✅ ' + product.name + ' adicionado!', 'success');
+showNotification('✅ ' + product.name + ' adicionado ao carrinho!', 'success');
 }
-} catch (e) { console.error(e); }
+} catch (e) { console.error('Erro:', e); }
 }
+
 function openCart() {
 const container = document.getElementById('cartItems');
 const totalDiv = document.getElementById('cartTotal');
@@ -1717,13 +1522,9 @@ if (cart.length === 0) {
 container.innerHTML = '<p style="text-align:center;color:var(--text-muted);">Carrinho vazio</p>';
 totalDiv.textContent = '';
 } else {
-let html = '';
 let total = 0;
-cart.forEach((p, i) => {
-html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem;border-bottom:1px solid #eee;"><span style="font-size:0.85rem;">' + p.name + ' - R$ ' + parseFloat(p.price).toFixed(2) + '</span><button onclick="removeFromCart(' + i + ')" style="font-size:0.65rem;padding:0.15rem 0.5rem;background:#dc3545;color:#fff;border:none;border-radius:50px;cursor:pointer;"><i class="fas fa-times"></i></button></div>';
-total += parseFloat(p.price);
-});
-container.innerHTML = html;
+container.innerHTML = cart.map((p, i) => '<div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem;border-bottom:1px solid #eee;"><span style="font-size:0.85rem;">' + p.name + ' - R$ ' + parseFloat(p.price).toFixed(2) + '</span><button onclick="removeFromCart(' + i + ')" class="btn btn-danger btn-sm" style="font-size:0.65rem;padding:0.15rem 0.5rem;"><i class="fas fa-times"></i></button></div>').join('');
+total = cart.reduce((sum, p) => sum + parseFloat(p.price), 0);
 totalDiv.textContent = 'Total: R$ ' + total.toFixed(2);
 }
 openModal('cartModal');
@@ -1772,6 +1573,7 @@ if (statusCheckInterval) { clearInterval(statusCheckInterval); statusCheckInterv
 }
 });
 });
+
 async function submitDonation() {
 const type = document.getElementById('donationType').value;
 const name = document.getElementById('donationName').value.trim();
@@ -1780,7 +1582,9 @@ const phone = document.getElementById('donationPhone').value.trim();
 const amount = document.getElementById('donationAmount').value.trim();
 if (!name || !email || !phone || !amount) { showNotification('Preencha todos os campos!', 'error'); return; }
 if (parseFloat(amount) <= 0) { showNotification('Valor inválido!', 'error'); return; }
-donationType = type; paymentType = 'donation'; _donationAmount = parseFloat(amount);
+donationType = type;
+paymentType = 'donation';
+_donationAmount = parseFloat(amount);
 closeModal('donationModal');
 document.getElementById('paymentTitle').textContent = '💳 ' + type;
 document.getElementById('paymentTotal').textContent = 'Valor: R$ ' + parseFloat(amount).toFixed(2);
@@ -1791,6 +1595,7 @@ document.getElementById('payEmail').value = email;
 document.getElementById('payPhone').value = phone;
 openModal('paymentModal');
 }
+
 function togglePaymentMethod() {
 const method = document.getElementById('payMethod').value;
 document.getElementById('cardFields').style.display = method === 'card' ? 'block' : 'none';
@@ -1799,55 +1604,68 @@ document.getElementById('cardFields').style.display = method === 'card' ? 'block
 async function saveOrderOrDonation(name, email, phone, amount, paymentId, method, description) {
 try {
 if (paymentType === 'sale') {
-const items = cart.map(item => ({ id: item.id, name: item.name, price: parseFloat(item.price), quantity: 1 }));
-await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_name: name, user_email: email, user_phone: phone, items, total: amount, payment_id: paymentId, payment_method: method, status: 'pending' }) });
-cart = []; document.getElementById('cartCount').textContent = 0;
+const itemsForOrder = cart.map(item => ({ id: item.id, name: item.name, price: parseFloat(item.price), quantity: 1 }));
+await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_name: name, user_email: email, user_phone: phone, items: itemsForOrder, total: amount, payment_id: paymentId, payment_method: method, status: 'pending' }) });
+cart = [];
+document.getElementById('cartCount').textContent = 0;
 } else if (paymentType === 'donation') {
-await fetch('/api/donations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_name: name, user_email: email, user_phone: phone, type: donationType, amount, payment_id: paymentId, payment_method: method, status: 'pending' }) });
+await fetch('/api/donations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_name: name, user_email: email, user_phone: phone, type: donationType, amount: amount, payment_id: paymentId, payment_method: method, status: 'pending' }) });
 }
-} catch (error) { console.error('Erro salvar:', error); }
+} catch (error) { console.error('❌ Erro ao salvar:', error); }
 }
 
 async function checkPaymentStatus(paymentId) {
 try {
-showNotification('🔄 Verificando...', 'info');
-const response = await fetch('/api/check-payment/' + paymentId);
+showNotification('🔄 Verificando status...', 'info');
+const response = await fetch('/api/check-payment/' + paymentId, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } });
+const contentType = response.headers.get('content-type');
+if (!contentType || !contentType.includes('application/json')) {
+const altResponse = await fetch('/api/payment-status/' + paymentId, { headers: { 'Accept': 'application/json' } });
+if (!altResponse.ok) throw new Error('Não foi possível verificar o status.');
+const altData = await altResponse.json();
+return await processPaymentStatus(altData, paymentId);
+}
 const data = await response.json();
 return await processPaymentStatus(data, paymentId);
 } catch (error) { showNotification('❌ Erro: ' + error.message, 'error'); return null; }
 }
+
 async function processPaymentStatus(data, paymentId) {
 if (data.status === 'approved') {
-showNotification('✅ Pagamento confirmado! 🙏', 'success');
-await fetch('/api/update-payment-status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ payment_id: paymentId, status: 'approved' }) });
+showNotification('✅ Pagamento confirmado! Obrigado! 🙏', 'success');
+await fetch('/api/update-payment-status', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ payment_id: paymentId, status: 'approved' }) });
+localStorage.removeItem('last_payment_id');
 if (statusCheckInterval) { clearInterval(statusCheckInterval); statusCheckInterval = null; }
 setTimeout(() => { closeModal('paymentModal'); if (paymentType === 'sale') { cart = []; document.getElementById('cartCount').textContent = 0; } }, 2000);
 return true;
-} else if (data.status === 'pending' || data.status === 'in_process') {
-showNotification('⏳ Aguarde...', 'info'); return false;
-} else {
-showNotification('❌ ' + data.status, 'error'); return false;
+} else if (data.status === 'pending' || data.status === 'in_process') { showNotification('⏳ Aguarde...', 'info'); return false; }
+else if (data.status === 'rejected' || data.status === 'cancelled') { showNotification('❌ Recusado.', 'error'); if (statusCheckInterval) { clearInterval(statusCheckInterval); statusCheckInterval = null; } return false; }
+else { showNotification('ℹ️ Status: ' + data.status, 'info'); return false; }
 }
-}
+
 function verificarStatusAutomatico(paymentId) {
 let tentativas = 0;
-if (statusCheckInterval) clearInterval(statusCheckInterval);
+const maxTentativas = 12;
+showNotification('🔄 Aguardando confirmação...', 'info');
+if (statusCheckInterval) { clearInterval(statusCheckInterval); statusCheckInterval = null; }
 statusCheckInterval = setInterval(async () => {
 tentativas++;
 try {
-const r = await fetch('/api/check-payment/' + paymentId);
-const data = await r.json();
+const response = await fetch('/api/check-payment/' + paymentId, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } });
+if (!response.ok) { if (tentativas >= maxTentativas) { clearInterval(statusCheckInterval); statusCheckInterval = null; showNotification('⏳ Use "Verificar Status"', 'info'); } return; }
+const data = await response.json();
 if (data.status === 'approved') {
 clearInterval(statusCheckInterval); statusCheckInterval = null;
 showNotification('✅ Confirmado! 🙏', 'success');
 await fetch('/api/update-payment-status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ payment_id: paymentId, status: 'approved' }) });
+localStorage.removeItem('last_payment_id');
 setTimeout(() => { closeModal('paymentModal'); if (paymentType === 'sale') { cart = []; document.getElementById('cartCount').textContent = 0; } }, 1500);
 } else if (data.status === 'rejected' || data.status === 'cancelled') {
 clearInterval(statusCheckInterval); statusCheckInterval = null;
-showNotification('❌ Recusado', 'error');
+showNotification('❌ Recusado.', 'error');
 }
-} catch (e) {
-if (tentativas >= 12) { clearInterval(statusCheckInterval); statusCheckInterval = null; showNotification('⏳ Use Verificar Status', 'info'); }
+} catch (error) {
+if (tentativas >= maxTentativas) { clearInterval(statusCheckInterval); statusCheckInterval = null; showNotification('⏳ Use "Verificar Status"', 'info'); }
 }
 }, 5000);
 }
@@ -1875,16 +1693,17 @@ const email = document.getElementById('payEmail').value.trim();
 const phone = document.getElementById('payPhone').value.trim();
 const cpf = document.getElementById('payCpf').value.trim();
 const method = document.getElementById('payMethod').value;
-if (!name || !email || !phone || !cpf) { showNotification('Preencha os dados!', 'error'); return; }
+if (!name || !email || !phone || !cpf) { showNotification('Preencha todos os dados!', 'error'); return; }
 let amount = 0, description = '';
-if (paymentType === 'sale') { amount = cart.reduce((s, p) => s + parseFloat(p.price), 0); description = 'Compra NJ Store'; }
-else { amount = _donationAmount || 0; description = donationType; }
+if (paymentType === 'sale') { amount = cart.reduce((sum, p) => sum + parseFloat(p.price), 0); description = 'Compra NJ Store'; }
+else if (paymentType === 'donation') { amount = _donationAmount || 0; description = donationType + ' - NJ Cabuçu'; }
 if (amount <= 0) { showNotification('Valor inválido!', 'error'); return; }
 if (!validarCPF(cpf)) { showNotification('CPF inválido!', 'error'); return; }
 try {
 showNotification('🔄 Processando...', 'info');
 if (method === 'pix') {
-const response = await fetch('/api/create-pix-payment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount, description, email, name, phone, cpf, paymentType }) });
+const paymentData = { amount, description, email, name, phone, cpf, paymentType };
+const response = await fetch('/api/create-pix-payment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(paymentData) });
 const payment = await response.json();
 if (payment.error) throw new Error(payment.error);
 await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'pix', description);
@@ -1892,18 +1711,23 @@ const resultDiv = document.getElementById('paymentResult');
 resultDiv.style.display = 'block';
 document.getElementById('paymentForm').style.display = 'none';
 let qrHtml = '<h3 style="color:var(--primary);margin-bottom:0.6rem;font-family:\'Playfair Display\',serif;">✅ PIX Gerado</h3><div style="text-align:center;padding:0.5rem;">';
-if (payment.qr_code_base64) qrHtml += '<img src="data:image/png;base64,' + payment.qr_code_base64 + '" style="max-width:180px;margin:0 auto;display:block;border-radius:8px;"><p style="margin:0.4rem 0;font-size:0.8rem;">Escaneie o QR Code</p>';
-if (payment.qr_code) qrHtml += '<div style="background:#f4f6fc;padding:0.4rem;border-radius:8px;word-break:break-all;font-size:0.7rem;margin:0.4rem 0;border:1px solid #e0e0e0;"><strong>Código:</strong><br>' + payment.qr_code + '</div><button onclick="navigator.clipboard.writeText(\'' + payment.qr_code + '\')" class="btn btn-primary btn-sm" style="margin:0.2rem;font-size:0.7rem;"><i class="fas fa-copy"></i> Copiar</button>';
-qrHtml += '<div style="display:flex;gap:0.4rem;justify-content:center;margin-top:0.4rem;flex-wrap:wrap;"><button onclick="checkPaymentStatus(\'' + payment.payment_id + '\')" class="btn btn-primary btn-sm" style="font-size:0.7rem;"><i class="fas fa-sync"></i> Verificar</button><button onclick="closeModal(\'paymentModal\')" class="btn btn-sm" style="border:2px solid #888;color:#888;background:transparent;padding:0.2rem 0.8rem;border-radius:50px;cursor:pointer;font-size:0.7rem;"><i class="fas fa-check"></i> Concluir</button></div></div>';
+if (payment.qr_code_base64) qrHtml += '<img src="data:image/png;base64,' + payment.qr_code_base64 + '" style="max-width:160px;margin:0 auto;display:block;border-radius:8px;"><p style="margin:0.3rem 0;font-size:0.75rem;">Escaneie o QR Code</p>';
+if (payment.qr_code) qrHtml += '<div style="background:#f4f6fc;padding:0.3rem;border-radius:8px;word-break:break-all;font-size:0.65rem;margin:0.3rem 0;border:1px solid #e0e0e0;"><strong>Código PIX:</strong><br>' + payment.qr_code + '</div><button onclick="navigator.clipboard.writeText(\'' + payment.qr_code + '\')" class="btn btn-primary btn-sm" style="margin:0.15rem;font-size:0.65rem;"><i class="fas fa-copy"></i> Copiar</button>';
+qrHtml += '<a href="' + payment.payment_link + '" target="_blank" class="btn btn-success" style="margin:0.15rem;display:inline-flex;font-size:0.75rem;"><i class="fas fa-external-link-alt"></i> Abrir no Mercado Pago</a><p style="margin-top:0.3rem;font-size:0.65rem;color:#888;">Status: <strong>' + payment.status + '</strong></p><div style="display:flex;gap:0.4rem;justify-content:center;margin-top:0.3rem;flex-wrap:wrap;"><button onclick="checkPaymentStatus(\'' + payment.payment_id + '\')" class="btn btn-primary btn-sm" style="font-size:0.65rem;"><i class="fas fa-sync"></i> Verificar</button><button onclick="closeModal(\'paymentModal\')" class="btn btn-sm btn-outline-light" style="border:2px solid #888;color:#888;background:transparent;padding:0.1rem 0.6rem;border-radius:50px;cursor:pointer;font-size:0.65rem;"><i class="fas fa-check"></i> Concluir</button></div><p style="margin-top:0.3rem;font-size:0.6rem;color:#999;">⏳ Aguardando pagamento...</p></div>';
 resultDiv.innerHTML = qrHtml;
+localStorage.setItem('last_payment_id', payment.payment_id);
 verificarStatusAutomatico(payment.payment_id);
 } else {
 const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
 const cardExpiry = document.getElementById('cardExpiry').value;
 const cardCvv = document.getElementById('cardCvv').value;
 const installments = document.getElementById('cardInstallments').value;
-if (!cardNumber || !cardExpiry || !cardCvv) { showNotification('Preencha o cartão!', 'error'); return; }
-const response = await fetch('/api/create-card-payment-fallback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount, description, email, name, phone, cpf, card_number: cardNumber, card_expiry: cardExpiry, card_cvv: cardCvv, installments: parseInt(installments) }) });
+if (!cardNumber || !cardExpiry || !cardCvv) { showNotification('Preencha os dados do cartão!', 'error'); return; }
+if (cardNumber.length < 16) { showNotification('Cartão inválido', 'error'); return; }
+if (!cardExpiry.includes('/') || cardExpiry.length < 5) { showNotification('Validade inválida', 'error'); return; }
+if (cardCvv.length < 3) { showNotification('CVV inválido', 'error'); return; }
+const paymentData = { amount, description, email, name, phone, cpf, card_number: cardNumber, card_expiry: cardExpiry, card_cvv: cardCvv, installments: parseInt(installments) };
+const response = await fetch('/api/create-card-payment-fallback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(paymentData) });
 const payment = await response.json();
 if (payment.error) throw new Error(payment.error);
 await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'card', description);
@@ -1920,27 +1744,19 @@ const messageDiv = document.getElementById('prayerMessage');
 if (!request) { showNotification('Digite seu pedido!', 'error'); return; }
 try {
 const response = await fetch('/api/prayers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, request }) });
-if (!response.ok) throw new Error('Erro');
+if (!response.ok) throw new Error('Erro ao enviar');
 messageDiv.className = 'notification success';
-messageDiv.textContent = '✅ Pedido enviado! Deus abençoe! 🙏';
+messageDiv.textContent = '✅ Pedido de oração enviado! Deus te abençoe! 🙏';
 messageDiv.style.display = 'block';
 document.getElementById('prayerRequest').value = '';
 setTimeout(() => { messageDiv.style.display = 'none'; }, 5000);
 } catch (error) { showNotification('❌ Erro: ' + error.message, 'error'); }
 }
 
-async function loadDepartmentsForRegistration() {
-try { const res = await fetch('/api/departments/active'); departmentsList = await res.json(); return departmentsList; }
-catch (e) { return []; }
-}
-async function loadEventsForRegistration() {
-try { const res = await fetch('/api/events/active'); eventsList = await res.json(); return eventsList; }
-catch (e) { return []; }
-}
-async function loadBaptismDatesForRegistration() {
-try { const res = await fetch('/api/baptism-dates'); baptismDatesList = await res.json(); return baptismDatesList; }
-catch (e) { return []; }
-}
+async function loadDepartmentsForRegistration() { try { const res = await fetch('/api/departments/active'); departmentsList = await res.json(); return departmentsList; } catch (e) { return []; } }
+async function loadEventsForRegistration() { try { const res = await fetch('/api/events/active'); eventsList = await res.json(); return eventsList; } catch (e) { return []; } }
+async function loadBaptismDatesForRegistration() { try { const res = await fetch('/api/baptism-dates'); baptismDatesList = await res.json(); return baptismDatesList; } catch (e) { return []; } }
+
 async function showRegistration(type) {
 const container = document.getElementById('registrationForm');
 const resultDiv = document.getElementById('registrationResult');
@@ -1962,22 +1778,29 @@ html += '<div style="margin-bottom:0.8rem;"><label style="display:block;font-wei
 html += '<div style="margin-bottom:0.8rem;"><label style="display:block;font-weight:600;margin-bottom:0.2rem;font-size:0.85rem;">Data do Batismo *</label><select id="regBaptismDate" style="width:100%;padding:0.7rem 1rem;border:2px solid #e8ecf2;border-radius:var(--radius-sm);font-size:0.9rem;font-family:var(--font);background:#fafbff;"><option value="">Selecione</option>';
 if (baptismDatesList && baptismDatesList.length > 0) {
 baptismDatesList.forEach(d => {
-const df = new Date(d.date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric' });
-html += '<option value="' + d.id + '">' + (d.title || 'Batismo') + ' — ' + df + '</option>';
+const df = new Date(d.date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
+const pt = d.current_participants || 0;
+const max = d.max_participants || 20;
+const disp = pt < max;
+html += '<option value="' + d.id + '" ' + (!disp ? 'disabled' : '') + '>' + (d.title || 'Batismo') + ' — ' + df + ' (' + pt + '/' + max + ') ' + (disp ? '✅' : '❌') + '</option>';
 });
-} else { html += '<option value="" disabled>Nenhuma data disponível</option>'; }
+} else { html += '<option value="" disabled>Nenhuma data</option>'; }
 html += '</select></div>';
 }
 if (type === 'volunteer' || type === 'department') {
 html += '<div style="margin-bottom:0.8rem;"><label style="display:block;font-weight:600;margin-bottom:0.2rem;font-size:0.85rem;">Departamento *</label><select id="regDepartmentSelect" style="width:100%;padding:0.7rem 1rem;border:2px solid #e8ecf2;border-radius:var(--radius-sm);font-size:0.9rem;font-family:var(--font);background:#fafbff;"><option value="">Selecione</option>';
 if (departmentsList && departmentsList.length > 0) departmentsList.forEach(d => { html += '<option value="' + d.id + '">' + d.name + '</option>'; });
+else html += '<option value="" disabled>Nenhum</option>';
 html += '</select></div>';
+if (type === 'volunteer') {
+html += '<div style="margin-bottom:0.8rem;"><label style="display:block;font-weight:600;margin-bottom:0.2rem;font-size:0.85rem;">Disponibilidade</label><input type="text" id="regAvailability" placeholder="Ex: Finais de semana" style="width:100%;padding:0.7rem 1rem;border:2px solid #e8ecf2;border-radius:var(--radius-sm);font-size:0.9rem;font-family:var(--font);background:#fafbff;"></div>';
+}
 }
 if (type === 'event') {
 html += '<div style="margin-bottom:0.8rem;"><label style="display:block;font-weight:600;margin-bottom:0.2rem;font-size:0.85rem;">Evento *</label><select id="regEventSelect" style="width:100%;padding:0.7rem 1rem;border:2px solid #e8ecf2;border-radius:var(--radius-sm);font-size:0.9rem;font-family:var(--font);background:#fafbff;"><option value="">Selecione</option>';
 if (eventsList && eventsList.length > 0) {
 eventsList.forEach(e => {
-const df = new Date(e.date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric' });
+const df = new Date(e.date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
 const pt = parseFloat(e.price || 0) > 0 ? 'R$ ' + parseFloat(e.price).toFixed(2) : 'Grátis';
 html += '<option value="' + e.id + '" data-price="' + (e.price || 0) + '">' + e.title + ' — ' + df + ' (' + pt + ')</option>';
 });
@@ -1998,46 +1821,79 @@ const notes = document.getElementById('regNotes')?.value.trim() || '';
 const resultDiv = document.getElementById('registrationResult');
 if (!name || !email || !phone) { showNotification('⚠️ Preencha os campos obrigatórios!', 'error'); return; }
 if (!email.includes('@')) { showNotification('⚠️ E-mail inválido!', 'error'); return; }
-let data = { type, name, email, phone, details: notes };
+let registrationData = { type, name, email, phone, details: notes };
 try {
 if (type === 'baptism') {
-const bd = document.getElementById('regBirthDate')?.value;
-const bid = document.getElementById('regBaptismDate')?.value;
-if (!bd || !bid) { showNotification('⚠️ Preencha todos os campos!', 'error'); return; }
-const sel = baptismDatesList.find(d => d.id == bid);
-data.birth_date = bd;
-data.baptism_date = sel.date;
-data.baptism_date_id = bid;
-data.event_name = sel.title || 'Batismo';
-data.details = 'Nasc: ' + new Date(bd).toLocaleDateString('pt-BR') + ' | Batismo: ' + new Date(sel.date).toLocaleDateString('pt-BR') + '\n' + notes;
+const birthDate = document.getElementById('regBirthDate')?.value;
+const baptismDateId = document.getElementById('regBaptismDate')?.value;
+if (!birthDate) { showNotification('⚠️ Informe sua data de nascimento!', 'error'); return; }
+if (!baptismDateId) { showNotification('⚠️ Selecione uma data!', 'error'); return; }
+const selectedDate = baptismDatesList.find(d => d.id == baptismDateId);
+if (!selectedDate) { showNotification('⚠️ Data não encontrada!', 'error'); return; }
+registrationData.birth_date = birthDate;
+registrationData.baptism_date = selectedDate.date;
+registrationData.baptism_date_id = baptismDateId;
+registrationData.event_name = selectedDate.title || 'Batismo';
+registrationData.details = 'Data de Nascimento: ' + new Date(birthDate).toLocaleDateString('pt-BR') + '\nData do Batismo: ' + new Date(selectedDate.date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' }) + '\n' + notes;
 }
-if (type === 'volunteer' || type === 'department') {
-const did = document.getElementById('regDepartmentSelect')?.value;
-if (!did) { showNotification('⚠️ Selecione o departamento!', 'error'); return; }
-const dept = departmentsList.find(d => d.id == did);
-data.department_name = dept ? dept.name : '';
-data.department_id = did;
+if (type === 'volunteer') {
+const deptId = document.getElementById('regDepartmentSelect')?.value;
+const availability = document.getElementById('regAvailability')?.value.trim() || '';
+if (!deptId) { showNotification('⚠️ Selecione um departamento!', 'error'); return; }
+const dept = departmentsList.find(d => d.id == deptId);
+registrationData.department_name = dept ? dept.name : '';
+registrationData.department_id = deptId;
+registrationData.details = 'Disponibilidade: ' + (availability || 'Não informada') + '\n' + notes;
+}
+if (type === 'department') {
+const deptId = document.getElementById('regDepartmentSelect')?.value;
+if (!deptId) { showNotification('⚠️ Selecione um departamento!', 'error'); return; }
+const dept = departmentsList.find(d => d.id == deptId);
+registrationData.department_name = dept ? dept.name : '';
+registrationData.department_id = deptId;
+registrationData.details = notes || 'Deseja participar deste departamento.';
 }
 if (type === 'event') {
-const eid = document.getElementById('regEventSelect')?.value;
-if (!eid) { showNotification('⚠️ Selecione o evento!', 'error'); return; }
-const ev = eventsList.find(e => e.id == eid);
-data.event_name = ev.title;
-data.event_id = eid;
-data.amount = parseFloat(ev.price || 0);
-data.is_paid = parseFloat(ev.price || 0) > 0 ? false : true;
+const eventId = document.getElementById('regEventSelect')?.value;
+if (!eventId) { showNotification('⚠️ Selecione um evento!', 'error'); return; }
+const event = eventsList.find(e => e.id == eventId);
+if (!event) { showNotification('⚠️ Evento não encontrado!', 'error'); return; }
+registrationData.event_name = event.title;
+registrationData.event_id = eventId;
+registrationData.amount = parseFloat(event.price || 0);
+registrationData.is_paid = parseFloat(event.price || 0) > 0 ? false : true;
+registrationData.details = 'Evento: ' + event.title + '\nData: ' + new Date(event.date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' }) + '\n' + notes;
 }
-const response = await fetch('/api/registrations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-const resData = await response.json();
-if (!response.ok) throw new Error(resData.error || 'Erro');
+const response = await fetch('/api/registrations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(registrationData) });
+const data = await response.json();
+if (!response.ok) throw new Error(data.error || 'Erro ao realizar inscrição');
 resultDiv.className = 'notification success';
-resultDiv.innerHTML = '<i class="fas fa-check-circle" style="font-size:1.3rem;display:block;margin-bottom:0.3rem;"></i><strong>✅ Inscrição realizada!</strong><p style="margin-top:0.3rem;font-size:0.85rem;">Protocolo: #' + String(resData.id).padStart(6,'0') + '</p>';
+resultDiv.innerHTML = '<i class="fas fa-check-circle" style="font-size:1.2rem;display:block;margin-bottom:0.2rem;"></i><strong>✅ Inscrição realizada com sucesso!</strong><p style="margin-top:0.2rem;font-size:0.8rem;">Protocolo: #' + String(data.id).padStart(6, '0') + '</p>';
 resultDiv.style.display = 'block';
 document.getElementById('registrationForm').style.display = 'none';
+if (type === 'event' && parseFloat(registrationData.amount || 0) > 0) {
+if (confirm('✅ Inscrição realizada! O evento é pago (R$ ' + parseFloat(registrationData.amount).toFixed(2) + '). Deseja pagar agora?')) {
+paymentType = 'donation';
+donationType = 'Inscrição Evento - ' + registrationData.event_name;
+document.getElementById('paymentTitle').textContent = '💳 Inscrição - ' + registrationData.event_name;
+document.getElementById('paymentTotal').textContent = 'Valor: R$ ' + parseFloat(registrationData.amount).toFixed(2);
+document.getElementById('paymentForm').style.display = 'block';
+document.getElementById('paymentResult').style.display = 'none';
+_donationAmount = parseFloat(registrationData.amount);
+document.getElementById('payName').value = name;
+document.getElementById('payEmail').value = email;
+document.getElementById('payPhone').value = phone;
+openModal('paymentModal');
+}
+} else {
+setTimeout(() => {
+if (confirm('✅ Deseja baixar o comprovante em PDF?')) window.open('/api/registration-pdf/' + data.id, '_blank');
+}, 500);
+}
 setTimeout(() => {
 resultDiv.style.display = 'none';
 document.getElementById('registrationForm').style.display = 'block';
-document.getElementById('registrationForm').innerHTML = '<p style="text-align:center;color:#28a745;padding:0.8rem;">✅ Inscrição concluída! Obrigado!</p>';
+document.getElementById('registrationForm').innerHTML = '<p style="text-align:center;color:#28a745;padding:0.6rem;">✅ Inscrição concluída! Obrigado!</p>';
 }, 8000);
 } catch (error) {
 resultDiv.className = 'notification error';
@@ -2046,8 +1902,7 @@ resultDiv.style.display = 'block';
 }
 }
 
-function showNotification(message, type) {
-type = type || 'info';
+function showNotification(message, type = 'info') {
 const div = document.createElement('div');
 div.className = 'notification ' + type;
 div.textContent = message;
@@ -2072,11 +1927,14 @@ document.querySelectorAll('.fab').forEach(f => f.style.display = 'none');
 const returnPage = document.getElementById('paymentReturnPage');
 returnPage.style.display = 'block';
 let icon = '⏳', title = 'Aguardando', message = 'Processando pagamento...', statusText = 'Pendente';
-if (status === 'approved') { icon = '✅'; title = 'Confirmado!'; message = 'Obrigado! Deus abençoe! 🙏'; statusText = 'Aprovado'; }
-else if (status === 'rejected') { icon = '❌'; title = 'Recusado'; message = 'Pagamento não aprovado.'; statusText = 'Recusado'; }
+let msgClass = 'pending';
+if (status === 'approved') { icon = '✅'; title = 'Pagamento Confirmado!'; message = 'Obrigado! Deus abençoe! 🙏'; msgClass = 'success'; statusText = 'Aprovado'; }
+else if (status === 'rejected') { icon = '❌'; title = 'Pagamento Recusado'; message = 'Pagamento não aprovado.'; msgClass = 'error'; statusText = 'Recusado'; }
 document.getElementById('returnIcon').textContent = icon;
+document.getElementById('returnIcon').style.color = msgClass === 'success' ? '#28a745' : msgClass === 'error' ? '#dc3545' : '#c9a84c';
 document.getElementById('returnTitle').textContent = title;
 document.getElementById('returnMessage').textContent = message;
+document.getElementById('returnMessageBox').className = 'message-box ' + msgClass;
 document.getElementById('returnStatusText').textContent = statusText;
 document.getElementById('returnPaymentId').textContent = paymentId || '-';
 } else {

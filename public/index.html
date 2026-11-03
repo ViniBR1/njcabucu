@@ -50,7 +50,7 @@
             --header-h: 66px;
             --max-width: 1200px;
             --fab-bottom: 28px;
-            /* ===== NOVO PADRÃO DARK/BLACK PARA BOTÕES ===== */
+            /* ===== NOVO PADRÃO DARK/BLACK ===== */
             --btn-dark-bg: linear-gradient(135deg, #0b1220, #1e293b);
             --btn-dark-hover: linear-gradient(135deg, #1a2333, #2d3f57);
             --btn-dark-border: rgba(255,255,255,.1);
@@ -71,7 +71,7 @@
         ::-webkit-scrollbar-track { background: #eef2f8; }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 
-        /* ===== SPLASH SCREEN (2s) ===== */
+        /* ===== SPLASH SCREEN ===== */
         #splashScreen {
             position: fixed; inset: 0; z-index: 999999;
             background: #000;
@@ -79,9 +79,7 @@
             flex-direction: column; gap: 1.5rem;
             transition: opacity .6s cubic-bezier(.4,0,.2,1), visibility .6s;
         }
-        #splashScreen.hidden {
-            opacity: 0; visibility: hidden; pointer-events: none;
-        }
+        #splashScreen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
         .splash-logo {
             width: 120px; height: 120px; border-radius: 28px;
             background: linear-gradient(135deg, #1565C0, #0D47A1);
@@ -114,14 +112,8 @@
             background: linear-gradient(90deg, #1565C0, #60a5fa);
             border-radius: 3px; animation: splashLoad 1.4s ease-in-out infinite;
         }
-        @keyframes splashLoad {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(350%); }
-        }
-        @keyframes splashFade {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes splashLoad { 0% { transform: translateX(-100%); } 100% { transform: translateX(350%); } }
+        @keyframes splashFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* ===== PWA ===== */
         .install-banner {
@@ -151,8 +143,12 @@
         .install-banner .btn-install:hover { background: #e2e8f0; transform: scale(1.02); }
         .install-banner .btn-close-banner { background: transparent; color: rgba(255,255,255,.5); border: none; padding: 8px; cursor: pointer; font-size: 18px; transition: all .2s; }
         .install-banner .btn-close-banner:hover { color: #fff; transform: rotate(90deg); }
+
+        /* ===== INSTALL FAB — AGORA ABAIXO DOS OUTROS FABS ===== */
         .install-fab {
-            position: fixed; bottom: 24px; right: 24px;
+            position: fixed;
+            bottom: calc(var(--fab-bottom) + 198px); /* abaixo dos 3 FABs (WhatsApp, Oração, Doação) */
+            right: 24px;
             background: linear-gradient(135deg, #0b1220, #1e293b); color: #fff; border: none;
             padding: 14px 24px; border-radius: 50px; font-weight: 600; font-size: 14px;
             cursor: pointer; box-shadow: 0 8px 30px rgba(0,0,0,.35); z-index: 99998;
@@ -173,9 +169,11 @@
         @media (max-width: 768px) {
             .install-banner { padding: 14px 16px; flex-direction: column; align-items: stretch; }
             .install-banner .banner-actions { justify-content: flex-end; width: 100%; }
-            .install-fab { bottom: 16px; right: 16px; padding: 12px 18px; font-size: 13px; }
+            .install-fab {
+                bottom: calc(20px + 198px); /* alinhado com mobile: fab-whatsapp=20, prayer=76, donation=132 */
+                right: 14px; padding: 12px 18px; font-size: 13px;
+            }
         }
-        /* ===== FIM PWA ===== */
 
         /* ===== HEADER ===== */
         .header {
@@ -218,7 +216,7 @@
         .btn-live { background: #ff0000; color: #fff; animation: pulse-live 1.5s infinite; }
         @keyframes pulse-live { 0%,100% { opacity: 1; } 50% { opacity: .65; } }
 
-        /* ===== NOVO: BOTÃO PADRÃO DARK/BLACK (usado em Inscrições e Loja) ===== */
+        /* ===== BOTÃO PADRÃO DARK/BLACK ===== */
         .btn-dark {
             background: var(--btn-dark-bg);
             color: #fff;
@@ -294,25 +292,14 @@
             padding-top: calc(var(--header-h) + 34px);
             padding-bottom: 0;
         }
-        .hero-wrap {
-            max-width: 100%;
-            margin: 0;
-            padding: 0;
-            background: #000;
-        }
+        .hero-wrap { max-width: 100%; margin: 0; padding: 0; background: #000; }
         .hero {
             position: relative; width: 100%;
             aspect-ratio: 16 / 9;
             max-height: 620px;
-            overflow: hidden;
-            border-radius: 0;
-            background: #000;
-            isolation: isolate;
+            overflow: hidden; border-radius: 0; background: #000; isolation: isolate;
         }
-        .hero-slides {
-            display: flex; height: 100%;
-            transition: transform .85s cubic-bezier(.65,0,.35,1);
-        }
+        .hero-slides { display: flex; height: 100%; transition: transform .85s cubic-bezier(.65,0,.35,1); }
         .hero-slide {
             min-width: 100%; height: 100%; position: relative;
             display: flex; align-items: flex-end; justify-content: flex-start;
@@ -320,9 +307,7 @@
         }
         .hero-slide .bg-image {
             position: absolute; inset: 0; width: 100%; height: 100%;
-            object-fit: contain;
-            object-position: center;
-            background: #000;
+            object-fit: contain; object-position: center; background: #000;
         }
         .hero-slide .overlay {
             position: absolute; inset: 0;
@@ -430,9 +415,7 @@
 
         /* ===== QUICK SERVICES ===== */
         .services-quick { margin: 1.2rem auto 1.6rem; max-width: var(--max-width); padding: 0 1rem; }
-        .services-grid {
-            display: grid; grid-template-columns: repeat(5, 1fr); gap: .6rem;
-        }
+        .services-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: .6rem; }
         .service-item {
             position: relative; display: flex; flex-direction: column; align-items: center;
             justify-content: center; gap: .35rem; padding: 1rem .5rem;
@@ -455,11 +438,35 @@
         .service-item:hover .icon { background: var(--primary-gradient); color: #fff; transform: scale(1.05); }
         .service-item h4 { font-size: .72rem; font-weight: 700; margin: 0; text-align: center; letter-spacing: -.2px; }
         .service-item p { font-size: .55rem; color: var(--muted); margin: 0; }
-        .service-item.store { background: linear-gradient(135deg,#fff7ed,#ffedd5); border-color: #fed7aa; }
-        .service-item.store .icon { background: linear-gradient(135deg,#f59e0b,#d97706); color: #fff; }
-        .service-item.inscricoes { background: linear-gradient(135deg,#f0fdf4,#dcfce7); border-color: #bbf7d0; }
-        .service-item.inscricoes .icon { background: linear-gradient(135deg,#22c55e,#16a34a); color: #fff; }
-        .service-item.inscricoes h4 { color: #166534; }
+
+        /* ===== INSCRIÇÕES + NJ STORE — PADRÃO DARK/BLACK ===== */
+        .service-item.inscricoes {
+            background: linear-gradient(135deg, #0b1220, #1e293b);
+            border: 1px solid rgba(255,255,255,.1);
+            color: #fff;
+        }
+        .service-item.inscricoes .icon {
+            background: linear-gradient(135deg, #334155, #475569);
+            color: #fff;
+        }
+        .service-item.inscricoes h4 { color: #fff; }
+        .service-item.inscricoes p { color: rgba(255,255,255,.6); }
+        .service-item.inscricoes:hover { transform: translateY(-4px); box-shadow: var(--btn-dark-shadow-hover); border-color: rgba(255,255,255,.25); }
+        .service-item.inscricoes:hover .icon { background: linear-gradient(135deg, #60a5fa, #3b82f6); color: #fff; }
+
+        .service-item.store {
+            background: linear-gradient(135deg, #0b1220, #1e293b);
+            border: 1px solid rgba(255,255,255,.1);
+            color: #fff;
+        }
+        .service-item.store .icon {
+            background: linear-gradient(135deg, #334155, #475569);
+            color: #fff;
+        }
+        .service-item.store h4 { color: #fff; }
+        .service-item.store p { color: rgba(255,255,255,.6); }
+        .service-item.store:hover { transform: translateY(-4px); box-shadow: var(--btn-dark-shadow-hover); border-color: rgba(255,255,255,.25); }
+        .service-item.store:hover .icon { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
 
         /* ===== SECTION BASE ===== */
         .section { max-width: var(--max-width); margin: 2.6rem auto; padding: 0 1rem; scroll-margin-top: 110px; }
@@ -511,6 +518,81 @@
             transition: transform .5s ease;
         }
         .card:hover .card-image-wrapper img { transform: scale(1.06); }
+
+        /* ===== INSCRIÇÕES — NOVOS CARDS PROFISSIONAIS ===== */
+        .registration-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.2rem;
+            margin-bottom: 1.6rem;
+        }
+        .reg-card {
+            position: relative;
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 1.6rem 1.3rem 1.4rem;
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .reg-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+            border-radius: var(--radius) var(--radius) 0 0;
+            opacity: .9;
+        }
+        .reg-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(13,71,161,.25);
+        }
+        .reg-card-icon {
+            width: 52px; height: 52px;
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.25rem; color: #fff;
+            margin-bottom: .9rem;
+            box-shadow: 0 6px 20px rgba(0,0,0,.15);
+            transition: var(--transition);
+        }
+        .reg-card:hover .reg-card-icon { transform: scale(1.08) rotate(-3deg); }
+        .reg-card-icon.baptism { background: linear-gradient(135deg, #0ea5e9, #0284c7); }
+        .reg-card-icon.volunteer { background: linear-gradient(135deg, #22c55e, #16a34a); }
+        .reg-card-icon.event { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .reg-card-icon.department { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .reg-card h3 {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: .3rem;
+            letter-spacing: -.2px;
+        }
+        .reg-card p {
+            font-size: .78rem;
+            color: var(--ink-soft);
+            line-height: 1.55;
+            flex: 1;
+            margin-bottom: 1rem;
+        }
+        .reg-card .reg-card-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            font-size: .6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: var(--muted);
+            margin-bottom: .6rem;
+        }
+        .reg-card .reg-card-badge i { color: var(--primary); }
+        .reg-card .btn-dark { width: 100%; margin-top: auto; }
 
         /* ===== ESTUDOS ===== */
         .study-card {
@@ -835,6 +917,12 @@
             .service-item h4 { font-size: .65rem; }
             .service-item p { display: none; }
 
+            .registration-cards { grid-template-columns: 1fr 1fr; gap: .8rem; }
+            .reg-card { padding: 1.2rem 1rem; }
+            .reg-card-icon { width: 44px; height: 44px; font-size: 1.05rem; }
+            .reg-card h3 { font-size: .9rem; }
+            .reg-card p { font-size: .72rem; }
+
             .countdown-bar .countdown-timer { font-size: .85rem; gap: .35rem; }
             .countdown-bar .countdown-timer .time-block { min-width: 48px; padding: .3rem .5rem; }
             .countdown-bar .countdown-timer .time-block .num { font-size: 1.1rem; }
@@ -861,6 +949,7 @@
             .hero-content h1 { font-size: 1.15rem; }
             .hero-content p { font-size: .72rem; }
             .services-grid { grid-template-columns: repeat(2, 1fr); }
+            .registration-cards { grid-template-columns: 1fr; }
             .countdown-bar { padding: .7rem .8rem; }
             .countdown-bar .countdown-timer .time-block { min-width: 42px; padding: .25rem .4rem; }
             .countdown-bar .countdown-timer .time-block .num { font-size: .95rem; }
@@ -1198,19 +1287,57 @@
         </div>
     </section>
 
+    <!-- ===== INSCRIÇÕES — NOVO LAYOUT COM CARDS PROFISSIONAIS ===== -->
     <section id="inscricoes" class="section">
         <div class="section-header">
             <span class="tag">Participe</span>
             <h2>📋 Inscrições</h2>
             <div class="line"></div>
-            <p class="subtitle">Participe das nossas atividades</p>
+            <p class="subtitle">Escolha uma das opções abaixo e faça parte</p>
         </div>
-        <div style="display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;margin-bottom:1.4rem;">
-            <button onclick="showRegistration('baptism')" class="btn-dark"><i class="fas fa-water"></i> Batismo</button>
-            <button onclick="showRegistration('volunteer')" class="btn-dark"><i class="fas fa-hands-helping"></i> Voluntário</button>
-            <button onclick="showRegistration('event')" class="btn-dark"><i class="fas fa-calendar-plus"></i> Evento</button>
-            <button onclick="showRegistration('department')" class="btn-dark"><i class="fas fa-users"></i> Departamento</button>
+
+        <div class="registration-cards">
+            <div class="reg-card">
+                <div class="reg-card-icon baptism"><i class="fas fa-water"></i></div>
+                <span class="reg-card-badge"><i class="fas fa-check-circle"></i> Disponível</span>
+                <h3>Batismo</h3>
+                <p>Dê o próximo passo na sua caminhada com Cristo. Inscreva-se para o batismo nas águas.</p>
+                <button onclick="showRegistration('baptism')" class="btn-dark btn-block">
+                    <i class="fas fa-pen"></i> Inscrever-se
+                </button>
+            </div>
+
+            <div class="reg-card">
+                <div class="reg-card-icon volunteer"><i class="fas fa-hands-helping"></i></div>
+                <span class="reg-card-badge"><i class="fas fa-check-circle"></i> Disponível</span>
+                <h3>Voluntário</h3>
+                <p>Sirva com seus dons e talentos. Faça parte da equipe que transforma vidas.</p>
+                <button onclick="showRegistration('volunteer')" class="btn-dark btn-block">
+                    <i class="fas fa-pen"></i> Inscrever-se
+                </button>
+            </div>
+
+            <div class="reg-card">
+                <div class="reg-card-icon event"><i class="fas fa-calendar-plus"></i></div>
+                <span class="reg-card-badge"><i class="fas fa-check-circle"></i> Disponível</span>
+                <h3>Evento</h3>
+                <p>Garanta sua vaga no próximo evento especial da igreja. Vagas limitadas!</p>
+                <button onclick="showRegistration('event')" class="btn-dark btn-block">
+                    <i class="fas fa-pen"></i> Inscrever-se
+                </button>
+            </div>
+
+            <div class="reg-card">
+                <div class="reg-card-icon department"><i class="fas fa-users"></i></div>
+                <span class="reg-card-badge"><i class="fas fa-check-circle"></i> Disponível</span>
+                <h3>Departamento</h3>
+                <p>Faça parte de um ministério e cresça servindo ao Senhor com a comunidade.</p>
+                <button onclick="showRegistration('department')" class="btn-dark btn-block">
+                    <i class="fas fa-pen"></i> Inscrever-se
+                </button>
+            </div>
         </div>
+
         <div id="registrationForm" style="display:none; max-width:600px; margin:0 auto;"></div>
         <div id="registrationResult" style="display:none; margin-top:.8rem;" class="text-center mt-1"></div>
     </section>
@@ -1857,7 +1984,7 @@
         }
 
         // ============================================
-        // ===== CARROSSEL (sem "NJ Cabuçu") =====
+        // ===== CARROSSEL =====
         // ============================================
         async function loadCarouselFromServer() {
             try {
@@ -1932,7 +2059,6 @@
                     (item.image_base64 ? `data:image/jpeg;base64,${item.image_base64}` :
                         'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1600&h=900&fit=crop&crop=center');
 
-                // ✅ REMOVIDO o <span class="hero-eyebrow">NJ Cabuçu</span>
                 slide.innerHTML = `
                     <img src="${imgSrc}" alt="${item.title || 'Slide'}" class="bg-image" loading="lazy">
                     <div class="overlay"></div>
@@ -2887,7 +3013,6 @@
                     })
                 });
 
-                // ✅ DISPARA O EMAIL DE CONFIRMAÇÃO
                 await dispararEmailConfirmacao(paymentId);
 
                 localStorage.removeItem('last_payment_id');
@@ -2973,7 +3098,6 @@
                             })
                         });
 
-                        // ✅ DISPARA O EMAIL DE CONFIRMAÇÃO
                         await dispararEmailConfirmacao(paymentId);
 
                         localStorage.removeItem('last_payment_id');
@@ -3190,7 +3314,6 @@
 
                     if (payment.status === 'approved') {
                         showNotification('✅ Pagamento aprovado! Obrigado! 🙏', 'success');
-                        // ✅ DISPARA O EMAIL DE CONFIRMAÇÃO
                         await dispararEmailConfirmacao(payment.payment_id);
                         cart = [];
                         document.getElementById('cartCount').textContent = 0;

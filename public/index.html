@@ -50,6 +50,12 @@
             --header-h: 66px;
             --max-width: 1200px;
             --fab-bottom: 28px;
+            /* ===== NOVO PADRÃO DARK/BLACK PARA BOTÕES ===== */
+            --btn-dark-bg: linear-gradient(135deg, #0b1220, #1e293b);
+            --btn-dark-hover: linear-gradient(135deg, #1a2333, #2d3f57);
+            --btn-dark-border: rgba(255,255,255,.1);
+            --btn-dark-shadow: 0 4px 16px rgba(0,0,0,.25);
+            --btn-dark-shadow-hover: 0 8px 28px rgba(0,0,0,.35);
         }
         html { scroll-behavior: smooth; background: #000; }
         body {
@@ -211,6 +217,37 @@
         .btn-bible { background: linear-gradient(135deg,#8B5A2B,#6d4420); color: #fff; }
         .btn-live { background: #ff0000; color: #fff; animation: pulse-live 1.5s infinite; }
         @keyframes pulse-live { 0%,100% { opacity: 1; } 50% { opacity: .65; } }
+
+        /* ===== NOVO: BOTÃO PADRÃO DARK/BLACK (usado em Inscrições e Loja) ===== */
+        .btn-dark {
+            background: var(--btn-dark-bg);
+            color: #fff;
+            border: 1px solid var(--btn-dark-border);
+            box-shadow: var(--btn-dark-shadow);
+            padding: .55rem 1.2rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: .78rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .4rem;
+            text-decoration: none;
+            font-family: var(--font);
+            letter-spacing: .2px;
+        }
+        .btn-dark:hover {
+            background: var(--btn-dark-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--btn-dark-shadow-hover);
+            border-color: rgba(255,255,255,.2);
+        }
+        .btn-dark:active { transform: translateY(0); }
+        .btn-dark i { font-size: .85rem; }
+        .btn-dark.btn-block { width: 100%; }
+        .btn-dark.btn-lg { padding: .75rem 1.6rem; font-size: .85rem; border-radius: 14px; }
 
         .btn-icon-circle {
             width: 38px; height: 38px; padding: 0; border-radius: 50%;
@@ -681,10 +718,14 @@
         .reg-btn-submit {
             width: 100%; justify-content: center; margin-top: 1rem;
             padding: .85rem 1.5rem; font-size: .88rem; border-radius: 14px;
-            background: var(--primary-gradient); box-shadow: 0 8px 24px rgba(13,71,161,.3);
-            font-weight: 700; gap: .5rem;
+            background: var(--btn-dark-bg); border: 1px solid var(--btn-dark-border);
+            box-shadow: var(--btn-dark-shadow); font-weight: 700; gap: .5rem;
         }
-        .reg-btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(13,71,161,.4); }
+        .reg-btn-submit:hover {
+            background: var(--btn-dark-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--btn-dark-shadow-hover);
+        }
 
         .modal-bible .modal-content { max-width: 760px; }
         .modal-carousel .modal-content { max-width: 640px; }
@@ -1078,7 +1119,7 @@
         </div>
         <div class="grid" id="productsList"></div>
         <div style="text-align:center;margin-top:1.4rem;">
-            <button onclick="openCart()" class="btn btn-primary" style="padding:.65rem 1.6rem;">
+            <button onclick="openCart()" class="btn-dark btn-lg">
                 <i class="fas fa-shopping-cart"></i> Ver Carrinho (<span id="cartCount">0</span>)
             </button>
         </div>
@@ -1165,10 +1206,10 @@
             <p class="subtitle">Participe das nossas atividades</p>
         </div>
         <div style="display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;margin-bottom:1.4rem;">
-            <button onclick="showRegistration('baptism')" class="btn btn-primary" style="padding:.55rem 1.2rem;"><i class="fas fa-water"></i> Batismo</button>
-            <button onclick="showRegistration('volunteer')" class="btn btn-primary" style="padding:.55rem 1.2rem;"><i class="fas fa-hands-helping"></i> Voluntário</button>
-            <button onclick="showRegistration('event')" class="btn btn-primary" style="padding:.55rem 1.2rem;"><i class="fas fa-calendar-plus"></i> Evento</button>
-            <button onclick="showRegistration('department')" class="btn btn-primary" style="padding:.55rem 1.2rem;"><i class="fas fa-users"></i> Departamento</button>
+            <button onclick="showRegistration('baptism')" class="btn-dark"><i class="fas fa-water"></i> Batismo</button>
+            <button onclick="showRegistration('volunteer')" class="btn-dark"><i class="fas fa-hands-helping"></i> Voluntário</button>
+            <button onclick="showRegistration('event')" class="btn-dark"><i class="fas fa-calendar-plus"></i> Evento</button>
+            <button onclick="showRegistration('department')" class="btn-dark"><i class="fas fa-users"></i> Departamento</button>
         </div>
         <div id="registrationForm" style="display:none; max-width:600px; margin:0 auto;"></div>
         <div id="registrationResult" style="display:none; margin-top:.8rem;" class="text-center mt-1"></div>
@@ -1373,7 +1414,7 @@
             <h3 style="color:var(--primary);margin-bottom:.8rem;"><i class="fas fa-shopping-cart"></i> Carrinho</h3>
             <div id="cartItems"><p style="text-align:center;color:#888;">Carrinho vazio</p></div>
             <div id="cartTotal" style="text-align:center;font-size:1.1rem;font-weight:800;color:var(--primary);margin:.8rem 0;"></div>
-            <button onclick="checkout()" class="btn btn-primary" style="justify-content:center;">
+            <button onclick="checkout()" class="btn-dark btn-block">
                 <i class="fas fa-credit-card"></i> Finalizar Compra
             </button>
         </div>
@@ -2327,7 +2368,7 @@
                     let fileAction = '';
                     if (s.file_base64) {
                         fileAction = `
-                            <button onclick="downloadPdf('${s.id}')" class="btn btn-primary">
+                            <button onclick="downloadPdf('${s.id}')" class="btn-dark btn-block">
                                 <i class="fas fa-file-pdf"></i> Baixar PDF
                             </button>
                         `;
@@ -2346,7 +2387,7 @@
                         }
                         
                         fileAction = `
-                            <a href="${s.file_url}" target="_blank" class="btn btn-primary" style="text-decoration:none;">
+                            <a href="${s.file_url}" target="_blank" class="btn-dark btn-block" style="text-decoration:none;">
                                 <i class="fas ${icon}"></i> ${label}
                             </a>
                         `;
@@ -2437,7 +2478,7 @@
                         <p>${e.description || ''}</p>
                         <p style="font-size:0.75rem;color:#666;margin:0.15rem 0;"><strong>Data:</strong> ${new Date(e.date).toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' })}</p>
                         <p style="font-size:0.75rem;color:#666;"><strong>Valor:</strong> ${parseFloat(e.price || 0) > 0 ? 'R$ ' + parseFloat(e.price).toFixed(2) : 'Grátis'}</p>
-                        <button onclick="registerForEvent(${e.id}, '${e.title}', ${e.price || 0})" class="btn btn-primary" style="margin-top:0.4rem; background:#28a745; font-size:0.75rem; padding:0.3rem 1rem;">
+                        <button onclick="registerForEvent(${e.id}, '${e.title}', ${e.price || 0})" class="btn-dark btn-block" style="margin-top:0.4rem;">
                             <i class="fas fa-ticket-alt"></i> Inscrever-se
                         </button>
                     </div>
@@ -2511,7 +2552,9 @@
                         <h3>${p.name}</h3>
                         <p>${p.description || ''}</p>
                         <div style="font-size:1.15rem;font-weight:800;color:var(--primary);margin:0.4rem 0;">R$ ${parseFloat(p.price).toFixed(2)}</div>
-                        <button onclick="addToCart(${p.id})" class="btn btn-primary" style="font-size:0.75rem;padding:0.3rem 1rem;"><i class="fas fa-cart-plus"></i> Comprar</button>
+                        <button onclick="addToCart(${p.id})" class="btn-dark btn-block">
+                            <i class="fas fa-cart-plus"></i> Comprar
+                        </button>
                     </div>
                 `).join('');
             } catch (e) { console.error('Erro:', e); }
@@ -3353,7 +3396,7 @@
                 html += `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Por que deseja participar? (opcional)"></textarea></div>`;
             }
 
-            html += `<button onclick="submitRegistration('${type}')" class="btn btn-primary reg-btn-submit">
+            html += `<button onclick="submitRegistration('${type}')" class="btn-dark btn-block reg-btn-submit">
                         <i class="fas fa-paper-plane"></i> Inscrever-se
                     </button>`;
             html += `</div>`;

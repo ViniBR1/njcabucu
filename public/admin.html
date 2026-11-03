@@ -2,14 +2,16 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#2563EB">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Admin - NJ Cabuçu</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
         :root {
-            /* Paleta neutra profissional */
             --primary: #2563EB;
             --primary-hover: #1D4ED8;
             --primary-soft: #EFF6FF;
@@ -31,7 +33,6 @@
             --info-soft: #ECFEFF;
             --info-border: #A5F3FC;
 
-            /* Neutros */
             --bg:        #F1F5F9;
             --surface:   #FFFFFF;
             --surface-2: #F8FAFC;
@@ -42,25 +43,21 @@
             --text-muted:#64748B;
             --text-light:#94A3B8;
             
-            /* Sombras */
             --shadow-xs: 0 1px 2px rgba(15,23,42,0.04);
             --shadow-sm: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
-            --shadow:    0 4px 6px -1px rgba(15,23,42,0.06), 0 2px 4px -1px rgba(15,23,42,0.04);
             --shadow-md: 0 10px 15px -3px rgba(15,23,42,0.08), 0 4px 6px -2px rgba(15,23,42,0.04);
             --shadow-lg: 0 20px 25px -5px rgba(15,23,42,0.10), 0 10px 10px -5px rgba(15,23,42,0.04);
             
-            /* Radius */
-            --radius-sm: 6px;
-            --radius:    10px;
-            --radius-lg: 14px;
-            --radius-xl: 18px;
+            --radius-sm: 8px;
+            --radius:    12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
             
-            /* Layout */
             --sidebar-w: 240px;
-            --header-h:  64px;
+            --header-h:  60px;
+            --bottomnav-h: 64px;
             --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             
-            /* Espaçamento (escala) */
             --sp-1: 0.25rem;
             --sp-2: 0.5rem;
             --sp-3: 0.75rem;
@@ -69,7 +66,9 @@
             --sp-6: 1.5rem;
             --sp-8: 2rem;
             --sp-10: 2.5rem;
-            --sp-12: 3rem;
+            
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-top: env(safe-area-inset-top, 0px);
         }
         html, body { overflow-x: hidden; width: 100%; }
         body {
@@ -80,6 +79,7 @@
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            overscroll-behavior-y: contain;
         }
 
         /* ============================
@@ -89,13 +89,14 @@
             position: fixed; inset: 0;
             background: rgba(255,255,255,0.85);
             backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             display: flex; align-items: center; justify-content: center;
             flex-direction: column; gap: var(--sp-4);
             z-index: 99999; transition: opacity 0.3s;
         }
         .loading-overlay.hidden { opacity: 0; pointer-events: none; }
         .loading-spinner {
-            width: 36px; height: 36px;
+            width: 40px; height: 40px;
             border: 3px solid var(--border);
             border-top-color: var(--primary);
             border-radius: 50%;
@@ -105,7 +106,7 @@
         .loading-text { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
 
         /* ============================
-           SIDEBAR
+           SIDEBAR (desktop) / DRAWER (mobile)
            ============================ */
         .sidebar {
             position: fixed;
@@ -114,8 +115,9 @@
             background: var(--surface);
             border-right: 1px solid var(--border);
             display: flex; flex-direction: column;
-            z-index: 200;
-            transition: transform 0.3s ease;
+            z-index: 300;
+            transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform;
         }
         .sidebar-header {
             height: var(--header-h);
@@ -145,9 +147,10 @@
         .sidebar-nav {
             flex: 1;
             overflow-y: auto;
-            padding: var(--sp-3) var(--sp-3);
+            padding: var(--sp-3);
             scrollbar-width: thin;
             scrollbar-color: var(--border) transparent;
+            -webkit-overflow-scrolling: touch;
         }
         .sidebar-nav::-webkit-scrollbar { width: 6px; }
         .sidebar-nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
@@ -174,10 +177,12 @@
             background: transparent;
             width: 100%;
             text-align: left;
-            transition: all 0.12s;
+            transition: background 0.15s;
             margin-bottom: 1px;
             font-family: var(--font);
+            min-height: 40px;
         }
+        .nav-item:active { background: var(--surface-2); }
         .nav-item:hover { background: var(--surface-2); color: var(--text); }
         .nav-item.active {
             background: var(--primary-soft);
@@ -220,6 +225,17 @@
             font-size: 0.65rem; color: var(--text-muted); text-transform: capitalize;
         }
 
+        .sidebar-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(15,23,42,0.4);
+            backdrop-filter: blur(2px);
+            z-index: 299;
+            opacity: 0;
+            transition: opacity 0.25s;
+        }
+        .sidebar-overlay.open { display: block; opacity: 1; }
+
         /* ============================
            MAIN CONTENT
            ============================ */
@@ -246,20 +262,18 @@
             font-size: 1.1rem; color: var(--text);
             cursor: pointer; padding: var(--sp-2);
             border-radius: var(--radius-sm);
+            width: 40px; height: 40px;
+            align-items: center; justify-content: center;
         }
-        .topbar-menu:hover { background: var(--surface-2); }
+        .topbar-menu:active { background: var(--surface-2); }
         .topbar-breadcrumb {
             flex: 1; min-width: 0;
             display: flex; align-items: center; gap: var(--sp-2);
-            font-size: 0.85rem;
         }
         .topbar-breadcrumb .page-title {
             font-weight: 600; color: var(--text);
             font-size: 0.95rem;
-        }
-        .topbar-breadcrumb .page-sub {
-            color: var(--text-muted);
-            font-size: 0.75rem;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .topbar-actions {
             display: flex; align-items: center; gap: var(--sp-2);
@@ -268,6 +282,7 @@
         .content {
             flex: 1;
             padding: var(--sp-6);
+            padding-bottom: calc(var(--sp-6) + var(--bottomnav-h) + var(--safe-bottom));
             max-width: 1600px;
             width: 100%;
             margin: 0 auto;
@@ -313,15 +328,19 @@
             border-radius: var(--radius);
             border: 1px solid var(--border);
             box-shadow: var(--shadow-xs);
-            transition: all 0.15s;
+            transition: transform 0.15s, box-shadow 0.15s;
             cursor: pointer;
             position: relative;
             overflow: hidden;
+            min-height: 110px;
         }
-        .stat-card:hover {
-            box-shadow: var(--shadow-sm);
-            border-color: var(--border-2);
-            transform: translateY(-1px);
+        .stat-card:active { transform: scale(0.98); }
+        @media (hover: hover) {
+            .stat-card:hover {
+                box-shadow: var(--shadow-sm);
+                border-color: var(--border-2);
+                transform: translateY(-1px);
+            }
         }
         .stat-card-icon {
             width: 40px; height: 40px;
@@ -414,8 +433,11 @@
             display: inline-flex; align-items: center; justify-content: center;
             gap: var(--sp-2); line-height: 1.2;
             text-decoration: none;
+            min-height: 38px;
+            user-select: none;
         }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn:active { transform: scale(0.97); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
         .btn-primary {
             background: var(--primary); color: #fff;
             box-shadow: 0 1px 2px rgba(37,99,235,0.2);
@@ -439,9 +461,9 @@
             border-color: transparent;
         }
         .btn-ghost:hover { background: var(--surface-2); color: var(--text); }
-        .btn-sm { padding: 0.4rem 0.7rem; font-size: 0.75rem; }
-        .btn-xs { padding: 0.3rem 0.55rem; font-size: 0.7rem; border-radius: 5px; }
-        .btn-icon { padding: 0.4rem; width: 32px; height: 32px; }
+        .btn-sm { padding: 0.4rem 0.7rem; font-size: 0.75rem; min-height: 34px; }
+        .btn-xs { padding: 0.3rem 0.55rem; font-size: 0.7rem; border-radius: 6px; min-height: 30px; }
+        .btn-icon { padding: 0.4rem; width: 36px; height: 36px; }
         .btn-block { width: 100%; }
 
         /* ============================
@@ -450,7 +472,10 @@
         .table-wrapper {
             width: 100%; overflow-x: auto;
             -webkit-overflow-scrolling: touch;
+            position: relative;
         }
+        .table-wrapper::-webkit-scrollbar { height: 6px; }
+        .table-wrapper::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 10px; }
         .table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 600px; }
         .table th {
             text-align: left;
@@ -488,6 +513,7 @@
             text-transform: capitalize;
             letter-spacing: 0.1px;
             border: 1px solid;
+            white-space: nowrap;
         }
         .status-pending  { background: var(--warning-soft); color: var(--warning); border-color: var(--warning-border); }
         .status-approved { background: var(--success-soft); color: var(--success); border-color: var(--success-border); }
@@ -501,6 +527,7 @@
             display: inline-block;
             text-transform: capitalize;
             border: 1px solid;
+            white-space: nowrap;
         }
         .badge-pastor     { background: var(--primary-soft); color: var(--primary); border-color: var(--primary-border); }
         .badge-lider      { background: var(--success-soft); color: var(--success); border-color: var(--success-border); }
@@ -529,15 +556,17 @@
         .form-group textarea,
         .form-group select {
             width: 100%;
-            padding: 0.6rem 0.8rem;
+            padding: 0.65rem 0.8rem;
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
             font-size: 0.85rem;
             font-family: var(--font);
             background: var(--surface);
             color: var(--text);
-            transition: all 0.15s;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            min-height: 42px;
         }
+        .form-group textarea { min-height: 80px; padding-top: 0.6rem; }
         .form-group input:hover,
         .form-group textarea:hover,
         .form-group select:hover { border-color: var(--border-2); }
@@ -548,7 +577,6 @@
             outline: none;
             box-shadow: 0 0 0 3px var(--primary-soft);
         }
-        .form-group textarea { min-height: 80px; resize: vertical; }
         .form-help {
             font-size: 0.72rem;
             color: var(--text-muted);
@@ -563,28 +591,34 @@
             display: none; position: fixed; inset: 0;
             background: rgba(15,23,42,0.45);
             backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
             z-index: 9999;
             align-items: center; justify-content: center;
             padding: var(--sp-4);
         }
-        .modal.open { display: flex; }
+        .modal.open { display: flex; animation: fadeIn 0.2s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .modal-content {
             background: var(--surface);
             border-radius: var(--radius-lg);
             max-width: 540px; width: 100%;
             max-height: 90vh; overflow-y: auto;
             box-shadow: var(--shadow-lg);
-            animation: modalIn 0.18s ease;
+            animation: modalIn 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-overflow-scrolling: touch;
         }
         @keyframes modalIn {
-            from { transform: scale(0.97); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+            from { transform: scale(0.95) translateY(10px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
         }
         .modal-header {
             padding: var(--sp-5) var(--sp-6);
             border-bottom: 1px solid var(--border);
             display: flex; align-items: center; justify-content: space-between;
             gap: var(--sp-3);
+            position: sticky; top: 0;
+            background: var(--surface);
+            z-index: 2;
         }
         .modal-header h3 {
             font-size: 1.05rem;
@@ -599,16 +633,18 @@
             cursor: pointer; padding: var(--sp-1);
             line-height: 1; border-radius: var(--radius-sm);
             transition: all 0.15s;
-            width: 32px; height: 32px;
+            width: 36px; height: 36px;
             display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
         }
-        .modal-close:hover { background: var(--surface-2); color: var(--text); }
+        .modal-close:active { background: var(--surface-2); }
         .modal-body { padding: var(--sp-6); }
         .modal-footer {
             padding: var(--sp-4) var(--sp-6);
             border-top: 1px solid var(--border);
             display: flex; justify-content: flex-end; gap: var(--sp-2);
             background: var(--surface-2);
+            position: sticky; bottom: 0;
         }
 
         /* ============================
@@ -616,21 +652,21 @@
            ============================ */
         .notification {
             position: fixed;
-            top: var(--sp-6);
+            top: calc(var(--sp-6) + var(--safe-top));
             left: 50%; transform: translateX(-50%);
-            padding: 0.75rem 1.1rem;
+            padding: 0.85rem 1.2rem;
             border-radius: var(--radius);
             font-weight: 500;
             z-index: 99999;
-            max-width: 440px; width: 90%;
+            max-width: 440px; width: calc(100% - 2rem);
             box-shadow: var(--shadow-md);
-            animation: slideDown 0.25s ease;
+            animation: slideDown 0.3s ease;
             font-size: 0.85rem;
             border: 1px solid;
             display: flex; align-items: center; gap: var(--sp-2);
         }
         @keyframes slideDown {
-            from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+            from { opacity: 0; transform: translateX(-50%) translateY(-15px); }
             to { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
         .notification.success { background: var(--success-soft); color: var(--success); border-color: var(--success-border); }
@@ -638,7 +674,7 @@
         .notification.info    { background: var(--primary-soft); color: var(--primary); border-color: var(--primary-border); }
 
         /* ============================
-           TABS (internas)
+           TABS INLINE
            ============================ */
         .tabs-inline {
             display: flex; gap: var(--sp-1);
@@ -648,12 +684,13 @@
             border: 1px solid var(--border);
             overflow-x: auto;
             scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
         }
         .tabs-inline::-webkit-scrollbar { display: none; }
         .tab-inline {
-            padding: 0.45rem 0.85rem;
+            padding: 0.5rem 0.9rem;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             background: transparent;
             font-size: 0.75rem;
             font-weight: 500;
@@ -663,8 +700,9 @@
             transition: all 0.12s;
             font-family: var(--font);
             display: flex; align-items: center; gap: var(--sp-2);
+            min-height: 36px;
         }
-        .tab-inline:hover { color: var(--text); }
+        .tab-inline:active { background: var(--border); }
         .tab-inline.active {
             background: var(--surface);
             color: var(--text);
@@ -750,6 +788,7 @@
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
+            -webkit-overflow-scrolling: touch;
         }
         .member-row {
             display: flex; align-items: center;
@@ -758,11 +797,12 @@
             gap: var(--sp-3);
             cursor: pointer;
             transition: background 0.1s;
+            min-height: 44px;
         }
         .member-row:hover { background: var(--surface-2); }
         .member-row.selected { background: var(--primary-soft); }
         .member-row input[type="checkbox"] {
-            width: 16px; height: 16px;
+            width: 18px; height: 18px;
             accent-color: var(--primary);
             cursor: pointer;
             flex-shrink: 0;
@@ -784,13 +824,6 @@
         /* ============================
            EXPORT PANEL
            ============================ */
-        .export-panel {
-            background: var(--surface-2);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: var(--sp-5);
-            margin-bottom: var(--sp-5);
-        }
         .export-filters {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -798,12 +831,13 @@
             margin-bottom: var(--sp-4);
         }
         .export-filters select {
-            padding: 0.55rem 0.8rem;
+            padding: 0.6rem 0.8rem;
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
             font-size: 0.8rem;
             font-family: var(--font);
             background: var(--surface);
+            min-height: 42px;
         }
 
         /* ============================
@@ -842,11 +876,7 @@
             cursor: pointer;
             transition: all 0.15s;
         }
-        .file-input-wrapper .file-label:hover {
-            border-color: var(--primary);
-            background: var(--primary-soft);
-            color: var(--primary);
-        }
+        .file-input-wrapper .file-label:active { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
         .file-input-wrapper .file-label i { font-size: 1.2rem; display: block; margin-bottom: var(--sp-2); }
         .file-input-wrapper .file-label .file-name {
             color: var(--primary);
@@ -907,12 +937,11 @@
             0%,100% { opacity: 1; }
             50% { opacity: 0.75; }
         }
-
         #captureArea {
             background: #0F172A;
             border-radius: var(--radius);
             padding: var(--sp-4);
-            min-height: 280px;
+            min-height: 220px;
             display: flex; align-items: center; justify-content: center;
             flex-direction: column; gap: var(--sp-3);
         }
@@ -924,7 +953,7 @@
         #captureArea .placeholder {
             color: #94A3B8;
             text-align: center;
-            padding: var(--sp-8);
+            padding: var(--sp-6);
         }
         #captureArea .placeholder i {
             font-size: 2.5rem;
@@ -940,49 +969,294 @@
         .birthday-today td:first-child { color: var(--danger) !important; }
 
         /* ============================
+           BOTTOM NAVIGATION (mobile)
+           ============================ */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            height: calc(var(--bottomnav-h) + var(--safe-bottom));
+            padding-bottom: var(--safe-bottom);
+            z-index: 250;
+            box-shadow: 0 -4px 12px rgba(15,23,42,0.06);
+        }
+        .bottom-nav-items {
+            display: flex;
+            height: var(--bottomnav-h);
+        }
+        .bottom-nav-item {
+            flex: 1;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 2px;
+            background: none; border: none;
+            color: var(--text-muted);
+            font-size: 0.65rem;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: var(--font);
+            transition: color 0.15s, background 0.15s;
+            padding: var(--sp-1);
+            min-height: 44px;
+            position: relative;
+        }
+        .bottom-nav-item i {
+            font-size: 1.15rem;
+            margin-bottom: 2px;
+        }
+        .bottom-nav-item:active { background: var(--surface-2); }
+        .bottom-nav-item.active {
+            color: var(--primary);
+        }
+        .bottom-nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 0 0 3px 3px;
+        }
+
+        /* ============================
            RESPONSIVO
            ============================ */
         @media (max-width: 1023px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.open { transform: translateX(0); box-shadow: var(--shadow-lg); }
+            .sidebar {
+                transform: translateX(-100%);
+                box-shadow: var(--shadow-lg);
+            }
+            .sidebar.open { transform: translateX(0); }
             .main { margin-left: 0; }
             .topbar-menu { display: flex; }
-        }
-        @media (max-width: 768px) {
-            :root { --header-h: 56px; }
-            .content { padding: var(--sp-4); }
-            .topbar { padding: 0 var(--sp-4); }
-            .page-header-left h1 { font-size: 1.2rem; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: var(--sp-3); }
-            .stat-card { padding: var(--sp-4); }
-            .stat-card .number { font-size: 1.2rem; }
-            .section-header { padding: var(--sp-4); }
-            .section-body { padding: var(--sp-4); }
-            .form-row { grid-template-columns: 1fr; }
-            .freq-layout { grid-template-columns: 1fr; }
-            .table { font-size: 0.8rem; }
-            .table th, .table td { padding: var(--sp-3); }
-            .modal-content { max-width: 100%; border-radius: var(--radius); }
-            .modal-body { padding: var(--sp-4); }
-            .modal-header { padding: var(--sp-4); }
-            .modal-footer { padding: var(--sp-3) var(--sp-4); }
-            .topbar-actions .btn span { display: none; }
-            .topbar-actions .btn { padding: 0.4rem; width: 32px; height: 32px; }
-            .bar-chart { height: 100px; gap: var(--sp-2); }
-        }
-        @media (max-width: 480px) {
-            .stats-grid { grid-template-columns: 1fr; }
+            .bottom-nav { display: block; }
         }
 
-        /* Sidebar overlay mobile */
-        .sidebar-overlay {
-            display: none;
-            position: fixed; inset: 0;
-            background: rgba(15,23,42,0.4);
-            backdrop-filter: blur(2px);
-            z-index: 199;
+        @media (max-width: 768px) {
+            :root {
+                --header-h: 56px;
+                --bottomnav-h: 62px;
+            }
+            body { font-size: 15px; }
+            .content {
+                padding: var(--sp-3);
+                padding-bottom: calc(var(--sp-3) + var(--bottomnav-h) + var(--safe-bottom) + 1rem);
+            }
+            .topbar { padding: 0 var(--sp-3); }
+            .topbar-breadcrumb .page-title { font-size: 0.9rem; }
+            .page-header {
+                margin-bottom: var(--sp-4);
+                gap: var(--sp-3);
+            }
+            .page-header-left h1 { font-size: 1.35rem; }
+            .page-header-left p { font-size: 0.78rem; }
+            .page-header-actions { width: 100%; }
+            .page-header-actions .btn { flex: 1; }
+
+            /* Stats 2 colunas no mobile */
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--sp-3);
+                margin-bottom: var(--sp-4);
+            }
+            .stat-card {
+                padding: var(--sp-4);
+                min-height: 100px;
+            }
+            .stat-card-icon {
+                width: 34px; height: 34px;
+                font-size: 0.9rem;
+                margin-bottom: var(--sp-2);
+            }
+            .stat-card .number { font-size: 1.3rem; }
+            .stat-card .label { font-size: 0.7rem; }
+
+            /* Sections */
+            .section { margin-bottom: var(--sp-4); border-radius: var(--radius); }
+            .section-header {
+                padding: var(--sp-4);
+                gap: var(--sp-2);
+            }
+            .section-header-left { gap: var(--sp-2); }
+            .section-icon { width: 32px; height: 32px; font-size: 0.8rem; }
+            .section-title { font-size: 0.92rem; }
+            .section-subtitle { font-size: 0.7rem; }
+            .section-body { padding: var(--sp-4); }
+            .section-body.tight { padding: var(--sp-3); }
+
+            /* Forms - inputs grandes para toque */
+            .form-group { margin-bottom: var(--sp-3); }
+            .form-group label { font-size: 0.78rem; margin-bottom: var(--sp-2); }
+            .form-group input,
+            .form-group textarea,
+            .form-group select {
+                font-size: 16px; /* evita zoom no iOS */
+                padding: 0.7rem 0.8rem;
+                min-height: 46px;
+            }
+            .form-group textarea { min-height: 90px; }
+            .form-row { grid-template-columns: 1fr; gap: var(--sp-3); }
+
+            /* Buttons - maiores no mobile */
+            .btn {
+                padding: 0.65rem 1rem;
+                font-size: 0.85rem;
+                min-height: 44px;
+            }
+            .btn-sm { padding: 0.5rem 0.8rem; font-size: 0.78rem; min-height: 40px; }
+            .btn-xs { padding: 0.4rem 0.65rem; font-size: 0.72rem; min-height: 36px; }
+            .btn-icon { width: 40px; height: 40px; }
+
+            /* Tables - mais compactas */
+            .table { font-size: 0.78rem; min-width: 500px; }
+            .table th, .table td { padding: var(--sp-3); }
+            .table th { font-size: 0.65rem; }
+
+            /* Modal - bottom sheet no mobile */
+            .modal {
+                padding: 0;
+                align-items: flex-end;
+            }
+            .modal-content {
+                max-width: 100%;
+                border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+                max-height: 92vh;
+                animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                padding-bottom: var(--safe-bottom);
+            }
+            @keyframes slideUp {
+                from { transform: translateY(100%); }
+                to { transform: translateY(0); }
+            }
+            .modal-header {
+                padding: var(--sp-4) var(--sp-5);
+                position: sticky; top: 0;
+            }
+            .modal-header h3 { font-size: 1rem; }
+            .modal-body { padding: var(--sp-5); }
+            .modal-footer {
+                padding: var(--sp-3) var(--sp-5);
+                padding-bottom: calc(var(--sp-3) + var(--safe-bottom));
+                flex-direction: column-reverse;
+            }
+            .modal-footer .btn { width: 100%; }
+
+            /* Freq layout */
+            .freq-layout { grid-template-columns: 1fr; gap: var(--sp-3); }
+            .freq-panel { padding: var(--sp-3); }
+            .members-scroll { max-height: 260px; }
+
+            /* Carrossel */
+            .carousel-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: var(--sp-3);
+            }
+
+            /* Sobre */
+            .about-grid { grid-template-columns: 1fr; gap: var(--sp-3); }
+
+            /* Bar chart */
+            .bar-chart {
+                height: 110px;
+                gap: var(--sp-2);
+            }
+            .bar-value { font-size: 0.6rem; }
+            .bar-label { font-size: 0.6rem; }
+
+            /* Notificação */
+            .notification {
+                top: calc(var(--header-h) + 8px);
+                font-size: 0.8rem;
+                padding: 0.75rem 1rem;
+            }
+
+            /* Capture area */
+            #captureArea { min-height: 180px; padding: var(--sp-3); }
+            #captureArea .placeholder { padding: var(--sp-4); }
+            #captureArea .placeholder i { font-size: 2rem; }
+
+            /* Export filters */
+            .export-filters { grid-template-columns: 1fr 1fr; gap: var(--sp-2); }
+            .export-filters select { font-size: 0.85rem; padding: 0.55rem 0.7rem; }
+
+            /* Logo panel */
+            .logo-preview { width: 72px; height: 72px; font-size: 1.3rem; }
+
+            /* Sidebar no mobile (drawer) */
+            .sidebar {
+                width: 280px;
+                max-width: 85vw;
+            }
+            .sidebar-header { height: 60px; }
+            .sidebar-nav { padding: var(--sp-2); }
+            .nav-item { min-height: 46px; font-size: 0.85rem; }
+            .nav-group-label { font-size: 0.65rem; }
+
+            /* Tabs inline */
+            .tab-inline { font-size: 0.75rem; padding: 0.5rem 0.8rem; }
         }
-        .sidebar-overlay.open { display: block; }
+
+        @media (max-width: 380px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .page-header-left h1 { font-size: 1.2rem; }
+            .stat-card .number { font-size: 1.2rem; }
+        }
+
+        /* Landscape em mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .modal-content { max-height: 100vh; border-radius: 0; }
+            .modal { padding: 0; align-items: stretch; }
+            .bottom-nav { display: none; }
+            .content { padding-bottom: var(--sp-4); }
+        }
+
+        /* Botão flutuante para voltar ao topo (opcional, mobile) */
+        .scroll-top {
+            position: fixed;
+            bottom: calc(var(--bottomnav-h) + var(--safe-bottom) + var(--sp-4));
+            right: var(--sp-4);
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            display: none;
+            align-items: center; justify-content: center;
+            font-size: 1rem;
+            box-shadow: var(--shadow-md);
+            z-index: 200;
+            transition: all 0.2s;
+        }
+        .scroll-top.show { display: flex; }
+        .scroll-top:active { transform: scale(0.9); }
+
+        /* Pull indicator (feedback de atualização) */
+        .pull-indicator {
+            position: fixed;
+            top: calc(var(--header-h) + var(--safe-top));
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--surface);
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            box-shadow: var(--shadow-md);
+            z-index: 150;
+            transition: transform 0.25s;
+            display: flex;
+            align-items: center;
+            gap: var(--sp-2);
+            border: 1px solid var(--border);
+        }
+        .pull-indicator.show { transform: translateX(-50%) translateY(0); }
+        .pull-indicator i { animation: spin 1s linear infinite; }
     </style>
 </head>
 <body>
@@ -1078,7 +1352,7 @@
 
     <main class="content">
 
-        <!-- ==================== DASHBOARD ==================== -->
+        <!-- DASHBOARD -->
         <div id="tab-dashboard" class="tab-content active">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1155,7 +1429,7 @@
             </div>
         </div>
 
-        <!-- ==================== LIVE ==================== -->
+        <!-- LIVE -->
         <div id="tab-live" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1172,7 +1446,7 @@
                             <div class="section-title">Status</div>
                         </div>
                     </div>
-                    <span id="liveViewers" class="text-muted"><i class="fas fa-eye"></i> 0 espectadores</span>
+                    <span id="liveViewers" class="text-muted"><i class="fas fa-eye"></i> 0</span>
                 </div>
                 <div class="section-body text-center">
                     <span id="liveIndicator" class="live-indicator"><i class="fas fa-circle"></i> OFFLINE</span>
@@ -1208,11 +1482,11 @@
                         </div>
                     </div>
                     <div style="display:flex; gap: var(--sp-2); flex-wrap: wrap; margin-top: var(--sp-2);">
-                        <button onclick="startLive()" id="startLiveBtn" class="btn btn-success"><i class="fas fa-play"></i> Iniciar Live</button>
-                        <button onclick="stopLive()" id="stopLiveBtn" class="btn btn-danger" style="display:none;"><i class="fas fa-stop"></i> Encerrar Live</button>
-                        <button onclick="toggleCamera()" class="btn btn-warning"><i class="fas fa-camera"></i> Câmera ON/OFF</button>
-                        <button onclick="switchCamera()" class="btn btn-info"><i class="fas fa-sync"></i> Trocar Câmera</button>
-                        <button onclick="toggleScreenShare()" class="btn btn-secondary"><i class="fas fa-desktop"></i> Compartilhar Tela</button>
+                        <button onclick="startLive()" id="startLiveBtn" class="btn btn-success" style="flex:1;min-width:140px;"><i class="fas fa-play"></i> Iniciar</button>
+                        <button onclick="stopLive()" id="stopLiveBtn" class="btn btn-danger" style="display:none;flex:1;min-width:140px;"><i class="fas fa-stop"></i> Encerrar</button>
+                        <button onclick="toggleCamera()" class="btn btn-warning" style="flex:1;min-width:140px;"><i class="fas fa-camera"></i> Câmera</button>
+                        <button onclick="switchCamera()" class="btn btn-info" style="flex:1;min-width:140px;"><i class="fas fa-sync"></i> Trocar</button>
+                        <button onclick="toggleScreenShare()" class="btn btn-secondary" style="flex:1;min-width:140px;"><i class="fas fa-desktop"></i> Tela</button>
                     </div>
                 </div>
             </div>
@@ -1229,7 +1503,7 @@
                 <div class="section-body flush">
                     <div class="table-wrapper">
                         <table class="table">
-                            <thead><tr><th>Título</th><th>Iniciada por</th><th>Data</th><th>Duração</th><th>Espectadores</th></tr></thead>
+                            <thead><tr><th>Título</th><th>Iniciada por</th><th>Data</th><th>Duração</th><th>Views</th></tr></thead>
                             <tbody id="liveHistoryList"></tbody>
                         </table>
                     </div>
@@ -1237,7 +1511,7 @@
             </div>
         </div>
 
-        <!-- ==================== VENDAS ==================== -->
+        <!-- VENDAS -->
         <div id="tab-vendas" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1257,7 +1531,7 @@
             </div>
         </div>
 
-        <!-- ==================== USUÁRIOS ==================== -->
+        <!-- USUÁRIOS -->
         <div id="tab-usuarios" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1265,14 +1539,14 @@
                     <p>Gerencie os usuários do sistema</p>
                 </div>
                 <div class="page-header-actions">
-                    <button onclick="openUserModal()" class="btn btn-primary"><i class="fas fa-plus"></i> Novo Usuário</button>
+                    <button onclick="openUserModal()" class="btn btn-primary"><i class="fas fa-plus"></i> Novo</button>
                 </div>
             </div>
             <div class="section">
                 <div class="section-body flush">
                     <div class="table-wrapper">
                         <table class="table">
-                            <thead><tr><th>Nome</th><th>Cargo</th><th style="width:140px;">Ações</th></tr></thead>
+                            <thead><tr><th>Nome</th><th>Cargo</th><th style="width:120px;">Ações</th></tr></thead>
                             <tbody id="usersList"></tbody>
                         </table>
                     </div>
@@ -1280,7 +1554,7 @@
             </div>
         </div>
 
-        <!-- ==================== ORAÇÕES ==================== -->
+        <!-- ORAÇÕES -->
         <div id="tab-oracoes" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1292,7 +1566,7 @@
                 <div class="section-body flush">
                     <div class="table-wrapper">
                         <table class="table">
-                            <thead><tr><th>Nome</th><th>Pedido</th><th>Status</th><th style="width:100px;">Ações</th></tr></thead>
+                            <thead><tr><th>Nome</th><th>Pedido</th><th>Status</th><th style="width:80px;">Ações</th></tr></thead>
                             <tbody id="prayersList"></tbody>
                         </table>
                     </div>
@@ -1300,7 +1574,7 @@
             </div>
         </div>
 
-        <!-- ==================== ESTUDOS ==================== -->
+        <!-- ESTUDOS -->
         <div id="tab-estudos" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1308,14 +1582,14 @@
                     <p>Materiais de estudo</p>
                 </div>
                 <div class="page-header-actions">
-                    <button onclick="openStudyModal()" class="btn btn-primary"><i class="fas fa-plus"></i> Novo Estudo</button>
+                    <button onclick="openStudyModal()" class="btn btn-primary"><i class="fas fa-plus"></i> Novo</button>
                 </div>
             </div>
             <div class="section">
                 <div class="section-body flush">
                     <div class="table-wrapper">
                         <table class="table">
-                            <thead><tr><th>Título</th><th>Imagem</th><th>PDF</th><th style="width:140px;">Ações</th></tr></thead>
+                            <thead><tr><th>Título</th><th>Imagem</th><th>PDF</th><th style="width:120px;">Ações</th></tr></thead>
                             <tbody id="studiesList"></tbody>
                         </table>
                     </div>
@@ -1323,7 +1597,7 @@
             </div>
         </div>
 
-        <!-- ==================== EVENTOS ==================== -->
+        <!-- EVENTOS -->
         <div id="tab-eventos" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1331,14 +1605,14 @@
                     <p>Agenda da igreja</p>
                 </div>
                 <div class="page-header-actions">
-                    <button onclick="openEventModal()" class="btn btn-primary"><i class="fas fa-plus"></i> Novo Evento</button>
+                    <button onclick="openEventModal()" class="btn btn-primary"><i class="fas fa-plus"></i> Novo</button>
                 </div>
             </div>
             <div class="section">
                 <div class="section-body flush">
                     <div class="table-wrapper">
                         <table class="table">
-                            <thead><tr><th>Título</th><th>Data</th><th>Valor</th><th style="width:100px;">Ações</th></tr></thead>
+                            <thead><tr><th>Título</th><th>Data</th><th>Valor</th><th style="width:80px;">Ações</th></tr></thead>
                             <tbody id="eventsList"></tbody>
                         </table>
                     </div>
@@ -1346,7 +1620,7 @@
             </div>
         </div>
 
-        <!-- ==================== PRODUTOS ==================== -->
+        <!-- PRODUTOS -->
         <div id="tab-produtos" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1354,14 +1628,14 @@
                     <p>Loja da igreja</p>
                 </div>
                 <div class="page-header-actions">
-                    <button onclick="openProductModal()" class="btn btn-primary"><i class="fas fa-plus"></i> Novo Produto</button>
+                    <button onclick="openProductModal()" class="btn btn-primary"><i class="fas fa-plus"></i> Novo</button>
                 </div>
             </div>
             <div class="section">
                 <div class="section-body flush">
                     <div class="table-wrapper">
                         <table class="table">
-                            <thead><tr><th>Nome</th><th>Preço</th><th style="width:100px;">Ações</th></tr></thead>
+                            <thead><tr><th>Nome</th><th>Preço</th><th style="width:80px;">Ações</th></tr></thead>
                             <tbody id="productsList"></tbody>
                         </table>
                     </div>
@@ -1369,7 +1643,7 @@
             </div>
         </div>
 
-        <!-- ==================== CARROSSEL ==================== -->
+        <!-- CARROSSEL -->
         <div id="tab-carousel" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1377,7 +1651,7 @@
                     <p>Imagens da página inicial</p>
                 </div>
                 <div class="page-header-actions">
-                    <button onclick="openCarouselModal()" class="btn btn-primary"><i class="fas fa-plus"></i> Nova Imagem</button>
+                    <button onclick="openCarouselModal()" class="btn btn-primary"><i class="fas fa-plus"></i> Nova</button>
                 </div>
             </div>
             <div class="section">
@@ -1387,7 +1661,7 @@
             </div>
         </div>
 
-        <!-- ==================== DOAÇÕES ==================== -->
+        <!-- DOAÇÕES -->
         <div id="tab-doacoes" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1407,7 +1681,7 @@
             </div>
         </div>
 
-        <!-- ==================== INSCRIÇÕES ==================== -->
+        <!-- INSCRIÇÕES -->
         <div id="tab-inscricoes" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1422,13 +1696,13 @@
                         <button class="tab-inline" onclick="filterRegistrations('baptism')" data-filter="baptism">Batismo</button>
                         <button class="tab-inline" onclick="filterRegistrations('volunteer')" data-filter="volunteer">Voluntários</button>
                         <button class="tab-inline" onclick="filterRegistrations('event')" data-filter="event">Eventos</button>
-                        <button class="tab-inline" onclick="filterRegistrations('department')" data-filter="department">Departamentos</button>
+                        <button class="tab-inline" onclick="filterRegistrations('department')" data-filter="department">Deptos</button>
                     </div>
                 </div>
                 <div class="section-body flush">
                     <div class="table-wrapper">
                         <table class="table">
-                            <thead><tr><th>Nome</th><th>Tipo</th><th>Evento/Depto</th><th>Status</th><th>Data</th><th style="width:180px;">Ações</th></tr></thead>
+                            <thead><tr><th>Nome</th><th>Tipo</th><th>Evento/Depto</th><th>Status</th><th>Data</th><th style="width:160px;">Ações</th></tr></thead>
                             <tbody id="registrationsList"></tbody>
                         </table>
                     </div>
@@ -1436,7 +1710,7 @@
             </div>
         </div>
 
-        <!-- ==================== DEPARTAMENTOS ==================== -->
+        <!-- DEPARTAMENTOS -->
         <div id="tab-departamentos" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1444,14 +1718,14 @@
                     <p>Departamentos da igreja</p>
                 </div>
                 <div class="page-header-actions">
-                    <button onclick="openDeptModal()" class="btn btn-primary"><i class="fas fa-plus"></i> Novo Departamento</button>
+                    <button onclick="openDeptModal()" class="btn btn-primary"><i class="fas fa-plus"></i> Novo</button>
                 </div>
             </div>
             <div class="section">
                 <div class="section-body flush">
                     <div class="table-wrapper">
                         <table class="table">
-                            <thead><tr><th>Nome</th><th>Líder</th><th style="width:100px;">Ações</th></tr></thead>
+                            <thead><tr><th>Nome</th><th>Líder</th><th style="width:80px;">Ações</th></tr></thead>
                             <tbody id="departmentsList"></tbody>
                         </table>
                     </div>
@@ -1459,7 +1733,7 @@
             </div>
         </div>
 
-        <!-- ==================== MEMBROS ==================== -->
+        <!-- MEMBROS -->
         <div id="tab-membros" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1467,14 +1741,14 @@
                     <p>Cadastro de membros</p>
                 </div>
                 <div class="page-header-actions">
-                    <button onclick="openMemberModal()" class="btn btn-primary"><i class="fas fa-plus"></i> Novo Membro</button>
+                    <button onclick="openMemberModal()" class="btn btn-primary"><i class="fas fa-plus"></i> Novo</button>
                 </div>
             </div>
             <div class="section">
                 <div class="section-body flush">
                     <div class="table-wrapper">
                         <table class="table">
-                            <thead><tr><th>Nome</th><th>Telefone</th><th>Depto</th><th style="width:140px;">Ações</th></tr></thead>
+                            <thead><tr><th>Nome</th><th>Telefone</th><th>Depto</th><th style="width:120px;">Ações</th></tr></thead>
                             <tbody id="membersList"></tbody>
                         </table>
                     </div>
@@ -1482,12 +1756,12 @@
             </div>
         </div>
 
-        <!-- ==================== FREQUÊNCIA ==================== -->
+        <!-- FREQUÊNCIA -->
         <div id="tab-frequencia" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
                     <h1>Frequência</h1>
-                    <p>Controle de presença nos cultos</p>
+                    <p>Controle de presença</p>
                 </div>
             </div>
             <div class="section">
@@ -1514,8 +1788,8 @@
                         <div class="freq-panel">
                             <div class="freq-panel-title"><i class="fas fa-users"></i> Selecionar Membros</div>
                             <div class="flex-between mb-1" style="gap: var(--sp-2);">
-                                <input type="text" id="memberSearch" placeholder="🔍 Buscar..." style="flex:1; padding:0.5rem 0.7rem; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:0.8rem;">
-                                <button onclick="toggleSelectAll()" class="btn btn-warning btn-sm" title="Selecionar todos"><i class="fas fa-check-double"></i></button>
+                                <input type="text" id="memberSearch" placeholder="🔍 Buscar..." style="flex:1; padding:0.6rem 0.7rem; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:16px; min-height:42px;">
+                                <button onclick="toggleSelectAll()" class="btn btn-warning btn-sm" title="Todos"><i class="fas fa-check-double"></i></button>
                                 <button onclick="clearSelection()" class="btn btn-secondary btn-sm" title="Limpar"><i class="fas fa-times"></i></button>
                             </div>
                             <div class="members-scroll">
@@ -1526,7 +1800,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex-center mt-1" style="font-size:0.75rem;">
+                            <div class="flex-center mt-1" style="font-size:0.75rem; flex-wrap:wrap;">
                                 <span class="badge badge-colaborador"><span id="selectedCount">0</span> selecionados</span>
                                 <span class="badge badge-fiel">Total: <span id="totalCount">0</span></span>
                             </div>
@@ -1554,7 +1828,7 @@
             </div>
         </div>
 
-        <!-- ==================== TESOURARIA (DÍZIMOS) ==================== -->
+        <!-- TESOURARIA -->
         <div id="tab-tesouraria" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1571,8 +1845,8 @@
                     <div class="section-header-left">
                         <div class="section-icon"><i class="fas fa-file-export"></i></div>
                         <div class="section-title-block">
-                            <div class="section-title">Exportar Planilha</div>
-                            <div class="section-subtitle">CSV abre no Excel/Sheets · TXT mantém acentuação</div>
+                            <div class="section-title">Exportar</div>
+                            <div class="section-subtitle">CSV ou TXT</div>
                         </div>
                     </div>
                 </div>
@@ -1580,12 +1854,12 @@
                     <div class="export-filters">
                         <select id="exportMonth">
                             <option value="">Mês: Todos</option>
-                            <option value="1">Janeiro</option><option value="2">Fevereiro</option>
-                            <option value="3">Março</option><option value="4">Abril</option>
-                            <option value="5">Maio</option><option value="6">Junho</option>
-                            <option value="7">Julho</option><option value="8">Agosto</option>
-                            <option value="9">Setembro</option><option value="10">Outubro</option>
-                            <option value="11">Novembro</option><option value="12">Dezembro</option>
+                            <option value="1">Jan</option><option value="2">Fev</option>
+                            <option value="3">Mar</option><option value="4">Abr</option>
+                            <option value="5">Mai</option><option value="6">Jun</option>
+                            <option value="7">Jul</option><option value="8">Ago</option>
+                            <option value="9">Set</option><option value="10">Out</option>
+                            <option value="11">Nov</option><option value="12">Dez</option>
                         </select>
                         <select id="exportYear"><option value="">Ano: Todos</option></select>
                         <select id="exportType">
@@ -1602,8 +1876,8 @@
                         </select>
                     </div>
                     <div style="display:flex; gap: var(--sp-2); flex-wrap: wrap;">
-                        <button onclick="exportTithes('csv')" class="btn btn-success"><i class="fas fa-file-csv"></i> Baixar CSV</button>
-                        <button onclick="exportTithes('txt')" class="btn btn-secondary"><i class="fas fa-file-alt"></i> Baixar TXT</button>
+                        <button onclick="exportTithes('csv')" class="btn btn-success" style="flex:1;min-width:120px;"><i class="fas fa-file-csv"></i> CSV</button>
+                        <button onclick="exportTithes('txt')" class="btn btn-secondary" style="flex:1;min-width:120px;"><i class="fas fa-file-alt"></i> TXT</button>
                     </div>
                 </div>
             </div>
@@ -1642,7 +1916,7 @@
             </div>
         </div>
 
-        <!-- ==================== CONTAS ==================== -->
+        <!-- CONTAS -->
         <div id="tab-contas" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1650,7 +1924,7 @@
                     <p>Gestão de despesas</p>
                 </div>
                 <div class="page-header-actions">
-                    <button onclick="openBillModal()" class="btn btn-primary"><i class="fas fa-plus"></i> Nova Conta</button>
+                    <button onclick="openBillModal()" class="btn btn-primary"><i class="fas fa-plus"></i> Nova</button>
                 </div>
             </div>
             <div class="section">
@@ -1662,7 +1936,7 @@
                 <div class="section-body flush">
                     <div class="table-wrapper">
                         <table class="table">
-                            <thead><tr><th>Descrição</th><th>Valor</th><th>Status</th><th style="width:140px;">Ações</th></tr></thead>
+                            <thead><tr><th>Descrição</th><th>Valor</th><th>Status</th><th style="width:120px;">Ações</th></tr></thead>
                             <tbody id="billsList"></tbody>
                         </table>
                     </div>
@@ -1670,7 +1944,7 @@
             </div>
         </div>
 
-        <!-- ==================== CÉLULAS ==================== -->
+        <!-- CÉLULAS -->
         <div id="tab-celulas" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1678,7 +1952,7 @@
                     <p>Grupos pequenos da igreja</p>
                 </div>
                 <div class="page-header-actions">
-                    <button onclick="openCelulaModal()" class="btn btn-primary"><i class="fas fa-plus"></i> Nova Célula</button>
+                    <button onclick="openCelulaModal()" class="btn btn-primary"><i class="fas fa-plus"></i> Nova</button>
                 </div>
             </div>
 
@@ -1686,12 +1960,12 @@
                 <div class="stat-card" style="cursor:default;">
                     <div class="stat-card-icon"><i class="fas fa-home"></i></div>
                     <div class="number" id="totalCelulasStats">0</div>
-                    <div class="label">Total de Células</div>
+                    <div class="label">Células</div>
                 </div>
                 <div class="stat-card" style="cursor:default;">
                     <div class="stat-card-icon success"><i class="fas fa-users"></i></div>
                     <div class="number" id="totalMembrosCelulaStats">0</div>
-                    <div class="label">Membros em Células</div>
+                    <div class="label">Membros</div>
                 </div>
                 <div class="stat-card" style="cursor:default;">
                     <div class="stat-card-icon info"><i class="fas fa-water"></i></div>
@@ -1704,7 +1978,7 @@
                 <div class="section-body flush">
                     <div class="table-wrapper">
                         <table class="table">
-                            <thead><tr><th>Nome</th><th>Líder</th><th>Membros</th><th>Batizados</th><th>Decisões</th><th style="width:220px;">Ações</th></tr></thead>
+                            <thead><tr><th>Nome</th><th>Líder</th><th>Membros</th><th>Batismos</th><th>Decisões</th><th style="width:180px;">Ações</th></tr></thead>
                             <tbody id="celulasList"></tbody>
                         </table>
                     </div>
@@ -1712,7 +1986,7 @@
             </div>
         </div>
 
-        <!-- ==================== ANIVERSARIANTES ==================== -->
+        <!-- ANIVERSARIANTES -->
         <div id="tab-aniversariantes" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1732,22 +2006,22 @@
             </div>
         </div>
 
-        <!-- ==================== REFLEXÕES ==================== -->
+        <!-- REFLEXÕES -->
         <div id="tab-reflexoes" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
-                    <h1>Reflexões do Pastor</h1>
+                    <h1>Reflexões</h1>
                     <p>Vídeos do YouTube</p>
                 </div>
                 <div class="page-header-actions">
-                    <button onclick="openReflectionModal()" class="btn btn-primary"><i class="fas fa-plus"></i> Nova Reflexão</button>
+                    <button onclick="openReflectionModal()" class="btn btn-primary"><i class="fas fa-plus"></i> Nova</button>
                 </div>
             </div>
             <div class="section">
                 <div class="section-body flush">
                     <div class="table-wrapper">
                         <table class="table">
-                            <thead><tr><th>Título</th><th>Descrição</th><th>Link</th><th style="width:100px;">Ações</th></tr></thead>
+                            <thead><tr><th>Título</th><th>Descrição</th><th>Link</th><th style="width:80px;">Ações</th></tr></thead>
                             <tbody id="reflectionsList"></tbody>
                         </table>
                     </div>
@@ -1755,7 +2029,7 @@
             </div>
         </div>
 
-        <!-- ==================== SOBRE NÓS ==================== -->
+        <!-- SOBRE NÓS -->
         <div id="tab-sobre" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1786,7 +2060,7 @@
             </div>
         </div>
 
-        <!-- ==================== CONFIGURAÇÕES ==================== -->
+        <!-- CONFIGURAÇÕES -->
         <div id="tab-config" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1808,7 +2082,7 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Cor Primária</label>
-                            <input type="color" id="configPrimary" value="#2563EB" onchange="saveConfig('primary_color', this.value)">
+                            <input type="color" id="configPrimary" value="#2563EB" onchange="saveConfig('primary_color', this.value)" style="min-height:50px;padding:0.3rem;">
                         </div>
                         <div class="form-group">
                             <label>Título do Site</label>
@@ -1833,20 +2107,20 @@
                     </div>
                 </div>
                 <div class="section-body">
-                    <div style="display:flex; gap: var(--sp-5); align-items:center; flex-wrap:wrap;">
+                    <div style="display:flex; gap: var(--sp-4); align-items:center; flex-wrap:wrap;">
                         <div class="logo-preview" id="currentLogoPreview">NJ</div>
-                        <div style="flex:1; min-width:220px;">
+                        <div style="flex:1; min-width:200px;">
                             <div class="file-input-wrapper">
                                 <input type="file" id="logoFileInput" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml">
                                 <div class="file-label">
                                     <i class="fas fa-cloud-upload-alt"></i>
-                                    <span>Clique para escolher uma imagem</span>
+                                    <span>Toque para escolher</span>
                                     <span class="file-name" id="logoFileName"></span>
                                 </div>
                             </div>
                             <div style="display:flex; gap: var(--sp-2); margin-top: var(--sp-3); flex-wrap:wrap;">
-                                <button onclick="uploadLogo()" class="btn btn-primary btn-sm"><i class="fas fa-save"></i> Salvar Logo</button>
-                                <button onclick="removeLogo()" class="btn btn-secondary btn-sm"><i class="fas fa-trash"></i> Remover</button>
+                                <button onclick="uploadLogo()" class="btn btn-primary btn-sm" style="flex:1;"><i class="fas fa-save"></i> Salvar</button>
+                                <button onclick="removeLogo()" class="btn btn-secondary btn-sm" style="flex:1;"><i class="fas fa-trash"></i> Remover</button>
                             </div>
                             <div id="logoStatus" class="form-help" style="margin-top: var(--sp-3);"></div>
                         </div>
@@ -1860,12 +2134,12 @@
                         <div class="section-icon"><i class="fas fa-clock"></i></div>
                         <div class="section-title-block">
                             <div class="section-title">Horários dos Cultos</div>
-                            <div class="section-subtitle">Usado no contador do site</div>
+                            <div class="section-subtitle">Contador do site</div>
                         </div>
                     </div>
                 </div>
                 <div class="section-body">
-                    <div class="form-row" style="grid-template-columns: 2fr 1fr 1fr auto; align-items:end;">
+                    <div class="form-row" style="grid-template-columns: 2fr 1fr 1fr auto; align-items:end; gap:var(--sp-2);">
                         <div class="form-group" style="margin:0;">
                             <label>Dia</label>
                             <select id="cultoDia">
@@ -1880,15 +2154,15 @@
                             <input type="number" id="cultoHora" value="18" min="0" max="23">
                         </div>
                         <div class="form-group" style="margin:0;">
-                            <label>Minuto</label>
+                            <label>Min</label>
                             <input type="number" id="cultoMinuto" value="0" min="0" max="59">
                         </div>
-                        <button onclick="addCulto()" class="btn btn-primary" style="height: 42px;"><i class="fas fa-plus"></i> Adicionar</button>
+                        <button onclick="addCulto()" class="btn btn-primary" style="min-height:46px;padding:0 1rem;"><i class="fas fa-plus"></i></button>
                     </div>
                     <div id="cultosList" style="display:flex; flex-wrap:wrap; gap: var(--sp-2); margin-top: var(--sp-4);"></div>
                     <div style="display:flex; gap: var(--sp-2); margin-top: var(--sp-4); flex-wrap:wrap;">
-                        <button onclick="saveCultos()" class="btn btn-primary"><i class="fas fa-save"></i> Salvar Horários</button>
-                        <button onclick="loadConfig()" class="btn btn-secondary"><i class="fas fa-sync"></i> Recarregar</button>
+                        <button onclick="saveCultos()" class="btn btn-primary" style="flex:1;"><i class="fas fa-save"></i> Salvar</button>
+                        <button onclick="loadConfig()" class="btn btn-secondary" style="flex:1;"><i class="fas fa-sync"></i> Recarregar</button>
                     </div>
                 </div>
             </div>
@@ -1897,9 +2171,40 @@
     </main>
 </div>
 
+<!-- BOTTOM NAVIGATION (mobile) -->
+<nav class="bottom-nav">
+    <div class="bottom-nav-items">
+        <button class="bottom-nav-item active" onclick="showTab('dashboard')" data-bottom-tab="dashboard">
+            <i class="fas fa-chart-pie"></i>
+            <span>Início</span>
+        </button>
+        <button class="bottom-nav-item" onclick="showTab('tesouraria')" data-bottom-tab="tesouraria">
+            <i class="fas fa-coins"></i>
+            <span>Dízimos</span>
+        </button>
+        <button class="bottom-nav-item" onclick="showTab('membros')" data-bottom-tab="membros">
+            <i class="fas fa-users"></i>
+            <span>Membros</span>
+        </button>
+        <button class="bottom-nav-item" onclick="openDrawerMenu()" data-bottom-tab="menu">
+            <i class="fas fa-bars"></i>
+            <span>Menu</span>
+        </button>
+    </div>
+</nav>
+
+<!-- Botão de voltar ao topo (mobile) -->
+<button class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Voltar ao topo">
+    <i class="fas fa-arrow-up"></i>
+</button>
+
+<!-- Indicador de pull-to-refresh -->
+<div class="pull-indicator" id="pullIndicator">
+    <i class="fas fa-sync"></i> Atualizando...
+</div>
+
 <!-- ============ MODAIS ============ -->
 
-<!-- User Modal -->
 <div class="modal" id="userModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -1918,7 +2223,7 @@
                         <option value="colaborador">Colaborador</option>
                     </select>
                 </div>
-                <div class="form-group"><label>Departamento</label>
+                <div class="form-group"><label>Depto</label>
                     <select id="userDepartmentSelect"><option value="">Nenhum</option></select>
                 </div>
             </div>
@@ -1930,7 +2235,6 @@
     </div>
 </div>
 
-<!-- Member Modal -->
 <div class="modal" id="memberModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -1967,11 +2271,10 @@
     </div>
 </div>
 
-<!-- Tithe Modal (CORRIGIDO) -->
 <div class="modal" id="titheModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3><i class="fas fa-coins"></i> Registrar Dízimo/Oferta</h3>
+            <h3><i class="fas fa-coins"></i> Registrar Dízimo</h3>
             <button class="modal-close" onclick="closeModal('titheModal')">&times;</button>
         </div>
         <div class="modal-body">
@@ -1996,16 +2299,16 @@
 
             <div id="titheVisitorGroup" class="hidden">
                 <div class="form-group">
-                    <label>Nome do Contribuinte <span class="required">*</span></label>
+                    <label>Nome <span class="required">*</span></label>
                     <input type="text" id="titheVisitorName" placeholder="Nome completo">
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Email <span class="text-muted">(opcional)</span></label>
+                        <label>Email</label>
                         <input type="email" id="titheVisitorEmail" placeholder="email@exemplo.com">
                     </div>
                     <div class="form-group">
-                        <label>Telefone <span class="text-muted">(opcional)</span></label>
+                        <label>Telefone</label>
                         <input type="tel" id="titheVisitorPhone" placeholder="(21) 99999-9999">
                     </div>
                 </div>
@@ -2042,7 +2345,6 @@
     </div>
 </div>
 
-<!-- Bill Modal -->
 <div class="modal" id="billModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -2070,7 +2372,6 @@
     </div>
 </div>
 
-<!-- Study Modal -->
 <div class="modal" id="studyModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -2086,13 +2387,13 @@
                     <input type="file" id="studyImage" accept="image/*">
                     <div class="file-label">
                         <i class="fas fa-image"></i>
-                        <span>Clique para escolher</span>
+                        <span>Toque para escolher</span>
                         <span class="file-name" id="studyImageName"></span>
                     </div>
                 </div>
             </div>
             <div class="form-group">
-                <label>Link do Arquivo (Google Drive, etc)</label>
+                <label>Link do Arquivo</label>
                 <input type="url" id="studyFileUrl" placeholder="https://drive.google.com/...">
             </div>
             <div class="form-group">
@@ -2101,7 +2402,7 @@
                     <input type="file" id="studyPdf" accept=".pdf">
                     <div class="file-label">
                         <i class="fas fa-file-pdf"></i>
-                        <span>Clique para escolher</span>
+                        <span>Toque para escolher</span>
                         <span class="file-name" id="studyPdfName"></span>
                     </div>
                 </div>
@@ -2110,12 +2411,11 @@
         </div>
         <div class="modal-footer">
             <button onclick="closeModal('studyModal')" class="btn btn-secondary">Cancelar</button>
-            <button onclick="submitStudy()" class="btn btn-primary"><i class="fas fa-save"></i> Salvar Estudo</button>
+            <button onclick="submitStudy()" class="btn btn-primary"><i class="fas fa-save"></i> Salvar</button>
         </div>
     </div>
 </div>
 
-<!-- Event Modal -->
 <div class="modal" id="eventModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -2139,7 +2439,6 @@
     </div>
 </div>
 
-<!-- Product Modal -->
 <div class="modal" id="productModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -2166,7 +2465,6 @@
     </div>
 </div>
 
-<!-- Carousel Modal -->
 <div class="modal" id="carouselModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -2190,7 +2488,6 @@
     </div>
 </div>
 
-<!-- Department Modal -->
 <div class="modal" id="deptModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -2208,7 +2505,6 @@
     </div>
 </div>
 
-<!-- Célula Modal -->
 <div class="modal" id="celulaModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -2222,7 +2518,7 @@
             </div>
             <div class="form-group"><label>Endereço</label><input type="text" id="celulaEndereco" placeholder="Rua, número, bairro"></div>
             <div class="form-row">
-                <div class="form-group"><label>Dias de Reunião</label><input type="text" id="celulaDias" placeholder="Ex: Terças e Quintas"></div>
+                <div class="form-group"><label>Dias</label><input type="text" id="celulaDias" placeholder="Ex: Terças"></div>
                 <div class="form-group"><label>Horário</label><input type="text" id="celulaHorario" placeholder="Ex: 19:30"></div>
             </div>
             <div class="form-group"><label>Descrição</label><textarea id="celulaDescricao" rows="2"></textarea></div>
@@ -2234,7 +2530,6 @@
     </div>
 </div>
 
-<!-- Add Membro à Célula -->
 <div class="modal" id="addMembroCelulaModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -2253,7 +2548,6 @@
     </div>
 </div>
 
-<!-- Decisão Célula Modal -->
 <div class="modal" id="decisaoCelulaModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -2279,7 +2573,6 @@
     </div>
 </div>
 
-<!-- Reflection Modal -->
 <div class="modal" id="reflectionModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -2335,6 +2628,7 @@
         div.className = 'notification ' + type;
         div.textContent = msg;
         document.body.appendChild(div);
+        if (navigator.vibrate) navigator.vibrate(30);
         setTimeout(() => {
             div.style.opacity = '0';
             div.style.transition = 'opacity 0.4s';
@@ -2342,8 +2636,15 @@
         }, 3500);
     }
 
-    function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
-    function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = 'auto'; }
+    function openModal(id) {
+        document.getElementById(id).classList.add('open');
+        document.body.style.overflow = 'hidden';
+        if (navigator.vibrate) navigator.vibrate(15);
+    }
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('open');
+        document.body.style.overflow = 'auto';
+    }
 
     document.querySelectorAll('.modal').forEach(m => {
         m.addEventListener('click', (e) => {
@@ -2360,12 +2661,17 @@
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebarOverlay');
-        sidebar.classList.toggle('open');
-        overlay.classList.toggle('open');
+        const isOpen = sidebar.classList.toggle('open');
+        overlay.classList.toggle('open', isOpen);
+        document.body.style.overflow = isOpen ? 'hidden' : 'auto';
+    }
+
+    function openDrawerMenu() {
+        toggleSidebar();
     }
 
     // ============================================
-    // TABS (agora via sidebar)
+    // TABS
     // ============================================
     const TAB_TITLES = {
         'dashboard': 'Dashboard', 'live': 'Live', 'vendas': 'Vendas', 'usuarios': 'Usuários',
@@ -2377,9 +2683,13 @@
         'config': 'Configurações'
     };
 
+    // Tabs que estão no bottom nav
+    const BOTTOM_TABS = ['dashboard', 'tesouraria', 'membros'];
+
     function showTab(tab) {
         document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
         document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.remove('active'));
 
         const el = document.getElementById('tab-' + tab);
         if (el) el.style.display = 'block';
@@ -2387,12 +2697,27 @@
         const navBtn = document.querySelector(`.nav-item[data-tab="${tab}"]`);
         if (navBtn) navBtn.classList.add('active');
 
+        // Marca bottom nav se for uma das tabs principais
+        if (BOTTOM_TABS.includes(tab)) {
+            const bottomBtn = document.querySelector(`.bottom-nav-item[data-bottom-tab="${tab}"]`);
+            if (bottomBtn) bottomBtn.classList.add('active');
+        } else {
+            // Se não for uma tab principal, marca "Menu"
+            const menuBtn = document.querySelector('.bottom-nav-item[data-bottom-tab="menu"]');
+            if (menuBtn) menuBtn.classList.add('active');
+        }
+
         document.getElementById('pageTitle').textContent = TAB_TITLES[tab] || tab;
 
-        // Fecha sidebar no mobile
+        // Fecha sidebar se estiver aberta
         if (window.innerWidth < 1024) {
-            document.getElementById('sidebar').classList.remove('open');
-            document.getElementById('sidebarOverlay').classList.remove('open');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('open');
+                document.body.style.overflow = 'auto';
+            }
         }
 
         const handlers = {
@@ -2536,7 +2861,7 @@
                     </div>`;
                 }).join('');
             } else {
-                chart.innerHTML = '<div class="empty-state" style="width:100%;"><i class="fas fa-chart-bar"></i><p>Nenhuma venda no período</p></div>';
+                chart.innerHTML = '<div class="empty-state" style="width:100%;"><i class="fas fa-chart-bar"></i><p>Nenhuma venda</p></div>';
             }
         } catch (e) { console.error('Erro:', e); }
     }
@@ -2577,7 +2902,7 @@
         const tok = localStorage.getItem('token');
         const statusDiv = document.getElementById('logoStatus');
 
-        if (!input?.files?.length) { showNotification('Selecione uma imagem primeiro!', 'error'); return; }
+        if (!input?.files?.length) { showNotification('Selecione uma imagem!', 'error'); return; }
         const file = input.files[0];
         if (file.size > 2 * 1024 * 1024) { showNotification(`Imagem muito grande (máx 2MB)`, 'error'); return; }
         const allowedTypes = ['image/png','image/jpeg','image/jpg','image/gif','image/webp','image/svg+xml'];
@@ -2916,7 +3241,7 @@
                     <td><span class="status status-${r.status||'pending'}">${r.status||'Pendente'}</span></td>
                     <td>${new Date(r.created_at).toLocaleDateString('pt-BR')}</td>
                     <td>
-                        ${r.status !== 'approved' ? `<button onclick="approveRegistration(${r.id})" class="btn btn-success btn-sm"><i class="fas fa-check"></i> Aprovar</button>` : '<span class="status status-approved">Aprovado</span>'}
+                        ${r.status !== 'approved' ? `<button onclick="approveRegistration(${r.id})" class="btn btn-success btn-sm"><i class="fas fa-check"></i></button>` : '<span class="status status-approved">OK</span>'}
                         <button onclick="deleteRegistration(${r.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
@@ -3420,7 +3745,7 @@
                 return;
             }
             const presentes = records.filter(r => r.present).length;
-            let html = `<div style="font-size:0.75rem;color:var(--text-muted);padding:var(--sp-2);border-bottom:1px solid var(--border);margin-bottom:var(--sp-2);"><strong>${records.length}</strong> registros · ✅ ${presentes} · ❌ ${records.length - presentes}</div>`;
+            let html = `<div style="font-size:0.75rem;color:var(--text-muted);padding:var(--sp-2);border-bottom:1px solid var(--border);margin-bottom:var(--sp-2);"><strong>${records.length}</strong> · ✅ ${presentes} · ❌ ${records.length - presentes}</div>`;
             records.slice(0, 15).forEach(r => {
                 const m = allMembers.find(x => x.id === r.member_id);
                 const name = m ? m.name : '#' + r.member_id;
@@ -3537,7 +3862,7 @@
             const data = await res.json();
             const div = document.getElementById('titheSummary');
             if (!data.by_type?.length) { div.innerHTML = '<p class="text-muted">Nenhum registro</p>'; return; }
-            div.innerHTML = data.by_type.map(t => `<span style="margin-right:1rem;"><strong>${t.type}:</strong> R$ ${parseFloat(t.total).toFixed(2)}</span>`).join('') +
+            div.innerHTML = data.by_type.map(t => `<span style="margin-right:1rem; display:inline-block;"><strong>${t.type}:</strong> R$ ${parseFloat(t.total).toFixed(2)}</span>`).join('') +
                 `<br><span style="color:var(--primary); font-size:1.1rem; font-weight:700; margin-top:0.5rem; display:inline-block;">TOTAL: R$ ${parseFloat(data.total).toFixed(2)}</span>`;
         } catch (e) { console.error('Erro:', e); }
     }
@@ -3738,7 +4063,7 @@
                 <tr>
                     <td>${r.title}</td>
                     <td>${r.description || '—'}</td>
-                    <td><a href="${r.link}" target="_blank" style="color:var(--primary);font-size:0.8rem;">Ver no YouTube</a></td>
+                    <td><a href="${r.link}" target="_blank" style="color:var(--primary);font-size:0.8rem;">YouTube</a></td>
                     <td><button onclick="deleteReflection(${r.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td>
                 </tr>
             `).join('');
@@ -3893,7 +4218,7 @@
         container.innerHTML = cultosList.map((c, i) => `
             <span class="badge badge-colaborador" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.4rem 0.7rem;">
                 ${dias[c.dia]} ${String(c.hora).padStart(2,'0')}:${String(c.minuto).padStart(2,'0')}
-                <button onclick="removeCulto(${i})" style="background:none;border:none;color:var(--danger);cursor:pointer;padding:0;font-size:0.8rem;"><i class="fas fa-times"></i></button>
+                <button onclick="removeCulto(${i})" style="background:none;border:none;color:var(--danger);cursor:pointer;padding:0;font-size:0.85rem;"><i class="fas fa-times"></i></button>
             </span>
         `).join('');
     }
@@ -4002,7 +4327,7 @@
                 if (startBtn) startBtn.style.display = 'none';
                 if (stopBtn) stopBtn.style.display = 'inline-flex';
                 const viewers = document.getElementById('liveViewers');
-                if (viewers) viewers.innerHTML = `<i class="fas fa-eye"></i> ${data.viewers || 0} espectadores`;
+                if (viewers) viewers.innerHTML = `<i class="fas fa-eye"></i> ${data.viewers || 0}`;
                 if (liveInterval) clearInterval(liveInterval);
                 liveInterval = setInterval(updateViewers, 10000);
             } else {
@@ -4026,7 +4351,7 @@
             const res = await fetch(`/api/lives/${liveId}/viewer`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ viewer_id: 'admin_' + Date.now() }) });
             const data = await res.json();
             const viewers = document.getElementById('liveViewers');
-            if (viewers) viewers.innerHTML = `<i class="fas fa-eye"></i> ${data.viewers || 0} espectadores`;
+            if (viewers) viewers.innerHTML = `<i class="fas fa-eye"></i> ${data.viewers || 0}`;
         } catch (e) { console.error(e); }
     }
 
@@ -4089,7 +4414,7 @@
         try {
             const devices = await navigator.mediaDevices.enumerateDevices();
             const videoDevices = devices.filter(d => d.kind === 'videoinput');
-            if (videoDevices.length < 2) { showNotification('Apenas uma câmera disponível', 'info'); return; }
+            if (videoDevices.length < 2) { showNotification('Apenas uma câmera', 'info'); return; }
             const currentDeviceId = localStream.getVideoTracks()[0]?.getSettings().deviceId;
             let nextDevice = videoDevices.find(d => d.deviceId !== currentDeviceId);
             if (!nextDevice) nextDevice = videoDevices[0];
@@ -4129,7 +4454,7 @@
             const tbody = document.getElementById('liveHistoryList');
             if (!data?.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted" style="padding:2rem;">Nenhuma transmissão</td></tr>'; return; }
             tbody.innerHTML = data.slice(0, 20).map(l => {
-                const duracao = l.started_at && l.ended_at ? Math.floor((new Date(l.ended_at) - new Date(l.started_at)) / 60000) + 'min' : l.status === 'live' ? 'Em andamento' : '—';
+                const duracao = l.started_at && l.ended_at ? Math.floor((new Date(l.ended_at) - new Date(l.started_at)) / 60000) + 'min' : l.status === 'live' ? 'Ao vivo' : '—';
                 return `<tr>
                     <td>${l.titulo || 'Live'}</td>
                     <td>${l.iniciada_por_nome || 'Pastor'}</td>
@@ -4145,6 +4470,44 @@
         if (liveStatusInterval) clearInterval(liveStatusInterval);
         liveStatusInterval = setInterval(checkLiveStatus, 5000);
     }
+
+    // ============================================
+    // SCROLL TOP BUTTON
+    // ============================================
+    const scrollTopBtn = document.getElementById('scrollTopBtn');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+            scrollTopBtn.classList.add('show');
+        } else {
+            scrollTopBtn.classList.remove('show');
+        }
+    }, { passive: true });
+
+    // ============================================
+    // BOTTOM NAV - "Menu" abre a sidebar
+    // ============================================
+    // (já configurado no onclick="openDrawerMenu()")
+
+    // ============================================
+    // SWIPE PARA FECHAR DRAWER
+    // ============================================
+    let touchStartX = 0;
+    let touchStartY = 0;
+    const sidebar = document.getElementById('sidebar');
+
+    sidebar?.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    sidebar?.addEventListener('touchmove', (e) => {
+        if (!sidebar.classList.contains('open')) return;
+        const dx = e.touches[0].clientX - touchStartX;
+        const dy = e.touches[0].clientY - touchStartY;
+        if (Math.abs(dx) > Math.abs(dy) && dx < -50) {
+            toggleSidebar();
+        }
+    }, { passive: true });
 
     // ============================================
     // INICIALIZAÇÃO
@@ -4164,16 +4527,17 @@
     // ============================================
     Object.assign(window, {
         filterRegistrations, approveRegistration, deleteRegistration, showTab, openModal, closeModal, logout,
-        toggleSidebar, loadCelulas, openCelulaModal, saveCelula, verCelula, deleteCelula, openAddMembroCelula, addMembroCelula,
-        openDecisaoCelula, saveDecisaoCelula, markPrayerRead, deleteUser, resetPassword, deleteStudy, deleteEvent,
-        deleteProduct, deleteCarousel, deleteDepartment, openUserModal, saveUser, openDeptModal, saveDepartment,
-        openMemberModal, saveMember, viewMember, deleteMember, loadAllMembersForAttendance, toggleSelectAll,
-        clearSelection, registerMultipleAttendance, registerAllAttendance, openTitheModal, saveTithe, openBillModal,
-        saveBill, payBill, deleteBill, loadConfig, saveConfig, saveAbout, openStudyModal, submitStudy, openEventModal,
-        openProductModal, openCarouselModal, startLive, stopLive, toggleCamera, switchCamera, toggleScreenShare,
-        checkLiveStatus, loadLiveHistory, loadReflectionsAdmin, openReflectionModal, saveReflection, deleteReflection,
-        addCulto, removeCulto, saveCultos, loadCultos, toggleMember, uploadLogo, removeLogo, loadLogoPreview,
-        exportTithes, populateExportYears, setTitheMode
+        toggleSidebar, openDrawerMenu, loadCelulas, openCelulaModal, saveCelula, verCelula, deleteCelula,
+        openAddMembroCelula, addMembroCelula, openDecisaoCelula, saveDecisaoCelula, markPrayerRead, deleteUser,
+        resetPassword, deleteStudy, deleteEvent, deleteProduct, deleteCarousel, deleteDepartment, openUserModal,
+        saveUser, openDeptModal, saveDepartment, openMemberModal, saveMember, viewMember, deleteMember,
+        loadAllMembersForAttendance, toggleSelectAll, clearSelection, registerMultipleAttendance,
+        registerAllAttendance, openTitheModal, saveTithe, openBillModal, saveBill, payBill, deleteBill,
+        loadConfig, saveConfig, saveAbout, openStudyModal, submitStudy, openEventModal, openProductModal,
+        openCarouselModal, startLive, stopLive, toggleCamera, switchCamera, toggleScreenShare,
+        checkLiveStatus, loadLiveHistory, loadReflectionsAdmin, openReflectionModal, saveReflection,
+        deleteReflection, addCulto, removeCulto, saveCultos, loadCultos, toggleMember, uploadLogo,
+        removeLogo, loadLogoPreview, exportTithes, populateExportYears, setTitheMode
     });
 </script>
 </body>

@@ -42,18 +42,44 @@
             margin-bottom: 2rem;
         }
         .login-header .logo {
-            width: 64px;
-            height: 64px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             background: var(--primary-gradient);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 0.8rem;
+            margin: 0 auto 1rem;
             font-size: 1.8rem;
             font-weight: 800;
             color: #fff;
             box-shadow: 0 8px 24px rgba(13,71,161,0.2);
+            overflow: hidden;
+            border: 3px solid #fff;
+            position: relative;
+        }
+        .login-header .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .login-header .logo .logo-skeleton {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: #bbb;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
         .login-header h1 {
             font-size: 1.5rem;
@@ -161,19 +187,9 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 28px rgba(40,167,69,0.3);
         }
-        .btn-outline {
-            background: transparent;
-            color: var(--primary);
-            border: 2px solid var(--primary);
-        }
-        .btn-outline:hover {
-            background: var(--primary);
-            color: #fff;
-        }
 
         .text-center { text-align: center; }
         .mt-1 { margin-top: 0.8rem; }
-        .mb-1 { margin-bottom: 0.8rem; }
         .hidden { display: none !important; }
 
         .error-message {
@@ -216,21 +232,6 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* RESPONSIVO */
-        @media (max-width: 480px) {
-            body { padding: 0.5rem; }
-            .login-container { padding: 1.8rem 1.2rem; border-radius: var(--radius-sm); }
-            .login-header h1 { font-size: 1.2rem; }
-            .login-header .logo { width: 52px; height: 52px; font-size: 1.4rem; }
-            .form-group input { font-size: 0.85rem; padding: 0.6rem 0.8rem; }
-            .form-group .input-icon input { padding-left: 2.2rem; }
-            .btn { font-size: 0.85rem; padding: 0.6rem; }
-            .info-box { font-size: 0.7rem; padding: 0.6rem; }
-        }
-        @media (min-width: 481px) and (max-width: 768px) {
-            .login-container { padding: 2rem 1.5rem; }
-        }
-
         .password-toggle {
             position: absolute;
             right: 12px;
@@ -244,13 +245,29 @@
             padding: 0.2rem;
         }
         .password-toggle:hover { color: #333; }
+
+        @media (max-width: 480px) {
+            body { padding: 0.5rem; }
+            .login-container { padding: 1.8rem 1.2rem; border-radius: var(--radius-sm); }
+            .login-header h1 { font-size: 1.2rem; }
+            .login-header .logo { width: 68px; height: 68px; font-size: 1.5rem; }
+            .form-group input { font-size: 0.85rem; padding: 0.6rem 0.8rem; }
+            .form-group .input-icon input { padding-left: 2.2rem; }
+            .btn { font-size: 0.85rem; padding: 0.6rem; }
+            .info-box { font-size: 0.7rem; padding: 0.6rem; }
+        }
+        @media (min-width: 481px) and (max-width: 768px) {
+            .login-container { padding: 2rem 1.5rem; }
+        }
     </style>
 </head>
 <body>
 
     <div class="login-container">
         <div class="login-header">
-            <div class="logo">NJ</div>
+            <div class="logo" id="loginLogo">
+                <span class="logo-skeleton">NJ</span>
+            </div>
             <h1>NJ Cabuçu</h1>
             <p>Área Interna</p>
             <div class="sub">Igreja Nova Jerusalém</div>
@@ -366,6 +383,47 @@
     <script>
         const API_URL = window.location.origin;
 
+        // ============================================
+        // CARREGAR LOGO PERSONALIZADA
+        // ============================================
+        async function loadLoginLogo() {
+            const logoEl = document.getElementById('loginLogo');
+            try {
+                const res = await fetch('/api/settings', { cache: 'no-store' });
+                if (!res.ok) throw new Error('Erro ao buscar settings');
+                const data = await res.json();
+
+                if (data.site_logo) {
+                    // Cria a imagem
+                    const img = document.createElement('img');
+                    img.src = data.site_logo;
+                    img.alt = 'Logo NJ Cabuçu';
+                    img.onload = () => {
+                        // Remove o skeleton e adiciona a imagem
+                        logoEl.innerHTML = '';
+                        logoEl.appendChild(img);
+                        // Se tiver borda, mantém
+                        logoEl.style.background = '#fff';
+                        logoEl.style.border = '3px solid #e0e0e0';
+                    };
+                    img.onerror = () => {
+                        // Se a imagem falhar, mantém o NJ
+                        logoEl.innerHTML = 'NJ';
+                    };
+                } else {
+                    // Sem logo personalizada → mostra NJ padrão
+                    logoEl.innerHTML = 'NJ';
+                }
+            } catch (err) {
+                console.warn('⚠️ Não foi possível carregar a logo:', err.message);
+                // Fallback: mantém "NJ" (o skeleton já está renderizado)
+                logoEl.innerHTML = 'NJ';
+            }
+        }
+
+        // ============================================
+        // UTILITÁRIOS
+        // ============================================
         function togglePassword(fieldId) {
             const field = document.getElementById(fieldId);
             const btn = field.parentElement.querySelector('.password-toggle');
@@ -407,6 +465,9 @@
             setTimeout(() => el.classList.add('hidden'), 5000);
         }
 
+        // ============================================
+        // LOGIN
+        // ============================================
         async function login() {
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
@@ -457,6 +518,9 @@
             }
         }
 
+        // ============================================
+        // ALTERAR SENHA
+        // ============================================
         async function changePassword() {
             const email = document.getElementById('changeEmail').value.trim();
             const currentPassword = document.getElementById('changeCurrentPassword').value;
@@ -502,7 +566,9 @@
             }
         }
 
-        // Enter key support
+        // ============================================
+        // ENTER KEY + INICIALIZAÇÃO
+        // ============================================
         document.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 if (!document.getElementById('loginForm').classList.contains('hidden')) {
@@ -513,8 +579,11 @@
             }
         });
 
-        // Verificar se já está logado
         document.addEventListener('DOMContentLoaded', () => {
+            // 1) Carrega a logo primeiro (independente do login)
+            loadLoginLogo();
+
+            // 2) Se já estiver logado, redireciona
             const token = localStorage.getItem('token');
             const user = JSON.parse(localStorage.getItem('user') || '{}');
             if (token && user) {

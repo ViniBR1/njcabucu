@@ -50,7 +50,6 @@
             --header-h: 66px;
             --max-width: 1200px;
             --fab-bottom: 28px;
-            /* ===== PADRÃO DARK/BLACK PARA BOTÕES ===== */
             --btn-dark-bg: linear-gradient(135deg, #0b1220, #1e293b);
             --btn-dark-hover: linear-gradient(135deg, #1a2333, #2d3f57);
             --btn-dark-border: rgba(255,255,255,.1);
@@ -144,7 +143,6 @@
         .install-banner .btn-close-banner { background: transparent; color: rgba(255,255,255,.5); border: none; padding: 8px; cursor: pointer; font-size: 18px; transition: all .2s; }
         .install-banner .btn-close-banner:hover { color: #fff; transform: rotate(90deg); }
 
-        /* ===== INSTALL FAB — abaixo dos outros FABs ===== */
         .install-fab {
             position: fixed;
             bottom: calc(var(--fab-bottom) + 198px);
@@ -213,7 +211,6 @@
         .btn-live { background: #ff0000; color: #fff; animation: pulse-live 1.5s infinite; }
         @keyframes pulse-live { 0%,100% { opacity: 1; } 50% { opacity: .65; } }
 
-        /* ===== BOTÃO PADRÃO DARK/BLACK ===== */
         .btn-dark {
             background: var(--btn-dark-bg);
             color: #fff;
@@ -491,7 +488,7 @@
         }
         .card:hover .card-image-wrapper img { transform: scale(1.06); }
 
-        /* ===== INSCRIÇÕES — CARDS CLEAN (ícones pretos) ===== */
+        /* ===== INSCRIÇÕES — CARDS CLEAN ===== */
         .registration-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -639,119 +636,405 @@
         }
         .event-card-body .btn-dark.closed:hover { transform: none; box-shadow: none; background: #e2e8f0; }
 
-        /* ===== ESTUDOS — CARDS MODERNOS ===== */
-        .study-card-modern {
-            background: #fff; border-radius: var(--radius); overflow: hidden;
-            border: 1px solid var(--line); box-shadow: var(--shadow-sm);
-            transition: var(--transition); display: flex; flex-direction: column;
+        /* ===== ESTUDOS — CARDS PREMIUM ===== */
+        .study-card-premium {
+            position: relative;
+            background: #fff;
+            border-radius: 22px;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow-sm);
+            transition: all .4s cubic-bezier(.4,0,.2,1);
+            display: flex;
+            flex-direction: column;
+            isolation: isolate;
         }
-        .study-card-modern:hover {
-            transform: translateY(-6px); box-shadow: var(--shadow-lg);
-            border-color: rgba(13,71,161,.22);
+        .study-card-premium::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 22px;
+            padding: 1px;
+            background: linear-gradient(135deg, transparent 40%, rgba(13,71,161,.15) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity .4s ease;
         }
-        .study-card-modern .study-thumb {
-            position: relative; width: 100%; aspect-ratio: 16 / 9;
-            background: linear-gradient(135deg, #1e3a8a, #0D47A1);
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden; flex-shrink: 0;
+        .study-card-premium:hover::before { opacity: 1; }
+        .study-card-premium:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 24px 60px rgba(13,71,161,.14), 0 12px 28px rgba(15,23,42,.08);
+            border-color: transparent;
         }
-        .study-card-modern .study-thumb img {
-            width: 100%; height: 100%; object-fit: cover;
-            position: absolute; inset: 0; transition: transform .5s ease;
+        .study-card-premium .study-thumb {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            background: linear-gradient(135deg, #0f172a, #1e3a8a 50%, #0D47A1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
         }
-        .study-card-modern:hover .study-thumb img { transform: scale(1.06); }
-        .study-card-modern .study-thumb .ph {
-            position: relative; z-index: 1; text-align: center;
+        .study-card-premium .study-thumb::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 70% 30%, rgba(96,165,250,.25), transparent 60%);
+            pointer-events: none;
+            z-index: 1;
+        }
+        .study-card-premium .study-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            inset: 0;
+            transition: transform .6s cubic-bezier(.4,0,.2,1);
+            z-index: 0;
+        }
+        .study-card-premium:hover .study-thumb img { transform: scale(1.08); }
+        .study-card-premium .study-thumb .ph {
+            position: relative;
+            z-index: 2;
+            text-align: center;
             color: rgba(255,255,255,.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: .5rem;
         }
-        .study-card-modern .study-thumb .ph i {
-            font-size: 2.2rem; display: block; margin-bottom: .35rem; opacity: .9;
+        .study-card-premium .study-thumb .ph .ph-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.2);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            transition: var(--transition);
         }
-        .study-card-modern .study-thumb .ph span {
-            font-size: .62rem; font-weight: 700; letter-spacing: 1.5px;
-            text-transform: uppercase; opacity: .75;
+        .study-card-premium:hover .study-thumb .ph .ph-icon {
+            transform: scale(1.1) rotate(-5deg);
+            background: rgba(255,255,255,.2);
         }
-        .study-card-modern .study-badge {
-            position: absolute; top: 12px; left: 12px; z-index: 2;
-            background: rgba(255,255,255,.95); color: var(--primary-dark);
-            font-size: .55rem; font-weight: 800; padding: .25rem .65rem;
-            border-radius: 8px; letter-spacing: .5px; text-transform: uppercase;
-            backdrop-filter: blur(4px); box-shadow: 0 4px 12px rgba(0,0,0,.1);
+        .study-card-premium .study-thumb .ph span {
+            font-size: .6rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: .85;
         }
-        .study-card-modern .study-body {
-            padding: 1.1rem 1.2rem 1.3rem;
-            display: flex; flex-direction: column; flex: 1;
+        .study-card-premium .study-thumb .study-badge-premium {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            z-index: 3;
+            background: rgba(255,255,255,.95);
+            color: var(--primary-dark);
+            font-size: .58rem;
+            font-weight: 800;
+            padding: .3rem .7rem;
+            border-radius: 8px;
+            letter-spacing: .6px;
+            text-transform: uppercase;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 4px 16px rgba(0,0,0,.15);
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
         }
-        .study-card-modern .study-body h3 {
-            font-size: 1rem; font-weight: 800; color: var(--ink);
-            margin-bottom: .35rem; letter-spacing: -.2px;
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+        .study-card-premium .study-thumb .study-badge-premium i { font-size: .6rem; color: #dc2626; }
+        .study-card-premium .study-thumb .study-format-tag {
+            position: absolute;
+            bottom: 14px;
+            right: 14px;
+            z-index: 3;
+            background: rgba(0,0,0,.55);
+            color: #fff;
+            font-size: .55rem;
+            font-weight: 700;
+            padding: .25rem .6rem;
+            border-radius: 6px;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,.15);
+        }
+        .study-card-premium .study-body {
+            padding: 1.25rem 1.3rem 1.4rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        .study-card-premium .study-body .study-meta {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-size: .62rem;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            margin-bottom: .6rem;
+        }
+        .study-card-premium .study-body .study-meta i { color: var(--primary); font-size: .65rem; }
+        .study-card-premium .study-body .study-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--muted); }
+        .study-card-premium .study-body h3 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: .45rem;
+            letter-spacing: -.3px;
+            line-height: 1.35;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
             overflow: hidden;
         }
-        .study-card-modern .study-body p {
-            font-size: .8rem; color: var(--ink-soft); line-height: 1.6;
-            flex: 1; margin-bottom: 1rem;
-            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+        .study-card-premium .study-body p {
+            font-size: .8rem;
+            color: var(--ink-soft);
+            line-height: 1.6;
+            flex: 1;
+            margin-bottom: 1.1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
             overflow: hidden;
         }
-        .study-card-modern .study-action { margin-top: auto; }
-        .study-card-modern .study-action .btn-dark,
-        .study-card-modern .study-action a {
-            width: 100%; justify-content: center; font-size: .78rem;
-            padding: .55rem 1rem; border-radius: 10px; font-weight: 700;
+        .study-card-premium .study-action { margin-top: auto; }
+        .study-card-premium .study-action .btn-dark,
+        .study-card-premium .study-action a {
+            width: 100%;
+            justify-content: center;
+            font-size: .78rem;
+            padding: .7rem 1rem;
+            border-radius: 12px;
+            font-weight: 700;
+            letter-spacing: .2px;
         }
 
-        /* ===== NJ STORE — CARDS MODERNOS ===== */
-        .product-card-modern {
-            background: #fff; border-radius: var(--radius); overflow: hidden;
-            border: 1px solid var(--line); box-shadow: var(--shadow-sm);
-            transition: var(--transition); display: flex; flex-direction: column;
+        /* ===== NJ STORE — CARDS PREMIUM ===== */
+        .product-card-premium {
+            position: relative;
+            background: #fff;
+            border-radius: 22px;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow-sm);
+            transition: all .4s cubic-bezier(.4,0,.2,1);
+            display: flex;
+            flex-direction: column;
+            isolation: isolate;
         }
-        .product-card-modern:hover {
-            transform: translateY(-6px); box-shadow: var(--shadow-lg);
-            border-color: rgba(13,71,161,.22);
+        .product-card-premium::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 22px;
+            padding: 1px;
+            background: linear-gradient(135deg, transparent 40%, rgba(13,71,161,.15) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity .4s ease;
         }
-        .product-card-modern .product-img {
-            position: relative; width: 100%; aspect-ratio: 1 / 1;
-            background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden; flex-shrink: 0;
+        .product-card-premium:hover::before { opacity: 1; }
+        .product-card-premium:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 24px 60px rgba(13,71,161,.14), 0 12px 28px rgba(15,23,42,.08);
+            border-color: transparent;
         }
-        .product-card-modern .product-img img {
-            width: 100%; height: 100%; object-fit: cover;
-            transition: transform .5s ease;
+        .product-card-premium .product-img {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: linear-gradient(135deg, #f8fafc, #e8edf5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
         }
-        .product-card-modern:hover .product-img img { transform: scale(1.06); }
-        .product-card-modern .product-img .ph {
-            text-align: center; color: #94a3b8;
+        .product-card-premium .product-img::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 70% 30%, rgba(96,165,250,.08), transparent 60%);
+            pointer-events: none;
+            z-index: 1;
         }
-        .product-card-modern .product-img .ph i {
-            font-size: 2.2rem; display: block; margin-bottom: .35rem;
+        .product-card-premium .product-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform .6s cubic-bezier(.4,0,.2,1);
+            z-index: 0;
         }
-        .product-card-modern .product-img .ph span {
-            font-size: .6rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+        .product-card-premium:hover .product-img img { transform: scale(1.08); }
+        .product-card-premium .product-img .ph {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: #94a3b8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: .5rem;
         }
-        .product-card-modern .product-body {
-            padding: 1rem 1.1rem 1.2rem;
-            display: flex; flex-direction: column; flex: 1;
+        .product-card-premium .product-img .ph .ph-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #fff, #e8edf5);
+            border: 1px solid rgba(13,71,161,.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: var(--primary);
+            box-shadow: 0 8px 24px rgba(13,71,161,.08);
+            transition: var(--transition);
         }
-        .product-card-modern .product-body h3 {
-            font-size: .95rem; font-weight: 800; color: var(--ink);
-            margin-bottom: .3rem; letter-spacing: -.2px;
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+        .product-card-premium:hover .product-img .ph .ph-icon {
+            transform: scale(1.1) rotate(-5deg);
+            box-shadow: 0 12px 32px rgba(13,71,161,.15);
+        }
+        .product-card-premium .product-img .ph span {
+            font-size: .6rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .product-card-premium .product-tag {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            z-index: 3;
+            background: rgba(255,255,255,.95);
+            color: var(--primary-dark);
+            font-size: .55rem;
+            font-weight: 800;
+            padding: .3rem .7rem;
+            border-radius: 8px;
+            letter-spacing: .6px;
+            text-transform: uppercase;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 4px 16px rgba(0,0,0,.1);
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+        }
+        .product-card-premium .product-tag i { font-size: .55rem; color: var(--accent); }
+        .product-card-premium .product-fav {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            z-index: 3;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.95);
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .85rem;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 4px 16px rgba(0,0,0,.1);
+            transition: var(--transition);
+            opacity: 0;
+            transform: translateY(-4px);
+        }
+        .product-card-premium:hover .product-fav {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .product-card-premium .product-fav:hover {
+            background: #fff;
+            color: #e91e63;
+            transform: scale(1.1);
+        }
+        .product-card-premium .product-body {
+            padding: 1.15rem 1.2rem 1.3rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        .product-card-premium .product-body .product-cat {
+            font-size: .6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary);
+            margin-bottom: .4rem;
+        }
+        .product-card-premium .product-body h3 {
+            font-size: .98rem;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: .35rem;
+            letter-spacing: -.2px;
+            line-height: 1.35;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
             overflow: hidden;
         }
-        .product-card-modern .product-body p {
-            font-size: .78rem; color: var(--ink-soft); line-height: 1.55;
-            flex: 1; margin-bottom: .6rem;
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+        .product-card-premium .product-body p {
+            font-size: .78rem;
+            color: var(--ink-soft);
+            line-height: 1.55;
+            flex: 1;
+            margin-bottom: .8rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
             overflow: hidden;
         }
-        .product-card-modern .product-price {
-            font-size: 1.15rem; font-weight: 800; color: var(--primary);
-            margin-bottom: .7rem; letter-spacing: -.3px;
+        .product-card-premium .product-price-row {
+            display: flex;
+            align-items: baseline;
+            gap: .35rem;
+            margin-bottom: .9rem;
         }
-        .product-card-modern .btn-dark { width: 100%; margin-top: auto; }
+        .product-card-premium .product-price-row .currency {
+            font-size: .75rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .product-card-premium .product-price-row .price-int {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -.5px;
+            line-height: 1;
+        }
+        .product-card-premium .product-price-row .price-dec {
+            font-size: .8rem;
+            font-weight: 700;
+            color: var(--primary);
+            opacity: .8;
+        }
+        .product-card-premium .btn-dark {
+            width: 100%;
+            margin-top: auto;
+            padding: .7rem 1rem;
+            font-size: .8rem;
+        }
 
         /* ===== VERSE BLOCK ===== */
         .verse-block {
@@ -1049,6 +1332,13 @@
             .reg-card-icon { width: 44px; height: 44px; font-size: 1.05rem; }
             .reg-card h3 { font-size: .9rem; }
             .reg-card p { font-size: .72rem; }
+
+            .study-card-premium .study-body { padding: 1rem 1.1rem 1.2rem; }
+            .study-card-premium .study-body h3 { font-size: .95rem; }
+            .study-card-premium .study-thumb .ph .ph-icon { width: 52px; height: 52px; font-size: 1.3rem; }
+            .product-card-premium .product-body { padding: 1rem 1.05rem 1.15rem; }
+            .product-card-premium .product-price-row .price-int { font-size: 1.3rem; }
+            .product-card-premium .product-img .ph .ph-icon { width: 60px; height: 60px; font-size: 1.5rem; }
 
             .countdown-bar .countdown-timer { font-size: .85rem; gap: .35rem; }
             .countdown-bar .countdown-timer .time-block { min-width: 48px; padding: .3rem .5rem; }
@@ -1414,7 +1704,7 @@
         </div>
     </section>
 
-    <!-- ===== INSCRIÇÕES — CARDS CLEAN (ícones pretos) ===== -->
+    <!-- ===== INSCRIÇÕES — CARDS CLEAN ===== -->
     <section id="inscricoes" class="section">
         <div class="section-header">
             <span class="tag">Participe</span>
@@ -2600,7 +2890,7 @@
         }
 
         // ============================================
-        // ===== ESTUDOS — CARDS MODERNOS =====
+        // ===== ESTUDOS — CARDS PREMIUM =====
         // ============================================
         async function loadStudies() {
             try {
@@ -2619,12 +2909,17 @@
 
                 container.innerHTML = data.map(s => {
                     let fileAction = '';
+                    let formatLabel = 'PDF';
+                    let formatIcon = 'fa-file-pdf';
+
                     if (s.file_base64) {
                         fileAction = `
                             <button onclick="downloadPdf('${s.id}')" class="btn-dark btn-block">
                                 <i class="fas fa-file-pdf"></i> Baixar PDF
                             </button>
                         `;
+                        formatLabel = 'PDF';
+                        formatIcon = 'fa-file-pdf';
                     } else if (s.file_url) {
                         const isDrive = s.file_url.includes('drive.google.com');
                         const isYoutube = s.file_url.includes('youtube.com') || s.file_url.includes('youtu.be');
@@ -2634,9 +2929,13 @@
                         if (isDrive) {
                             icon = 'fa-google-drive';
                             label = 'Ver no Drive';
+                            formatLabel = 'Drive';
+                            formatIcon = 'fa-google-drive';
                         } else if (isYoutube) {
                             icon = 'fa-youtube';
                             label = 'Assistir';
+                            formatLabel = 'Vídeo';
+                            formatIcon = 'fa-youtube';
                         }
                         
                         fileAction = `
@@ -2651,15 +2950,32 @@
                     const hasImage = s.image_base64;
                     const thumbContent = hasImage
                         ? `<img src="${s.image_base64.startsWith('data:') ? s.image_base64 : 'data:image/jpeg;base64,' + s.image_base64}" alt="${s.title}" loading="lazy" onerror="this.remove()">`
-                        : `<div class="ph"><i class="fas fa-book-open"></i><span>Estudo Bíblico</span></div>`;
+                        : `<div class="ph">
+                             <div class="ph-icon"><i class="fas fa-book-open"></i></div>
+                             <span>Estudo Bíblico</span>
+                           </div>`;
+
+                    // Gera data fictícia ou usa a do objeto
+                    const studyDate = s.created_at 
+                        ? new Date(s.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
+                        : 'Estudo Bíblico';
 
                     return `
-                        <div class="study-card-modern">
+                        <div class="study-card-premium">
                             <div class="study-thumb">
                                 ${thumbContent}
-                                <span class="study-badge">PDF</span>
+                                <span class="study-badge-premium">
+                                    <i class="fas fa-circle"></i> ${formatLabel}
+                                </span>
+                                <span class="study-format-tag">${formatLabel}</span>
                             </div>
                             <div class="study-body">
+                                <div class="study-meta">
+                                    <i class="fas fa-book-bible"></i>
+                                    <span>Estudo Bíblico</span>
+                                    <span class="dot"></span>
+                                    <span>${studyDate}</span>
+                                </div>
                                 <h3>${s.title}</h3>
                                 <p>${s.description || 'Material de estudo para edificação da sua fé.'}</p>
                                 <div class="study-action">
@@ -2725,7 +3041,6 @@
                     return;
                 }
 
-                // Ordena por data (mais próximos primeiro)
                 const sortedEvents = [...data].sort((a, b) => new Date(a.date) - new Date(b.date));
 
                 container.innerHTML = sortedEvents.map(e => {
@@ -2735,12 +3050,10 @@
                     const price = parseFloat(e.price || 0);
                     const isFree = price <= 0;
 
-                    // Badge de data
                     const day = eventDate.getDate();
                     const monthNames = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
                     const month = monthNames[eventDate.getMonth()];
 
-                    // Badge de status
                     let statusBadge = '';
                     if (isPast) {
                         statusBadge = `<span class="event-status-badge closed"><i class="fas fa-lock"></i> Encerrado</span>`;
@@ -2848,7 +3161,7 @@
         }
 
         // ============================================
-        // ===== NJ STORE — CARDS MODERNOS =====
+        // ===== NJ STORE — CARDS PREMIUM =====
         // ============================================
         async function loadProducts() {
             try {
@@ -2863,17 +3176,35 @@
                 container.innerHTML = data.map(p => {
                     const imageHtml = p.image_base64 
                         ? `<img src="${p.image_base64.startsWith('data:') ? p.image_base64 : 'data:image/jpeg;base64,' + p.image_base64}" alt="${p.name}" loading="lazy" onerror="this.remove()">`
-                        : `<div class="ph"><i class="fas fa-bag-shopping"></i><span>NJ Store</span></div>`;
+                        : `<div class="ph">
+                             <div class="ph-icon"><i class="fas fa-bag-shopping"></i></div>
+                             <span>NJ Store</span>
+                           </div>`;
+
+                    const priceParts = parseFloat(p.price).toFixed(2).split('.');
+                    const priceInt = priceParts[0];
+                    const priceDec = priceParts[1];
+
+                    const category = p.category || 'NJ Store';
 
                     return `
-                        <div class="product-card-modern">
+                        <div class="product-card-premium">
                             <div class="product-img">
                                 ${imageHtml}
+                                <span class="product-tag"><i class="fas fa-star"></i> Exclusivo</span>
+                                <button class="product-fav" onclick="event.stopPropagation();" title="Favoritar">
+                                    <i class="fas fa-heart"></i>
+                                </button>
                             </div>
                             <div class="product-body">
+                                <span class="product-cat">${category}</span>
                                 <h3>${p.name}</h3>
                                 <p>${p.description || 'Produto exclusivo da NJ Store.'}</p>
-                                <div class="product-price">R$ ${parseFloat(p.price).toFixed(2)}</div>
+                                <div class="product-price-row">
+                                    <span class="currency">R$</span>
+                                    <span class="price-int">${priceInt}</span>
+                                    <span class="price-dec">,${priceDec}</span>
+                                </div>
                                 <button onclick="addToCart(${p.id})" class="btn-dark btn-block">
                                     <i class="fas fa-cart-plus"></i> Comprar
                                 </button>

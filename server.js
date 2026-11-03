@@ -57,9 +57,7 @@ try {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS
             },
-            tls: {
-                rejectUnauthorized: false
-            }
+            tls: { rejectUnauthorized: false }
         });
         transporter.verify((error, success) => {
             if (error) {
@@ -80,14 +78,14 @@ try {
 // ============================================
 async function enviarEmailDizimoOferta(dados) {
     console.log('📧 Enviando email de dízimo/oferta para:', dados.email);
-    
+
     if (!transporter) {
         console.log('⚠️ Email não configurado');
         return false;
     }
 
     const { email, nome, tipo, valor, data, paymentId } = dados;
-    
+
     if (!email || !email.includes('@')) {
         console.log('⚠️ Email inválido:', email);
         return false;
@@ -128,12 +126,10 @@ async function enviarEmailDizimoOferta(dados) {
             <div class="content">
                 <p>Olá, <strong>${nome || 'Irmão(ã)'}</strong>!</p>
                 <p>Recebemos seu ${tipoLabel.toLowerCase()} e agradecemos de coração pela sua fidelidade e generosidade.</p>
-                
                 <div class="value-box">
                     <div class="value">R$ ${parseFloat(valor || 0).toFixed(2)}</div>
                     <div class="label">Valor do ${tipoLabel}</div>
                 </div>
-                
                 <div class="info-row">
                     <span class="label">Data</span>
                     <span class="value">${new Date(data).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
@@ -146,7 +142,6 @@ async function enviarEmailDizimoOferta(dados) {
                     <span class="label">Tipo</span>
                     <span class="value">${tipoLabel}</span>
                 </div>
-                
                 <div class="verse">
                     "Cada um contribua segundo tiver proposto no coração, não com tristeza ou por necessidade; porque Deus ama ao que dá com alegria."<br>
                     <strong>2 Coríntios 9:7</strong>
@@ -178,14 +173,14 @@ async function enviarEmailDizimoOferta(dados) {
 
 async function enviarEmailCompra(dados) {
     console.log('📧 Enviando email de compra para:', dados.email);
-    
+
     if (!transporter) {
         console.log('⚠️ Email não configurado');
         return false;
     }
 
     const { email, nome, items, total, data, paymentId } = dados;
-    
+
     if (!email || !email.includes('@')) {
         console.log('⚠️ Email inválido:', email);
         return false;
@@ -228,26 +223,17 @@ async function enviarEmailCompra(dados) {
             <div class="content">
                 <p>Olá, <strong>${nome || 'Cliente'}</strong>!</p>
                 <p>Sua compra foi confirmada com sucesso! Obrigado por apoiar a obra de Deus.</p>
-                
                 <div class="value-box">
                     <div class="value">R$ ${parseFloat(total || 0).toFixed(2)}</div>
                     <div class="label">Total da Compra</div>
                 </div>
-                
                 <h3 style="color: #0D47A1;">Itens do Pedido</h3>
                 <table class="items-table">
                     <thead>
-                        <tr>
-                            <th>Produto</th>
-                            <th style="text-align: center;">Qtd</th>
-                            <th style="text-align: right;">Valor</th>
-                        </tr>
+                        <tr><th>Produto</th><th style="text-align: center;">Qtd</th><th style="text-align: right;">Valor</th></tr>
                     </thead>
-                    <tbody>
-                        ${itemsHtml}
-                    </tbody>
+                    <tbody>${itemsHtml}</tbody>
                 </table>
-                
                 <div class="info-row">
                     <span class="label">Data</span>
                     <span class="value">${new Date(data).toLocaleDateString('pt-BR')}</span>
@@ -307,12 +293,8 @@ const upload = multer({
         const allowedTypes = /jpeg|jpg|png|gif|webp|pdf|svg/;
         const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
         const mimetype = allowedTypes.test(file.mimetype) || file.mimetype === 'image/svg+xml';
-        
-        if (mimetype && extname) {
-            return cb(null, true);
-        } else {
-            cb(new Error('Apenas imagens e PDFs são permitidos!'));
-        }
+        if (mimetype && extname) return cb(null, true);
+        cb(new Error('Apenas imagens e PDFs são permitidos!'));
     }
 });
 
@@ -355,7 +337,7 @@ app.get('/icons/:file', (req, res) => {
 });
 
 // ============================================
-// ===== FUNÇÕES DE AUTENTICAÇÃO =====
+// ===== AUTENTICAÇÃO =====
 // ============================================
 const hashPassword = async (pwd) => await bcrypt.hash(pwd, 10);
 const verifyPassword = async (pwd, hash) => await bcrypt.compare(pwd, hash);
@@ -383,7 +365,7 @@ const pastorOnly = (req, res, next) => {
 // ============================================
 async function initDB() {
     console.log('📝 Criando/Verificando tabelas...');
-    
+
     try {
         // USERS
         await sql`CREATE TABLE IF NOT EXISTS users (
@@ -481,7 +463,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // Garantir coluna email_sent em orders
         await sql`
             DO $$
             BEGIN
@@ -523,7 +504,6 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
-        // Garantir coluna email_sent em donations
         await sql`
             DO $$
             BEGIN
@@ -590,11 +570,13 @@ async function initDB() {
             UNIQUE(member_id, event_date, service_type)
         )`;
 
-        // TITHES
+        // TITHES - com campos para visitantes
         await sql`CREATE TABLE IF NOT EXISTS tithes (
             id SERIAL PRIMARY KEY,
             member_id INTEGER REFERENCES members(id) ON DELETE SET NULL,
             member_name VARCHAR(100),
+            visitor_email VARCHAR(100),
+            visitor_phone VARCHAR(20),
             type VARCHAR(20) NOT NULL,
             amount DECIMAL(10,2) NOT NULL,
             payment_method VARCHAR(20) DEFAULT 'dinheiro',
@@ -603,6 +585,21 @@ async function initDB() {
             received_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
+
+        // Garantir colunas visitor_email / visitor_phone
+        await sql`
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='tithes' AND column_name='visitor_email') THEN
+                    ALTER TABLE tithes ADD COLUMN visitor_email VARCHAR(100);
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='tithes' AND column_name='visitor_phone') THEN
+                    ALTER TABLE tithes ADD COLUMN visitor_phone VARCHAR(20);
+                END IF;
+            END $$;
+        `;
 
         // BILLS
         await sql`CREATE TABLE IF NOT EXISTS bills (
@@ -777,7 +774,7 @@ app.post('/api/login', async (req, res) => {
         const { email, password } = req.body;
         const users = await sql`SELECT * FROM users WHERE email = ${email}`;
         if (users.length === 0) return res.status(401).json({ error: 'Usuário não encontrado' });
-        
+
         const user = users[0];
         const valid = await verifyPassword(password, user.password_hash);
         if (!valid) return res.status(401).json({ error: 'Senha incorreta' });
@@ -869,17 +866,17 @@ app.get('/api/users/all', auth, async (req, res) => {
 app.post('/api/users', auth, pastorOnly, async (req, res) => {
     try {
         const { name, email, password, role, department_name, phone, is_leader, department_id } = req.body;
-        
+
         const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
         if (existing.length > 0) {
             return res.status(400).json({ error: 'Usuário já existe' });
         }
 
         const hash = await hashPassword(password || '123456');
-        
+
         let deptId = department_id || null;
         let deptName = department_name || null;
-        
+
         if (deptId) {
             const dept = await sql`SELECT name FROM departments WHERE id = ${deptId}`;
             if (dept.length > 0) deptName = dept[0].name;
@@ -890,7 +887,7 @@ app.post('/api/users', auth, pastorOnly, async (req, res) => {
             VALUES (${name}, ${email}, ${hash}, ${role || 'colaborador'}, ${deptId}, ${deptName}, ${phone || ''}, true, ${is_leader || false})
             RETURNING id, name, email, role, department_id, department_name, is_leader
         `;
-        
+
         if (deptId) {
             const memberRole = is_leader ? 'lider' : 'membro';
             await sql`
@@ -898,12 +895,11 @@ app.post('/api/users', auth, pastorOnly, async (req, res) => {
                 VALUES (${deptId}, ${result[0].id}, ${memberRole})
                 ON CONFLICT (department_id, user_id) DO UPDATE SET role = ${memberRole}
             `;
-            
             if (is_leader) {
                 await sql`UPDATE departments SET leader_id = ${result[0].id} WHERE id = ${deptId}`;
             }
         }
-        
+
         res.status(201).json(result[0]);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -937,7 +933,6 @@ app.post('/api/users-by-leader', auth, async (req, res) => {
         if (req.user.role !== 'lider' && req.user.role !== 'pastor' && !req.user.is_leader) {
             return res.status(403).json({ error: 'Apenas líderes podem criar usuários' });
         }
-
         if (!name || !email || !password) {
             return res.status(400).json({ error: 'Nome, e-mail e senha são obrigatórios' });
         }
@@ -983,7 +978,7 @@ app.post('/api/users-by-leader', auth, async (req, res) => {
             await sql`UPDATE departments SET leader_id = ${result[0].id} WHERE id = ${deptId}`;
         }
 
-        res.status(201).json({ 
+        res.status(201).json({
             success: true,
             message: 'Usuário criado com sucesso!',
             user: result[0],
@@ -1159,11 +1154,10 @@ app.post('/api/studies', auth, uploadFields, async (req, res) => {
         const { title, description, file_url } = req.body;
         let image_base64 = null;
         let file_base64 = null;
-        
+
         if (req.files?.image?.[0]) {
             image_base64 = req.files.image[0].buffer.toString('base64');
         }
-        
         if (req.files?.file?.[0]) {
             file_base64 = req.files.file[0].buffer.toString('base64');
         }
@@ -1171,7 +1165,6 @@ app.post('/api/studies', auth, uploadFields, async (req, res) => {
         if (!title || title.trim() === '') {
             return res.status(400).json({ success: false, error: 'Título é obrigatório' });
         }
-
         if (!image_base64 && !file_base64 && !file_url) {
             return res.status(400).json({ success: false, error: 'Envie pelo menos uma imagem, PDF ou link' });
         }
@@ -1181,7 +1174,7 @@ app.post('/api/studies', auth, uploadFields, async (req, res) => {
             VALUES (${title.trim()}, ${description || ''}, ${file_url || ''}, ${image_base64 || ''}, ${file_base64 || ''})
             RETURNING id, title, description, file_url
         `;
-        
+
         res.status(201).json({ success: true, message: 'Estudo criado!', study: result[0] });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
@@ -1192,18 +1185,18 @@ app.get('/api/studies/:id/pdf', async (req, res) => {
     try {
         const study = await sql`SELECT * FROM studies WHERE id = ${req.params.id}`;
         if (study.length === 0) return res.status(404).json({ error: 'Estudo não encontrado' });
-        
+
         const s = study[0];
-        
+
         if (s.file_base64) {
             const pdfBuffer = Buffer.from(s.file_base64, 'base64');
             res.setHeader('Content-Type', 'application/pdf');
             res.setHeader('Content-Disposition', `attachment; filename="${s.title || 'estudo'}.pdf"`);
             return res.send(pdfBuffer);
         }
-        
+
         if (s.file_url) return res.redirect(s.file_url);
-        
+
         res.status(404).json({ error: 'PDF não disponível' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -1323,7 +1316,7 @@ app.delete('/api/events/:id', auth, pastorOnly, async (req, res) => {
 });
 
 // ============================================
-// ===== DATAS DE BATISMO (NOVO) =====
+// ===== DATAS DE BATISMO =====
 // ============================================
 
 app.get('/api/baptism-dates', async (req, res) => {
@@ -1452,15 +1445,15 @@ app.put('/api/prayers/:id/read', auth, async (req, res) => {
 app.post('/api/orders', async (req, res) => {
     try {
         const { user_name, user_email, user_phone, items, total, payment_id, payment_method, status } = req.body;
-        
+
         console.log('📝 Criando pedido para:', user_email);
-        
+
         const result = await sql`
             INSERT INTO orders (user_name, user_email, user_phone, items, total, payment_id, payment_method, status)
             VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(items)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
             RETURNING *
         `;
-        
+
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar pedido:', error);
@@ -1501,7 +1494,7 @@ app.get('/api/sales-stats', auth, pastorOnly, async (req, res) => {
 app.post('/api/registrations', async (req, res) => {
     try {
         const { type, name, email, phone, department_name, event_name, details, amount, is_paid, birth_date, baptism_date, baptism_date_id } = req.body;
-        
+
         let finalDetails = details || '';
         if (type === 'baptism' && birth_date) {
             finalDetails = `Data de Nascimento: ${new Date(birth_date).toLocaleDateString('pt-BR')}\n`;
@@ -1509,7 +1502,7 @@ app.post('/api/registrations', async (req, res) => {
                 finalDetails += `Data do Batismo: ${new Date(baptism_date).toLocaleDateString('pt-BR')}\n`;
             }
             finalDetails += details || '';
-            
+
             if (baptism_date_id) {
                 await sql`
                     UPDATE baptism_dates 
@@ -1524,7 +1517,7 @@ app.post('/api/registrations', async (req, res) => {
             VALUES (${type}, ${name}, ${email || ''}, ${phone || ''}, ${department_name || ''}, ${event_name || ''}, ${finalDetails || ''}, ${parseFloat(amount) || 0}, ${is_paid || false})
             RETURNING *
         `;
-        
+
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro inscrição:', error);
@@ -1566,15 +1559,15 @@ app.delete('/api/registrations/:id', auth, async (req, res) => {
 app.post('/api/donations', async (req, res) => {
     try {
         const { user_name, user_email, user_phone, type, amount, payment_id, payment_method, status } = req.body;
-        
+
         console.log('📝 Registrando doação de:', user_email);
-        
+
         const result = await sql`
             INSERT INTO donations (user_name, user_email, user_phone, type, amount, payment_id, payment_method, status)
             VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${type}, ${amount}, ${payment_id}, ${payment_method}, ${status || 'pending'})
             RETURNING *
         `;
-        
+
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar doação:', error);
@@ -1597,7 +1590,7 @@ app.get('/api/donations', auth, async (req, res) => {
 app.post('/api/send-confirmation-email', async (req, res) => {
     try {
         const { payment_id } = req.body;
-        
+
         if (!payment_id) {
             return res.status(400).json({ error: 'payment_id é obrigatório' });
         }
@@ -1606,30 +1599,21 @@ app.post('/api/send-confirmation-email', async (req, res) => {
 
         const orders = await sql`SELECT * FROM orders WHERE payment_id = ${payment_id}`;
         const donations = await sql`SELECT * FROM donations WHERE payment_id = ${payment_id}`;
-        
+
         const item = orders[0] || donations[0];
         const isOrder = orders.length > 0;
-        
+
         if (!item) {
             console.log('⚠️ Pagamento não encontrado:', payment_id);
             return res.status(404).json({ error: 'Pagamento não encontrado' });
         }
-
         if (item.email_sent) {
-            console.log('⚠️ Email já foi enviado para este pagamento');
-            return res.json({ 
-                success: true, 
-                message: 'Email já enviado anteriormente',
-                already_sent: true 
-            });
+            console.log('⚠️ Email já foi enviado');
+            return res.json({ success: true, message: 'Email já enviado anteriormente', already_sent: true });
         }
-
         if (item.status !== 'approved') {
             console.log('⚠️ Pagamento não aprovado ainda:', item.status);
-            return res.status(400).json({ 
-                error: 'Pagamento não foi aprovado',
-                status: item.status 
-            });
+            return res.status(400).json({ error: 'Pagamento não foi aprovado', status: item.status });
         }
 
         let emailEnviado = false;
@@ -1637,7 +1621,6 @@ app.post('/api/send-confirmation-email', async (req, res) => {
         if (isOrder) {
             let items = [];
             try { items = JSON.parse(item.items || '[]'); } catch {}
-            
             emailEnviado = await enviarEmailCompra({
                 email: item.user_email,
                 nome: item.user_name,
@@ -1663,13 +1646,11 @@ app.post('/api/send-confirmation-email', async (req, res) => {
             } else {
                 await sql`UPDATE donations SET email_sent = true WHERE id = ${item.id}`;
             }
-            
             console.log('✅ Email enviado e marcado!');
             return res.json({ success: true, message: 'Email enviado!' });
         } else {
             return res.status(500).json({ error: 'Falha ao enviar email' });
         }
-
     } catch (error) {
         console.error('❌ Erro ao enviar email:', error);
         res.status(500).json({ error: error.message });
@@ -1775,53 +1756,78 @@ app.get('/api/attendance/date/:date', auth, async (req, res) => {
 });
 
 // ============================================
-// ===== DÍZIMOS =====
+// ===== DÍZIMOS (CORRIGIDO - MEMBRO OU VISITANTE) =====
 // ============================================
 
 app.post('/api/tithes', auth, async (req, res) => {
     try {
-        const { member_id, member_name, type, amount, payment_method, payment_date, description } = req.body;
-        
-        if (!type || !amount) return res.status(400).json({ error: 'Tipo e valor são obrigatórios' });
+        const {
+            member_id,
+            member_name,
+            visitor_email,
+            visitor_phone,
+            type,
+            amount,
+            payment_method,
+            payment_date,
+            description
+        } = req.body;
+
+        if (!type || !amount) {
+            return res.status(400).json({ error: 'Tipo e valor são obrigatórios' });
+        }
+
+        let finalName = (member_name || '').trim();
+        let finalEmail = null;
+        let finalPhone = visitor_phone || '';
+        let finalMemberId = member_id || null;
+
+        // Se for membro cadastrado
+        if (finalMemberId) {
+            const member = await sql`SELECT name, email, phone FROM members WHERE id = ${finalMemberId}`;
+            if (member.length > 0) {
+                finalName = member[0].name;
+                finalEmail = member[0].email;
+                finalPhone = member[0].phone || finalPhone;
+            } else {
+                // ID inválido → trata como visitante
+                finalMemberId = null;
+            }
+        } else {
+            // Visitante: usa email fornecido (opcional)
+            finalEmail = visitor_email || null;
+        }
+
+        if (!finalName) finalName = 'Visitante';
 
         const result = await sql`
-            INSERT INTO tithes (member_id, member_name, type, amount, payment_method, payment_date, description, received_by)
-            VALUES (${member_id || null}, ${member_name || ''}, ${type}, ${amount}, ${payment_method || 'dinheiro'}, ${payment_date || new Date()}, ${description || ''}, ${req.user.id})
+            INSERT INTO tithes (
+                member_id, member_name, visitor_email, visitor_phone,
+                type, amount, payment_method, payment_date, description, received_by
+            )
+            VALUES (
+                ${finalMemberId}, ${finalName}, ${finalEmail || ''}, ${finalPhone || ''},
+                ${type}, ${amount}, ${payment_method || 'dinheiro'},
+                ${payment_date || new Date()}, ${description || ''}, ${req.user.id}
+            )
             RETURNING *
         `;
-        
-        let targetEmail = null;
-        let targetName = member_name || 'Irmão(ã)';
-        
-        if (member_id) {
-            const member = await sql`SELECT email, name FROM members WHERE id = ${member_id}`;
-            if (member.length > 0 && member[0].email) {
-                targetEmail = member[0].email;
-                targetName = member[0].name;
-            }
-        }
-        
-        if (!targetEmail) {
-            const userData = await sql`SELECT email, name FROM users WHERE id = ${req.user.id}`;
-            if (userData.length > 0) {
-                targetEmail = userData[0].email;
-                targetName = userData[0].name;
-            }
-        }
-        
-        if (targetEmail && targetEmail.includes('@')) {
-            await enviarEmailDizimoOferta({
-                email: targetEmail,
-                nome: targetName,
+
+        // Envia email de confirmação (só se tiver email válido)
+        if (finalEmail && finalEmail.includes('@') && transporter) {
+            enviarEmailDizimoOferta({
+                email: finalEmail,
+                nome: finalName,
                 tipo: type,
                 valor: amount,
                 data: payment_date || new Date(),
                 paymentId: `TITHE-${result[0].id}`
-            });
+            }).catch(err => console.error('❌ Erro email dízimo:', err.message));
         }
-        
+
         res.status(201).json(result[0]);
     } catch (error) {
+        console.error('❌ Erro ao registrar dízimo:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1970,7 +1976,7 @@ app.post('/api/celulas/:id/membros', auth, async (req, res) => {
     try {
         const { membro_id } = req.body;
         if (!membro_id) return res.status(400).json({ error: 'Membro é obrigatório' });
-        
+
         await sql`
             INSERT INTO celula_membros (celula_id, membro_id)
             VALUES (${req.params.id}, ${membro_id})
@@ -1989,7 +1995,7 @@ app.post('/api/celulas/:id/membros', auth, async (req, res) => {
 app.post('/api/lives/start', auth, async (req, res) => {
     try {
         const { titulo, descricao } = req.body;
-        
+
         if (req.user.role !== 'pastor') {
             return res.status(403).json({ error: 'Apenas o pastor pode iniciar uma live' });
         }
@@ -2016,18 +2022,17 @@ app.post('/api/lives/start', auth, async (req, res) => {
 app.post('/api/lives/end/:id', auth, async (req, res) => {
     try {
         const { id } = req.params;
-        
+
         const live = await sql`SELECT * FROM lives WHERE id = ${id}`;
         if (live.length === 0) return res.status(404).json({ error: 'Live não encontrada' });
-        
         if (live[0].status === 'ended') return res.status(400).json({ error: 'Live já encerrada' });
 
         const result = await sql`
             UPDATE lives SET status = 'ended', ended_at = NOW() WHERE id = ${id} RETURNING *
         `;
-        
+
         await sql`UPDATE live_viewers SET left_at = NOW() WHERE live_id = ${id} AND left_at IS NULL`;
-        
+
         res.json({ message: 'Live encerrada!', live: result[0] });
     } catch (error) {
         console.error('❌ Erro ao encerrar live:', error);
@@ -2044,17 +2049,17 @@ app.get('/api/lives/active', async (req, res) => {
             WHERE l.status = 'live'
             ORDER BY l.started_at DESC
         `;
-        
+
         if (lives.length === 0) {
             return res.json({ status: 'offline', message: 'Nenhuma live ativa' });
         }
-        
+
         const live = lives[0];
         const viewers = await sql`
             SELECT COUNT(*) as total FROM live_viewers WHERE live_id = ${live.id} AND left_at IS NULL
         `;
         live.viewers = viewers[0]?.total || 0;
-        
+
         res.json(live);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -2149,7 +2154,7 @@ app.get('/api/settings', async (req, res) => {
         const settings = await sql`SELECT * FROM site_settings`;
         const obj = {};
         settings.forEach(s => obj[s.key] = s.value);
-        
+
         if (!obj.cultos) {
             obj.cultos = JSON.stringify([
                 { dia: 0, hora: 18, minuto: 0, label: 'Domingo 18:00' },
@@ -2163,7 +2168,7 @@ app.get('/api/settings', async (req, res) => {
         if (!obj.about_mission) obj.about_mission = 'Levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.';
         if (!obj.about_vision) obj.about_vision = 'Ser uma igreja relevante, que transforma vidas e impacta a comunidade com o evangelho.';
         if (!obj.about_values) obj.about_values = 'Amor, fé, esperança, serviço e comunhão.';
-        
+
         res.json(obj);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -2190,10 +2195,10 @@ app.post('/api/settings/logo', auth, pastorOnly, upload.single('logo'), async (r
     try {
         if (!req.file) return res.status(400).json({ error: 'Nenhuma imagem enviada' });
         if (req.file.size > 2 * 1024 * 1024) return res.status(400).json({ error: 'Imagem muito grande (máx 2MB)' });
-        
+
         const image_base64 = req.file.buffer.toString('base64');
         const dataUrl = `data:${req.file.mimetype};base64,${image_base64}`;
-        
+
         await sql`
             INSERT INTO site_settings (key, value) VALUES ('site_logo', ${dataUrl})
             ON CONFLICT (key) DO UPDATE SET value = ${dataUrl}, updated_at = NOW()
@@ -2259,7 +2264,6 @@ app.get('/api/bible', async (req, res) => {
 
         const data = await response.json();
         res.json(data);
-
     } catch (error) {
         console.error('❌ Erro bíblia:', error);
         if (error.name === 'AbortError') {
@@ -2276,7 +2280,6 @@ app.get('/api/bible', async (req, res) => {
 app.post('/api/songs', auth, async (req, res) => {
     try {
         const { title, artist, key, lyrics, youtube_url, department_id } = req.body;
-        
         if (!title) return res.status(400).json({ error: 'Título é obrigatório' });
 
         const result = await sql`
@@ -2294,7 +2297,6 @@ app.get('/api/songs', auth, async (req, res) => {
     try {
         const { department_id } = req.query;
         let songs;
-        
         if (department_id) {
             songs = await sql`
                 SELECT * FROM songs WHERE department_id = ${department_id} ORDER BY title
@@ -2324,7 +2326,6 @@ app.delete('/api/songs/:id', auth, async (req, res) => {
 app.post('/api/availability', auth, async (req, res) => {
     try {
         const { user_id, date, department_id } = req.body;
-        
         if (!user_id || !date) {
             return res.status(400).json({ error: 'user_id e date são obrigatórios' });
         }
@@ -2355,7 +2356,7 @@ app.get('/api/availability/:userId', auth, async (req, res) => {
 app.get('/api/availability/date/:date/department/:departmentId', auth, async (req, res) => {
     try {
         const { date, departmentId } = req.params;
-        
+
         const result = await sql`
             SELECT u.id, u.name, u.email, u.phone, u.role, u.is_leader,
                    dm.role as member_role
@@ -2388,7 +2389,6 @@ app.delete('/api/availability/:id', auth, async (req, res) => {
 app.post('/api/worship-scales', auth, async (req, res) => {
     try {
         const { department_id, event_date, leader_id, minister_id, songs, song_ids, palette, rehearsal, musicians } = req.body;
-        
         if (!department_id || !event_date) {
             return res.status(400).json({ error: 'department_id e event_date são obrigatórios' });
         }
@@ -2413,20 +2413,16 @@ app.post('/api/worship-scales', auth, async (req, res) => {
 app.get('/api/worship-scales', auth, async (req, res) => {
     try {
         const { department_id } = req.query;
-        
         let query = `
             SELECT ws.*, u1.name as leader_name, u2.name as minister_name
             FROM worship_scales ws
             LEFT JOIN users u1 ON ws.leader_id = u1.id
             LEFT JOIN users u2 ON ws.minister_id = u2.id
         `;
-        
         if (department_id) {
             query += ` WHERE ws.department_id = ${department_id}`;
         }
-        
         query += ` ORDER BY ws.event_date DESC`;
-        
         const scales = await sql(query);
         res.json(scales);
     } catch (error) {
@@ -2461,35 +2457,32 @@ app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
             LEFT JOIN users u2 ON ws.minister_id = u2.id
             WHERE ws.id = ${req.params.id}
         `;
-        
         if (scale.length === 0) return res.status(404).json({ error: 'Escala não encontrada' });
-        
+
         const s = scale[0];
-        
+
         let songIds = [];
-        try {
-            songIds = typeof s.song_ids === 'string' ? JSON.parse(s.song_ids) : (s.song_ids || []);
-        } catch { songIds = []; }
-        
+        try { songIds = typeof s.song_ids === 'string' ? JSON.parse(s.song_ids) : (s.song_ids || []); }
+        catch { songIds = []; }
+
         let songsDetails = [];
         if (songIds.length > 0) {
             songsDetails = await sql`
                 SELECT id, title, artist, key, lyrics, youtube_url FROM songs WHERE id = ANY(${songIds})
             `;
         }
-        
+
         let musicianIds = [];
-        try {
-            musicianIds = typeof s.musician_ids === 'string' ? JSON.parse(s.musician_ids) : (s.musician_ids || []);
-        } catch { musicianIds = []; }
-        
+        try { musicianIds = typeof s.musician_ids === 'string' ? JSON.parse(s.musician_ids) : (s.musician_ids || []); }
+        catch { musicianIds = []; }
+
         let musiciansDetails = [];
         if (musicianIds.length > 0) {
             musiciansDetails = await sql`
                 SELECT id, name, role FROM users WHERE id = ANY(${musicianIds})
             `;
         }
-        
+
         res.json({ ...s, songs: songsDetails, musicians: musiciansDetails });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -2499,19 +2492,15 @@ app.get('/api/worship-scales/:id/details', auth, async (req, res) => {
 app.put('/api/worship-scales/:id/songs', auth, async (req, res) => {
     try {
         const { songs, song_ids } = req.body;
-        
         const songsJson = JSON.stringify(Array.isArray(songs) ? songs : []);
         const songIdsJson = JSON.stringify(Array.isArray(song_ids) ? song_ids : []);
-        
         const result = await sql`
             UPDATE worship_scales 
             SET songs = ${songsJson}::jsonb, song_ids = ${songIdsJson}::jsonb
             WHERE id = ${req.params.id}
             RETURNING *
         `;
-        
         if (result.length === 0) return res.status(404).json({ error: 'Escala não encontrada' });
-        
         res.json(result[0]);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -2527,17 +2516,15 @@ app.get('/api/worship-scales/:id/share', auth, async (req, res) => {
             LEFT JOIN users u2 ON ws.minister_id = u2.id
             WHERE ws.id = ${req.params.id}
         `;
-        
         if (scale.length === 0) return res.status(404).json({ error: 'Escala não encontrada' });
-        
+
         const s = scale[0];
         const eventDate = new Date(s.event_date);
-        
+
         let songsList = [];
-        try {
-            songsList = typeof s.songs === 'string' ? JSON.parse(s.songs) : (s.songs || []);
-        } catch { songsList = []; }
-        
+        try { songsList = typeof s.songs === 'string' ? JSON.parse(s.songs) : (s.songs || []); }
+        catch { songsList = []; }
+
         const message = `🎵 *ESCALA DE LOUVOR* 🎵
 
 📅 *Data:* ${eventDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })} às ${eventDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
@@ -2554,7 +2541,6 @@ ${s.rehearsal ? '🎙️ *COM ENSAIO*' : ''}
 _Deus abençoe!_ 🙏`;
 
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-        
         res.json({ whatsapp_url: whatsappUrl, message });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -2580,19 +2566,17 @@ app.get('/api/youtube-search', auth, async (req, res) => {
         if (!query) return res.status(400).json({ error: 'Query é obrigatória' });
 
         const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
-        
+
         if (YOUTUBE_API_KEY) {
             const response = await fetch(
                 `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}`
             );
             const data = await response.json();
-            
             const results = data.items?.map(item => ({
                 videoId: item.id.videoId,
                 title: item.snippet.title,
                 thumbnail: item.snippet.thumbnails.default.url
             })) || [];
-            
             res.json({ results });
         } else {
             const results = [
@@ -2610,14 +2594,11 @@ app.get('/api/youtube-search', auth, async (req, res) => {
 app.post('/api/youtube-song', auth, async (req, res) => {
     try {
         const { url } = req.body;
-        
         const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\?]+)/;
         const match = url.match(youtubeRegex);
-        
         if (!match) return res.status(400).json({ error: 'Link do YouTube inválido' });
-        
+
         const videoId = match[1];
-        
         res.json({
             video_id: videoId,
             embed_url: `https://www.youtube.com/embed/${videoId}`,
@@ -2635,11 +2616,9 @@ app.post('/api/youtube-song', auth, async (req, res) => {
 app.post('/api/transpose-chord', auth, async (req, res) => {
     try {
         const { lyrics, fromKey, toKey } = req.body;
-        
         if (!lyrics || !fromKey || !toKey) {
             return res.status(400).json({ error: 'Dados incompletos' });
         }
-        
         const transposed = transposeChords(lyrics, fromKey, toKey);
         res.json({ transposed });
     } catch (error) {
@@ -2653,25 +2632,17 @@ function transposeChords(lyrics, fromKey, toKey) {
         'E': 4, 'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8,
         'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11
     };
-    
     const chordNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    
     const from = chordMap[fromKey];
     const to = chordMap[toKey];
-    
     if (from === undefined || to === undefined) return lyrics;
-    
     const diff = (to - from + 12) % 12;
-    
     const chordRegex = /([A-G][#b]?)(maj|m|min|dim|aug|sus|add|\d|\(|\)|)?/g;
-    
     return lyrics.replace(chordRegex, (match, chord, suffix) => {
         const baseIndex = chordMap[chord];
         if (baseIndex === undefined) return match;
-        
         const newIndex = (baseIndex + diff) % 12;
         const newChord = chordNames[newIndex];
-        
         return newChord + (suffix || '');
     });
 }
@@ -2684,7 +2655,7 @@ app.get('/api/registration-pdf/:id', async (req, res) => {
     try {
         const reg = await sql`SELECT * FROM registrations WHERE id = ${req.params.id}`;
         if (reg.length === 0) return res.status(404).json({ error: 'Não encontrado' });
-        
+
         const html = `
         <!DOCTYPE html>
         <html>
@@ -2744,7 +2715,7 @@ app.post('/api/create-pix-payment', async (req, res) => {
             }
         });
 
-        const paymentLink = payment.point_of_interaction?.transaction_data?.ticket_url || 
+        const paymentLink = payment.point_of_interaction?.transaction_data?.ticket_url ||
                            `https://www.mercadopago.com.br/payments/${payment.id}`;
 
         res.json({
@@ -2791,7 +2762,7 @@ app.post('/api/create-card-payment-fallback', async (req, res) => {
         });
 
         const tokenResult = await tokenResponse.json();
-        
+
         const payment = await PaymentService.create({
             body: {
                 transaction_amount: valor,
@@ -2825,18 +2796,15 @@ app.post('/api/webhook', async (req, res) => {
     try {
         console.log('📝 Webhook recebido');
         const { data, type } = req.body;
-        
+
         if (type === 'payment' && data?.id) {
             const paymentId = data.id;
-            
             if (PaymentService) {
                 try {
                     const payment = await PaymentService.get({ id: paymentId });
-                    
                     if (payment.status === 'approved') {
                         await sql`UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}`;
                         await sql`UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}`;
-                        
                         console.log('✅ Status atualizado via webhook');
                     }
                 } catch (error) {
@@ -2854,13 +2822,13 @@ app.post('/api/webhook', async (req, res) => {
 app.get('/api/check-payment/:paymentId', async (req, res) => {
     try {
         if (!PaymentService) return res.status(500).json({ error: 'MP não configurado' });
-        
+
         const payment = await PaymentService.get({ id: req.params.paymentId });
-        
-        res.json({ 
-            id: payment.id, 
-            status: payment.status, 
-            status_detail: payment.status_detail 
+
+        res.json({
+            id: payment.id,
+            status: payment.status,
+            status_detail: payment.status_detail
         });
     } catch (error) {
         res.status(500).json({ error: error.message });

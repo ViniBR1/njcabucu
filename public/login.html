@@ -384,7 +384,7 @@
         const API_URL = window.location.origin;
 
         // ============================================
-        // CARREGAR LOGO PERSONALIZADA
+        // CARREGAR LOGO + FAVICON DINÂMICOS
         // ============================================
         async function loadLoginLogo() {
             const logoEl = document.getElementById('loginLogo');
@@ -394,30 +394,93 @@
                 const data = await res.json();
 
                 if (data.site_logo) {
-                    // Cria a imagem
+                    // 1) Atualiza a logo grande
                     const img = document.createElement('img');
                     img.src = data.site_logo;
                     img.alt = 'Logo NJ Cabuçu';
                     img.onload = () => {
-                        // Remove o skeleton e adiciona a imagem
                         logoEl.innerHTML = '';
                         logoEl.appendChild(img);
-                        // Se tiver borda, mantém
                         logoEl.style.background = '#fff';
                         logoEl.style.border = '3px solid #e0e0e0';
                     };
                     img.onerror = () => {
-                        // Se a imagem falhar, mantém o NJ
                         logoEl.innerHTML = 'NJ';
                     };
+
+                    // 2) Atualiza o favicon (ícone da aba)
+                    updateFavicon(data.site_logo);
+
+                    // 3) Atualiza o título da aba com o nome da igreja (se tiver)
+                    if (data.site_title) {
+                        document.title = 'Login - ' + data.site_title;
+                    }
                 } else {
-                    // Sem logo personalizada → mostra NJ padrão
+                    // Sem logo personalizada → mantém NJ padrão
                     logoEl.innerHTML = 'NJ';
+
+                    // Favicon padrão (um "N" em SVG azul)
+                    updateFavicon(null);
                 }
             } catch (err) {
                 console.warn('⚠️ Não foi possível carregar a logo:', err.message);
-                // Fallback: mantém "NJ" (o skeleton já está renderizado)
                 logoEl.innerHTML = 'NJ';
+                updateFavicon(null);
+            }
+        }
+
+        // ============================================
+        // FUNÇÃO PARA ATUALIZAR O FAVICON
+        // ============================================
+        function updateFavicon(imageUrl) {
+            // Remove favicons existentes
+            const existingIcons = document.querySelectorAll("link[rel*='icon']");
+            existingIcons.forEach(el => el.remove());
+
+            // Se tem imagem, usa ela
+            if (imageUrl) {
+                const link = document.createElement('link');
+                link.rel = 'icon';
+                link.type = 'image/png';
+                link.href = imageUrl;
+                document.head.appendChild(link);
+
+                // Adiciona também como apple-touch-icon (iPhone)
+                const appleIcon = document.createElement('link');
+                appleIcon.rel = 'apple-touch-icon';
+                appleIcon.href = imageUrl;
+                document.head.appendChild(appleIcon);
+
+                // Adiciona como shortcut icon (fallback)
+                const shortcut = document.createElement('link');
+                shortcut.rel = 'shortcut icon';
+                shortcut.href = imageUrl;
+                document.head.appendChild(shortcut);
+            } else {
+                // Favicon padrão: SVG com "NJ" em círculo azul
+                const svg = `
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                        <defs>
+                            <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#0D47A1"/>
+                                <stop offset="100%" style="stop-color:#1565C0"/>
+                            </linearGradient>
+                        </defs>
+                        <circle cx="50" cy="50" r="48" fill="url(#g)"/>
+                        <text x="50" y="50" text-anchor="middle" dominant-baseline="central"
+                              fill="#fff" font-family="Inter, Arial, sans-serif" font-weight="800" font-size="42">
+                            NJ
+                        </text>
+                    </svg>
+                `.trim();
+
+                const dataUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+
+                const link = document.createElement('link');
+                link.rel = 'icon';
+                link.type = 'image/svg+xml';
+                link.href = dataUrl;
+                document.head.appendChild(link);
             }
         }
 
@@ -580,7 +643,7 @@
         });
 
         document.addEventListener('DOMContentLoaded', () => {
-            // 1) Carrega a logo primeiro (independente do login)
+            // 1) Carrega a logo + favicon primeiro
             loadLoginLogo();
 
             // 2) Se já estiver logado, redireciona

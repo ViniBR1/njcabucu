@@ -1323,6 +1323,50 @@ app.delete('/api/events/:id', auth, pastorOnly, async (req, res) => {
 });
 
 // ============================================
+// ===== DATAS DE BATISMO (NOVO) =====
+// ============================================
+
+app.get('/api/baptism-dates', async (req, res) => {
+    try {
+        const dates = await sql`
+            SELECT id, date, title, description, max_participants, current_participants
+            FROM baptism_dates 
+            WHERE is_active = true AND date >= NOW()
+            ORDER BY date ASC
+        `;
+        res.json(dates);
+    } catch (error) {
+        console.error('❌ Erro ao buscar datas de batismo:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/baptism-dates', auth, pastorOnly, async (req, res) => {
+    try {
+        const { date, title, description, max_participants } = req.body;
+        if (!date) return res.status(400).json({ error: 'Data é obrigatória' });
+
+        const result = await sql`
+            INSERT INTO baptism_dates (date, title, description, max_participants, created_by)
+            VALUES (${date}, ${title || 'Batismo'}, ${description || ''}, ${parseInt(max_participants) || 20}, ${req.user.id})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/baptism-dates/:id', auth, pastorOnly, async (req, res) => {
+    try {
+        await sql`UPDATE baptism_dates SET is_active = false WHERE id = ${req.params.id}`;
+        res.json({ message: 'Data removida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
 // ===== CARROSSEL =====
 // ============================================
 
@@ -1416,8 +1460,6 @@ app.post('/api/orders', async (req, res) => {
             VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(items)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
             RETURNING *
         `;
-        
-        // ⚠️ EMAIL NÃO É ENVIADO AQUI! Será enviado depois via /api/send-confirmation-email
         
         res.status(201).json(result[0]);
     } catch (error) {
@@ -1533,8 +1575,6 @@ app.post('/api/donations', async (req, res) => {
             RETURNING *
         `;
         
-        // ⚠️ EMAIL NÃO É ENVIADO AQUI! Será enviado depois via /api/send-confirmation-email
-        
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('❌ Erro ao criar doação:', error);
@@ -1553,7 +1593,6 @@ app.get('/api/donations', auth, async (req, res) => {
 
 // ============================================
 // ===== ENVIAR EMAIL DE CONFIRMAÇÃO =====
-// ===== (chamado pelo frontend APÓS o toast) =====
 // ============================================
 app.post('/api/send-confirmation-email', async (req, res) => {
     try {
@@ -1576,7 +1615,6 @@ app.post('/api/send-confirmation-email', async (req, res) => {
             return res.status(404).json({ error: 'Pagamento não encontrado' });
         }
 
-        // Evita spam: só envia se ainda não foi enviado
         if (item.email_sent) {
             console.log('⚠️ Email já foi enviado para este pagamento');
             return res.json({ 
@@ -1752,7 +1790,6 @@ app.post('/api/tithes', auth, async (req, res) => {
             RETURNING *
         `;
         
-        // 📧 Buscar email do membro ou do usuário logado
         let targetEmail = null;
         let targetName = member_name || 'Irmão(ã)';
         
@@ -1772,7 +1809,6 @@ app.post('/api/tithes', auth, async (req, res) => {
             }
         }
         
-        // 📧 Enviar email
         if (targetEmail && targetEmail.includes('@')) {
             await enviarEmailDizimoOferta({
                 email: targetEmail,
@@ -2148,7 +2184,7 @@ app.post('/api/settings', auth, pastorOnly, async (req, res) => {
 });
 
 // ============================================
-// ===== LOGO PERSONALIZADA (NOVO) =====
+// ===== LOGO PERSONALIZADA =====
 // ============================================
 app.post('/api/settings/logo', auth, pastorOnly, upload.single('logo'), async (req, res) => {
     try {
@@ -2179,7 +2215,7 @@ app.delete('/api/settings/logo', auth, pastorOnly, async (req, res) => {
 });
 
 // ============================================
-// ===== BÍBLIA (PROXY) (NOVO) =====
+// ===== BÍBLIA (PROXY) =====
 // ============================================
 app.get('/api/bible', async (req, res) => {
     try {
@@ -2798,8 +2834,6 @@ app.post('/api/webhook', async (req, res) => {
                     const payment = await PaymentService.get({ id: paymentId });
                     
                     if (payment.status === 'approved') {
-                        // ⚠️ APENAS ATUALIZA STATUS NO BANCO
-                        // O email será enviado pelo frontend via /api/send-confirmation-email
                         await sql`UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}`;
                         await sql`UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}`;
                         
@@ -2822,9 +2856,6 @@ app.get('/api/check-payment/:paymentId', async (req, res) => {
         if (!PaymentService) return res.status(500).json({ error: 'MP não configurado' });
         
         const payment = await PaymentService.get({ id: req.params.paymentId });
-        
-        // ⚠️ NÃO envia email aqui — apenas retorna o status
-        // O frontend chamará /api/send-confirmation-email depois
         
         res.json({ 
             id: payment.id, 

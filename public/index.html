@@ -50,7 +50,7 @@
             --header-h: 66px;
             --max-width: 1200px;
             --fab-bottom: 28px;
-            /* ===== NOVO PADRÃO DARK/BLACK ===== */
+            /* ===== PADRÃO DARK/BLACK PARA BOTÕES ===== */
             --btn-dark-bg: linear-gradient(135deg, #0b1220, #1e293b);
             --btn-dark-hover: linear-gradient(135deg, #1a2333, #2d3f57);
             --btn-dark-border: rgba(255,255,255,.1);
@@ -144,10 +144,10 @@
         .install-banner .btn-close-banner { background: transparent; color: rgba(255,255,255,.5); border: none; padding: 8px; cursor: pointer; font-size: 18px; transition: all .2s; }
         .install-banner .btn-close-banner:hover { color: #fff; transform: rotate(90deg); }
 
-        /* ===== INSTALL FAB — AGORA ABAIXO DOS OUTROS FABS ===== */
+        /* ===== INSTALL FAB — abaixo dos outros FABs ===== */
         .install-fab {
             position: fixed;
-            bottom: calc(var(--fab-bottom) + 198px); /* abaixo dos 3 FABs (WhatsApp, Oração, Doação) */
+            bottom: calc(var(--fab-bottom) + 198px);
             right: 24px;
             background: linear-gradient(135deg, #0b1220, #1e293b); color: #fff; border: none;
             padding: 14px 24px; border-radius: 50px; font-weight: 600; font-size: 14px;
@@ -169,10 +169,7 @@
         @media (max-width: 768px) {
             .install-banner { padding: 14px 16px; flex-direction: column; align-items: stretch; }
             .install-banner .banner-actions { justify-content: flex-end; width: 100%; }
-            .install-fab {
-                bottom: calc(20px + 198px); /* alinhado com mobile: fab-whatsapp=20, prayer=76, donation=132 */
-                right: 14px; padding: 12px 18px; font-size: 13px;
-            }
+            .install-fab { bottom: calc(20px + 198px); right: 14px; padding: 12px 18px; font-size: 13px; }
         }
 
         /* ===== HEADER ===== */
@@ -246,6 +243,10 @@
         .btn-dark i { font-size: .85rem; }
         .btn-dark.btn-block { width: 100%; }
         .btn-dark.btn-lg { padding: .75rem 1.6rem; font-size: .85rem; border-radius: 14px; }
+        .btn-dark:disabled, .btn-dark[disabled] {
+            opacity: .45; cursor: not-allowed; transform: none !important;
+            box-shadow: none !important;
+        }
 
         .btn-icon-circle {
             width: 38px; height: 38px; padding: 0; border-radius: 50%;
@@ -439,35 +440,6 @@
         .service-item h4 { font-size: .72rem; font-weight: 700; margin: 0; text-align: center; letter-spacing: -.2px; }
         .service-item p { font-size: .55rem; color: var(--muted); margin: 0; }
 
-        /* ===== INSCRIÇÕES + NJ STORE — PADRÃO DARK/BLACK ===== */
-        .service-item.inscricoes {
-            background: linear-gradient(135deg, #0b1220, #1e293b);
-            border: 1px solid rgba(255,255,255,.1);
-            color: #fff;
-        }
-        .service-item.inscricoes .icon {
-            background: linear-gradient(135deg, #334155, #475569);
-            color: #fff;
-        }
-        .service-item.inscricoes h4 { color: #fff; }
-        .service-item.inscricoes p { color: rgba(255,255,255,.6); }
-        .service-item.inscricoes:hover { transform: translateY(-4px); box-shadow: var(--btn-dark-shadow-hover); border-color: rgba(255,255,255,.25); }
-        .service-item.inscricoes:hover .icon { background: linear-gradient(135deg, #60a5fa, #3b82f6); color: #fff; }
-
-        .service-item.store {
-            background: linear-gradient(135deg, #0b1220, #1e293b);
-            border: 1px solid rgba(255,255,255,.1);
-            color: #fff;
-        }
-        .service-item.store .icon {
-            background: linear-gradient(135deg, #334155, #475569);
-            color: #fff;
-        }
-        .service-item.store h4 { color: #fff; }
-        .service-item.store p { color: rgba(255,255,255,.6); }
-        .service-item.store:hover { transform: translateY(-4px); box-shadow: var(--btn-dark-shadow-hover); border-color: rgba(255,255,255,.25); }
-        .service-item.store:hover .icon { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
-
         /* ===== SECTION BASE ===== */
         .section { max-width: var(--max-width); margin: 2.6rem auto; padding: 0 1rem; scroll-margin-top: 110px; }
         .section-header { text-align: center; margin-bottom: 2rem; }
@@ -519,7 +491,7 @@
         }
         .card:hover .card-image-wrapper img { transform: scale(1.06); }
 
-        /* ===== INSCRIÇÕES — NOVOS CARDS PROFISSIONAIS ===== */
+        /* ===== INSCRIÇÕES — CARDS CLEAN (ícones pretos) ===== */
         .registration-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -538,19 +510,10 @@
             flex-direction: column;
             overflow: hidden;
         }
-        .reg-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 4px;
-            background: var(--primary-gradient);
-            border-radius: var(--radius) var(--radius) 0 0;
-            opacity: .9;
-        }
         .reg-card:hover {
             transform: translateY(-6px);
             box-shadow: var(--shadow-lg);
-            border-color: rgba(13,71,161,.25);
+            border-color: rgba(15,23,42,.18);
         }
         .reg-card-icon {
             width: 52px; height: 52px;
@@ -560,12 +523,9 @@
             margin-bottom: .9rem;
             box-shadow: 0 6px 20px rgba(0,0,0,.15);
             transition: var(--transition);
+            background: linear-gradient(135deg, #1a2333, #0f172a);
         }
         .reg-card:hover .reg-card-icon { transform: scale(1.08) rotate(-3deg); }
-        .reg-card-icon.baptism { background: linear-gradient(135deg, #0ea5e9, #0284c7); }
-        .reg-card-icon.volunteer { background: linear-gradient(135deg, #22c55e, #16a34a); }
-        .reg-card-icon.event { background: linear-gradient(135deg, #f59e0b, #d97706); }
-        .reg-card-icon.department { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
         .reg-card h3 {
             font-size: 1rem;
             font-weight: 800;
@@ -591,40 +551,207 @@
             color: var(--muted);
             margin-bottom: .6rem;
         }
-        .reg-card .reg-card-badge i { color: var(--primary); }
+        .reg-card .reg-card-badge i { color: #10b981; }
         .reg-card .btn-dark { width: 100%; margin-top: auto; }
 
-        /* ===== ESTUDOS ===== */
-        .study-card {
+        /* ===== EVENTOS — CARDS MODERNOS ===== */
+        .event-card-modern {
+            background: #fff;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+        }
+        .event-card-modern:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(13,71,161,.22);
+        }
+        .event-card-img {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: linear-gradient(135deg, #1e3a8a, #0D47A1);
+            overflow: hidden;
+        }
+        .event-card-img img {
+            width: 100%; height: 100%; object-fit: cover;
+            transition: transform .5s ease;
+        }
+        .event-card-modern:hover .event-card-img img { transform: scale(1.05); }
+        .event-card-img .event-date-badge {
+            position: absolute; top: 12px; left: 12px;
+            background: rgba(255,255,255,.95);
+            color: var(--ink);
+            padding: .35rem .7rem;
+            border-radius: 10px;
+            font-weight: 800; font-size: .7rem;
+            box-shadow: 0 4px 14px rgba(0,0,0,.15);
+            backdrop-filter: blur(4px);
+            display: flex; flex-direction: column; align-items: center; line-height: 1.1;
+        }
+        .event-card-img .event-date-badge .day { font-size: 1.15rem; color: var(--primary); }
+        .event-card-img .event-date-badge .month { font-size: .55rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+        .event-card-img .event-status-badge {
+            position: absolute; top: 12px; right: 12px;
+            padding: .25rem .7rem; border-radius: var(--radius-full);
+            font-size: .55rem; font-weight: 800; text-transform: uppercase; letter-spacing: .5px;
+            backdrop-filter: blur(4px);
+        }
+        .event-card-img .event-status-badge.open {
+            background: rgba(16,185,129,.15); color: #059669; border: 1px solid rgba(16,185,129,.3);
+        }
+        .event-card-img .event-status-badge.closed {
+            background: rgba(239,68,68,.15); color: #dc2626; border: 1px solid rgba(239,68,68,.3);
+        }
+        .event-card-img .event-status-badge.free {
+            background: rgba(13,71,161,.12); color: var(--primary); border: 1px solid rgba(13,71,161,.25);
+        }
+        .event-card-body {
+            padding: 1.1rem 1.2rem 1.3rem;
+            display: flex; flex-direction: column; flex: 1;
+        }
+        .event-card-body h3 {
+            font-size: 1rem; font-weight: 800; color: var(--ink);
+            margin-bottom: .35rem; letter-spacing: -.2px;
+        }
+        .event-card-body .event-desc {
+            font-size: .8rem; color: var(--ink-soft); line-height: 1.6;
+            flex: 1; margin-bottom: .8rem;
+        }
+        .event-meta {
+            display: flex; flex-direction: column; gap: .35rem;
+            margin-bottom: .9rem;
+        }
+        .event-meta-item {
+            display: flex; align-items: center; gap: .4rem;
+            font-size: .75rem; color: var(--ink-soft);
+        }
+        .event-meta-item i { color: var(--primary); width: 14px; text-align: center; font-size: .72rem; }
+        .event-meta-item strong { color: var(--ink); font-weight: 700; }
+        .event-card-body .btn-dark { width: 100%; margin-top: auto; }
+        .event-card-body .btn-dark.closed {
+            background: #e2e8f0; color: #64748b; border-color: #cbd5e1;
+            box-shadow: none; cursor: not-allowed;
+        }
+        .event-card-body .btn-dark.closed:hover { transform: none; box-shadow: none; background: #e2e8f0; }
+
+        /* ===== ESTUDOS — CARDS MODERNOS ===== */
+        .study-card-modern {
             background: #fff; border-radius: var(--radius); overflow: hidden;
             border: 1px solid var(--line); box-shadow: var(--shadow-sm);
             transition: var(--transition); display: flex; flex-direction: column;
         }
-        .study-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); border-color: rgba(13,71,161,.25); }
-        .study-thumb {
+        .study-card-modern:hover {
+            transform: translateY(-6px); box-shadow: var(--shadow-lg);
+            border-color: rgba(13,71,161,.22);
+        }
+        .study-card-modern .study-thumb {
             position: relative; width: 100%; aspect-ratio: 16 / 9;
             background: linear-gradient(135deg, #1e3a8a, #0D47A1);
             display: flex; align-items: center; justify-content: center;
             overflow: hidden; flex-shrink: 0;
         }
-        .study-thumb img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
-        .study-thumb .ph { position: relative; z-index: 1; text-align: center; color: rgba(255,255,255,.9); }
-        .study-thumb .ph i { font-size: 2rem; display: block; margin-bottom: .3rem; opacity: .9; }
-        .study-thumb .ph span { font-size: .62rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; opacity: .7; }
-        .study-badge {
-            position: absolute; top: 10px; left: 10px; z-index: 2;
-            background: rgba(255,255,255,.92); color: var(--primary-dark);
-            font-size: .55rem; font-weight: 800; padding: .2rem .6rem; border-radius: 6px;
-            letter-spacing: .5px; text-transform: uppercase; backdrop-filter: blur(4px);
+        .study-card-modern .study-thumb img {
+            width: 100%; height: 100%; object-fit: cover;
+            position: absolute; inset: 0; transition: transform .5s ease;
         }
-        .study-body { padding: 1.1rem 1.2rem 1.3rem; display: flex; flex-direction: column; flex: 1; }
-        .study-body h3 { font-size: .98rem; font-weight: 700; color: var(--ink); margin-bottom: .35rem; letter-spacing: -.2px; }
-        .study-body p { font-size: .8rem; color: var(--ink-soft); line-height: 1.6; flex: 1; margin-bottom: 1rem; }
-        .study-action { margin-top: auto; }
-        .study-action .btn, .study-action a {
-            width: 100%; justify-content: center; font-size: .78rem; padding: .55rem 1rem;
-            border-radius: 10px; font-weight: 700;
+        .study-card-modern:hover .study-thumb img { transform: scale(1.06); }
+        .study-card-modern .study-thumb .ph {
+            position: relative; z-index: 1; text-align: center;
+            color: rgba(255,255,255,.95);
         }
+        .study-card-modern .study-thumb .ph i {
+            font-size: 2.2rem; display: block; margin-bottom: .35rem; opacity: .9;
+        }
+        .study-card-modern .study-thumb .ph span {
+            font-size: .62rem; font-weight: 700; letter-spacing: 1.5px;
+            text-transform: uppercase; opacity: .75;
+        }
+        .study-card-modern .study-badge {
+            position: absolute; top: 12px; left: 12px; z-index: 2;
+            background: rgba(255,255,255,.95); color: var(--primary-dark);
+            font-size: .55rem; font-weight: 800; padding: .25rem .65rem;
+            border-radius: 8px; letter-spacing: .5px; text-transform: uppercase;
+            backdrop-filter: blur(4px); box-shadow: 0 4px 12px rgba(0,0,0,.1);
+        }
+        .study-card-modern .study-body {
+            padding: 1.1rem 1.2rem 1.3rem;
+            display: flex; flex-direction: column; flex: 1;
+        }
+        .study-card-modern .study-body h3 {
+            font-size: 1rem; font-weight: 800; color: var(--ink);
+            margin-bottom: .35rem; letter-spacing: -.2px;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .study-card-modern .study-body p {
+            font-size: .8rem; color: var(--ink-soft); line-height: 1.6;
+            flex: 1; margin-bottom: 1rem;
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .study-card-modern .study-action { margin-top: auto; }
+        .study-card-modern .study-action .btn-dark,
+        .study-card-modern .study-action a {
+            width: 100%; justify-content: center; font-size: .78rem;
+            padding: .55rem 1rem; border-radius: 10px; font-weight: 700;
+        }
+
+        /* ===== NJ STORE — CARDS MODERNOS ===== */
+        .product-card-modern {
+            background: #fff; border-radius: var(--radius); overflow: hidden;
+            border: 1px solid var(--line); box-shadow: var(--shadow-sm);
+            transition: var(--transition); display: flex; flex-direction: column;
+        }
+        .product-card-modern:hover {
+            transform: translateY(-6px); box-shadow: var(--shadow-lg);
+            border-color: rgba(13,71,161,.22);
+        }
+        .product-card-modern .product-img {
+            position: relative; width: 100%; aspect-ratio: 1 / 1;
+            background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; flex-shrink: 0;
+        }
+        .product-card-modern .product-img img {
+            width: 100%; height: 100%; object-fit: cover;
+            transition: transform .5s ease;
+        }
+        .product-card-modern:hover .product-img img { transform: scale(1.06); }
+        .product-card-modern .product-img .ph {
+            text-align: center; color: #94a3b8;
+        }
+        .product-card-modern .product-img .ph i {
+            font-size: 2.2rem; display: block; margin-bottom: .35rem;
+        }
+        .product-card-modern .product-img .ph span {
+            font-size: .6rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+        }
+        .product-card-modern .product-body {
+            padding: 1rem 1.1rem 1.2rem;
+            display: flex; flex-direction: column; flex: 1;
+        }
+        .product-card-modern .product-body h3 {
+            font-size: .95rem; font-weight: 800; color: var(--ink);
+            margin-bottom: .3rem; letter-spacing: -.2px;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .product-card-modern .product-body p {
+            font-size: .78rem; color: var(--ink-soft); line-height: 1.55;
+            flex: 1; margin-bottom: .6rem;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .product-card-modern .product-price {
+            font-size: 1.15rem; font-weight: 800; color: var(--primary);
+            margin-bottom: .7rem; letter-spacing: -.3px;
+        }
+        .product-card-modern .btn-dark { width: 100%; margin-top: auto; }
 
         /* ===== VERSE BLOCK ===== */
         .verse-block {
@@ -1074,12 +1201,12 @@
                 <h4>Oração</h4>
                 <p>Peça</p>
             </a>
-            <a href="#inscricoes" class="service-item inscricoes" onclick="scrollToSection('inscricoes')">
+            <a href="#inscricoes" class="service-item" onclick="scrollToSection('inscricoes')">
                 <div class="icon"><i class="fas fa-file-signature"></i></div>
                 <h4>Inscrições</h4>
                 <p>Participe</p>
             </a>
-            <a href="#loja" class="service-item store" onclick="scrollToSection('loja')">
+            <a href="#loja" class="service-item" onclick="scrollToSection('loja')">
                 <div class="icon"><i class="fas fa-bag-shopping"></i></div>
                 <h4>NJ Store</h4>
                 <p>Produtos</p>
@@ -1287,7 +1414,7 @@
         </div>
     </section>
 
-    <!-- ===== INSCRIÇÕES — NOVO LAYOUT COM CARDS PROFISSIONAIS ===== -->
+    <!-- ===== INSCRIÇÕES — CARDS CLEAN (ícones pretos) ===== -->
     <section id="inscricoes" class="section">
         <div class="section-header">
             <span class="tag">Participe</span>
@@ -1298,7 +1425,7 @@
 
         <div class="registration-cards">
             <div class="reg-card">
-                <div class="reg-card-icon baptism"><i class="fas fa-water"></i></div>
+                <div class="reg-card-icon"><i class="fas fa-water"></i></div>
                 <span class="reg-card-badge"><i class="fas fa-check-circle"></i> Disponível</span>
                 <h3>Batismo</h3>
                 <p>Dê o próximo passo na sua caminhada com Cristo. Inscreva-se para o batismo nas águas.</p>
@@ -1308,7 +1435,7 @@
             </div>
 
             <div class="reg-card">
-                <div class="reg-card-icon volunteer"><i class="fas fa-hands-helping"></i></div>
+                <div class="reg-card-icon"><i class="fas fa-hands-helping"></i></div>
                 <span class="reg-card-badge"><i class="fas fa-check-circle"></i> Disponível</span>
                 <h3>Voluntário</h3>
                 <p>Sirva com seus dons e talentos. Faça parte da equipe que transforma vidas.</p>
@@ -1318,7 +1445,7 @@
             </div>
 
             <div class="reg-card">
-                <div class="reg-card-icon event"><i class="fas fa-calendar-plus"></i></div>
+                <div class="reg-card-icon"><i class="fas fa-calendar-plus"></i></div>
                 <span class="reg-card-badge"><i class="fas fa-check-circle"></i> Disponível</span>
                 <h3>Evento</h3>
                 <p>Garanta sua vaga no próximo evento especial da igreja. Vagas limitadas!</p>
@@ -1328,7 +1455,7 @@
             </div>
 
             <div class="reg-card">
-                <div class="reg-card-icon department"><i class="fas fa-users"></i></div>
+                <div class="reg-card-icon"><i class="fas fa-users"></i></div>
                 <span class="reg-card-badge"><i class="fas fa-check-circle"></i> Disponível</span>
                 <h3>Departamento</h3>
                 <p>Faça parte de um ministério e cresça servindo ao Senhor com a comunidade.</p>
@@ -2473,7 +2600,7 @@
         }
 
         // ============================================
-        // ===== ESTUDOS =====
+        // ===== ESTUDOS — CARDS MODERNOS =====
         // ============================================
         async function loadStudies() {
             try {
@@ -2527,7 +2654,7 @@
                         : `<div class="ph"><i class="fas fa-book-open"></i><span>Estudo Bíblico</span></div>`;
 
                     return `
-                        <div class="study-card">
+                        <div class="study-card-modern">
                             <div class="study-thumb">
                                 ${thumbContent}
                                 <span class="study-badge">PDF</span>
@@ -2585,7 +2712,7 @@
         }
 
         // ============================================
-        // ===== EVENTOS =====
+        // ===== EVENTOS — CARDS MODERNOS =====
         // ============================================
         async function loadEvents() {
             try {
@@ -2597,18 +2724,76 @@
                         '<p style="text-align:center;color:#888;grid-column:1/-1;">Nenhum evento disponível.</p>';
                     return;
                 }
-                container.innerHTML = data.map(e => `
-                    <div class="card">
-                        ${e.image_base64 ? createCardImage(e.image_base64, e.title) : ''}
-                        <h3>${e.title}</h3>
-                        <p>${e.description || ''}</p>
-                        <p style="font-size:0.75rem;color:#666;margin:0.15rem 0;"><strong>Data:</strong> ${new Date(e.date).toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' })}</p>
-                        <p style="font-size:0.75rem;color:#666;"><strong>Valor:</strong> ${parseFloat(e.price || 0) > 0 ? 'R$ ' + parseFloat(e.price).toFixed(2) : 'Grátis'}</p>
-                        <button onclick="registerForEvent(${e.id}, '${e.title}', ${e.price || 0})" class="btn-dark btn-block" style="margin-top:0.4rem;">
-                            <i class="fas fa-ticket-alt"></i> Inscrever-se
-                        </button>
-                    </div>
-                `).join('');
+
+                // Ordena por data (mais próximos primeiro)
+                const sortedEvents = [...data].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                container.innerHTML = sortedEvents.map(e => {
+                    const eventDate = new Date(e.date);
+                    const now = new Date();
+                    const isPast = eventDate < now;
+                    const price = parseFloat(e.price || 0);
+                    const isFree = price <= 0;
+
+                    // Badge de data
+                    const day = eventDate.getDate();
+                    const monthNames = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+                    const month = monthNames[eventDate.getMonth()];
+
+                    // Badge de status
+                    let statusBadge = '';
+                    if (isPast) {
+                        statusBadge = `<span class="event-status-badge closed"><i class="fas fa-lock"></i> Encerrado</span>`;
+                    } else if (isFree) {
+                        statusBadge = `<span class="event-status-badge free"><i class="fas fa-gift"></i> Gratuito</span>`;
+                    } else {
+                        statusBadge = `<span class="event-status-badge open"><i class="fas fa-ticket-alt"></i> Inscrições Abertas</span>`;
+                    }
+
+                    const imageHtml = e.image_base64 
+                        ? `<img src="${e.image_base64.startsWith('data:') ? e.image_base64 : 'data:image/jpeg;base64,' + e.image_base64}" alt="${e.title}" loading="lazy" onerror="this.remove()">`
+                        : `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.7);"><i class="fas fa-calendar-alt" style="font-size:2.5rem;"></i></div>`;
+
+                    const dateFormatted = eventDate.toLocaleDateString('pt-BR', { 
+                        weekday: 'long', day: 'numeric', month: 'long', 
+                        hour: '2-digit', minute: '2-digit' 
+                    });
+
+                    return `
+                        <div class="event-card-modern">
+                            <div class="event-card-img">
+                                ${imageHtml}
+                                <div class="event-date-badge">
+                                    <span class="day">${day}</span>
+                                    <span class="month">${month}</span>
+                                </div>
+                                ${statusBadge}
+                            </div>
+                            <div class="event-card-body">
+                                <h3>${e.title}</h3>
+                                <p class="event-desc">${e.description || 'Participe deste evento especial!'}</p>
+                                <div class="event-meta">
+                                    <div class="event-meta-item">
+                                        <i class="fas fa-calendar-day"></i>
+                                        <span>${dateFormatted}</span>
+                                    </div>
+                                    <div class="event-meta-item">
+                                        <i class="fas fa-tag"></i>
+                                        <span><strong>${isFree ? 'Gratuito' : 'R$ ' + price.toFixed(2)}</strong></span>
+                                    </div>
+                                </div>
+                                ${isPast 
+                                    ? `<button class="btn-dark btn-block closed" disabled>
+                                        <i class="fas fa-lock"></i> Evento Encerrado
+                                    </button>`
+                                    : `<button onclick="registerForEvent(${e.id}, '${e.title.replace(/'/g, "\\'")}', ${price})" class="btn-dark btn-block">
+                                        <i class="fas fa-ticket-alt"></i> Inscrever-se
+                                    </button>`
+                                }
+                            </div>
+                        </div>
+                    `;
+                }).join('');
             } catch (e) { console.error('Erro:', e); }
         }
 
@@ -2662,6 +2847,9 @@
             }
         }
 
+        // ============================================
+        // ===== NJ STORE — CARDS MODERNOS =====
+        // ============================================
         async function loadProducts() {
             try {
                 const res = await fetch('/api/products');
@@ -2672,17 +2860,27 @@
                         '<p style="text-align:center;color:#888;grid-column:1/-1;">Nenhum produto disponível.</p>';
                     return;
                 }
-                container.innerHTML = data.map(p => `
-                    <div class="card">
-                        ${p.image_base64 ? createCardImage(p.image_base64, p.name) : ''}
-                        <h3>${p.name}</h3>
-                        <p>${p.description || ''}</p>
-                        <div style="font-size:1.15rem;font-weight:800;color:var(--primary);margin:0.4rem 0;">R$ ${parseFloat(p.price).toFixed(2)}</div>
-                        <button onclick="addToCart(${p.id})" class="btn-dark btn-block">
-                            <i class="fas fa-cart-plus"></i> Comprar
-                        </button>
-                    </div>
-                `).join('');
+                container.innerHTML = data.map(p => {
+                    const imageHtml = p.image_base64 
+                        ? `<img src="${p.image_base64.startsWith('data:') ? p.image_base64 : 'data:image/jpeg;base64,' + p.image_base64}" alt="${p.name}" loading="lazy" onerror="this.remove()">`
+                        : `<div class="ph"><i class="fas fa-bag-shopping"></i><span>NJ Store</span></div>`;
+
+                    return `
+                        <div class="product-card-modern">
+                            <div class="product-img">
+                                ${imageHtml}
+                            </div>
+                            <div class="product-body">
+                                <h3>${p.name}</h3>
+                                <p>${p.description || 'Produto exclusivo da NJ Store.'}</p>
+                                <div class="product-price">R$ ${parseFloat(p.price).toFixed(2)}</div>
+                                <button onclick="addToCart(${p.id})" class="btn-dark btn-block">
+                                    <i class="fas fa-cart-plus"></i> Comprar
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
             } catch (e) { console.error('Erro:', e); }
         }
 

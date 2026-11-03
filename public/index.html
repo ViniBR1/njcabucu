@@ -65,7 +65,7 @@
         ::-webkit-scrollbar-track { background: #eef2f8; }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 
-        /* ===== SPLASH SCREEN ===== */
+        /* ===== SPLASH SCREEN (2s) ===== */
         #splashScreen {
             position: fixed; inset: 0; z-index: 999999;
             background: #000;
@@ -212,7 +212,6 @@
         .btn-live { background: #ff0000; color: #fff; animation: pulse-live 1.5s infinite; }
         @keyframes pulse-live { 0%,100% { opacity: 1; } 50% { opacity: .65; } }
 
-        /* Botões circulares (WhatsApp + Perfil) */
         .btn-icon-circle {
             width: 38px; height: 38px; padding: 0; border-radius: 50%;
             display: inline-flex; align-items: center; justify-content: center;
@@ -252,7 +251,7 @@
         .nav-btn:hover { color: #fff; background: rgba(255,255,255,.08); }
         .nav-btn.active { color: #fff; background: var(--primary-gradient); box-shadow: 0 2px 12px rgba(13,71,161,.4); }
 
-        /* ===== TOPO PRETO + CARROSSEL COLADO ===== */
+        /* ===== TOPO PRETO + CARROSSEL ===== */
         .top-black {
             background: #000;
             padding-top: calc(var(--header-h) + 34px);
@@ -282,7 +281,6 @@
             display: flex; align-items: flex-end; justify-content: flex-start;
             flex-shrink: 0; background: #000;
         }
-        /* CONTAIN = imagem inteira sem cortar, fundo preto puro */
         .hero-slide .bg-image {
             position: absolute; inset: 0; width: 100%; height: 100%;
             object-fit: contain;
@@ -306,14 +304,6 @@
             pointer-events: none;
         }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-        .hero-eyebrow {
-            display: inline-flex; align-items: center; gap: .4rem;
-            background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18);
-            padding: .3rem .85rem; border-radius: var(--radius-full);
-            font-size: .62rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
-            color: #dbeafe; margin-bottom: .9rem; backdrop-filter: blur(8px);
-        }
-        .hero-eyebrow i { color: #60a5fa; }
         .hero-content h1 {
             font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 800;
             margin-bottom: .6rem; text-shadow: 0 4px 30px rgba(0,0,0,.6);
@@ -401,7 +391,7 @@
         .countdown-bar .countdown-timer .time-block .label { font-size: .5rem; font-weight: 700; text-transform: uppercase; opacity: .7; letter-spacing: 1px; margin-top: .2rem; }
         .countdown-bar .next-culto-label { font-size: .68rem; opacity: .85; margin-top: .6rem; font-weight: 500; }
 
-        /* ===== QUICK SERVICES (5 itens) ===== */
+        /* ===== QUICK SERVICES ===== */
         .services-quick { margin: 1.2rem auto 1.6rem; max-width: var(--max-width); padding: 0 1rem; }
         .services-grid {
             display: grid; grid-template-columns: repeat(5, 1fr); gap: .6rem;
@@ -903,7 +893,7 @@
 
     <button class="install-fab" id="installFab"><i class="fas fa-download"></i><span>Instalar App</span></button>
 
-    <!-- ===== TOPO PRETO + CARROSSEL COLADO ===== -->
+    <!-- ===== TOPO PRETO + CARROSSEL ===== -->
     <div class="top-black">
         <div class="hero-wrap">
             <section id="home" class="hero">
@@ -937,7 +927,6 @@
         </div>
     </div>
 
-    <!-- ===== SERVIÇOS RÁPIDOS ===== -->
     <div class="services-quick">
         <div class="services-grid">
             <a href="#live" class="service-item" onclick="scrollToSection('live')">
@@ -1406,14 +1395,12 @@
 
     <script>
         // ============================================
-        // ===== SPLASH SCREEN =====
+        // ===== SPLASH SCREEN (2s) =====
         // ============================================
         (function() {
             const splash = document.getElementById('splashScreen');
-            // Se já viu o splash nesta sessão, pula (opcional — remova se quiser sempre)
             const jaViu = sessionStorage.getItem('splash-visto') === 'true';
 
-            // Carrega logo no splash se tiver no settings
             fetch('/api/settings').then(r => r.json()).then(settings => {
                 if (settings && settings.site_logo) {
                     const splashLogo = document.getElementById('splashLogo');
@@ -1426,13 +1413,12 @@
             if (jaViu) {
                 splash.classList.add('hidden');
             } else {
-                // trava o scroll durante o splash
                 document.body.style.overflow = 'hidden';
                 setTimeout(() => {
                     splash.classList.add('hidden');
                     document.body.style.overflow = '';
                     sessionStorage.setItem('splash-visto', 'true');
-                }, 1500);
+                }, 2000);
             }
         })();
 
@@ -1830,7 +1816,7 @@
         }
 
         // ============================================
-        // ===== CARROSSEL =====
+        // ===== CARROSSEL (sem "NJ Cabuçu") =====
         // ============================================
         async function loadCarouselFromServer() {
             try {
@@ -1905,12 +1891,12 @@
                     (item.image_base64 ? `data:image/jpeg;base64,${item.image_base64}` :
                         'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1600&h=900&fit=crop&crop=center');
 
+                // ✅ REMOVIDO o <span class="hero-eyebrow">NJ Cabuçu</span>
                 slide.innerHTML = `
                     <img src="${imgSrc}" alt="${item.title || 'Slide'}" class="bg-image" loading="lazy">
                     <div class="overlay"></div>
                     <div class="overlay-bottom"></div>
                     <div class="hero-content">
-                        <span class="hero-eyebrow"><i class="fas fa-church"></i> NJ Cabuçu</span>
                         <h1>${item.title || ''}</h1>
                         <p>${item.subtitle || ''}</p>
                         ${item.link ? `<a href="${item.link}" class="btn" onclick="event.stopPropagation(); scrollToSection('${item.link.replace('#', '')}')">
@@ -2783,6 +2769,28 @@
         }
 
         // ============================================
+        // ===== DISPARAR EMAIL DE CONFIRMAÇÃO =====
+        // ============================================
+        async function dispararEmailConfirmacao(paymentId) {
+            try {
+                console.log('📧 Disparando email para:', paymentId);
+                const res = await fetch('/api/send-confirmation-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ payment_id: paymentId })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    console.log('✅ Email enviado:', data.message);
+                } else {
+                    console.warn('⚠️ Email não enviado:', data.error || data.message);
+                }
+            } catch (e) {
+                console.warn('⚠️ Erro ao disparar email:', e.message);
+            }
+        }
+
+        // ============================================
         // ===== VERIFICAR STATUS =====
         // ============================================
         async function checkPaymentStatus(paymentId) {
@@ -2835,6 +2843,9 @@
                         status: 'approved'
                     })
                 });
+
+                // ✅ DISPARA O EMAIL DE CONFIRMAÇÃO
+                await dispararEmailConfirmacao(paymentId);
 
                 localStorage.removeItem('last_payment_id');
 
@@ -2918,6 +2929,9 @@
                                 status: 'approved'
                             })
                         });
+
+                        // ✅ DISPARA O EMAIL DE CONFIRMAÇÃO
+                        await dispararEmailConfirmacao(paymentId);
 
                         localStorage.removeItem('last_payment_id');
 
@@ -3133,6 +3147,8 @@
 
                     if (payment.status === 'approved') {
                         showNotification('✅ Pagamento aprovado! Obrigado! 🙏', 'success');
+                        // ✅ DISPARA O EMAIL DE CONFIRMAÇÃO
+                        await dispararEmailConfirmacao(payment.payment_id);
                         cart = [];
                         document.getElementById('cartCount').textContent = 0;
                         closeModal('paymentModal');

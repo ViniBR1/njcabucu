@@ -25,7 +25,7 @@
     <!-- ===== FIM PWA ===== -->
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Orbitron:wght@500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         :root {
@@ -47,6 +47,7 @@
             --radius-full: 50px;
             --transition: all .35s cubic-bezier(.4,0,.2,1);
             --font: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-display: 'Orbitron', 'Plus Jakarta Sans', sans-serif;
             --header-h: 66px;
             --max-width: 1200px;
             --fab-bottom: 28px;
@@ -55,6 +56,9 @@
             --btn-dark-border: rgba(255,255,255,.1);
             --btn-dark-shadow: 0 4px 16px rgba(0,0,0,.25);
             --btn-dark-shadow-hover: 0 8px 28px rgba(0,0,0,.35);
+            --neon-blue: #00d4ff;
+            --neon-purple: #8b5cf6;
+            --neon-cyan: #06b6d4;
         }
         html { scroll-behavior: smooth; background: #000; }
         body {
@@ -170,16 +174,21 @@
             .install-fab { bottom: calc(20px + 198px); right: 14px; padding: 12px 18px; font-size: 13px; }
         }
 
-        /* ===== HEADER ===== */
+        /* ===== HEADER (futurista) ===== */
         .header {
-            background: rgba(0,0,0,.92);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            background: rgba(0,0,0,.88);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
             padding: 0 1.2rem; display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,.06);
+            border-bottom: 1px solid rgba(0,212,255,.15);
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
             height: var(--header-h);
-            box-shadow: 0 1px 0 rgba(255,255,255,.03), 0 8px 32px rgba(0,0,0,.25);
+            box-shadow: 0 1px 0 rgba(0,212,255,.08), 0 8px 32px rgba(0,0,0,.35);
+        }
+        .header::after {
+            content: ''; position: absolute; bottom: -1px; left: 10%; right: 10%; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), var(--neon-purple), transparent);
+            opacity: .5;
         }
         .logo { display: flex; align-items: center; gap: .65rem; text-decoration: none; cursor: pointer; }
         .logo-icon-css {
@@ -189,7 +198,10 @@
             font-weight: 800; font-size: .9rem; color: #fff; flex-shrink: 0;
             font-family: var(--font); overflow: hidden;
             box-shadow: 0 4px 14px rgba(13,71,161,.45), inset 0 1px 0 rgba(255,255,255,.25);
+            border: 1px solid rgba(0,212,255,.3);
+            transition: var(--transition);
         }
+        .logo:hover .logo-icon-css { box-shadow: 0 4px 24px rgba(0,212,255,.4), inset 0 1px 0 rgba(255,255,255,.25); }
         .logo-icon-css img { width: 100%; height: 100%; object-fit: cover; }
         .logo span { font-weight: 800; font-size: 1.05rem; color: #fff; letter-spacing: -.3px; }
         .logo span small { font-weight: 500; font-size: .55rem; color: #7c8aa5; display: block; margin-top: -2px; letter-spacing: 1.5px; text-transform: uppercase; }
@@ -268,21 +280,27 @@
         }
         .menu-toggle { display: none; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); font-size: 1.1rem; color: #fff; cursor: pointer; padding: .4rem .6rem; border-radius: 10px; }
 
-        /* ===== NAV ===== */
+        /* ===== NAV (futurista) ===== */
         .main-nav {
-            background: rgba(10,10,10,.94); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            background: rgba(6,8,15,.94); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
             padding: .35rem 1rem; display: flex; justify-content: center; gap: .15rem; flex-wrap: wrap;
             position: fixed; top: var(--header-h); left: 0; right: 0; z-index: 999;
-            border-bottom: 1px solid rgba(255,255,255,.05); transition: var(--transition);
+            border-bottom: 1px solid rgba(0,212,255,.08); transition: var(--transition);
         }
         .main-nav.mobile-open { display: none; }
         .nav-btn {
             background: transparent; border: none; padding: .35rem .8rem; border-radius: var(--radius-full);
             font-weight: 600; cursor: pointer; transition: var(--transition); font-size: .66rem;
             color: #94a3b8; font-family: var(--font); white-space: nowrap;
+            position: relative;
         }
-        .nav-btn:hover { color: #fff; background: rgba(255,255,255,.08); }
-        .nav-btn.active { color: #fff; background: var(--primary-gradient); box-shadow: 0 2px 12px rgba(13,71,161,.4); }
+        .nav-btn:hover { color: #fff; background: rgba(0,212,255,.08); }
+        .nav-btn.active {
+            color: #fff;
+            background: linear-gradient(135deg, rgba(13,71,161,.6), rgba(0,212,255,.2));
+            box-shadow: 0 0 20px rgba(0,212,255,.15), inset 0 0 12px rgba(0,212,255,.05);
+            border: 1px solid rgba(0,212,255,.25);
+        }
 
         /* ===== TOPO PRETO + CARROSSEL ===== */
         .top-black {
@@ -309,12 +327,12 @@
         }
         .hero-slide .overlay {
             position: absolute; inset: 0;
-            background: linear-gradient(90deg, rgba(0,0,0,.85) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.05) 100%);
+            background: linear-gradient(90deg, rgba(0,0,0,.9) 0%, rgba(0,0,0,.5) 45%, rgba(0,0,0,.05) 100%);
             z-index: 1;
         }
         .hero-slide .overlay-bottom {
             position: absolute; inset: 0;
-            background: linear-gradient(0deg, rgba(0,0,0,.8) 0%, transparent 55%);
+            background: linear-gradient(0deg, rgba(0,0,0,.85) 0%, transparent 55%);
             z-index: 1;
         }
         .hero-content {
@@ -328,6 +346,11 @@
             font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 800;
             margin-bottom: .6rem; text-shadow: 0 4px 30px rgba(0,0,0,.6);
             line-height: 1.12; letter-spacing: -.5px;
+            font-family: var(--font-display);
+            background: linear-gradient(135deg, #fff, #a5d8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         .hero-content p {
             font-size: clamp(.85rem, 1.6vw, 1.02rem); opacity: .92; margin-bottom: 1.3rem;
@@ -348,7 +371,7 @@
             width: 30px; height: 5px; border-radius: 6px; background: rgba(255,255,255,.3);
             cursor: pointer; transition: var(--transition); border: none; padding: 0;
         }
-        .hero-dot.active { width: 48px; background: #fff; box-shadow: 0 0 18px rgba(255,255,255,.5); }
+        .hero-dot.active { width: 48px; background: var(--neon-blue); box-shadow: 0 0 18px rgba(0,212,255,.6); }
         .hero-arrows {
             position: absolute; top: 50%; transform: translateY(-50%);
             width: 100%; display: flex; justify-content: space-between;
@@ -361,7 +384,7 @@
             cursor: pointer; transition: var(--transition);
             display: flex; align-items: center; justify-content: center; color: #fff;
         }
-        .hero-arrow:hover { background: rgba(255,255,255,.95); color: var(--primary); transform: scale(1.08); }
+        .hero-arrow:hover { background: rgba(0,212,255,.9); color: #000; transform: scale(1.08); border-color: transparent; }
         .hero-live-badge {
             position: absolute; top: 18px; right: 18px; z-index: 6;
             background: #ff0000; color: #fff; padding: .35rem .9rem; border-radius: var(--radius-full);
@@ -374,7 +397,7 @@
         .live-bar {
             background: linear-gradient(135deg,#1e293b,#0f172a); padding: .55rem 1rem;
             display: none; align-items: center; justify-content: center; gap: .8rem;
-            flex-wrap: wrap; border-bottom: 2px solid var(--primary);
+            flex-wrap: wrap; border-bottom: 2px solid var(--neon-blue);
         }
         .live-bar.active { display: flex; }
         .live-bar .live-indicator { display: flex; align-items: center; gap: .4rem; color: #ff4d4d; font-weight: 700; font-size: .78rem; animation: pulse-live 1.5s infinite; }
@@ -387,29 +410,35 @@
         }
         .live-bar .btn-watch:hover { transform: scale(1.05); }
 
-        /* ===== COUNTDOWN ===== */
+        /* ===== COUNTDOWN (futurista) ===== */
         .countdown-section { max-width: var(--max-width); margin: 1.4rem auto 1rem; padding: 0 1rem; }
         .countdown-bar {
-            background: linear-gradient(135deg, #0f172a, #1e3a8a 60%, #1565C0);
+            background: linear-gradient(135deg, #0a0f1e, #0f1d3a 60%, #0D47A1);
             padding: 1rem 1.4rem; border-radius: var(--radius);
-            text-align: center; color: #fff; box-shadow: var(--shadow);
-            border: 1px solid rgba(255,255,255,.08); position: relative; overflow: hidden;
+            text-align: center; color: #fff; box-shadow: 0 8px 40px rgba(0,0,0,.3);
+            border: 1px solid rgba(0,212,255,.15); position: relative; overflow: hidden;
         }
         .countdown-bar::before {
             content: ''; position: absolute; top: -60%; right: -10%; width: 300px; height: 300px;
-            background: radial-gradient(circle, rgba(96,165,250,.25), transparent 70%);
+            background: radial-gradient(circle, rgba(0,212,255,.2), transparent 70%);
             pointer-events: none;
         }
-        .countdown-bar .countdown-label { font-size: .58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; opacity: .85; margin-bottom: .5rem; }
-        .countdown-bar .countdown-timer { font-size: 1rem; font-weight: 700; display: flex; justify-content: center; gap: .55rem; flex-wrap: wrap; }
+        .countdown-bar::after {
+            content: ''; position: absolute; bottom: -40%; left: -5%; width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(139,92,246,.15), transparent 70%);
+            pointer-events: none;
+        }
+        .countdown-bar .countdown-label { font-size: .58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; opacity: .85; margin-bottom: .5rem; position: relative; z-index: 1; }
+        .countdown-bar .countdown-timer { font-size: 1rem; font-weight: 700; display: flex; justify-content: center; gap: .55rem; flex-wrap: wrap; position: relative; z-index: 1; }
         .countdown-bar .countdown-timer .time-block {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: rgba(255,255,255,.1); padding: .4rem .7rem; border-radius: 12px;
-            min-width: 58px; border: 1px solid rgba(255,255,255,.1);
+            background: rgba(0,212,255,.08); padding: .4rem .7rem; border-radius: 12px;
+            min-width: 58px; border: 1px solid rgba(0,212,255,.15);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
         }
-        .countdown-bar .countdown-timer .time-block .num { font-size: 1.4rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+        .countdown-bar .countdown-timer .time-block .num { font-size: 1.4rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; font-family: var(--font-display); color: #a5d8ff; }
         .countdown-bar .countdown-timer .time-block .label { font-size: .5rem; font-weight: 700; text-transform: uppercase; opacity: .7; letter-spacing: 1px; margin-top: .2rem; }
-        .countdown-bar .next-culto-label { font-size: .68rem; opacity: .85; margin-top: .6rem; font-weight: 500; }
+        .countdown-bar .next-culto-label { font-size: .68rem; opacity: .85; margin-top: .6rem; font-weight: 500; position: relative; z-index: 1; }
 
         /* ===== QUICK SERVICES ===== */
         .services-quick { margin: 1.2rem auto 1.6rem; max-width: var(--max-width); padding: 0 1rem; }
@@ -426,7 +455,7 @@
             background: linear-gradient(135deg, rgba(13,71,161,.04), transparent);
             opacity: 0; transition: var(--transition);
         }
-        .service-item:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: rgba(13,71,161,.2); }
+        .service-item:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: rgba(0,212,255,.3); }
         .service-item:hover::after { opacity: 1; }
         .service-item .icon {
             width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center;
@@ -462,7 +491,7 @@
             cursor: default; display: flex; flex-direction: column;
             box-shadow: var(--shadow-sm);
         }
-        .card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); border-color: rgba(13,71,161,.25); }
+        .card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); border-color: rgba(0,212,255,.25); }
         .card .icon-wrapper {
             width: 48px; height: 48px; border-radius: 14px; background: var(--secondary);
             display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
@@ -510,7 +539,7 @@
         .reg-card:hover {
             transform: translateY(-6px);
             box-shadow: var(--shadow-lg);
-            border-color: rgba(15,23,42,.18);
+            border-color: rgba(0,212,255,.3);
         }
         .reg-card-icon {
             width: 52px; height: 52px;
@@ -565,7 +594,7 @@
         .event-card-modern:hover {
             transform: translateY(-6px);
             box-shadow: var(--shadow-lg);
-            border-color: rgba(13,71,161,.22);
+            border-color: rgba(0,212,255,.22);
         }
         .event-card-img {
             position: relative;
@@ -655,7 +684,7 @@
             inset: 0;
             border-radius: 22px;
             padding: 1px;
-            background: linear-gradient(135deg, transparent 40%, rgba(13,71,161,.15) 100%);
+            background: linear-gradient(135deg, transparent 40%, rgba(0,212,255,.2) 100%);
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
@@ -684,7 +713,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: radial-gradient(circle at 70% 30%, rgba(96,165,250,.25), transparent 60%);
+            background: radial-gradient(circle at 70% 30%, rgba(0,212,255,.2), transparent 60%);
             pointer-events: none;
             z-index: 1;
         }
@@ -841,7 +870,7 @@
             inset: 0;
             border-radius: 22px;
             padding: 1px;
-            background: linear-gradient(135deg, transparent 40%, rgba(13,71,161,.15) 100%);
+            background: linear-gradient(135deg, transparent 40%, rgba(0,212,255,.2) 100%);
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
@@ -870,7 +899,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: radial-gradient(circle at 70% 30%, rgba(96,165,250,.08), transparent 60%);
+            background: radial-gradient(circle at 70% 30%, rgba(0,212,255,.06), transparent 60%);
             pointer-events: none;
             z-index: 1;
         }
@@ -1063,7 +1092,7 @@
             border: 1px solid var(--line); text-align: center; box-shadow: var(--shadow-sm);
             transition: var(--transition);
         }
-        .schedule-item:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: rgba(13,71,161,.2); }
+        .schedule-item:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: rgba(0,212,255,.2); }
         .schedule-item .day { font-weight: 800; color: var(--primary); font-size: .95rem; }
         .schedule-item .time { font-size: .8rem; color: var(--ink-soft); margin-top: .3rem; }
         .schedule-item .time i { margin-right: .3rem; color: var(--primary-light); }
@@ -1074,7 +1103,7 @@
             box-shadow: var(--shadow-sm); transition: var(--transition); cursor: pointer;
             border: 1px solid var(--line);
         }
-        .reflection-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); border-color: rgba(13,71,161,.25); }
+        .reflection-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); border-color: rgba(0,212,255,.25); }
         .reflection-card .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; background: #0b1220; }
         .reflection-card .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
         .reflection-card .info { padding: 1rem 1.1rem 1.2rem; }
@@ -1102,11 +1131,12 @@
         .btn-map:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(13,71,161,.3); }
         .btn-map.waze { background: #1e293b; }
 
-        /* ===== FOOTER ===== */
-        .footer { background: #0b1220; color: #fff; padding: 3rem 1rem 1.4rem; margin-top: 3rem; border-top: 1px solid rgba(255,255,255,.06); position: relative; }
+        /* ===== FOOTER (futurista) ===== */
+        .footer { background: #060a14; color: #fff; padding: 3rem 1rem 1.4rem; margin-top: 3rem; border-top: 1px solid rgba(0,212,255,.1); position: relative; }
         .footer::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-            background: linear-gradient(90deg, #0D47A1, #1565C0, #60a5fa, #1565C0, #0D47A1);
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, transparent, #00d4ff, #8b5cf6, #00d4ff, transparent);
+            opacity: .6;
         }
         .footer-content { max-width: var(--max-width); margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1.4fr; gap: 2rem; }
         .footer h4 { font-size: .8rem; margin-bottom: .8rem; color: #93c5fd; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
@@ -1119,7 +1149,9 @@
             background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
             transition: var(--transition); opacity: .8;
         }
-        .footer .social-links a:hover { background: var(--primary); transform: translateY(-3px); opacity: 1; border-color: transparent; }
+        .footer .social-links a:hover { background: var(--primary); transform: translateY(-3px); opacity: 1; border-color: transparent; box-shadow: 0 6px 20px rgba(0,212,255,.25); }
+        /* Ícones sociais sempre visíveis */
+        .footer .social-links a i { color: #fff; font-size: 1.1rem; }
         .footer-bottom { text-align: center; padding-top: 1.4rem; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,.06); opacity: .4; font-size: .72rem; }
 
         /* ===== FABS ===== */
@@ -1219,10 +1251,10 @@
             box-shadow: var(--btn-dark-shadow-hover);
         }
 
-        .modal-bible .modal-content { max-width: 760px; }
-        .modal-carousel .modal-content { max-width: 640px; }
+        /* ===== BÍBLIA MELHORADA ===== */
+        .modal-bible .modal-content { max-width: 800px; }
         .bible-container { display: flex; gap: 1.2rem; flex-wrap: wrap; }
-        .bible-input { flex: 1; min-width: 200px; }
+        .bible-input { flex: 1; min-width: 220px; }
         .bible-input select, .bible-input input {
             width: 100%; padding: .7rem .9rem; margin: .3rem 0; border: 2px solid var(--line);
             border-radius: 12px; font-size: .85rem; font-family: var(--font);
@@ -1231,13 +1263,35 @@
         .bible-input select:focus, .bible-input input:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 4px rgba(13,71,161,.09); }
         .bible-input .btn { width: 100%; justify-content: center; margin-top: .3rem; }
         .bible-result {
-            flex: 2; min-width: 240px; background: #fafbff; padding: 1rem 1.2rem;
-            border-radius: 12px; max-height: 340px; overflow-y: auto;
+            flex: 2; min-width: 260px; background: #fafbff; padding: 1rem 1.2rem;
+            border-radius: 12px; max-height: 380px; overflow-y: auto;
             border: 1px solid var(--line);
         }
         .bible-result .verse { font-size: .9rem; line-height: 1.7; padding: .35rem 0; border-bottom: 1px solid #edf0f5; }
         .bible-result .verse strong { color: var(--primary); }
         .bible-result .reference { font-weight: 800; color: var(--primary); margin-top: .5rem; font-size: .8rem; }
+
+        /* Seletor de capítulo e versículo na Bíblia */
+        .bible-select-row {
+            display: flex;
+            gap: .6rem;
+            align-items: flex-end;
+            margin-bottom: .6rem;
+        }
+        .bible-select-row .form-group {
+            flex: 1;
+            margin: 0;
+        }
+        .bible-select-row .form-group label {
+            font-size: .7rem;
+            margin-bottom: .25rem;
+        }
+        .bible-select-row .form-group select,
+        .bible-select-row .form-group input {
+            margin: 0;
+            padding: .55rem .7rem;
+            font-size: .82rem;
+        }
 
         .notification {
             position: fixed; top: calc(var(--header-h) + 50px); right: 14px;
@@ -1303,8 +1357,8 @@
             .menu-toggle { display: flex; align-items: center; justify-content: center; }
             .main-nav {
                 display: none; flex-direction: column; align-items: stretch;
-                padding: .4rem .7rem; top: var(--header-h); background: #0a0a0a;
-                border-bottom: 1px solid rgba(255,255,255,.05);
+                padding: .4rem .7rem; top: var(--header-h); background: rgba(6,8,15,.98);
+                border-bottom: 1px solid rgba(0,212,255,.1);
             }
             .main-nav.mobile-open { display: flex; max-height: 460px; overflow-y: auto; padding: .5rem .7rem; }
             .nav-btn { width: 100%; text-align: center; padding: .5rem; font-size: .7rem; }
@@ -1360,6 +1414,8 @@
 
             .splash-logo { width: 90px; height: 90px; border-radius: 22px; font-size: 1.8rem; }
             .splash-name { font-size: 1.1rem; }
+
+            .bible-select-row { flex-direction: column; gap: .4rem; }
         }
         @media (max-width: 480px) {
             .hero { max-height: 260px; aspect-ratio: 16 / 11; }
@@ -1779,10 +1835,10 @@
                 <h4>Igreja Nova Jerusalém</h4>
                 <p>Uma igreja que ama, acolhe e transforma vidas através do amor de Cristo desde 1990.</p>
                 <div class="social-links">
-                    <a href="https://www.instagram.com/novajerusalemcabucu/" target="_blank"><i class="fab fa-instagram"></i></a>
-                    <a href="https://wa.me/5521985345627" target="_blank"><i class="fab fa-whatsapp"></i></a>
-                    <a href="#" target="_blank"><i class="fab fa-youtube"></i></a>
-                    <a href="#" target="_blank"><i class="fab fa-facebook"></i></a>
+                    <a href="https://www.instagram.com/novajerusalemcabucu/" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://wa.me/5521985345627" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#" target="_blank" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    <a href="#" target="_blank" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
                 </div>
             </div>
             <div>
@@ -1861,13 +1917,17 @@
                             <option value="ap">Apocalipse</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>📖 Capítulo</label>
-                        <input type="number" id="bibleChapter" value="23" min="1" step="1">
-                    </div>
-                    <div class="form-group">
-                        <label>✏️ Versículo (opcional)</label>
-                        <input type="number" id="bibleVerse" placeholder="Ex: 1" min="1" step="1">
+                    <div class="bible-select-row">
+                        <div class="form-group">
+                            <label>📖 Capítulo</label>
+                            <select id="bibleChapterSelect"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>✏️ Versículo</label>
+                            <select id="bibleVerseSelect">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
                     </div>
                     <button onclick="searchBible()" class="btn btn-primary" style="width:100%;justify-content:center;">
                         <i class="fas fa-search"></i> Buscar
@@ -2531,10 +2591,11 @@
         }
 
         // ============================================
-        // ===== BÍBLIA =====
+        // ===== BÍBLIA COM SELETOR DE CAPÍTULO E VERSÍCULO =====
         // ============================================
         function openBibleModal() {
             openModal('bibleModal');
+            populateChapters();
             setTimeout(() => searchBible(), 300);
         }
 
@@ -2558,14 +2619,66 @@
             '3jo': '3 João', 'jd': 'Judas', 'ap': 'Apocalipse'
         };
 
+        const chapterCounts = {
+            'gn':50,'ex':40,'lv':27,'nm':36,'dt':34,'js':24,'jz':21,'rt':4,'1sm':31,'2sm':24,
+            '1rs':22,'2rs':25,'1cr':29,'2cr':36,'ed':10,'ne':13,'et':10,'jo':42,'sl':150,'pv':31,
+            'ec':12,'ct':8,'is':66,'jr':52,'lm':5,'ez':48,'dn':12,'os':14,'jl':3,'am':9,
+            'ob':1,'jn':4,'mq':7,'na':3,'hc':3,'sf':3,'ag':2,'zc':14,'ml':4,
+            'mt':28,'mc':16,'lc':24,'joao':21,'at':28,'rm':16,'1co':16,'2co':13,'gl':6,'ef':6,
+            'fp':4,'cl':4,'1ts':5,'2ts':3,'1tm':6,'2tm':4,'tt':3,'fm':1,'hb':13,'tg':5,
+            '1pe':5,'2pe':3,'1jo':5,'2jo':1,'3jo':1,'jd':1,'ap':22
+        };
+
+        function populateChapters() {
+            const book = document.getElementById('bibleBook').value;
+            const chapterSelect = document.getElementById('bibleChapterSelect');
+            const maxChapters = chapterCounts[book] || 50;
+            chapterSelect.innerHTML = '';
+            for (let i = 1; i <= maxChapters; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = i;
+                chapterSelect.appendChild(opt);
+            }
+            populateVerses(book, chapterSelect.value || 1);
+        }
+
+        async function populateVerses(book, chapter) {
+            const verseSelect = document.getElementById('bibleVerseSelect');
+            verseSelect.innerHTML = '<option value="">Todos</option>';
+            try {
+                const response = await fetch(`/api/bible?book=${encodeURIComponent(book)}&chapter=${chapter}`);
+                const data = await response.json();
+                if (response.ok && data.verses) {
+                    data.verses.forEach(v => {
+                        const opt = document.createElement('option');
+                        opt.value = v.verse;
+                        opt.textContent = v.verse;
+                        verseSelect.appendChild(opt);
+                    });
+                }
+            } catch (e) {
+                console.error('Erro ao carregar versículos:', e);
+            }
+        }
+
+        document.getElementById('bibleBook').addEventListener('change', () => {
+            populateChapters();
+        });
+
+        document.getElementById('bibleChapterSelect').addEventListener('change', function() {
+            const book = document.getElementById('bibleBook').value;
+            populateVerses(book, this.value);
+        });
+
         async function searchBible() {
             const book = document.getElementById('bibleBook').value;
-            const chapter = document.getElementById('bibleChapter').value;
-            const verse = document.getElementById('bibleVerse').value;
+            const chapter = document.getElementById('bibleChapterSelect').value;
+            const verse = document.getElementById('bibleVerseSelect').value;
             const resultDiv = document.getElementById('bibleResult');
 
             if (!chapter || chapter < 1) {
-                resultDiv.innerHTML = '<p style="color:#dc3545;">⚠️ Digite um capítulo válido (mínimo 1).</p>';
+                resultDiv.innerHTML = '<p style="color:#dc3545;">⚠️ Selecione um capítulo válido (mínimo 1).</p>';
                 return;
             }
 
@@ -2654,7 +2767,7 @@
         document.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 const active = document.activeElement;
-                if (active && (active.id === 'bibleChapter' || active.id === 'bibleVerse' || active.id ===
+                if (active && (active.id === 'bibleChapterSelect' || active.id === 'bibleVerseSelect' || active.id ===
                         'bibleBook')) {
                     searchBible();
                 }
@@ -2955,7 +3068,6 @@
                              <span>Estudo Bíblico</span>
                            </div>`;
 
-                    // Gera data fictícia ou usa a do objeto
                     const studyDate = s.created_at 
                         ? new Date(s.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
                         : 'Estudo Bíblico';

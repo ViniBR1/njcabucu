@@ -16,23 +16,18 @@
             --primary-hover: #1D4ED8;
             --primary-soft: #EFF6FF;
             --primary-border: #BFDBFE;
-            
             --success: #059669;
             --success-soft: #ECFDF5;
             --success-border: #A7F3D0;
-            
             --danger: #DC2626;
             --danger-soft: #FEF2F2;
             --danger-border: #FECACA;
-            
             --warning: #D97706;
             --warning-soft: #FFFBEB;
             --warning-border: #FDE68A;
-            
             --info: #0891B2;
             --info-soft: #ECFEFF;
             --info-border: #A5F3FC;
-
             --bg:        #F1F5F9;
             --surface:   #FFFFFF;
             --surface-2: #F8FAFC;
@@ -42,22 +37,18 @@
             --text-2:    #334155;
             --text-muted:#64748B;
             --text-light:#94A3B8;
-            
             --shadow-xs: 0 1px 2px rgba(15,23,42,0.04);
             --shadow-sm: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
             --shadow-md: 0 10px 15px -3px rgba(15,23,42,0.08), 0 4px 6px -2px rgba(15,23,42,0.04);
             --shadow-lg: 0 20px 25px -5px rgba(15,23,42,0.10), 0 10px 10px -5px rgba(15,23,42,0.04);
-            
             --radius-sm: 8px;
             --radius:    12px;
             --radius-lg: 16px;
             --radius-xl: 20px;
-            
             --sidebar-w: 240px;
             --header-h:  60px;
             --bottomnav-h: 64px;
             --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            
             --sp-1: 0.25rem;
             --sp-2: 0.5rem;
             --sp-3: 0.75rem;
@@ -66,13 +57,12 @@
             --sp-6: 1.5rem;
             --sp-8: 2rem;
             --sp-10: 2.5rem;
-            
             --safe-bottom: env(safe-area-inset-bottom, 0px);
             --safe-top: env(safe-area-inset-top, 0px);
         }
-        html, body { 
-            overflow-x: hidden; 
-            width: 100%; 
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
             max-width: 100vw;
         }
         body {
@@ -86,9 +76,6 @@
             overscroll-behavior-y: contain;
         }
 
-        /* ============================
-           LOADING
-           ============================ */
         .loading-overlay {
             position: fixed; inset: 0;
             background: rgba(255,255,255,0.85);
@@ -109,9 +96,6 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .loading-text { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
 
-        /* ============================
-           SIDEBAR (desktop) / DRAWER (mobile)
-           ============================ */
         .sidebar {
             position: fixed;
             top: 0; left: 0; bottom: 0;
@@ -242,9 +226,6 @@
         }
         .sidebar-overlay.open { display: block; opacity: 1; }
 
-        /* ============================
-           MAIN CONTENT
-           ============================ */
         .main {
             margin-left: var(--sidebar-w);
             min-height: 100vh;
@@ -297,9 +278,6 @@
             overflow-x: hidden;
         }
 
-        /* ============================
-           PAGE HEADER
-           ============================ */
         .page-header {
             display: flex; justify-content: space-between;
             align-items: flex-start;
@@ -322,9 +300,6 @@
             display: flex; gap: var(--sp-2); flex-wrap: wrap;
         }
 
-        /* ============================
-           STATS
-           ============================ */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -378,9 +353,6 @@
             font-weight: 500;
         }
 
-        /* ============================
-           CARDS / SECTIONS
-           ============================ */
         .section {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -426,9 +398,6 @@
         .section-body.tight { padding: var(--sp-4); }
         .section-body.flush { padding: 0; }
 
-        /* ============================
-           BUTTONS
-           ============================ */
         .btn {
             padding: 0.55rem 0.9rem;
             border-radius: var(--radius-sm);
@@ -447,15 +416,9 @@
         }
         .btn:active { transform: scale(0.97); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-        .btn-primary {
-            background: var(--primary); color: #fff;
-            box-shadow: 0 1px 2px rgba(37,99,235,0.2);
-        }
+        .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 1px 2px rgba(37,99,235,0.2); }
         .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
-        .btn-secondary {
-            background: var(--surface); color: var(--text-2);
-            border-color: var(--border);
-        }
+        .btn-secondary { background: var(--surface); color: var(--text-2); border-color: var(--border); }
         .btn-secondary:hover { background: var(--surface-2); border-color: var(--border-2); color: var(--text); }
         .btn-danger { background: var(--danger); color: #fff; }
         .btn-danger:hover { filter: brightness(0.92); }
@@ -465,19 +428,13 @@
         .btn-warning:hover { filter: brightness(0.92); }
         .btn-info { background: var(--info); color: #fff; }
         .btn-info:hover { filter: brightness(0.92); }
-        .btn-ghost {
-            background: transparent; color: var(--text-2);
-            border-color: transparent;
-        }
+        .btn-ghost { background: transparent; color: var(--text-2); border-color: transparent; }
         .btn-ghost:hover { background: var(--surface-2); color: var(--text); }
         .btn-sm { padding: 0.4rem 0.7rem; font-size: 0.75rem; min-height: 34px; }
         .btn-xs { padding: 0.3rem 0.55rem; font-size: 0.7rem; border-radius: 6px; min-height: 30px; }
         .btn-icon { padding: 0.4rem; width: 36px; height: 36px; }
         .btn-block { width: 100%; }
 
-        /* ============================
-           TABLES
-           ============================ */
         .table-wrapper {
             width: 100%; overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -511,9 +468,6 @@
         .table tbody tr:hover { background: var(--surface-2); }
         .table td:first-child { color: var(--text); font-weight: 500; }
 
-        /* ============================
-           BADGES / STATUS
-           ============================ */
         .status {
             padding: 0.25rem 0.6rem;
             border-radius: 20px;
@@ -544,9 +498,6 @@
         .badge-colaborador{ background: var(--info-soft); color: var(--info); border-color: var(--info-border); }
         .badge-fiel       { background: var(--surface-2); color: var(--text-muted); border-color: var(--border); }
 
-        /* ============================
-           FORMS
-           ============================ */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -594,9 +545,6 @@
         }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); }
 
-        /* ============================
-           MODAL
-           ============================ */
         .modal {
             display: none; position: fixed; inset: 0;
             background: rgba(15,23,42,0.45);
@@ -657,9 +605,6 @@
             position: sticky; bottom: 0;
         }
 
-        /* ============================
-           NOTIFICAÇÃO
-           ============================ */
         .notification {
             position: fixed;
             top: calc(var(--sp-6) + var(--safe-top));
@@ -683,9 +628,6 @@
         .notification.error   { background: var(--danger-soft); color: var(--danger); border-color: var(--danger-border); }
         .notification.info    { background: var(--primary-soft); color: var(--primary); border-color: var(--primary-border); }
 
-        /* ============================
-           TABS INLINE
-           ============================ */
         .tabs-inline {
             display: flex; gap: var(--sp-1);
             padding: var(--sp-1);
@@ -721,9 +663,6 @@
             font-weight: 600;
         }
 
-        /* ============================
-           UTILITÁRIOS
-           ============================ */
         .hidden { display: none !important; }
         .flex-between { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
         .flex-center { display: flex; align-items: center; gap: var(--sp-2); }
@@ -747,9 +686,6 @@
         }
         .empty-state p { font-size: 0.85rem; }
 
-        /* ============================
-           CARROSSEL
-           ============================ */
         .carousel-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -771,9 +707,6 @@
             margin-bottom: var(--sp-2);
         }
 
-        /* ============================
-           FREQUÊNCIA
-           ============================ */
         .freq-layout {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -825,18 +758,12 @@
         .member-row-dept { font-size: 0.7rem; color: var(--text-muted); }
         .member-row-phone { font-size: 0.7rem; color: var(--text-muted); }
 
-        /* ============================
-           SOBRE
-           ============================ */
         .about-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: var(--sp-4);
         }
 
-        /* ============================
-           EXPORT PANEL
-           ============================ */
         .export-filters {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -853,9 +780,6 @@
             min-height: 42px;
         }
 
-        /* ============================
-           LOGO PANEL
-           ============================ */
         .logo-preview {
             width: 88px; height: 88px;
             border-radius: var(--radius);
@@ -867,9 +791,6 @@
         }
         .logo-preview img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* ============================
-           FILE INPUT
-           ============================ */
         .file-input-wrapper { position: relative; overflow: hidden; }
         .file-input-wrapper input[type=file] {
             font-size: 100px;
@@ -898,9 +819,6 @@
             margin-top: var(--sp-1);
         }
 
-        /* ============================
-           BAR CHART
-           ============================ */
         .bar-chart {
             display: flex;
             align-items: flex-end;
@@ -926,9 +844,6 @@
         .bar-label { font-size: 0.7rem; color: var(--text-muted); }
         .bar-value { font-size: 0.7rem; font-weight: 600; color: var(--text); }
 
-        /* ============================
-           LIVE
-           ============================ */
         .live-indicator {
             display: inline-flex;
             align-items: center; gap: var(--sp-2);
@@ -975,15 +890,29 @@
         }
         #captureArea .placeholder span { font-size: 0.9rem; }
 
-        /* ============================
-           BIRTHDAY
-           ============================ */
         .birthday-today { background: var(--danger-soft) !important; }
         .birthday-today td:first-child { color: var(--danger) !important; }
 
-        /* ============================
-           BOTTOM NAVIGATION (mobile)
-           ============================ */
+        /* ===== LISTA DE USUÁRIOS COM SCROLL ===== */
+        #tab-usuarios .section-body.flush {
+            max-height: 65vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            border-radius: 0 0 var(--radius) var(--radius);
+        }
+        #tab-usuarios .table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background: var(--surface-2);
+        }
+        #tab-usuarios .table-wrapper {
+            overflow-x: auto;
+            overflow-y: visible;
+        }
+        .user-self td:first-child { background: var(--primary-soft); }
+
         .bottom-nav {
             display: none;
             position: fixed;
@@ -1020,9 +949,7 @@
             margin-bottom: 2px;
         }
         .bottom-nav-item:active { background: var(--surface-2); }
-        .bottom-nav-item.active {
-            color: var(--primary);
-        }
+        .bottom-nav-item.active { color: var(--primary); }
         .bottom-nav-item.active::before {
             content: '';
             position: absolute;
@@ -1035,9 +962,6 @@
             border-radius: 0 0 3px 3px;
         }
 
-        /* ============================
-           RESPONSIVO
-           ============================ */
         @media (max-width: 1023px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -1059,63 +983,63 @@
                 padding: var(--sp-3);
                 padding-bottom: calc(var(--sp-3) + var(--bottomnav-h) + var(--safe-bottom) + 1rem);
             }
-            .topbar { padding: 0 var(--sp-3); }
+            .topbar {
+                padding: 0 var(--sp-3);
+                gap: var(--sp-2);
+            }
+            .topbar-actions .btn span { display: none; }
+            .topbar-actions .btn { padding: 0.5rem; min-height: 40px; min-width: 40px; }
             .topbar-breadcrumb .page-title { font-size: 0.9rem; }
+
             .page-header {
                 margin-bottom: var(--sp-4);
-                gap: var(--sp-3);
+                gap: var(--sp-2);
             }
             .page-header-left h1 { font-size: 1.35rem; }
             .page-header-left p { font-size: 0.78rem; }
-            .page-header-actions { width: 100%; }
-            .page-header-actions .btn { flex: 1; }
+            .page-header-actions { width: 100%; gap: var(--sp-2); }
+            .page-header-actions .btn { flex: 1 1 auto; min-width: 0; justify-content: center; }
 
-            /* Stats 2 colunas no mobile */
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: var(--sp-3);
+                gap: var(--sp-2);
                 margin-bottom: var(--sp-4);
             }
             .stat-card {
-                padding: var(--sp-4);
-                min-height: 100px;
+                padding: var(--sp-3);
+                min-height: 88px;
+                border-radius: var(--radius-sm);
             }
             .stat-card-icon {
-                width: 34px; height: 34px;
-                font-size: 0.9rem;
-                margin-bottom: var(--sp-2);
+                width: 30px; height: 30px;
+                font-size: 0.8rem;
+                margin-bottom: var(--sp-1);
             }
-            .stat-card .number { font-size: 1.3rem; }
-            .stat-card .label { font-size: 0.7rem; }
+            .stat-card .number { font-size: 1.15rem; }
+            .stat-card .label { font-size: 0.68rem; }
 
-            /* Sections */
-            .section { margin-bottom: var(--sp-4); border-radius: var(--radius); }
-            .section-header {
-                padding: var(--sp-4);
-                gap: var(--sp-2);
-            }
+            .section { margin-bottom: var(--sp-3); border-radius: var(--radius-sm); }
+            .section-header { padding: var(--sp-3) var(--sp-4); gap: var(--sp-2); }
             .section-header-left { gap: var(--sp-2); }
             .section-icon { width: 32px; height: 32px; font-size: 0.8rem; }
-            .section-title { font-size: 0.92rem; }
+            .section-title { font-size: 0.88rem; }
             .section-subtitle { font-size: 0.7rem; }
-            .section-body { padding: var(--sp-4); }
+            .section-body { padding: var(--sp-3) var(--sp-4); }
             .section-body.tight { padding: var(--sp-3); }
 
-            /* Forms - inputs grandes para toque */
             .form-group { margin-bottom: var(--sp-3); }
             .form-group label { font-size: 0.78rem; margin-bottom: var(--sp-2); }
             .form-group input,
             .form-group textarea,
             .form-group select {
-                font-size: 16px; /* evita zoom no iOS */
+                font-size: 16px;
                 padding: 0.7rem 0.8rem;
                 min-height: 46px;
             }
             .form-group textarea { min-height: 90px; }
-            .form-row { grid-template-columns: 1fr; gap: var(--sp-3); }
+            .form-row { grid-template-columns: 1fr; gap: var(--sp-2); }
             .form-grid { grid-template-columns: 1fr; }
 
-            /* Buttons - maiores no mobile */
             .btn {
                 padding: 0.65rem 1rem;
                 font-size: 0.85rem;
@@ -1125,12 +1049,12 @@
             .btn-xs { padding: 0.4rem 0.65rem; font-size: 0.72rem; min-height: 36px; }
             .btn-icon { width: 40px; height: 40px; }
 
-            /* Tables - mais compactas */
             .table { font-size: 0.78rem; min-width: 500px; }
-            .table th, .table td { padding: var(--sp-3); }
+            .table th, .table td { padding: var(--sp-2) var(--sp-3); }
             .table th { font-size: 0.65rem; }
+            .table td:last-child { white-space: nowrap; }
+            .table td .btn + .btn { margin-left: 4px; }
 
-            /* Modal - bottom sheet no mobile */
             .modal {
                 padding: 0;
                 align-items: flex-end;
@@ -1147,77 +1071,71 @@
                 from { transform: translateY(100%); }
                 to { transform: translateY(0); }
             }
-            .modal-header {
-                padding: var(--sp-4) var(--sp-5);
-                position: sticky; top: 0;
-            }
-            .modal-header h3 { font-size: 1rem; }
-            .modal-body { padding: var(--sp-5); }
+            .modal-header { padding: var(--sp-3) var(--sp-4); position: sticky; top: 0; }
+            .modal-header h3 { font-size: 0.95rem; }
+            .modal-close { width: 32px; height: 32px; }
+            .modal-body { padding: var(--sp-4); }
             .modal-footer {
-                padding: var(--sp-3) var(--sp-5);
+                padding: var(--sp-3) var(--sp-4);
                 padding-bottom: calc(var(--sp-3) + var(--safe-bottom));
                 flex-direction: column-reverse;
             }
             .modal-footer .btn { width: 100%; }
 
-            /* Freq layout */
             .freq-layout { grid-template-columns: 1fr; gap: var(--sp-3); }
-            .freq-panel { padding: var(--sp-3); }
+            .freq-panel { padding: var(--sp-3); border-radius: var(--radius-sm); }
             .members-scroll { max-height: 260px; }
 
-            /* Carrossel */
             .carousel-grid {
                 grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
                 gap: var(--sp-3);
             }
 
-            /* Sobre */
             .about-grid { grid-template-columns: 1fr; gap: var(--sp-3); }
 
-            /* Bar chart */
-            .bar-chart {
-                height: 110px;
-                gap: var(--sp-2);
-            }
+            .bar-chart { height: 110px; gap: var(--sp-2); }
             .bar-value { font-size: 0.6rem; }
             .bar-label { font-size: 0.6rem; }
 
-            /* Notificação */
             .notification {
                 top: calc(var(--header-h) + 8px);
                 font-size: 0.8rem;
                 padding: 0.75rem 1rem;
             }
 
-            /* Capture area */
             #captureArea { min-height: 180px; padding: var(--sp-3); }
             #captureArea .placeholder { padding: var(--sp-4); }
             #captureArea .placeholder i { font-size: 2rem; }
 
-            /* Export filters */
             .export-filters { grid-template-columns: 1fr 1fr; gap: var(--sp-2); }
             .export-filters select { font-size: 0.85rem; padding: 0.55rem 0.7rem; }
 
-            /* Logo panel */
             .logo-preview { width: 72px; height: 72px; font-size: 1.3rem; }
 
-            /* Sidebar no mobile (drawer) */
-            .sidebar {
-                width: 280px;
-                max-width: 85vw;
-            }
+            .sidebar { width: 280px; max-width: 85vw; }
             .sidebar-header { height: 60px; }
             .sidebar-nav { padding: var(--sp-2); }
             .nav-item { min-height: 46px; font-size: 0.85rem; }
             .nav-group-label { font-size: 0.65rem; }
 
-            /* Tabs inline */
             .tab-inline { font-size: 0.75rem; padding: 0.5rem 0.8rem; }
+            .tabs-inline {
+                mask-image: linear-gradient(to right, black 90%, transparent 100%);
+                -webkit-mask-image: linear-gradient(to right, black 90%, transparent 100%);
+            }
+
+            #tab-usuarios .section-body.flush { max-height: 60vh; }
         }
 
         @media (max-width: 480px) {
-            .form-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .page-header-left h1 { font-size: 1.15rem; }
+            .page-header-left p { font-size: 0.72rem; }
+            .section-title { font-size: 0.85rem; }
+            .table { font-size: 0.75rem; }
             .export-filters { grid-template-columns: 1fr; }
+            .form-row { gap: var(--sp-2); }
+            .form-grid { grid-template-columns: 1fr; }
             .carousel-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
@@ -1227,7 +1145,6 @@
             .stat-card .number { font-size: 1.2rem; }
         }
 
-        /* Landscape em mobile */
         @media (max-height: 500px) and (orientation: landscape) {
             .modal-content { max-height: 100vh; border-radius: 0; }
             .modal { padding: 0; align-items: stretch; }
@@ -1235,7 +1152,6 @@
             .content { padding-bottom: var(--sp-4); }
         }
 
-        /* Botão flutuante para voltar ao topo (opcional, mobile) */
         .scroll-top {
             position: fixed;
             bottom: calc(var(--bottomnav-h) + var(--safe-bottom) + var(--sp-4));
@@ -1256,7 +1172,6 @@
         .scroll-top.show { display: flex; }
         .scroll-top:active { transform: scale(0.9); }
 
-        /* Pull indicator (feedback de atualização) */
         .pull-indicator {
             position: fixed;
             top: calc(var(--header-h) + var(--safe-top));
@@ -1287,10 +1202,8 @@
     <div class="loading-text">Carregando...</div>
 </div>
 
-<!-- Sidebar Overlay (mobile) -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-<!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
         <div class="sidebar-logo" id="sidebarLogo">NJ</div>
@@ -1359,7 +1272,6 @@
     </div>
 </aside>
 
-<!-- Main -->
 <div class="main">
     <header class="topbar">
         <button class="topbar-menu" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
@@ -1373,7 +1285,6 @@
 
     <main class="content">
 
-        <!-- DASHBOARD -->
         <div id="tab-dashboard" class="tab-content active">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1450,7 +1361,6 @@
             </div>
         </div>
 
-        <!-- LIVE -->
         <div id="tab-live" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1532,7 +1442,6 @@
             </div>
         </div>
 
-        <!-- VENDAS -->
         <div id="tab-vendas" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1552,7 +1461,6 @@
             </div>
         </div>
 
-        <!-- USUÁRIOS -->
         <div id="tab-usuarios" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1575,7 +1483,6 @@
             </div>
         </div>
 
-        <!-- ORAÇÕES -->
         <div id="tab-oracoes" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1595,7 +1502,6 @@
             </div>
         </div>
 
-        <!-- ESTUDOS -->
         <div id="tab-estudos" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1618,7 +1524,6 @@
             </div>
         </div>
 
-        <!-- EVENTOS -->
         <div id="tab-eventos" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1641,7 +1546,6 @@
             </div>
         </div>
 
-        <!-- PRODUTOS -->
         <div id="tab-produtos" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1664,7 +1568,6 @@
             </div>
         </div>
 
-        <!-- CARROSSEL -->
         <div id="tab-carousel" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1682,7 +1585,6 @@
             </div>
         </div>
 
-        <!-- DOAÇÕES -->
         <div id="tab-doacoes" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1702,7 +1604,6 @@
             </div>
         </div>
 
-        <!-- INSCRIÇÕES -->
         <div id="tab-inscricoes" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1731,7 +1632,6 @@
             </div>
         </div>
 
-        <!-- DEPARTAMENTOS -->
         <div id="tab-departamentos" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1754,7 +1654,6 @@
             </div>
         </div>
 
-        <!-- MEMBROS -->
         <div id="tab-membros" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1777,7 +1676,6 @@
             </div>
         </div>
 
-        <!-- FREQUÊNCIA -->
         <div id="tab-frequencia" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1849,7 +1747,6 @@
             </div>
         </div>
 
-        <!-- TESOURARIA -->
         <div id="tab-tesouraria" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1937,7 +1834,6 @@
             </div>
         </div>
 
-        <!-- CONTAS -->
         <div id="tab-contas" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -1965,7 +1861,6 @@
             </div>
         </div>
 
-        <!-- CÉLULAS -->
         <div id="tab-celulas" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -2007,7 +1902,6 @@
             </div>
         </div>
 
-        <!-- ANIVERSARIANTES -->
         <div id="tab-aniversariantes" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -2027,7 +1921,6 @@
             </div>
         </div>
 
-        <!-- REFLEXÕES -->
         <div id="tab-reflexoes" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -2050,7 +1943,6 @@
             </div>
         </div>
 
-        <!-- SOBRE NÓS -->
         <div id="tab-sobre" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -2081,7 +1973,6 @@
             </div>
         </div>
 
-        <!-- CONFIGURAÇÕES -->
         <div id="tab-config" class="tab-content" style="display:none;">
             <div class="page-header">
                 <div class="page-header-left">
@@ -2192,7 +2083,6 @@
     </main>
 </div>
 
-<!-- BOTTOM NAVIGATION (mobile) -->
 <nav class="bottom-nav">
     <div class="bottom-nav-items">
         <button class="bottom-nav-item active" onclick="showTab('dashboard')" data-bottom-tab="dashboard">
@@ -2214,17 +2104,13 @@
     </div>
 </nav>
 
-<!-- Botão de voltar ao topo (mobile) -->
 <button class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Voltar ao topo">
     <i class="fas fa-arrow-up"></i>
 </button>
 
-<!-- Indicador de pull-to-refresh -->
 <div class="pull-indicator" id="pullIndicator">
     <i class="fas fa-sync"></i> Atualizando...
 </div>
-
-<!-- ============ MODAIS ============ -->
 
 <div class="modal" id="userModal">
     <div class="modal-content">
@@ -2982,19 +2868,33 @@
     // ============================================
     function loadUsers(users) {
         const tbody = document.getElementById('usersList');
-        if (!users?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted" style="padding:2rem;">Nenhum usuário</td></tr>'; return; }
-        const roleMap = { pastor: 'Pastor', lider: 'Líder', colaborador: 'Colaborador', fiel: 'Fiel' };
-        const badgeMap = { pastor: 'badge-pastor', lider: 'badge-lider', colaborador: 'badge-colaborador', fiel: 'badge-fiel' };
-        tbody.innerHTML = users.map(u => `
-            <tr>
-                <td>${u.name}</td>
-                <td><span class="badge ${badgeMap[u.role]||'badge-fiel'}">${roleMap[u.role]||u.role}</span></td>
-                <td>
-                    <button onclick="resetPassword('${u.email}')" class="btn btn-secondary btn-sm" title="Resetar senha"><i class="fas fa-key"></i></button>
-                    <button onclick="deleteUser(${u.id})" class="btn btn-danger btn-sm" title="Remover"><i class="fas fa-trash"></i></button>
-                </td>
-            </tr>
-        `).join('');
+        if (!users?.length) {
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted" style="padding:2rem;">Nenhum usuário</td></tr>';
+            return;
+        }
+        const roleMap = { pastor: 'Pastor', lider: 'Líder', colaborador: 'Colaborador', fiel: 'Fiel', member: 'Membro' };
+        const badgeMap = { pastor: 'badge-pastor', lider: 'badge-lider', colaborador: 'badge-colaborador', fiel: 'badge-fiel', member: 'badge-fiel' };
+        const me = JSON.parse(localStorage.getItem('user') || '{}');
+
+        tbody.innerHTML = users.map(u => {
+            const isMe = Number(u.id) === Number(me.id);
+            const deleteBtn = isMe
+                ? `<button class="btn btn-secondary btn-sm" disabled title="Você não pode excluir a si mesmo"><i class="fas fa-lock"></i></button>`
+                : `<button onclick="deleteUser(${u.id})" class="btn btn-danger btn-sm" title="Remover"><i class="fas fa-trash"></i></button>`;
+            return `
+                <tr class="${isMe ? 'user-self' : ''}">
+                    <td>
+                        ${u.name}
+                        ${isMe ? '<span class="badge badge-pastor" style="margin-left:6px;font-size:0.6rem;">você</span>' : ''}
+                    </td>
+                    <td><span class="badge ${badgeMap[u.role]||'badge-fiel'}">${roleMap[u.role]||u.role}</span></td>
+                    <td style="white-space:nowrap;">
+                        <button onclick="resetPassword('${u.email}')" class="btn btn-secondary btn-sm" title="Resetar senha"><i class="fas fa-key"></i></button>
+                        ${deleteBtn}
+                    </td>
+                </tr>
+            `;
+        }).join('');
     }
 
     function loadPrayers(prayers) {
@@ -4136,32 +4036,28 @@
         } catch (e) { showNotification('❌ ' + e.message, 'error'); }
     }
 
-    // 🔧 CORREÇÃO PRINCIPAL: deleteUser agora recarrega a lista
+    // 🔧 CORREÇÃO: deleteUser com proteção e recarregamento
     async function deleteUser(id) {
+        const me = JSON.parse(localStorage.getItem('user') || '{}');
+        if (Number(id) === Number(me.id)) {
+            showNotification('Você não pode excluir a si mesmo.', 'error');
+            return;
+        }
         if (!confirm('Remover este usuário?')) return;
         try {
-            const res = await fetch('/api/users/' + id, { 
-                method: 'DELETE', 
-                headers: getHeaders() 
+            const res = await fetch('/api/users/' + id, {
+                method: 'DELETE',
+                headers: getHeaders()
             });
-            
-            if (!res.ok) {
-                const err = await res.json().catch(() => ({}));
-                throw new Error(err.error || 'Erro ao excluir');
-            }
-            
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || 'Erro ao excluir');
             showNotification('✅ Usuário removido!', 'success');
-            
-            // Recarrega a lista de usuários na tabela
             const users = await fetch('/api/users', { headers: getHeaders() }).then(r => r.json());
             loadUsers(users || []);
-            
-            // Atualiza contador do dashboard
             const totalEl = document.getElementById('totalUsers');
             if (totalEl) totalEl.textContent = (users || []).length;
-            
-        } catch (e) { 
-            showNotification('❌ ' + e.message, 'error'); 
+        } catch (e) {
+            showNotification('❌ ' + e.message, 'error');
         }
     }
 
@@ -4207,8 +4103,6 @@
             if (!res.ok) throw new Error(data.error || 'Erro');
             closeModal('userModal');
             showNotification('✅ Usuário criado!', 'success');
-            
-            // Recarrega a lista
             const users = await fetch('/api/users', { headers: getHeaders() }).then(r => r.json());
             loadUsers(users || []);
         } catch (e) { showNotification('❌ ' + e.message, 'error'); }

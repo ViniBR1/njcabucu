@@ -70,7 +70,11 @@
             --safe-bottom: env(safe-area-inset-bottom, 0px);
             --safe-top: env(safe-area-inset-top, 0px);
         }
-        html, body { overflow-x: hidden; width: 100%; }
+        html, body { 
+            overflow-x: hidden; 
+            width: 100%; 
+            max-width: 100vw;
+        }
         body {
             font-family: var(--font);
             background: var(--bg);
@@ -118,6 +122,7 @@
             z-index: 300;
             transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
             will-change: transform;
+            overflow-x: hidden;
         }
         .sidebar-header {
             height: var(--header-h);
@@ -147,6 +152,7 @@
         .sidebar-nav {
             flex: 1;
             overflow-y: auto;
+            overflow-x: hidden;
             padding: var(--sp-3);
             scrollbar-width: thin;
             scrollbar-color: var(--border) transparent;
@@ -243,6 +249,8 @@
             margin-left: var(--sidebar-w);
             min-height: 100vh;
             display: flex; flex-direction: column;
+            max-width: 100vw;
+            overflow-x: hidden;
         }
 
         .topbar {
@@ -286,6 +294,7 @@
             max-width: 1600px;
             width: 100%;
             margin: 0 auto;
+            overflow-x: hidden;
         }
 
         /* ============================
@@ -473,6 +482,7 @@
             width: 100%; overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             position: relative;
+            max-width: 100%;
         }
         .table-wrapper::-webkit-scrollbar { height: 6px; }
         .table-wrapper::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 10px; }
@@ -685,6 +695,7 @@
             overflow-x: auto;
             scrollbar-width: none;
             -webkit-overflow-scrolling: touch;
+            max-width: 100%;
         }
         .tabs-inline::-webkit-scrollbar { display: none; }
         .tab-inline {
@@ -773,6 +784,7 @@
             border-radius: var(--radius);
             border: 1px solid var(--border);
             padding: var(--sp-4);
+            min-width: 0;
         }
         .freq-panel-title {
             font-size: 0.85rem;
@@ -789,6 +801,7 @@
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
             -webkit-overflow-scrolling: touch;
+            max-width: 100%;
         }
         .member-row {
             display: flex; align-items: center;
@@ -1100,6 +1113,7 @@
             }
             .form-group textarea { min-height: 90px; }
             .form-row { grid-template-columns: 1fr; gap: var(--sp-3); }
+            .form-grid { grid-template-columns: 1fr; }
 
             /* Buttons - maiores no mobile */
             .btn {
@@ -1124,6 +1138,7 @@
             .modal-content {
                 max-width: 100%;
                 border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+                max-height: 92dvh;
                 max-height: 92vh;
                 animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 padding-bottom: var(--safe-bottom);
@@ -1198,6 +1213,12 @@
 
             /* Tabs inline */
             .tab-inline { font-size: 0.75rem; padding: 0.5rem 0.8rem; }
+        }
+
+        @media (max-width: 480px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .export-filters { grid-template-columns: 1fr; }
+            .carousel-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
         @media (max-width: 380px) {
@@ -2683,7 +2704,6 @@
         'config': 'Configurações'
     };
 
-    // Tabs que estão no bottom nav
     const BOTTOM_TABS = ['dashboard', 'tesouraria', 'membros'];
 
     function showTab(tab) {
@@ -2697,19 +2717,16 @@
         const navBtn = document.querySelector(`.nav-item[data-tab="${tab}"]`);
         if (navBtn) navBtn.classList.add('active');
 
-        // Marca bottom nav se for uma das tabs principais
         if (BOTTOM_TABS.includes(tab)) {
             const bottomBtn = document.querySelector(`.bottom-nav-item[data-bottom-tab="${tab}"]`);
             if (bottomBtn) bottomBtn.classList.add('active');
         } else {
-            // Se não for uma tab principal, marca "Menu"
             const menuBtn = document.querySelector('.bottom-nav-item[data-bottom-tab="menu"]');
             if (menuBtn) menuBtn.classList.add('active');
         }
 
         document.getElementById('pageTitle').textContent = TAB_TITLES[tab] || tab;
 
-        // Fecha sidebar se estiver aberta
         if (window.innerWidth < 1024) {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
@@ -3195,8 +3212,8 @@
         if (!confirm('Remover?')) return;
         try {
             await fetch('/api/products/' + id, { method: 'DELETE', headers: getHeaders() });
-            loadDashboard();
             showNotification('✅ Removido!', 'success');
+            await loadProducts();
         } catch (e) { showNotification('❌ ' + e.message, 'error'); }
     }
 
@@ -3204,8 +3221,9 @@
         if (!confirm('Remover?')) return;
         try {
             await fetch('/api/events/' + id, { method: 'DELETE', headers: getHeaders() });
-            loadDashboard();
             showNotification('✅ Removido!', 'success');
+            const events = await fetch('/api/events', { headers: getHeaders() }).then(r => r.json());
+            loadEvents(events || []);
         } catch (e) { showNotification('❌ ' + e.message, 'error'); }
     }
 
@@ -3213,8 +3231,9 @@
         if (!confirm('Remover?')) return;
         try {
             await fetch('/api/studies/' + id, { method: 'DELETE', headers: getHeaders() });
-            loadDashboard();
             showNotification('✅ Removido!', 'success');
+            const studies = await fetch('/api/studies', { headers: getHeaders() }).then(r => r.json());
+            loadStudies(studies || []);
         } catch (e) { showNotification('❌ ' + e.message, 'error'); }
     }
 
@@ -3310,8 +3329,8 @@
         if (!confirm('Remover?')) return;
         try {
             await fetch('/api/carousel/' + id, { method: 'DELETE', headers: getHeaders() });
-            loadCarouselAdmin();
             showNotification('✅ Removido!', 'success');
+            loadCarouselAdmin();
         } catch (e) { showNotification('❌ ' + e.message, 'error'); }
     }
 
@@ -3338,8 +3357,8 @@
         if (!confirm('Remover?')) return;
         try {
             await fetch('/api/departments/' + id, { method: 'DELETE', headers: getHeaders() });
-            loadDepartments();
             showNotification('✅ Removido!', 'success');
+            loadDepartments();
         } catch (e) { showNotification('❌ ' + e.message, 'error'); }
     }
 
@@ -3434,8 +3453,8 @@
         if (!confirm('Remover?')) return;
         try {
             await fetch('/api/members/' + id, { method: 'DELETE', headers: getHeaders() });
-            loadMembers();
             showNotification('✅ Removido!', 'success');
+            loadMembers();
         } catch (e) { showNotification('❌ ' + e.message, 'error'); }
     }
 
@@ -3524,8 +3543,8 @@
         if (!confirm('Remover?')) return;
         try {
             await fetch(`/api/celulas/${id}`, { method: 'DELETE', headers: getHeaders() });
-            loadCelulas();
             showNotification('✅ Removida!', 'success');
+            loadCelulas();
         } catch (e) { showNotification('❌ ' + e.message, 'error'); }
     }
 
@@ -4006,9 +4025,9 @@
         if (!confirm('Remover?')) return;
         try {
             await fetch('/api/bills/' + id, { method: 'DELETE', headers: getHeaders() });
+            showNotification('✅ Removida!', 'success');
             loadBills();
             loadBillSummary();
-            showNotification('✅ Removida!', 'success');
         } catch (e) { showNotification('❌ ' + e.message, 'error'); }
     }
 
@@ -4100,8 +4119,8 @@
         if (!confirm('Remover?')) return;
         try {
             await fetch(`/api/pastor-reflections/${id}`, { method: 'DELETE', headers: getHeaders() });
-            loadReflectionsAdmin();
             showNotification('✅ Removida!', 'success');
+            loadReflectionsAdmin();
         } catch (e) { showNotification('❌ ' + e.message, 'error'); }
     }
 
@@ -4111,18 +4130,39 @@
     async function markPrayerRead(id) {
         try {
             await fetch('/api/prayers/' + id + '/read', { method: 'PUT', headers: getHeaders() });
-            loadDashboard();
             showNotification('✅ Marcada como lida!', 'success');
+            const prayers = await fetch('/api/prayers', { headers: getHeaders() }).then(r => r.json());
+            loadPrayers(prayers || []);
         } catch (e) { showNotification('❌ ' + e.message, 'error'); }
     }
 
+    // 🔧 CORREÇÃO PRINCIPAL: deleteUser agora recarrega a lista
     async function deleteUser(id) {
-        if (!confirm('Remover?')) return;
+        if (!confirm('Remover este usuário?')) return;
         try {
-            await fetch('/api/users/' + id, { method: 'DELETE', headers: getHeaders() });
-            loadDashboard();
-            showNotification('✅ Removido!', 'success');
-        } catch (e) { showNotification('❌ ' + e.message, 'error'); }
+            const res = await fetch('/api/users/' + id, { 
+                method: 'DELETE', 
+                headers: getHeaders() 
+            });
+            
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error || 'Erro ao excluir');
+            }
+            
+            showNotification('✅ Usuário removido!', 'success');
+            
+            // Recarrega a lista de usuários na tabela
+            const users = await fetch('/api/users', { headers: getHeaders() }).then(r => r.json());
+            loadUsers(users || []);
+            
+            // Atualiza contador do dashboard
+            const totalEl = document.getElementById('totalUsers');
+            if (totalEl) totalEl.textContent = (users || []).length;
+            
+        } catch (e) { 
+            showNotification('❌ ' + e.message, 'error'); 
+        }
     }
 
     async function resetPassword(email) {
@@ -4167,7 +4207,10 @@
             if (!res.ok) throw new Error(data.error || 'Erro');
             closeModal('userModal');
             showNotification('✅ Usuário criado!', 'success');
-            loadDashboard();
+            
+            // Recarrega a lista
+            const users = await fetch('/api/users', { headers: getHeaders() }).then(r => r.json());
+            loadUsers(users || []);
         } catch (e) { showNotification('❌ ' + e.message, 'error'); }
     }
 
@@ -4482,11 +4525,6 @@
             scrollTopBtn.classList.remove('show');
         }
     }, { passive: true });
-
-    // ============================================
-    // BOTTOM NAV - "Menu" abre a sidebar
-    // ============================================
-    // (já configurado no onclick="openDrawerMenu()")
 
     // ============================================
     // SWIPE PARA FECHAR DRAWER

@@ -59,6 +59,8 @@
             --neon-blue: #00d4ff;
             --neon-purple: #8b5cf6;
             --neon-cyan: #06b6d4;
+            --success: #10b981;
+            --danger: #ef4444;
         }
         html { scroll-behavior: smooth; background: #000; }
         body {
@@ -174,7 +176,7 @@
             .install-fab { bottom: calc(20px + 198px); right: 14px; padding: 12px 18px; font-size: 13px; }
         }
 
-        /* ===== HEADER (futurista) ===== */
+        /* ===== HEADER ===== */
         .header {
             background: rgba(0,0,0,.88);
             backdrop-filter: blur(24px) saturate(180%);
@@ -280,7 +282,7 @@
         }
         .menu-toggle { display: none; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); font-size: 1.1rem; color: #fff; cursor: pointer; padding: .4rem .6rem; border-radius: 10px; }
 
-        /* ===== NAV (futurista) ===== */
+        /* ===== NAV ===== */
         .main-nav {
             background: rgba(6,8,15,.94); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
             padding: .35rem 1rem; display: flex; justify-content: center; gap: .15rem; flex-wrap: wrap;
@@ -410,7 +412,7 @@
         }
         .live-bar .btn-watch:hover { transform: scale(1.05); }
 
-        /* ===== COUNTDOWN (futurista) ===== */
+        /* ===== COUNTDOWN ===== */
         .countdown-section { max-width: var(--max-width); margin: 1.4rem auto 1rem; padding: 0 1rem; }
         .countdown-bar {
             background: linear-gradient(135deg, #0a0f1e, #0f1d3a 60%, #0D47A1);
@@ -517,7 +519,7 @@
         }
         .card:hover .card-image-wrapper img { transform: scale(1.06); }
 
-        /* ===== INSCRIÇÕES — CARDS CLEAN ===== */
+        /* ===== INSCRIÇÕES ===== */
         .registration-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -580,7 +582,7 @@
         .reg-card .reg-card-badge i { color: #10b981; }
         .reg-card .btn-dark { width: 100%; margin-top: auto; }
 
-        /* ===== EVENTOS — CARDS MODERNOS ===== */
+        /* ===== EVENTOS ===== */
         .event-card-modern {
             background: #fff;
             border-radius: var(--radius);
@@ -665,7 +667,7 @@
         }
         .event-card-body .btn-dark.closed:hover { transform: none; box-shadow: none; background: #e2e8f0; }
 
-        /* ===== ESTUDOS — CARDS PREMIUM ===== */
+        /* ===== ESTUDOS ===== */
         .study-card-premium {
             position: relative;
             background: #fff;
@@ -851,7 +853,7 @@
             letter-spacing: .2px;
         }
 
-        /* ===== NJ STORE — CARDS PREMIUM ===== */
+        /* ===== NJ STORE — CARDS ===== */
         .product-card-premium {
             position: relative;
             background: #fff;
@@ -1065,6 +1067,535 @@
             font-size: .8rem;
         }
 
+        /* ===== CHECKOUT OVERLAY PROFISSIONAL ===== */
+        .checkout-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: #f5f7fb;
+            overflow-y: auto;
+            animation: checkoutSlideIn .4s cubic-bezier(.4,0,.2,1);
+        }
+        .checkout-overlay.open { display: block; }
+        @keyframes checkoutSlideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .checkout-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: rgba(255,255,255,.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--line);
+            padding: .8rem 1.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        .checkout-header-left {
+            display: flex;
+            align-items: center;
+            gap: .8rem;
+        }
+        .checkout-back-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--line);
+            background: #fff;
+            color: var(--ink);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+        .checkout-back-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--secondary);
+            transform: scale(1.05);
+        }
+        .checkout-header-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--ink);
+            letter-spacing: -.3px;
+        }
+        .checkout-header-title small {
+            display: block;
+            font-size: .65rem;
+            font-weight: 500;
+            color: var(--muted);
+            letter-spacing: .5px;
+        }
+        .checkout-steps {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-size: .68rem;
+            font-weight: 700;
+            color: var(--muted);
+        }
+        .checkout-steps .step {
+            display: flex;
+            align-items: center;
+            gap: .35rem;
+            padding: .3rem .8rem;
+            border-radius: var(--radius-full);
+            transition: var(--transition);
+        }
+        .checkout-steps .step.active {
+            background: var(--secondary);
+            color: var(--primary);
+        }
+        .checkout-steps .step.done {
+            color: var(--success);
+        }
+        .checkout-steps .step .step-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--line);
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .6rem;
+            font-weight: 800;
+            transition: var(--transition);
+        }
+        .checkout-steps .step.active .step-num {
+            background: var(--primary);
+            color: #fff;
+        }
+        .checkout-steps .step.done .step-num {
+            background: var(--success);
+            color: #fff;
+        }
+        .checkout-steps .step .step-label {
+            display: inline;
+        }
+
+        .checkout-body {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1.4rem 4rem;
+            display: grid;
+            grid-template-columns: 1.2fr .8fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .checkout-main {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .checkout-section-card {
+            background: #fff;
+            border-radius: 22px;
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow-sm);
+            padding: 1.6rem;
+            transition: var(--transition);
+        }
+        .checkout-section-card:hover {
+            box-shadow: var(--shadow);
+        }
+        .checkout-section-title {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            font-size: .92rem;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 1.2rem;
+            letter-spacing: -.2px;
+        }
+        .checkout-section-title .icon-badge {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--secondary);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .9rem;
+            flex-shrink: 0;
+        }
+
+        .checkout-item-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: .9rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .checkout-item-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .checkout-item-row:first-child { padding-top: 0; }
+        .checkout-item-img {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f8fafc, #e8edf5);
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--line);
+        }
+        .checkout-item-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .checkout-item-img i {
+            font-size: 1.4rem;
+            color: var(--muted);
+        }
+        .checkout-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .checkout-item-info h4 {
+            font-size: .88rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: .15rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .checkout-item-info .item-cat {
+            font-size: .65rem;
+            color: var(--muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+        .checkout-item-qty {
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            flex-shrink: 0;
+        }
+        .checkout-item-qty button {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            border: 1.5px solid var(--line);
+            background: #fff;
+            color: var(--ink);
+            font-size: .7rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            font-weight: 700;
+        }
+        .checkout-item-qty button:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--secondary);
+        }
+        .checkout-item-qty span {
+            font-size: .82rem;
+            font-weight: 700;
+            min-width: 20px;
+            text-align: center;
+            color: var(--ink);
+        }
+        .checkout-item-price {
+            font-size: .88rem;
+            font-weight: 800;
+            color: var(--primary);
+            flex-shrink: 0;
+            min-width: 80px;
+            text-align: right;
+        }
+        .checkout-item-remove {
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            font-size: .78rem;
+            cursor: pointer;
+            padding: .3rem;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+        .checkout-item-remove:hover { color: var(--danger); transform: scale(1.15); }
+
+        .checkout-empty-cart {
+            text-align: center;
+            padding: 2.5rem 1rem;
+        }
+        .checkout-empty-cart .empty-icon {
+            font-size: 3rem;
+            color: #cbd5e1;
+            margin-bottom: .8rem;
+        }
+        .checkout-empty-cart h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: .3rem;
+        }
+        .checkout-empty-cart p {
+            font-size: .82rem;
+            color: var(--muted);
+            margin-bottom: 1.2rem;
+        }
+
+        .checkout-summary {
+            position: sticky;
+            top: 80px;
+        }
+        .checkout-summary-card {
+            background: #fff;
+            border-radius: 22px;
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow);
+            padding: 1.6rem;
+            overflow: hidden;
+        }
+        .checkout-summary-card .summary-header {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            font-size: .92rem;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 1.2rem;
+            letter-spacing: -.2px;
+        }
+        .checkout-summary-card .summary-header .icon-badge {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--primary-gradient);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .9rem;
+            flex-shrink: 0;
+        }
+        .summary-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: .4rem 0;
+            font-size: .82rem;
+            color: var(--ink-soft);
+        }
+        .summary-line .label { font-weight: 500; }
+        .summary-line .value { font-weight: 700; color: var(--ink); }
+        .summary-line.total {
+            border-top: 2px dashed var(--line);
+            margin-top: .6rem;
+            padding-top: .8rem;
+            font-size: 1rem;
+        }
+        .summary-line.total .label { font-weight: 800; color: var(--ink); }
+        .summary-line.total .value { font-weight: 800; color: var(--primary); font-size: 1.2rem; }
+        .summary-line .free-tag {
+            background: rgba(16,185,129,.1);
+            color: var(--success);
+            font-size: .6rem;
+            font-weight: 800;
+            padding: .15rem .5rem;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+        .checkout-checkout-btn {
+            width: 100%;
+            margin-top: 1rem;
+            padding: .9rem 1.5rem;
+            border-radius: 14px;
+            border: none;
+            background: var(--primary-gradient);
+            color: #fff;
+            font-family: var(--font);
+            font-weight: 800;
+            font-size: .92rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            box-shadow: 0 6px 24px rgba(13,71,161,.3);
+        }
+        .checkout-checkout-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 36px rgba(13,71,161,.4);
+        }
+        .checkout-checkout-btn:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .checkout-continue-shopping {
+            display: block;
+            text-align: center;
+            margin-top: .8rem;
+            font-size: .75rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition);
+            background: none;
+            border: none;
+            font-family: var(--font);
+            width: 100%;
+        }
+        .checkout-continue-shopping:hover { color: var(--primary); }
+
+        .checkout-trust {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.2rem;
+            margin-top: 1.2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--line);
+            flex-wrap: wrap;
+        }
+        .checkout-trust span {
+            display: flex;
+            align-items: center;
+            gap: .35rem;
+            font-size: .62rem;
+            color: var(--muted);
+            font-weight: 600;
+        }
+        .checkout-trust i { color: var(--success); font-size: .7rem; }
+
+        /* Checkout payment step */
+        .checkout-payment-form .form-group { margin: .7rem 0; }
+        .checkout-payment-form label {
+            font-size: .72rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: .25rem;
+            display: block;
+        }
+        .checkout-payment-form input,
+        .checkout-payment-form select {
+            width: 100%;
+            padding: .7rem .9rem;
+            border: 2px solid var(--line);
+            border-radius: 12px;
+            font-size: .82rem;
+            font-family: var(--font);
+            background: #fafbff;
+            color: var(--ink);
+            transition: var(--transition);
+            outline: none;
+        }
+        .checkout-payment-form input:focus,
+        .checkout-payment-form select:focus {
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(13,71,161,.09);
+        }
+        .checkout-payment-form .form-row { display: flex; gap: .6rem; }
+        .checkout-payment-form .form-row > * { flex: 1; }
+
+        .payment-method-tabs {
+            display: flex;
+            gap: .5rem;
+            margin-bottom: 1rem;
+        }
+        .payment-method-tab {
+            flex: 1;
+            padding: .6rem .4rem;
+            border-radius: 12px;
+            border: 2px solid var(--line);
+            background: #fff;
+            color: var(--muted);
+            font-family: var(--font);
+            font-weight: 700;
+            font-size: .75rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .4rem;
+        }
+        .payment-method-tab:hover { border-color: #cbd5e1; color: var(--ink); }
+        .payment-method-tab.active {
+            border-color: var(--primary);
+            background: var(--secondary);
+            color: var(--primary);
+            box-shadow: 0 2px 12px rgba(13,71,161,.08);
+        }
+        .payment-method-tab i { font-size: .9rem; }
+
+        .checkout-payment-result {
+            text-align: center;
+            padding: 1rem 0;
+        }
+        .checkout-payment-result .qr-wrapper {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1rem;
+            display: inline-block;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--line);
+            margin: .6rem 0;
+        }
+        .checkout-payment-result .qr-wrapper img {
+            max-width: 160px;
+            display: block;
+            border-radius: 8px;
+        }
+
+        /* Checkout success */
+        .checkout-success {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+        .checkout-success .success-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            margin: 0 auto 1rem;
+            box-shadow: 0 8px 28px rgba(16,185,129,.2);
+        }
+        .checkout-success h2 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: .4rem;
+        }
+        .checkout-success p {
+            font-size: .85rem;
+            color: var(--ink-soft);
+            margin-bottom: .6rem;
+        }
+
         /* ===== VERSE BLOCK ===== */
         .verse-block {
             background: linear-gradient(135deg, #f0f5ff, #e8f0fe);
@@ -1131,7 +1662,7 @@
         .btn-map:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(13,71,161,.3); }
         .btn-map.waze { background: #1e293b; }
 
-        /* ===== FOOTER (futurista) ===== */
+        /* ===== FOOTER ===== */
         .footer { background: #060a14; color: #fff; padding: 3rem 1rem 1.4rem; margin-top: 3rem; border-top: 1px solid rgba(0,212,255,.1); position: relative; }
         .footer::before {
             content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
@@ -1150,7 +1681,6 @@
             transition: var(--transition); opacity: .8;
         }
         .footer .social-links a:hover { background: var(--primary); transform: translateY(-3px); opacity: 1; border-color: transparent; box-shadow: 0 6px 20px rgba(0,212,255,.25); }
-        /* Ícones sociais sempre visíveis */
         .footer .social-links a i { color: #fff; font-size: 1.1rem; }
         .footer-bottom { text-align: center; padding-top: 1.4rem; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,.06); opacity: .4; font-size: .72rem; }
 
@@ -1251,7 +1781,7 @@
             box-shadow: var(--btn-dark-shadow-hover);
         }
 
-        /* ===== BÍBLIA MELHORADA ===== */
+        /* ===== BÍBLIA ===== */
         .modal-bible .modal-content { max-width: 800px; }
         .bible-container { display: flex; gap: 1.2rem; flex-wrap: wrap; }
         .bible-input { flex: 1; min-width: 220px; }
@@ -1271,7 +1801,6 @@
         .bible-result .verse strong { color: var(--primary); }
         .bible-result .reference { font-weight: 800; color: var(--primary); margin-top: .5rem; font-size: .8rem; }
 
-        /* Seletor de capítulo e versículo na Bíblia */
         .bible-select-row {
             display: flex;
             gap: .6rem;
@@ -1344,8 +1873,15 @@
         .birthday-card.today { border-color: #e91e63; background: linear-gradient(135deg,#fff,#fdf2f8); }
         .birthday-card.today .name { color: #e91e63; }
 
+        /* ===== RESPONSIVO ===== */
         @media (max-width: 900px) {
             .footer-content { grid-template-columns: 1fr 1fr; }
+            .checkout-body { grid-template-columns: 1fr; padding: 1.2rem 1rem 3rem; }
+            .checkout-summary { position: static; }
+            .checkout-header { padding: .7rem 1rem; }
+            .checkout-header-title { font-size: .95rem; }
+            .checkout-steps .step .step-label { display: none; }
+            .checkout-steps .step { padding: .3rem .5rem; }
         }
         @media (max-width: 768px) {
             .header { padding: 0 .8rem; }
@@ -1416,6 +1952,13 @@
             .splash-name { font-size: 1.1rem; }
 
             .bible-select-row { flex-direction: column; gap: .4rem; }
+
+            .checkout-item-row { flex-wrap: wrap; gap: .6rem; }
+            .checkout-item-img { width: 52px; height: 52px; }
+            .checkout-item-info h4 { font-size: .8rem; white-space: normal; }
+            .checkout-item-price { min-width: auto; font-size: .8rem; }
+            .checkout-section-card { padding: 1.2rem; }
+            .checkout-summary-card { padding: 1.2rem; }
         }
         @media (max-width: 480px) {
             .hero { max-height: 260px; aspect-ratio: 16 / 11; }
@@ -1426,6 +1969,13 @@
             .countdown-bar { padding: .7rem .8rem; }
             .countdown-bar .countdown-timer .time-block { min-width: 42px; padding: .25rem .4rem; }
             .countdown-bar .countdown-timer .time-block .num { font-size: .95rem; }
+
+            .checkout-body { padding: .8rem .6rem 2.5rem; gap: 1rem; }
+            .checkout-section-card { padding: 1rem; border-radius: 16px; }
+            .checkout-summary-card { padding: 1rem; border-radius: 16px; }
+            .checkout-header-title { font-size: .85rem; }
+            .checkout-header-title small { font-size: .55rem; }
+            .checkout-back-btn { width: 34px; height: 34px; font-size: .85rem; }
         }
     </style>
 </head>
@@ -1496,380 +2046,538 @@
 
     <button class="install-fab" id="installFab"><i class="fas fa-download"></i><span>Instalar App</span></button>
 
-    <!-- ===== TOPO PRETO + CARROSSEL ===== -->
-    <div class="top-black">
-        <div class="hero-wrap">
-            <section id="home" class="hero">
-                <div class="hero-slides" id="heroSlides"></div>
-                <div class="hero-arrows">
-                    <button class="hero-arrow" onclick="changeSlide(-1)"><i class="fas fa-chevron-left"></i></button>
-                    <button class="hero-arrow" onclick="changeSlide(1)"><i class="fas fa-chevron-right"></i></button>
+    <!-- ===== CONTEÚDO PRINCIPAL ===== -->
+    <div id="mainContent">
+        <!-- TOPO PRETO + CARROSSEL -->
+        <div class="top-black">
+            <div class="hero-wrap">
+                <section id="home" class="hero">
+                    <div class="hero-slides" id="heroSlides"></div>
+                    <div class="hero-arrows">
+                        <button class="hero-arrow" onclick="changeSlide(-1)"><i class="fas fa-chevron-left"></i></button>
+                        <button class="hero-arrow" onclick="changeSlide(1)"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="hero-controls" id="heroControls"></div>
+                    <div class="hero-live-badge" id="heroLiveBadge"><i class="fas fa-circle"></i> AO VIVO</div>
+                </section>
+            </div>
+        </div>
+
+        <div class="live-bar" id="liveBar">
+            <div class="live-indicator"><i class="fas fa-circle"></i> AO VIVO</div>
+            <div class="live-info"><strong id="liveBarTitle">Culto</strong> <span id="liveBarDesc">- Transmissão ao vivo</span></div>
+            <button class="btn-watch" onclick="scrollToSection('live')">Assistir <i class="fas fa-chevron-right"></i></button>
+        </div>
+
+        <div class="countdown-section">
+            <div class="countdown-bar" id="countdownBar">
+                <div class="countdown-label">📅 Próximo Culto</div>
+                <div class="countdown-timer" id="countdownTimer">
+                    <span class="time-block"><span class="num" id="cdDays">0</span><span class="label">dias</span></span>
+                    <span class="time-block"><span class="num" id="cdHours">0</span><span class="label">horas</span></span>
+                    <span class="time-block"><span class="num" id="cdMinutes">0</span><span class="label">min</span></span>
+                    <span class="time-block"><span class="num" id="cdSeconds">0</span><span class="label">seg</span></span>
                 </div>
-                <div class="hero-controls" id="heroControls"></div>
-                <div class="hero-live-badge" id="heroLiveBadge"><i class="fas fa-circle"></i> AO VIVO</div>
-            </section>
-        </div>
-    </div>
-
-    <div class="live-bar" id="liveBar">
-        <div class="live-indicator"><i class="fas fa-circle"></i> AO VIVO</div>
-        <div class="live-info"><strong id="liveBarTitle">Culto</strong> <span id="liveBarDesc">- Transmissão ao vivo</span></div>
-        <button class="btn-watch" onclick="scrollToSection('live')">Assistir <i class="fas fa-chevron-right"></i></button>
-    </div>
-
-    <div class="countdown-section">
-        <div class="countdown-bar" id="countdownBar">
-            <div class="countdown-label">📅 Próximo Culto</div>
-            <div class="countdown-timer" id="countdownTimer">
-                <span class="time-block"><span class="num" id="cdDays">0</span><span class="label">dias</span></span>
-                <span class="time-block"><span class="num" id="cdHours">0</span><span class="label">horas</span></span>
-                <span class="time-block"><span class="num" id="cdMinutes">0</span><span class="label">min</span></span>
-                <span class="time-block"><span class="num" id="cdSeconds">0</span><span class="label">seg</span></span>
-            </div>
-            <div class="next-culto-label" id="nextCultoLabel">Domingo às 18:00</div>
-        </div>
-    </div>
-
-    <div class="services-quick">
-        <div class="services-grid">
-            <a href="#live" class="service-item" onclick="scrollToSection('live')">
-                <div class="icon"><i class="fas fa-broadcast-tower"></i></div>
-                <h4>Ao Vivo</h4>
-                <p>Assista</p>
-            </a>
-            <a href="#dizimos" class="service-item" onclick="scrollToSection('dizimos')">
-                <div class="icon"><i class="fas fa-hand-holding-heart"></i></div>
-                <h4>Dízimo</h4>
-                <p>Contribua</p>
-            </a>
-            <a href="#oracao" class="service-item" onclick="scrollToSection('oracao')">
-                <div class="icon"><i class="fas fa-pray"></i></div>
-                <h4>Oração</h4>
-                <p>Peça</p>
-            </a>
-            <a href="#inscricoes" class="service-item" onclick="scrollToSection('inscricoes')">
-                <div class="icon"><i class="fas fa-file-signature"></i></div>
-                <h4>Inscrições</h4>
-                <p>Participe</p>
-            </a>
-            <a href="#loja" class="service-item" onclick="scrollToSection('loja')">
-                <div class="icon"><i class="fas fa-bag-shopping"></i></div>
-                <h4>NJ Store</h4>
-                <p>Produtos</p>
-            </a>
-        </div>
-    </div>
-
-    <section id="sobre" class="section">
-        <div class="section-header">
-            <span class="tag">Quem Somos</span>
-            <h2>Sobre Nós</h2>
-            <div class="line"></div>
-            <p class="subtitle">Conheça a história e missão da NJ Cabuçu</p>
-        </div>
-        <div class="grid">
-            <div class="card">
-                <div class="icon-wrapper"><i class="fas fa-heart"></i></div>
-                <h3>Nossa Missão</h3>
-                <p id="aboutMissionText">Levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.</p>
-            </div>
-            <div class="card">
-                <div class="icon-wrapper"><i class="fas fa-bible"></i></div>
-                <h3>Nossa Visão</h3>
-                <p id="aboutVisionText">Ser uma igreja relevante, que transforma vidas e impacta a comunidade com o evangelho.</p>
-            </div>
-            <div class="card">
-                <div class="icon-wrapper"><i class="fas fa-hand-holding-heart"></i></div>
-                <h3>Nossos Valores</h3>
-                <p id="aboutValuesText">Amor, fé, esperança, serviço e comunhão. Vivemos os valores do Reino de Deus.</p>
+                <div class="next-culto-label" id="nextCultoLabel">Domingo às 18:00</div>
             </div>
         </div>
-    </section>
 
-    <section id="reflexoes" class="section">
-        <div class="section-header">
-            <span class="tag">Palavra do Pastor</span>
-            <h2>🎥 Reflexões</h2>
-            <div class="line"></div>
-            <p class="subtitle">Mensagens edificantes para o seu dia</p>
-        </div>
-        <div class="grid" id="reflectionsList">
-            <p style="text-align:center;color:#888;grid-column:1/-1;">Carregando reflexões...</p>
-        </div>
-    </section>
-
-    <section id="eventos" class="section">
-        <div class="section-header">
-            <span class="tag">Agenda</span>
-            <h2>📅 Próximos Eventos</h2>
-            <div class="line"></div>
-            <p class="subtitle">Participe dos nossos eventos e cultos especiais</p>
-        </div>
-        <div class="grid" id="eventsList"></div>
-    </section>
-
-    <div class="section">
-        <div class="verse-block">
-            <div class="verse-text">
-                "Cada um contribua segundo tiver proposto no coração, não com tristeza ou por necessidade; porque Deus ama ao que dá com alegria."
-            </div>
-            <span class="verse-ref">2 Coríntios 9:7</span>
-        </div>
-    </div>
-
-    <section id="horarios" class="section">
-        <div class="section-header">
-            <span class="tag">Horários</span>
-            <h2>Horários dos Cultos</h2>
-            <div class="line"></div>
-            <p class="subtitle">Venha nos visitar e adorar a Deus conosco</p>
-        </div>
-        <div class="schedule-grid">
-            <div class="schedule-item">
-                <div class="day">Terça-feira</div>
-                <div class="time"><i class="fas fa-clock"></i> Consagração 09:00</div>
-                <div class="time"><i class="fas fa-clock"></i> GC 19:30</div>
-            </div>
-            <div class="schedule-item">
-                <div class="day">Quarta-feira</div>
-                <div class="time"><i class="fas fa-clock"></i> Quarta Power 19:30</div>
-            </div>
-            <div class="schedule-item">
-                <div class="day">Domingo</div>
-                <div class="time"><i class="fas fa-clock"></i> Manhã dos Discípulos 08:30</div>
-                <div class="time"><i class="fas fa-clock"></i> ✨ Culto de Celebração 18:00</div>
+        <div class="services-quick">
+            <div class="services-grid">
+                <a href="#live" class="service-item" onclick="scrollToSection('live')">
+                    <div class="icon"><i class="fas fa-broadcast-tower"></i></div>
+                    <h4>Ao Vivo</h4>
+                    <p>Assista</p>
+                </a>
+                <a href="#dizimos" class="service-item" onclick="scrollToSection('dizimos')">
+                    <div class="icon"><i class="fas fa-hand-holding-heart"></i></div>
+                    <h4>Dízimo</h4>
+                    <p>Contribua</p>
+                </a>
+                <a href="#oracao" class="service-item" onclick="scrollToSection('oracao')">
+                    <div class="icon"><i class="fas fa-pray"></i></div>
+                    <h4>Oração</h4>
+                    <p>Peça</p>
+                </a>
+                <a href="#inscricoes" class="service-item" onclick="scrollToSection('inscricoes')">
+                    <div class="icon"><i class="fas fa-file-signature"></i></div>
+                    <h4>Inscrições</h4>
+                    <p>Participe</p>
+                </a>
+                <a href="#loja" class="service-item" onclick="scrollToSection('loja')">
+                    <div class="icon"><i class="fas fa-bag-shopping"></i></div>
+                    <h4>NJ Store</h4>
+                    <p>Produtos</p>
+                </a>
             </div>
         </div>
-    </section>
 
-    <section id="celulas" class="section">
-        <div class="section-header">
-            <span class="tag">Comunhão</span>
-            <h2>🏠 Nossas Células</h2>
-            <div class="line"></div>
-            <p class="subtitle">Encontre uma célula perto de você e faça parte</p>
-        </div>
-        <div id="celulasList" class="grid"></div>
-    </section>
-
-    <section id="aniversariantes" class="section">
-        <div class="section-header">
-            <span class="tag">Celebração</span>
-            <h2>🎂 Aniversariantes do Mês</h2>
-            <div class="line"></div>
-            <p class="subtitle">Celebre com nossos irmãos que estão fazendo aniversário</p>
-        </div>
-        <div id="birthdayList" class="grid"></div>
-    </section>
-
-    <section id="estudos" class="section">
-        <div class="section-header">
-            <span class="tag">Aprofunde-se</span>
-            <h2>📖 Estudos Bíblicos</h2>
-            <div class="line"></div>
-            <p class="subtitle">Materiais para edificação da sua fé</p>
-        </div>
-        <div class="grid" id="studiesList"></div>
-    </section>
-
-    <section id="loja" class="section">
-        <div class="section-header">
-            <span class="tag">Loja</span>
-            <h2>🛍️ NJ Store</h2>
-            <div class="line"></div>
-            <p class="subtitle">Adquira produtos exclusivos da nossa igreja</p>
-        </div>
-        <div class="grid" id="productsList"></div>
-        <div style="text-align:center;margin-top:1.4rem;">
-            <button onclick="openCart()" class="btn-dark btn-lg">
-                <i class="fas fa-shopping-cart"></i> Ver Carrinho (<span id="cartCount">0</span>)
-            </button>
-        </div>
-    </section>
-
-    <section id="dizimos" class="section">
-        <div class="section-header">
-            <span class="tag">Contribuição</span>
-            <h2>💝 Dízimos e Ofertas</h2>
-            <div class="line"></div>
-            <p class="subtitle">"Honra ao Senhor com os teus bens" — Provérbios 3:9</p>
-        </div>
-        <div class="tithe-options">
-            <button onclick="openDonationForm('Dízimo')" class="btn-donation"><i class="fas fa-percent"></i> Dízimo</button>
-            <button onclick="openDonationForm('Oferta')" class="btn-donation"><i class="fas fa-hand-holding-heart"></i> Oferta</button>
-            <button onclick="openDonationForm('Missões')" class="btn-donation"><i class="fas fa-globe-americas"></i> Missões</button>
-        </div>
-        <div id="donationResult" style="display:none;" class="text-center mt-1"></div>
-    </section>
-
-    <section id="live" class="section" style="display:none;">
-        <div class="section-header">
-            <span class="tag">Ao Vivo</span>
-            <h2>📺 Transmissão ao Vivo</h2>
-            <div class="line"></div>
-            <p class="subtitle">Assista agora a transmissão ao vivo da NJ Cabuçu</p>
-        </div>
-        <div class="live-container">
-            <div class="live-player" id="livePlayer">
-                <div id="liveOffline" class="live-offline">
-                    <i class="fas fa-broadcast-tower"></i>
-                    <span>Nenhuma transmissão ao vivo no momento</span>
-                    <p>Fique ligado, em breve começaremos!</p>
+        <section id="sobre" class="section">
+            <div class="section-header">
+                <span class="tag">Quem Somos</span>
+                <h2>Sobre Nós</h2>
+                <div class="line"></div>
+                <p class="subtitle">Conheça a história e missão da NJ Cabuçu</p>
+            </div>
+            <div class="grid">
+                <div class="card">
+                    <div class="icon-wrapper"><i class="fas fa-heart"></i></div>
+                    <h3>Nossa Missão</h3>
+                    <p id="aboutMissionText">Levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.</p>
                 </div>
-                <video id="remoteVideo" autoplay playsinline style="display:none;"></video>
-                <div id="liveBadge" class="live-badge" style="display:none;"><i class="fas fa-circle"></i> AO VIVO</div>
-                <div id="liveInfoBox" class="live-info-box" style="display:none;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.3rem;">
-                        <div>
-                            <div id="liveTitleDisplay" class="live-title"></div>
-                            <div id="liveDescDisplay" class="live-desc"></div>
-                        </div>
-                        <div style="display:flex; align-items:center; gap:.5rem;">
-                            <span id="liveViewerCount" class="live-viewers"><i class="fas fa-eye"></i> 0</span>
-                            <span class="live-dot">●</span>
+                <div class="card">
+                    <div class="icon-wrapper"><i class="fas fa-bible"></i></div>
+                    <h3>Nossa Visão</h3>
+                    <p id="aboutVisionText">Ser uma igreja relevante, que transforma vidas e impacta a comunidade com o evangelho.</p>
+                </div>
+                <div class="card">
+                    <div class="icon-wrapper"><i class="fas fa-hand-holding-heart"></i></div>
+                    <h3>Nossos Valores</h3>
+                    <p id="aboutValuesText">Amor, fé, esperança, serviço e comunhão. Vivemos os valores do Reino de Deus.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="reflexoes" class="section">
+            <div class="section-header">
+                <span class="tag">Palavra do Pastor</span>
+                <h2>🎥 Reflexões</h2>
+                <div class="line"></div>
+                <p class="subtitle">Mensagens edificantes para o seu dia</p>
+            </div>
+            <div class="grid" id="reflectionsList">
+                <p style="text-align:center;color:#888;grid-column:1/-1;">Carregando reflexões...</p>
+            </div>
+        </section>
+
+        <section id="eventos" class="section">
+            <div class="section-header">
+                <span class="tag">Agenda</span>
+                <h2>📅 Próximos Eventos</h2>
+                <div class="line"></div>
+                <p class="subtitle">Participe dos nossos eventos e cultos especiais</p>
+            </div>
+            <div class="grid" id="eventsList"></div>
+        </section>
+
+        <div class="section">
+            <div class="verse-block">
+                <div class="verse-text">
+                    "Cada um contribua segundo tiver proposto no coração, não com tristeza ou por necessidade; porque Deus ama ao que dá com alegria."
+                </div>
+                <span class="verse-ref">2 Coríntios 9:7</span>
+            </div>
+        </div>
+
+        <section id="horarios" class="section">
+            <div class="section-header">
+                <span class="tag">Horários</span>
+                <h2>Horários dos Cultos</h2>
+                <div class="line"></div>
+                <p class="subtitle">Venha nos visitar e adorar a Deus conosco</p>
+            </div>
+            <div class="schedule-grid">
+                <div class="schedule-item">
+                    <div class="day">Terça-feira</div>
+                    <div class="time"><i class="fas fa-clock"></i> Consagração 09:00</div>
+                    <div class="time"><i class="fas fa-clock"></i> GC 19:30</div>
+                </div>
+                <div class="schedule-item">
+                    <div class="day">Quarta-feira</div>
+                    <div class="time"><i class="fas fa-clock"></i> Quarta Power 19:30</div>
+                </div>
+                <div class="schedule-item">
+                    <div class="day">Domingo</div>
+                    <div class="time"><i class="fas fa-clock"></i> Manhã dos Discípulos 08:30</div>
+                    <div class="time"><i class="fas fa-clock"></i> ✨ Culto de Celebração 18:00</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="celulas" class="section">
+            <div class="section-header">
+                <span class="tag">Comunhão</span>
+                <h2>🏠 Nossas Células</h2>
+                <div class="line"></div>
+                <p class="subtitle">Encontre uma célula perto de você e faça parte</p>
+            </div>
+            <div id="celulasList" class="grid"></div>
+        </section>
+
+        <section id="aniversariantes" class="section">
+            <div class="section-header">
+                <span class="tag">Celebração</span>
+                <h2>🎂 Aniversariantes do Mês</h2>
+                <div class="line"></div>
+                <p class="subtitle">Celebre com nossos irmãos que estão fazendo aniversário</p>
+            </div>
+            <div id="birthdayList" class="grid"></div>
+        </section>
+
+        <section id="estudos" class="section">
+            <div class="section-header">
+                <span class="tag">Aprofunde-se</span>
+                <h2>📖 Estudos Bíblicos</h2>
+                <div class="line"></div>
+                <p class="subtitle">Materiais para edificação da sua fé</p>
+            </div>
+            <div class="grid" id="studiesList"></div>
+        </section>
+
+        <section id="loja" class="section">
+            <div class="section-header">
+                <span class="tag">Loja</span>
+                <h2>🛍️ NJ Store</h2>
+                <div class="line"></div>
+                <p class="subtitle">Adquira produtos exclusivos da nossa igreja</p>
+            </div>
+            <div class="grid" id="productsList"></div>
+            <div style="text-align:center;margin-top:1.4rem;">
+                <button onclick="openCheckout()" class="btn-dark btn-lg">
+                    <i class="fas fa-shopping-cart"></i> Ver Carrinho (<span id="cartCount">0</span>)
+                </button>
+            </div>
+        </section>
+
+        <section id="dizimos" class="section">
+            <div class="section-header">
+                <span class="tag">Contribuição</span>
+                <h2>💝 Dízimos e Ofertas</h2>
+                <div class="line"></div>
+                <p class="subtitle">"Honra ao Senhor com os teus bens" — Provérbios 3:9</p>
+            </div>
+            <div class="tithe-options">
+                <button onclick="openDonationForm('Dízimo')" class="btn-donation"><i class="fas fa-percent"></i> Dízimo</button>
+                <button onclick="openDonationForm('Oferta')" class="btn-donation"><i class="fas fa-hand-holding-heart"></i> Oferta</button>
+                <button onclick="openDonationForm('Missões')" class="btn-donation"><i class="fas fa-globe-americas"></i> Missões</button>
+            </div>
+            <div id="donationResult" style="display:none;" class="text-center mt-1"></div>
+        </section>
+
+        <section id="live" class="section" style="display:none;">
+            <div class="section-header">
+                <span class="tag">Ao Vivo</span>
+                <h2>📺 Transmissão ao Vivo</h2>
+                <div class="line"></div>
+                <p class="subtitle">Assista agora a transmissão ao vivo da NJ Cabuçu</p>
+            </div>
+            <div class="live-container">
+                <div class="live-player" id="livePlayer">
+                    <div id="liveOffline" class="live-offline">
+                        <i class="fas fa-broadcast-tower"></i>
+                        <span>Nenhuma transmissão ao vivo no momento</span>
+                        <p>Fique ligado, em breve começaremos!</p>
+                    </div>
+                    <video id="remoteVideo" autoplay playsinline style="display:none;"></video>
+                    <div id="liveBadge" class="live-badge" style="display:none;"><i class="fas fa-circle"></i> AO VIVO</div>
+                    <div id="liveInfoBox" class="live-info-box" style="display:none;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.3rem;">
+                            <div>
+                                <div id="liveTitleDisplay" class="live-title"></div>
+                                <div id="liveDescDisplay" class="live-desc"></div>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:.5rem;">
+                                <span id="liveViewerCount" class="live-viewers"><i class="fas fa-eye"></i> 0</span>
+                                <span class="live-dot">●</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div style="text-align:center; margin-top:.5rem;">
-            <span style="font-size:.58rem; color:#888;">Clique no player para expandir</span>
-        </div>
-    </section>
-
-    <section id="oracao" class="section">
-        <div class="section-header">
-            <span class="tag">Comunicação com Deus</span>
-            <h2>🙏 Pedidos de Oração</h2>
-            <div class="line"></div>
-            <p class="subtitle">Compartilhe seu pedido de oração conosco</p>
-        </div>
-        <div style="max-width:560px;margin:0 auto;background:#fff;padding:1.8rem;border-radius:var(--radius);border:1px solid var(--line);box-shadow:var(--shadow-sm);">
-            <div class="form-group">
-                <label>Seu nome <span style="color:var(--muted);font-weight:500;">(opcional)</span></label>
-                <input type="text" id="prayerName" placeholder="Ex: João">
+            <div style="text-align:center; margin-top:.5rem;">
+                <span style="font-size:.58rem; color:#888;">Clique no player para expandir</span>
             </div>
-            <div class="form-group">
-                <label>Seu pedido de oração <span class="req">*</span></label>
-                <textarea id="prayerRequest" rows="4" placeholder="Digite seu pedido aqui..."></textarea>
+        </section>
+
+        <section id="oracao" class="section">
+            <div class="section-header">
+                <span class="tag">Comunicação com Deus</span>
+                <h2>🙏 Pedidos de Oração</h2>
+                <div class="line"></div>
+                <p class="subtitle">Compartilhe seu pedido de oração conosco</p>
             </div>
-            <button onclick="submitPrayer()" class="btn btn-primary" style="width:100%;justify-content:center; padding:.8rem; margin-top:.4rem;border-radius:14px;">
-                <i class="fas fa-paper-plane"></i> Enviar Pedido
-            </button>
-            <div id="prayerMessage" style="display:none; margin-top:.8rem;" class="mt-1"></div>
-        </div>
-    </section>
-
-    <!-- ===== INSCRIÇÕES — CARDS CLEAN ===== -->
-    <section id="inscricoes" class="section">
-        <div class="section-header">
-            <span class="tag">Participe</span>
-            <h2>📋 Inscrições</h2>
-            <div class="line"></div>
-            <p class="subtitle">Escolha uma das opções abaixo e faça parte</p>
-        </div>
-
-        <div class="registration-cards">
-            <div class="reg-card">
-                <div class="reg-card-icon"><i class="fas fa-water"></i></div>
-                <span class="reg-card-badge"><i class="fas fa-check-circle"></i> Disponível</span>
-                <h3>Batismo</h3>
-                <p>Dê o próximo passo na sua caminhada com Cristo. Inscreva-se para o batismo nas águas.</p>
-                <button onclick="showRegistration('baptism')" class="btn-dark btn-block">
-                    <i class="fas fa-pen"></i> Inscrever-se
+            <div style="max-width:560px;margin:0 auto;background:#fff;padding:1.8rem;border-radius:var(--radius);border:1px solid var(--line);box-shadow:var(--shadow-sm);">
+                <div class="form-group">
+                    <label>Seu nome <span style="color:var(--muted);font-weight:500;">(opcional)</span></label>
+                    <input type="text" id="prayerName" placeholder="Ex: João">
+                </div>
+                <div class="form-group">
+                    <label>Seu pedido de oração <span class="req">*</span></label>
+                    <textarea id="prayerRequest" rows="4" placeholder="Digite seu pedido aqui..."></textarea>
+                </div>
+                <button onclick="submitPrayer()" class="btn btn-primary" style="width:100%;justify-content:center; padding:.8rem; margin-top:.4rem;border-radius:14px;">
+                    <i class="fas fa-paper-plane"></i> Enviar Pedido
                 </button>
+                <div id="prayerMessage" style="display:none; margin-top:.8rem;" class="mt-1"></div>
+            </div>
+        </section>
+
+        <section id="inscricoes" class="section">
+            <div class="section-header">
+                <span class="tag">Participe</span>
+                <h2>📋 Inscrições</h2>
+                <div class="line"></div>
+                <p class="subtitle">Escolha uma das opções abaixo e faça parte</p>
             </div>
 
-            <div class="reg-card">
-                <div class="reg-card-icon"><i class="fas fa-hands-helping"></i></div>
-                <span class="reg-card-badge"><i class="fas fa-check-circle"></i> Disponível</span>
-                <h3>Voluntário</h3>
-                <p>Sirva com seus dons e talentos. Faça parte da equipe que transforma vidas.</p>
-                <button onclick="showRegistration('volunteer')" class="btn-dark btn-block">
-                    <i class="fas fa-pen"></i> Inscrever-se
-                </button>
+            <div class="registration-cards">
+                <div class="reg-card">
+                    <div class="reg-card-icon"><i class="fas fa-water"></i></div>
+                    <span class="reg-card-badge"><i class="fas fa-check-circle"></i> Disponível</span>
+                    <h3>Batismo</h3>
+                    <p>Dê o próximo passo na sua caminhada com Cristo. Inscreva-se para o batismo nas águas.</p>
+                    <button onclick="showRegistration('baptism')" class="btn-dark btn-block">
+                        <i class="fas fa-pen"></i> Inscrever-se
+                    </button>
+                </div>
+
+                <div class="reg-card">
+                    <div class="reg-card-icon"><i class="fas fa-hands-helping"></i></div>
+                    <span class="reg-card-badge"><i class="fas fa-check-circle"></i> Disponível</span>
+                    <h3>Voluntário</h3>
+                    <p>Sirva com seus dons e talentos. Faça parte da equipe que transforma vidas.</p>
+                    <button onclick="showRegistration('volunteer')" class="btn-dark btn-block">
+                        <i class="fas fa-pen"></i> Inscrever-se
+                    </button>
+                </div>
+
+                <div class="reg-card">
+                    <div class="reg-card-icon"><i class="fas fa-calendar-plus"></i></div>
+                    <span class="reg-card-badge"><i class="fas fa-check-circle"></i> Disponível</span>
+                    <h3>Evento</h3>
+                    <p>Garanta sua vaga no próximo evento especial da igreja. Vagas limitadas!</p>
+                    <button onclick="showRegistration('event')" class="btn-dark btn-block">
+                        <i class="fas fa-pen"></i> Inscrever-se
+                    </button>
+                </div>
+
+                <div class="reg-card">
+                    <div class="reg-card-icon"><i class="fas fa-users"></i></div>
+                    <span class="reg-card-badge"><i class="fas fa-check-circle"></i> Disponível</span>
+                    <h3>Departamento</h3>
+                    <p>Faça parte de um ministério e cresça servindo ao Senhor com a comunidade.</p>
+                    <button onclick="showRegistration('department')" class="btn-dark btn-block">
+                        <i class="fas fa-pen"></i> Inscrever-se
+                    </button>
+                </div>
             </div>
 
-            <div class="reg-card">
-                <div class="reg-card-icon"><i class="fas fa-calendar-plus"></i></div>
-                <span class="reg-card-badge"><i class="fas fa-check-circle"></i> Disponível</span>
-                <h3>Evento</h3>
-                <p>Garanta sua vaga no próximo evento especial da igreja. Vagas limitadas!</p>
-                <button onclick="showRegistration('event')" class="btn-dark btn-block">
-                    <i class="fas fa-pen"></i> Inscrever-se
-                </button>
-            </div>
+            <div id="registrationForm" style="display:none; max-width:600px; margin:0 auto;"></div>
+            <div id="registrationResult" style="display:none; margin-top:.8rem;" class="text-center mt-1"></div>
+        </section>
 
-            <div class="reg-card">
-                <div class="reg-card-icon"><i class="fas fa-users"></i></div>
-                <span class="reg-card-badge"><i class="fas fa-check-circle"></i> Disponível</span>
-                <h3>Departamento</h3>
-                <p>Faça parte de um ministério e cresça servindo ao Senhor com a comunidade.</p>
-                <button onclick="showRegistration('department')" class="btn-dark btn-block">
-                    <i class="fas fa-pen"></i> Inscrever-se
-                </button>
+        <div class="section">
+            <div class="address-section">
+                <div class="address-card" onclick="openMaps()">
+                    <div class="address-icon">📍</div>
+                    <div class="address-text">Av. Abílio Augusto Távora, Lote 01, Quadra 03</div>
+                    <div class="address-sub">Cabuçu, Nova Iguaçu - RJ</div>
+                    <div class="address-actions">
+                        <button class="btn-map" onclick="event.stopPropagation(); openMaps();"><i class="fas fa-map-marked-alt"></i> Google Maps</button>
+                        <button class="btn-map waze" onclick="event.stopPropagation(); openWaze();"><i class="fas fa-location-dot"></i> Waze</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div id="registrationForm" style="display:none; max-width:600px; margin:0 auto;"></div>
-        <div id="registrationResult" style="display:none; margin-top:.8rem;" class="text-center mt-1"></div>
-    </section>
+        <footer class="footer">
+            <div class="footer-content">
+                <div>
+                    <h4>Igreja Nova Jerusalém</h4>
+                    <p>Uma igreja que ama, acolhe e transforma vidas através do amor de Cristo desde 1990.</p>
+                    <div class="social-links">
+                        <a href="https://www.instagram.com/novajerusalemcabucu/" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="https://wa.me/5521985345627" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#" target="_blank" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" target="_blank" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4>Links Rápidos</h4>
+                    <p><a href="#home">Início</a></p>
+                    <p><a href="#live">Ao Vivo</a></p>
+                    <p><a href="#eventos">Eventos</a></p>
+                    <p><a href="#estudos">Estudos</a></p>
+                </div>
+                <div>
+                    <h4>Ministérios</h4>
+                    <p>Louvor</p>
+                    <p>Kids</p>
+                    <p>Diaconia</p>
+                </div>
+                <div>
+                    <h4>Contato</h4>
+                    <p>Av. Abílio Augusto Távora, 532</p>
+                    <p>Nova Iguaçu - RJ</p>
+                    <p>(21) 98534-5627</p>
+                    <p>contato@igrejanovajerusalem.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 Igreja Nova Jerusalém - Todos os direitos reservados</p>
+            </div>
+        </footer>
 
-    <div class="section">
-        <div class="address-section">
-            <div class="address-card" onclick="openMaps()">
-                <div class="address-icon">📍</div>
-                <div class="address-text">Av. Abílio Augusto Távora, Lote 01, Quadra 03</div>
-                <div class="address-sub">Cabuçu, Nova Iguaçu - RJ</div>
-                <div class="address-actions">
-                    <button class="btn-map" onclick="event.stopPropagation(); openMaps();"><i class="fas fa-map-marked-alt"></i> Google Maps</button>
-                    <button class="btn-map waze" onclick="event.stopPropagation(); openWaze();"><i class="fas fa-location-dot"></i> Waze</button>
+        <a href="https://wa.me/5521985345627" target="_blank" class="fab fab-whatsapp" id="fabWhatsapp" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        <button class="fab fab-prayer" onclick="scrollToSection('oracao')" title="Pedido de Oração"><i class="fas fa-pray"></i></button>
+        <button class="fab fab-donation" onclick="scrollToSection('dizimos')" title="Doar"><i class="fas fa-hand-holding-heart"></i></button>
+    </div>
+
+    <!-- ===== CHECKOUT OVERLAY PROFISSIONAL ===== -->
+    <div class="checkout-overlay" id="checkoutOverlay">
+        <div class="checkout-header">
+            <div class="checkout-header-left">
+                <button class="checkout-back-btn" onclick="closeCheckout()" aria-label="Voltar">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="checkout-header-title">
+                    NJ Store
+                    <small>Finalizar Compra</small>
+                </div>
+            </div>
+            <div class="checkout-steps" id="checkoutSteps">
+                <div class="step active" id="step1Indicator">
+                    <span class="step-num">1</span>
+                    <span class="step-label">Carrinho</span>
+                </div>
+                <div class="step" id="step2Indicator">
+                    <span class="step-num">2</span>
+                    <span class="step-label">Pagamento</span>
+                </div>
+                <div class="step" id="step3Indicator">
+                    <span class="step-num">3</span>
+                    <span class="step-label">Confirmação</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="checkout-body" id="checkoutBody">
+            <!-- CARRINHO -->
+            <div class="checkout-main" id="checkoutStep1">
+                <div class="checkout-section-card">
+                    <div class="checkout-section-title">
+                        <span class="icon-badge"><i class="fas fa-shopping-bag"></i></span>
+                        Seus Produtos
+                    </div>
+                    <div id="checkoutCartItems"></div>
+                </div>
+            </div>
+
+            <!-- PAGAMENTO -->
+            <div class="checkout-main" id="checkoutStep2" style="display:none;">
+                <div class="checkout-section-card">
+                    <div class="checkout-section-title">
+                        <span class="icon-badge"><i class="fas fa-user"></i></span>
+                        Seus Dados
+                    </div>
+                    <div class="checkout-payment-form">
+                        <div class="form-group">
+                            <label>Nome Completo <span class="req">*</span></label>
+                            <input type="text" id="checkoutName" placeholder="Digite seu nome completo">
+                        </div>
+                        <div class="form-group">
+                            <label>E-mail <span class="req">*</span></label>
+                            <input type="email" id="checkoutEmail" placeholder="seu@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Telefone / WhatsApp <span class="req">*</span></label>
+                            <input type="tel" id="checkoutPhone" placeholder="(21) 99999-9999">
+                        </div>
+                        <div class="form-group">
+                            <label>CPF <span class="req">*</span></label>
+                            <input type="text" id="checkoutCpf" placeholder="000.000.000-00">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checkout-section-card">
+                    <div class="checkout-section-title">
+                        <span class="icon-badge"><i class="fas fa-credit-card"></i></span>
+                        Forma de Pagamento
+                    </div>
+                    <div class="payment-method-tabs">
+                        <button class="payment-method-tab active" id="tabPix" onclick="selectPaymentMethod('pix')">
+                            <i class="fas fa-qrcode"></i> PIX
+                        </button>
+                        <button class="payment-method-tab" id="tabCard" onclick="selectPaymentMethod('card')">
+                            <i class="fas fa-credit-card"></i> Cartão
+                        </button>
+                    </div>
+                    <div id="checkoutPixInfo" style="text-align:center;padding:1rem;background:#f0fdf4;border-radius:12px;border:1px solid #bbf7d0;">
+                        <i class="fas fa-bolt" style="color:var(--success);font-size:1.5rem;margin-bottom:.4rem;display:block;"></i>
+                        <p style="font-size:.82rem;color:#166534;font-weight:600;">Pagamento instantâneo via PIX</p>
+                        <p style="font-size:.72rem;color:#4ade80;">Aprovação em segundos</p>
+                    </div>
+                    <div id="checkoutCardFields" style="display:none;">
+                        <div class="form-group">
+                            <label>Número do Cartão <span class="req">*</span></label>
+                            <input type="text" id="checkoutCardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Validade <span class="req">*</span></label>
+                                <input type="text" id="checkoutCardExpiry" placeholder="MM/AA" maxlength="5">
+                            </div>
+                            <div class="form-group">
+                                <label>CVV <span class="req">*</span></label>
+                                <input type="text" id="checkoutCardCvv" placeholder="123" maxlength="4">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Parcelas</label>
+                            <select id="checkoutInstallments">
+                                <option value="1">1x sem juros</option>
+                                <option value="2">2x sem juros</option>
+                                <option value="3">3x sem juros</option>
+                                <option value="4">4x sem juros</option>
+                                <option value="5">5x sem juros</option>
+                                <option value="6">6x sem juros</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONFIRMAÇÃO -->
+            <div class="checkout-main" id="checkoutStep3" style="display:none;">
+                <div class="checkout-section-card">
+                    <div class="checkout-success" id="checkoutSuccessContent">
+                        <div class="success-icon"><i class="fas fa-check"></i></div>
+                        <h2>Pedido Realizado!</h2>
+                        <p>Obrigado pela sua compra. Você receberá um e-mail com os detalhes.</p>
+                        <div id="checkoutSuccessDetails" style="margin-top:1rem;"></div>
+                    </div>
+                    <div id="checkoutPixResult" style="display:none;"></div>
+                </div>
+            </div>
+
+            <!-- RESUMO LATERAL -->
+            <div class="checkout-summary" id="checkoutSummary">
+                <div class="checkout-summary-card">
+                    <div class="summary-header">
+                        <span class="icon-badge"><i class="fas fa-receipt"></i></span>
+                        Resumo do Pedido
+                    </div>
+                    <div id="checkoutSummaryLines"></div>
+                    <div class="summary-line total">
+                        <span class="label">Total</span>
+                        <span class="value" id="checkoutSummaryTotal">R$ 0,00</span>
+                    </div>
+                    <button class="checkout-checkout-btn" id="checkoutActionBtn" onclick="handleCheckoutAction()">
+                        <i class="fas fa-lock"></i>
+                        <span id="checkoutActionLabel">Finalizar Compra</span>
+                    </button>
+                    <button class="checkout-continue-shopping" onclick="closeCheckout()">
+                        <i class="fas fa-arrow-left"></i> Continuar comprando
+                    </button>
+                    <div class="checkout-trust">
+                        <span><i class="fas fa-shield-alt"></i> Ambiente seguro</span>
+                        <span><i class="fas fa-lock"></i> Dados criptografados</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <footer class="footer">
-        <div class="footer-content">
-            <div>
-                <h4>Igreja Nova Jerusalém</h4>
-                <p>Uma igreja que ama, acolhe e transforma vidas através do amor de Cristo desde 1990.</p>
-                <div class="social-links">
-                    <a href="https://www.instagram.com/novajerusalemcabucu/" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="https://wa.me/5521985345627" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-                    <a href="#" target="_blank" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-                    <a href="#" target="_blank" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-                </div>
-            </div>
-            <div>
-                <h4>Links Rápidos</h4>
-                <p><a href="#home">Início</a></p>
-                <p><a href="#live">Ao Vivo</a></p>
-                <p><a href="#eventos">Eventos</a></p>
-                <p><a href="#estudos">Estudos</a></p>
-            </div>
-            <div>
-                <h4>Ministérios</h4>
-                <p>Louvor</p>
-                <p>Kids</p>
-                <p>Diaconia</p>
-            </div>
-            <div>
-                <h4>Contato</h4>
-                <p>Av. Abílio Augusto Távora, 532</p>
-                <p>Nova Iguaçu - RJ</p>
-                <p>(21) 98534-5627</p>
-                <p>contato@igrejanovajerusalem.com</p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>© 2026 Igreja Nova Jerusalém - Todos os direitos reservados</p>
-        </div>
-    </footer>
-
-    <a href="https://wa.me/5521985345627" target="_blank" class="fab fab-whatsapp" id="fabWhatsapp" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-    <button class="fab fab-prayer" onclick="scrollToSection('oracao')" title="Pedido de Oração"><i class="fas fa-pray"></i></button>
-    <button class="fab fab-donation" onclick="scrollToSection('dizimos')" title="Doar"><i class="fas fa-hand-holding-heart"></i></button>
 
     <!-- MODAIS -->
     <div class="modal modal-bible" id="bibleModal">
@@ -1943,21 +2651,6 @@
         </div>
     </div>
 
-    <div class="modal modal-carousel" id="carouselInfoModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal('carouselInfoModal')">&times;</button>
-            <div id="carouselInfoContent">
-                <img id="carouselInfoImage" src="" alt="" style="width:100%;height:220px;object-fit:cover;border-radius:12px;margin-bottom:1rem;">
-                <h2 id="carouselInfoTitle" style="font-size:1.3rem;font-weight:800;color:var(--primary);margin-bottom:.3rem;"></h2>
-                <p id="carouselInfoSubtitle" style="color:#666;font-size:.9rem;margin-bottom:.8rem;"></p>
-                <div id="carouselInfoDescription" style="color:#555;line-height:1.7;"></div>
-                <a id="carouselInfoLink" href="#" target="_blank" class="btn btn-primary" style="margin-top:1rem;display:inline-flex;">
-                    <i class="fas fa-external-link-alt"></i> Saiba Mais
-                </a>
-            </div>
-        </div>
-    </div>
-
     <div class="modal" id="donationModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('donationModal')">&times;</button>
@@ -2012,18 +2705,6 @@
         </div>
     </div>
 
-    <div class="modal" id="cartModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal('cartModal')">&times;</button>
-            <h3 style="color:var(--primary);margin-bottom:.8rem;"><i class="fas fa-shopping-cart"></i> Carrinho</h3>
-            <div id="cartItems"><p style="text-align:center;color:#888;">Carrinho vazio</p></div>
-            <div id="cartTotal" style="text-align:center;font-size:1.1rem;font-weight:800;color:var(--primary);margin:.8rem 0;"></div>
-            <button onclick="checkout()" class="btn-dark btn-block">
-                <i class="fas fa-credit-card"></i> Finalizar Compra
-            </button>
-        </div>
-    </div>
-
     <div id="paymentReturnPage" style="display:none;max-width:500px;margin:2rem auto;padding:2rem;background:#fff;border-radius:20px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.06);">
         <div class="icon" id="returnIcon" style="font-size:3rem;margin-bottom:.8rem;color:#c9a84c;">⏳</div>
         <h2 id="returnTitle" style="font-size:1.5rem;color:var(--primary);margin-bottom:.4rem;">Aguardando Confirmação</h2>
@@ -2040,7 +2721,7 @@
 
     <script>
         // ============================================
-        // ===== SPLASH SCREEN (2s) =====
+        // ===== SPLASH SCREEN =====
         // ============================================
         (function() {
             const splash = document.getElementById('splashScreen');
@@ -2073,12 +2754,8 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('✅ Service Worker registrado:', registration);
-                    })
-                    .catch(error => {
-                        console.log('❌ Erro ao registrar Service Worker:', error);
-                    });
+                    .then(registration => console.log('✅ SW registrado:', registration))
+                    .catch(error => console.log('❌ Erro SW:', error));
             });
         }
 
@@ -2245,7 +2922,7 @@
         })();
 
         // ============================================
-        // ===== FUNÇÕES DE MAPAS =====
+        // ===== MAPAS =====
         // ============================================
         function openMaps() {
             const endereco = 'Av. Abílio Augusto Távora, Lote 01, Quadra 03, Cabuçu, Nova Iguaçu - RJ';
@@ -2258,7 +2935,7 @@
         }
 
         // ============================================
-        // ===== CARREGAR CONFIGURAÇÕES =====
+        // ===== CONFIGURAÇÕES =====
         // ============================================
         async function loadSettings() {
             try {
@@ -2316,8 +2993,14 @@
         let countdownInterval = null;
         let cultosData = [];
 
+        // Checkout state
+        let checkoutStep = 1;
+        let checkoutPaymentMethod = 'pix';
+        let checkoutPaymentId = null;
+        let checkoutIsProcessing = false;
+
         // ============================================
-        // ===== CONTADOR REGRESSIVO =====
+        // ===== CONTADOR =====
         // ============================================
         async function loadCultosFromServer() {
             try {
@@ -2407,16 +3090,6 @@
         }
 
         // ============================================
-        // ===== HEADER SCROLL =====
-        // ============================================
-        window.addEventListener('scroll', () => {
-            const header = document.getElementById('mainHeader');
-            if (header) {
-                header.classList.toggle('scrolled', window.scrollY > 50);
-            }
-        });
-
-        // ============================================
         // ===== MENU MOBILE =====
         // ============================================
         function toggleMobileMenu() {
@@ -2441,17 +3114,9 @@
 
                 document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
                 const map = {
-                    'home': 'Início',
-                    'sobre': 'Sobre',
-                    'live': 'Live',
-                    'eventos': 'Eventos',
-                    'estudos': 'Estudos',
-                    'loja': 'NJ Store',
-                    'celulas': 'Células',
-                    'dizimos': 'Dízimos',
-                    'oracao': 'Oração',
-                    'inscricoes': 'Inscrições',
-                    'aniversariantes': 'Aniversários',
+                    'home': 'Início', 'sobre': 'Sobre', 'live': 'Live', 'eventos': 'Eventos',
+                    'estudos': 'Estudos', 'loja': 'NJ Store', 'celulas': 'Células', 'dizimos': 'Dízimos',
+                    'oracao': 'Oração', 'inscricoes': 'Inscrições', 'aniversariantes': 'Aniversários',
                     'reflexoes': 'Reflexões'
                 };
                 document.querySelectorAll('.nav-btn').forEach(b => {
@@ -2467,53 +3132,23 @@
             try {
                 const res = await fetch('/api/carousel');
                 const data = await res.json();
-
                 if (data && data.length > 0) {
                     carouselData = data;
                 } else {
-                    carouselData = [{
-                        title: '🙏 Bem-Vindo à NJ Cabuçu',
-                        subtitle: 'Uma comunidade que ama a Deus e ao próximo',
-                        description: 'A NJ Cabuçu é uma comunidade cristã dedicada a levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.',
-                        image_url: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1600&h=900&fit=crop&crop=center',
-                        link: '#sobre'
-                    }, {
-                        title: '🎶 Venha nos Louvar',
-                        subtitle: 'Nossos cultos são cheios de adoração',
-                        description: 'Nossos cultos são marcados por louvores vibrantes e adoração sincera. Venha experimentar a presença de Deus!',
-                        image_url: 'https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1600&h=900&fit=crop&crop=center',
-                        link: '#eventos'
-                    }, {
-                        title: '🤝 Faça Parte',
-                        subtitle: 'Junte-se a nós e faça a diferença',
-                        description: 'Acreditamos que a igreja não é um lugar, mas um povo. Venha fazer parte da nossa família!',
-                        image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1600&h=900&fit=crop&crop=center',
-                        link: '#inscricoes'
-                    }];
+                    carouselData = [
+                        { title: '🙏 Bem-Vindo à NJ Cabuçu', subtitle: 'Uma comunidade que ama a Deus e ao próximo', description: 'A NJ Cabuçu é uma comunidade cristã dedicada a levar o amor de Deus a todas as pessoas.', image_url: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1600&h=900&fit=crop&crop=center', link: '#sobre' },
+                        { title: '🎶 Venha nos Louvar', subtitle: 'Nossos cultos são cheios de adoração', description: 'Nossos cultos são marcados por louvores vibrantes e adoração sincera.', image_url: 'https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1600&h=900&fit=crop&crop=center', link: '#eventos' },
+                        { title: '🤝 Faça Parte', subtitle: 'Junte-se a nós e faça a diferença', description: 'Acreditamos que a igreja não é um lugar, mas um povo.', image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1600&h=900&fit=crop&crop=center', link: '#inscricoes' }
+                    ];
                 }
-
                 renderCarousel();
             } catch (e) {
                 console.error('Erro ao carregar carrossel:', e);
-                carouselData = [{
-                    title: '🙏 Bem-Vindo à NJ Cabuçu',
-                    subtitle: 'Uma comunidade que ama a Deus e ao próximo',
-                    description: 'A NJ Cabuçu é uma comunidade cristã dedicada a levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.',
-                    image_url: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1600&h=900&fit=crop&crop=center',
-                    link: '#sobre'
-                }, {
-                    title: '🎶 Venha nos Louvar',
-                    subtitle: 'Nossos cultos são cheios de adoração',
-                    description: 'Nossos cultos são marcados por louvores vibrantes e adoração sincera. Venha experimentar a presença de Deus!',
-                    image_url: 'https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1600&h=900&fit=crop&crop=center',
-                    link: '#eventos'
-                }, {
-                    title: '🤝 Faça Parte',
-                    subtitle: 'Junte-se a nós e faça a diferença',
-                    description: 'Acreditamos que a igreja não é um lugar, mas um povo. Venha fazer parte da nossa família!',
-                    image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1600&h=900&fit=crop&crop=center',
-                    link: '#inscricoes'
-                }];
+                carouselData = [
+                    { title: '🙏 Bem-Vindo à NJ Cabuçu', subtitle: 'Uma comunidade que ama a Deus e ao próximo', description: 'A NJ Cabuçu é uma comunidade cristã dedicada a levar o amor de Deus a todas as pessoas.', image_url: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1600&h=900&fit=crop&crop=center', link: '#sobre' },
+                    { title: '🎶 Venha nos Louvar', subtitle: 'Nossos cultos são cheios de adoração', description: 'Nossos cultos são marcados por louvores vibrantes e adoração sincera.', image_url: 'https://images.unsplash.com/photo-1438032005730-c779502df39b?w=1600&h=900&fit=crop&crop=center', link: '#eventos' },
+                    { title: '🤝 Faça Parte', subtitle: 'Junte-se a nós e faça a diferença', description: 'Acreditamos que a igreja não é um lugar, mas um povo.', image_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1600&h=900&fit=crop&crop=center', link: '#inscricoes' }
+                ];
                 renderCarousel();
             }
         }
@@ -2521,7 +3156,6 @@
         function renderCarousel() {
             const slidesContainer = document.getElementById('heroSlides');
             const controlsContainer = document.getElementById('heroControls');
-
             if (!slidesContainer) return;
 
             slidesContainer.innerHTML = '';
@@ -2532,9 +3166,7 @@
                 slide.className = 'hero-slide' + (index === 0 ? ' active' : '');
                 slide.dataset.index = index;
 
-                let imgSrc = item.image_url ||
-                    (item.image_base64 ? `data:image/jpeg;base64,${item.image_base64}` :
-                        'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1600&h=900&fit=crop&crop=center');
+                let imgSrc = item.image_url || (item.image_base64 ? `data:image/jpeg;base64,${item.image_base64}` : 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=1600&h=900&fit=crop&crop=center');
 
                 slide.innerHTML = `
                     <img src="${imgSrc}" alt="${item.title || 'Slide'}" class="bg-image" loading="lazy">
@@ -2591,7 +3223,7 @@
         }
 
         // ============================================
-        // ===== BÍBLIA COM SELETOR DE CAPÍTULO E VERSÍCULO =====
+        // ===== BÍBLIA =====
         // ============================================
         function openBibleModal() {
             openModal('bibleModal');
@@ -2678,7 +3310,7 @@
             const resultDiv = document.getElementById('bibleResult');
 
             if (!chapter || chapter < 1) {
-                resultDiv.innerHTML = '<p style="color:#dc3545;">⚠️ Selecione um capítulo válido (mínimo 1).</p>';
+                resultDiv.innerHTML = '<p style="color:#dc3545;">⚠️ Selecione um capítulo válido.</p>';
                 return;
             }
 
@@ -2692,10 +3324,7 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    resultDiv.innerHTML = `
-                        <p style="color:#dc3545;">❌ ${data.error || 'Erro ao buscar'}</p>
-                        <p style="color:#888;margin-top:0.5rem;">Tente: Salmos 23, João 3:16, Romanos 8:28</p>
-                    `;
+                    resultDiv.innerHTML = `<p style="color:#dc3545;">❌ ${data.error || 'Erro ao buscar'}</p>`;
                     return;
                 }
 
@@ -2707,19 +3336,14 @@
                 } else if (data.text) {
                     html = `<p class="verse">${data.text.trim()}</p>`;
                 } else {
-                    html = '<p style="color:#888;">Nenhum texto encontrado para esta referência.</p>';
+                    html = '<p style="color:#888;">Nenhum texto encontrado.</p>';
                 }
 
                 html += `<p class="reference">📖 ${data.reference || bookNames[book] + ' ' + chapter}</p>`;
                 resultDiv.innerHTML = html;
                 resultDiv.scrollTop = 0;
-
             } catch (error) {
-                console.error('❌ Erro na busca:', error);
-                resultDiv.innerHTML = `
-                    <p style="color:#dc3545;">❌ Erro de conexão: ${error.message}</p>
-                    <p style="color:#888;margin-top:0.5rem;">Verifique sua internet e tente de novo.</p>
-                `;
+                resultDiv.innerHTML = `<p style="color:#dc3545;">❌ Erro de conexão: ${error.message}</p>`;
             }
         }
 
@@ -2755,24 +3379,10 @@
 
                 html += `<p class="reference">📖 ${data.reference || ''}</p>`;
                 resultDiv.innerHTML = html;
-
             } catch (error) {
-                console.error('❌ Erro no versículo aleatório:', error);
-                resultDiv.innerHTML = `
-                    <p style="color:#dc3545;">❌ Erro: ${error.message}</p>
-                `;
+                resultDiv.innerHTML = `<p style="color:#dc3545;">❌ Erro: ${error.message}</p>`;
             }
         }
-
-        document.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const active = document.activeElement;
-                if (active && (active.id === 'bibleChapterSelect' || active.id === 'bibleVerseSelect' || active.id ===
-                        'bibleBook')) {
-                    searchBible();
-                }
-            }
-        });
 
         // ============================================
         // ===== LIVE =====
@@ -2784,7 +3394,6 @@
 
                 const liveBar = document.getElementById('liveBar');
                 const liveSection = document.getElementById('live');
-                const livePlayer = document.getElementById('livePlayer');
 
                 if (data.status === 'live') {
                     liveBar.classList.add('active');
@@ -2815,7 +3424,6 @@
                     
                     if (data.stream_key) {
                         const streamUrl = `/live/${data.stream_key}/index.m3u8`;
-                        
                         if (video.canPlayType('application/vnd.apple.mpegurl')) {
                             video.src = streamUrl;
                         } else if (typeof Hls !== 'undefined') {
@@ -2841,7 +3449,6 @@
                             }
                         } catch (e) {}
                     }, 10000);
-
                 } else {
                     liveBar.classList.remove('active');
                     liveSection.style.display = 'none';
@@ -2987,23 +3594,7 @@
         }
 
         // ============================================
-        // ===== CARREGAR DADOS =====
-        // ============================================
-        function createCardImage(imageData, alt) {
-            if (!imageData) return '';
-            let src = imageData;
-            if (imageData.startsWith('/uploads')) {
-                src = imageData;
-            } else if (imageData.startsWith('data:image')) {
-                src = imageData;
-            } else if (imageData.length > 100 && !imageData.startsWith('http')) {
-                src = `data:image/jpeg;base64,${imageData}`;
-            }
-            return `<div class="card-image-wrapper"><img src="${src}" alt="${alt}" loading="lazy" onerror="this.style.display='none'"></div>`;
-        }
-
-        // ============================================
-        // ===== ESTUDOS — CARDS PREMIUM =====
+        // ===== ESTUDOS =====
         // ============================================
         async function loadStudies() {
             try {
@@ -3023,39 +3614,19 @@
                 container.innerHTML = data.map(s => {
                     let fileAction = '';
                     let formatLabel = 'PDF';
-                    let formatIcon = 'fa-file-pdf';
 
                     if (s.file_base64) {
-                        fileAction = `
-                            <button onclick="downloadPdf('${s.id}')" class="btn-dark btn-block">
-                                <i class="fas fa-file-pdf"></i> Baixar PDF
-                            </button>
-                        `;
-                        formatLabel = 'PDF';
-                        formatIcon = 'fa-file-pdf';
+                        fileAction = `<button onclick="downloadPdf('${s.id}')" class="btn-dark btn-block"><i class="fas fa-file-pdf"></i> Baixar PDF</button>`;
                     } else if (s.file_url) {
                         const isDrive = s.file_url.includes('drive.google.com');
                         const isYoutube = s.file_url.includes('youtube.com') || s.file_url.includes('youtu.be');
                         let icon = 'fa-external-link-alt';
                         let label = 'Abrir Link';
                         
-                        if (isDrive) {
-                            icon = 'fa-google-drive';
-                            label = 'Ver no Drive';
-                            formatLabel = 'Drive';
-                            formatIcon = 'fa-google-drive';
-                        } else if (isYoutube) {
-                            icon = 'fa-youtube';
-                            label = 'Assistir';
-                            formatLabel = 'Vídeo';
-                            formatIcon = 'fa-youtube';
-                        }
+                        if (isDrive) { icon = 'fa-google-drive'; label = 'Ver no Drive'; }
+                        else if (isYoutube) { icon = 'fa-youtube'; label = 'Assistir'; }
                         
-                        fileAction = `
-                            <a href="${s.file_url}" target="_blank" class="btn-dark btn-block" style="text-decoration:none;">
-                                <i class="fas ${icon}"></i> ${label}
-                            </a>
-                        `;
+                        fileAction = `<a href="${s.file_url}" target="_blank" class="btn-dark btn-block" style="text-decoration:none;"><i class="fas ${icon}"></i> ${label}</a>`;
                     } else {
                         fileAction = `<span style="font-size:.7rem;color:#94a3b8;text-align:center;display:block;padding:.4rem;">Material indisponível</span>`;
                     }
@@ -3063,10 +3634,7 @@
                     const hasImage = s.image_base64;
                     const thumbContent = hasImage
                         ? `<img src="${s.image_base64.startsWith('data:') ? s.image_base64 : 'data:image/jpeg;base64,' + s.image_base64}" alt="${s.title}" loading="lazy" onerror="this.remove()">`
-                        : `<div class="ph">
-                             <div class="ph-icon"><i class="fas fa-book-open"></i></div>
-                             <span>Estudo Bíblico</span>
-                           </div>`;
+                        : `<div class="ph"><div class="ph-icon"><i class="fas fa-book-open"></i></div><span>Estudo Bíblico</span></div>`;
 
                     const studyDate = s.created_at 
                         ? new Date(s.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -3076,9 +3644,7 @@
                         <div class="study-card-premium">
                             <div class="study-thumb">
                                 ${thumbContent}
-                                <span class="study-badge-premium">
-                                    <i class="fas fa-circle"></i> ${formatLabel}
-                                </span>
+                                <span class="study-badge-premium"><i class="fas fa-circle"></i> ${formatLabel}</span>
                                 <span class="study-format-tag">${formatLabel}</span>
                             </div>
                             <div class="study-body">
@@ -3090,9 +3656,7 @@
                                 </div>
                                 <h3>${s.title}</h3>
                                 <p>${s.description || 'Material de estudo para edificação da sua fé.'}</p>
-                                <div class="study-action">
-                                    ${fileAction}
-                                </div>
+                                <div class="study-action">${fileAction}</div>
                             </div>
                         </div>
                     `;
@@ -3102,7 +3666,7 @@
                 document.getElementById('studiesList').innerHTML = `
                     <div style="text-align:center;padding:2rem;color:#dc3545;grid-column:1/-1;">
                         <i class="fas fa-exclamation-circle" style="font-size:2rem;display:block;margin-bottom:0.5rem;"></i>
-                        Erro ao carregar estudos. Tente novamente.
+                        Erro ao carregar estudos.
                     </div>
                 `;
             }
@@ -3110,16 +3674,11 @@
 
         function downloadPdf(studyId) {
             showNotification('📄 Baixando PDF...', 'info');
-            
             fetch(`/api/studies/${studyId}/pdf`, {
-                headers: {
-                    'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
-                }
+                headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') }
             })
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erro ao baixar PDF');
-                }
+                if (!response.ok) throw new Error('Erro ao baixar PDF');
                 return response.blob();
             })
             .then(blob => {
@@ -3134,13 +3693,12 @@
                 showNotification('✅ PDF baixado com sucesso!', 'success');
             })
             .catch(error => {
-                console.error('Erro ao baixar PDF:', error);
                 showNotification('❌ Erro ao baixar PDF: ' + error.message, 'error');
             });
         }
 
         // ============================================
-        // ===== EVENTOS — CARDS MODERNOS =====
+        // ===== EVENTOS =====
         // ============================================
         async function loadEvents() {
             try {
@@ -3148,8 +3706,7 @@
                 const data = await res.json();
                 const container = document.getElementById('eventsList');
                 if (!data || data.length === 0) {
-                    container.innerHTML =
-                        '<p style="text-align:center;color:#888;grid-column:1/-1;">Nenhum evento disponível.</p>';
+                    container.innerHTML = '<p style="text-align:center;color:#888;grid-column:1/-1;">Nenhum evento disponível.</p>';
                     return;
                 }
 
@@ -3179,10 +3736,7 @@
                         ? `<img src="${e.image_base64.startsWith('data:') ? e.image_base64 : 'data:image/jpeg;base64,' + e.image_base64}" alt="${e.title}" loading="lazy" onerror="this.remove()">`
                         : `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.7);"><i class="fas fa-calendar-alt" style="font-size:2.5rem;"></i></div>`;
 
-                    const dateFormatted = eventDate.toLocaleDateString('pt-BR', { 
-                        weekday: 'long', day: 'numeric', month: 'long', 
-                        hour: '2-digit', minute: '2-digit' 
-                    });
+                    const dateFormatted = eventDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
 
                     return `
                         <div class="event-card-modern">
@@ -3198,22 +3752,12 @@
                                 <h3>${e.title}</h3>
                                 <p class="event-desc">${e.description || 'Participe deste evento especial!'}</p>
                                 <div class="event-meta">
-                                    <div class="event-meta-item">
-                                        <i class="fas fa-calendar-day"></i>
-                                        <span>${dateFormatted}</span>
-                                    </div>
-                                    <div class="event-meta-item">
-                                        <i class="fas fa-tag"></i>
-                                        <span><strong>${isFree ? 'Gratuito' : 'R$ ' + price.toFixed(2)}</strong></span>
-                                    </div>
+                                    <div class="event-meta-item"><i class="fas fa-calendar-day"></i><span>${dateFormatted}</span></div>
+                                    <div class="event-meta-item"><i class="fas fa-tag"></i><span><strong>${isFree ? 'Gratuito' : 'R$ ' + price.toFixed(2)}</strong></span></div>
                                 </div>
                                 ${isPast 
-                                    ? `<button class="btn-dark btn-block closed" disabled>
-                                        <i class="fas fa-lock"></i> Evento Encerrado
-                                    </button>`
-                                    : `<button onclick="registerForEvent(${e.id}, '${e.title.replace(/'/g, "\\'")}', ${price})" class="btn-dark btn-block">
-                                        <i class="fas fa-ticket-alt"></i> Inscrever-se
-                                    </button>`
+                                    ? `<button class="btn-dark btn-block closed" disabled><i class="fas fa-lock"></i> Evento Encerrado</button>`
+                                    : `<button onclick="registerForEvent(${e.id}, '${e.title.replace(/'/g, "\\'")}', ${price})" class="btn-dark btn-block"><i class="fas fa-ticket-alt"></i> Inscrever-se</button>`
                                 }
                             </div>
                         </div>
@@ -3235,10 +3779,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        type: 'event',
-                        name: name,
-                        email: email,
-                        phone: phone,
+                        type: 'event', name, email, phone,
                         event_name: eventName,
                         details: 'Inscrição para evento: ' + eventName,
                         amount: parseFloat(price) || 0,
@@ -3262,9 +3803,8 @@
                     document.getElementById('payPhone').value = phone;
                     openModal('paymentModal');
                 } else {
-                    const pdfUrl = `/api/registration-pdf/${data.id}`;
                     if (confirm('✅ Inscrição realizada com sucesso! Deseja baixar o comprovante em PDF?')) {
-                        window.open(pdfUrl, '_blank');
+                        window.open(`/api/registration-pdf/${data.id}`, '_blank');
                     }
                 }
             } catch (e) {
@@ -3273,7 +3813,7 @@
         }
 
         // ============================================
-        // ===== NJ STORE — CARDS PREMIUM =====
+        // ===== NJ STORE — PRODUTOS =====
         // ============================================
         async function loadProducts() {
             try {
@@ -3281,22 +3821,17 @@
                 const data = await res.json();
                 const container = document.getElementById('productsList');
                 if (!data || data.length === 0) {
-                    container.innerHTML =
-                        '<p style="text-align:center;color:#888;grid-column:1/-1;">Nenhum produto disponível.</p>';
+                    container.innerHTML = '<p style="text-align:center;color:#888;grid-column:1/-1;">Nenhum produto disponível.</p>';
                     return;
                 }
                 container.innerHTML = data.map(p => {
                     const imageHtml = p.image_base64 
                         ? `<img src="${p.image_base64.startsWith('data:') ? p.image_base64 : 'data:image/jpeg;base64,' + p.image_base64}" alt="${p.name}" loading="lazy" onerror="this.remove()">`
-                        : `<div class="ph">
-                             <div class="ph-icon"><i class="fas fa-bag-shopping"></i></div>
-                             <span>NJ Store</span>
-                           </div>`;
+                        : `<div class="ph"><div class="ph-icon"><i class="fas fa-bag-shopping"></i></div><span>NJ Store</span></div>`;
 
                     const priceParts = parseFloat(p.price).toFixed(2).split('.');
                     const priceInt = priceParts[0];
                     const priceDec = priceParts[1];
-
                     const category = p.category || 'NJ Store';
 
                     return `
@@ -3346,12 +3881,7 @@
                     return;
                 }
 
-                const sortedData = [...data].sort((a, b) => {
-                    const dayA = new Date(a.birth_date).getDate();
-                    const dayB = new Date(b.birth_date).getDate();
-                    return dayA - dayB;
-                });
-
+                const sortedData = [...data].sort((a, b) => new Date(a.birth_date).getDate() - new Date(b.birth_date).getDate());
                 const today = new Date();
                 const todayMonth = today.getMonth();
                 const todayDay = today.getDate();
@@ -3359,11 +3889,9 @@
                 container.innerHTML = sortedData.map(person => {
                     const birth = new Date(person.birth_date);
                     let idade = today.getFullYear() - birth.getFullYear();
-
                     const mesNiver = birth.getMonth();
                     const diaNiver = birth.getDate();
-                    if (today.getMonth() < mesNiver || (today.getMonth() === mesNiver && today.getDate() <
-                            diaNiver)) {
+                    if (today.getMonth() < mesNiver || (today.getMonth() === mesNiver && today.getDate() < diaNiver)) {
                         idade--;
                     }
 
@@ -3401,49 +3929,518 @@
                 const products = await res.json();
                 const product = products.find(p => p.id === productId);
                 if (product) {
-                    cart.push(product);
-                    document.getElementById('cartCount').textContent = cart.length;
+                    const existing = cart.find(item => item.id === productId);
+                    if (existing) {
+                        existing.quantity = (existing.quantity || 1) + 1;
+                    } else {
+                        cart.push({ ...product, quantity: 1 });
+                    }
+                    updateCartCount();
                     showNotification('✅ ' + product.name + ' adicionado ao carrinho!', 'success');
+                    // Animação de "voo" para o carrinho
+                    animateAddToCart();
                 }
             } catch (e) { console.error('Erro:', e); }
         }
 
-        function openCart() {
-            const container = document.getElementById('cartItems');
-            const totalDiv = document.getElementById('cartTotal');
-            if (cart.length === 0) {
-                container.innerHTML = '<p style="text-align:center;color:#888;">Carrinho vazio</p>';
-                totalDiv.textContent = '';
-            } else {
-                let total = 0;
-                container.innerHTML = cart.map((p, i) => `
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.4rem;border-bottom:1px solid #eee;">
-                        <span style="font-size:0.8rem;">${p.name} - R$ ${parseFloat(p.price).toFixed(2)}</span>
-                        <button onclick="removeFromCart(${i})" class="btn btn-danger btn-sm" style="font-size:0.6rem;padding:0.1rem 0.4rem;background:#dc3545;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-times"></i></button>
-                    </div>
-                `).join('');
-                total = cart.reduce((sum, p) => sum + parseFloat(p.price), 0);
-                totalDiv.textContent = 'Total: R$ ' + total.toFixed(2);
+        function updateCartCount() {
+            const count = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+            const cartCountEl = document.getElementById('cartCount');
+            if (cartCountEl) cartCountEl.textContent = count;
+        }
+
+        function animateAddToCart() {
+            // Pequena animação no botão do carrinho
+            const cartBtn = document.querySelector('[onclick="openCheckout()"]');
+            if (cartBtn) {
+                cartBtn.style.transform = 'scale(1.08)';
+                cartBtn.style.transition = 'transform 0.15s ease';
+                setTimeout(() => { cartBtn.style.transform = 'scale(1)'; }, 200);
             }
-            openModal('cartModal');
         }
 
-        function removeFromCart(index) {
+        // ============================================
+        // ===== CHECKOUT PROFISSIONAL =====
+        // ============================================
+        function openCheckout() {
+            if (cart.length === 0) {
+                showNotification('Carrinho vazio! Adicione produtos primeiro.', 'error');
+                return;
+            }
+            checkoutStep = 1;
+            checkoutPaymentMethod = 'pix';
+            checkoutPaymentId = null;
+            checkoutIsProcessing = false;
+            document.getElementById('checkoutOverlay').classList.add('open');
+            document.body.style.overflow = 'hidden';
+            renderCheckoutStep();
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkoutOverlay').classList.remove('open');
+            document.body.style.overflow = '';
+            // Reset
+            checkoutStep = 1;
+            checkoutPaymentId = null;
+            checkoutIsProcessing = false;
+            // Resetar campos de pagamento
+            document.getElementById('checkoutName').value = '';
+            document.getElementById('checkoutEmail').value = '';
+            document.getElementById('checkoutPhone').value = '';
+            document.getElementById('checkoutCpf').value = '';
+            document.getElementById('checkoutCardNumber').value = '';
+            document.getElementById('checkoutCardExpiry').value = '';
+            document.getElementById('checkoutCardCvv').value = '';
+            // Resetar abas
+            selectPaymentMethod('pix');
+        }
+
+        function goToCheckoutStep(step) {
+            checkoutStep = step;
+            renderCheckoutStep();
+        }
+
+        function renderCheckoutStep() {
+            // Atualizar indicadores
+            document.getElementById('step1Indicator').className = 'step' + (checkoutStep >= 1 ? (checkoutStep > 1 ? ' done' : ' active') : '');
+            document.getElementById('step2Indicator').className = 'step' + (checkoutStep >= 2 ? (checkoutStep > 2 ? ' done' : ' active') : '');
+            document.getElementById('step3Indicator').className = 'step' + (checkoutStep >= 3 ? ' active' : '');
+
+            document.getElementById('step1Indicator').querySelector('.step-num').innerHTML = checkoutStep > 1 ? '✓' : '1';
+            document.getElementById('step2Indicator').querySelector('.step-num').innerHTML = checkoutStep > 2 ? '✓' : '2';
+
+            // Mostrar/esconder etapas
+            document.getElementById('checkoutStep1').style.display = checkoutStep === 1 ? 'block' : 'none';
+            document.getElementById('checkoutStep2').style.display = checkoutStep === 2 ? 'block' : 'none';
+            document.getElementById('checkoutStep3').style.display = checkoutStep === 3 ? 'block' : 'none';
+
+            // Resumo
+            if (checkoutStep === 3) {
+                document.getElementById('checkoutSummary').style.display = 'none';
+            } else {
+                document.getElementById('checkoutSummary').style.display = 'block';
+            }
+
+            // Botão de ação
+            const actionBtn = document.getElementById('checkoutActionBtn');
+            const actionLabel = document.getElementById('checkoutActionLabel');
+
+            if (checkoutStep === 1) {
+                actionBtn.disabled = cart.length === 0;
+                actionLabel.textContent = 'Continuar para Pagamento';
+            } else if (checkoutStep === 2) {
+                actionBtn.disabled = false;
+                actionLabel.textContent = 'Finalizar Compra';
+            } else {
+                actionBtn.style.display = 'none';
+            }
+
+            // Renderizar conteúdo de cada etapa
+            if (checkoutStep === 1) renderCheckoutStep1();
+            if (checkoutStep === 2) renderCheckoutStep2();
+            if (checkoutStep === 3) renderCheckoutStep3();
+
+            // Sempre atualizar resumo
+            updateCheckoutSummary();
+        }
+
+        function renderCheckoutStep1() {
+            const container = document.getElementById('checkoutCartItems');
+            if (!container) return;
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="checkout-empty-cart">
+                        <div class="empty-icon"><i class="fas fa-shopping-basket"></i></div>
+                        <h4>Seu carrinho está vazio</h4>
+                        <p>Adicione produtos da NJ Store para continuar</p>
+                        <button onclick="closeCheckout(); scrollToSection('loja');" class="btn-dark" style="margin:0 auto;">
+                            <i class="fas fa-store"></i> Ir para a Loja
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = cart.map((item, index) => {
+                const imageHtml = item.image_base64 
+                    ? `<img src="${item.image_base64.startsWith('data:') ? item.image_base64 : 'data:image/jpeg;base64,' + item.image_base64}" alt="${item.name}" onerror="this.style.display='none'">`
+                    : `<i class="fas fa-bag-shopping"></i>`;
+
+                const price = parseFloat(item.price || 0);
+                const qty = item.quantity || 1;
+
+                return `
+                    <div class="checkout-item-row">
+                        <div class="checkout-item-img">${imageHtml}</div>
+                        <div class="checkout-item-info">
+                            <h4>${item.name}</h4>
+                            <span class="item-cat">${item.category || 'NJ Store'}</span>
+                        </div>
+                        <div class="checkout-item-qty">
+                            <button onclick="changeCheckoutQty(${index}, -1)">−</button>
+                            <span>${qty}</span>
+                            <button onclick="changeCheckoutQty(${index}, 1)">+</button>
+                        </div>
+                        <div class="checkout-item-price">R$ ${(price * qty).toFixed(2)}</div>
+                        <button class="checkout-item-remove" onclick="removeCheckoutItem(${index})" title="Remover">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderCheckoutStep2() {
+            // Preencher dados se já existirem
+            const nameInput = document.getElementById('checkoutName');
+            const emailInput = document.getElementById('checkoutEmail');
+            const phoneInput = document.getElementById('checkoutPhone');
+            const cpfInput = document.getElementById('checkoutCpf');
+
+            if (!nameInput.value && localStorage.getItem('checkout_name')) {
+                nameInput.value = localStorage.getItem('checkout_name') || '';
+            }
+            if (!emailInput.value && localStorage.getItem('checkout_email')) {
+                emailInput.value = localStorage.getItem('checkout_email') || '';
+            }
+            if (!phoneInput.value && localStorage.getItem('checkout_phone')) {
+                phoneInput.value = localStorage.getItem('checkout_phone') || '';
+            }
+        }
+
+        function renderCheckoutStep3() {
+            const successDetails = document.getElementById('checkoutSuccessDetails');
+            const pixResult = document.getElementById('checkoutPixResult');
+
+            if (checkoutPaymentMethod === 'pix') {
+                // Mostrar QR code PIX
+                document.getElementById('checkoutSuccessContent').style.display = 'none';
+                pixResult.style.display = 'block';
+                // O conteúdo do PIX é renderizado após a chamada da API
+            } else {
+                // Cartão - mostrar confirmação
+                document.getElementById('checkoutSuccessContent').style.display = 'block';
+                pixResult.style.display = 'none';
+
+                if (successDetails) {
+                    successDetails.innerHTML = `
+                        <div style="background:#f0fdf4;padding:1rem;border-radius:12px;border:1px solid #bbf7d0;text-align:left;font-size:.82rem;">
+                            <p style="margin-bottom:.3rem;"><strong>✅ Pagamento aprovado!</strong></p>
+                            <p style="color:#166534;">Seu pedido foi confirmado e você receberá um e-mail com os detalhes.</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function changeCheckoutQty(index, delta) {
+            if (index < 0 || index >= cart.length) return;
+            const item = cart[index];
+            const newQty = (item.quantity || 1) + delta;
+            if (newQty <= 0) {
+                removeCheckoutItem(index);
+                return;
+            }
+            item.quantity = newQty;
+            updateCartCount();
+            renderCheckoutStep1();
+            updateCheckoutSummary();
+        }
+
+        function removeCheckoutItem(index) {
+            if (index < 0 || index >= cart.length) return;
             cart.splice(index, 1);
-            document.getElementById('cartCount').textContent = cart.length;
-            openCart();
+            updateCartCount();
+            if (cart.length === 0) {
+                renderCheckoutStep1();
+                updateCheckoutSummary();
+                // Se estava na etapa 1, desabilitar botão
+                if (checkoutStep === 1) {
+                    document.getElementById('checkoutActionBtn').disabled = true;
+                }
+            } else {
+                renderCheckoutStep1();
+                updateCheckoutSummary();
+            }
         }
 
-        function checkout() {
-            if (cart.length === 0) { showNotification('Carrinho vazio!', 'error'); return; }
-            closeModal('cartModal');
-            paymentType = 'sale';
-            const total = cart.reduce((sum, p) => sum + parseFloat(p.price), 0);
-            document.getElementById('paymentTitle').textContent = '💳 NJ Store - Pagamento';
-            document.getElementById('paymentTotal').textContent = 'Total: R$ ' + total.toFixed(2);
-            document.getElementById('paymentForm').style.display = 'block';
-            document.getElementById('paymentResult').style.display = 'none';
-            openModal('paymentModal');
+        function updateCheckoutSummary() {
+            const summaryLines = document.getElementById('checkoutSummaryLines');
+            const totalEl = document.getElementById('checkoutSummaryTotal');
+
+            if (!summaryLines || !totalEl) return;
+
+            if (cart.length === 0) {
+                summaryLines.innerHTML = '<p style="text-align:center;color:var(--muted);font-size:.82rem;padding:.5rem 0;">Nenhum item no carrinho</p>';
+                totalEl.textContent = 'R$ 0,00';
+                return;
+            }
+
+            const subtotal = cart.reduce((sum, item) => sum + (parseFloat(item.price || 0) * (item.quantity || 1)), 0);
+
+            summaryLines.innerHTML = `
+                <div class="summary-line">
+                    <span class="label">Subtotal (${cart.reduce((s, i) => s + (i.quantity || 1), 0)} itens)</span>
+                    <span class="value">R$ ${subtotal.toFixed(2)}</span>
+                </div>
+                <div class="summary-line">
+                    <span class="label">Frete</span>
+                    <span class="value"><span class="free-tag">Grátis</span></span>
+                </div>
+            `;
+
+            totalEl.textContent = 'R$ ' + subtotal.toFixed(2);
+        }
+
+        function handleCheckoutAction() {
+            if (checkoutStep === 1) {
+                if (cart.length === 0) return;
+                goToCheckoutStep(2);
+            } else if (checkoutStep === 2) {
+                // Validar dados
+                const name = document.getElementById('checkoutName').value.trim();
+                const email = document.getElementById('checkoutEmail').value.trim();
+                const phone = document.getElementById('checkoutPhone').value.trim();
+                const cpf = document.getElementById('checkoutCpf').value.trim();
+
+                if (!name || !email || !phone || !cpf) {
+                    showNotification('⚠️ Preencha todos os campos!', 'error');
+                    return;
+                }
+                if (!email.includes('@')) {
+                    showNotification('⚠️ Digite um e-mail válido!', 'error');
+                    return;
+                }
+                if (!validarCPF(cpf)) {
+                    showNotification('⚠️ CPF inválido! Digite um CPF válido.', 'error');
+                    return;
+                }
+
+                // Salvar dados
+                localStorage.setItem('checkout_name', name);
+                localStorage.setItem('checkout_email', email);
+                localStorage.setItem('checkout_phone', phone);
+
+                // Processar pagamento
+                processCheckoutPayment(name, email, phone, cpf);
+            }
+        }
+
+        async function processCheckoutPayment(name, email, phone, cpf) {
+            if (checkoutIsProcessing) return;
+            checkoutIsProcessing = true;
+
+            const total = cart.reduce((sum, item) => sum + (parseFloat(item.price || 0) * (item.quantity || 1)), 0);
+
+            if (total <= 0) {
+                showNotification('Valor inválido!', 'error');
+                checkoutIsProcessing = false;
+                return;
+            }
+
+            showNotification('🔄 Processando pagamento...', 'info');
+
+            try {
+                if (checkoutPaymentMethod === 'pix') {
+                    // Criar pagamento PIX
+                    const response = await fetch('/api/create-pix-payment', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            amount: total,
+                            description: 'Compra NJ Store',
+                            email, name, phone, cpf,
+                            paymentType: 'sale'
+                        })
+                    });
+
+                    const payment = await response.json();
+                    if (payment.error) throw new Error(payment.error);
+
+                    checkoutPaymentId = payment.payment_id;
+
+                    // Salvar pedido
+                    await saveCheckoutOrder(name, email, phone, total, payment.payment_id, 'pix');
+
+                    // Ir para etapa 3 com PIX
+                    goToCheckoutStep(3);
+
+                    // Renderizar QR Code
+                    const pixResult = document.getElementById('checkoutPixResult');
+                    let qrHtml = `
+                        <div class="checkout-payment-result">
+                            <h3 style="color:var(--ink);margin-bottom:.3rem;font-size:1.1rem;font-weight:800;">✅ PIX Gerado com Sucesso</h3>
+                            <p style="font-size:.78rem;color:var(--muted);margin-bottom:.8rem;">Escaneie o QR Code ou copie o código abaixo</p>
+                    `;
+
+                    if (payment.qr_code_base64) {
+                        qrHtml += `
+                            <div class="qr-wrapper">
+                                <img src="data:image/png;base64,${payment.qr_code_base64}" alt="QR Code PIX">
+                            </div>
+                        `;
+                    }
+
+                    if (payment.qr_code) {
+                        qrHtml += `
+                            <div style="background:#f8fafc;padding:.8rem;border-radius:12px;word-break:break-all;font-size:.7rem;margin:.6rem 0;border:1px solid var(--line);text-align:left;">
+                                <strong style="color:var(--ink);">Código PIX:</strong>
+                                <div style="font-family:monospace;font-size:.65rem;margin-top:.3rem;color:var(--ink-soft);">${payment.qr_code}</div>
+                            </div>
+                            <button onclick="navigator.clipboard.writeText('${payment.qr_code.replace(/'/g, "\\'")}');showNotification('✅ Código copiado!','success');" class="btn-dark btn-block" style="margin-bottom:.5rem;">
+                                <i class="fas fa-copy"></i> Copiar Código PIX
+                            </button>
+                        `;
+                    }
+
+                    qrHtml += `
+                            <p style="font-size:.7rem;color:var(--muted);margin-top:.5rem;">
+                                <i class="fas fa-info-circle"></i> Após o pagamento, você receberá a confirmação automaticamente.
+                            </p>
+                            <button onclick="closeCheckout()" class="checkout-continue-shopping" style="margin-top:.8rem;">
+                                <i class="fas fa-check"></i> Já Paguei / Concluir
+                            </button>
+                        </div>
+                    `;
+
+                    pixResult.innerHTML = qrHtml;
+
+                    // Verificação automática
+                    verificarCheckoutStatus(payment.payment_id);
+
+                } else {
+                    // Cartão
+                    const cardNumber = document.getElementById('checkoutCardNumber').value.replace(/\s/g, '');
+                    const cardExpiry = document.getElementById('checkoutCardExpiry').value;
+                    const cardCvv = document.getElementById('checkoutCardCvv').value;
+                    const installments = document.getElementById('checkoutInstallments').value;
+
+                    if (!cardNumber || !cardExpiry || !cardCvv) {
+                        showNotification('Preencha os dados do cartão!', 'error');
+                        checkoutIsProcessing = false;
+                        return;
+                    }
+
+                    const response = await fetch('/api/create-card-payment-fallback', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            amount: total,
+                            description: 'Compra NJ Store',
+                            email, name, phone, cpf,
+                            card_number: cardNumber,
+                            card_expiry: cardExpiry,
+                            card_cvv: cardCvv,
+                            installments: parseInt(installments)
+                        })
+                    });
+
+                    const payment = await response.json();
+                    if (payment.error) throw new Error(payment.error);
+
+                    checkoutPaymentId = payment.payment_id;
+
+                    await saveCheckoutOrder(name, email, phone, total, payment.payment_id, 'card');
+
+                    if (payment.status === 'approved') {
+                        goToCheckoutStep(3);
+                        renderCheckoutStep3();
+                        showNotification('✅ Pagamento aprovado! Obrigado! 🙏', 'success');
+                    } else {
+                        showNotification(`⏳ Pagamento ${payment.status}. Aguarde a confirmação.`, 'info');
+                        goToCheckoutStep(3);
+                        renderCheckoutStep3();
+                        verificarCheckoutStatus(payment.payment_id);
+                    }
+                }
+            } catch (error) {
+                console.error('Erro no checkout:', error);
+                showNotification('❌ Erro: ' + error.message, 'error');
+            } finally {
+                checkoutIsProcessing = false;
+            }
+        }
+
+        async function saveCheckoutOrder(name, email, phone, total, paymentId, method) {
+            try {
+                const items = cart.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    price: parseFloat(item.price),
+                    quantity: item.quantity || 1
+                }));
+
+                await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_name: name,
+                        user_email: email,
+                        user_phone: phone,
+                        items,
+                        total,
+                        payment_id: paymentId,
+                        payment_method: method,
+                        status: 'pending'
+                    })
+                });
+
+                // Limpar carrinho
+                cart = [];
+                updateCartCount();
+            } catch (error) {
+                console.error('Erro ao salvar pedido:', error);
+            }
+        }
+
+        function verificarCheckoutStatus(paymentId) {
+            let attempts = 0;
+            const maxAttempts = 20;
+
+            const interval = setInterval(async () => {
+                attempts++;
+                try {
+                    const res = await fetch(`/api/check-payment/${paymentId}`);
+                    const data = await res.json();
+
+                    if (data.status === 'approved') {
+                        clearInterval(interval);
+                        showNotification('✅ Pagamento confirmado! Obrigado! 🙏', 'success');
+                        
+                        // Atualizar para tela de sucesso
+                        document.getElementById('checkoutPixResult').style.display = 'none';
+                        const successContent = document.getElementById('checkoutSuccessContent');
+                        successContent.style.display = 'block';
+                        
+                        const details = document.getElementById('checkoutSuccessDetails');
+                        details.innerHTML = `
+                            <div style="background:#f0fdf4;padding:1rem;border-radius:12px;border:1px solid #bbf7d0;text-align:left;font-size:.82rem;">
+                                <p style="margin-bottom:.3rem;"><strong>✅ Pagamento confirmado!</strong></p>
+                                <p style="color:#166534;">Seu pedido foi confirmado e você receberá um e-mail com os detalhes.</p>
+                            </div>
+                        `;
+                    } else if (data.status === 'rejected' || data.status === 'cancelled') {
+                        clearInterval(interval);
+                        showNotification('❌ Pagamento recusado ou cancelado.', 'error');
+                    } else if (attempts >= maxAttempts) {
+                        clearInterval(interval);
+                        showNotification('⏳ Tempo esgotado. Verifique manualmente.', 'info');
+                    }
+                } catch (e) {
+                    if (attempts >= maxAttempts) {
+                        clearInterval(interval);
+                    }
+                }
+            }, 3000);
+        }
+
+        function selectPaymentMethod(method) {
+            checkoutPaymentMethod = method;
+            document.getElementById('tabPix').classList.toggle('active', method === 'pix');
+            document.getElementById('tabCard').classList.toggle('active', method === 'card');
+            document.getElementById('checkoutPixInfo').style.display = method === 'pix' ? 'block' : 'none';
+            document.getElementById('checkoutCardFields').style.display = method === 'card' ? 'block' : 'none';
         }
 
         // ============================================
@@ -3520,11 +4517,7 @@
         function togglePaymentMethod() {
             const method = document.getElementById('payMethod').value;
             const cardFields = document.getElementById('cardFields');
-            if (method === 'card') {
-                cardFields.style.display = 'block';
-            } else {
-                cardFields.style.display = 'none';
-            }
+            cardFields.style.display = method === 'card' ? 'block' : 'none';
         }
 
         // ============================================
@@ -3537,7 +4530,7 @@
                         id: item.id,
                         name: item.name,
                         price: parseFloat(item.price),
-                        quantity: 1
+                        quantity: item.quantity || 1
                     }));
 
                     await fetch('/api/orders', {
@@ -3555,7 +4548,7 @@
                         })
                     });
                     cart = [];
-                    document.getElementById('cartCount').textContent = 0;
+                    updateCartCount();
                 } else if (paymentType === 'donation') {
                     await fetch('/api/donations', {
                         method: 'POST',
@@ -3576,198 +4569,6 @@
             } catch (error) {
                 console.error('❌ Erro ao salvar:', error);
             }
-        }
-
-        // ============================================
-        // ===== DISPARAR EMAIL DE CONFIRMAÇÃO =====
-        // ============================================
-        async function dispararEmailConfirmacao(paymentId) {
-            try {
-                console.log('📧 Disparando email para:', paymentId);
-                const res = await fetch('/api/send-confirmation-email', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ payment_id: paymentId })
-                });
-                const data = await res.json();
-                if (res.ok && data.success) {
-                    console.log('✅ Email enviado:', data.message);
-                } else {
-                    console.warn('⚠️ Email não enviado:', data.error || data.message);
-                }
-            } catch (e) {
-                console.warn('⚠️ Erro ao disparar email:', e.message);
-            }
-        }
-
-        // ============================================
-        // ===== VERIFICAR STATUS =====
-        // ============================================
-        async function checkPaymentStatus(paymentId) {
-            try {
-                showNotification('🔄 Verificando status do pagamento...', 'info');
-
-                const response = await fetch(`/api/check-payment/${paymentId}`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    }
-                });
-
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    const altResponse = await fetch(`/api/payment-status/${paymentId}`, {
-                        headers: { 'Accept': 'application/json' }
-                    });
-
-                    if (!altResponse.ok) {
-                        throw new Error('Não foi possível verificar o status.');
-                    }
-
-                    const altData = await altResponse.json();
-                    return await processPaymentStatus(altData, paymentId);
-                }
-
-                const data = await response.json();
-                return await processPaymentStatus(data, paymentId);
-
-            } catch (error) {
-                console.error('Erro ao verificar status:', error);
-                showNotification('❌ Erro ao verificar status: ' + error.message, 'error');
-                return null;
-            }
-        }
-
-        async function processPaymentStatus(data, paymentId) {
-            if (data.status === 'approved') {
-                showNotification('✅ Pagamento confirmado! Obrigado! 🙏', 'success');
-
-                await fetch('/api/update-payment-status', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        payment_id: paymentId,
-                        status: 'approved'
-                    })
-                });
-
-                await dispararEmailConfirmacao(paymentId);
-
-                localStorage.removeItem('last_payment_id');
-
-                if (statusCheckInterval) {
-                    clearInterval(statusCheckInterval);
-                    statusCheckInterval = null;
-                }
-
-                setTimeout(() => {
-                    closeModal('paymentModal');
-                    if (paymentType === 'sale') {
-                        cart = [];
-                        document.getElementById('cartCount').textContent = 0;
-                    }
-                }, 2000);
-
-                return true;
-
-            } else if (data.status === 'pending' || data.status === 'in_process') {
-                showNotification('⏳ Pagamento ainda pendente. Aguarde...', 'info');
-                return false;
-
-            } else if (data.status === 'rejected' || data.status === 'cancelled') {
-                showNotification('❌ Pagamento recusado ou cancelado.', 'error');
-                if (statusCheckInterval) {
-                    clearInterval(statusCheckInterval);
-                    statusCheckInterval = null;
-                }
-                return false;
-
-            } else {
-                showNotification(`ℹ️ Status atual: ${data.status}`, 'info');
-                return false;
-            }
-        }
-
-        function verificarStatusAutomatico(paymentId) {
-            let tentativas = 0;
-            const maxTentativas = 12;
-
-            showNotification('🔄 Aguardando confirmação do pagamento...', 'info');
-
-            if (statusCheckInterval) {
-                clearInterval(statusCheckInterval);
-                statusCheckInterval = null;
-            }
-
-            statusCheckInterval = setInterval(async () => {
-                tentativas++;
-
-                try {
-                    const response = await fetch(`/api/check-payment/${paymentId}`, {
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        }
-                    });
-
-                    if (!response.ok) {
-                        if (tentativas >= maxTentativas) {
-                            clearInterval(statusCheckInterval);
-                            statusCheckInterval = null;
-                            showNotification('⏳ Tempo esgotado. Use o botão "Verificar Status" para checar.',
-                                'info');
-                        }
-                        return;
-                    }
-
-                    const data = await response.json();
-
-                    if (data.status === 'approved') {
-                        clearInterval(statusCheckInterval);
-                        statusCheckInterval = null;
-                        showNotification('✅ Pagamento confirmado! Obrigado! 🙏', 'success');
-
-                        await fetch('/api/update-payment-status', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                payment_id: paymentId,
-                                status: 'approved'
-                            })
-                        });
-
-                        await dispararEmailConfirmacao(paymentId);
-
-                        localStorage.removeItem('last_payment_id');
-
-                        setTimeout(() => {
-                            closeModal('paymentModal');
-                            if (paymentType === 'sale') {
-                                cart = [];
-                                document.getElementById('cartCount').textContent = 0;
-                            }
-                        }, 1500);
-
-                    } else if (data.status === 'rejected' || data.status === 'cancelled') {
-                        clearInterval(statusCheckInterval);
-                        statusCheckInterval = null;
-                        showNotification('❌ Pagamento recusado ou cancelado.', 'error');
-                    }
-
-                } catch (error) {
-                    console.error('Erro na verificação automática:', error);
-                    if (tentativas >= maxTentativas) {
-                        clearInterval(statusCheckInterval);
-                        statusCheckInterval = null;
-                        showNotification(
-                            '⏳ Não foi possível confirmar automaticamente. Use o botão "Verificar Status".',
-                            'info');
-                    }
-                }
-            }, 5000);
         }
 
         // ============================================
@@ -3798,7 +4599,7 @@
         }
 
         // ============================================
-        // ===== PROCESSAR PAGAMENTO =====
+        // ===== PROCESSAR PAGAMENTO (modal tradicional) =====
         // ============================================
         async function processPayment() {
             const name = document.getElementById('payName').value.trim();
@@ -3816,7 +4617,7 @@
             let description = '';
 
             if (paymentType === 'sale') {
-                amount = cart.reduce((sum, p) => sum + parseFloat(p.price), 0);
+                amount = cart.reduce((sum, p) => sum + parseFloat(p.price) * (p.quantity || 1), 0);
                 description = 'Compra NJ Store';
             } else if (paymentType === 'donation') {
                 amount = _donationAmount || 0;
@@ -3835,12 +4636,7 @@
 
                 if (method === 'pix') {
                     const paymentData = {
-                        amount: amount,
-                        description: description,
-                        email: email,
-                        name: name,
-                        phone: phone,
-                        cpf: cpf,
+                        amount, description, email, name, phone, cpf,
                         paymentType: paymentType
                     };
 
@@ -3895,9 +4691,6 @@
                                 <i class="fas fa-check"></i> Concluir
                             </button>
                         </div>
-                        <p style="margin-top:0.3rem;font-size:0.6rem;color:#999;">
-                            ⏳ Aguardando pagamento... A verificação é automática!
-                        </p>
                     </div>
                     `;
 
@@ -3916,26 +4709,8 @@
                         return;
                     }
 
-                    if (cardNumber.length < 16) {
-                        showNotification('Número do cartão inválido (16 dígitos)', 'error');
-                        return;
-                    }
-                    if (!cardExpiry.includes('/') || cardExpiry.length < 5) {
-                        showNotification('Validade inválida (MM/AA)', 'error');
-                        return;
-                    }
-                    if (cardCvv.length < 3) {
-                        showNotification('CVV inválido (3 dígitos)', 'error');
-                        return;
-                    }
-
                     const paymentData = {
-                        amount: amount,
-                        description: description,
-                        email: email,
-                        name: name,
-                        phone: phone,
-                        cpf: cpf,
+                        amount, description, email, name, phone, cpf,
                         card_number: cardNumber,
                         card_expiry: cardExpiry,
                         card_cvv: cardCvv,
@@ -3955,9 +4730,8 @@
 
                     if (payment.status === 'approved') {
                         showNotification('✅ Pagamento aprovado! Obrigado! 🙏', 'success');
-                        await dispararEmailConfirmacao(payment.payment_id);
                         cart = [];
-                        document.getElementById('cartCount').textContent = 0;
+                        updateCartCount();
                         closeModal('paymentModal');
                     } else {
                         showNotification(`⏳ Pagamento ${payment.status}. Aguarde a confirmação.`, 'info');
@@ -3970,6 +4744,73 @@
                 console.error('Erro no pagamento:', error);
                 showNotification('❌ Erro: ' + error.message, 'error');
             }
+        }
+
+        // ============================================
+        // ===== VERIFICAR STATUS (modal tradicional) =====
+        // ============================================
+        async function checkPaymentStatus(paymentId) {
+            try {
+                showNotification('🔄 Verificando status...', 'info');
+                const response = await fetch(`/api/check-payment/${paymentId}`);
+                const data = await response.json();
+                
+                if (data.status === 'approved') {
+                    showNotification('✅ Pagamento confirmado! Obrigado! 🙏', 'success');
+                    localStorage.removeItem('last_payment_id');
+                    setTimeout(() => closeModal('paymentModal'), 1500);
+                } else if (data.status === 'pending' || data.status === 'in_process') {
+                    showNotification('⏳ Pagamento ainda pendente.', 'info');
+                } else {
+                    showNotification(`ℹ️ Status: ${data.status}`, 'info');
+                }
+            } catch (error) {
+                showNotification('❌ Erro ao verificar status: ' + error.message, 'error');
+            }
+        }
+
+        function verificarStatusAutomatico(paymentId) {
+            let tentativas = 0;
+            const maxTentativas = 12;
+
+            showNotification('🔄 Aguardando confirmação...', 'info');
+
+            if (statusCheckInterval) {
+                clearInterval(statusCheckInterval);
+                statusCheckInterval = null;
+            }
+
+            statusCheckInterval = setInterval(async () => {
+                tentativas++;
+                try {
+                    const response = await fetch(`/api/check-payment/${paymentId}`);
+                    if (!response.ok) {
+                        if (tentativas >= maxTentativas) {
+                            clearInterval(statusCheckInterval);
+                            statusCheckInterval = null;
+                        }
+                        return;
+                    }
+
+                    const data = await response.json();
+                    if (data.status === 'approved') {
+                        clearInterval(statusCheckInterval);
+                        statusCheckInterval = null;
+                        showNotification('✅ Pagamento confirmado! Obrigado! 🙏', 'success');
+                        localStorage.removeItem('last_payment_id');
+                        setTimeout(() => closeModal('paymentModal'), 1500);
+                    } else if (data.status === 'rejected' || data.status === 'cancelled') {
+                        clearInterval(statusCheckInterval);
+                        statusCheckInterval = null;
+                        showNotification('❌ Pagamento recusado ou cancelado.', 'error');
+                    }
+                } catch (error) {
+                    if (tentativas >= maxTentativas) {
+                        clearInterval(statusCheckInterval);
+                        statusCheckInterval = null;
+                    }
+                }
+            }, 5000);
         }
 
         // ============================================
@@ -4107,22 +4948,20 @@
                 html += `<div class="form-row">`;
                 html += `<div class="form-group"><label>${t.labels.birth_date} <span class="req">*</span></label><input type="date" id="regBirthDate" required /></div>`;
                 html += `</div>`;
-                html += `<div class="form-group"><label>${t.labels.baptism_date} <span class="req">*</span></label><select id="regBaptismDate" required><option value="">Selecione uma data para o Batismo</option>`;
+                html += `<div class="form-group"><label>${t.labels.baptism_date} <span class="req">*</span></label><select id="regBaptismDate" required><option value="">Selecione uma data</option>`;
                 if (baptismDatesList && baptismDatesList.length > 0) {
                     baptismDatesList.forEach(d => {
-                        const dateFormatted = new Date(d.date).toLocaleDateString('pt-BR', { day: 'numeric',
-                            month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                        const dateFormatted = new Date(d.date).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                         const participantes = d.current_participants || 0;
                         const max = d.max_participants || 20;
                         const disponivel = participantes < max;
-                        html +=
-                            `<option value="${d.id}" ${!disponivel ? 'disabled' : ''}>${d.title || 'Batismo'} — ${dateFormatted} (${participantes}/${max}) ${disponivel ? '✅ Disponível' : '❌ Esgotado'}</option>`;
+                        html += `<option value="${d.id}" ${!disponivel ? 'disabled' : ''}>${d.title || 'Batismo'} — ${dateFormatted} (${participantes}/${max}) ${disponivel ? '✅' : '❌'}</option>`;
                     });
                 } else {
-                    html += `<option value="" disabled>Nenhuma data de batismo disponível</option>`;
+                    html += `<option value="" disabled>Nenhuma data disponível</option>`;
                 }
                 html += `</select></div>`;
-                html += `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Observações adicionais..."></textarea></div>`;
+                html += `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Observações..."></textarea></div>`;
             }
 
             if (type === 'volunteer') {
@@ -4131,24 +4970,21 @@
                     departmentsList.forEach(d => { html += `<option value="${d.id}">${d.name}</option>`; });
                 } else { html += `<option value="" disabled>Nenhum departamento disponível</option>`; }
                 html += `</select></div>`;
-                html += `<div class="form-group"><label>${t.labels.availability}</label><input type="text" id="regAvailability" placeholder="Ex: Finais de semana, Terças e Quintas à noite" /></div>`;
-                html += `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Conte-nos sobre suas habilidades e experiência..."></textarea></div>`;
+                html += `<div class="form-group"><label>${t.labels.availability}</label><input type="text" id="regAvailability" placeholder="Ex: Finais de semana" /></div>`;
+                html += `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Habilidades..."></textarea></div>`;
             }
 
             if (type === 'event') {
                 html += `<div class="form-group"><label>${t.labels.event_select} <span class="req">*</span></label><select id="regEventSelect" required><option value="">Selecione um evento</option>`;
                 if (eventsList && eventsList.length > 0) {
                     eventsList.forEach(e => {
-                        const dateFormatted = new Date(e.date).toLocaleDateString('pt-BR', { day: 'numeric',
-                            month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-                        const priceText = parseFloat(e.price || 0) > 0 ? `R$ ${parseFloat(e.price).toFixed(2)}` :
-                            'Grátis';
-                        html +=
-                            `<option value="${e.id}" data-price="${e.price || 0}">${e.title} — ${dateFormatted} (${priceText})</option>`;
+                        const dateFormatted = new Date(e.date).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                        const priceText = parseFloat(e.price || 0) > 0 ? `R$ ${parseFloat(e.price).toFixed(2)}` : 'Grátis';
+                        html += `<option value="${e.id}" data-price="${e.price || 0}">${e.title} — ${dateFormatted} (${priceText})</option>`;
                     });
                 } else { html += `<option value="" disabled>Nenhum evento disponível</option>`; }
                 html += `</select></div>`;
-                html += `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Observações adicionais..."></textarea></div>`;
+                html += `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Observações..."></textarea></div>`;
             }
 
             if (type === 'department') {
@@ -4157,7 +4993,7 @@
                     departmentsList.forEach(d => { html += `<option value="${d.id}">${d.name}</option>`; });
                 } else { html += `<option value="" disabled>Nenhum departamento disponível</option>`; }
                 html += `</select></div>`;
-                html += `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Por que deseja participar? (opcional)"></textarea></div>`;
+                html += `<div class="form-group"><label>${t.labels.notes}</label><textarea id="regNotes" rows="3" placeholder="Por que deseja participar?"></textarea></div>`;
             }
 
             html += `<button onclick="submitRegistration('${type}')" class="btn-dark btn-block reg-btn-submit">
@@ -4176,8 +5012,7 @@
             const notes = document.getElementById('regNotes')?.value.trim() || '';
             const resultDiv = document.getElementById('registrationResult');
 
-            if (!name || !email || !phone) { showNotification('⚠️ Preencha todos os campos obrigatórios!', 'error');
-                return; }
+            if (!name || !email || !phone) { showNotification('⚠️ Preencha todos os campos obrigatórios!', 'error'); return; }
             if (!email.includes('@')) { showNotification('⚠️ Digite um e-mail válido!', 'error'); return; }
 
             let registrationData = { type, name, email, phone, details: notes };
@@ -4187,15 +5022,13 @@
                     const birthDate = document.getElementById('regBirthDate')?.value;
                     const baptismDateId = document.getElementById('regBaptismDate')?.value;
                     if (!birthDate) { showNotification('⚠️ Informe sua data de nascimento!', 'error'); return; }
-                    if (!baptismDateId) { showNotification('⚠️ Selecione uma data para o batismo!', 'error'); return; }
+                    if (!baptismDateId) { showNotification('⚠️ Selecione uma data!', 'error'); return; }
                     const selectedDate = baptismDatesList.find(d => d.id == baptismDateId);
-                    if (!selectedDate) { showNotification('⚠️ Data de batismo não encontrada!', 'error'); return; }
+                    if (!selectedDate) { showNotification('⚠️ Data não encontrada!', 'error'); return; }
                     registrationData.birth_date = birthDate;
                     registrationData.baptism_date = selectedDate.date;
                     registrationData.baptism_date_id = baptismDateId;
                     registrationData.event_name = selectedDate.title || 'Batismo';
-                    registrationData.details =
-                        `Data de Nascimento: ${new Date(birthDate).toLocaleDateString('pt-BR')}\nData do Batismo: ${new Date(selectedDate.date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}\n${notes}`;
                 }
 
                 if (type === 'volunteer') {
@@ -4214,7 +5047,6 @@
                     const dept = departmentsList.find(d => d.id == deptId);
                     registrationData.department_name = dept ? dept.name : '';
                     registrationData.department_id = deptId;
-                    registrationData.details = notes || 'Deseja participar deste departamento.';
                 }
 
                 if (type === 'event') {
@@ -4226,11 +5058,7 @@
                     registrationData.event_id = eventId;
                     registrationData.amount = parseFloat(event.price || 0);
                     registrationData.is_paid = parseFloat(event.price || 0) > 0 ? false : true;
-                    registrationData.details =
-                        `Evento: ${event.title}\nData: ${new Date(event.date).toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}\n${notes}`;
                 }
-
-                console.log('📤 Enviando inscrição:', registrationData);
 
                 const response = await fetch('/api/registrations', {
                     method: 'POST',
@@ -4241,46 +5069,17 @@
                 if (!response.ok) throw new Error(data.error || 'Erro ao realizar inscrição');
 
                 resultDiv.className = 'notification success';
-                resultDiv.innerHTML =
-                    `<i class="fas fa-check-circle" style="font-size:1.2rem;display:block;margin-bottom:0.2rem;"></i><strong>✅ Inscrição realizada com sucesso!</strong><p style="margin-top:0.2rem;font-size:0.8rem;">Protocolo: #${String(data.id).padStart(6, '0')}</p>`;
+                resultDiv.innerHTML = `<i class="fas fa-check-circle"></i> <strong>✅ Inscrição realizada!</strong> Protocolo: #${String(data.id).padStart(6, '0')}`;
                 resultDiv.style.display = 'block';
                 document.getElementById('registrationForm').style.display = 'none';
-
-                if (type === 'event' && parseFloat(registrationData.amount || 0) > 0) {
-                    if (confirm(
-                            `✅ Inscrição realizada! O evento é pago (R$ ${parseFloat(registrationData.amount).toFixed(2)}). Deseja fazer o pagamento agora?`
-                            )) {
-                        paymentType = 'donation';
-                        donationType = 'Inscrição Evento - ' + registrationData.event_name;
-                        document.getElementById('paymentTitle').textContent = '💳 Inscrição - ' + registrationData
-                            .event_name;
-                        document.getElementById('paymentTotal').textContent = 'Valor: R$ ' + parseFloat(
-                            registrationData.amount).toFixed(2);
-                        document.getElementById('paymentForm').style.display = 'block';
-                        document.getElementById('paymentResult').style.display = 'none';
-                        _donationAmount = parseFloat(registrationData.amount);
-                        document.getElementById('payName').value = name;
-                        document.getElementById('payEmail').value = email;
-                        document.getElementById('payPhone').value = phone;
-                        openModal('paymentModal');
-                    }
-                } else {
-                    setTimeout(() => {
-                        if (confirm('✅ Deseja baixar o comprovante em PDF?')) {
-                            window.open(`/api/registration-pdf/${data.id}`, '_blank');
-                        }
-                    }, 500);
-                }
 
                 setTimeout(() => {
                     resultDiv.style.display = 'none';
                     document.getElementById('registrationForm').style.display = 'block';
-                    document.getElementById('registrationForm').innerHTML =
-                        `<p style="text-align:center;color:#28a745;padding:0.6rem;">✅ Inscrição concluída! Obrigado!</p>`;
-                }, 8000);
+                    document.getElementById('registrationForm').innerHTML = `<p style="text-align:center;color:#28a745;padding:0.6rem;">✅ Inscrição concluída!</p>`;
+                }, 6000);
 
             } catch (error) {
-                console.error('❌ Erro na inscrição:', error);
                 showNotification('❌ Erro: ' + error.message, 'error');
                 resultDiv.className = 'notification error';
                 resultDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message}`;
@@ -4296,9 +5095,11 @@
             div.className = 'notification ' + type;
             div.textContent = message;
             document.body.appendChild(div);
-            setTimeout(() => { div.style.opacity = '0';
+            setTimeout(() => { 
+                div.style.opacity = '0';
                 div.style.transition = 'opacity 0.4s';
-                setTimeout(() => div.remove(), 400); }, 4000);
+                setTimeout(() => div.remove(), 400); 
+            }, 4000);
         }
 
         // ============================================
@@ -4315,38 +5116,28 @@
             if (status || paymentId) {
                 document.getElementById('mainHeader').style.display = 'none';
                 document.getElementById('mainNav').style.display = 'none';
-                document.querySelector('.top-black').style.display = 'none';
-                document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-                document.querySelector('.footer').style.display = 'none';
-                document.querySelector('.services-quick').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'none';
                 document.querySelectorAll('.fab').forEach(f => f.style.display = 'none');
 
                 const returnPage = document.getElementById('paymentReturnPage');
                 returnPage.style.display = 'block';
 
-                let icon = '⏳',
-                    title = 'Aguardando Confirmação',
-                    message = 'Seu pagamento está sendo processado. Aguarde a confirmação.';
-                let msgClass = 'pending',
-                    statusText = 'Pendente';
+                let icon = '⏳', title = 'Aguardando Confirmação',
+                    message = 'Seu pagamento está sendo processado.';
+                let msgClass = 'pending', statusText = 'Pendente';
 
                 if (status === 'approved') {
-                    icon = '✅';
-                    title = 'Pagamento Confirmado!';
+                    icon = '✅'; title = 'Pagamento Confirmado!';
                     message = 'Obrigado pela sua contribuição! Deus abençoe! 🙏';
-                    msgClass = 'success';
-                    statusText = 'Aprovado';
+                    msgClass = 'success'; statusText = 'Aprovado';
                 } else if (status === 'rejected') {
-                    icon = '❌';
-                    title = 'Pagamento Recusado';
-                    message = 'Infelizmente seu pagamento não foi aprovado. Tente novamente.';
-                    msgClass = 'error';
-                    statusText = 'Recusado';
+                    icon = '❌'; title = 'Pagamento Recusado';
+                    message = 'Infelizmente seu pagamento não foi aprovado.';
+                    msgClass = 'error'; statusText = 'Recusado';
                 }
 
                 document.getElementById('returnIcon').textContent = icon;
-                document.getElementById('returnIcon').style.color = msgClass === 'success' ? '#28a745' : msgClass ===
-                    'error' ? '#dc3545' : '#c9a84c';
+                document.getElementById('returnIcon').style.color = msgClass === 'success' ? '#28a745' : msgClass === 'error' ? '#dc3545' : '#c9a84c';
                 document.getElementById('returnTitle').textContent = title;
                 document.getElementById('returnMessage').textContent = message;
                 document.getElementById('returnMessageBox').className = 'message-box ' + msgClass;
@@ -4361,7 +5152,7 @@
                 loadCelulasIndex();
                 loadReflections();
                 checkLiveStatusIndex();
-                document.getElementById('cartCount').textContent = 0;
+                updateCartCount();
             }
         });
 
@@ -4371,11 +5162,40 @@
                     m.classList.remove('open');
                     document.body.style.overflow = 'auto';
                 });
+                if (document.getElementById('checkoutOverlay').classList.contains('open')) {
+                    closeCheckout();
+                }
                 if (statusCheckInterval) {
                     clearInterval(statusCheckInterval);
                     statusCheckInterval = null;
                 }
             }
+        });
+
+        // Formatar CPF enquanto digita
+        document.getElementById('checkoutCpf')?.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length <= 11) {
+                value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            }
+            e.target.value = value;
+        });
+
+        // Formatar cartão enquanto digita
+        document.getElementById('checkoutCardNumber')?.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
+            value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+            e.target.value = value;
+        });
+
+        document.getElementById('checkoutCardExpiry')?.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.slice(0, 2) + '/' + value.slice(2, 4);
+            }
+            e.target.value = value;
         });
     </script>
 </body>

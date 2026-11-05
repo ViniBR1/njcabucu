@@ -61,11 +61,11 @@
             --safe-top: env(safe-area-inset-top, 0px);
         }
 
-        html, body {
-            overflow-x: hidden !important;
+        html {
+            overflow-x: hidden;
+            overflow-y: auto;
             width: 100%;
             max-width: 100vw;
-            position: relative;
         }
         body {
             font-family: var(--font);
@@ -77,6 +77,11 @@
             -moz-osx-font-smoothing: grayscale;
             overscroll-behavior-y: contain;
             overscroll-behavior-x: none;
+            overflow-x: hidden;
+            overflow-y: auto;
+            width: 100%;
+            max-width: 100vw;
+            min-height: 100vh;
         }
 
         .loading-overlay {
@@ -287,6 +292,7 @@
             width: 100%;
             margin: 0 auto;
             overflow-x: hidden;
+            overflow-y: visible;
         }
 
         .page-header {
@@ -301,9 +307,10 @@
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--text);
-            letter-spacing: -0.02em;
+            letter-spacing: -0.025em;
             margin-bottom: var(--sp-1);
             word-wrap: break-word;
+            line-height: 1.25;
         }
         .page-header-left p {
             font-size: 0.85rem;
@@ -316,7 +323,7 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
             gap: var(--sp-4);
             margin-bottom: var(--sp-6);
         }
@@ -326,12 +333,15 @@
             border-radius: var(--radius);
             border: 1px solid var(--border);
             box-shadow: var(--shadow-xs);
-            transition: transform 0.15s, box-shadow 0.15s;
+            transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
             cursor: pointer;
             position: relative;
             overflow: hidden;
-            min-height: 110px;
+            min-height: 120px;
             min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         .stat-card:active { transform: scale(0.98); }
         @media (hover: hover) {
@@ -342,31 +352,36 @@
             }
         }
         .stat-card-icon {
-            width: 40px; height: 40px;
-            border-radius: var(--radius-sm);
+            width: 42px; height: 42px;
+            border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1rem;
+            font-size: 1.05rem;
             margin-bottom: var(--sp-3);
             background: var(--primary-soft);
             color: var(--primary);
+            flex-shrink: 0;
         }
         .stat-card-icon.success { background: var(--success-soft); color: var(--success); }
         .stat-card-icon.warning { background: var(--warning-soft); color: var(--warning); }
         .stat-card-icon.info    { background: var(--info-soft); color: var(--info); }
         .stat-card-icon.danger  { background: var(--danger-soft); color: var(--danger); }
         .stat-card .number {
-            font-size: 1.5rem;
+            font-size: 1.65rem;
             font-weight: 700;
             color: var(--text);
             line-height: 1.1;
-            letter-spacing: -0.02em;
+            letter-spacing: -0.03em;
             margin-bottom: var(--sp-1);
             word-wrap: break-word;
+            overflow-wrap: anywhere;
+            font-variant-numeric: tabular-nums;
         }
         .stat-card .label {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: var(--text-muted);
             font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         .section {
@@ -379,7 +394,7 @@
             width: 100%;
         }
         .section-header {
-            padding: var(--sp-5) var(--sp-6);
+            padding: var(--sp-4) var(--sp-6);
             border-bottom: 1px solid var(--border);
             display: flex; align-items: center; justify-content: space-between;
             gap: var(--sp-4);
@@ -392,7 +407,7 @@
         }
         .section-icon {
             width: 36px; height: 36px;
-            border-radius: var(--radius-sm);
+            border-radius: 10px;
             background: var(--primary-soft);
             color: var(--primary);
             display: flex; align-items: center; justify-content: center;
@@ -401,14 +416,14 @@
         }
         .section-title-block { min-width: 0; }
         .section-title {
-            font-size: 1rem;
+            font-size: 0.98rem;
             font-weight: 600;
             color: var(--text);
             letter-spacing: -0.01em;
             word-wrap: break-word;
         }
         .section-subtitle {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: var(--text-muted);
             margin-top: 2px;
             word-wrap: break-word;
@@ -465,17 +480,17 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 0.85rem;
-            table-layout: fixed;
+            table-layout: auto;
         }
         .table th {
             text-align: left;
             padding: var(--sp-3) var(--sp-5);
             border-bottom: 1px solid var(--border);
             color: var(--text-muted);
-            font-weight: 500;
-            font-size: 0.7rem;
+            font-weight: 600;
+            font-size: 0.68rem;
             text-transform: uppercase;
-            letter-spacing: 0.4px;
+            letter-spacing: 0.5px;
             background: var(--surface-2);
             word-wrap: break-word;
         }
@@ -579,7 +594,7 @@
 
         .modal {
             display: none; position: fixed; inset: 0;
-            background: rgba(15,23,42,0.45);
+            background: rgba(15,23,42,0.5);
             backdrop-filter: blur(4px);
             -webkit-backdrop-filter: blur(4px);
             z-index: 9999;
@@ -871,9 +886,10 @@
             display: flex;
             align-items: flex-end;
             gap: var(--sp-3);
-            height: 140px;
+            height: 160px;
             padding: var(--sp-2) 0;
             width: 100%;
+            overflow: hidden;
         }
         .bar-item {
             flex: 1;
@@ -884,13 +900,28 @@
         .bar {
             width: 100%;
             max-width: 40px;
-            background: var(--primary);
+            background: linear-gradient(to top, var(--primary), #3B82F6);
             border-radius: 4px 4px 0 0;
             min-height: 4px;
             transition: height 0.4s ease;
         }
-        .bar-label { font-size: 0.7rem; color: var(--text-muted); }
-        .bar-value { font-size: 0.7rem; font-weight: 600; color: var(--text); }
+        .bar-label {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+        .bar-value {
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
 
         .live-indicator {
             display: inline-flex;
@@ -1049,28 +1080,32 @@
                 margin-bottom: var(--sp-4);
                 gap: var(--sp-2);
             }
-            .page-header-left h1 { font-size: 1.35rem; }
-            .page-header-left p { font-size: 0.78rem; }
+            .page-header-left h1 { font-size: 1.25rem; }
+            .page-header-left p { font-size: 0.75rem; }
             .page-header-actions { width: 100%; gap: var(--sp-2); }
             .page-header-actions .btn { flex: 1 1 auto; min-width: 0; justify-content: center; }
 
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: var(--sp-2);
+                gap: var(--sp-3);
                 margin-bottom: var(--sp-4);
             }
             .stat-card {
                 padding: var(--sp-3);
-                min-height: 88px;
+                min-height: 100px;
                 border-radius: var(--radius-sm);
             }
             .stat-card-icon {
-                width: 30px; height: 30px;
-                font-size: 0.8rem;
-                margin-bottom: var(--sp-1);
+                width: 34px; height: 34px;
+                font-size: 0.85rem;
+                margin-bottom: var(--sp-2);
+                border-radius: 8px;
             }
-            .stat-card .number { font-size: 1.15rem; }
-            .stat-card .label { font-size: 0.68rem; }
+            .stat-card .number {
+                font-size: 1.3rem;
+                line-height: 1.15;
+            }
+            .stat-card .label { font-size: 0.65rem; }
 
             .section { margin-bottom: var(--sp-3); border-radius: var(--radius-sm); }
             .section-header { padding: var(--sp-3) var(--sp-4); gap: var(--sp-2); }
@@ -1104,60 +1139,89 @@
             .btn-xs { padding: 0.4rem 0.65rem; font-size: 0.72rem; min-height: 36px; }
             .btn-icon { width: 40px; height: 40px; }
 
-            /* ===== TABELAS EM CARDS NO MOBILE ===== */
-            .table-wrapper { overflow-x: hidden; }
+            /* ===== TABELAS -> CARDS NO MOBILE ===== */
+            .table-wrapper {
+                overflow-x: hidden;
+                padding: 0;
+            }
             .table {
                 min-width: 0;
                 width: 100%;
-                font-size: 0.78rem;
-                table-layout: fixed;
+                font-size: 0.82rem;
+                display: block;
+                table-layout: auto;
             }
             .table thead { display: none; }
+            .table tbody {
+                display: block;
+                width: 100%;
+            }
             .table tbody tr {
                 display: block;
-                padding: var(--sp-3) var(--sp-4);
+                padding: var(--sp-3);
                 border-bottom: 1px solid var(--border);
                 position: relative;
+                width: 100%;
+                background: var(--surface);
+            }
+            .table tbody tr:nth-child(even) {
+                background: var(--surface-2);
             }
             .table tbody tr:last-child { border-bottom: none; }
-            .table tbody tr:hover { background: transparent; }
+            .table tbody tr:hover { background: var(--surface-2); }
             .table td {
                 display: flex;
-                align-items: center;
+                align-items: flex-start;
                 padding: var(--sp-1) 0;
                 border: none;
-                font-size: 0.78rem;
-                min-height: 28px;
+                font-size: 0.82rem;
+                min-height: 26px;
                 word-break: break-word;
                 overflow-wrap: anywhere;
                 gap: var(--sp-2);
+                width: 100%;
+                line-height: 1.4;
             }
             .table td::before {
                 content: attr(data-label);
                 font-weight: 600;
-                font-size: 0.65rem;
+                font-size: 0.62rem;
                 text-transform: uppercase;
-                letter-spacing: 0.3px;
+                letter-spacing: 0.4px;
                 color: var(--text-muted);
-                min-width: 80px;
+                min-width: 75px;
+                max-width: 75px;
                 flex-shrink: 0;
+                padding-top: 2px;
             }
             .table td:first-child {
-                font-weight: 600;
-                font-size: 0.85rem;
+                font-weight: 700;
+                font-size: 0.9rem;
                 color: var(--text);
                 padding-bottom: var(--sp-2);
-                border-bottom: 1px dashed var(--border);
                 margin-bottom: var(--sp-1);
+                border-bottom: 1px dashed var(--border);
+                display: block;
+                width: 100%;
             }
-            .table td:first-child::before { display: none; }
+            .table td:first-child::before {
+                display: none;
+            }
             .table td:last-child {
                 padding-top: var(--sp-2);
+                margin-top: var(--sp-1);
+                border-top: 1px dashed var(--border);
+                display: flex;
                 flex-wrap: wrap;
                 justify-content: flex-start;
+                gap: var(--sp-2);
             }
-            .table td:last-child::before { display: none; }
-            .table td .btn { margin: 2px 2px 2px 0; }
+            .table td:last-child::before {
+                display: none;
+            }
+            .table td .btn {
+                margin: 0;
+            }
 
             #tab-usuarios .section-body.flush { max-height: 60vh; }
 
@@ -1199,8 +1263,13 @@
 
             .about-grid { grid-template-columns: 1fr; gap: var(--sp-3); }
 
-            .bar-chart { height: 110px; gap: var(--sp-2); }
-            .bar-value { font-size: 0.6rem; }
+            .bar-chart {
+                height: 120px;
+                gap: var(--sp-1);
+                padding: var(--sp-1) 0;
+            }
+            .bar { max-width: 28px; }
+            .bar-value { font-size: 0.55rem; }
             .bar-label { font-size: 0.6rem; }
 
             .notification {
@@ -1234,32 +1303,31 @@
             .flex-between { align-items: flex-start; }
             .flex-between > * { min-width: 0; }
             .member-row-phone { display: none; }
-            .stat-card .number {
-                font-size: 1.1rem;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
         }
 
         @media (max-width: 480px) {
-            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: var(--sp-2); }
             .page-header-left h1 { font-size: 1.15rem; }
             .page-header-left p { font-size: 0.72rem; }
             .section-title { font-size: 0.85rem; }
-            .table { font-size: 0.75rem; }
+            .table { font-size: 0.78rem; }
+            .table td { font-size: 0.78rem; }
+            .table td::before { font-size: 0.58rem; min-width: 68px; max-width: 68px; }
             .export-filters { grid-template-columns: 1fr; }
             .form-row { gap: var(--sp-2); }
             .form-grid { grid-template-columns: 1fr; }
             .carousel-grid { grid-template-columns: repeat(2, 1fr); }
             .notification { font-size: 0.78rem; padding: 0.7rem 0.9rem; }
+            .stat-card .number { font-size: 1.2rem; }
+            .stat-card { min-height: 95px; }
         }
 
         @media (max-width: 380px) {
             .stats-grid { grid-template-columns: 1fr; }
             .page-header-left h1 { font-size: 1.1rem; }
-            .stat-card .number { font-size: 1.1rem; }
+            .stat-card .number { font-size: 1.15rem; }
             .btn { font-size: 0.8rem; padding: 0.6rem 0.8rem; }
-            .table td::before { min-width: 70px; font-size: 0.6rem; }
+            .table td::before { min-width: 62px; max-width: 62px; font-size: 0.55rem; }
         }
 
         @media (max-height: 500px) and (orientation: landscape) {
@@ -1413,38 +1481,52 @@
             <div class="stats-grid">
                 <div class="stat-card" onclick="showTab('usuarios')">
                     <div class="stat-card-icon"><i class="fas fa-users"></i></div>
-                    <div class="number" id="totalUsers">0</div>
-                    <div class="label">Membros</div>
+                    <div>
+                        <div class="number" id="totalUsers">0</div>
+                        <div class="label">Membros</div>
+                    </div>
                 </div>
                 <div class="stat-card" onclick="showTab('oracoes')">
                     <div class="stat-card-icon warning"><i class="fas fa-pray"></i></div>
-                    <div class="number" id="totalPrayers">0</div>
-                    <div class="label">Orações</div>
+                    <div>
+                        <div class="number" id="totalPrayers">0</div>
+                        <div class="label">Orações</div>
+                    </div>
                 </div>
                 <div class="stat-card" onclick="showTab('vendas')">
                     <div class="stat-card-icon success"><i class="fas fa-shopping-cart"></i></div>
-                    <div class="number" id="totalOrders">0</div>
-                    <div class="label">Vendas</div>
+                    <div>
+                        <div class="number" id="totalOrders">0</div>
+                        <div class="label">Vendas</div>
+                    </div>
                 </div>
                 <div class="stat-card" onclick="showTab('doacoes')">
                     <div class="stat-card-icon info"><i class="fas fa-hand-holding-heart"></i></div>
-                    <div class="number" id="totalDonations">R$0</div>
-                    <div class="label">Doações</div>
+                    <div>
+                        <div class="number" id="totalDonations">R$ 0</div>
+                        <div class="label">Doações</div>
+                    </div>
                 </div>
                 <div class="stat-card" onclick="showTab('estudos')">
                     <div class="stat-card-icon"><i class="fas fa-book"></i></div>
-                    <div class="number" id="totalStudies">0</div>
-                    <div class="label">Estudos</div>
+                    <div>
+                        <div class="number" id="totalStudies">0</div>
+                        <div class="label">Estudos</div>
+                    </div>
                 </div>
                 <div class="stat-card" onclick="showTab('celulas')">
                     <div class="stat-card-icon success"><i class="fas fa-home"></i></div>
-                    <div class="number" id="totalCelulas">0</div>
-                    <div class="label">Células</div>
+                    <div>
+                        <div class="number" id="totalCelulas">0</div>
+                        <div class="label">Células</div>
+                    </div>
                 </div>
                 <div class="stat-card" onclick="showTab('live')">
                     <div class="stat-card-icon danger"><i class="fas fa-broadcast-tower"></i></div>
-                    <div class="number" id="totalLives">0</div>
-                    <div class="label">Lives</div>
+                    <div>
+                        <div class="number" id="totalLives">0</div>
+                        <div class="label">Lives</div>
+                    </div>
                 </div>
             </div>
 
@@ -1461,16 +1543,22 @@
                 <div class="section-body">
                     <div class="stats-grid" style="margin-bottom: var(--sp-6);">
                         <div class="stat-card" style="cursor:default;">
-                            <div class="label">Total Vendas</div>
-                            <div class="number" id="totalSalesValue" style="font-size:1.2rem;margin-top:var(--sp-2);">R$ 0</div>
+                            <div>
+                                <div class="label">Total Vendas</div>
+                                <div class="number" id="totalSalesValue" style="font-size:1.3rem;margin-top:var(--sp-2);">R$ 0</div>
+                            </div>
                         </div>
                         <div class="stat-card" style="cursor:default;">
-                            <div class="label">Ticket Médio</div>
-                            <div class="number" id="avgSalesValue" style="font-size:1.2rem;margin-top:var(--sp-2);">R$ 0</div>
+                            <div>
+                                <div class="label">Ticket Médio</div>
+                                <div class="number" id="avgSalesValue" style="font-size:1.3rem;margin-top:var(--sp-2);">R$ 0</div>
+                            </div>
                         </div>
                         <div class="stat-card" style="cursor:default;">
-                            <div class="label">Qtd Vendas</div>
-                            <div class="number" id="totalSalesCount" style="font-size:1.2rem;margin-top:var(--sp-2);">0</div>
+                            <div>
+                                <div class="label">Qtd Vendas</div>
+                                <div class="number" id="totalSalesCount" style="font-size:1.3rem;margin-top:var(--sp-2);">0</div>
+                            </div>
                         </div>
                     </div>
                     <div class="bar-chart" id="barChart"></div>
@@ -1824,7 +1912,7 @@
                         <div class="freq-panel">
                             <div class="freq-panel-title"><i class="fas fa-users"></i> Selecionar Membros</div>
                             <div class="flex-between mb-1" style="gap: var(--sp-2);">
-                                <input type="text" id="memberSearch" placeholder="🔍 Buscar..." style="flex:1; padding:0.6rem 0.7rem; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:16px; min-height:42px;">
+                                <input type="text" id="memberSearch" placeholder="🔍 Buscar..." style="flex:1; padding:0.6rem 0.7rem; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:16px; min-height:42px; min-width:0;">
                                 <button onclick="toggleSelectAll()" class="btn btn-warning btn-sm" title="Todos"><i class="fas fa-check-double"></i></button>
                                 <button onclick="clearSelection()" class="btn btn-secondary btn-sm" title="Limpar"><i class="fas fa-times"></i></button>
                             </div>
@@ -1992,18 +2080,24 @@
             <div class="stats-grid">
                 <div class="stat-card" style="cursor:default;">
                     <div class="stat-card-icon"><i class="fas fa-home"></i></div>
-                    <div class="number" id="totalCelulasStats">0</div>
-                    <div class="label">Células</div>
+                    <div>
+                        <div class="number" id="totalCelulasStats">0</div>
+                        <div class="label">Células</div>
+                    </div>
                 </div>
                 <div class="stat-card" style="cursor:default;">
                     <div class="stat-card-icon success"><i class="fas fa-users"></i></div>
-                    <div class="number" id="totalMembrosCelulaStats">0</div>
-                    <div class="label">Membros</div>
+                    <div>
+                        <div class="number" id="totalMembrosCelulaStats">0</div>
+                        <div class="label">Membros</div>
+                    </div>
                 </div>
                 <div class="stat-card" style="cursor:default;">
                     <div class="stat-card-icon info"><i class="fas fa-water"></i></div>
-                    <div class="number" id="totalBatizadosCelulaStats">0</div>
-                    <div class="label">Batizados</div>
+                    <div>
+                        <div class="number" id="totalBatizadosCelulaStats">0</div>
+                        <div class="label">Batizados</div>
+                    </div>
                 </div>
             </div>
 
@@ -2834,7 +2928,7 @@
             document.getElementById('totalUsers').textContent = users.length;
             document.getElementById('totalPrayers').textContent = unreadPrayers;
             document.getElementById('totalOrders').textContent = orders.length;
-            document.getElementById('totalDonations').textContent = 'R$' + totalDonations.toFixed(0);
+            document.getElementById('totalDonations').textContent = 'R$ ' + totalDonations.toFixed(0);
             document.getElementById('totalStudies').textContent = studies.length;
             document.getElementById('totalCelulas').textContent = celulas.length;
             document.getElementById('totalLives').textContent = lives.length;

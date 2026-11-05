@@ -60,10 +60,12 @@
             --safe-bottom: env(safe-area-inset-bottom, 0px);
             --safe-top: env(safe-area-inset-top, 0px);
         }
+
         html, body {
-            overflow-x: hidden;
+            overflow-x: hidden !important;
             width: 100%;
             max-width: 100vw;
+            position: relative;
         }
         body {
             font-family: var(--font);
@@ -74,6 +76,7 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             overscroll-behavior-y: contain;
+            overscroll-behavior-x: none;
         }
 
         .loading-overlay {
@@ -100,6 +103,7 @@
             position: fixed;
             top: 0; left: 0; bottom: 0;
             width: var(--sidebar-w);
+            max-width: 85vw;
             background: var(--surface);
             border-right: 1px solid var(--border);
             display: flex; flex-direction: column;
@@ -141,6 +145,7 @@
             scrollbar-width: thin;
             scrollbar-color: var(--border) transparent;
             -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
         }
         .sidebar-nav::-webkit-scrollbar { width: 6px; }
         .sidebar-nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
@@ -197,6 +202,7 @@
             padding: var(--sp-2);
             border-radius: var(--radius-sm);
             background: var(--surface-2);
+            min-width: 0;
         }
         .user-avatar {
             width: 32px; height: 32px;
@@ -230,7 +236,7 @@
             margin-left: var(--sidebar-w);
             min-height: 100vh;
             display: flex; flex-direction: column;
-            max-width: 100vw;
+            max-width: 100%;
             overflow-x: hidden;
         }
 
@@ -244,6 +250,8 @@
             position: sticky; top: 0;
             z-index: 100;
             flex-shrink: 0;
+            width: 100%;
+            overflow: hidden;
         }
         .topbar-menu {
             display: none;
@@ -253,11 +261,13 @@
             border-radius: var(--radius-sm);
             width: 40px; height: 40px;
             align-items: center; justify-content: center;
+            flex-shrink: 0;
         }
         .topbar-menu:active { background: var(--surface-2); }
         .topbar-breadcrumb {
             flex: 1; min-width: 0;
             display: flex; align-items: center; gap: var(--sp-2);
+            overflow: hidden;
         }
         .topbar-breadcrumb .page-title {
             font-weight: 600; color: var(--text);
@@ -266,6 +276,7 @@
         }
         .topbar-actions {
             display: flex; align-items: center; gap: var(--sp-2);
+            flex-shrink: 0;
         }
 
         .content {
@@ -285,16 +296,19 @@
             margin-bottom: var(--sp-6);
             flex-wrap: wrap;
         }
+        .page-header-left { min-width: 0; flex: 1; }
         .page-header-left h1 {
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--text);
             letter-spacing: -0.02em;
             margin-bottom: var(--sp-1);
+            word-wrap: break-word;
         }
         .page-header-left p {
             font-size: 0.85rem;
             color: var(--text-muted);
+            word-wrap: break-word;
         }
         .page-header-actions {
             display: flex; gap: var(--sp-2); flex-wrap: wrap;
@@ -302,7 +316,7 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
             gap: var(--sp-4);
             margin-bottom: var(--sp-6);
         }
@@ -317,6 +331,7 @@
             position: relative;
             overflow: hidden;
             min-height: 110px;
+            min-width: 0;
         }
         .stat-card:active { transform: scale(0.98); }
         @media (hover: hover) {
@@ -346,6 +361,7 @@
             line-height: 1.1;
             letter-spacing: -0.02em;
             margin-bottom: var(--sp-1);
+            word-wrap: break-word;
         }
         .stat-card .label {
             font-size: 0.75rem;
@@ -360,6 +376,7 @@
             margin-bottom: var(--sp-5);
             overflow: hidden;
             box-shadow: var(--shadow-xs);
+            width: 100%;
         }
         .section-header {
             padding: var(--sp-5) var(--sp-6);
@@ -388,11 +405,13 @@
             font-weight: 600;
             color: var(--text);
             letter-spacing: -0.01em;
+            word-wrap: break-word;
         }
         .section-subtitle {
             font-size: 0.75rem;
             color: var(--text-muted);
             margin-top: 2px;
+            word-wrap: break-word;
         }
         .section-body { padding: var(--sp-6); }
         .section-body.tight { padding: var(--sp-4); }
@@ -413,6 +432,7 @@
             text-decoration: none;
             min-height: 38px;
             user-select: none;
+            max-width: 100%;
         }
         .btn:active { transform: scale(0.97); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
@@ -436,14 +456,17 @@
         .btn-block { width: 100%; }
 
         .table-wrapper {
-            width: 100%; overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            position: relative;
+            width: 100%;
             max-width: 100%;
+            overflow-x: hidden;
+            position: relative;
         }
-        .table-wrapper::-webkit-scrollbar { height: 6px; }
-        .table-wrapper::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 10px; }
-        .table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 600px; }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            table-layout: fixed;
+        }
         .table th {
             text-align: left;
             padding: var(--sp-3) var(--sp-5);
@@ -454,12 +477,13 @@
             text-transform: uppercase;
             letter-spacing: 0.4px;
             background: var(--surface-2);
-            white-space: nowrap;
+            word-wrap: break-word;
         }
         .table td {
             padding: var(--sp-4) var(--sp-5);
             border-bottom: 1px solid var(--border);
             word-break: break-word;
+            overflow-wrap: anywhere;
             vertical-align: middle;
             color: var(--text-2);
         }
@@ -478,6 +502,7 @@
             letter-spacing: 0.1px;
             border: 1px solid;
             white-space: nowrap;
+            max-width: 100%;
         }
         .status-pending  { background: var(--warning-soft); color: var(--warning); border-color: var(--warning-border); }
         .status-approved { background: var(--success-soft); color: var(--success); border-color: var(--success-border); }
@@ -492,6 +517,7 @@
             text-transform: capitalize;
             border: 1px solid;
             white-space: nowrap;
+            max-width: 100%;
         }
         .badge-pastor     { background: var(--primary-soft); color: var(--primary); border-color: var(--primary-border); }
         .badge-lider      { background: var(--success-soft); color: var(--success); border-color: var(--success-border); }
@@ -500,10 +526,10 @@
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
             gap: var(--sp-4);
         }
-        .form-group { margin-bottom: var(--sp-4); }
+        .form-group { margin-bottom: var(--sp-4); min-width: 0; }
         .form-group:last-child { margin-bottom: 0; }
         .form-group label {
             display: block;
@@ -517,6 +543,7 @@
         .form-group textarea,
         .form-group select {
             width: 100%;
+            max-width: 100%;
             padding: 0.65rem 0.8rem;
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
@@ -527,7 +554,7 @@
             transition: border-color 0.15s, box-shadow 0.15s;
             min-height: 42px;
         }
-        .form-group textarea { min-height: 80px; padding-top: 0.6rem; }
+        .form-group textarea { min-height: 80px; padding-top: 0.6rem; resize: vertical; }
         .form-group input:hover,
         .form-group textarea:hover,
         .form-group select:hover { border-color: var(--border-2); }
@@ -543,7 +570,12 @@
             color: var(--text-muted);
             margin-top: var(--sp-1);
         }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--sp-3);
+        }
+        .form-row > * { min-width: 0; }
 
         .modal {
             display: none; position: fixed; inset: 0;
@@ -553,6 +585,7 @@
             z-index: 9999;
             align-items: center; justify-content: center;
             padding: var(--sp-4);
+            overflow-x: hidden;
         }
         .modal.open { display: flex; animation: fadeIn 0.2s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -561,6 +594,7 @@
             border-radius: var(--radius-lg);
             max-width: 540px; width: 100%;
             max-height: 90vh; overflow-y: auto;
+            overflow-x: hidden;
             box-shadow: var(--shadow-lg);
             animation: modalIn 0.22s cubic-bezier(0.4, 0, 0.2, 1);
             -webkit-overflow-scrolling: touch;
@@ -583,8 +617,10 @@
             font-weight: 600;
             color: var(--text);
             display: flex; align-items: center; gap: var(--sp-2);
+            min-width: 0;
+            word-wrap: break-word;
         }
-        .modal-header h3 i { color: var(--primary); font-size: 0.95rem; }
+        .modal-header h3 i { color: var(--primary); font-size: 0.95rem; flex-shrink: 0; }
         .modal-close {
             background: none; border: none;
             font-size: 1.3rem; color: var(--text-muted);
@@ -603,6 +639,7 @@
             display: flex; justify-content: flex-end; gap: var(--sp-2);
             background: var(--surface-2);
             position: sticky; bottom: 0;
+            flex-wrap: wrap;
         }
 
         .notification {
@@ -613,12 +650,14 @@
             border-radius: var(--radius);
             font-weight: 500;
             z-index: 99999;
-            max-width: 440px; width: calc(100% - 2rem);
+            max-width: calc(100vw - 2rem);
+            width: auto;
             box-shadow: var(--shadow-md);
             animation: slideDown 0.3s ease;
             font-size: 0.85rem;
             border: 1px solid;
             display: flex; align-items: center; gap: var(--sp-2);
+            word-wrap: break-word;
         }
         @keyframes slideDown {
             from { opacity: 0; transform: translateX(-50%) translateY(-15px); }
@@ -654,6 +693,7 @@
             font-family: var(--font);
             display: flex; align-items: center; gap: var(--sp-2);
             min-height: 36px;
+            flex-shrink: 0;
         }
         .tab-inline:active { background: var(--border); }
         .tab-inline.active {
@@ -665,7 +705,7 @@
 
         .hidden { display: none !important; }
         .flex-between { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
-        .flex-center { display: flex; align-items: center; gap: var(--sp-2); }
+        .flex-center { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
         .text-center { text-align: center; }
         .text-muted { color: var(--text-muted); }
         .mt-1 { margin-top: var(--sp-2); }
@@ -684,11 +724,11 @@
             margin-bottom: var(--sp-3);
             display: block;
         }
-        .empty-state p { font-size: 0.85rem; }
+        .empty-state p { font-size: 0.85rem; word-wrap: break-word; }
 
         .carousel-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr));
             gap: var(--sp-4);
         }
         .carousel-item {
@@ -697,6 +737,7 @@
             overflow: hidden;
             background: var(--surface);
             transition: all 0.15s;
+            min-width: 0;
         }
         .carousel-item:hover { border-color: var(--border-2); box-shadow: var(--shadow-sm); }
         .carousel-item img { width: 100%; height: 100px; object-fit: cover; display: block; }
@@ -725,16 +766,19 @@
             color: var(--text);
             margin-bottom: var(--sp-3);
             display: flex; align-items: center; gap: var(--sp-2);
+            flex-wrap: wrap;
         }
         .members-scroll {
             max-height: 320px;
             overflow-y: auto;
+            overflow-x: hidden;
             padding: var(--sp-2);
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
             -webkit-overflow-scrolling: touch;
             max-width: 100%;
+            overscroll-behavior: contain;
         }
         .member-row {
             display: flex; align-items: center;
@@ -744,6 +788,7 @@
             cursor: pointer;
             transition: background 0.1s;
             min-height: 44px;
+            min-width: 0;
         }
         .member-row:hover { background: var(--surface-2); }
         .member-row.selected { background: var(--primary-soft); }
@@ -754,19 +799,19 @@
             flex-shrink: 0;
         }
         .member-row-info { flex: 1; min-width: 0; }
-        .member-row-name { font-size: 0.8rem; font-weight: 500; color: var(--text); }
-        .member-row-dept { font-size: 0.7rem; color: var(--text-muted); }
-        .member-row-phone { font-size: 0.7rem; color: var(--text-muted); }
+        .member-row-name { font-size: 0.8rem; font-weight: 500; color: var(--text); word-wrap: break-word; }
+        .member-row-dept { font-size: 0.7rem; color: var(--text-muted); word-wrap: break-word; }
+        .member-row-phone { font-size: 0.7rem; color: var(--text-muted); flex-shrink: 0; }
 
         .about-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
             gap: var(--sp-4);
         }
 
         .export-filters {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
             gap: var(--sp-3);
             margin-bottom: var(--sp-4);
         }
@@ -778,6 +823,8 @@
             font-family: var(--font);
             background: var(--surface);
             min-height: 42px;
+            width: 100%;
+            max-width: 100%;
         }
 
         .logo-preview {
@@ -817,6 +864,7 @@
             font-weight: 500;
             display: block;
             margin-top: var(--sp-1);
+            word-wrap: break-word;
         }
 
         .bar-chart {
@@ -872,6 +920,7 @@
             min-height: 220px;
             display: flex; align-items: center; justify-content: center;
             flex-direction: column; gap: var(--sp-3);
+            overflow: hidden;
         }
         #captureArea video {
             width: 100%; max-height: 400px;
@@ -893,10 +942,10 @@
         .birthday-today { background: var(--danger-soft) !important; }
         .birthday-today td:first-child { color: var(--danger) !important; }
 
-        /* ===== LISTA DE USUÁRIOS COM SCROLL ===== */
         #tab-usuarios .section-body.flush {
             max-height: 65vh;
             overflow-y: auto;
+            overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior: contain;
             border-radius: 0 0 var(--radius) var(--radius);
@@ -906,10 +955,6 @@
             top: 0;
             z-index: 2;
             background: var(--surface-2);
-        }
-        #tab-usuarios .table-wrapper {
-            overflow-x: auto;
-            overflow-y: visible;
         }
         .user-self td:first-child { background: var(--primary-soft); }
 
@@ -923,6 +968,8 @@
             padding-bottom: var(--safe-bottom);
             z-index: 250;
             box-shadow: 0 -4px 12px rgba(15,23,42,0.06);
+            width: 100%;
+            max-width: 100vw;
         }
         .bottom-nav-items {
             display: flex;
@@ -943,6 +990,7 @@
             padding: var(--sp-1);
             min-height: 44px;
             position: relative;
+            min-width: 0;
         }
         .bottom-nav-item i {
             font-size: 1.15rem;
@@ -960,6 +1008,12 @@
             height: 3px;
             background: var(--primary);
             border-radius: 0 0 3px 3px;
+        }
+        .bottom-nav-item span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
         }
 
         @media (max-width: 1023px) {
@@ -1044,16 +1098,68 @@
                 padding: 0.65rem 1rem;
                 font-size: 0.85rem;
                 min-height: 44px;
+                white-space: normal;
             }
             .btn-sm { padding: 0.5rem 0.8rem; font-size: 0.78rem; min-height: 40px; }
             .btn-xs { padding: 0.4rem 0.65rem; font-size: 0.72rem; min-height: 36px; }
             .btn-icon { width: 40px; height: 40px; }
 
-            .table { font-size: 0.78rem; min-width: 500px; }
-            .table th, .table td { padding: var(--sp-2) var(--sp-3); }
-            .table th { font-size: 0.65rem; }
-            .table td:last-child { white-space: nowrap; }
-            .table td .btn + .btn { margin-left: 4px; }
+            /* ===== TABELAS EM CARDS NO MOBILE ===== */
+            .table-wrapper { overflow-x: hidden; }
+            .table {
+                min-width: 0;
+                width: 100%;
+                font-size: 0.78rem;
+                table-layout: fixed;
+            }
+            .table thead { display: none; }
+            .table tbody tr {
+                display: block;
+                padding: var(--sp-3) var(--sp-4);
+                border-bottom: 1px solid var(--border);
+                position: relative;
+            }
+            .table tbody tr:last-child { border-bottom: none; }
+            .table tbody tr:hover { background: transparent; }
+            .table td {
+                display: flex;
+                align-items: center;
+                padding: var(--sp-1) 0;
+                border: none;
+                font-size: 0.78rem;
+                min-height: 28px;
+                word-break: break-word;
+                overflow-wrap: anywhere;
+                gap: var(--sp-2);
+            }
+            .table td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                font-size: 0.65rem;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                color: var(--text-muted);
+                min-width: 80px;
+                flex-shrink: 0;
+            }
+            .table td:first-child {
+                font-weight: 600;
+                font-size: 0.85rem;
+                color: var(--text);
+                padding-bottom: var(--sp-2);
+                border-bottom: 1px dashed var(--border);
+                margin-bottom: var(--sp-1);
+            }
+            .table td:first-child::before { display: none; }
+            .table td:last-child {
+                padding-top: var(--sp-2);
+                flex-wrap: wrap;
+                justify-content: flex-start;
+            }
+            .table td:last-child::before { display: none; }
+            .table td .btn { margin: 2px 2px 2px 0; }
+
+            #tab-usuarios .section-body.flush { max-height: 60vh; }
 
             .modal {
                 padding: 0;
@@ -1087,7 +1193,7 @@
             .members-scroll { max-height: 260px; }
 
             .carousel-grid {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 1fr));
                 gap: var(--sp-3);
             }
 
@@ -1101,6 +1207,7 @@
                 top: calc(var(--header-h) + 8px);
                 font-size: 0.8rem;
                 padding: 0.75rem 1rem;
+                max-width: calc(100vw - 1rem);
             }
 
             #captureArea { min-height: 180px; padding: var(--sp-3); }
@@ -1108,7 +1215,7 @@
             #captureArea .placeholder i { font-size: 2rem; }
 
             .export-filters { grid-template-columns: 1fr 1fr; gap: var(--sp-2); }
-            .export-filters select { font-size: 0.85rem; padding: 0.55rem 0.7rem; }
+            .export-filters select { font-size: 16px; padding: 0.55rem 0.7rem; }
 
             .logo-preview { width: 72px; height: 72px; font-size: 1.3rem; }
 
@@ -1124,7 +1231,14 @@
                 -webkit-mask-image: linear-gradient(to right, black 90%, transparent 100%);
             }
 
-            #tab-usuarios .section-body.flush { max-height: 60vh; }
+            .flex-between { align-items: flex-start; }
+            .flex-between > * { min-width: 0; }
+            .member-row-phone { display: none; }
+            .stat-card .number {
+                font-size: 1.1rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1137,12 +1251,15 @@
             .form-row { gap: var(--sp-2); }
             .form-grid { grid-template-columns: 1fr; }
             .carousel-grid { grid-template-columns: repeat(2, 1fr); }
+            .notification { font-size: 0.78rem; padding: 0.7rem 0.9rem; }
         }
 
         @media (max-width: 380px) {
             .stats-grid { grid-template-columns: 1fr; }
-            .page-header-left h1 { font-size: 1.2rem; }
-            .stat-card .number { font-size: 1.2rem; }
+            .page-header-left h1 { font-size: 1.1rem; }
+            .stat-card .number { font-size: 1.1rem; }
+            .btn { font-size: 0.8rem; padding: 0.6rem 0.8rem; }
+            .table td::before { min-width: 70px; font-size: 0.6rem; }
         }
 
         @media (max-height: 500px) and (orientation: landscape) {
@@ -2112,6 +2229,7 @@
     <i class="fas fa-sync"></i> Atualizando...
 </div>
 
+<!-- ===== MODAIS ===== -->
 <div class="modal" id="userModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -2690,7 +2808,6 @@
         };
 
         if (handlers[tab]) handlers[tab]();
-
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -2864,7 +2981,7 @@
     });
 
     // ============================================
-    // LISTAS
+    // LISTAS (com data-label para cards mobile)
     // ============================================
     function loadUsers(users) {
         const tbody = document.getElementById('usersList');
@@ -2883,12 +3000,12 @@
                 : `<button onclick="deleteUser(${u.id})" class="btn btn-danger btn-sm" title="Remover"><i class="fas fa-trash"></i></button>`;
             return `
                 <tr class="${isMe ? 'user-self' : ''}">
-                    <td>
+                    <td data-label="Nome">
                         ${u.name}
                         ${isMe ? '<span class="badge badge-pastor" style="margin-left:6px;font-size:0.6rem;">você</span>' : ''}
                     </td>
-                    <td><span class="badge ${badgeMap[u.role]||'badge-fiel'}">${roleMap[u.role]||u.role}</span></td>
-                    <td style="white-space:nowrap;">
+                    <td data-label="Cargo"><span class="badge ${badgeMap[u.role]||'badge-fiel'}">${roleMap[u.role]||u.role}</span></td>
+                    <td data-label="Ações" style="white-space:nowrap;">
                         <button onclick="resetPassword('${u.email}')" class="btn btn-secondary btn-sm" title="Resetar senha"><i class="fas fa-key"></i></button>
                         ${deleteBtn}
                     </td>
@@ -2902,10 +3019,10 @@
         if (!prayers?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted" style="padding:2rem;">Nenhuma oração</td></tr>'; return; }
         tbody.innerHTML = prayers.slice(0, 30).map(p => `
             <tr>
-                <td>${p.name||'Anônimo'}</td>
-                <td>${p.request.substring(0, 50)}${p.request.length>50?'...':''}</td>
-                <td><span class="status ${p.is_read ? 'status-approved' : 'status-pending'}">${p.is_read ? 'Lida' : 'Nova'}</span></td>
-                <td>${!p.is_read ? `<button onclick="markPrayerRead(${p.id})" class="btn btn-success btn-sm"><i class="fas fa-check"></i></button>` : '—'}</td>
+                <td data-label="Nome">${p.name||'Anônimo'}</td>
+                <td data-label="Pedido">${p.request.substring(0, 50)}${p.request.length>50?'...':''}</td>
+                <td data-label="Status"><span class="status ${p.is_read ? 'status-approved' : 'status-pending'}">${p.is_read ? 'Lida' : 'Nova'}</span></td>
+                <td data-label="Ações">${!p.is_read ? `<button onclick="markPrayerRead(${p.id})" class="btn btn-success btn-sm"><i class="fas fa-check"></i></button>` : '—'}</td>
             </tr>
         `).join('');
     }
@@ -2918,11 +3035,11 @@
             try { items = JSON.parse(o.items || '[]'); } catch {}
             const pn = items.length ? items.map(i => i.name).join(', ') : '-';
             return `<tr>
-                <td>${o.user_name||'Anônimo'}</td>
-                <td>${pn}</td>
-                <td>R$ ${parseFloat(o.total||0).toFixed(2)}</td>
-                <td><span class="status status-${o.status||'pending'}">${o.status||'Pendente'}</span></td>
-                <td>${new Date(o.created_at).toLocaleDateString('pt-BR')}</td>
+                <td data-label="Cliente">${o.user_name||'Anônimo'}</td>
+                <td data-label="Produto">${pn}</td>
+                <td data-label="Valor">R$ ${parseFloat(o.total||0).toFixed(2)}</td>
+                <td data-label="Status"><span class="status status-${o.status||'pending'}">${o.status||'Pendente'}</span></td>
+                <td data-label="Data">${new Date(o.created_at).toLocaleDateString('pt-BR')}</td>
             </tr>`;
         }).join('');
     }
@@ -2932,10 +3049,10 @@
         if (!donations?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted" style="padding:2rem;">Nenhuma doação</td></tr>'; return; }
         tbody.innerHTML = donations.slice(0, 30).map(d => `
             <tr>
-                <td>${d.user_name||'Anônimo'}</td>
-                <td>${d.type||'-'}</td>
-                <td>R$ ${parseFloat(d.amount||0).toFixed(2)}</td>
-                <td>${new Date(d.created_at).toLocaleDateString('pt-BR')}</td>
+                <td data-label="Doador">${d.user_name||'Anônimo'}</td>
+                <td data-label="Tipo">${d.type||'-'}</td>
+                <td data-label="Valor">R$ ${parseFloat(d.amount||0).toFixed(2)}</td>
+                <td data-label="Data">${new Date(d.created_at).toLocaleDateString('pt-BR')}</td>
             </tr>
         `).join('');
     }
@@ -2945,10 +3062,10 @@
         if (!studies?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted" style="padding:2rem;">Nenhum estudo</td></tr>'; return; }
         tbody.innerHTML = studies.map(s => `
             <tr>
-                <td>${s.title}</td>
-                <td>${s.image_base64 ? '✅' : '—'}</td>
-                <td>${s.file_url || s.file_base64 ? '✅' : '—'}</td>
-                <td>
+                <td data-label="Título">${s.title}</td>
+                <td data-label="Imagem">${s.image_base64 ? '✅' : '—'}</td>
+                <td data-label="PDF">${s.file_url || s.file_base64 ? '✅' : '—'}</td>
+                <td data-label="Ações">
                     ${s.file_url ? `<a href="${s.file_url}" target="_blank" class="btn btn-secondary btn-sm"><i class="fas fa-download"></i></a>` : ''}
                     <button onclick="deleteStudy(${s.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
                 </td>
@@ -2961,10 +3078,10 @@
         if (!events?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted" style="padding:2rem;">Nenhum evento</td></tr>'; return; }
         tbody.innerHTML = events.map(e => `
             <tr>
-                <td>${e.title}</td>
-                <td>${new Date(e.date).toLocaleDateString('pt-BR')}</td>
-                <td>${parseFloat(e.price||0)>0 ? 'R$ '+parseFloat(e.price).toFixed(2) : 'Grátis'}</td>
-                <td><button onclick="deleteEvent(${e.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td>
+                <td data-label="Título">${e.title}</td>
+                <td data-label="Data">${new Date(e.date).toLocaleDateString('pt-BR')}</td>
+                <td data-label="Valor">${parseFloat(e.price||0)>0 ? 'R$ '+parseFloat(e.price).toFixed(2) : 'Grátis'}</td>
+                <td data-label="Ações"><button onclick="deleteEvent(${e.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td>
             </tr>
         `).join('');
     }
@@ -3100,9 +3217,9 @@
             if (!products?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted" style="padding:2rem;">Nenhum produto</td></tr>'; return; }
             tbody.innerHTML = products.map(p => `
                 <tr>
-                    <td>${p.name}</td>
-                    <td>R$ ${parseFloat(p.price).toFixed(2)}</td>
-                    <td><button onclick="deleteProduct(${p.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td>
+                    <td data-label="Nome">${p.name}</td>
+                    <td data-label="Preço">R$ ${parseFloat(p.price).toFixed(2)}</td>
+                    <td data-label="Ações"><button onclick="deleteProduct(${p.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td>
                 </tr>
             `).join('');
         } catch (e) { console.error('Erro:', e); }
@@ -3154,12 +3271,12 @@
             const typeMap = { baptism: 'Batismo', volunteer: 'Voluntário', event: 'Evento', department: 'Depto' };
             tbody.innerHTML = data.slice(0, 30).map(r => `
                 <tr data-type="${r.type}">
-                    <td>${r.name}</td>
-                    <td>${typeMap[r.type]||r.type}</td>
-                    <td>${r.department_name||r.event_name||'—'}</td>
-                    <td><span class="status status-${r.status||'pending'}">${r.status||'Pendente'}</span></td>
-                    <td>${new Date(r.created_at).toLocaleDateString('pt-BR')}</td>
-                    <td>
+                    <td data-label="Nome">${r.name}</td>
+                    <td data-label="Tipo">${typeMap[r.type]||r.type}</td>
+                    <td data-label="Evento/Depto">${r.department_name||r.event_name||'—'}</td>
+                    <td data-label="Status"><span class="status status-${r.status||'pending'}">${r.status||'Pendente'}</span></td>
+                    <td data-label="Data">${new Date(r.created_at).toLocaleDateString('pt-BR')}</td>
+                    <td data-label="Ações">
                         ${r.status !== 'approved' ? `<button onclick="approveRegistration(${r.id})" class="btn btn-success btn-sm"><i class="fas fa-check"></i></button>` : '<span class="status status-approved">OK</span>'}
                         <button onclick="deleteRegistration(${r.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
                     </td>
@@ -3245,9 +3362,9 @@
             if (!data?.length) { tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted" style="padding:2rem;">Nenhum departamento</td></tr>'; return; }
             tbody.innerHTML = data.map(d => `
                 <tr>
-                    <td>${d.name}</td>
-                    <td>${d.leader_name||'Sem líder'}</td>
-                    <td><button onclick="deleteDepartment(${d.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td>
+                    <td data-label="Nome">${d.name}</td>
+                    <td data-label="Líder">${d.leader_name||'Sem líder'}</td>
+                    <td data-label="Ações"><button onclick="deleteDepartment(${d.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td>
                 </tr>
             `).join('');
         } catch (e) { console.error('Erro:', e); }
@@ -3291,10 +3408,10 @@
             if (!data?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted" style="padding:2rem;">Nenhum membro</td></tr>'; return; }
             tbody.innerHTML = data.map(m => `
                 <tr>
-                    <td>${m.name}</td>
-                    <td>${m.phone||'—'}</td>
-                    <td>${m.department_name||'—'}</td>
-                    <td>
+                    <td data-label="Nome">${m.name}</td>
+                    <td data-label="Telefone">${m.phone||'—'}</td>
+                    <td data-label="Depto">${m.department_name||'—'}</td>
+                    <td data-label="Ações">
                         <button onclick="viewMember(${m.id})" class="btn btn-secondary btn-sm"><i class="fas fa-eye"></i></button>
                         <button onclick="deleteMember(${m.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
                     </td>
@@ -3390,12 +3507,12 @@
 
             tbody.innerHTML = data.map(c => `
                 <tr>
-                    <td><strong>${c.nome}</strong></td>
-                    <td>${c.lider_nome || 'Sem líder'}</td>
-                    <td>${c.membros_ativos || 0}</td>
-                    <td>${c.batizados || 0}</td>
-                    <td>${c.decisoes || 0}</td>
-                    <td>
+                    <td data-label="Nome"><strong>${c.nome}</strong></td>
+                    <td data-label="Líder">${c.lider_nome || 'Sem líder'}</td>
+                    <td data-label="Membros">${c.membros_ativos || 0}</td>
+                    <td data-label="Batismos">${c.batizados || 0}</td>
+                    <td data-label="Decisões">${c.decisoes || 0}</td>
+                    <td data-label="Ações">
                         <button onclick="verCelula(${c.id})" class="btn btn-secondary btn-sm"><i class="fas fa-eye"></i></button>
                         <button onclick="openAddMembroCelula(${c.id})" class="btn btn-success btn-sm"><i class="fas fa-user-plus"></i></button>
                         <button onclick="openDecisaoCelula(${c.id})" class="btn btn-warning btn-sm"><i class="fas fa-cross"></i></button>
@@ -3668,9 +3785,9 @@
             records.slice(0, 15).forEach(r => {
                 const m = allMembers.find(x => x.id === r.member_id);
                 const name = m ? m.name : '#' + r.member_id;
-                html += `<div style="display:flex;justify-content:space-between;padding:var(--sp-2) var(--sp-3);border-bottom:1px solid var(--border);font-size:0.8rem;">
-                    <span>${name}</span>
-                    <span class="status ${r.present ? 'status-approved' : 'status-pending'}">${r.present ? 'Presente' : 'Ausente'}</span>
+                html += `<div style="display:flex;justify-content:space-between;padding:var(--sp-2) var(--sp-3);border-bottom:1px solid var(--border);font-size:0.8rem;gap:var(--sp-2);">
+                    <span style="min-width:0;overflow-wrap:anywhere;">${name}</span>
+                    <span class="status ${r.present ? 'status-approved' : 'status-pending'}" style="flex-shrink:0;">${r.present ? 'Presente' : 'Ausente'}</span>
                 </div>`;
             });
             container.innerHTML = html;
@@ -3764,11 +3881,11 @@
             if (!data?.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted" style="padding:2rem;">Nenhum registro</td></tr>'; return; }
             tbody.innerHTML = data.slice(0, 30).map(t => `
                 <tr>
-                    <td>${t.member_name || 'Visitante'}</td>
-                    <td>${t.type}</td>
-                    <td>R$ ${parseFloat(t.amount).toFixed(2)}</td>
-                    <td>${t.payment_method || '—'}</td>
-                    <td>${new Date(t.payment_date).toLocaleDateString('pt-BR')}</td>
+                    <td data-label="Membro">${t.member_name || 'Visitante'}</td>
+                    <td data-label="Tipo">${t.type}</td>
+                    <td data-label="Valor">R$ ${parseFloat(t.amount).toFixed(2)}</td>
+                    <td data-label="Método">${t.payment_method || '—'}</td>
+                    <td data-label="Data">${new Date(t.payment_date).toLocaleDateString('pt-BR')}</td>
                 </tr>
             `).join('');
             populateExportYears();
@@ -3899,10 +4016,10 @@
             if (!data?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted" style="padding:2rem;">Nenhuma conta</td></tr>'; return; }
             tbody.innerHTML = data.map(b => `
                 <tr>
-                    <td>${b.description}</td>
-                    <td>R$ ${parseFloat(b.amount).toFixed(2)}</td>
-                    <td><span class="status ${b.paid ? 'status-approved' : 'status-pending'}">${b.paid ? 'Paga' : 'Pendente'}</span></td>
-                    <td>
+                    <td data-label="Descrição">${b.description}</td>
+                    <td data-label="Valor">R$ ${parseFloat(b.amount).toFixed(2)}</td>
+                    <td data-label="Status"><span class="status ${b.paid ? 'status-approved' : 'status-pending'}">${b.paid ? 'Paga' : 'Pendente'}</span></td>
+                    <td data-label="Ações">
                         ${!b.paid ? `<button onclick="payBill(${b.id})" class="btn btn-success btn-sm"><i class="fas fa-check"></i></button>` : ''}
                         <button onclick="deleteBill(${b.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
                     </td>
@@ -3958,9 +4075,9 @@
                 if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) idade--;
                 const isToday = birth.getMonth() === today.getMonth() && birth.getDate() === today.getDate();
                 return `<tr class="${isToday ? 'birthday-today' : ''}">
-                    <td>${b.name} ${isToday ? '🎉' : ''}</td>
-                    <td>${birth.toLocaleDateString('pt-BR')}</td>
-                    <td>${idade} anos</td>
+                    <td data-label="Nome">${b.name} ${isToday ? '🎉' : ''}</td>
+                    <td data-label="Data">${birth.toLocaleDateString('pt-BR')}</td>
+                    <td data-label="Idade">${idade} anos</td>
                 </tr>`;
             }).join('');
         } catch (e) { console.error('Erro:', e); }
@@ -3980,10 +4097,10 @@
             }
             tbody.innerHTML = data.map(r => `
                 <tr>
-                    <td>${r.title}</td>
-                    <td>${r.description || '—'}</td>
-                    <td><a href="${r.link}" target="_blank" style="color:var(--primary);font-size:0.8rem;">YouTube</a></td>
-                    <td><button onclick="deleteReflection(${r.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td>
+                    <td data-label="Título">${r.title}</td>
+                    <td data-label="Descrição">${r.description || '—'}</td>
+                    <td data-label="Link"><a href="${r.link}" target="_blank" style="color:var(--primary);font-size:0.8rem;">YouTube</a></td>
+                    <td data-label="Ações"><button onclick="deleteReflection(${r.id})" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button></td>
                 </tr>
             `).join('');
         } catch (e) { console.error('Erro:', e); }
@@ -4036,7 +4153,6 @@
         } catch (e) { showNotification('❌ ' + e.message, 'error'); }
     }
 
-    // 🔧 CORREÇÃO: deleteUser com proteção e recarregamento
     async function deleteUser(id) {
         const me = JSON.parse(localStorage.getItem('user') || '{}');
         if (Number(id) === Number(me.id)) {
@@ -4393,11 +4509,11 @@
             tbody.innerHTML = data.slice(0, 20).map(l => {
                 const duracao = l.started_at && l.ended_at ? Math.floor((new Date(l.ended_at) - new Date(l.started_at)) / 60000) + 'min' : l.status === 'live' ? 'Ao vivo' : '—';
                 return `<tr>
-                    <td>${l.titulo || 'Live'}</td>
-                    <td>${l.iniciada_por_nome || 'Pastor'}</td>
-                    <td>${l.started_at ? new Date(l.started_at).toLocaleDateString('pt-BR') : '—'}</td>
-                    <td>${duracao}</td>
-                    <td>${l.viewers || 0}</td>
+                    <td data-label="Título">${l.titulo || 'Live'}</td>
+                    <td data-label="Iniciada por">${l.iniciada_por_nome || 'Pastor'}</td>
+                    <td data-label="Data">${l.started_at ? new Date(l.started_at).toLocaleDateString('pt-BR') : '—'}</td>
+                    <td data-label="Duração">${duracao}</td>
+                    <td data-label="Views">${l.viewers || 0}</td>
                 </tr>`;
             }).join('');
         } catch (e) { console.error('Erro:', e); }

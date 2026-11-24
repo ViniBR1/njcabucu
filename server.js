@@ -2220,34 +2220,62 @@ app.delete('/api/settings/logo', auth, pastorOnly, async (req, res) => {
 });
 
 // ============================================
-// ===== BÍBLIA (PROXY) =====
+// ===== BÍBLIA (PROXY - Free Use Bible API / AO Lab) =====
 // ============================================
+// Usa a tradução "por_bsl" (Bíblia Portuguesa Mundial) - domínio público, 66 livros.
+// API: https://bible.helloao.org/api/por_bsl/<BOOK>/<CHAPTER>.json
+// Resposta mantém o formato esperado pelo frontend (verses[] com {verse, text}, e reference).
 app.get('/api/bible', async (req, res) => {
     try {
         const { book, chapter, verse } = req.query;
         if (!book || !chapter) return res.status(400).json({ error: 'Livro e capítulo obrigatórios' });
 
+        // Mapeia códigos curtos do frontend → IDs da AO Lab API
         const bookMap = {
-            'gn':'genesis','ex':'exodus','lv':'leviticus','nm':'numbers','dt':'deuteronomy',
-            'js':'joshua','jz':'judges','rt':'ruth','1sm':'1samuel','2sm':'2samuel',
-            '1rs':'1kings','2rs':'2kings','1cr':'1chronicles','2cr':'2chronicles',
-            'ed':'ezra','ne':'nehemiah','et':'esther','jo':'job','sl':'psalms',
-            'pv':'proverbs','ec':'ecclesiastes','ct':'songofsolomon','is':'isaiah',
-            'jr':'jeremiah','lm':'lamentations','ez':'ezekiel','dn':'daniel','os':'hosea',
-            'jl':'joel','am':'amos','ob':'obadiah','jn':'jonah','mq':'micah','na':'nahum',
-            'hc':'habakkuk','sf':'zephaniah','ag':'haggai','zc':'zechariah','ml':'malachi',
-            'mt':'matthew','mc':'mark','lc':'luke','joao':'john','at':'acts','rm':'romans',
-            '1co':'1corinthians','2co':'2corinthians','gl':'galatians','ef':'ephesians',
-            'fp':'philippians','cl':'colossians','1ts':'1thessalonians','2ts':'2thessalonians',
-            '1tm':'1timothy','2tm':'2timothy','tt':'titus','fm':'philemon','hb':'hebrews',
-            'tg':'james','1pe':'1peter','2pe':'2peter','1jo':'1john','2jo':'2john',
-            '3jo':'3john','jd':'jude','ap':'revelation'
+            'gn':'GEN','ex':'EXO','lv':'LEV','nm':'NUM','dt':'DEU',
+            'js':'JOS','jz':'JDG','rt':'RUT','1sm':'1SA','2sm':'2SA',
+            '1rs':'1KI','2rs':'2KI','1cr':'1CH','2cr':'2CH',
+            'ed':'EZR','ne':'NEH','et':'EST','jo':'JOB','sl':'PSA',
+            'pv':'PRO','ec':'ECC','ct':'SNG','is':'ISA',
+            'jr':'JER','lm':'LAM','ez':'EZK','dn':'DAN','os':'HOS',
+            'jl':'JOL','am':'AMO','ob':'OBA','jn':'JON','mq':'MIC','na':'NAM',
+            'hc':'HAB','sf':'ZEP','ag':'HAG','zc':'ZEC','ml':'MAL',
+            'mt':'MAT','mc':'MRK','lc':'LUK','joao':'JHN','at':'ACT','rm':'ROM',
+            '1co':'1CO','2co':'2CO','gl':'GAL','ef':'EPH',
+            'fp':'PHP','cl':'COL','1ts':'1TH','2ts':'2TH',
+            '1tm':'1TI','2tm':'2TI','tt':'TIT','fm':'PHM','hb':'HEB',
+            'tg':'JAS','1pe':'1PE','2pe':'2PE','1jo':'1JN','2jo':'2JN',
+            '3jo':'3JN','jd':'JUD','ap':'REV'
         };
 
-        const bookApiName = bookMap[book] || book;
-        let url = `https://bible-api.com/${bookApiName}+${chapter}`;
-        if (verse && parseInt(verse) > 0) url += `:${verse}`;
-        url += '?translation=almeida';
+        // Nomes em português para exibir na referência
+        const bookNames = {
+            'gn':'Gênesis','ex':'êxodo','lv':'Levítico','nm':'Números','dt':'Deuteronômio',
+            'js':'Josué','jz':'Juízes','rt':'Rute','1sm':'1 Samuel','2sm':'2 Samuel',
+            '1rs':'1 Reis','2rs':'2 Reis','1cr':'1 Crônicas','2cr':'2 Crônicas',
+            'ed':'Esdras','ne':'Neemias','et':'Ester','jo':'Jó','sl':'Salmos',
+            'pv':'Provérbios','ec':'Eclesiastes','ct':'Cantares','is':'Isaías',
+            'jr':'Jeremias','lm':'Lamentações','ez':'Ezequiel','dn':'Daniel','os':'Oseias',
+            'jl':'Joel','am':'Amós','ob':'Obadias','jn':'Jonas','mq':'Miqueias','na':'Naum',
+            'hc':'Habacuque','sf':'Sofonias','ag':'Ageu','zc':'Zacarias','ml':'Malaquias',
+            'mt':'Mateus','mc':'Marcos','lc':'Lucas','joao':'João','at':'Atos','rm':'Romanos',
+            '1co':'1 Coríntios','2co':'2 Coríntios','gl':'Gálatas','ef':'Efésios',
+            'fp':'Filipenses','cl':'Colossenses','1ts':'1 Tessalonicenses','2ts':'2 Tessalonicenses',
+            '1tm':'1 Timóteo','2tm':'2 Timóteo','tt':'Tito','fm':'Filemom','hb':'Hebreus',
+            'tg':'Tiago','1pe':'1 Pedro','2pe':'2 Pedro','1jo':'1 João','2jo':'2 João',
+            '3jo':'3 João','jd':'Judas','ap':'Apocalipse'
+        };
+
+        const bookId = bookMap[String(book).toLowerCase()] || String(book).toUpperCase();
+        const bookName = bookNames[String(book).toLowerCase()] || book;
+        const chapterNum = parseInt(chapter);
+        const verseNum = verse ? parseInt(verse) : 0;
+
+        if (!bookId || isNaN(chapterNum) || chapterNum < 1) {
+            return res.status(400).json({ error: 'Livro ou capítulo inválido' });
+        }
+
+        const url = `https://bible.helloao.org/api/por_bsl/${bookId}/${chapterNum}.json`;
 
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 15000);
@@ -2256,24 +2284,72 @@ app.get('/api/bible', async (req, res) => {
         clearTimeout(timeout);
 
         if (!response.ok) {
+            if (response.status === 404) {
+                return res.status(404).json({ error: `Capítulo não encontrado: ${bookName} ${chapterNum}` });
+            }
             if (response.status === 429) {
                 return res.status(429).json({ error: 'Muitas consultas. Aguarde alguns segundos e tente novamente.' });
             }
-            throw new Error(`API bíblia: ${response.status}`);
+            throw new Error(`API bíblia retornou ${response.status}`);
         }
 
         const data = await response.json();
-        res.json(data);
+
+        // A AO Lab API retorna data.chapter.content[] como array de itens:
+        //   { type: 'verse', number: N, content: [string,...] }
+        //   { type: 'line_break', paragraph: 'p' }
+        const content = data?.chapter?.content || [];
+        const allVerses = [];
+
+        for (const item of content) {
+            if (item?.type === 'verse' && typeof item.number === 'number') {
+                const parts = Array.isArray(item.content) ? item.content : [item.content];
+                const text = parts
+                    .map(p => typeof p === 'string' ? p : (p?.text || ''))
+                    .join('')
+                    .trim();
+                allVerses.push({ verse: item.number, text });
+            }
+        }
+
+        if (allVerses.length === 0) {
+            return res.status(404).json({ error: 'Nenhum versículo encontrado para esta referência.' });
+        }
+
+        // Filtra versículo específico se solicitado
+        const filteredVerses = verseNum > 0
+            ? allVerses.filter(v => v.verse === verseNum)
+            : allVerses;
+
+        if (verseNum > 0 && filteredVerses.length === 0) {
+            return res.status(404).json({
+                error: `Versículo ${verseNum} não encontrado em ${bookName} ${chapterNum}. O capítulo tem ${allVerses.length} versículos.`
+            });
+        }
+
+        const reference = verseNum > 0
+            ? `${bookName} ${chapterNum}:${verseNum}`
+            : `${bookName} ${chapterNum}`;
+
+        // Mesmo formato esperado pelo frontend (compatível com bible-api.com)
+        res.json({
+            reference,
+            verses: filteredVerses,
+            text: filteredVerses.map(v => v.text).join(' '),
+            translation: 'Bíblia Portuguesa Mundial (por_bsl)',
+            book_id: bookId,
+            book_name: bookName,
+            chapter: chapterNum,
+            total_verses: allVerses.length
+        });
     } catch (error) {
-        console.error('❌ Erro bíblia:', error);
+        console.error('❌ Erro bíblia:', error.message);
         if (error.name === 'AbortError') {
             return res.status(504).json({ error: 'A Bíblia demorou demais para responder. Tente de novo.' });
         }
         res.status(500).json({ error: error.message || 'Erro ao buscar' });
     }
-});
-
-// ============================================
+});// ============================================
 // ===== MÚSICAS =====
 // ============================================
 

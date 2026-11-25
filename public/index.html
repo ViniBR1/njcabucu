@@ -5008,7 +5008,8 @@
         // ============================================
         async function loadProducts() {
             try {
-                const res = await fetch('/api/products');
+                // ?available=true faz o backend retornar apenas produtos com stock > 0
+                const res = await fetch('/api/products?available=true');
                 const data = await res.json();
                 const container = document.getElementById('productsList');
                 if (!data || data.length === 0) {
@@ -5120,15 +5121,24 @@
                 const products = await res.json();
                 const product = products.find(p => p.id === productId);
                 if (product) {
-                    const existing = cart.find(item => item.id === productId);
-                    if (existing) {
-                        existing.quantity = (existing.quantity || 1) + 1;
+                    // Verifica estoque disponível
+                    if (product.stock !== null && product.stock !== undefined && product.stock <= 0) {
+                        showNotification('Produto esgotado!', 'error');
+                        return;
+                    }
+                    const inCart = cart.find(item => item.id === productId);
+                    const currentQty = inCart ? (inCart.quantity || 1) : 0;
+                    if (product.stock !== null && product.stock !== undefined && currentQty + 1 > product.stock) {
+                        showNotification(`Estoque insuficiente! Apenas ${product.stock} unidade(s).`, 'error');
+                        return;
+                    }
+                    if (inCart) {
+                        inCart.quantity = currentQty + 1;
                     } else {
                         cart.push({ ...product, quantity: 1 });
                     }
                     updateCartCount();
                     showNotification('✅ ' + product.name + ' adicionado ao carrinho!', 'success');
-                    // Animação de "voo" para o carrinho
                     animateAddToCart();
                 }
             } catch (e) { console.error('Erro:', e); }

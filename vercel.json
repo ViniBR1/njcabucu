@@ -1,37 +1,35 @@
+
 {
   "version": 2,
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/server.js" }
-  ],
-  "headers": [
+  
+  "builds": [
     {
-      "source": "/sw.js",
-      "headers": [
-        { "key": "Content-Type", "value": "application/javascript; charset=utf-8" },
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
-        { "key": "Service-Worker-Allowed", "value": "/" }
-      ]
+      "src": "server.js",
+      "use": "@vercel/node"
     },
     {
-      "source": "/manifest.json",
-      "headers": [
-        { "key": "Content-Type", "value": "application/manifest+json; charset=utf-8" },
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
-      ]
-    },
-    {
-      "source": "/icons/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
-      ]
+      "src": "public/**",
+      "use": "@vercel/static"
     }
   ],
-  "functions": {
-    "server.js": {
-      "maxDuration": 30,
-      "memory": 512
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/manifest.json",
+      "dest": "server.js"
+    },
+    {
+      "src": "/sw.js",
+      "dest": "server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "server.js"
     }
-  },
+  ],
   "env": {
     "DATABASE_URL": "postgresql://neondb_owner:npg_DeGK6sU7pgXS@ep-snowy-surf-ayfoddx3-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require",
     "JWT_SECRET": "nj-cabucu-secret-key-2026-producao",

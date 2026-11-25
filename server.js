@@ -1,3 +1,4 @@
+
 // ============================================
 // ===== NJ CABUÇU - SERVIDOR COMPLETO =====
 // ============================================
@@ -745,6 +746,20 @@ async function initDB() {
             UNIQUE(user_id, date)
         )`;
 
+        // TRELLO (Kanban)
+        await sql`CREATE TABLE IF NOT EXISTS trello_cards (
+            id SERIAL PRIMARY KEY,
+            title VARCHAR(200) NOT NULL,
+            description TEXT,
+            status VARCHAR(20) DEFAULT 'todo',
+            priority VARCHAR(10) DEFAULT 'medium',
+            due_date DATE,
+            position INTEGER DEFAULT 0,
+            created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`;
+
         console.log('✅ Todas as tabelas verificadas/criadas');
 
         const existing = await sql`SELECT * FROM users WHERE email = 'pastor@njcabucu.com'`;
@@ -1246,7 +1261,14 @@ app.post('/api/products', auth, upload.single('image'), async (req, res) => {
 
 app.get('/api/products', async (req, res) => {
     try {
-        const products = await sql`SELECT * FROM products ORDER BY name`;
+        const { available } = req.query;
+        let products;
+        if (available === 'true' || available === '1') {
+            // Apenas produtos com estoque disponivel (para o Index nao mostrar esgotados)
+            products = await sql`SELECT * FROM products WHERE stock > 0 OR stock IS NULL ORDER BY name`;
+        } else {
+            products = await sql`SELECT * FROM products ORDER BY name`;
+        }
         res.json(products);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -1453,6 +1475,22 @@ app.post('/api/orders', async (req, res) => {
             VALUES (${user_name}, ${user_email}, ${user_phone || ''}, ${JSON.stringify(items)}, ${total}, ${payment_id}, ${payment_method}, ${status || 'pending'})
             RETURNING *
         `;
+
+        // Decrementa o estoque dos produtos quando o pedido eh criado (reserva)
+        // Quando o pagamento for aprovado o estoque ja estava reservado.
+        // Se o pagamento falhar depois, nao reestocamos automaticamente parasimplicidade.
+        try {
+            const itemsArr = Array.isArray(items) ? items : JSON.parse(items || '[]');
+            for (const it of itemsArr) {
+                const qty = parseInt(it.quantity || 1);
+                if (it.id && qty > 0) {
+                    await sql`
+                        UPDATE products SET stock = GREATEST(stock - ${qty}, 0)
+                        WHERE id = ${parseInt(it.id)}
+                    `;
+                }
+            }
+        } catch (e) { console.error('⚠️ Erro ao decrementar estoque:', e.message); }
 
         res.status(201).json(result[0]);
     } catch (error) {
@@ -2350,6 +2388,73 @@ app.get('/api/bible', async (req, res) => {
         res.status(500).json({ error: error.message || 'Erro ao buscar' });
     }
 });// ============================================
+// ===== TRELLO / KANBAN =====
+// ============================================
+app.get('/api/trello', auth, async (req, res) => {
+    try {
+        const cards = await sql`
+            SELECT * FROM trello_cards ORDER BY
+                CASE status WHEN 'todo' THEN 0 WHEN 'progress' THEN 1 WHEN 'review' THEN 2 WHEN 'done' THEN 3 ELSE 4 END,
+                position ASC, created_at DESC
+        `;
+        res.json(cards);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/trello', auth, async (req, res) => {
+    try {
+        const { title, description, status, priority, due_date } = req.body;
+        if (!title || !title.trim()) return res.status(400).json({ error: 'Título é obrigatório' });
+        const validStatus = ['todo','progress','review','done'].includes(status) ? status : 'todo';
+        const validPriority = ['low','medium','high'].includes(priority) ? priority : 'medium';
+        const result = await sql`
+            INSERT INTO trello_cards (title, description, status, priority, due_date, created_by)
+            VALUES (${title.trim()}, ${description || ''}, ${validStatus}, ${validPriority}, ${due_date || null}, ${req.user.id})
+            RETURNING *
+        `;
+        res.status(201).json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro criar trello card:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/trello/:id', auth, async (req, res) => {
+    try {
+        const { title, description, status, priority, due_date } = req.body;
+        const validStatus = ['todo','progress','review','done'].includes(status) ? status : 'todo';
+        const validPriority = ['low','medium','high'].includes(priority) ? priority : 'medium';
+        const result = await sql`
+            UPDATE trello_cards
+            SET title = COALESCE(${title || null}, title),
+                description = COALESCE(${description || null}, description),
+                status = ${validStatus},
+                priority = ${validPriority},
+                due_date = ${due_date || null},
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ${req.params.id}
+            RETURNING *
+        `;
+        if (result.length === 0) return res.status(404).json({ error: 'Card não encontrado' });
+        res.json(result[0]);
+    } catch (error) {
+        console.error('❌ Erro atualizar trello card:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/trello/:id', auth, async (req, res) => {
+    try {
+        await sql`DELETE FROM trello_cards WHERE id = ${req.params.id}`;
+        res.json({ message: 'Card excluído' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ============================================
 // ===== MÚSICAS =====
 // ============================================
 
@@ -2879,9 +2984,29 @@ app.post('/api/webhook', async (req, res) => {
                 try {
                     const payment = await PaymentService.get({ id: paymentId });
                     if (payment.status === 'approved') {
+                        // Atualiza status de pedidos e doações
                         await sql`UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}`;
                         await sql`UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}`;
                         console.log('✅ Status atualizado via webhook');
+
+                        // Marca email como pendente de envio
+                        try {
+                            const orders = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId} AND email_sent = false`;
+                            if (orders.length > 0) {
+                                const o = orders[0];
+                                let itemsArr = [];
+                                try { itemsArr = typeof o.items === 'string' ? JSON.parse(o.items) : (o.items || []); } catch {}
+                                if (transporter) {
+                                    enviarEmailCompra({
+                                        email: o.user_email, nome: o.user_name,
+                                        items: itemsArr, total: o.total,
+                                        data: new Date(), paymentId: paymentId
+                                    }).then(ok => {
+                                        if (ok) sql`UPDATE orders SET email_sent = true WHERE id = ${o.id}`.catch(()=>{});
+                                    }).catch(()=>{});
+                                }
+                            }
+                        } catch (e) { console.error('⚠️ Email webhook:', e.message); }
                     }
                 } catch (error) {
                     console.error('❌ Erro webhook:', error);
@@ -2900,6 +3025,19 @@ app.get('/api/check-payment/:paymentId', async (req, res) => {
         if (!PaymentService) return res.status(500).json({ error: 'MP não configurado' });
 
         const payment = await PaymentService.get({ id: req.params.paymentId });
+
+        // Atualiza status e dispara email quando aprovado
+        if (payment.status === 'approved') {
+            // Só atualiza se ainda estava pendente (evita reprocessar)
+            const orders = await sql`SELECT * FROM orders WHERE payment_id = ${req.params.paymentId}`;
+            const donations = await sql`SELECT * FROM donations WHERE payment_id = ${req.params.paymentId}`;
+            if (orders.length > 0 && orders[0].status !== 'approved') {
+                await sql`UPDATE orders SET status = 'approved' WHERE payment_id = ${req.params.paymentId}`;
+            }
+            if (donations.length > 0 && donations[0].status !== 'approved') {
+                await sql`UPDATE donations SET status = 'approved' WHERE payment_id = ${req.params.paymentId}`;
+            }
+        }
 
         res.json({
             id: payment.id,

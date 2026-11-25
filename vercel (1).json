@@ -1,0 +1,64 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/manifest.json",
+      "dest": "server.js"
+    },
+    {
+      "src": "/sw.js",
+      "dest": "server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "server.js"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/sw.js",
+      "headers": [
+        { "key": "Content-Type", "value": "application/javascript; charset=utf-8" },
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+        { "key": "Service-Worker-Allowed", "value": "/" }
+      ]
+    },
+    {
+      "source": "/manifest.json",
+      "headers": [
+        { "key": "Content-Type", "value": "application/manifest+json; charset=utf-8" },
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/icons/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
+  ],
+  "env": {
+    "DATABASE_URL": "postgresql://neondb_owner:npg_DeGK6sU7pgXS@ep-snowy-surf-ayfoddx3-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require",
+    "JWT_SECRET": "nj-cabucu-secret-key-2026-producao",
+    "MP_ACCESS_TOKEN": "APP_USR-6195213178388265-061411-3cfef8f6e8eb20cd2a3d6e29d8b3380c-2969207414",
+    "MP_PUBLIC_KEY": "APP_USR-9cbd3a18-e58d-4091-920b-ab3cd0faa588",
+    "PUBLIC_URL": "https://igrejanjcabucurj.vercel.app",
+    "EMAIL_USER": "mvini440@gmail.com",
+    "EMAIL_PASS": "pqqyrbitssvxyigb",
+    "YOUTUBE_API_KEY": ""
+  }
+}

@@ -1,9 +1,10 @@
 
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <meta name="theme-color" content="#2563EB">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -64,10 +65,8 @@
 
         html {
             overflow-x: hidden;
-            overflow-y: auto;
             width: 100%;
             max-width: 100vw;
-            height: 100%;
         }
         body {
             font-family: var(--font);
@@ -77,13 +76,13 @@
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            overscroll-behavior-y: contain;
             overflow-x: hidden;
-            overflow-y: auto;
             width: 100%;
             max-width: 100vw;
-            min-height: 100%;
+            min-height: 100vh;
             position: relative;
+            /* NÃO usar overscroll-behavior nem overflow-y aqui — deixa o navegador cuidar do scroll natural */
+            touch-action: pan-y pan-x pinch-zoom;
         }
 
         .loading-overlay {
@@ -241,10 +240,9 @@
 
         .main {
             margin-left: var(--sidebar-w);
-            min-height: 100%;
+            min-height: 100vh;
             display: flex; flex-direction: column;
             max-width: 100%;
-            overflow: visible;
         }
 
         .topbar {
@@ -293,8 +291,6 @@
             max-width: 1600px;
             width: 100%;
             margin: 0 auto;
-            overflow: visible;
-            word-wrap: break-word;
         }
 
         .page-header {
@@ -475,7 +471,6 @@
         .table-wrapper {
             width: 100%;
             max-width: 100%;
-            overflow-x: hidden;
             position: relative;
         }
         .table {
@@ -610,10 +605,15 @@
             background: var(--surface);
             border-radius: var(--radius-lg);
             max-width: 540px; width: 100%;
-            max-height: 90vh; overflow-y: auto;
-            overflow-x: hidden;
+            max-height: 90vh;
+            display: flex; flex-direction: column;
             box-shadow: var(--shadow-lg);
             animation: modalIn 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-overflow-scrolling: touch;
+        }
+        .modal-content .modal-body {
+            overflow-y: auto;
+            flex: 1;
             -webkit-overflow-scrolling: touch;
         }
         @keyframes modalIn {
@@ -3053,17 +3053,17 @@
 
     function openModal(id) {
         document.getElementById(id).classList.add('open');
-        document.body.style.overflow = 'hidden';
+        // Não bloqueia overflow do body — deixa o modal-content fazer o scroll interno
+        // (em iOS, body overflow hidden causa bugs de scroll)
         if (navigator.vibrate) navigator.vibrate(15);
     }
     function closeModal(id) {
         document.getElementById(id).classList.remove('open');
-        document.body.style.overflow = 'auto';
     }
 
     document.querySelectorAll('.modal').forEach(m => {
         m.addEventListener('click', (e) => {
-            if (e.target === m) { m.classList.remove('open'); document.body.style.overflow = 'auto'; }
+            if (e.target === m) { m.classList.remove('open'); }
         });
     });
 
@@ -3078,7 +3078,7 @@
         const overlay = document.getElementById('sidebarOverlay');
         const isOpen = sidebar.classList.toggle('open');
         overlay.classList.toggle('open', isOpen);
-        document.body.style.overflow = isOpen ? 'hidden' : 'auto';
+        // Não mexe no body overflow — em iOS isso trava scroll depois de fechar
     }
 
     function openDrawerMenu() {
@@ -3127,7 +3127,6 @@
             if (sidebar.classList.contains('open')) {
                 sidebar.classList.remove('open');
                 overlay.classList.remove('open');
-                document.body.style.overflow = 'auto';
             }
         }
 
@@ -3405,19 +3404,19 @@
         }).join('');
     }
 
+    let allPrayers = [];
+
     function loadPrayers(prayers) {
+        allPrayers = prayers || [];
         const tbody = document.getElementById('prayersList');
-        if (!prayers?.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted" style="padding:2rem;">Nenhuma oração</td></tr>'; return; }
-        tbody.innerHTML = prayers.slice(0, 50).map(p => {
-            // Escapa aspas no pedido para usar no atributo data
-            const safeName = (p.name || 'Anônimo').replace(/"/g, '&quot;');
-            const safeRequest = (p.request || '').replace(/"/g, '&quot;');
+        if (!allPrayers.length) { tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted" style="padding:2rem;">Nenhuma oração</td></tr>'; return; }
+        tbody.innerHTML = allPrayers.slice(0, 50).map((p, idx) => {
             const preview = (p.request || '').substring(0, 60);
             const truncated = (p.request || '').length > 60;
             return `
-                <tr style="cursor:pointer;" onclick="openPrayerDetail(${p.id}, '${safeName}', '${safeRequest}', ${p.is_read ? 'true' : 'false'})">
+                <tr style="cursor:pointer;" onclick="openPrayerDetail(${idx})">
                     <td data-label="Nome"><strong>${p.name||'Anônimo'}</strong></td>
-                    <td data-label="Pedido">${preview}${truncated?'... <span style=\"color:var(--primary);font-size:0.7rem;\">(tocar para ver)</span>':''}</td>
+                    <td data-label="Pedido">${preview}${truncated?'... <span style="color:var(--primary);font-size:0.7rem;">(tocar para ver)</span>':''}</td>
                     <td data-label="Status"><span class="status ${p.is_read ? 'status-approved' : 'status-pending'}">${p.is_read ? 'Lida' : 'Nova'}</span></td>
                     <td data-label="Ações" onclick="event.stopPropagation();">${!p.is_read ? `<button onclick="markPrayerRead(${p.id})" class="btn btn-success btn-sm"><i class="fas fa-check"></i></button>` : '—'}</td>
                 </tr>
@@ -3425,19 +3424,21 @@
         }).join('');
     }
 
-    function openPrayerDetail(id, name, request, isRead) {
-        // Preenche o modal
-        document.getElementById('prayerDetailName').textContent = name;
-        document.getElementById('prayerDetailDate').textContent = '';
-        document.getElementById('prayerDetailText').textContent = request;
-        document.getElementById('prayerDetailStatus').innerHTML = isRead
+    function openPrayerDetail(idx) {
+        const p = allPrayers[idx];
+        if (!p) return;
+        // Preenche o modal usando textContent (evita XSS e funciona com qualquer caractere)
+        document.getElementById('prayerDetailName').textContent = p.name || 'Anônimo';
+        document.getElementById('prayerDetailText').textContent = p.request || '';
+        document.getElementById('prayerDetailStatus').innerHTML = p.is_read
             ? '<span class="status status-approved">Lida</span>'
             : '<span class="status status-pending">Nova</span>';
         const actionsDiv = document.getElementById('prayerDetailActions');
+        const safeName = (p.name || '').replace(/'/g, "\\'");
         actionsDiv.innerHTML = `
-            ${!isRead ? `<button onclick="markPrayerReadAndClose(${id})" class="btn btn-success"><i class="fas fa-check"></i> Marcar como Lida</button>` : ''}
-            <button onclick="replyPrayerWhatsApp('${name.replace(/'/g, "\\'")}')" class="btn btn-secondary"><i class="fab fa-whatsapp"></i> Responder</button>
-            <button onclick="closeModal('prayerDetailModal')" class="btn btn-secondary">Fechar</button>
+            ${!p.is_read ? `<button onclick="markPrayerReadAndClose(${p.id})" class="btn btn-success btn-block"><i class="fas fa-check"></i> Marcar como Lida</button>` : ''}
+            <button onclick="replyPrayerWhatsApp('${safeName}')" class="btn btn-secondary btn-block"><i class="fab fa-whatsapp"></i> Responder no WhatsApp</button>
+            <button onclick="closeModal('prayerDetailModal')" class="btn btn-secondary btn-block">Fechar</button>
         `;
         openModal('prayerDetailModal');
     }

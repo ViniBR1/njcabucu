@@ -464,9 +464,44 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // ===== MIGRAÇÕES AUTOMÁTICAS para 'orders' =====
+        // Garante que todas as colunas existam mesmo se a tabela foi criada antes
+        // com estrutura diferente (versão antiga do sistema).
         await sql`
             DO $$
             BEGIN
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='orders' AND column_name='user_name') THEN
+                    ALTER TABLE orders ADD COLUMN user_name VARCHAR(100);
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='orders' AND column_name='user_email') THEN
+                    ALTER TABLE orders ADD COLUMN user_email VARCHAR(100);
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='orders' AND column_name='user_phone') THEN
+                    ALTER TABLE orders ADD COLUMN user_phone VARCHAR(20);
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='orders' AND column_name='items') THEN
+                    ALTER TABLE orders ADD COLUMN items TEXT;
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='orders' AND column_name='total') THEN
+                    ALTER TABLE orders ADD COLUMN total DECIMAL(10,2) NOT NULL DEFAULT 0;
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='orders' AND column_name='status') THEN
+                    ALTER TABLE orders ADD COLUMN status VARCHAR(50) DEFAULT 'pending';
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='orders' AND column_name='payment_id') THEN
+                    ALTER TABLE orders ADD COLUMN payment_id VARCHAR(100);
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='orders' AND column_name='payment_method') THEN
+                    ALTER TABLE orders ADD COLUMN payment_method VARCHAR(50);
+                END IF;
                 IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
                                WHERE table_name='orders' AND column_name='email_sent') THEN
                     ALTER TABLE orders ADD COLUMN email_sent BOOLEAN DEFAULT false;
@@ -505,9 +540,34 @@ async function initDB() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`;
 
+        // ===== MIGRAÇÕES AUTOMÁTICAS para 'donations' =====
         await sql`
             DO $$
             BEGIN
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='donations' AND column_name='user_name') THEN
+                    ALTER TABLE donations ADD COLUMN user_name VARCHAR(100);
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='donations' AND column_name='user_email') THEN
+                    ALTER TABLE donations ADD COLUMN user_email VARCHAR(100);
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='donations' AND column_name='user_phone') THEN
+                    ALTER TABLE donations ADD COLUMN user_phone VARCHAR(20);
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='donations' AND column_name='payment_id') THEN
+                    ALTER TABLE donations ADD COLUMN payment_id VARCHAR(100);
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='donations' AND column_name='payment_method') THEN
+                    ALTER TABLE donations ADD COLUMN payment_method VARCHAR(50);
+                END IF;
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                               WHERE table_name='donations' AND column_name='status') THEN
+                    ALTER TABLE donations ADD COLUMN status VARCHAR(50) DEFAULT 'pending';
+                END IF;
                 IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
                                WHERE table_name='donations' AND column_name='email_sent') THEN
                     ALTER TABLE donations ADD COLUMN email_sent BOOLEAN DEFAULT false;
@@ -3382,11 +3442,24 @@ app.post('/api/confirm-pix-direct', async (req, res) => {
 
 // Função para gerar BR Code (PIX Copia e Cola) estático no padrão EMV
 function gerarBRCodePix({ pixKey, amount, receiverName, city, description }) {
-    // Remove acentos e caracteres especiais do nome e cidade
-    const cleanName = receiverName.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').substring(0, 25);
-    const cleanCity = city.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').substring(0, 15);
+    // ===== Sanitiza todos os campos para ASCII puro (sem acento, sem caractere especial) =====
+    // O BR Code exige apenas caracteres ASCII imprimíveis (0x20 a 0x7E)
+    function sanitize(str) {
+        if (!str) return '';
+        return String(str)
+            .normalize('NFD')                                    // separa acentos das letras
+            .replace(/[\u0300-\u036f]/g, '')                     // remove acentos
+            .replace(/[^a-zA-Z0-9 @\-_.;:()/]/g, '')             // remove qualquer caractere não permitido
+            .toUpperCase()
+            .trim();
+    }
 
-    // Helper: calcula CRC16-CCITT (padrão BR Code)
+    const cleanName = sanitize(receiverName).substring(0, 25) || 'RECEBEDOR';
+    const cleanCity = sanitize(city).substring(0, 15) || 'BRASIL';
+    const cleanKey = String(pixKey).trim();
+    const cleanDesc = description ? sanitize(description).substring(0, 40) : '';
+
+    // Helper: calcula CRC16-CCITT (polinômio 0x1021, valor inicial 0xFFFF) - padrão BR Code
     function crc16(payload) {
         let crc = 0xFFFF;
         for (let i = 0; i < payload.length; i++) {
@@ -3403,37 +3476,47 @@ function gerarBRCodePix({ pixKey, amount, receiverName, city, description }) {
         return crc.toString(16).toUpperCase().padStart(4, '0');
     }
 
-    // Helper: formata campo ID + tamanho + valor
+    // Helper: formata campo ID + tamanho (2 dígitos) + valor
     function field(id, value) {
-        const len = value.length.toString().padStart(2, '0');
+        const len = String(value.length).padStart(2, '0');
         return id + len + value;
     }
 
-    // Campo 26: dados do PIX (template específico)
-    const gui = field('00', 'br.gov.bcb.pix');           // GUI
-    const key = field('01', pixKey);                      // Chave PIX
-    const desc = description ? field('02', description.substring(0, 50)) : '';
+    // ===== Campo 26: Merchant Account Information (PIX) =====
+    // Estrutura: 26 + tamanho + (GUI + chave + descrição)
+    const gui = field('00', 'br.gov.bcb.pix');           // 00: GUI do BACEN
+    const key = field('01', cleanKey);                   // 01: chave PIX
+    // Campo 02 (descrição) só é adicionado se tiver conteúdo
+    // IMPORTANTE: alguns bancos rejeitam descrição com mais de 25 caracteres
+    const desc = cleanDesc ? field('02', cleanDesc) : '';
     const merchantAccount = field('26', gui + key + desc);
 
-    // Valor (campo 54) - apenas se > 0
+    // ===== Campo 54: Transaction Amount (R$ 0.00) =====
+    // Formato: ponto decimal, 2 casas decimais
     const amountField = amount > 0 ? field('54', amount.toFixed(2)) : '';
 
-    // Campo 62: dados adicionais
+    // ===== Campo 62: Additional Data Field Template =====
     const additionalData = field('62', field('05', '***'));
 
-    // Monta payload sem o CRC
+    // ===== Monta payload SEM o CRC =====
+    // ID 00: Payload Format Indicator = "01" (obrigatório)
+    // ID 01: Point of Initiation Method
+    //   "11" = QR Code ESTÁTICO (pagador pode mudar o valor) ← USAR ESSE
+    //   "12" = QR Code DINÂMICO (valor fixo, exige URL de location no campo 26)
+    // Para QR Code estático com chave PIX simples (pessoa física/igreja), usamos "11".
+    // Antes estava "12" que causava rejeição em vários bancos.
     const payloadSemCrc =
-        field('00', '01') +                          // Payload Format Indicator
-        field('01', '12') +                          // Point of Initiation Method (12 = dinâmico com valor)
-        merchantAccount +
-        field('52', '0000') +                        // Merchant Category Code
-        field('53', '986') +                         // Transaction Currency (986 = BRL)
-        amountField +
-        field('58', 'BR') +                          // Country Code
-        field('59', cleanName) +                     // Merchant Name
-        field('60', cleanCity) +                     // Merchant City
-        additionalData +
-        '6304';                                      // ID 63 + tamanho 04 (CRC)
+        field('00', '01') +              // Payload Format Indicator (obrigatório)
+        field('01', '11') +              // Point of Initiation Method = ESTÁTICO
+        merchantAccount +                // Campo 26: dados do PIX
+        field('52', '0000') +            // Merchant Category Code (0000 = não especificado)
+        field('53', '986') +             // Transaction Currency: 986 = BRL (Real)
+        amountField +                    // Campo 54: valor (apenas se > 0)
+        field('58', 'BR') +              // Country Code: BR
+        field('59', cleanName) +         // Merchant Name (máx 25 chars)
+        field('60', cleanCity) +         // Merchant City (máx 15 chars)
+        additionalData +                 // Campo 62: additional data
+        '6304';                          // ID 63 + length 04 (CRC16)
 
     const crc = crc16(payloadSemCrc);
     return payloadSemCrc + crc;

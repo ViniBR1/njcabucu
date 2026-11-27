@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -2003,7 +2004,8 @@
         <h3 id="viewScaleTitle"><i class="fas fa-calendar-alt"></i> Detalhes da Escala</h3>
         <div id="viewScaleContent"></div>
         <div style="margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
-            <button onclick="shareScaleWhatsApp()" class="btn btn-whatsapp w-full"><i class="fab fa-whatsapp"></i> Compartilhar no WhatsApp</button>
+            <button onclick="shareScaleWhatsApp()" class="btn btn-whatsapp w-full"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+            <button onclick="resendScaleEmails()" class="btn btn-primary w-full" id="btnResendEmails"><i class="fas fa-envelope"></i> Reenviar Emails</button>
             <button onclick="closeModal('viewScaleModal')" class="btn btn-ghost w-full">Fechar</button>
         </div>
     </div>
@@ -2857,11 +2859,60 @@
             });
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Erro ao criar escala');
-            showNotification('✅ Escala criada com sucesso!', 'success');
+
+            // Calcula quantos membros foram escalados para feedback
+            const totalEscalados = (minister ? 1 : 0) + musicians.length + 1; // +1 = líder
+            showNotification(
+                `✅ Escala criada! 📧 Email sendo enviado para ${totalEscalados} membro(s) escalado(s)...`,
+                'success'
+            );
+
+            // Aguarda 3 segundos e mostra mensagem de confirmação de envio
+            setTimeout(async () => {
+                try {
+                    const res = await fetch(`/api/worship-scales/${data.id}/resend-emails`, {
+                        method: 'POST', headers: getHeaders()
+                    });
+                    const emailResult = await res.json();
+                    if (emailResult.enviados !== undefined) {
+                        showNotification(
+                            `📧 ${emailResult.enviados} email(s) enviado(s) para a equipe escalada!`,
+                            'info'
+                        );
+                    }
+                } catch (e) {
+                    console.log('Status de email:', e.message);
+                }
+            }, 3000);
+
             hideCreateScale();
             loadScales();
             loadMyScales();
         } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+    }
+
+    // Reenvia emails de uma escala existente (botão na visualização de detalhes)
+    async function resendScaleEmails() {
+        if (!currentScaleIdView) {
+            showNotification('Nenhuma escala selecionada!', 'error');
+            return;
+        }
+        if (!confirm('Reenviar emails para todos os escalados desta escala?')) return;
+
+        try {
+            showNotification('📧 Enviando emails...', 'info');
+            const res = await fetch(`/api/worship-scales/${currentScaleIdView}/resend-emails`, {
+                method: 'POST', headers: getHeaders()
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Erro ao reenviar');
+            showNotification(
+                `✅ ${data.enviados} email(s) enviados com sucesso!` + (data.falhas > 0 ? ` (${data.falhas} falha(s))` : ''),
+                'success'
+            );
+        } catch (e) {
+            showNotification('❌ Erro: ' + e.message, 'error');
+        }
     }
 
     async function loadScales() {
@@ -2955,6 +3006,13 @@
                 ${musiciansList.length ? `<div><strong>Músicos:</strong></div><div style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:0.5rem;">${musiciansList.map(m => `<span style="background:var(--surface-2);padding:0.15rem 0.7rem;border-radius:50px;font-size:0.75rem;">${m.name}</span>`).join('')}</div>` : ''}
                 ${isMinisterScale ? `<div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid var(--border);"><button onclick="openMinisterMusicModal(${id})" class="btn btn-warning w-full"><i class="fas fa-music"></i> Gerenciar Músicas</button></div>` : ''}
             `;
+
+            // Botão "Reenviar Emails" só aparece para o líder
+            const btnResendEmails = document.getElementById('btnResendEmails');
+            if (btnResendEmails) {
+                btnResendEmails.style.display = isLeader ? 'inline-flex' : 'none';
+            }
+
             openModal('viewScaleModal');
         } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
     }
@@ -3101,36 +3159,108 @@
 
     async function searchYoutubeMusic() {
         const query = document.getElementById('youtubeSearchInput').value.trim();
-        if (!query) { showNotification('Digite o nome!', 'error'); return; }
-        showNotification('🔍 Buscando...', 'info');
+        if (!query) { showNotification('Digite o nome da música!', 'error'); return; }
+
+        const resultsContainer = document.getElementById('youtubeSearchResults');
+        resultsContainer.innerHTML = `
+            <div style="display:flex;align-items:center;gap:0.5rem;padding:0.8rem;color:var(--primary);font-size:0.85rem;">
+                <i class="fas fa-spinner fa-spin"></i> Buscando no YouTube...
+            </div>
+        `;
+
         try {
             const response = await fetch(`/api/youtube-search?query=${encodeURIComponent(query)}`, { headers: getHeaders() });
-            if (!response.ok) throw new Error('Erro ao buscar');
+            if (!response.ok) throw new Error('Erro ao buscar no YouTube');
             const data = await response.json();
-            const resultsContainer = document.getElementById('youtubeSearchResults');
+
             if (!data.results || !data.results.length) {
-                resultsContainer.innerHTML = '<p class="text-muted">Nenhum resultado.</p>';
+                resultsContainer.innerHTML = `
+                    <div style="padding:1rem;text-align:center;color:var(--text-muted);font-size:0.85rem;">
+                        <i class="fas fa-search" style="font-size:1.5rem;opacity:0.4;display:block;margin-bottom:0.4rem;"></i>
+                        Nenhum resultado encontrado para "${query}"
+                    </div>
+                `;
+                showNotification('Nenhum resultado encontrado', 'info');
                 return;
             }
-            resultsContainer.innerHTML = data.results.map(video => `
-                <div class="scale-item" style="cursor:pointer;border-left-color:#dc2626;padding:0.6rem;margin-bottom:0.3rem;"
-                     onclick="selectYoutubeVideo('${video.videoId}', '${video.title.replace(/'/g, "\\'")}')">
-                    <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
-                        <strong style="font-size:0.85rem;">${video.title}</strong>
-                        <button class="btn btn-success btn-xs"><i class="fas fa-check"></i></button>
-                    </div>
+
+            // Renderiza resultados com thumbnails (grid responsivo)
+            resultsContainer.innerHTML = `
+                <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.5rem;padding:0 0.3rem;">
+                    <i class="fas fa-list"></i> ${data.results.length} resultado(s) ${data.source === 'scraping' ? '(busca direta)' : '(API oficial)'} - clique para selecionar:
                 </div>
-            `).join('');
-            showNotification(`✅ ${data.results.length} resultados!`, 'success');
-        } catch (e) { showNotification('❌ Erro: ' + e.message, 'error'); }
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:0.5rem;max-height:280px;overflow-y:auto;padding:0.2rem;">
+                    ${data.results.map(video => {
+                        const safeTitle = (video.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        const safeChannel = (video.channel || '').replace(/'/g, "\\'");
+                        return `
+                            <div onclick="selectYoutubeVideo('${video.videoId}', '${safeTitle}', '${safeChannel}')"
+                                 style="cursor:pointer;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:var(--transition);"
+                                 onmouseover="this.style.borderColor='var(--primary)';this.style.transform='translateY(-2px)';this.style.boxShadow='var(--shadow-md)';"
+                                 onmouseout="this.style.borderColor='var(--border)';this.style.transform='';this.style.boxShadow='';">
+                                <div style="position:relative;background:#000;">
+                                    <img src="${video.thumbnail || 'https://i.ytimg.com/vi/' + video.videoId + '/mqdefault.jpg'}"
+                                         alt="${safeTitle}"
+                                         style="width:100%;height:78px;object-fit:cover;display:block;"
+                                         onerror="this.style.display='none';this.parentElement.style.background='#333';"
+                                         loading="lazy">
+                                    <div style="position:absolute;bottom:4px;right:4px;background:rgba(0,0,0,0.8);color:white;font-size:0.6rem;padding:1px 5px;border-radius:3px;font-weight:600;">
+                                        ▶ YouTube
+                                    </div>
+                                </div>
+                                <div style="padding:0.45rem 0.5rem;">
+                                    <div style="font-size:0.72rem;font-weight:600;color:var(--text);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${video.title || 'Sem título'}</div>
+                                    ${video.channel ? `<div style="font-size:0.65rem;color:var(--text-muted);margin-top:0.2rem;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;">${video.channel}</div>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            showNotification(`✅ ${data.results.length} vídeos encontrados!`, 'success');
+        } catch (e) {
+            resultsContainer.innerHTML = `
+                <div style="padding:1rem;text-align:center;color:var(--danger);font-size:0.85rem;">
+                    <i class="fas fa-exclamation-circle" style="font-size:1.5rem;display:block;margin-bottom:0.4rem;"></i>
+                    ${e.message}<br>
+                    <small style="color:var(--text-muted);">Tente novamente em alguns segundos.</small>
+                </div>
+            `;
+            showNotification('❌ Erro: ' + e.message, 'error');
+        }
     }
 
-    function selectYoutubeVideo(videoId, title) {
+    function selectYoutubeVideo(videoId, title, channel) {
         document.getElementById('newMusicTitle').value = title;
+        if (channel) document.getElementById('newMusicArtist').value = channel;
         document.getElementById('newMusicYoutube').value = `https://www.youtube.com/watch?v=${videoId}`;
+
+        // Preview do vídeo selecionado
         document.getElementById('youtubeSearchResults').innerHTML = `
-            <div style="background:var(--success-soft);padding:0.6rem;border-radius:8px;color:#14532d;font-size:0.85rem;">
-                ✅ Selecionado: <strong>${title}</strong>
+            <div style="background:var(--success-soft);border:1px solid #86efac;border-radius:8px;padding:0.7rem;">
+                <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.5rem;">
+                    <i class="fas fa-check-circle" style="color:var(--success);font-size:1.2rem;"></i>
+                    <div>
+                        <div style="font-size:0.85rem;font-weight:700;color:#14532d;">✅ Música selecionada!</div>
+                        <div style="font-size:0.7rem;color:#166534;">Preencha os outros campos abaixo e clique em Salvar</div>
+                    </div>
+                </div>
+                <div style="display:flex;gap:0.6rem;align-items:flex-start;">
+                    <img src="https://i.ytimg.com/vi/${videoId}/mqdefault.jpg"
+                         alt="${title}"
+                         style="width:120px;height:67px;object-fit:cover;border-radius:6px;flex-shrink:0;border:1px solid #ddd;"
+                         onerror="this.style.display='none';">
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-size:0.8rem;font-weight:600;color:var(--text);line-height:1.3;">${title}</div>
+                        ${channel ? `<div style="font-size:0.72rem;color:var(--text-muted);margin-top:0.2rem;">${channel}</div>` : ''}
+                        <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" style="font-size:0.72rem;color:var(--primary);text-decoration:none;margin-top:0.3rem;display:inline-block;">
+                            <i class="fab fa-youtube"></i> Abrir no YouTube
+                        </a>
+                    </div>
+                    <button onclick="searchYoutubeMusic()" class="btn btn-ghost btn-xs" style="flex-shrink:0;" title="Buscar outra">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
             </div>
         `;
         showNotification('✅ Música selecionada!', 'success');
@@ -3846,7 +3976,7 @@
         logout, openModal, closeModal, showTab, toggleSidebar, toggleFab,
         toggleDateSelection, addMultipleAvailability, deleteAvailability,
         showCreateScale, hideCreateScale, saveScale, viewScaleDetails, deleteScale,
-        shareScaleWhatsApp, openMinisterMusicModal, addYoutubeToScale, saveMinisterSongs,
+        shareScaleWhatsApp, openMinisterMusicModal, addYoutubeToScale, saveMinisterSongs, resendScaleEmails,
         viewSong, viewSongByName, transposeSong, resetTranspose, deleteSong,
         openAddMusicModal, openYoutubeMusicModal, selectYoutubeVideo, searchYoutubeMusic,
         saveYoutubeSong, saveMusic, fetchYoutubeSong,

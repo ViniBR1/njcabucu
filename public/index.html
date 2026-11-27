@@ -1,7 +1,4 @@
 
-
-
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -3252,56 +3249,13 @@
 
                 <div class="checkout-section-card">
                     <div class="checkout-section-title">
-                        <span class="icon-badge"><i class="fas fa-credit-card"></i></span>
-                        Forma de Pagamento
+                        <span class="icon-badge"><i class="fas fa-qrcode"></i></span>
+                        Pagamento via PIX
                     </div>
-                    <div class="payment-method-tabs">
-                        <button class="payment-method-tab active" id="tabPix" onclick="selectPaymentMethod('pix')">
-                            <i class="fas fa-qrcode"></i> PIX
-                        </button>
-                        <button class="payment-method-tab" id="tabPixDirect" onclick="selectPaymentMethod('pix-direct')">
-                            <i class="fas fa-hand-holding-heart"></i> PIX Direto
-                        </button>
-                        <button class="payment-method-tab" id="tabCard" onclick="selectPaymentMethod('card')">
-                            <i class="fas fa-credit-card"></i> Cartão
-                        </button>
-                    </div>
-                    <div id="checkoutPixInfo" style="text-align:center;padding:1rem;background:#f0fdf4;border-radius:12px;border:1px solid #bbf7d0;">
-                        <i class="fas fa-bolt" style="color:var(--success);font-size:1.5rem;margin-bottom:.4rem;display:block;"></i>
-                        <p style="font-size:.82rem;color:#166534;font-weight:600;">Pagamento instantâneo via PIX (Mercado Pago)</p>
-                        <p style="font-size:.72rem;color:#4ade80;">Aprovação automática em segundos</p>
-                    </div>
-                    <div id="checkoutPixDirectInfo" style="display:none;text-align:center;padding:1rem;background:#eff6ff;border-radius:12px;border:1px solid #bfdbfe;">
-                        <i class="fas fa-hand-holding-heart" style="color:var(--primary);font-size:1.5rem;margin-bottom:.4rem;display:block;"></i>
-                        <p style="font-size:.82rem;color:#1e40af;font-weight:600;">PIX direto para a conta da igreja</p>
-                        <p style="font-size:.72rem;color:#3b82f6;">Sem taxa · confirmação manual pelo pastor</p>
-                    </div>
-                    <div id="checkoutCardFields" style="display:none;">
-                        <div class="form-group">
-                            <label>Número do Cartão <span class="req">*</span></label>
-                            <input type="text" id="checkoutCardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Validade <span class="req">*</span></label>
-                                <input type="text" id="checkoutCardExpiry" placeholder="MM/AA" maxlength="5">
-                            </div>
-                            <div class="form-group">
-                                <label>CVV <span class="req">*</span></label>
-                                <input type="text" id="checkoutCardCvv" placeholder="123" maxlength="4">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Parcelas</label>
-                            <select id="checkoutInstallments">
-                                <option value="1">1x sem juros</option>
-                                <option value="2">2x sem juros</option>
-                                <option value="3">3x sem juros</option>
-                                <option value="4">4x sem juros</option>
-                                <option value="5">5x sem juros</option>
-                                <option value="6">6x sem juros</option>
-                            </select>
-                        </div>
+                    <div style="text-align:center;padding:1.2rem;background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:12px;border:1px solid #bfdbfe;">
+                        <i class="fas fa-qrcode" style="color:var(--primary);font-size:2rem;margin-bottom:.5rem;display:block;"></i>
+                        <p style="font-size:.9rem;color:#1e40af;font-weight:700;margin-bottom:.3rem;">Pagamento via PIX</p>
+                        <p style="font-size:.75rem;color:#3b82f6;">Escaneie o QR Code ou copie o código para pagar</p>
                     </div>
                 </div>
             </div>
@@ -3542,36 +3496,16 @@
     <div class="modal" id="paymentModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('paymentModal')">&times;</button>
-            <h3 id="paymentTitle" style="color:var(--primary);margin-bottom:1rem;">💳 Pagamento</h3>
+            <h3 id="paymentTitle" style="color:var(--primary);margin-bottom:1rem;">💳 Pagamento via PIX</h3>
             <div id="paymentForm">
                 <div class="form-group"><label>Nome Completo <span class="req">*</span></label><input type="text" id="payName"></div>
                 <div class="form-group"><label>E-mail <span class="req">*</span></label><input type="email" id="payEmail"></div>
                 <div class="form-group"><label>Telefone <span class="req">*</span></label><input type="tel" id="payPhone"></div>
-                <div class="form-group"><label>CPF <span class="req">*</span></label><input type="text" id="payCpf" placeholder="000.000.000-00"></div>
-                <div class="form-group">
-                    <label>Forma de Pagamento</label>
-                    <select id="payMethod" onchange="togglePaymentMethod()">
-                        <option value="pix">PIX</option>
-                        <option value="card">Cartão de Crédito</option>
-                    </select>
-                </div>
-                <div id="cardFields" style="display:none;">
-                    <div class="form-group"><label>Número do Cartão</label><input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19"></div>
-                    <div class="form-row">
-                        <div class="form-group"><label>Validade</label><input type="text" id="cardExpiry" placeholder="MM/AA"></div>
-                        <div class="form-group"><label>CVV</label><input type="text" id="cardCvv" placeholder="123" maxlength="4"></div>
-                    </div>
-                    <div class="form-group"><label>Parcelas</label>
-                        <select id="cardInstallments">
-                            <option value="1">1x</option><option value="2">2x</option>
-                            <option value="3">3x</option><option value="4">4x</option>
-                            <option value="5">5x</option><option value="6">6x</option>
-                        </select>
-                    </div>
-                </div>
+                <input type="hidden" id="payCpf" value="00000000000">
+                <input type="hidden" id="payMethod" value="pix-direct">
                 <div id="paymentTotal" style="text-align:center;font-size:1.2rem;font-weight:800;color:var(--primary);margin:.8rem 0;"></div>
                 <button onclick="processPayment()" class="btn btn-primary" style="justify-content:center;">
-                    <i class="fas fa-credit-card"></i> Pagar
+                    <i class="fas fa-qrcode"></i> Gerar PIX
                 </button>
             </div>
             <div id="paymentResult" style="display:none;" class="text-center"></div>
@@ -5211,10 +5145,10 @@
                 if (!res.ok) throw new Error(data.error || 'Erro ao inscrever');
 
                 if (parseFloat(price) > 0) {
-                    alert('✅ Inscrição realizada! O evento é pago. Por favor, faça o pagamento para confirmar.');
+                    // Evento pago - gera PIX direto automaticamente
                     paymentType = 'donation';
-                    donationType = 'Inscrição Evento - ' + eventName;
-                    document.getElementById('paymentTitle').textContent = '💳 Inscrição - ' + eventName;
+                    donationType = 'Inscricao Evento - ' + eventName;
+                    document.getElementById('paymentTitle').textContent = '🎫 Inscrição - ' + eventName;
                     document.getElementById('paymentTotal').textContent = 'Valor: R$ ' + parseFloat(price).toFixed(2);
                     document.getElementById('paymentForm').style.display = 'block';
                     document.getElementById('paymentResult').style.display = 'none';
@@ -5430,7 +5364,7 @@
                 return;
             }
             checkoutStep = 1;
-            checkoutPaymentMethod = 'pix';
+            checkoutPaymentMethod = 'pix-direct';
             checkoutPaymentId = null;
             checkoutIsProcessing = false;
             document.getElementById('checkoutOverlay').classList.add('open');
@@ -5450,11 +5384,8 @@
             document.getElementById('checkoutEmail').value = '';
             document.getElementById('checkoutPhone').value = '';
             document.getElementById('checkoutCpf').value = '';
-            document.getElementById('checkoutCardNumber').value = '';
-            document.getElementById('checkoutCardExpiry').value = '';
-            document.getElementById('checkoutCardCvv').value = '';
-            // Resetar abas
-            selectPaymentMethod('pix');
+            // Sempre volta pra PIX Direto
+            checkoutPaymentMethod = 'pix-direct';
         }
 
         function goToCheckoutStep(step) {
@@ -5572,28 +5503,10 @@
         }
 
         function renderCheckoutStep3() {
-            const successDetails = document.getElementById('checkoutSuccessDetails');
+            // Sempre mostra o QR Code do PIX (sem Mercado Pago)
+            document.getElementById('checkoutSuccessContent').style.display = 'none';
             const pixResult = document.getElementById('checkoutPixResult');
-
-            if (checkoutPaymentMethod === 'pix' || checkoutPaymentMethod === 'pix-direct') {
-                // Mostrar QR code PIX (seja do Mercado Pago ou direto)
-                document.getElementById('checkoutSuccessContent').style.display = 'none';
-                pixResult.style.display = 'block';
-                // O conteúdo do PIX é renderizado após a chamada da API
-            } else {
-                // Cartão - mostrar confirmação
-                document.getElementById('checkoutSuccessContent').style.display = 'block';
-                pixResult.style.display = 'none';
-
-                if (successDetails) {
-                    successDetails.innerHTML = `
-                        <div style="background:#f0fdf4;padding:1rem;border-radius:12px;border:1px solid #bbf7d0;text-align:left;font-size:.82rem;">
-                            <p style="margin-bottom:.3rem;"><strong>✅ Pagamento aprovado!</strong></p>
-                            <p style="color:#166534;">Seu pedido foi confirmado e você receberá um e-mail com os detalhes.</p>
-                        </div>
-                    `;
-                }
-            }
+            if (pixResult) pixResult.style.display = 'block';
         }
 
         function changeCheckoutQty(index, delta) {
@@ -5701,190 +5614,71 @@
                 return;
             }
 
-            showNotification('🔄 Processando pagamento...', 'info');
+            showNotification('🔄 Gerando PIX...', 'info');
 
             try {
-                if (checkoutPaymentMethod === 'pix') {
-                    // Criar pagamento PIX
-                    const response = await fetch('/api/create-pix-payment', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            amount: total,
-                            description: 'Compra NJ Store',
-                            email, name, phone, cpf,
-                            paymentType: 'sale'
-                        })
-                    });
+                // ===== SEMPRE PIX DIRETO (sem Mercado Pago) =====
+                const response = await fetch('/api/create-pix-direct', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        amount: total,
+                        description: 'Compra NJ Store',
+                        name, email, phone,
+                        type: 'sale'
+                    })
+                });
 
-                    const payment = await response.json();
-                    if (payment.error) throw new Error(payment.error);
+                const payment = await response.json();
+                if (payment.error) throw new Error(payment.error);
 
-                    checkoutPaymentId = payment.payment_id;
+                checkoutPaymentId = payment.payment_id;
 
-                    // Salvar pedido
-                    await saveCheckoutOrder(name, email, phone, total, payment.payment_id, 'pix');
+                // Salvar pedido
+                await saveCheckoutOrder(name, email, phone, total, payment.payment_id, 'pix-direct');
 
-                    // Ir para etapa 3 com PIX
-                    goToCheckoutStep(3);
+                // Ir para etapa 3
+                goToCheckoutStep(3);
 
-                    // Renderizar QR Code
-                    const pixResult = document.getElementById('checkoutPixResult');
-                    let qrHtml = `
-                        <div class="checkout-payment-result">
-                            <h3 style="color:var(--ink);margin-bottom:.3rem;font-size:1.1rem;font-weight:800;">✅ PIX Gerado com Sucesso</h3>
-                            <p style="font-size:.78rem;color:var(--muted);margin-bottom:.8rem;">Escaneie o QR Code ou copie o código abaixo</p>
-                    `;
+                // Renderizar QR Code do PIX
+                const pixResult = document.getElementById('checkoutPixResult');
+                let qrHtml = `
+                    <div class="checkout-payment-result">
+                        <h3 style="color:var(--ink);margin-bottom:.3rem;font-size:1.1rem;font-weight:800;">✅ PIX Gerado</h3>
+                        <p style="font-size:.78rem;color:var(--muted);margin-bottom:.8rem;">Escaneie o QR Code ou copie o código abaixo</p>
+                `;
 
-                    if (payment.qr_code_base64) {
-                        qrHtml += `
-                            <div class="qr-wrapper">
-                                <img src="data:image/png;base64,${payment.qr_code_base64}" alt="QR Code PIX">
-                            </div>
-                        `;
-                    }
-
-                    if (payment.qr_code) {
-                        qrHtml += `
-                            <div style="background:#f8fafc;padding:.8rem;border-radius:12px;word-break:break-all;font-size:.7rem;margin:.6rem 0;border:1px solid var(--line);text-align:left;">
-                                <strong style="color:var(--ink);">Código PIX:</strong>
-                                <div style="font-family:monospace;font-size:.65rem;margin-top:.3rem;color:var(--ink-soft);">${payment.qr_code}</div>
-                            </div>
-                            <button onclick="navigator.clipboard.writeText('${payment.qr_code.replace(/'/g, "\\'")}');showNotification('✅ Código copiado!','success');" class="btn-dark btn-block" style="margin-bottom:.5rem;">
-                                <i class="fas fa-copy"></i> Copiar Código PIX
-                            </button>
-                        `;
-                    }
-
+                if (payment.qr_code_url) {
                     qrHtml += `
-                            <p style="font-size:.7rem;color:var(--muted);margin-top:.5rem;">
-                                <i class="fas fa-info-circle"></i> Após o pagamento, você receberá a confirmação automaticamente.
-                            </p>
-                            <button onclick="closeCheckout()" class="checkout-continue-shopping" style="margin-top:.8rem;">
-                                <i class="fas fa-check"></i> Já Paguei / Concluir
-                            </button>
+                        <div class="qr-wrapper" style="background:#fff;padding:1rem;border-radius:16px;display:inline-block;box-shadow:var(--shadow-sm);border:1px solid var(--line);margin:.6rem 0;">
+                            <img src="${payment.qr_code_url}" alt="QR Code PIX" style="max-width:200px;display:block;border-radius:8px;">
                         </div>
                     `;
-
-                    pixResult.innerHTML = qrHtml;
-
-                    // Verificação automática
-                    verificarCheckoutStatus(payment.payment_id);
-
-                } else if (checkoutPaymentMethod === 'pix-direct') {
-                    // ===== PIX DIRETO (sem Mercado Pago) =====
-                    const response = await fetch('/api/create-pix-direct', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            amount: total,
-                            description: 'Compra NJ Store',
-                            name, email, phone,
-                            type: 'sale'
-                        })
-                    });
-
-                    const payment = await response.json();
-                    if (payment.error) throw new Error(payment.error);
-
-                    checkoutPaymentId = payment.payment_id;
-
-                    // Salvar pedido com payment_id do PIX direto
-                    await saveCheckoutOrder(name, email, phone, total, payment.payment_id, 'pix-direct');
-
-                    // Ir para etapa 3
-                    goToCheckoutStep(3);
-
-                    // Renderizar QR Code do PIX direto
-                    const pixResult = document.getElementById('checkoutPixResult');
-                    let qrHtml = `
-                        <div class="checkout-payment-result">
-                            <h3 style="color:var(--ink);margin-bottom:.3rem;font-size:1.1rem;font-weight:800;">✅ PIX Direto Gerado</h3>
-                            <p style="font-size:.78rem;color:var(--muted);margin-bottom:.8rem;">Pague direto na conta da igreja (sem taxa)</p>
-                    `;
-
-                    if (payment.qr_code_url) {
-                        qrHtml += `
-                            <div class="qr-wrapper" style="background:#fff;padding:1rem;border-radius:16px;display:inline-block;box-shadow:var(--shadow-sm);border:1px solid var(--line);margin:.6rem 0;">
-                                <img src="${payment.qr_code_url}" alt="QR Code PIX" style="max-width:200px;display:block;border-radius:8px;">
-                            </div>
-                        `;
-                    }
-
-                    if (payment.pix_code) {
-                        qrHtml += `
-                            <div style="background:#f8fafc;padding:.8rem;border-radius:12px;word-break:break-all;font-size:.7rem;margin:.6rem 0;border:1px solid var(--line);text-align:left;">
-                                <strong style="color:var(--ink);">Código PIX (Copia e Cola):</strong>
-                                <div style="font-family:monospace;font-size:.65rem;margin-top:.3rem;color:var(--ink-soft);">${payment.pix_code}</div>
-                            </div>
-                            <button onclick="navigator.clipboard.writeText('${payment.pix_code.replace(/'/g, "\\'")}');showNotification('✅ Código copiado!','success');" class="btn-dark btn-block" style="margin-bottom:.5rem;">
-                                <i class="fas fa-copy"></i> Copiar Código PIX
-                            </button>
-                        `;
-                    }
-
-                    qrHtml += `
-                            <div style="background:#fef3c7;border:1px solid #fde68a;padding:.8rem;border-radius:12px;margin-top:.6rem;font-size:.74rem;color:#92400e;text-align:left;">
-                                <i class="fas fa-info-circle"></i> <strong>Atenção:</strong> Após pagar, envie o comprovante para a igreja. O pastor confirmará o pagamento e você receberá email de confirmação.
-                            </div>
-                            <p style="font-size:.7rem;color:var(--muted);margin-top:.5rem;">
-                                <i class="fas fa-shield-alt"></i> Recebedor: <strong>${payment.receiver_name || 'Igreja'}</strong>
-                            </p>
-                            <button onclick="closeCheckout()" class="checkout-continue-shopping" style="margin-top:.8rem;">
-                                <i class="fas fa-check"></i> Já Paguei / Concluir
-                            </button>
-                        </div>
-                    `;
-
-                    pixResult.innerHTML = qrHtml;
-
-                    // Não há verificação automática (PIX direto é manual)
-
-                } else {
-                    // Cartão
-                    const cardNumber = document.getElementById('checkoutCardNumber').value.replace(/\s/g, '');
-                    const cardExpiry = document.getElementById('checkoutCardExpiry').value;
-                    const cardCvv = document.getElementById('checkoutCardCvv').value;
-                    const installments = document.getElementById('checkoutInstallments').value;
-
-                    if (!cardNumber || !cardExpiry || !cardCvv) {
-                        showNotification('Preencha os dados do cartão!', 'error');
-                        checkoutIsProcessing = false;
-                        return;
-                    }
-
-                    const response = await fetch('/api/create-card-payment-fallback', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            amount: total,
-                            description: 'Compra NJ Store',
-                            email, name, phone, cpf,
-                            card_number: cardNumber,
-                            card_expiry: cardExpiry,
-                            card_cvv: cardCvv,
-                            installments: parseInt(installments)
-                        })
-                    });
-
-                    const payment = await response.json();
-                    if (payment.error) throw new Error(payment.error);
-
-                    checkoutPaymentId = payment.payment_id;
-
-                    await saveCheckoutOrder(name, email, phone, total, payment.payment_id, 'card');
-
-                    if (payment.status === 'approved') {
-                        goToCheckoutStep(3);
-                        renderCheckoutStep3();
-                        showNotification('✅ Pagamento aprovado! Obrigado! 🙏', 'success');
-                    } else {
-                        showNotification(`⏳ Pagamento ${payment.status}. Aguarde a confirmação.`, 'info');
-                        goToCheckoutStep(3);
-                        renderCheckoutStep3();
-                        verificarCheckoutStatus(payment.payment_id);
-                    }
                 }
+
+                if (payment.pix_code) {
+                    qrHtml += `
+                        <div style="background:#f8fafc;padding:.8rem;border-radius:12px;word-break:break-all;font-size:.7rem;margin:.6rem 0;border:1px solid var(--line);text-align:left;">
+                            <strong style="color:var(--ink);">Código PIX (Copia e Cola):</strong>
+                            <div style="font-family:monospace;font-size:.65rem;margin-top:.3rem;color:var(--ink-soft);">${payment.pix_code}</div>
+                        </div>
+                        <button onclick="navigator.clipboard.writeText('${payment.pix_code.replace(/'/g, "\\'")}');showNotification('✅ Código copiado!','success');" class="btn-dark btn-block" style="margin-bottom:.5rem;">
+                            <i class="fas fa-copy"></i> Copiar Código PIX
+                        </button>
+                    `;
+                }
+
+                qrHtml += `
+                        <p style="font-size:.7rem;color:var(--muted);margin-top:.5rem;">
+                            <i class="fas fa-shield-alt"></i> Recebedor: <strong>${payment.receiver_name || 'Igreja'}</strong>
+                        </p>
+                        <button onclick="closeCheckout()" class="checkout-continue-shopping" style="margin-top:.8rem;">
+                            <i class="fas fa-check"></i> Já Paguei / Concluir
+                        </button>
+                    </div>
+                `;
+
+                pixResult.innerHTML = qrHtml;
             } catch (error) {
                 console.error('Erro no checkout:', error);
                 showNotification('❌ Erro: ' + error.message, 'error');
@@ -5967,13 +5761,8 @@
         }
 
         function selectPaymentMethod(method) {
-            checkoutPaymentMethod = method;
-            document.getElementById('tabPix').classList.toggle('active', method === 'pix');
-            document.getElementById('tabPixDirect').classList.toggle('active', method === 'pix-direct');
-            document.getElementById('tabCard').classList.toggle('active', method === 'card');
-            document.getElementById('checkoutPixInfo').style.display = method === 'pix' ? 'block' : 'none';
-            document.getElementById('checkoutPixDirectInfo').style.display = method === 'pix-direct' ? 'block' : 'none';
-            document.getElementById('checkoutCardFields').style.display = method === 'card' ? 'block' : 'none';
+            // Sempre usa PIX Direto - ignora outros métodos
+            checkoutPaymentMethod = 'pix-direct';
         }
 
         // ============================================
@@ -6138,141 +5927,89 @@
             const name = document.getElementById('payName').value.trim();
             const email = document.getElementById('payEmail').value.trim();
             const phone = document.getElementById('payPhone').value.trim();
-            const cpf = document.getElementById('payCpf').value.trim();
-            const method = document.getElementById('payMethod').value;
 
-            if (!name || !email || !phone || !cpf) {
+            if (!name || !email || !phone) {
                 showNotification('Preencha todos os dados!', 'error');
                 return;
             }
 
             let amount = 0;
             let description = '';
+            let paymentTypeForApi = 'donation';
 
             if (paymentType === 'sale') {
                 amount = cart.reduce((sum, p) => sum + parseFloat(p.price) * (p.quantity || 1), 0);
                 description = 'Compra NJ Store';
+                paymentTypeForApi = 'sale';
             } else if (paymentType === 'donation') {
                 amount = _donationAmount || 0;
-                description = donationType + ' - NJ Cabuçu';
+                description = donationType || 'Dizimo';
+                paymentTypeForApi = 'donation';
             }
 
             if (amount <= 0) { showNotification('Valor inválido!', 'error'); return; }
 
-            if (!validarCPF(cpf)) {
-                showNotification('CPF inválido! Digite um CPF válido.', 'error');
-                return;
-            }
-
             try {
-                showNotification('🔄 Processando pagamento...', 'info');
+                showNotification('🔄 Gerando PIX...', 'info');
 
-                if (method === 'pix') {
-                    const paymentData = {
-                        amount, description, email, name, phone, cpf,
-                        paymentType: paymentType
-                    };
+                // ===== SEMPRE PIX DIRETO (sem Mercado Pago) =====
+                const response = await fetch('/api/create-pix-direct', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        amount,
+                        description,
+                        name, email, phone,
+                        type: paymentTypeForApi
+                    })
+                });
 
-                    const response = await fetch('/api/create-pix-payment', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(paymentData)
-                    });
+                const payment = await response.json();
+                if (payment.error) throw new Error(payment.error);
 
-                    const payment = await response.json();
-                    if (payment.error) throw new Error(payment.error);
+                // Salva o pedido/doação
+                await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'pix-direct', description);
 
-                    await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'pix', description);
+                // Mostra o QR Code
+                const resultDiv = document.getElementById('paymentResult');
+                resultDiv.style.display = 'block';
+                document.getElementById('paymentForm').style.display = 'none';
 
-                    const resultDiv = document.getElementById('paymentResult');
-                    resultDiv.style.display = 'block';
-                    document.getElementById('paymentForm').style.display = 'none';
+                let qrHtml = `
+                    <h3 style="color:var(--primary);margin-bottom:0.4rem;">✅ PIX Gerado</h3>
+                    <div style="text-align:center;padding:0.5rem;">
+                `;
 
-                    let qrHtml = `
-                        <h3 style="color:var(--primary);margin-bottom:0.4rem;">✅ Pagamento PIX Gerado</h3>
-                        <div style="text-align:center;padding:0.5rem;">
-                    `;
-
-                    if (payment.qr_code_base64) {
-                        qrHtml += `
-                            <img src="data:image/png;base64,${payment.qr_code_base64}" style="max-width:160px;margin:0 auto;display:block;border-radius:8px;">
-                            <p style="margin:0.3rem 0;font-size:0.75rem;">Escaneie o QR Code com seu banco</p>
-                        `;
-                    }
-
-                    if (payment.qr_code) {
-                        qrHtml += `
-                            <div style="background:#f4f6fc;padding:0.3rem;border-radius:8px;word-break:break-all;font-size:0.65rem;margin:0.3rem 0;border:1px solid #e0e0e0;">
-                                <strong>Código PIX:</strong><br>${payment.qr_code}
-                            </div>
-                            <button onclick="navigator.clipboard.writeText('${payment.qr_code}')" class="btn btn-primary btn-sm" style="margin:0.15rem;font-size:0.65rem;">
-                                <i class="fas fa-copy"></i> Copiar código
-                            </button>
-                        `;
-                    }
-
+                if (payment.qr_code_url) {
                     qrHtml += `
-                        <a href="${payment.payment_link}" target="_blank" class="btn btn-success" style="margin:0.15rem;display:inline-flex;font-size:0.75rem;background:#28a745;color:#fff;">
-                            <i class="fas fa-external-link-alt"></i> Abrir no Mercado Pago
-                        </a>
-                        <p style="margin-top:0.3rem;font-size:0.65rem;color:#888;">Status: <strong>${payment.status}</strong></p>
-                        <div style="display:flex;gap:0.4rem;justify-content:center;margin-top:0.3rem;flex-wrap:wrap;">
-                            <button onclick="checkPaymentStatus('${payment.payment_id}')" class="btn btn-primary btn-sm" style="font-size:0.65rem;">
-                                <i class="fas fa-sync"></i> Verificar Status
-                            </button>
-                            <button onclick="closeModal('paymentModal')" class="btn btn-sm btn-outline-light" style="border:2px solid #888;color:#888;background:transparent;padding:0.1rem 0.6rem;border-radius:50px;cursor:pointer;font-size:0.65rem;">
-                                <i class="fas fa-check"></i> Concluir
-                            </button>
-                        </div>
-                    </div>
+                        <img src="${payment.qr_code_url}" style="max-width:200px;margin:0 auto;display:block;border-radius:8px;background:#fff;padding:6px;border:1px solid #ddd;">
+                        <p style="margin:0.3rem 0;font-size:0.75rem;">Escaneie o QR Code com seu banco</p>
                     `;
-
-                    resultDiv.innerHTML = qrHtml;
-                    localStorage.setItem('last_payment_id', payment.payment_id);
-                    verificarStatusAutomatico(payment.payment_id);
-
-                } else {
-                    const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
-                    const cardExpiry = document.getElementById('cardExpiry').value;
-                    const cardCvv = document.getElementById('cardCvv').value;
-                    const installments = document.getElementById('cardInstallments').value;
-
-                    if (!cardNumber || !cardExpiry || !cardCvv) {
-                        showNotification('Preencha os dados do cartão!', 'error');
-                        return;
-                    }
-
-                    const paymentData = {
-                        amount, description, email, name, phone, cpf,
-                        card_number: cardNumber,
-                        card_expiry: cardExpiry,
-                        card_cvv: cardCvv,
-                        installments: parseInt(installments)
-                    };
-
-                    const response = await fetch('/api/create-card-payment-fallback', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(paymentData)
-                    });
-
-                    const payment = await response.json();
-                    if (payment.error) throw new Error(payment.error);
-
-                    await saveOrderOrDonation(name, email, phone, amount, payment.payment_id, 'card', description);
-
-                    if (payment.status === 'approved') {
-                        showNotification('✅ Pagamento aprovado! Obrigado! 🙏', 'success');
-                        cart = [];
-                        updateCartCount();
-                        closeModal('paymentModal');
-                    } else {
-                        showNotification(`⏳ Pagamento ${payment.status}. Aguarde a confirmação.`, 'info');
-                        closeModal('paymentModal');
-                        verificarStatusAutomatico(payment.payment_id);
-                    }
                 }
 
+                if (payment.pix_code) {
+                    const safeCode = payment.pix_code.replace(/'/g, "\\'");
+                    qrHtml += `
+                        <div style="background:#f4f6fc;padding:0.5rem;border-radius:8px;word-break:break-all;font-size:0.65rem;margin:0.3rem 0;border:1px solid #e0e0e0;text-align:left;">
+                            <strong>Código PIX (Copia e Cola):</strong><br>${payment.pix_code}
+                        </div>
+                        <button onclick="navigator.clipboard.writeText('${safeCode}');showNotification('✅ Código copiado!','success');" class="btn btn-primary btn-sm" style="margin:0.15rem;font-size:0.65rem;">
+                            <i class="fas fa-copy"></i> Copiar código
+                        </button>
+                    `;
+                }
+
+                qrHtml += `
+                    <p style="margin-top:0.4rem;font-size:0.7rem;color:#888;">
+                        <i class="fas fa-shield-alt"></i> Recebedor: <strong>${payment.receiver_name || 'Igreja'}</strong>
+                    </p>
+                    <button onclick="closeModal('paymentModal')" class="btn btn-sm btn-outline-light" style="border:2px solid var(--primary);color:var(--primary);background:transparent;padding:0.3rem 1rem;border-radius:50px;cursor:pointer;font-size:0.75rem;margin-top:0.3rem;">
+                        <i class="fas fa-check"></i> Concluir
+                    </button>
+                </div>
+                `;
+
+                resultDiv.innerHTML = qrHtml;
             } catch (error) {
                 console.error('Erro no pagamento:', error);
                 showNotification('❌ Erro: ' + error.message, 'error');

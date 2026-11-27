@@ -4962,27 +4962,60 @@
             const data = await res.json();
             if (data.error) throw new Error(data.error);
 
+            const pixCodeEscaped = String(data.pix_code).replace(/'/g, "\\'");
+
             resultDiv.innerHTML = `
                 <div style="background:var(--success-soft);border:1px solid var(--success-border);border-radius:var(--radius);padding:var(--sp-4);">
                     <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-3);">
                         <i class="fas fa-check-circle" style="color:var(--success);font-size:1.5rem;"></i>
                         <div>
-                            <strong style="color:var(--success);">QR Code gerado com sucesso!</strong>
+                            <strong style="color:var(--success);">QR Code gerado!</strong>
                             <div style="font-size:.8rem;color:var(--text-muted);">Valor de teste: R$ 10,00</div>
                         </div>
                     </div>
+
                     <div style="text-align:center;margin:var(--sp-4) 0;">
-                        <img src="${data.qr_code_url}" alt="QR Code PIX" style="max-width:220px;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-sm);">
+                        <img src="${data.qr_code_url}" alt="QR Code PIX" style="max-width:220px;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-sm);background:#fff;padding:8px;">
                     </div>
-                    <div style="background:var(--surface-2);padding:.6rem .8rem;border-radius:8px;word-break:break-all;font-family:monospace;font-size:.72rem;color:var(--text-2);border:1px solid var(--border);">
+
+                    <div style="background:var(--surface-2);padding:.6rem .8rem;border-radius:8px;word-break:break-all;font-family:monospace;font-size:.68rem;color:var(--text-2);border:1px solid var(--border);margin-bottom:.6rem;">
                         <strong>Copia e Cola:</strong><br>${data.pix_code}
                     </div>
-                    <div style="margin-top:var(--sp-3);font-size:.75rem;color:var(--text-muted);">
-                        <i class="fas fa-info-circle"></i> Abra o app do banco, escaneie o QR Code ou cole o código acima para testar.
+
+                    <button onclick="navigator.clipboard.writeText('${pixCodeEscaped}');showNotification('✅ Código copiado!','success');" class="btn btn-primary btn-sm" style="width:100%;margin-bottom:.6rem;">
+                        <i class="fas fa-copy"></i> Copiar Código PIX
+                    </button>
+
+                    <div style="background:#fffbeb;border:1px solid #fde68a;padding:.8rem;border-radius:8px;margin-top:.6rem;font-size:.75rem;color:#92400e;">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Como validar:</strong>
+                        <ol style="margin:.4rem 0 .4rem 1.2rem;padding:0;">
+                            <li>Abra o app do <strong>seu banco</strong> (o da igreja)</li>
+                            <li>Vá em <strong>PIX → Pagar com QR Code</strong></li>
+                            <li>Cole o código que você copiou acima</li>
+                            <li>O banco deve mostrar: "IGREJA NOVA JERUSALEM" e o valor de R$ 10,00</li>
+                            <li><strong>NÃO confirme o pagamento</strong> - é só pra testar se a chave está ativa</li>
+                        </ol>
+                    </div>
+
+                    <div style="background:#fef2f2;border:1px solid #fecaca;padding:.8rem;border-radius:8px;margin-top:.6rem;font-size:.75rem;color:#991b1b;">
+                        <strong><i class="fas fa-times-circle"></i> Se aparecer erro "QR Code não disponível":</strong>
+                        <ul style="margin:.4rem 0 0 1.2rem;padding:0;">
+                            <li>A chave PIX pode estar <strong>inativa ou removida</strong> no banco</li>
+                            <li>Verifique se a chave ainda está cadastrada no app do banco</li>
+                            <li>Confirme se o <strong>nome do recebedor</strong> bate com o dono da chave (alguns bancos validam)</li>
+                            <li>Se for CNPJ, use o CNPJ completo (14 dígitos, só números)</li>
+                            <li>Se for email, use o email exato cadastrado</li>
+                        </ul>
+                    </div>
+
+                    <div style="margin-top:.6rem;text-align:center;">
+                        <a href="https://www.bcb.gov.br/estabilidadefinanceira/pix" target="_blank" style="font-size:.72rem;color:var(--primary);">
+                            <i class="fas fa-external-link-alt"></i> Validar BR Code no site do BACEN
+                        </a>
                     </div>
                 </div>
             `;
-            showNotification('✅ QR Code de teste gerado!', 'success');
+            showNotification('✅ QR Code gerado! Teste no app do banco.', 'success');
         } catch (e) {
             resultDiv.innerHTML = `<div class="notification error" style="position:static;"><i class="fas fa-times-circle"></i> ${e.message}</div>`;
             showNotification('❌ ' + e.message, 'error');

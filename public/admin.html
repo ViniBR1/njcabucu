@@ -2491,6 +2491,74 @@
                 </div>
             </div>
 
+            <!-- ===== PIX DIRETO (Transferência sem Mercado Pago) ===== -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-header-left">
+                        <div class="section-icon" style="background:var(--success-soft);color:var(--success);"><i class="fas fa-qrcode"></i></div>
+                        <div class="section-title-block">
+                            <div class="section-title">PIX Direto (Transferência sem taxa)</div>
+                            <div class="section-subtitle">Gera QR Code na conta da igreja · zero taxa do Mercado Pago</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div style="background:var(--info-soft);border-left:4px solid var(--info);padding:.8rem 1rem;border-radius:8px;margin-bottom:var(--sp-4);font-size:.82rem;color:var(--info);">
+                        <i class="fas fa-info-circle"></i> <strong>Como funciona:</strong> Quando o usuário escolhe "PIX Direto" no checkout, o sistema gera um QR Code com a chave PIX da igreja. O pagamento vai direto para a conta de vocês (sem passar pelo Mercado Pago, sem taxa). Como não há webhook bancário automático, você confirma manualmente aqui no admin quando o dinheiro cair na conta.
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Chave PIX da Igreja <span class="required">*</span></label>
+                            <input type="text" id="configPixKey" placeholder="Ex: 12345678901 (CPF/CNPJ) ou email@igreja.com ou +5521987654321">
+                            <div class="form-help">Pode ser CPF, CNPJ, email, telefone (+55...) ou chave aleatória</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Nome do Recebedor</label>
+                            <input type="text" id="configPixReceiverName" placeholder="IGREJA NOVA JERUSALEM" maxlength="25">
+                            <div class="form-help">Nome que aparece no PIX (máx 25 caracteres, sem acento)</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Cidade</label>
+                            <input type="text" id="configPixCity" placeholder="NOVA IGUACU" maxlength="15">
+                            <div class="form-help">Cidade do recebedor (máx 15 caracteres, sem acento)</div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap: var(--sp-2); margin-top: var(--sp-4); flex-wrap:wrap;">
+                        <button onclick="savePixConfig()" class="btn btn-primary" style="flex:1;min-width:140px;"><i class="fas fa-save"></i> Salvar Configuração PIX</button>
+                        <button onclick="testPixGeneration()" class="btn btn-secondary" style="flex:1;min-width:140px;"><i class="fas fa-vial"></i> Testar QR Code</button>
+                    </div>
+
+                    <div id="pixTestResult" style="margin-top: var(--sp-4); display:none;"></div>
+                    <div id="pixConfigStatus" class="form-help" style="margin-top: var(--sp-3);"></div>
+                </div>
+            </div>
+
+            <!-- ===== PEDIDOS PIX PENDENTES (para confirmar manualmente) ===== -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-header-left">
+                        <div class="section-icon" style="background:var(--warning-soft);color:var(--warning);"><i class="fas fa-clock"></i></div>
+                        <div class="section-title-block">
+                            <div class="section-title">PIX Pendentes - Confirmar Pagamento</div>
+                            <div class="section-subtitle">Marque como pago quando o dinheiro cair na conta da igreja</div>
+                        </div>
+                    </div>
+                    <button onclick="loadPendingPixPayments()" class="btn btn-secondary btn-sm"><i class="fas fa-sync"></i> Atualizar</button>
+                </div>
+                <div class="section-body flush">
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <thead><tr><th>Cliente</th><th>Tipo</th><th>Valor</th><th>Data</th><th>ID</th><th>Ações</th></tr></thead>
+                            <tbody id="pendingPixList">
+                                <tr><td colspan="6" class="text-center text-muted" style="padding:2rem;">Clique em "Atualizar" para ver os PIX pendentes</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <div class="section">
                 <div class="section-header">
                     <div class="section-header-left">
@@ -4809,7 +4877,206 @@
             if (data.whatsapp) document.getElementById('configWhatsapp').value = data.whatsapp;
             await loadCultos();
             await loadLogoPreview();
+            await loadPixConfig();
         } catch (e) { console.error('Erro:', e); }
+    }
+
+    // ============================================
+    // ===== CONFIGURAÇÃO PIX DIRETO =====
+    // ============================================
+    async function loadPixConfig() {
+        try {
+            const res = await fetch('/api/settings');
+            const data = await res.json();
+            const pixKeyEl = document.getElementById('configPixKey');
+            const pixNameEl = document.getElementById('configPixReceiverName');
+            const pixCityEl = document.getElementById('configPixCity');
+            const statusEl = document.getElementById('pixConfigStatus');
+            if (pixKeyEl) pixKeyEl.value = data.pix_key || '';
+            if (pixNameEl) pixNameEl.value = data.pix_receiver_name || '';
+            if (pixCityEl) pixCityEl.value = data.pix_city || '';
+            if (statusEl) {
+                if (data.pix_key) {
+                    statusEl.innerHTML = '✅ PIX configurado e pronto para uso!';
+                    statusEl.style.color = 'var(--success)';
+                } else {
+                    statusEl.innerHTML = '⚠️ PIX não configurado. Preencha a chave PIX acima e clique em Salvar.';
+                    statusEl.style.color = 'var(--warning)';
+                }
+            }
+        } catch (e) { console.error('Erro:', e); }
+    }
+
+    async function savePixConfig() {
+        const pixKey = document.getElementById('configPixKey').value.trim();
+        const receiverName = document.getElementById('configPixReceiverName').value.trim() || 'IGREJA NOVA JERUSALEM CABUCU';
+        const city = document.getElementById('configPixCity').value.trim() || 'NOVA IGUACU';
+
+        if (!pixKey) {
+            showNotification('Digite a chave PIX da igreja!', 'error');
+            return;
+        }
+
+        try {
+            showNotification('🔄 Salvando...', 'info');
+            await Promise.all([
+                fetch('/api/settings', { method: 'POST', headers: getJsonHeaders(), body: JSON.stringify({ key: 'pix_key', value: pixKey }) }),
+                fetch('/api/settings', { method: 'POST', headers: getJsonHeaders(), body: JSON.stringify({ key: 'pix_receiver_name', value: receiverName }) }),
+                fetch('/api/settings', { method: 'POST', headers: getJsonHeaders(), body: JSON.stringify({ key: 'pix_city', value: city }) })
+            ]);
+            showNotification('✅ PIX configurado com sucesso!', 'success');
+            loadPixConfig();
+        } catch (e) {
+            showNotification('❌ ' + e.message, 'error');
+        }
+    }
+
+    async function testPixGeneration() {
+        const pixKey = document.getElementById('configPixKey').value.trim();
+        const resultDiv = document.getElementById('pixTestResult');
+
+        if (!pixKey) {
+            showNotification('Configure a chave PIX primeiro!', 'error');
+            return;
+        }
+
+        // Salva antes de testar
+        await savePixConfig();
+
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = '<div class="notification info" style="position:static;"><i class="fas fa-spinner fa-spin"></i> Gerando QR Code de teste...</div>';
+
+        try {
+            const res = await fetch('/api/create-pix-direct', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount: 10.00,
+                    description: 'TESTE',
+                    name: 'Teste Admin',
+                    email: 'teste@njcabucu.com',
+                    phone: '',
+                    type: 'donation'
+                })
+            });
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+
+            resultDiv.innerHTML = `
+                <div style="background:var(--success-soft);border:1px solid var(--success-border);border-radius:var(--radius);padding:var(--sp-4);">
+                    <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-3);">
+                        <i class="fas fa-check-circle" style="color:var(--success);font-size:1.5rem;"></i>
+                        <div>
+                            <strong style="color:var(--success);">QR Code gerado com sucesso!</strong>
+                            <div style="font-size:.8rem;color:var(--text-muted);">Valor de teste: R$ 10,00</div>
+                        </div>
+                    </div>
+                    <div style="text-align:center;margin:var(--sp-4) 0;">
+                        <img src="${data.qr_code_url}" alt="QR Code PIX" style="max-width:220px;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-sm);">
+                    </div>
+                    <div style="background:var(--surface-2);padding:.6rem .8rem;border-radius:8px;word-break:break-all;font-family:monospace;font-size:.72rem;color:var(--text-2);border:1px solid var(--border);">
+                        <strong>Copia e Cola:</strong><br>${data.pix_code}
+                    </div>
+                    <div style="margin-top:var(--sp-3);font-size:.75rem;color:var(--text-muted);">
+                        <i class="fas fa-info-circle"></i> Abra o app do banco, escaneie o QR Code ou cole o código acima para testar.
+                    </div>
+                </div>
+            `;
+            showNotification('✅ QR Code de teste gerado!', 'success');
+        } catch (e) {
+            resultDiv.innerHTML = `<div class="notification error" style="position:static;"><i class="fas fa-times-circle"></i> ${e.message}</div>`;
+            showNotification('❌ ' + e.message, 'error');
+        }
+    }
+
+    // Carrega lista de PIX pendentes (payment_id começa com "PIX-DIRECT-")
+    async function loadPendingPixPayments() {
+        const tbody = document.getElementById('pendingPixList');
+        if (!tbody) return;
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted" style="padding:1.5rem;"><i class="fas fa-spinner fa-spin"></i> Carregando...</td></tr>';
+        try {
+            // Busca orders e donations
+            const [ordersRes, donationsRes] = await Promise.all([
+                fetch('/api/orders', { headers: getHeaders() }).then(r => r.json()).catch(() => []),
+                fetch('/api/donations', { headers: getHeaders() }).then(r => r.json()).catch(() => [])
+            ]);
+
+            // Filtra apenas os PIX-DIRECT pendentes
+            const pending = [];
+            (ordersRes || []).forEach(o => {
+                if (o.payment_id && String(o.payment_id).startsWith('PIX-DIRECT-') && o.status !== 'approved') {
+                    pending.push({ ...o, kind: 'order', id_ref: o.payment_id });
+                }
+            });
+            (donationsRes || []).forEach(d => {
+                if (d.payment_id && String(d.payment_id).startsWith('PIX-DIRECT-') && d.status !== 'approved') {
+                    pending.push({ ...d, id_ref: d.payment_id });
+                }
+            });
+
+            if (pending.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted" style="padding:2rem;">✅ Nenhum PIX pendente</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = pending.map(p => {
+                const nome = p.user_name || '—';
+                const valor = parseFloat(p.total || p.amount || 0).toFixed(2);
+                const tipo = p.kind === 'order' ? 'Venda' : (p.type || 'Doação');
+                const data = new Date(p.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+                const idShort = String(p.id_ref).substring(10, 24);
+                const idEscaped = String(p.id_ref).replace(/'/g, "\\'");
+                return `
+                    <tr>
+                        <td data-label="Cliente"><strong>${nome}</strong></td>
+                        <td data-label="Tipo">${tipo}</td>
+                        <td data-label="Valor">R$ ${valor}</td>
+                        <td data-label="Data">${data}</td>
+                        <td data-label="ID" style="font-family:monospace;font-size:.7rem;color:var(--text-muted);">${idShort}</td>
+                        <td data-label="Ações">
+                            <button onclick="confirmPixPayment('${idEscaped}')" class="btn btn-success btn-sm" title="Confirmar pagamento">
+                                <i class="fas fa-check"></i> Confirmar
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        } catch (e) {
+            console.error('Erro:', e);
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center" style="color:var(--danger);padding:1.5rem;">❌ ${e.message}</td></tr>`;
+        }
+    }
+
+    async function confirmPixPayment(paymentId) {
+        if (!confirm('Confirmar este pagamento PIX?\n\nO cliente receberá email de confirmação automaticamente.')) return;
+        try {
+            showNotification('🔄 Confirmando...', 'info');
+            const res = await fetch('/api/confirm-pix-direct', {
+                method: 'POST',
+                headers: getJsonHeaders(),
+                body: JSON.stringify({ payment_id: paymentId })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Erro ao confirmar');
+
+            if (data.email_sent) {
+                showNotification('✅ Confirmado! Email enviado ao cliente.', 'success');
+            } else if (data.email_already_sent) {
+                showNotification('✅ Confirmado! (email já tinha sido enviado)', 'success');
+            } else {
+                showNotification('✅ Confirmado, mas houve falha no envio do email.', 'info');
+            }
+            loadPendingPixPayments();
+            // Atualiza vendas também
+            if (typeof loadOrders === 'function') {
+                try {
+                    const orders = await fetch('/api/orders', { headers: getHeaders() }).then(r => r.json());
+                    loadOrders(orders || []);
+                } catch {}
+            }
+        } catch (e) {
+            showNotification('❌ ' + e.message, 'error');
+        }
     }
 
     async function loadCultos() {
@@ -5361,7 +5628,10 @@
         removeLogo, loadLogoPreview, exportTithes, populateExportYears,
         openTrelloCardModal, saveTrelloCard, deleteTrelloCard, loadTrelloBoard, moveTrelloCard,
         openPrayerDetail, markPrayerReadAndClose, replyPrayerWhatsApp,
-        refreshOrders, openOrderDetail, manualApproveOrder
+        refreshOrders, openOrderDetail, manualApproveOrder,
+        // PIX Direto
+        savePixConfig, loadPixConfig, testPixGeneration,
+        loadPendingPixPayments, confirmPixPayment
     });
 </script>
 </body>

@@ -269,6 +269,180 @@ async function enviarEmailCompra(dados) {
 }
 
 // ============================================
+// ===== EMAIL DE ESCALA (equipe do dia) =====
+// ============================================
+// Envia email para todos os escalados (líder, ministro, músicos) com detalhes da escala.
+async function enviarEmailEscalaEquipe(dados) {
+    if (!transporter) {
+        console.log('⚠️ Email não configurado - escala não enviada por email');
+        return { enviados: 0, falhas: 0, motivo: 'email_nao_configurado' };
+    }
+
+    const { membros, escala, departamento, leaderName } = dados;
+
+    if (!membros || membros.length === 0) {
+        console.log('⚠️ Nenhum membro para enviar email de escala');
+        return { enviados: 0, falhas: 0, motivo: 'sem_membros' };
+    }
+
+    const eventDate = new Date(escala.event_date);
+    const dataFormatada = eventDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    const horaFormatada = eventDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+    const songsList = Array.isArray(escala.songs) ? escala.songs :
+                      (typeof escala.songs === 'string' ? (() => { try { return JSON.parse(escala.songs); } catch { return []; } })() : []);
+
+    const paletteColors = escala.palette ? String(escala.palette).split(',').map(c => c.trim()).filter(Boolean) : [];
+
+    // Monta a lista de equipe (todos os escalados)
+    const equipeList = [];
+    if (leaderName) equipeList.push({ nome: leaderName, papel: '👑 Líder' });
+    if (escala.minister_name) equipeList.push({ nome: escala.minister_name, papel: '🎤 Ministro' });
+
+    // Buscar nomes dos músicos
+    const musicianIds = Array.isArray(escala.musician_ids) ? escala.musician_ids :
+                        (typeof escala.musician_ids === 'string' ? (() => { try { return JSON.parse(escala.musician_ids); } catch { return []; } })() : []);
+
+    for (const mid of musicianIds) {
+        const m = membros.find(mu => mu.id === mid);
+        if (m) equipeList.push({ nome: m.name, papel: '🎸 Músico', email: m.email });
+    }
+
+    // Envia email para cada membro escalado (líder, ministro, músicos)
+    let enviados = 0, falhas = 0;
+    const emailsEnviados = new Set();
+
+    for (const membro of membros) {
+        const email = membro.email;
+        if (!email || !email.includes('@')) continue;
+        if (emailsEnviados.has(email)) continue;
+        emailsEnviados.add(email);
+
+        // Determinar o papel deste membro na escala
+        let papel = 'Equipe';
+        if (escala.leader_id === membro.id) papel = '👑 Líder';
+        else if (escala.minister_id === membro.id) papel = '🎤 Ministro';
+        else if (musicianIds.includes(membro.id)) papel = '🎸 Músico';
+
+        const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333; background: #f5f7fa; }
+                .container { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+                .header { background: linear-gradient(135deg, #0D47A1, #1565C0); color: #fff; padding: 30px; text-align: center; }
+                .header h1 { margin: 0; font-size: 24px; }
+                .header p { margin: 8px 0 0; opacity: 0.9; font-size: 13px; }
+                .content { padding: 30px; }
+                .role-box { background: #E8F0FE; border-radius: 12px; padding: 16px; text-align: center; margin: 20px 0; border: 1px solid rgba(13,71,161,0.15); }
+                .role-box .role { font-size: 28px; font-weight: 800; color: #0D47A1; }
+                .role-box .label { font-size: 12px; color: #666; }
+                .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; }
+                .info-row:last-child { border-bottom: none; }
+                .info-row .label { font-weight: 600; color: #555; }
+                .info-row .value { font-weight: 500; }
+                .section-title { font-size: 14px; font-weight: 700; color: #0D47A1; margin: 20px 0 10px; padding-bottom: 8px; border-bottom: 2px solid #E8F0FE; }
+                .songs-list { list-style: none; padding: 0; margin: 0; }
+                .songs-list li { background: #f8fafc; padding: 10px 14px; border-radius: 8px; margin-bottom: 6px; font-size: 14px; border-left: 3px solid #0D47A1; }
+                .team-list { list-style: none; padding: 0; margin: 0; }
+                .team-list li { padding: 8px 14px; margin-bottom: 4px; font-size: 14px; background: #f8fafc; border-radius: 6px; }
+                .palette { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+                .palette .color { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #ddd; display: inline-block; }
+                .rehearsal-badge { background: #dcfce7; color: #166534; padding: 6px 14px; border-radius: 50px; font-size: 12px; font-weight: 700; display: inline-block; margin-top: 8px; }
+                .footer { text-align: center; padding: 20px; background: #f8f9fa; font-size: 12px; color: #888; }
+                .verse { font-style: italic; color: #0D47A1; text-align: center; margin: 20px 0; font-size: 13px; padding: 14px; background: #E8F0FE; border-radius: 10px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🎵 Escala de Louvor</h1>
+                    <p>${departamento || 'Departamento'} - NJ Cabuçu</p>
+                </div>
+                <div class="content">
+                    <p>Olá, <strong>${membro.name}</strong>!</p>
+                    <p>Você foi escalado para o próximo culto. Confira os detalhes abaixo:</p>
+
+                    <div class="role-box">
+                        <div class="role">${papel}</div>
+                        <div class="label">Sua função nesta escala</div>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="label">📅 Data</span>
+                        <span class="value">${dataFormatada}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">🕐 Hora</span>
+                        <span class="value">${horaFormatada}</span>
+                    </div>
+                    ${leaderName ? `
+                    <div class="info-row">
+                        <span class="label">👑 Líder</span>
+                        <span class="value">${leaderName}</span>
+                    </div>` : ''}
+                    ${escala.minister_name ? `
+                    <div class="info-row">
+                        <span class="label">🎤 Ministro</span>
+                        <span class="value">${escala.minister_name}</span>
+                    </div>` : ''}
+                    ${escala.rehearsal ? '<div class="rehearsal-badge">🎤 COM ENSAIO</div>' : ''}
+
+                    ${songsList.length > 0 ? `
+                    <div class="section-title">🎶 Músicas</div>
+                    <ul class="songs-list">
+                        ${songsList.map(s => `<li>${typeof s === 'string' ? s : (s.title || s)}</li>`).join('')}
+                    </ul>` : ''}
+
+                    ${paletteColors.length > 0 ? `
+                    <div class="section-title">🎨 Paleta de Cores</div>
+                    <div class="palette">
+                        ${paletteColors.map(c => `<span class="color" style="background:${c};" title="${c}"></span>`).join('')}
+                        <span style="font-size:13px;color:#666;align-self:center;">${escala.palette}</span>
+                    </div>` : ''}
+
+                    ${equipeList.length > 0 ? `
+                    <div class="section-title">👥 Equipe do Dia</div>
+                    <ul class="team-list">
+                        ${equipeList.map(e => `<li><strong>${e.papel}</strong> - ${e.nome}</li>`).join('')}
+                    </ul>` : ''}
+
+                    <div class="verse">
+                        "Cantai ao Senhor um cântico novo, e o seu louvor na congregação dos santos."<br>
+                        <strong>Salmos 149:1</strong>
+                    </div>
+                </div>
+                <div class="footer">
+                    <p>NJ Cabuçu - Igreja Nova Jerusalém</p>
+                    <p>Este é um email automático. Em caso de dúvida, fale com o líder do departamento.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        `;
+
+        try {
+            const info = await transporter.sendMail({
+                from: `"NJ Cabuçu" <${process.env.EMAIL_USER}>`,
+                to: email,
+                subject: `🎵 Você foi escalado! ${dataFormatada.split(',')[0]} às ${horaFormatada}`,
+                html: html
+            });
+            console.log(`✅ Email de escala enviado para ${email} (${papel})`);
+            enviados++;
+        } catch (error) {
+            console.error(`❌ Erro ao enviar para ${email}:`, error.message);
+            falhas++;
+        }
+    }
+
+    console.log(`📧 Emails de escala: ${enviados} enviados, ${falhas} falhas`);
+    return { enviados, falhas };
+}
+
+// ============================================
 // ===== APP =====
 // ============================================
 const app = express();
@@ -2802,9 +2976,119 @@ app.post('/api/worship-scales', auth, async (req, res) => {
                 ${songsJson}::jsonb, ${songIdsJson}::jsonb, ${palette || ''}, ${rehearsal || false}, ${musicianIdsJson}::jsonb)
             RETURNING *
         `;
-        res.status(201).json(result[0]);
+
+        const escala = result[0];
+
+        // ===== Envia email para todos os escalados =====
+        // Busca dados completos (nomes e emails) do líder, ministro e músicos
+        try {
+            // Busca nome do líder (que criou a escala)
+            let leaderName = null;
+            if (leader_id) {
+                const leaderData = await sql`SELECT name, email FROM users WHERE id = ${leader_id}`;
+                if (leaderData.length > 0) leaderName = leaderData[0].name;
+            }
+
+            // Busca nome do ministro
+            let ministerName = null;
+            if (minister_id) {
+                const ministerData = await sql`SELECT name, email FROM users WHERE id = ${minister_id}`;
+                if (ministerData.length > 0) {
+                    ministerName = ministerData[0].name;
+                    // Adiciona o email do ministro no objeto da escala
+                    escala.minister_name = ministerName;
+                    escala.minister_email = ministerData[0].email;
+                }
+            }
+
+            // Busca todos os membros escalados (líder + ministro + músicos)
+            const idsEscalados = [leader_id, minister_id, ...musicians].filter(Boolean);
+            const membrosEscalados = idsEscalados.length > 0
+                ? await sql`SELECT id, name, email FROM users WHERE id = ANY(${idsEscalados})`
+                : [];
+
+            // Busca nome do departamento
+            let departamentoNome = 'Departamento';
+            try {
+                const dept = await sql`SELECT name FROM departments WHERE id = ${department_id}`;
+                if (dept.length > 0) departamentoNome = dept[0].name;
+            } catch {}
+
+            // Garantir que leader_name está no objeto
+            escala.leader_name = leaderName;
+
+            // Dispara envio de emails (não bloqueia a resposta)
+            enviarEmailEscalaEquipe({
+                membros: membrosEscalados,
+                escala,
+                departamento: departamentoNome,
+                leaderName
+            }).then(resultado => {
+                console.log(`📧 Emails de escala enviados: ${resultado.enviados}/${membrosEscalados.length}`);
+            }).catch(err => {
+                console.error('❌ Erro ao enviar emails de escala:', err.message);
+            });
+        } catch (emailErr) {
+            console.error('⚠️ Erro ao preparar emails de escala:', emailErr.message);
+        }
+
+        res.status(201).json(escala);
     } catch (error) {
         console.error('❌ Erro ao criar escala:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Rota para reenviar emails de uma escala existente (útil se algum email falhou)
+app.post('/api/worship-scales/:id/resend-emails', auth, async (req, res) => {
+    try {
+        const scaleId = req.params.id;
+
+        // Busca escala
+        const scales = await sql`
+            SELECT ws.*, u1.name as leader_name, u2.name as minister_name
+            FROM worship_scales ws
+            LEFT JOIN users u1 ON ws.leader_id = u1.id
+            LEFT JOIN users u2 ON ws.minister_id = u2.id
+            WHERE ws.id = ${scaleId}
+        `;
+        if (scales.length === 0) return res.status(404).json({ error: 'Escala não encontrada' });
+        const escala = scales[0];
+
+        // Busca nome do departamento
+        let departamentoNome = 'Departamento';
+        try {
+            const dept = await sql`SELECT name FROM departments WHERE id = ${escala.department_id}`;
+            if (dept.length > 0) departamentoNome = dept[0].name;
+        } catch {}
+
+        // IDs escalados
+        let musicianIds = [];
+        try {
+            musicianIds = typeof escala.musician_ids === 'string'
+                ? JSON.parse(escala.musician_ids)
+                : (Array.isArray(escala.musician_ids) ? escala.musician_ids : []);
+        } catch {}
+
+        const idsEscalados = [escala.leader_id, escala.minister_id, ...musicianIds].filter(Boolean);
+        const membrosEscalados = idsEscalados.length > 0
+            ? await sql`SELECT id, name, email FROM users WHERE id = ANY(${idsEscalados})`
+            : [];
+
+        const resultado = await enviarEmailEscalaEquipe({
+            membros: membrosEscalados,
+            escala,
+            departamento: departamentoNome,
+            leaderName: escala.leader_name
+        });
+
+        res.json({
+            message: `${resultado.enviados} email(s) enviados com sucesso!`,
+            enviados: resultado.enviados,
+            falhas: resultado.falhas
+        });
+    } catch (error) {
+        console.error('❌ Erro ao reenviar emails:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -2966,29 +3250,129 @@ app.get('/api/youtube-search', auth, async (req, res) => {
 
         const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
 
+        // ===== Tenta API oficial primeiro =====
         if (YOUTUBE_API_KEY) {
-            const response = await fetch(
-                `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}`
-            );
-            const data = await response.json();
-            const results = data.items?.map(item => ({
-                videoId: item.id.videoId,
-                title: item.snippet.title,
-                thumbnail: item.snippet.thumbnails.default.url
-            })) || [];
-            res.json({ results });
-        } else {
-            const results = [
-                { videoId: 'dQw4w9WgXcQ', title: `${query} - Versão Original` },
-                { videoId: 'dQw4w9WgXcQ', title: `${query} - Ao Vivo` },
-                { videoId: 'dQw4w9WgXcQ', title: `${query} - Playback` }
-            ];
-            res.json({ results });
+            try {
+                const response = await fetch(
+                    `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}`
+                );
+                if (response.ok) {
+                    const data = await response.json();
+                    const results = (data.items || []).map(item => ({
+                        videoId: item.id.videoId,
+                        title: item.snippet.title,
+                        channel: item.snippet.channelTitle,
+                        thumbnail: item.snippet.thumbnails?.medium?.url || item.snippet.thumbnails?.default?.url,
+                        duration: ''
+                    })).filter(v => v.videoId);
+                    if (results.length > 0) {
+                        return res.json({ results, source: 'youtube_api' });
+                    }
+                }
+            } catch (e) {
+                console.log('⚠️ YouTube API falhou, usando scraping:', e.message);
+            }
         }
+
+        // ===== FALLBACK: Scraping direto do YouTube (sem API key) =====
+        // Funciona fazendo parse do HTML retornado pelo YouTube.
+        const results = await scrapeYoutubeSearch(query);
+        res.json({ results, source: 'scraping' });
     } catch (error) {
+        console.error('❌ Erro YouTube search:', error.message);
         res.status(500).json({ error: error.message });
     }
 });
+
+// Função auxiliar: faz scraping da página de busca do YouTube
+async function scrapeYoutubeSearch(query) {
+    const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+
+    const response = await fetch(url, {
+        signal: controller.signal,
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
+            'Accept': 'text/html,application/xhtml+xml'
+        }
+    });
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+        throw new Error(`YouTube retornou HTTP ${response.status}`);
+    }
+
+    const html = await response.text();
+    return parseYouTubeHtml(html);
+}
+
+// Parser do HTML do YouTube - extrai vídeo, título e canal
+function parseYouTubeHtml(html) {
+    const results = [];
+    const seen = new Set();
+
+    // Estratégia: encontrar cada ocorrência de "videoId" no HTML
+    // e pegar um contexto ao redor para extrair título e canal
+    const videoIdMatches = [...html.matchAll(/"videoId":"([a-zA-Z0-9_-]{11})"/g)];
+
+    for (const vm of videoIdMatches) {
+        const videoId = vm[1];
+        if (seen.has(videoId)) continue;
+
+        // Pega contexto ao redor do videoId para buscar título e canal
+        const start = Math.max(0, vm.index - 500);
+        const end = Math.min(html.length, vm.index + 5000);
+        const context = html.substring(start, end);
+
+        // Extrai título (vários formatos possíveis)
+        let title = '';
+        const titleMatch1 = context.match(/"title":\{"runs":\[\{"text":"((?:[^"\\]|\\.)*)"/);
+        const titleMatch2 = context.match(/"simpleText":"((?:[^"\\]|\\.)*)"/);
+        if (titleMatch1) {
+            title = titleMatch1[1];
+        } else if (titleMatch2) {
+            title = titleMatch2[1];
+        }
+        if (title) {
+            title = title.replace(/\\u0026/g, '&')
+                         .replace(/\\"/g, '"')
+                         .replace(/\\n/g, ' ')
+                         .replace(/\\'/g, "'")
+                         .trim();
+        }
+
+        // Extrai canal
+        let channel = '';
+        const channelMatch = context.match(/"(?:longBylineText|ownerText|channelName|shortBylineText)":\{[^}]*?"runs":\[\{"text":"((?:[^"\\]|\\.)*)"/);
+        if (channelMatch) {
+            channel = channelMatch[1].replace(/\\u0026/g, '&').replace(/\\"/g, '"').trim();
+        }
+        // Fallback: simpleText
+        if (!channel) {
+            const channelSimple = context.match(/"(?:longBylineText|ownerText|shortBylineText)":\{"simpleText":"((?:[^"\\]|\\.)*)"/);
+            if (channelSimple) {
+                channel = channelSimple[1].replace(/\\u0026/g, '&').replace(/\\"/g, '"').trim();
+            }
+        }
+
+        // Só adiciona se tiver título (ignora videoIds sem título = não são vídeos principais)
+        if (title && title.length > 0) {
+            seen.add(videoId);
+            results.push({
+                videoId,
+                title,
+                channel,
+                thumbnail: `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`,
+                duration: ''
+            });
+            if (results.length >= 12) break;
+        }
+    }
+
+    return results;
+}
 
 app.post('/api/youtube-song', auth, async (req, res) => {
     try {

@@ -1,3 +1,381 @@
+Ajuda para site: Enviar detalhes
+Tô fazendo um site e preciso da sua ajuda, vou te mandar as coisas principais do meu site 
+
+Thought Process
+Perfeito! Pode mandar os detalhes do seu site que eu te ajudo.
+
+Para eu poder te ajudar da melhor forma, quando me enviar as informações seria legal incluir:
+
+Objetivo do site (o que ele faz, para quem é)
+Conteúdo principal (páginas, seções, funcionalidades)
+Estilo visual que você quer (cores, referências, vibe)
+Tecnologia (se já tem alguma preferência ou se quer que eu sugira)
+Fico no aguardo!
+
+Primeiro Index.html
+Segundo server.js
+Terceiro o admin.html
+Quarto o vercel.json (vazei os dados e pode continuar assim mesmo do jeito que está)
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/manifest.json",
+      "dest": "server.js"
+    },
+    {
+      "src": "/sw.js",
+      "dest": "server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "server.js"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/sw.js",
+      "headers": [
+        { "key": "Content-Type", "value": "application/javascript; charset=utf-8" },
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+        { "key": "Service-Worker-Allowed", "value": "/" }
+      ]
+    },
+    {
+      "source": "/manifest.json",
+      "headers": [
+        { "key": "Content-Type", "value": "application/manifest+json; charset=utf-8" },
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/icons/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
+  ],
+  "env": {
+    "DATABASE_URL": "postgresql://neondb_owner:npg_DeGK6sU7pgXS@ep-snowy-surf-ayfoddx3-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require",
+    "JWT_SECRET": "nj-cabucu-secret-key-2026-producao",
+    "MP_ACCESS_TOKEN": "APP_USR-6195213178388265-061411-3cfef8f6e8eb20cd2a3d6e29d8b3380c-2969207414",
+    "MP_PUBLIC_KEY": "APP_USR-9cbd3a18-e58d-4091-920b-ab3cd0faa588",
+    "PUBLIC_URL": "https://igrejanjcabucurj.vercel.app",
+    "EMAIL_USER": "mvini440@gmail.com",
+    "EMAIL_PASS": "pqqyrbitssvxyigb",
+    "YOUTUBE_API_KEY": ""
+  }
+}
+Está funcionando bem! Pode me tirar uma dúvida por quanto eu vendo esse site ou mensalidade?
+Outra coisa, como você pode ver, o código tá com o mercado pago embutido, só que ele entende que é uma venda, eu conseguiria fazer desse mesmo jeito só que ao invés de ser uma venda, ser uma transferência por Pix e o site entende que foi feito o Pix e confirmar? Além disso quero sempre mandar email de confirmação de pagamento pelo nodeemail 
+No Index, mas no layout tem a parte de ministério, lá em baixo, remove isso do rodapé 
+Também na parte da nj store tem o carrinho, consegue deixar ele mais visível, mais fácil de ver
+A bíblia também quero deixar ela mais simples no layout, ela tá com muita informação, e outra consegue disponibilizar mais versões? 
+Me ajude Show full message
+
+Thought Process
+Beleza! Analisei tudo que você mandou. Seu site é bem completo - é um sistema robusto, não só um site. Vou te ajudar com tudo. Deixa eu organizar as tarefas:
+
+Vou copiar os arquivos para a pasta de trabalho e fazer as edições:
+
+Agora vou começar as edições. Primeiro, vou remover a coluna "Ministérios" do rodapé:
+
+Agora vou ajustar o grid do footer para 3 colunas em vez de 4:
+
+Agora vou deixar o carrinho mais visível. Vou adicionar um FAB (botão flutuante) que aparece quando tem itens no carrinho:
+
+Agora vou adicionar o CSS do FAB do carrinho. Vou procurar onde estão os estilos dos FABs:
+
+Agora vou ajustar a posição do FAB do carrinho no mobile e fazer ele aparecer no JavaScript. Primeiro o CSS mobile:
+
+Agora vou atualizar o JavaScript updateCartCount para também controlar o FAB do carrinho:
+
+Boa! Carrinho visível está pronto. Agora vou simplificar o layout da Bíblia e adicionar seletor de versões. Primeiro vou ver a estrutura atual da página da Bíblia:
+
+Agora vou simplificar o layout da Bíblia. Vou:
+
+Remover o hero grande com "Palavra do Dia" (deixa só o versículo do dia compacto)
+Adicionar seletor de versão da Bíblia
+Compactar o visual geral
+Agora vou simplificar o CSS do hero da Bíblia (deixar mais compacto) e atualizar o JavaScript para enviar a versão selecionada para o servidor:
+
+Agora vou ajustar o hero mobile também:
+
+Agora vou atualizar o JavaScript searchBiblePage e populateBiblePageVerses para enviar a versão selecionada:
+
+Vou atualizar as funções JavaScript para incluir a versão selecionada:
+
+Agora vou atualizar o searchBiblePageRandom e loadVerseOfDay para usar a versão selecionada também:
+
+Agora vou adicionar um listener para quando mudar a versão, recarregar a busca:
+
+Agora vou atualizar o loadVerseOfDay para usar uma versão também:
+
+Index.html pronto! Agora vou atualizar o server.js para:
+
+Suportar múltiplas versões da Bíblia
+Garantir envio de email sempre que pagamento for confirmado
+Adicionar opção de PIX como transferência (QR Code estático sem taxa do MP)
+Agora vou atualizar o server.js. Primeiro, vou ver a rota /api/bible:
+
+Agora vou fazer a edição grande para suportar múltiplas versões. Vou substituir toda a rota /api/bible:
+
+Bíblia com múltiplas versões está pronta! Agora vou para a parte mais importante: garantir que o email de confirmação sempre seja enviado, e adicionar a opção de PIX como transferência (sem ser venda pelo Mercado Pago).
+
+Vou ver o endpoint /api/check-payment e o webhook para garantir envio de email:
+
+Vou substituir o /api/check-payment para SEMPRE enviar email quando confirmar, e adicionar uma função helper enviarEmailConfirmacaoPorPaymentId:
+
+Excelente! Agora vou também atualizar o webhook para usar a mesma função centralizada:
+
+Vou simplificar o webhook para usar a função centralizada (que já cobre orders e donations):
+
+Agora vou validar os arquivos para garantir que estão sem erros de sintaxe:
+
+Tudo certo! Vou também verificar se não tem erro de sintaxe no JavaScript do index.html:
+
+Sem erros de sintaxe! Vou marcar os TODOs como completos e ver se tem mais alguma coisa:
+
+Agora vou verificar o tamanho final dos arquivos:
+
+Tudo pronto! Vou preparar um resumo completo para você.
+
+Resumo completo
+Mano, analisei tudo que você mandou. Seu site é muito mais que um site - é um sistema completo de gestão eclesiástica. Vou responder tudo na ordem:
+
+1. Quanto cobrar? Preço/mensalidade
+Seu sistema tem: PWA instalável, loja online com checkout, Mercado Pago (PIX + cartão), live streaming, admin completo (dashboard, vendas, dízimos, membros, células, frequência, aniversariantes, contas a pagar, kanban, escalas de louvor), bíblia online multi-versão, emails automáticos, banco PostgreSQL na nuvem.
+
+Faixas de preço justas no mercado brasileiro (2026):
+
+Modelo
+Valor sugerido
+Quando usar
+Venda única (uma igreja)	R
+3.500aR
+ 8.000	Cliente compra o sistema pronto, você instala e entrega
+Mensalidade (SaaS/recorrente)	R
+150aR
+ 400/mês	Inclui hospedagem, suporte, manutenção e melhorias
+Setup + Mensalidade	R
+2.000setup+R
+ 200/mês	Modelo mais profissional e sustentável
+
+Recomendação: Para o nível do seu sistema, cobre R
+2.500setup+R
+ 250/mês (hospedagem Vercel + Neon já te custa ~R$ 50-80/mês). Se for só vender uma vez, R
+5.000aR
+ 6.000 é justo pelo que entrega.
+
+2. Transferência PIX (não venda pelo Mercado Pago)
+Te adicionei duas opções no server.js:
+
+Opção A - PIX direto (sem taxa do MP): Nova rota /api/create-pix-direct que gera um QR Code PIX estático (BR Code) com a chave PIX da igreja. O usuário paga direto na conta de vocês, zero taxa. Depois o admin confirma manualmente no painel (botão "Marcar como Pago") e o email sai automático.
+
+Opção B - Mercado Pago (já existe): Continua funcionando para quem quiser confirmação automática via webhook. O MP cobra ~0,99% no PIX.
+
+Para ativar a Opção A, você precisa configurar no admin (Configurações):
+
+pix_key = sua chave PIX (CPF/CNPJ/email/telefone/aleatória)
+pix_receiver_name = nome do recebedor (máx 25 caracteres)
+pix_city = cidade (máx 15 caracteres)
+3. O que foi alterado nos arquivos
+index.html:
+
+Removida a coluna "Ministérios" do rodapé (ajustado grid para 3 colunas)
+Adicionado FAB flutuante do carrinho que aparece sempre que tem itens, com badge vermelho e animação de pulse - bem mais visível que o botão no meio da página
+Simplificado o layout da Bíblia (removi o hero grande com "Palavra do Dia", deixei só o versículo do dia compacto)
+Adicionado seletor de versões da Bíblia com 6 opções
+server.js:
+
+Rota /api/bible agora aceita parâmetro version (por_bsl, por_almeida, por_acf, por_nvi, por_ra, por_rc)
+Nova rota /api/bible/versions lista versões disponíveis
+Função centralizada confirmarPagamentoEEnviarEmail() - chamada em 3 lugares (webhook, check-payment, confirmação manual). Garante que o email sai SEMPRE que um pagamento for confirmado, mas só uma vez
+Nova rota /api/create-pix-direct para PIX sem Mercado Pago
+Nova rota /api/confirm-pix-direct para admin confirmar PIX manualmente
+Função gerarBRCodePix() que gera o código "Copia e Cola" no padrão EMV (com CRC16)
+Aviso importante de segurança
+Você vazou credenciais no vercel.json (Neon, JWT, Mercado Pago, Gmail). Troca tudo isso agora e usa as variáveis de ambiente do Vercel (Settings → Environment Variables), NÃO no vercel.json. As senhas que vazaram:
+
+Database Neon
+JWT Secret
+Access Token do Mercado Pago
+Senha de app do Gmail
+Public Key do MP
+Os arquivos atualizados estão aqui:
+
+index.html
+server.js
+admin.html (não precisei mexer)
+Próximos passos sugeridos:
+
+Configurar a chave PIX da igreja no admin (Configurações → salvar pix_key)
+Adicionar um botão "Confirmar PIX" no admin para os pagamentos PIX diretos
+Quer que eu adicione também a opção do usuário anexar comprovante do PIX direto pelo site? Posso fazer se quiser
+Generated files
+3
+File
+server
+· js
+HTML
+index
+· html
+HTML
+admin
+· html
+cade o o pastor configurar o pix? 
+manda ai tudo que eu preciso para conseguir colcoar esse pix para funcionar e quando troco a versão da biblia  aparece 
+Capítulo não encontrado: Salmos 1 na versão ACF - Almeida Corrigida Fiel. Tente outra versão. 
+
+Thought Process
+Boa! Duas coisas para resolver. Deixa eu primeiro investigar o problema da Bíblia ACF e depois adicionar a config do PIX no admin.
+
+ACF não existe na API. Vou testar todas as versões para ver quais realmente funcionam:
+
+Putz, apenas por_bsl funciona! Vou descobrir quais versões em português realmente existem na API:
+
+A API bible.helloao.org só tem por_bsl em português! Vou testar outra API brasileira que tem várias versões:
+
+Achei! Vou testar o repositório thiagobodruk/biblia que tem NVI, ACF, AA:
+
+Achei as versões! ACF, NVI e AA existem no GitHub do thiagobodruk. Vou implementar cache no servidor para não baixar 4MB a cada requisição:
+
+Agora vou substituir a rota /api/bible no server.js para usar múltiplas fontes (bible.helloao.org para por_bsl, e GitHub para ACF/NVI/AA com cache):
+
+Vou substituir toda a rota /api/bible com a nova implementação que usa múltiplas fontes e cache em memória:
+
+Agora vou validar a sintaxe do server.js:
+
+Agora vou atualizar o index.html com as versões corretas (só as que realmente funcionam):
+
+Agora vou testar se a implementação funciona localmente:
+
+Funciona perfeitamente! Agora vou para a parte 2: adicionar a configuração de PIX no admin.html. Vou ver onde fica a aba Configurações:
+
+Vou inserir a seção de configuração de PIX logo após a seção "Logo da Igreja":
+
+Agora vou adicionar o JavaScript das funções savePixConfig, testPixGeneration, loadPendingPixPayments, confirmPixPayment, e atualizar loadConfig para carregar as config de PIX. Vou procurar a função loadConfig no admin:
+
+Agora preciso adicionar as funções novas no objeto window exposto:
+
+Vou validar a sintaxe do admin.html:
+
+Sem erros! Agora vou também adicionar uma opção no checkout do index.html para o usuário escolher entre Mercado Pago (com confirmação automática) e PIX Direto (sem taxa, confirmação manual). Vou ver o checkout:
+
+Vou adicionar uma terceira aba "PIX Direto" no checkout para o usuário escolher:
+
+Agora vou atualizar a função selectPaymentMethod e processCheckoutPayment no JavaScript para tratar a nova opção "pix-direct":
+
+Agora preciso atualizar processCheckoutPayment para tratar o caso "pix-direct":
+
+Agora vou ver o processCheckoutPayment para adicionar o caso "pix-direct":
+
+Vou inserir o caso "pix-direct" antes do "else" (cartão):
+
+Agora vou validar a sintaxe final dos três arquivos:
+
+Tudo OK sem erros! Vou rodar um teste rápido simulando o servidor para garantir que a rota PIX direto funciona:
+
+O BR Code está sendo gerado corretamente! Os testes acima só tinham strings de validação erradas. Vou validar melhor:
+
+O BR Code PIX está sendo gerado corretamente, no padrão EMV do Banco Central. Vou marcar os TODOs como completos e fazer um resumo final:
+
+Tudo pronto! Aqui está o resumo completo do que fiz:
+
+Resumo - Tudo pronto!
+1. Onde o pastor configura o PIX
+No admin.html, na aba Configurações, adicionei uma seção nova chamada "PIX Direto (Transferência sem taxa)" com 3 campos:
+
+Chave PIX da Igreja (obrigatório) - pode ser CPF, CNPJ, email, telefone (+55...) ou chave aleatória
+Nome do Recebedor (máx 25 caracteres, sem acento) - ex: IGREJA NOVA JERUSALEM
+Cidade (máx 15 caracteres, sem acento) - ex: NOVA IGUACU
+Botões disponíveis:
+
+Salvar Configuração PIX - salva no banco
+Testar QR Code - gera um QR Code de R$ 10 para você testar se está funcionando
+E logo abaixo, tem uma tabela "PIX Pendentes - Confirmar Pagamento" onde o pastor vê todos os PIX que chegaram e clica em "Confirmar" quando o dinheiro cair na conta. Isso dispara o email automático para o cliente.
+
+2. Versões da Bíblia - corrigido!
+O problema era que as versões que eu tinha sugerido antes (por_acf, por_nvi, por_ra, por_rc) não existiam na API bible.helloao.org - só tinha por_bsl.
+
+Achei as versões reais no GitHub (repositório thiagobodruk/biblia) e reescrevi o sistema com cache em memória:
+
+ID
+Nome
+Tamanho
+Funciona
+acf	ACF - Almeida Corrigida Fiel	4MB	✅
+nvi	NVI - Nova Versão Internacional	4MB	✅
+aa	AA - Almeida Antiga (1910)	4MB	✅
+por_bsl	Bíblia Portuguesa Mundial	online	✅
+
+A primeira vez que o usuário escolhe ACF/NVI/AA, o servidor baixa a Bíblia inteira (4MB) e guarda em memória. Próximas requisições são instantâneas. Testei Salmos 1 ACF e funcionou: "Bem-aventurado o homem que não anda segundo o conselho dos ímpios..."
+
+3. Checkout - agora com 3 opções de pagamento
+No index.html, o usuário agora escolhe entre:
+
+PIX (Mercado Pago) - aprovação automática, taxa ~0,99%
+PIX Direto - sem taxa, vai direto pra conta da igreja, pastor confirma manualmente
+Cartão - Mercado Pago, aprovação automática
+Passo a passo para o pastor colocar o PIX pra funcionar
+Acesse o admin → faça login com pastor@njcabucu.com
+Vá em Configurações (engrenagem no menu lateral)
+Role até a seção "PIX Direto"
+Preencha:
+Chave PIX: 12345678901 (CPF/CNPJ) ou igreja@email.com ou +5521987654321
+Nome do Recebedor: IGREJA NOVA JERUSALEM (sem acento, máx 25 chars)
+Cidade: NOVA IGUACU (sem acento, máx 15 chars)
+Clique em "Salvar Configuração PIX"
+Clique em "Testar QR Code" para validar - vai aparecer um QR Code de R$ 10 que você pode escanear com o banco pra testar
+Pronto! Agora no checkout do site, os usuários podem escolher "PIX Direto" e o pagamento vai direto pra conta da igreja
+Quando um PIX chegar
+Você recebe o dinheiro na conta
+Vá em Configurações → "PIX Pendentes" → clique em "Atualizar"
+Vai aparecer a lista de PIX pendentes com nome, valor, data
+Clique em "Confirmar" no PIX que você recebeu
+O sistema marca como pago e envia email automático pro cliente
+Arquivos atualizados
+index.html - checkout com 3 opções, bíblia com 4 versões
+server.js - rota /api/bible com cache multi-versão, /api/create-pix-direct, /api/confirm-pix-direct
+admin.html - seção de configuração PIX + tabela de pendentes
+Observação importante: O Vercel Functions tem um limite de memória (50MB no plano free). Como cada versão da Bíblia ocupa ~4MB em RAM, as 4 versões juntas ocupam ~16MB - está dentro do limite, mas se você notar lentidão, considere migrar para VPS ou hospedar em Railway/Render que dão mais memória.
+
+Quer que eu adicione também um botão para o usuário anexar comprovante do PIX direto pelo site? Aí o pastor receberia o comprovante por email junto com a notificação.
+
+Generated files
+3
+HTML
+index
+· html
+HTML
+admin
+· html
+File
+server
+· js
+Send a Message
+
+
+Connect IM
+
+GLM-5.2
+Max
+
+
 
 // ============================================
 // ===== NJ CABUÇU - SERVIDOR COMPLETO =====
@@ -2263,108 +2641,242 @@ app.delete('/api/settings/logo', auth, pastorOnly, async (req, res) => {
 // Usa a tradução "por_bsl" (Bíblia Portuguesa Mundial) - domínio público, 66 livros.
 // API: https://bible.helloao.org/api/por_bsl/<BOOK>/<CHAPTER>.json
 // Resposta mantém o formato esperado pelo frontend (verses[] com {verse, text}, e reference).
+// ============================================
+// ===== BÍBLIA - Múltiplas versões com cache em memória =====
+// ============================================
+// Fontes:
+// - por_bsl  → bible.helloao.org (API online, Bíblia Portuguesa Mundial)
+// - acf      → GitHub thiagobodruk/biblia (Almeida Corrigida Fiel - JSON estático, 4MB)
+// - nvi      → GitHub thiagobodruk/biblia (Nova Versão Internacional - JSON estático, 4MB)
+// - aa       → GitHub thiagobodruk/biblia (Almeida Antiga - JSON estático, 4MB)
+//
+// Cache: a primeira requisição a cada versão do GitHub baixa o JSON completo
+// e guarda em memória. Próximas requisições são instantâneas (a Bíblia inteira fica em RAM).
+// Cada versão ocupa ~4MB de memória.
+
+const bibleCache = {}; // { acf: [...], nvi: [...], aa: [...] }
+const bibleLoading = {}; // controla carregamento concorrente
+
+// Versões suportadas e suas fontes
+const BIBLE_VERSIONS = {
+    'por_bsl': { name: 'Bíblia Portuguesa Mundial', source: 'helloao' },
+    'acf':     { name: 'ACF - Almeida Corrigida Fiel', source: 'github' },
+    'nvi':     { name: 'NVI - Nova Versão Internacional', source: 'github' },
+    'aa':      { name: 'AA - Almeida Antiga (1910)', source: 'github' }
+};
+
+// Mapeia códigos curtos do frontend → IDs da AO Lab API (apenas para por_bsl)
+const bookMapHelloao = {
+    'gn':'GEN','ex':'EXO','lv':'LEV','nm':'NUM','dt':'DEU',
+    'js':'JOS','jz':'JDG','rt':'RUT','1sm':'1SA','2sm':'2SA',
+    '1rs':'1KI','2rs':'2KI','1cr':'1CH','2cr':'2CH',
+    'ed':'EZR','ne':'NEH','et':'EST','jo':'JOB','sl':'PSA',
+    'pv':'PRO','ec':'ECC','ct':'SNG','is':'ISA',
+    'jr':'JER','lm':'LAM','ez':'EZK','dn':'DAN','os':'HOS',
+    'jl':'JOL','am':'AMO','ob':'OBA','jn':'JON','mq':'MIC','na':'NAM',
+    'hc':'HAB','sf':'ZEP','ag':'HAG','zc':'ZEC','ml':'MAL',
+    'mt':'MAT','mc':'MRK','lc':'LUK','joao':'JHN','at':'ACT','rm':'ROM',
+    '1co':'1CO','2co':'2CO','gl':'GAL','ef':'EPH',
+    'fp':'PHP','cl':'COL','1ts':'1TH','2ts':'2TH',
+    '1tm':'1TI','2tm':'2TI','tt':'TIT','fm':'PHM','hb':'HEB',
+    'tg':'JAS','1pe':'1PE','2pe':'2PE','1jo':'1JN','2jo':'2JN',
+    '3jo':'3JN','jd':'JUD','ap':'REV'
+};
+
+// Mapeia códigos curtos do frontend → códigos usados pelo JSON do thiagobodruk
+// O JSON do thiagobodruk usa os mesmos códigos curtos: gn, ex, lv, ..., ap
+// Exceto: 'joao' precisa ser 'jo' no thiagobodruk
+const bookMapGithub = {
+    'gn':'gn','ex':'ex','lv':'lv','nm':'nm','dt':'dt',
+    'js':'js','jz':'jz','rt':'rt','1sm':'1sm','2sm':'2sm',
+    '1rs':'1rs','2rs':'2rs','1cr':'1cr','2cr':'2cr',
+    'ed':'ed','ne':'ne','et':'et','jo':'jo','sl':'sl',
+    'pv':'pv','ec':'ec','ct':'ct','is':'is',
+    'jr':'jr','lm':'lm','ez':'ez','dn':'dn','os':'os',
+    'jl':'jl','am':'am','ob':'ob','jn':'jn','mq':'mq','na':'na',
+    'hc':'hc','sf':'sf','ag':'ag','zc':'zc','ml':'ml',
+    'mt':'mt','mc':'mc','lc':'lc','joao':'jo','at':'at','rm':'rm',
+    '1co':'1co','2co':'2co','gl':'gl','ef':'ef',
+    'fp':'fp','cl':'cl','1ts':'1ts','2ts':'2ts',
+    '1tm':'1tm','2tm':'2tm','tt':'tt','fm':'fm','hb':'hb',
+    'tg':'tg','1pe':'1pe','2pe':'2pe','1jo':'1jo','2jo':'2jo',
+    '3jo':'3jo','jd':'jd','ap':'ap'
+};
+
+// Nomes em português para exibir na referência
+const bookNames = {
+    'gn':'Gênesis','ex':'êxodo','lv':'Levítico','nm':'Números','dt':'Deuteronômio',
+    'js':'Josué','jz':'Juízes','rt':'Rute','1sm':'1 Samuel','2sm':'2 Samuel',
+    '1rs':'1 Reis','2rs':'2 Reis','1cr':'1 Crônicas','2cr':'2 Crônicas',
+    'ed':'Esdras','ne':'Neemias','et':'Ester','jo':'Jó','sl':'Salmos',
+    'pv':'Provérbios','ec':'Eclesiastes','ct':'Cantares','is':'Isaías',
+    'jr':'Jeremias','lm':'Lamentações','ez':'Ezequiel','dn':'Daniel','os':'Oseias',
+    'jl':'Joel','am':'Amós','ob':'Obadias','jn':'Jonas','mq':'Miqueias','na':'Naum',
+    'hc':'Habacuque','sf':'Sofonias','ag':'Ageu','zc':'Zacarias','ml':'Malaquias',
+    'mt':'Mateus','mc':'Marcos','lc':'Lucas','joao':'João','at':'Atos','rm':'Romanos',
+    '1co':'1 Coríntios','2co':'2 Coríntios','gl':'Gálatas','ef':'Efésios',
+    'fp':'Filipenses','cl':'Colossenses','1ts':'1 Tessalonicenses','2ts':'2 Tessalonicenses',
+    '1tm':'1 Timóteo','2tm':'2 Timóteo','tt':'Tito','fm':'Filemom','hb':'Hebreus',
+    'tg':'Tiago','1pe':'1 Pedro','2pe':'2 Pedro','1jo':'1 João','2jo':'2 João',
+    '3jo':'3 João','jd':'Judas','ap':'Apocalipse'
+};
+
+// Carrega (ou pega do cache) uma versão completa do GitHub
+async function carregarBibliaGithub(versionId) {
+    // Se já está em cache, retorna direto
+    if (bibleCache[versionId]) return bibleCache[versionId];
+
+    // Se já está carregando, aguarda (evita múltiplos downloads simultâneos)
+    if (bibleLoading[versionId]) {
+        await bibleLoading[versionId];
+        return bibleCache[versionId];
+    }
+
+    // Inicia download
+    bibleLoading[versionId] = (async () => {
+        try {
+            const url = `https://raw.githubusercontent.com/thiagobodruk/biblia/master/json/${versionId}.json`;
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 30000); // 30s para baixar 4MB
+
+            const response = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeout);
+
+            if (!response.ok) {
+                throw new Error(`GitHub retornou HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            // Estrutura: [{ abbrev: 'gn', chapters: [['v1','v2',...], ['v1',...]] }, ...]
+            // Transforma em objeto indexado por abbrev para busca rápida
+            const indexed = {};
+            for (const book of data) {
+                indexed[book.abbrev] = book.chapters;
+            }
+
+            bibleCache[versionId] = indexed;
+            console.log(`✅ Bíblia ${versionId} carregada em cache (${data.length} livros)`);
+            return indexed;
+        } catch (error) {
+            console.error(`❌ Erro ao baixar Bíblia ${versionId}:`, error.message);
+            throw error;
+        } finally {
+            delete bibleLoading[versionId];
+        }
+    })();
+
+    return await bibleLoading[versionId];
+}
+
+// Busca versículos usando a API bible.helloao.org (para por_bsl)
+async function buscarBibliaHelloao(versionId, bookCode, chapterNum) {
+    const bookId = bookMapHelloao[String(bookCode).toLowerCase()] || String(bookCode).toUpperCase();
+    if (!bookId) return null;
+
+    const url = `https://bible.helloao.org/api/${versionId}/${bookId}/${chapterNum}.json`;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+        const err = new Error(`API retornou ${response.status}`);
+        err.status = response.status;
+        throw err;
+    }
+
+    const data = await response.json();
+    const content = data?.chapter?.content || [];
+    const allVerses = [];
+
+    for (const item of content) {
+        if (item?.type === 'verse' && typeof item.number === 'number') {
+            const parts = Array.isArray(item.content) ? item.content : [item.content];
+            const text = parts
+                .map(p => typeof p === 'string' ? p : (p?.text || ''))
+                .join('')
+                .trim();
+            allVerses.push({ verse: item.number, text });
+        }
+    }
+
+    return allVerses;
+}
+
+// Busca versículos usando o JSON do GitHub (para acf, nvi, aa)
+async function buscarBibliaGithub(versionId, bookCode, chapterNum) {
+    const githubBookCode = bookMapGithub[String(bookCode).toLowerCase()];
+    if (!githubBookCode) return null;
+
+    const biblia = await carregarBibliaGithub(versionId);
+    const chapters = biblia[githubBookCode];
+    if (!chapters) {
+        const err = new Error(`Livro não encontrado: ${bookCode}`);
+        err.status = 404;
+        throw err;
+    }
+
+    // Capítulos são indexados a partir de 0 (capítulo 1 = index 0)
+    const chapterIndex = chapterNum - 1;
+    const versesArray = chapters[chapterIndex];
+    if (!versesArray) {
+        const err = new Error(`Capítulo ${chapterNum} não encontrado (livro tem ${chapters.length} capítulos)`);
+        err.status = 404;
+        throw err;
+    }
+
+    // Transforma array de strings em array de objetos { verse, text }
+    return versesArray.map((text, index) => ({
+        verse: index + 1,
+        text: text.trim()
+    }));
+}
+
 app.get('/api/bible', async (req, res) => {
     try {
         const { book, chapter, verse, version } = req.query;
         if (!book || !chapter) return res.status(400).json({ error: 'Livro e capítulo obrigatórios' });
 
-        // Versões suportadas pela API bible.helloao.org em português
-        const SUPPORTED_VERSIONS = {
-            'por_bsl':    'Bíblia Portuguesa Mundial',
-            'por_almeida':'Almeida',
-            'por_acf':    'ACF - Almeida Corrigida Fiel',
-            'por_nvi':    'NVI - Nova Versão Internacional',
-            'por_ra':     'Almeida Revista e Atualizada',
-            'por_rc':     'Almeida Revista e Corrigida'
-        };
-        const versionId = SUPPORTED_VERSIONS[String(version)] ? String(version) : 'por_bsl';
-        const versionLabel = SUPPORTED_VERSIONS[versionId];
+        // Valida versão suportada
+        const versionId = BIBLE_VERSIONS[String(version)] ? String(version) : 'por_bsl';
+        const versionInfo = BIBLE_VERSIONS[versionId];
+        const versionLabel = versionInfo.name;
 
-        // Mapeia códigos curtos do frontend → IDs da AO Lab API
-        const bookMap = {
-            'gn':'GEN','ex':'EXO','lv':'LEV','nm':'NUM','dt':'DEU',
-            'js':'JOS','jz':'JDG','rt':'RUT','1sm':'1SA','2sm':'2SA',
-            '1rs':'1KI','2rs':'2KI','1cr':'1CH','2cr':'2CH',
-            'ed':'EZR','ne':'NEH','et':'EST','jo':'JOB','sl':'PSA',
-            'pv':'PRO','ec':'ECC','ct':'SNG','is':'ISA',
-            'jr':'JER','lm':'LAM','ez':'EZK','dn':'DAN','os':'HOS',
-            'jl':'JOL','am':'AMO','ob':'OBA','jn':'JON','mq':'MIC','na':'NAM',
-            'hc':'HAB','sf':'ZEP','ag':'HAG','zc':'ZEC','ml':'MAL',
-            'mt':'MAT','mc':'MRK','lc':'LUK','joao':'JHN','at':'ACT','rm':'ROM',
-            '1co':'1CO','2co':'2CO','gl':'GAL','ef':'EPH',
-            'fp':'PHP','cl':'COL','1ts':'1TH','2ts':'2TH',
-            '1tm':'1TI','2tm':'2TI','tt':'TIT','fm':'PHM','hb':'HEB',
-            'tg':'JAS','1pe':'1PE','2pe':'2PE','1jo':'1JN','2jo':'2JN',
-            '3jo':'3JN','jd':'JUD','ap':'REV'
-        };
-
-        // Nomes em português para exibir na referência
-        const bookNames = {
-            'gn':'Gênesis','ex':'êxodo','lv':'Levítico','nm':'Números','dt':'Deuteronômio',
-            'js':'Josué','jz':'Juízes','rt':'Rute','1sm':'1 Samuel','2sm':'2 Samuel',
-            '1rs':'1 Reis','2rs':'2 Reis','1cr':'1 Crônicas','2cr':'2 Crônicas',
-            'ed':'Esdras','ne':'Neemias','et':'Ester','jo':'Jó','sl':'Salmos',
-            'pv':'Provérbios','ec':'Eclesiastes','ct':'Cantares','is':'Isaías',
-            'jr':'Jeremias','lm':'Lamentações','ez':'Ezequiel','dn':'Daniel','os':'Oseias',
-            'jl':'Joel','am':'Amós','ob':'Obadias','jn':'Jonas','mq':'Miqueias','na':'Naum',
-            'hc':'Habacuque','sf':'Sofonias','ag':'Ageu','zc':'Zacarias','ml':'Malaquias',
-            'mt':'Mateus','mc':'Marcos','lc':'Lucas','joao':'João','at':'Atos','rm':'Romanos',
-            '1co':'1 Coríntios','2co':'2 Coríntios','gl':'Gálatas','ef':'Efésios',
-            'fp':'Filipenses','cl':'Colossenses','1ts':'1 Tessalonicenses','2ts':'2 Tessalonicenses',
-            '1tm':'1 Timóteo','2tm':'2 Timóteo','tt':'Tito','fm':'Filemom','hb':'Hebreus',
-            'tg':'Tiago','1pe':'1 Pedro','2pe':'2 Pedro','1jo':'1 João','2jo':'2 João',
-            '3jo':'3 João','jd':'Judas','ap':'Apocalipse'
-        };
-
-        const bookId = bookMap[String(book).toLowerCase()] || String(book).toUpperCase();
         const bookName = bookNames[String(book).toLowerCase()] || book;
         const chapterNum = parseInt(chapter);
         const verseNum = verse ? parseInt(verse) : 0;
 
-        if (!bookId || isNaN(chapterNum) || chapterNum < 1) {
+        if (isNaN(chapterNum) || chapterNum < 1) {
             return res.status(400).json({ error: 'Livro ou capítulo inválido' });
         }
 
-        const url = `https://bible.helloao.org/api/${versionId}/${bookId}/${chapterNum}.json`;
-
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 15000);
-
-        const response = await fetch(url, { signal: controller.signal });
-        clearTimeout(timeout);
-
-        if (!response.ok) {
-            if (response.status === 404) {
-                // Pode ser que a versão não tenha aquele livro/capítulo
-                return res.status(404).json({ error: `Capítulo não encontrado: ${bookName} ${chapterNum} na versão ${versionLabel}. Tente outra versão.` });
+        // Busca versículos conforme a fonte da versão
+        let allVerses = null;
+        try {
+            if (versionInfo.source === 'helloao') {
+                allVerses = await buscarBibliaHelloao(versionId, book, chapterNum);
+            } else if (versionInfo.source === 'github') {
+                allVerses = await buscarBibliaGithub(versionId, book, chapterNum);
             }
-            if (response.status === 429) {
-                return res.status(429).json({ error: 'Muitas consultas. Aguarde alguns segundos e tente novamente.' });
+        } catch (err) {
+            if (err.status === 404) {
+                return res.status(404).json({
+                    error: `Capítulo não encontrado: ${bookName} ${chapterNum} na versão ${versionLabel}.`,
+                    hint: 'Tente outra versão no seletor acima.'
+                });
             }
-            throw new Error(`API bíblia retornou ${response.status}`);
+            if (err.name === 'AbortError') {
+                return res.status(504).json({ error: 'A versão demorou para carregar. Tente novamente em alguns segundos.' });
+            }
+            throw err;
         }
 
-        const data = await response.json();
-
-        // A AO Lab API retorna data.chapter.content[] como array de itens:
-        //   { type: 'verse', number: N, content: [string,...] }
-        //   { type: 'line_break', paragraph: 'p' }
-        const content = data?.chapter?.content || [];
-        const allVerses = [];
-
-        for (const item of content) {
-            if (item?.type === 'verse' && typeof item.number === 'number') {
-                const parts = Array.isArray(item.content) ? item.content : [item.content];
-                const text = parts
-                    .map(p => typeof p === 'string' ? p : (p?.text || ''))
-                    .join('')
-                    .trim();
-                allVerses.push({ verse: item.number, text });
-            }
-        }
-
-        if (allVerses.length === 0) {
-            return res.status(404).json({ error: 'Nenhum versículo encontrado para esta referência nesta versão. Tente outra versão.' });
+        if (!allVerses || allVerses.length === 0) {
+            return res.status(404).json({
+                error: `Nenhum versículo encontrado para ${bookName} ${chapterNum} na versão ${versionLabel}.`,
+                hint: 'Tente outra versão no seletor acima.'
+            });
         }
 
         // Filtra versículo específico se solicitado
@@ -2382,14 +2894,12 @@ app.get('/api/bible', async (req, res) => {
             ? `${bookName} ${chapterNum}:${verseNum}`
             : `${bookName} ${chapterNum}`;
 
-        // Mesmo formato esperado pelo frontend (compatível com bible-api.com)
         res.json({
             reference,
             verses: filteredVerses,
             text: filteredVerses.map(v => v.text).join(' '),
-            translation: versionLabel + ' (' + versionId + ')',
+            translation: versionLabel,
             translation_id: versionId,
-            book_id: bookId,
             book_name: bookName,
             chapter: chapterNum,
             total_verses: allVerses.length
@@ -2406,14 +2916,10 @@ app.get('/api/bible', async (req, res) => {
 // Endpoint que lista as versões disponíveis (para o frontend descobrir dinamicamente)
 app.get('/api/bible/versions', (req, res) => {
     res.json({
-        versions: [
-            { id: 'por_bsl',    name: 'Bíblia Portuguesa Mundial' },
-            { id: 'por_almeida',name: 'Almeida' },
-            { id: 'por_acf',    name: 'ACF - Almeida Corrigida Fiel' },
-            { id: 'por_nvi',    name: 'NVI - Nova Versão Internacional' },
-            { id: 'por_ra',     name: 'Almeida Revista e Atualizada' },
-            { id: 'por_rc',     name: 'Almeida Revista e Corrigida' }
-        ]
+        versions: Object.entries(BIBLE_VERSIONS).map(([id, info]) => ({
+            id,
+            name: info.name
+        }))
     });
 });
 

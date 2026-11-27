@@ -2073,7 +2073,7 @@
             background: linear-gradient(90deg, transparent, #00d4ff, #8b5cf6, #00d4ff, transparent);
             opacity: .6;
         }
-        .footer-content { max-width: var(--max-width); margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1.4fr; gap: 2rem; }
+        .footer-content { max-width: var(--max-width); margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1.6fr; gap: 2rem; }
         .footer h4 { font-size: .8rem; margin-bottom: .8rem; color: #93c5fd; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
         .footer p, .footer a { opacity: .75; line-height: 1.8; font-size: .8rem; color: #cbd5e1; text-decoration: none; transition: color .3s, opacity .3s; }
         .footer a:hover { opacity: 1; color: #fff; }
@@ -2107,6 +2107,32 @@
         .fab-whatsapp { bottom: var(--fab-bottom); right: 18px; background: #25D366; }
         .fab-prayer { bottom: calc(var(--fab-bottom) + 66px); right: 18px; background: var(--primary-gradient); }
         .fab-donation { bottom: calc(var(--fab-bottom) + 132px); right: 18px; background: linear-gradient(135deg,#f59e0b,#d97706); color: #fff; }
+
+        /* ===== CARRINHO FLUTUANTE - Mais visível que os outros FABs ===== */
+        .fab-cart {
+            bottom: calc(var(--fab-bottom) + 198px); right: 18px;
+            background: linear-gradient(135deg, #0D47A1, #1565C0);
+            width: 60px; height: 60px; font-size: 1.5rem;
+            box-shadow: 0 8px 28px rgba(13,71,161,.45), 0 0 0 4px rgba(255,255,255,.15);
+            border: 2px solid rgba(255,255,255,.25);
+            animation: cartFabPulse 2.5s ease-in-out infinite;
+        }
+        @keyframes cartFabPulse {
+            0%, 100% { box-shadow: 0 8px 28px rgba(13,71,161,.45), 0 0 0 4px rgba(255,255,255,.15); }
+            50% { box-shadow: 0 8px 28px rgba(13,71,161,.55), 0 0 0 10px rgba(13,71,161,.15); }
+        }
+        .fab-cart:hover { transform: scale(1.12) translateY(-2px); }
+        .fab-cart-badge {
+            position: absolute; top: -4px; right: -4px;
+            min-width: 24px; height: 24px; padding: 0 6px;
+            background: #ef4444; color: #fff;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            font-size: .68rem; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 12px rgba(239,68,68,.5);
+            font-family: var(--font);
+        }
 
         /* ===== PÁGINA ÚNICA DA BÍBLIA (overlay full-screen) ===== */
         .bible-page {
@@ -2186,44 +2212,26 @@
         .bible-back-btn i { transition: transform .25s; }
         .bible-back-btn:hover i { transform: translateX(-3px); }
 
-        /* Hero da página Bíblia (verse do dia / destaque) */
+        /* Hero da página Bíblia (compacto - só versículo do dia) */
         .bible-page-hero {
             position: relative; z-index: 1;
-            max-width: 880px; margin: 2.4rem auto 1rem; padding: 0 1.4rem;
+            max-width: 880px; margin: 1.2rem auto .8rem; padding: 0 1.4rem;
             text-align: center;
         }
-        .bible-page-hero .bible-hero-tag {
-            display: inline-flex; align-items: center; gap: .4rem;
-            background: rgba(0,212,255,.12); color: #a5d8ff;
-            border: 1px solid rgba(0,212,255,.3);
-            font-size: .62rem; font-weight: 700; letter-spacing: 2px;
-            text-transform: uppercase; padding: .35rem .95rem;
-            border-radius: 50px; margin-bottom: 1rem;
-            backdrop-filter: blur(8px);
-        }
-        .bible-page-hero .bible-hero-tag i { font-size: .55rem; color: var(--neon-blue); }
-        .bible-page-hero h2 {
-            color: #fff; font-family: var(--font-display);
-            font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 800;
-            margin: 0 0 .6rem; letter-spacing: -.6px;
-            background: linear-gradient(135deg, #fff, #a5d8ff);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-        }
         .bible-page-hero .verse-of-day {
-            margin-top: 1.4rem; padding: 1.4rem 1.6rem;
+            padding: 1rem 1.4rem;
             background: linear-gradient(135deg, rgba(13,71,161,.18), rgba(0,212,255,.06));
             border: 1px solid rgba(0,212,255,.2);
-            border-radius: 18px;
+            border-radius: 14px;
             backdrop-filter: blur(12px);
-            box-shadow: 0 12px 40px rgba(0,0,0,.25);
         }
         .bible-page-hero .verse-of-day p {
             color: rgba(255,255,255,.92); font-style: italic;
-            font-size: clamp(.95rem, 1.8vw, 1.15rem); line-height: 1.7;
-            margin: 0 0 .6rem; font-family: Georgia, serif;
+            font-size: clamp(.85rem, 1.6vw, 1rem); line-height: 1.6;
+            margin: 0 0 .4rem; font-family: Georgia, serif;
         }
         .bible-page-hero .verse-of-day .ref {
-            color: var(--neon-blue); font-weight: 800; font-size: .82rem; letter-spacing: .5px;
+            color: var(--neon-blue); font-weight: 800; font-size: .78rem; letter-spacing: .5px;
         }
 
         /* Layout principal da Bíblia: navegação lateral + conteúdo */
@@ -2392,7 +2400,7 @@
             .bible-page-main { grid-template-columns: 1fr; gap: 1rem; }
             .bible-sidebar { position: static; }
             .bible-reader { padding: 1.4rem 1.2rem; }
-            .bible-page-hero { margin: 1.4rem auto .6rem; }
+            .bible-page-hero { margin: .8rem auto .4rem; }
             .bible-page-header { padding: .8rem 1rem; }
         }
         @media (max-width: 560px) {
@@ -2652,6 +2660,7 @@
             .fab-whatsapp { bottom: 20px; right: 14px; }
             .fab-prayer { bottom: 76px; right: 14px; }
             .fab-donation { bottom: 132px; right: 14px; }
+            .fab-cart { bottom: 198px; right: 14px; width: 54px; height: 54px; font-size: 1.35rem; }
 
             .reg-form-wrap { padding: 1.3rem; }
             .form-row { flex-direction: column; gap: 0; }
@@ -3148,12 +3157,6 @@
                     <p><a href="#estudos">Estudos</a></p>
                 </div>
                 <div>
-                    <h4>Ministérios</h4>
-                    <p>Louvor</p>
-                    <p>Kids</p>
-                    <p>Diaconia</p>
-                </div>
-                <div>
                     <h4>Contato</h4>
                     <p>Av. Abílio Augusto Távora, 532</p>
                     <p>Nova Iguaçu - RJ</p>
@@ -3169,6 +3172,12 @@
         <a href="https://wa.me/5521985345627" target="_blank" class="fab fab-whatsapp" id="fabWhatsapp" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
         <button class="fab fab-prayer" onclick="scrollToSection('oracao')" title="Pedido de Oração"><i class="fas fa-pray"></i></button>
         <button class="fab fab-donation" onclick="scrollToSection('dizimos')" title="Doar"><i class="fas fa-hand-holding-heart"></i></button>
+
+        <!-- ===== CARRINHO FLUTUANTE (FAB) - Sempre visível quando tem itens ===== -->
+        <button class="fab fab-cart" id="fabCart" onclick="openCheckout()" title="Ver Carrinho" style="display:none;">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="fab-cart-badge" id="fabCartBadge">0</span>
+        </button>
     </div>
 
     <!-- ===== CHECKOUT OVERLAY PROFISSIONAL ===== -->
@@ -3343,8 +3352,6 @@
         </header>
 
         <section class="bible-page-hero">
-            <span class="bible-hero-tag"><i class="fas fa-circle"></i> Palavra do Dia</span>
-            <h2>A luz para o teu caminho</h2>
             <div class="verse-of-day" id="bibleVerseOfDay">
                 <p>"Lâmpada para os meus pés é a tua palavra, e luz para o meu caminho."</p>
                 <span class="ref">Salmos 119:105</span>
@@ -3354,6 +3361,17 @@
         <main class="bible-page-main">
             <aside class="bible-sidebar">
                 <h3><i class="fas fa-book-bible"></i> Buscar Passagem</h3>
+                <div class="form-group">
+                    <label>Versão</label>
+                    <select id="biblePageVersion">
+                        <option value="por_bsl">Bíblia Portuguesa Mundial</option>
+                        <option value="por_almeida">Almeida</option>
+                        <option value="por_acf">ACF - Almeida Corrigida Fiel</option>
+                        <option value="por_nvi">NVI - Nova Versão Internacional</option>
+                        <option value="por_ra">Almeida Revista e Atualizada</option>
+                        <option value="por_rc">Almeida Revista e Corrigida</option>
+                    </select>
+                </div>
                 <div class="form-group">
                     <label>Livro</label>
                     <select id="biblePageBook">
@@ -4433,7 +4451,8 @@
             if (!verseSelect) return;
             verseSelect.innerHTML = '<option value="">Todos</option>';
             try {
-                const response = await fetch(`/api/bible?book=${encodeURIComponent(book)}&chapter=${chapter}`);
+                const version = document.getElementById('biblePageVersion')?.value || 'por_bsl';
+                const response = await fetch(`/api/bible?book=${encodeURIComponent(book)}&chapter=${chapter}&version=${version}`);
                 const data = await response.json();
                 if (response.ok && data.verses) {
                     data.verses.forEach(v => {
@@ -4451,6 +4470,7 @@
             const book = document.getElementById('biblePageBook').value;
             const chapter = document.getElementById('biblePageChapter').value;
             const verse = document.getElementById('biblePageVerse').value;
+            const version = document.getElementById('biblePageVersion')?.value || 'por_bsl';
             const reader = document.getElementById('bibleReader');
             if (!reader) return;
 
@@ -4467,7 +4487,7 @@
             `;
 
             try {
-                let url = `/api/bible?book=${encodeURIComponent(book)}&chapter=${chapter}`;
+                let url = `/api/bible?book=${encodeURIComponent(book)}&chapter=${chapter}&version=${version}`;
                 if (verse && parseInt(verse) > 0) url += `&verse=${verse}`;
 
                 const response = await fetch(url);
@@ -4527,7 +4547,8 @@
             ];
             const pick = randomRefs[Math.floor(Math.random() * randomRefs.length)];
             try {
-                const url = `/api/bible?book=${pick.book}&chapter=${pick.chapter}`;
+                const version = document.getElementById('biblePageVersion')?.value || 'por_bsl';
+                const url = `/api/bible?book=${pick.book}&chapter=${pick.chapter}&version=${version}`;
                 const response = await fetch(url);
                 const data = await response.json();
                 if (!response.ok) {
@@ -4585,7 +4606,8 @@
             ];
             const pick = pool[dayOfYear % pool.length];
             try {
-                const url = `/api/bible?book=${pick.book}&chapter=${pick.chapter}&verse=${pick.verse}`;
+                const version = document.getElementById('biblePageVersion')?.value || 'por_bsl';
+                const url = `/api/bible?book=${pick.book}&chapter=${pick.chapter}&verse=${pick.verse}&version=${version}`;
                 const response = await fetch(url);
                 const data = await response.json();
                 if (response.ok && data.verses && data.verses[0]) {
@@ -4612,10 +4634,20 @@
         document.addEventListener('DOMContentLoaded', () => {
             const bookSel = document.getElementById('biblePageBook');
             const chSel = document.getElementById('biblePageChapter');
+            const verSel = document.getElementById('biblePageVersion');
             if (bookSel) bookSel.addEventListener('change', populateBiblePageChapters);
             if (chSel) chSel.addEventListener('change', function() {
                 const book = document.getElementById('biblePageBook').value;
                 populateBiblePageVerses(book, this.value);
+            });
+            // Quando mudar a versão, recarrega versículos e busca novamente
+            if (verSel) verSel.addEventListener('change', function() {
+                const book = document.getElementById('biblePageBook').value;
+                const chapter = document.getElementById('biblePageChapter').value;
+                if (book && chapter) {
+                    populateBiblePageVerses(book, chapter);
+                    searchBiblePage();
+                }
             });
         });
 
@@ -5350,6 +5382,18 @@
             // Compatibilidade: atualiza também o contador antigo (caso exista)
             const oldEl = document.getElementById('cartCount');
             if (oldEl) oldEl.textContent = count;
+
+            // ===== FAB FLUTUANTE DO CARRINHO (sempre visível quando tem itens) =====
+            const fabCart = document.getElementById('fabCart');
+            const fabBadge = document.getElementById('fabCartBadge');
+            if (fabCart) {
+                if (count > 0) {
+                    fabCart.style.display = 'flex';
+                    if (fabBadge) fabBadge.textContent = count;
+                } else {
+                    fabCart.style.display = 'none';
+                }
+            }
         }
 
         function animateAddToCart() {
@@ -5359,6 +5403,12 @@
                 cartBtn.style.transform = 'scale(1.04)';
                 cartBtn.style.transition = 'transform .15s cubic-bezier(.34,1.56,.64,1)';
                 setTimeout(() => { cartBtn.style.transform = ''; }, 250);
+            }
+            // Anima também o FAB flutuante
+            const fabCart = document.getElementById('fabCart');
+            if (fabCart) {
+                fabCart.style.transform = 'scale(1.2)';
+                setTimeout(() => { fabCart.style.transform = ''; }, 300);
             }
         }
 

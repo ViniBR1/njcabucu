@@ -2265,8 +2265,20 @@ app.delete('/api/settings/logo', auth, pastorOnly, async (req, res) => {
 // Resposta mantém o formato esperado pelo frontend (verses[] com {verse, text}, e reference).
 app.get('/api/bible', async (req, res) => {
     try {
-        const { book, chapter, verse } = req.query;
+        const { book, chapter, verse, version } = req.query;
         if (!book || !chapter) return res.status(400).json({ error: 'Livro e capítulo obrigatórios' });
+
+        // Versões suportadas pela API bible.helloao.org em português
+        const SUPPORTED_VERSIONS = {
+            'por_bsl':    'Bíblia Portuguesa Mundial',
+            'por_almeida':'Almeida',
+            'por_acf':    'ACF - Almeida Corrigida Fiel',
+            'por_nvi':    'NVI - Nova Versão Internacional',
+            'por_ra':     'Almeida Revista e Atualizada',
+            'por_rc':     'Almeida Revista e Corrigida'
+        };
+        const versionId = SUPPORTED_VERSIONS[String(version)] ? String(version) : 'por_bsl';
+        const versionLabel = SUPPORTED_VERSIONS[versionId];
 
         // Mapeia códigos curtos do frontend → IDs da AO Lab API
         const bookMap = {
@@ -2313,7 +2325,7 @@ app.get('/api/bible', async (req, res) => {
             return res.status(400).json({ error: 'Livro ou capítulo inválido' });
         }
 
-        const url = `https://bible.helloao.org/api/por_bsl/${bookId}/${chapterNum}.json`;
+        const url = `https://bible.helloao.org/api/${versionId}/${bookId}/${chapterNum}.json`;
 
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 15000);
@@ -2323,7 +2335,8 @@ app.get('/api/bible', async (req, res) => {
 
         if (!response.ok) {
             if (response.status === 404) {
-                return res.status(404).json({ error: `Capítulo não encontrado: ${bookName} ${chapterNum}` });
+                // Pode ser que a versão não tenha aquele livro/capítulo
+                return res.status(404).json({ error: `Capítulo não encontrado: ${bookName} ${chapterNum} na versão ${versionLabel}. Tente outra versão.` });
             }
             if (response.status === 429) {
                 return res.status(429).json({ error: 'Muitas consultas. Aguarde alguns segundos e tente novamente.' });
@@ -2351,7 +2364,7 @@ app.get('/api/bible', async (req, res) => {
         }
 
         if (allVerses.length === 0) {
-            return res.status(404).json({ error: 'Nenhum versículo encontrado para esta referência.' });
+            return res.status(404).json({ error: 'Nenhum versículo encontrado para esta referência nesta versão. Tente outra versão.' });
         }
 
         // Filtra versículo específico se solicitado
@@ -2374,7 +2387,8 @@ app.get('/api/bible', async (req, res) => {
             reference,
             verses: filteredVerses,
             text: filteredVerses.map(v => v.text).join(' '),
-            translation: 'Bíblia Portuguesa Mundial (por_bsl)',
+            translation: versionLabel + ' (' + versionId + ')',
+            translation_id: versionId,
             book_id: bookId,
             book_name: bookName,
             chapter: chapterNum,
@@ -2387,7 +2401,23 @@ app.get('/api/bible', async (req, res) => {
         }
         res.status(500).json({ error: error.message || 'Erro ao buscar' });
     }
-});// ============================================
+});
+
+// Endpoint que lista as versões disponíveis (para o frontend descobrir dinamicamente)
+app.get('/api/bible/versions', (req, res) => {
+    res.json({
+        versions: [
+            { id: 'por_bsl',    name: 'Bíblia Portuguesa Mundial' },
+            { id: 'por_almeida',name: 'Almeida' },
+            { id: 'por_acf',    name: 'ACF - Almeida Corrigida Fiel' },
+            { id: 'por_nvi',    name: 'NVI - Nova Versão Internacional' },
+            { id: 'por_ra',     name: 'Almeida Revista e Atualizada' },
+            { id: 'por_rc',     name: 'Almeida Revista e Corrigida' }
+        ]
+    });
+});
+
+// ============================================
 // ===== TRELLO / KANBAN =====
 // ============================================
 app.get('/api/trello', auth, async (req, res) => {
@@ -2984,29 +3014,9 @@ app.post('/api/webhook', async (req, res) => {
                 try {
                     const payment = await PaymentService.get({ id: paymentId });
                     if (payment.status === 'approved') {
-                        // Atualiza status de pedidos e doações
-                        await sql`UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}`;
-                        await sql`UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}`;
-                        console.log('✅ Status atualizado via webhook');
-
-                        // Marca email como pendente de envio
-                        try {
-                            const orders = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId} AND email_sent = false`;
-                            if (orders.length > 0) {
-                                const o = orders[0];
-                                let itemsArr = [];
-                                try { itemsArr = typeof o.items === 'string' ? JSON.parse(o.items) : (o.items || []); } catch {}
-                                if (transporter) {
-                                    enviarEmailCompra({
-                                        email: o.user_email, nome: o.user_name,
-                                        items: itemsArr, total: o.total,
-                                        data: new Date(), paymentId: paymentId
-                                    }).then(ok => {
-                                        if (ok) sql`UPDATE orders SET email_sent = true WHERE id = ${o.id}`.catch(()=>{});
-                                    }).catch(()=>{});
-                                }
-                            }
-                        } catch (e) { console.error('⚠️ Email webhook:', e.message); }
+                        // Usa a função centralizada: atualiza status + envia email (uma única vez)
+                        await confirmarPagamentoEEnviarEmail(paymentId);
+                        console.log('✅ Webhook processado:', paymentId);
                     }
                 } catch (error) {
                     console.error('❌ Erro webhook:', error);
@@ -3020,23 +3030,102 @@ app.post('/api/webhook', async (req, res) => {
     }
 });
 
+// ============================================
+// ===== FUNÇÃO CENTRAL: CONFIRMAR PAGAMENTO + ENVIAR EMAIL =====
+// ============================================
+// Esta função é chamada SEMPRE que um pagamento é confirmado (via webhook, check-payment, ou manual).
+// Garante que o email de confirmação seja enviado UMA ÚNICA vez.
+async function confirmarPagamentoEEnviarEmail(paymentId) {
+    if (!paymentId) return { ok: false, reason: 'sem payment_id' };
+
+    try {
+        // Busca pedido OU doação com esse payment_id
+        const orders = await sql`SELECT * FROM orders WHERE payment_id = ${paymentId}`;
+        const donations = await sql`SELECT * FROM donations WHERE payment_id = ${paymentId}`;
+
+        const order = orders[0] || null;
+        const donation = donations[0] || null;
+
+        if (!order && !donation) {
+            return { ok: false, reason: 'pagamento nao encontrado' };
+        }
+
+        const registro = order || donation;
+        const tipoRegistro = order ? 'order' : 'donation';
+
+        // Se já foi aprovado E email já foi enviado, não faz nada
+        if (registro.status === 'approved' && registro.email_sent) {
+            return { ok: true, already_confirmed: true, email_already_sent: true };
+        }
+
+        // Atualiza status para 'approved' (se ainda não está)
+        if (registro.status !== 'approved') {
+            if (tipoRegistro === 'order') {
+                await sql`UPDATE orders SET status = 'approved' WHERE payment_id = ${paymentId}`;
+            } else {
+                await sql`UPDATE donations SET status = 'approved' WHERE payment_id = ${paymentId}`;
+            }
+            console.log(`✅ Status atualizado para 'approved': ${paymentId}`);
+        }
+
+        // Envia email SE ainda não foi enviado
+        if (!registro.email_sent && transporter) {
+            let emailEnviado = false;
+
+            if (tipoRegistro === 'order') {
+                let itemsArr = [];
+                try { itemsArr = typeof registro.items === 'string' ? JSON.parse(registro.items) : (registro.items || []); } catch {}
+
+                emailEnviado = await enviarEmailCompra({
+                    email: registro.user_email,
+                    nome: registro.user_name,
+                    items: itemsArr,
+                    total: registro.total,
+                    data: new Date(),
+                    paymentId: paymentId
+                });
+            } else {
+                emailEnviado = await enviarEmailDizimoOferta({
+                    email: registro.user_email,
+                    nome: registro.user_name,
+                    tipo: registro.type,
+                    valor: registro.amount,
+                    data: new Date(),
+                    paymentId: paymentId
+                });
+            }
+
+            if (emailEnviado) {
+                // Marca email_sent = true para não enviar de novo
+                if (tipoRegistro === 'order') {
+                    await sql`UPDATE orders SET email_sent = true WHERE payment_id = ${paymentId}`;
+                } else {
+                    await sql`UPDATE donations SET email_sent = true WHERE payment_id = ${paymentId}`;
+                }
+                console.log(`📧 Email de confirmação enviado para: ${registro.user_email}`);
+                return { ok: true, email_sent: true };
+            } else {
+                console.log(`⚠️ Falha ao enviar email para: ${registro.user_email}`);
+                return { ok: true, email_sent: false };
+            }
+        }
+
+        return { ok: true, email_already_sent: !registro.email_sent ? false : true };
+    } catch (error) {
+        console.error('❌ Erro em confirmarPagamentoEEnviarEmail:', error.message);
+        return { ok: false, error: error.message };
+    }
+}
+
 app.get('/api/check-payment/:paymentId', async (req, res) => {
     try {
         if (!PaymentService) return res.status(500).json({ error: 'MP não configurado' });
 
         const payment = await PaymentService.get({ id: req.params.paymentId });
 
-        // Atualiza status e dispara email quando aprovado
+        // Se foi aprovado, dispara a confirmação + email
         if (payment.status === 'approved') {
-            // Só atualiza se ainda estava pendente (evita reprocessar)
-            const orders = await sql`SELECT * FROM orders WHERE payment_id = ${req.params.paymentId}`;
-            const donations = await sql`SELECT * FROM donations WHERE payment_id = ${req.params.paymentId}`;
-            if (orders.length > 0 && orders[0].status !== 'approved') {
-                await sql`UPDATE orders SET status = 'approved' WHERE payment_id = ${req.params.paymentId}`;
-            }
-            if (donations.length > 0 && donations[0].status !== 'approved') {
-                await sql`UPDATE donations SET status = 'approved' WHERE payment_id = ${req.params.paymentId}`;
-            }
+            await confirmarPagamentoEEnviarEmail(req.params.paymentId);
         }
 
         res.json({
@@ -3054,11 +3143,173 @@ app.post('/api/update-payment-status', async (req, res) => {
         const { payment_id, status } = req.body;
         await sql`UPDATE orders SET status = ${status} WHERE payment_id = ${payment_id}`;
         await sql`UPDATE donations SET status = ${status} WHERE payment_id = ${payment_id}`;
+
+        // Se marcou como approved, dispara email também (caso de confirmação manual no admin)
+        if (status === 'approved') {
+            await confirmarPagamentoEEnviarEmail(payment_id);
+        }
+
         res.json({ message: 'Status atualizado' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
+
+// ============================================
+// ===== PIX DIRETO (TRANSFERÊNCIA SEM MERCADO PAGO) =====
+// ============================================
+// Esta rota NÃO usa Mercado Pago. Gera um QR Code PIX estático (BR Code)
+// com a chave PIX da igreja. O usuário paga direto na conta da igreja (sem taxa).
+// Como não há webhook bancário, o usuário anexa o comprovante OU o admin confirma manualmente.
+//
+// Para configurar a chave PIX da igreja, vá em Configurações no admin e salve 'pix_key'.
+app.post('/api/create-pix-direct', async (req, res) => {
+    try {
+        const { amount, description, name, email, phone, type } = req.body;
+
+        if (!amount || parseFloat(amount) <= 0) {
+            return res.status(400).json({ error: 'Valor inválido' });
+        }
+
+        // Busca a chave PIX configurada nas settings
+        const pixKeyRow = await sql`SELECT value FROM site_settings WHERE key = 'pix_key'`;
+        const pixKey = pixKeyRow[0]?.value || '';
+
+        if (!pixKey) {
+            return res.status(400).json({
+                error: 'Chave PIX não configurada. Peça ao administrador para configurar a chave PIX da igreja em Configurações.'
+            });
+        }
+
+        // Busca nome do recebedor configurado (opcional)
+        const receiverRow = await sql`SELECT value FROM site_settings WHERE key = 'pix_receiver_name'`;
+        const receiverName = receiverRow[0]?.value || 'IGREJA NOVA JERUSALEM CABUCU';
+
+        // Busca cidade configurada (opcional)
+        const cityRow = await sql`SELECT value FROM site_settings WHERE key = 'pix_city'`;
+        const city = cityRow[0]?.value || 'NOVA IGUACU';
+
+        const valor = parseFloat(amount);
+        const valorStr = valor.toFixed(2);
+
+        // Gera o BR Code (PIX Copia e Cola) estático
+        // Formato EMV padrão BR Code
+        const pixCode = gerarBRCodePix({
+            pixKey,
+            amount: valor,
+            receiverName,
+            city,
+            description: description || ''
+        });
+
+        // Gera QR Code como base64 usando a API pública qrserver.com
+        // (alternativa: usar biblioteca 'qrcode' no package.json)
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(pixCode)}`;
+
+        // Salva o pedido/doação como 'pending' com payment_id único
+        const paymentId = `PIX-DIRECT-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+
+        if (type === 'donation') {
+            await sql`
+                INSERT INTO donations (user_name, user_email, user_phone, type, amount, payment_id, payment_method, status)
+                VALUES (${name || 'Anônimo'}, ${email || ''}, ${phone || ''}, ${description || 'dizimo'}, ${valor}, ${paymentId}, 'pix', 'pending')
+            `;
+        } else {
+            // Para vendas, salva como order pendente (sem itens porque é genérico)
+            await sql`
+                INSERT INTO orders (user_name, user_email, user_phone, items, total, payment_id, payment_method, status)
+                VALUES (${name || 'Cliente'}, ${email || ''}, ${phone || ''}, '[]', ${valor}, ${paymentId}, 'pix', 'pending')
+            `;
+        }
+
+        res.json({
+            payment_id: paymentId,
+            status: 'pending',
+            pix_code: pixCode,
+            qr_code_url: qrUrl,
+            pix_key: pixKey,
+            receiver_name: receiverName,
+            amount: valorStr,
+            message: 'Após fazer a transferência PIX, você receberá a confirmação por email assim que o pagamento for identificado.'
+        });
+    } catch (error) {
+        console.error('❌ Erro PIX direto:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Rota para o admin confirmar manualmente um PIX direto (quando ver na conta)
+app.post('/api/confirm-pix-direct', async (req, res) => {
+    try {
+        const { payment_id } = req.body;
+        if (!payment_id) return res.status(400).json({ error: 'payment_id é obrigatório' });
+
+        // Marca como approved e envia email
+        const resultado = await confirmarPagamentoEEnviarEmail(payment_id);
+        res.json(resultado);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Função para gerar BR Code (PIX Copia e Cola) estático no padrão EMV
+function gerarBRCodePix({ pixKey, amount, receiverName, city, description }) {
+    // Remove acentos e caracteres especiais do nome e cidade
+    const cleanName = receiverName.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').substring(0, 25);
+    const cleanCity = city.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').substring(0, 15);
+
+    // Helper: calcula CRC16-CCITT (padrão BR Code)
+    function crc16(payload) {
+        let crc = 0xFFFF;
+        for (let i = 0; i < payload.length; i++) {
+            crc ^= payload.charCodeAt(i) << 8;
+            for (let j = 0; j < 8; j++) {
+                if (crc & 0x8000) {
+                    crc = (crc << 1) ^ 0x1021;
+                } else {
+                    crc = crc << 1;
+                }
+                crc &= 0xFFFF;
+            }
+        }
+        return crc.toString(16).toUpperCase().padStart(4, '0');
+    }
+
+    // Helper: formata campo ID + tamanho + valor
+    function field(id, value) {
+        const len = value.length.toString().padStart(2, '0');
+        return id + len + value;
+    }
+
+    // Campo 26: dados do PIX (template específico)
+    const gui = field('00', 'br.gov.bcb.pix');           // GUI
+    const key = field('01', pixKey);                      // Chave PIX
+    const desc = description ? field('02', description.substring(0, 50)) : '';
+    const merchantAccount = field('26', gui + key + desc);
+
+    // Valor (campo 54) - apenas se > 0
+    const amountField = amount > 0 ? field('54', amount.toFixed(2)) : '';
+
+    // Campo 62: dados adicionais
+    const additionalData = field('62', field('05', '***'));
+
+    // Monta payload sem o CRC
+    const payloadSemCrc =
+        field('00', '01') +                          // Payload Format Indicator
+        field('01', '12') +                          // Point of Initiation Method (12 = dinâmico com valor)
+        merchantAccount +
+        field('52', '0000') +                        // Merchant Category Code
+        field('53', '986') +                         // Transaction Currency (986 = BRL)
+        amountField +
+        field('58', 'BR') +                          // Country Code
+        field('59', cleanName) +                     // Merchant Name
+        field('60', cleanCity) +                     // Merchant City
+        additionalData +
+        '6304';                                      // ID 63 + tamanho 04 (CRC)
+
+    const crc = crc16(payloadSemCrc);
+    return payloadSemCrc + crc;
+}
 
 // ============================================
 // ===== SERVE HTML =====

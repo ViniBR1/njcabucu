@@ -654,6 +654,95 @@
             box-shadow: 0 4px 12px rgba(13,71,161,.2);
         }
         .quick-nav-chip i { font-size: .65rem; }
+
+        /* ===== OVERLAY "TELA NOVA" (abre seções em tela cheia com botão voltar) ===== */
+        .section-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10001;
+            background: var(--bg, #f5f7fb);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            animation: sectionModalIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .section-modal.open { display: block; }
+        @keyframes sectionModalIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .section-modal-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--line);
+            padding: 0.85rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+        }
+        .section-modal-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: var(--primary-gradient);
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1rem;
+            border-radius: 50px;
+            font-family: var(--font);
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+            flex-shrink: 0;
+            box-shadow: 0 3px 10px rgba(13,71,161,0.2);
+        }
+        .section-modal-back:hover {
+            transform: translateX(-2px);
+            box-shadow: 0 5px 14px rgba(13,71,161,0.3);
+        }
+        .section-modal-back i { font-size: 0.7rem; }
+        .section-modal-title {
+            flex: 1;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--ink);
+            letter-spacing: -0.3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .section-modal-body {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 1.5rem 1rem 4rem;
+        }
+        /* Esconde o conteúdo original quando overlay está aberto (evita scroll duplo) */
+        body.section-modal-open {
+            overflow: hidden;
+        }
+        @media (max-width: 768px) {
+            .section-modal-header {
+                padding: 0.7rem 0.85rem;
+                gap: 0.5rem;
+            }
+            .section-modal-back {
+                padding: 0.45rem 0.85rem;
+                font-size: 0.75rem;
+            }
+            .section-modal-title {
+                font-size: 0.92rem;
+            }
+            .section-modal-body {
+                padding: 1rem 0.85rem 3rem;
+            }
+        }
+
         .section-header .tag {
             display: inline-block; background: var(--secondary); color: var(--primary);
             font-size: .58rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;
@@ -2763,34 +2852,30 @@
         @media (max-width: 768px) {
             .header { padding: 0 .8rem; }
             .logo-icon-css { width: 34px; height: 34px; border-radius: 11px; font-size: .78rem; }
-            .logo span { font-size: .9rem; }
-            .logo span small { display: none; }
-            /* Esconde botões extras no mobile - só fica logo + hamburger + perfil */
-            .header-actions .btn-bible,
-            .header-actions .btn-live { display: none !important; }
-            .header-actions .btn-icon-circle.whatsapp { display: none !important; }
-            .header-actions .btn-icon-circle.profile { width: 34px; height: 34px; font-size: .85rem; }
+            .logo span { font-size: .95rem; }
+            .header-actions .btn span { display: inline; font-size: .5rem; }
             .header-actions .btn { padding: .25rem .55rem; font-size: .55rem; min-width: 36px; justify-content: center; }
+            .btn-icon-circle { width: 34px; height: 34px; font-size: .9rem; }
             .menu-toggle { display: flex; align-items: center; justify-content: center; }
             .main-nav {
                 display: none; flex-direction: column; align-items: stretch;
                 padding: .4rem .7rem; top: var(--header-h); background: rgba(6,8,15,.98);
                 border-bottom: 1px solid rgba(0,212,255,.1);
             }
-            .main-nav.mobile-open { display: flex; max-height: 60vh; overflow-y: auto; padding: .5rem .7rem; }
-            .nav-btn { width: 100%; text-align: center; padding: .55rem; font-size: .72rem; }
+            .main-nav.mobile-open { display: flex; max-height: 460px; overflow-y: auto; padding: .5rem .7rem; }
+            .nav-btn { width: 100%; text-align: center; padding: .5rem; font-size: .7rem; }
 
             .top-black { padding-top: calc(var(--header-h) + 36px); }
-            .hero { max-height: 320px; aspect-ratio: 16 / 11; }
-            .hero-content { padding: 1.2rem 1.2rem 2.4rem; max-width: 100%; }
-            .hero-content h1 { font-size: 1.3rem; }
-            .hero-content p { font-size: .78rem; margin-bottom: .9rem; -webkit-line-clamp: 2; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
-            .hero-content .btn { font-size: .72rem; padding: .5rem 1.1rem; }
-            .hero-arrows { padding: 0 .4rem; }
-            .hero-arrows .hero-arrow { width: 34px; height: 34px; font-size: .65rem; }
-            .hero-controls { left: 1rem; bottom: .8rem; }
-            .hero-dot { width: 20px; height: 4px; }
-            .hero-dot.active { width: 32px; }
+            .hero { max-height: 340px; aspect-ratio: 16 / 10; }
+            .hero-content { padding: 1.4rem 1.3rem 2.8rem; max-width: 100%; }
+            .hero-content h1 { font-size: 1.4rem; }
+            .hero-content p { font-size: .8rem; margin-bottom: .9rem; }
+            .hero-content .btn { font-size: .75rem; padding: .5rem 1.2rem; }
+            .hero-arrows { padding: 0 .5rem; }
+            .hero-arrows .hero-arrow { width: 36px; height: 36px; font-size: .7rem; }
+            .hero-controls { left: 1.3rem; bottom: 1rem; }
+            .hero-dot { width: 22px; height: 4px; }
+            .hero-dot.active { width: 36px; }
 
             .services-grid { grid-template-columns: repeat(3, 1fr); gap: .5rem; }
             .service-item { padding: .9rem .4rem; }
@@ -2994,19 +3079,19 @@
             </div>
         </div>
 
-        <!-- ===== NAVEGAÇÃO RÁPIDA (chips pra não virar listona) ===== -->
+        <!-- ===== NAVEGAÇÃO RÁPIDA (abre seções em tela nova) ===== -->
         <div class="quick-nav">
-            <a href="#sobre" class="quick-nav-chip" onclick="scrollToSection('sobre')"><i class="fas fa-info-circle"></i> Sobre</a>
-            <a href="#reflexoes" class="quick-nav-chip" onclick="scrollToSection('reflexoes')"><i class="fas fa-video"></i> Reflexões</a>
-            <a href="#eventos" class="quick-nav-chip" onclick="scrollToSection('eventos')"><i class="fas fa-calendar"></i> Eventos</a>
-            <a href="#horarios" class="quick-nav-chip" onclick="scrollToSection('horarios')"><i class="fas fa-clock"></i> Horários</a>
-            <a href="#celulas" class="quick-nav-chip" onclick="scrollToSection('celulas')"><i class="fas fa-users"></i> Células</a>
-            <a href="#aniversariantes" class="quick-nav-chip" onclick="scrollToSection('aniversariantes')"><i class="fas fa-birthday-cake"></i> Aniversários</a>
-            <a href="#estudos" class="quick-nav-chip" onclick="scrollToSection('estudos')"><i class="fas fa-book"></i> Estudos</a>
-            <a href="#loja" class="quick-nav-chip" onclick="scrollToSection('loja')"><i class="fas fa-store"></i> Loja</a>
-            <a href="#dizimos" class="quick-nav-chip" onclick="scrollToSection('dizimos')"><i class="fas fa-hand-holding-heart"></i> Dízimos</a>
-            <a href="#oracao" class="quick-nav-chip" onclick="scrollToSection('oracao')"><i class="fas fa-pray"></i> Oração</a>
-            <a href="#inscricoes" class="quick-nav-chip" onclick="scrollToSection('inscricoes')"><i class="fas fa-clipboard-list"></i> Inscrições</a>
+            <a href="#sobre" class="quick-nav-chip" onclick="openSectionModal('sobre', 'Sobre Nós'); return false;"><i class="fas fa-info-circle"></i> Sobre</a>
+            <a href="#reflexoes" class="quick-nav-chip" onclick="openSectionModal('reflexoes', 'Reflexões'); return false;"><i class="fas fa-video"></i> Reflexões</a>
+            <a href="#eventos" class="quick-nav-chip" onclick="openSectionModal('eventos', 'Eventos'); return false;"><i class="fas fa-calendar"></i> Eventos</a>
+            <a href="#horarios" class="quick-nav-chip" onclick="openSectionModal('horarios', 'Horários dos Cultos'); return false;"><i class="fas fa-clock"></i> Horários</a>
+            <a href="#celulas" class="quick-nav-chip" onclick="openSectionModal('celulas', 'Nossas Células'); return false;"><i class="fas fa-users"></i> Células</a>
+            <a href="#aniversariantes" class="quick-nav-chip" onclick="openSectionModal('aniversariantes', 'Aniversariantes'); return false;"><i class="fas fa-birthday-cake"></i> Aniversários</a>
+            <a href="#estudos" class="quick-nav-chip" onclick="openSectionModal('estudos', 'Estudos Bíblicos'); return false;"><i class="fas fa-book"></i> Estudos</a>
+            <a href="#loja" class="quick-nav-chip" onclick="openSectionModal('loja', 'NJ Store'); return false;"><i class="fas fa-store"></i> Loja</a>
+            <a href="#dizimos" class="quick-nav-chip" onclick="openSectionModal('dizimos', 'Dízimos e Ofertas'); return false;"><i class="fas fa-hand-holding-heart"></i> Dízimos</a>
+            <a href="#oracao" class="quick-nav-chip" onclick="openSectionModal('oracao', 'Pedidos de Oração'); return false;"><i class="fas fa-pray"></i> Oração</a>
+            <a href="#inscricoes" class="quick-nav-chip" onclick="openSectionModal('inscricoes', 'Inscrições'); return false;"><i class="fas fa-clipboard-list"></i> Inscrições</a>
         </div>
 
         <section id="sobre" class="section">
@@ -3378,6 +3463,17 @@
             <i class="fas fa-shopping-cart"></i>
             <span class="fab-cart-badge" id="fabCartBadge">0</span>
         </button>
+    </div>
+
+    <!-- ===== OVERLAY "TELA NOVA" (abre seções em tela cheia) ===== -->
+    <div class="section-modal" id="sectionModal" aria-hidden="true">
+        <header class="section-modal-header">
+            <button class="section-modal-back" onclick="closeSectionModal()" aria-label="Voltar">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+            <h2 class="section-modal-title" id="sectionModalTitle">Seção</h2>
+        </header>
+        <div class="section-modal-body" id="sectionModalBody"></div>
     </div>
 
     <!-- ===== CHECKOUT OVERLAY PROFISSIONAL ===== -->
@@ -4355,6 +4451,89 @@
         // ============================================
         // ===== NAVEGAÇÃO =====
         // ============================================
+
+        // ===== OVERLAY "TELA NOVA" =====
+        // Abre uma seção em tela cheia (com botão Voltar) em vez de scrollar
+        let sectionModalPlaceholders = {}; // { sectionId: placeholderElement }
+
+        function openSectionModal(sectionId, title) {
+            const section = document.getElementById(sectionId);
+            if (!section) {
+                console.warn('Seção não encontrada:', sectionId);
+                return false;
+            }
+
+            const modal = document.getElementById('sectionModal');
+            const modalTitle = document.getElementById('sectionModalTitle');
+            const modalBody = document.getElementById('sectionModalBody');
+
+            // Se já tem uma seção aberta no modal, fecha primeiro
+            if (modalBody.children.length > 0) {
+                closeSectionModal();
+            }
+
+            // Cria placeholder invisível no lugar original (pra restaurar depois)
+            const placeholder = document.createElement('div');
+            placeholder.dataset.placeholderFor = sectionId;
+            placeholder.style.display = 'none';
+            section.parentNode.insertBefore(placeholder, section);
+            sectionModalPlaceholders[sectionId] = placeholder;
+
+            // Define título
+            modalTitle.textContent = title || sectionId;
+
+            // Move a seção pro overlay (não duplica)
+            modalBody.appendChild(section);
+            section.style.display = 'block';
+
+            // Abre overlay
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('section-modal-open');
+
+            // Scroll top do modal
+            modal.scrollTop = 0;
+
+            return false;
+        }
+
+        function closeSectionModal() {
+            const modal = document.getElementById('sectionModal');
+            const modalBody = document.getElementById('sectionModalBody');
+
+            // Devolve todas as seções aos lugares originais
+            const sections = Array.from(modalBody.children);
+            sections.forEach(section => {
+                const sectionId = section.id;
+                if (sectionId && sectionModalPlaceholders[sectionId]) {
+                    const placeholder = sectionModalPlaceholders[sectionId];
+                    if (placeholder.parentNode) {
+                        placeholder.parentNode.insertBefore(section, placeholder);
+                    }
+                    placeholder.remove();
+                    delete sectionModalPlaceholders[sectionId];
+                } else {
+                    // Sem placeholder, só remove do modal
+                    modalBody.removeChild(section);
+                }
+            });
+
+            // Fecha overlay
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('section-modal-open');
+        }
+
+        // Fecha o overlay ao pressionar ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('sectionModal');
+                if (modal && modal.classList.contains('open')) {
+                    closeSectionModal();
+                }
+            }
+        });
+
         function scrollToSection(id) {
             const el = document.getElementById(id);
             if (el) {

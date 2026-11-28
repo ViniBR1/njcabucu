@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -77,49 +78,57 @@
         ::-webkit-scrollbar-track { background: #eef2f8; }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 
-        /* ===== SPLASH SCREEN ===== */
+        /* ===== SPLASH SCREEN (mais rápido e elegante) ===== */
         #splashScreen {
             position: fixed; inset: 0; z-index: 999999;
-            background: #000;
+            background: radial-gradient(circle at center, #0a1428 0%, #000 100%);
             display: flex; align-items: center; justify-content: center;
-            flex-direction: column; gap: 1.5rem;
-            transition: opacity .6s cubic-bezier(.4,0,.2,1), visibility .6s;
+            flex-direction: column; gap: 1.2rem;
+            transition: opacity .5s cubic-bezier(.4,0,.2,1), visibility .5s;
         }
         #splashScreen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
         .splash-logo {
-            width: 120px; height: 120px; border-radius: 28px;
+            width: 100px; height: 100px; border-radius: 24px;
             background: linear-gradient(135deg, #1565C0, #0D47A1);
             display: flex; align-items: center; justify-content: center;
-            font-family: var(--font); font-weight: 800; font-size: 2.4rem; color: #fff;
+            font-family: var(--font); font-weight: 800; font-size: 2rem; color: #fff;
             box-shadow: 0 20px 60px rgba(13,71,161,.55), inset 0 2px 0 rgba(255,255,255,.25);
             overflow: hidden;
-            animation: splashPulse 1.4s ease-in-out infinite;
+            animation: splashEnter .8s cubic-bezier(.34, 1.56, .64, 1);
         }
         .splash-logo img { width: 100%; height: 100%; object-fit: cover; }
-        @keyframes splashPulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 20px 60px rgba(13,71,161,.55), inset 0 2px 0 rgba(255,255,255,.25); }
-            50% { transform: scale(1.05); box-shadow: 0 24px 70px rgba(13,71,161,.7), inset 0 2px 0 rgba(255,255,255,.25); }
+        @keyframes splashEnter {
+            0%   { transform: scale(0) rotate(-180deg); opacity: 0; }
+            60%  { transform: scale(1.1) rotate(0); opacity: 1; }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
         }
         .splash-name {
-            color: #fff; font-family: var(--font); font-weight: 800; font-size: 1.3rem;
+            color: #fff; font-family: var(--font); font-weight: 800; font-size: 1.15rem;
             letter-spacing: -.5px; text-align: center;
-            animation: splashFade .8s ease;
+            animation: splashFadeUp .6s ease .3s both;
         }
         .splash-name small {
-            display: block; font-size: .65rem; font-weight: 600; letter-spacing: 3px;
+            display: block; font-size: .6rem; font-weight: 600; letter-spacing: 3px;
             text-transform: uppercase; color: #64748b; margin-top: .2rem;
         }
         .splash-loader {
-            width: 40px; height: 3px; background: rgba(255,255,255,.1);
-            border-radius: 3px; overflow: hidden; margin-top: .5rem;
+            width: 60px; height: 2px; background: rgba(255,255,255,.1);
+            border-radius: 3px; overflow: hidden; margin-top: .3rem;
+            animation: splashFadeUp .6s ease .5s both;
         }
         .splash-loader::before {
-            content: ''; display: block; height: 100%; width: 40%;
-            background: linear-gradient(90deg, #1565C0, #60a5fa);
-            border-radius: 3px; animation: splashLoad 1.4s ease-in-out infinite;
+            content: ''; display: block; height: 100%; width: 100%;
+            background: linear-gradient(90deg, transparent, #60a5fa, transparent);
+            border-radius: 3px; animation: splashLoad 1s ease-in-out infinite;
         }
-        @keyframes splashLoad { 0% { transform: translateX(-100%); } 100% { transform: translateX(350%); } }
-        @keyframes splashFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes splashLoad {
+            0%   { transform: translateX(-100%); }
+            100% { transform: translateX(200%); }
+        }
+        @keyframes splashFadeUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
 
         /* ===== PWA ===== */
         .install-banner {
@@ -601,8 +610,50 @@
         .service-item p { font-size: .55rem; color: var(--muted); margin: 0; }
 
         /* ===== SECTION BASE ===== */
-        .section { max-width: var(--max-width); margin: 2.6rem auto; padding: 0 1rem; scroll-margin-top: 110px; }
-        .section-header { text-align: center; margin-bottom: 2rem; }
+        .section { max-width: var(--max-width); margin: 1.6rem auto; padding: 0 1rem; scroll-margin-top: 110px; }
+        .section-header { text-align: center; margin-bottom: 1.2rem; }
+        .section-header h2 { font-size: clamp(1.3rem, 3vw, 1.7rem); }
+
+        /* ===== NAVEGAÇÃO RÁPIDA (chips clicáveis) ===== */
+        .quick-nav {
+            max-width: var(--max-width);
+            margin: 1rem auto 0;
+            padding: 0 1rem;
+            display: flex;
+            gap: .5rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+            scroll-snap-type: x proximity;
+            padding-bottom: .3rem;
+        }
+        .quick-nav::-webkit-scrollbar { display: none; }
+        .quick-nav-chip {
+            flex-shrink: 0;
+            background: #fff;
+            color: var(--ink-soft);
+            border: 1px solid var(--line);
+            padding: .5rem .9rem;
+            border-radius: 50px;
+            font-size: .72rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            scroll-snap-align: start;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .quick-nav-chip:hover {
+            background: var(--primary-gradient);
+            color: #fff;
+            border-color: transparent;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(13,71,161,.2);
+        }
+        .quick-nav-chip i { font-size: .65rem; }
         .section-header .tag {
             display: inline-block; background: var(--secondary); color: var(--primary);
             font-size: .58rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;
@@ -708,6 +759,116 @@
         @keyframes cardEnter {
             from { opacity: 0; transform: translateY(28px); }
             to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== SOBRE - BENTO GRID (cards variados) ===== */
+        .about-bento {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 1rem;
+        }
+        .about-card {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .about-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+            border-color: rgba(13,71,161,.15);
+        }
+        .about-card-featured {
+            grid-row: span 2;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: #fff;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 280px;
+        }
+        .about-card-featured:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 50px rgba(13,71,161,.3);
+        }
+        .about-card-featured h3 { color: #fff; font-size: 1.3rem; }
+        .about-card-featured p { color: rgba(255,255,255,.95); font-size: .95rem; }
+        .about-icon-large {
+            width: 60px; height: 60px; border-radius: 16px;
+            background: rgba(255,255,255,.2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem; color: #fff;
+            backdrop-filter: blur(8px);
+            margin-bottom: 1rem;
+        }
+        .about-icon-medium {
+            width: 44px; height: 44px; border-radius: 12px;
+            background: var(--secondary);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; color: var(--primary);
+            margin-bottom: .8rem;
+        }
+        .about-card h3 {
+            font-size: 1rem; font-weight: 700; color: var(--ink);
+            margin-bottom: .4rem;
+        }
+        .about-card p {
+            font-size: .85rem; color: var(--ink-soft); line-height: 1.6;
+        }
+        .about-decoration {
+            position: absolute; bottom: -10px; right: -10px;
+            font-size: 6rem; color: rgba(255,255,255,.08);
+            pointer-events: none;
+        }
+        .about-card-stats {
+            background: linear-gradient(135deg, #f8fafc, #eef2f8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .stats-row {
+            display: flex;
+            gap: 1rem;
+        }
+        .stat-mini {
+            flex: 1;
+            text-align: center;
+        }
+        .stat-mini-num {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+            letter-spacing: -.5px;
+        }
+        .stat-mini-label {
+            font-size: .68rem;
+            color: var(--text-muted);
+            margin-top: .3rem;
+            font-weight: 500;
+        }
+        @media (max-width: 768px) {
+            .about-bento {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+            }
+            .about-card-featured {
+                grid-row: span 1;
+                min-height: auto;
+            }
+            .stats-row {
+                gap: .5rem;
+            }
+            .stat-mini-num {
+                font-size: 1.3rem;
+            }
         }
 
         /* ===== INSCRIÇÕES ===== */
@@ -2602,30 +2763,34 @@
         @media (max-width: 768px) {
             .header { padding: 0 .8rem; }
             .logo-icon-css { width: 34px; height: 34px; border-radius: 11px; font-size: .78rem; }
-            .logo span { font-size: .95rem; }
-            .header-actions .btn span { display: inline; font-size: .5rem; }
+            .logo span { font-size: .9rem; }
+            .logo span small { display: none; }
+            /* Esconde botões extras no mobile - só fica logo + hamburger + perfil */
+            .header-actions .btn-bible,
+            .header-actions .btn-live { display: none !important; }
+            .header-actions .btn-icon-circle.whatsapp { display: none !important; }
+            .header-actions .btn-icon-circle.profile { width: 34px; height: 34px; font-size: .85rem; }
             .header-actions .btn { padding: .25rem .55rem; font-size: .55rem; min-width: 36px; justify-content: center; }
-            .btn-icon-circle { width: 34px; height: 34px; font-size: .9rem; }
             .menu-toggle { display: flex; align-items: center; justify-content: center; }
             .main-nav {
                 display: none; flex-direction: column; align-items: stretch;
                 padding: .4rem .7rem; top: var(--header-h); background: rgba(6,8,15,.98);
                 border-bottom: 1px solid rgba(0,212,255,.1);
             }
-            .main-nav.mobile-open { display: flex; max-height: 460px; overflow-y: auto; padding: .5rem .7rem; }
-            .nav-btn { width: 100%; text-align: center; padding: .5rem; font-size: .7rem; }
+            .main-nav.mobile-open { display: flex; max-height: 60vh; overflow-y: auto; padding: .5rem .7rem; }
+            .nav-btn { width: 100%; text-align: center; padding: .55rem; font-size: .72rem; }
 
             .top-black { padding-top: calc(var(--header-h) + 36px); }
-            .hero { max-height: 340px; aspect-ratio: 16 / 10; }
-            .hero-content { padding: 1.4rem 1.3rem 2.8rem; max-width: 100%; }
-            .hero-content h1 { font-size: 1.4rem; }
-            .hero-content p { font-size: .8rem; margin-bottom: .9rem; }
-            .hero-content .btn { font-size: .75rem; padding: .5rem 1.2rem; }
-            .hero-arrows { padding: 0 .5rem; }
-            .hero-arrows .hero-arrow { width: 36px; height: 36px; font-size: .7rem; }
-            .hero-controls { left: 1.3rem; bottom: 1rem; }
-            .hero-dot { width: 22px; height: 4px; }
-            .hero-dot.active { width: 36px; }
+            .hero { max-height: 320px; aspect-ratio: 16 / 11; }
+            .hero-content { padding: 1.2rem 1.2rem 2.4rem; max-width: 100%; }
+            .hero-content h1 { font-size: 1.3rem; }
+            .hero-content p { font-size: .78rem; margin-bottom: .9rem; -webkit-line-clamp: 2; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+            .hero-content .btn { font-size: .72rem; padding: .5rem 1.1rem; }
+            .hero-arrows { padding: 0 .4rem; }
+            .hero-arrows .hero-arrow { width: 34px; height: 34px; font-size: .65rem; }
+            .hero-controls { left: 1rem; bottom: .8rem; }
+            .hero-dot { width: 20px; height: 4px; }
+            .hero-dot.active { width: 32px; }
 
             .services-grid { grid-template-columns: repeat(3, 1fr); gap: .5rem; }
             .service-item { padding: .9rem .4rem; }
@@ -2829,6 +2994,21 @@
             </div>
         </div>
 
+        <!-- ===== NAVEGAÇÃO RÁPIDA (chips pra não virar listona) ===== -->
+        <div class="quick-nav">
+            <a href="#sobre" class="quick-nav-chip" onclick="scrollToSection('sobre')"><i class="fas fa-info-circle"></i> Sobre</a>
+            <a href="#reflexoes" class="quick-nav-chip" onclick="scrollToSection('reflexoes')"><i class="fas fa-video"></i> Reflexões</a>
+            <a href="#eventos" class="quick-nav-chip" onclick="scrollToSection('eventos')"><i class="fas fa-calendar"></i> Eventos</a>
+            <a href="#horarios" class="quick-nav-chip" onclick="scrollToSection('horarios')"><i class="fas fa-clock"></i> Horários</a>
+            <a href="#celulas" class="quick-nav-chip" onclick="scrollToSection('celulas')"><i class="fas fa-users"></i> Células</a>
+            <a href="#aniversariantes" class="quick-nav-chip" onclick="scrollToSection('aniversariantes')"><i class="fas fa-birthday-cake"></i> Aniversários</a>
+            <a href="#estudos" class="quick-nav-chip" onclick="scrollToSection('estudos')"><i class="fas fa-book"></i> Estudos</a>
+            <a href="#loja" class="quick-nav-chip" onclick="scrollToSection('loja')"><i class="fas fa-store"></i> Loja</a>
+            <a href="#dizimos" class="quick-nav-chip" onclick="scrollToSection('dizimos')"><i class="fas fa-hand-holding-heart"></i> Dízimos</a>
+            <a href="#oracao" class="quick-nav-chip" onclick="scrollToSection('oracao')"><i class="fas fa-pray"></i> Oração</a>
+            <a href="#inscricoes" class="quick-nav-chip" onclick="scrollToSection('inscricoes')"><i class="fas fa-clipboard-list"></i> Inscrições</a>
+        </div>
+
         <section id="sobre" class="section">
             <div class="section-header">
                 <span class="tag">Quem Somos</span>
@@ -2836,19 +3016,42 @@
                 <div class="line"></div>
                 <p class="subtitle">Conheça a história e missão da NJ Cabuçu</p>
             </div>
-            <div class="grid">
-                <div class="card">
-                    <div class="icon-wrapper"><i class="fas fa-heart"></i></div>
+            <div class="about-bento">
+                <div class="about-card about-card-featured">
+                    <div class="about-icon-large"><i class="fas fa-heart"></i></div>
                     <h3>Nossa Missão</h3>
                     <p id="aboutMissionText">Levar o amor de Deus a todas as pessoas, através da palavra, do louvor e da comunhão.</p>
+                    <div class="about-decoration"><i class="fas fa-cross"></i></div>
                 </div>
-                <div class="card">
-                    <div class="icon-wrapper"><i class="fas fa-bible"></i></div>
+                <div class="about-card">
+                    <div class="about-icon-medium"><i class="fas fa-bible"></i></div>
                     <h3>Nossa Visão</h3>
                     <p id="aboutVisionText">Ser uma igreja relevante, que transforma vidas e impacta a comunidade com o evangelho.</p>
                 </div>
-                <div class="card">
-                    <div class="icon-wrapper"><i class="fas fa-hand-holding-heart"></i></div>
+                <div class="about-card about-card-stats">
+                    <div class="stats-row">
+                        <div class="stat-mini">
+                            <div class="stat-mini-num">+30</div>
+                            <div class="stat-mini-label">Anos de história</div>
+                        </div>
+                        <div class="stat-mini">
+                            <div class="stat-mini-num">+500</div>
+                            <div class="stat-mini-label">Famílias</div>
+                        </div>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-mini">
+                            <div class="stat-mini-num">+10</div>
+                            <div class="stat-mini-label">Células ativas</div>
+                        </div>
+                        <div class="stat-mini">
+                            <div class="stat-mini-num">7</div>
+                            <div class="stat-mini-label">Ministérios</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-card">
+                    <div class="about-icon-medium"><i class="fas fa-hand-holding-heart"></i></div>
                     <h3>Nossos Valores</h3>
                     <p id="aboutValuesText">Amor, fé, esperança, serviço e comunhão. Vivemos os valores do Reino de Deus.</p>
                 </div>
@@ -2876,15 +3079,6 @@
             </div>
             <div class="grid" id="eventsList"></div>
         </section>
-
-        <div class="section">
-            <div class="verse-block">
-                <div class="verse-text">
-                    "Cada um contribua segundo tiver proposto no coração, não com tristeza ou por necessidade; porque Deus ama ao que dá com alegria."
-                </div>
-                <span class="verse-ref">2 Coríntios 9:7</span>
-            </div>
-        </div>
 
         <section id="horarios" class="section">
             <div class="section-header">
@@ -3002,6 +3196,12 @@
                 <h2>💝 Dízimos e Ofertas</h2>
                 <div class="line"></div>
                 <p class="subtitle">"Honra ao Senhor com os teus bens" — Provérbios 3:9</p>
+            </div>
+            <div class="verse-block" style="margin-bottom:1.4rem;">
+                <div class="verse-text">
+                    "Cada um contribua segundo tiver proposto no coração, não com tristeza ou por necessidade; porque Deus ama ao que dá com alegria."
+                </div>
+                <span class="verse-ref">2 Coríntios 9:7</span>
             </div>
             <div class="tithe-options">
                 <button onclick="openDonationForm('Dízimo')" class="btn-donation"><i class="fas fa-percent"></i> Dízimo</button>
@@ -3528,11 +3728,12 @@
 
     <script>
         // ============================================
-        // ===== SPLASH SCREEN =====
+        // ===== SPLASH SCREEN (mais rápido: 1.2s, só 1x) =====
         // ============================================
         (function() {
             const splash = document.getElementById('splashScreen');
-            const jaViu = sessionStorage.getItem('splash-visto') === 'true';
+            // Usa localStorage: só mostra 1 vez no total (não a cada sessão)
+            const jaViu = localStorage.getItem('splash-visto') === 'true';
 
             fetch('/api/settings').then(r => r.json()).then(settings => {
                 if (settings && settings.site_logo) {
@@ -3550,8 +3751,8 @@
                 setTimeout(() => {
                     splash.classList.add('hidden');
                     document.body.style.overflow = '';
-                    sessionStorage.setItem('splash-visto', 'true');
-                }, 2000);
+                    localStorage.setItem('splash-visto', 'true');
+                }, 1200);
             }
         })();
 
@@ -3643,9 +3844,14 @@
                     fab.style.display = 'none';
                     return;
                 }
+                // ===== FAB só aparece quando o usuário está no TOPO do site =====
+                // Se rolou mais de 200px, esconde o FAB (não fica sempre flutuante)
+                const scrollY = window.scrollY || window.pageYOffset;
+                const isAtTop = scrollY < 200;
+
                 if (isBannerClosed()) {
                     banner.style.display = 'none';
-                    fab.style.display = 'flex';
+                    fab.style.display = isAtTop ? 'flex' : 'none';
                     return;
                 }
                 if (showBannerState) {
@@ -3653,9 +3859,19 @@
                     fab.style.display = 'none';
                 } else {
                     banner.style.display = 'none';
-                    fab.style.display = 'flex';
+                    fab.style.display = isAtTop ? 'flex' : 'none';
                 }
             }
+
+            // Monitora o scroll para esconder/mostrar o FAB do install
+            let scrollInstallTimer = null;
+            window.addEventListener('scroll', () => {
+                if (scrollInstallTimer) return;
+                scrollInstallTimer = setTimeout(() => {
+                    updateUI();
+                    scrollInstallTimer = null;
+                }, 100);
+            }, { passive: true });
 
             async function handleInstall(e) {
                 if (e) e.preventDefault();

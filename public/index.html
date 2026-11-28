@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -70,7 +71,7 @@
             color: var(--ink);
             line-height: 1.65;
             -webkit-font-smoothing: antialiased;
-            padding-bottom: 90px;
+            padding-bottom: calc(75px + env(safe-area-inset-bottom, 0px));
             overflow-x: hidden;
         }
         ::-webkit-scrollbar { width: 8px; }
@@ -775,6 +776,249 @@
             .apps-grid { grid-template-columns: 1fr; }
             .app-card { flex-direction: row; align-items: center; min-height: 60px; }
             .app-card-icon { width: 40px; height: 40px; }
+        }
+
+        /* ===== BOTTOM NAVIGATION (estilo app) ===== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(255,255,255,0.97);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border-top: 1px solid var(--line);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 0.45rem 0.3rem calc(0.45rem + env(safe-area-inset-bottom, 0px));
+            z-index: 999;
+            box-shadow: 0 -4px 20px rgba(15,23,42,0.06);
+        }
+        .bottom-nav::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: 10%; right: 10%; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0.3;
+        }
+        .bottom-nav-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.2rem;
+            padding: 0.35rem 0.2rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-family: var(--font);
+            font-size: 0.6rem;
+            font-weight: 600;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            min-height: 50px;
+            text-decoration: none;
+            letter-spacing: 0.1px;
+        }
+        .bottom-nav-btn i {
+            font-size: 1.1rem;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            z-index: 1;
+        }
+        .bottom-nav-btn:hover {
+            color: var(--primary);
+        }
+        .bottom-nav-btn:hover i {
+            transform: translateY(-3px) scale(1.1);
+        }
+        .bottom-nav-btn.active {
+            color: var(--primary);
+        }
+        .bottom-nav-btn.active::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 28px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 0 0 4px 4px;
+        }
+        .bottom-nav-btn.active i {
+            transform: scale(1.05);
+        }
+        /* Botão "Mais" destacado */
+        .bottom-nav-btn.more {
+            color: var(--primary);
+            background: var(--secondary);
+            border-radius: 14px;
+            margin: 0 0.2rem;
+            min-height: 50px;
+        }
+        .bottom-nav-btn.more:hover {
+            background: var(--primary);
+            color: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 14px rgba(13,71,161,0.25);
+        }
+        .bottom-nav-btn.more:hover i {
+            transform: rotate(90deg);
+        }
+        .bottom-nav-btn.more i {
+            font-size: 1.3rem;
+        }
+        .bottom-nav-btn span {
+            font-size: 0.58rem;
+            line-height: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        /* ===== OVERLAY "MAIS" (menu com botões extras) ===== */
+        .more-menu-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 998;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .more-menu-overlay.open {
+            display: block;
+            opacity: 1;
+        }
+        .more-menu {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: #fff;
+            border-radius: 24px 24px 0 0;
+            padding: 1.5rem 1rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+            z-index: 999;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .more-menu.open {
+            transform: translateY(0);
+        }
+        .more-menu-handle {
+            width: 40px; height: 4px;
+            background: var(--line);
+            border-radius: 50px;
+            margin: 0 auto 1rem;
+        }
+        .more-menu-title {
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 1.2rem;
+            letter-spacing: -0.3px;
+        }
+        .more-menu-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.7rem;
+        }
+        .more-menu-item {
+            background: var(--secondary);
+            border: none;
+            border-radius: 14px;
+            padding: 0.9rem 0.5rem;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--primary);
+            font-family: var(--font);
+            font-size: 0.7rem;
+            font-weight: 600;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            text-align: center;
+        }
+        .more-menu-item:hover {
+            background: var(--primary);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(13,71,161,0.2);
+        }
+        .more-menu-item i {
+            font-size: 1.4rem;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .more-menu-item:hover i {
+            transform: scale(1.15);
+        }
+        .more-menu-item span {
+            line-height: 1.2;
+            white-space: normal;
+        }
+        .more-menu-close {
+            display: block;
+            margin: 1.2rem auto 0;
+            background: transparent;
+            border: 1px solid var(--line);
+            color: var(--text-muted);
+            padding: 0.55rem 1.5rem;
+            border-radius: 50px;
+            font-family: var(--font);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .more-menu-close:hover {
+            background: var(--surface-2);
+            color: var(--ink);
+        }
+
+        /* ===== HOME STYLE APP (limita scrollview em mobile) ===== */
+        body.app-mode {
+            overflow: hidden;
+        }
+        body.app-mode #mainContent {
+            height: calc(100vh - var(--header-h) - var(--bottomnav-h, 70px));
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        /* Esconde o endereço e footer quando em app mode na home (acessíveis pelo botão Contato no Mais) */
+        body.app-mode #mainContent > .section,
+        body.app-mode #mainContent > .address-section-wrap,
+        body.app-mode #mainContent > footer {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .bottom-nav-btn span { font-size: 0.55rem; }
+            .bottom-nav-btn i { font-size: 1rem; }
+            .more-menu-grid { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+            .more-menu-item { padding: 0.7rem 0.4rem; font-size: 0.65rem; }
+            .more-menu-item i { font-size: 1.2rem; }
+        }
+        @media (min-width: 769px) {
+            /* Desktop: bottom nav pode ficar maior */
+            .bottom-nav {
+                max-width: 480px;
+                left: 50%;
+                transform: translateX(-50%);
+                border-radius: 18px 18px 0 0;
+                margin: 0 auto;
+                box-shadow: 0 -8px 30px rgba(15,23,42,0.12);
+            }
+            .bottom-nav-btn { font-size: 0.7rem; }
+            .bottom-nav-btn i { font-size: 1.2rem; }
         }
 
         /* ===== SECTION BASE ===== */
@@ -3244,94 +3488,7 @@
             </div>
         </div>
 
-        <!-- ===== APPS GRID - Cards grandes estilo app ===== -->
-        <div class="apps-grid">
-            <a href="#live" class="app-card live" onclick="scrollToSection('live'); return false;">
-                <div class="app-card-icon"><i class="fas fa-broadcast-tower"></i></div>
-                <div class="app-card-title">Ao Vivo</div>
-                <div class="app-card-subtitle">Assista o culto</div>
-                <i class="fas fa-arrow-right app-card-arrow"></i>
-                <span class="app-card-badge" id="liveAppBadge" style="display:none;">● LIVE</span>
-            </a>
-            <a href="#dizimos" class="app-card dizimos" onclick="openSectionModal('dizimos', 'Dízimos e Ofertas'); return false;">
-                <div class="app-card-icon"><i class="fas fa-hand-holding-heart"></i></div>
-                <div class="app-card-title">Dízimos</div>
-                <div class="app-card-subtitle">Contribua via PIX</div>
-                <i class="fas fa-arrow-right app-card-arrow"></i>
-            </a>
-            <a href="#oracao" class="app-card oracao" onclick="openSectionModal('oracao', 'Pedidos de Oração'); return false;">
-                <div class="app-card-icon"><i class="fas fa-pray"></i></div>
-                <div class="app-card-title">Oração</div>
-                <div class="app-card-subtitle">Peça oração</div>
-                <i class="fas fa-arrow-right app-card-arrow"></i>
-            </a>
-            <a href="#eventos" class="app-card eventos" onclick="openSectionModal('eventos', 'Próximos Eventos'); return false;">
-                <div class="app-card-icon"><i class="fas fa-calendar"></i></div>
-                <div class="app-card-title">Eventos</div>
-                <div class="app-card-subtitle">Agenda da igreja</div>
-                <i class="fas fa-arrow-right app-card-arrow"></i>
-            </a>
-            <a href="#estudos" class="app-card estudos" onclick="openSectionModal('estudos', 'Estudos Bíblicos'); return false;">
-                <div class="app-card-icon"><i class="fas fa-book"></i></div>
-                <div class="app-card-title">Estudos</div>
-                <div class="app-card-subtitle">Materiais bíblicos</div>
-                <i class="fas fa-arrow-right app-card-arrow"></i>
-            </a>
-            <a href="javascript:void(0)" class="app-card biblia" onclick="openBiblePage(); return false;">
-                <div class="app-card-icon"><i class="fas fa-bible"></i></div>
-                <div class="app-card-title">Bíblia</div>
-                <div class="app-card-subtitle">4 versões</div>
-                <i class="fas fa-arrow-right app-card-arrow"></i>
-            </a>
-            <a href="#loja" class="app-card loja" onclick="openSectionModal('loja', 'NJ Store'); return false;">
-                <div class="app-card-icon"><i class="fas fa-bag-shopping"></i></div>
-                <div class="app-card-title">NJ Store</div>
-                <div class="app-card-subtitle">Produtos</div>
-                <i class="fas fa-arrow-right app-card-arrow"></i>
-            </a>
-            <a href="#celulas" class="app-card celulas" onclick="openSectionModal('celulas', 'Nossas Células'); return false;">
-                <div class="app-card-icon"><i class="fas fa-users"></i></div>
-                <div class="app-card-title">Células</div>
-                <div class="app-card-subtitle">Encontre uma</div>
-                <i class="fas fa-arrow-right app-card-arrow"></i>
-            </a>
-            <a href="#inscricoes" class="app-card inscricoes" onclick="openSectionModal('inscricoes', 'Inscrições'); return false;">
-                <div class="app-card-icon"><i class="fas fa-clipboard-list"></i></div>
-                <div class="app-card-title">Inscrições</div>
-                <div class="app-card-subtitle">Batismo, eventos</div>
-                <i class="fas fa-arrow-right app-card-arrow"></i>
-            </a>
-            <a href="#reflexoes" class="app-card reflexoes" onclick="openSectionModal('reflexoes', 'Reflexões'); return false;">
-                <div class="app-card-icon"><i class="fas fa-video"></i></div>
-                <div class="app-card-title">Reflexões</div>
-                <div class="app-card-subtitle">Palavra do pastor</div>
-                <i class="fas fa-arrow-right app-card-arrow"></i>
-            </a>
-            <a href="#aniversariantes" class="app-card aniversarios" onclick="openSectionModal('aniversariantes', 'Aniversariantes'); return false;">
-                <div class="app-card-icon"><i class="fas fa-birthday-cake"></i></div>
-                <div class="app-card-title">Aniversários</div>
-                <div class="app-card-subtitle">Do mês</div>
-                <i class="fas fa-arrow-right app-card-arrow"></i>
-            </a>
-            <a href="#horarios" class="app-card horarios" onclick="openSectionModal('horarios', 'Horários dos Cultos'); return false;">
-                <div class="app-card-icon"><i class="fas fa-clock"></i></div>
-                <div class="app-card-title">Horários</div>
-                <div class="app-card-subtitle">Cultos da semana</div>
-                <i class="fas fa-arrow-right app-card-arrow"></i>
-            </a>
-            <a href="#sobre" class="app-card sobre" onclick="openSectionModal('sobre', 'Sobre Nós'); return false;">
-                <div class="app-card-icon"><i class="fas fa-info-circle"></i></div>
-                <div class="app-card-title">Sobre Nós</div>
-                <div class="app-card-subtitle">Quem somos</div>
-                <i class="fas fa-arrow-right app-card-arrow"></i>
-            </a>
-            <a href="javascript:void(0)" class="app-card contato" onclick="scrollToSection('endereco'); return false;">
-                <div class="app-card-icon"><i class="fas fa-map-marked-alt"></i></div>
-                <div class="app-card-title">Contato</div>
-                <div class="app-card-subtitle">Endereço e mapa</div>
-                <i class="fas fa-arrow-right app-card-arrow"></i>
-            </a>
-        </div>
+        <!-- (app grid removido - agora é a bottom navigation no final da página) -->
 
         <section id="sobre" class="section">
             <div class="section-header">
@@ -3693,15 +3850,89 @@
             </div>
         </footer>
 
-        <a href="https://wa.me/5521985345627" target="_blank" class="fab fab-whatsapp" id="fabWhatsapp" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-        <button class="fab fab-prayer" onclick="scrollToSection('oracao')" title="Pedido de Oração"><i class="fas fa-pray"></i></button>
-        <button class="fab fab-donation" onclick="scrollToSection('dizimos')" title="Doar"><i class="fas fa-hand-holding-heart"></i></button>
-
-        <!-- ===== CARRINHO FLUTUANTE (FAB) - Sempre visível quando tem itens ===== -->
+        <!-- CARRINHO FLUTUANTE (só aparece quando tem itens) -->
         <button class="fab fab-cart" id="fabCart" onclick="openCheckout()" title="Ver Carrinho" style="display:none;">
             <i class="fas fa-shopping-cart"></i>
             <span class="fab-cart-badge" id="fabCartBadge">0</span>
         </button>
+    </div>
+
+    <!-- ===== BOTTOM NAVIGATION (estilo app) ===== -->
+    <nav class="bottom-nav" id="bottomNav">
+        <a href="#oracao" class="bottom-nav-btn" onclick="openSectionModal('oracao', 'Pedidos de Oração'); setActiveBottomNav(this); return false;">
+            <i class="fas fa-pray"></i>
+            <span>Oração</span>
+        </a>
+        <a href="#dizimos" class="bottom-nav-btn" onclick="openSectionModal('dizimos', 'Dízimos e Ofertas'); setActiveBottomNav(this); return false;">
+            <i class="fas fa-hand-holding-heart"></i>
+            <span>Dízimo</span>
+        </a>
+        <a href="#loja" class="bottom-nav-btn" onclick="openSectionModal('loja', 'NJ Store'); setActiveBottomNav(this); return false;">
+            <i class="fas fa-bag-shopping"></i>
+            <span>Loja</span>
+        </a>
+        <a href="#eventos" class="bottom-nav-btn" onclick="openSectionModal('eventos', 'Próximos Eventos'); setActiveBottomNav(this); return false;">
+            <i class="fas fa-calendar"></i>
+            <span>Eventos</span>
+        </a>
+        <a href="#inscricoes" class="bottom-nav-btn" onclick="openSectionModal('inscricoes', 'Inscrições'); setActiveBottomNav(this); return false;">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Inscrições</span>
+        </a>
+        <a href="javascript:void(0)" class="bottom-nav-btn" onclick="openBiblePage(); setActiveBottomNav(this); return false;">
+            <i class="fas fa-bible"></i>
+            <span>Bíblia</span>
+        </a>
+        <button class="bottom-nav-btn more" onclick="openMoreMenu()" title="Mais opções">
+            <i class="fas fa-th"></i>
+            <span>Mais</span>
+        </button>
+    </nav>
+
+    <!-- ===== OVERLAY "MAIS" (menu com botões extras) ===== -->
+    <div class="more-menu-overlay" id="moreMenuOverlay" onclick="closeMoreMenu()"></div>
+    <div class="more-menu" id="moreMenu">
+        <div class="more-menu-handle"></div>
+        <h3 class="more-menu-title">Mais Opções</h3>
+        <div class="more-menu-grid">
+            <a href="#live" class="more-menu-item" onclick="scrollToSection('live'); closeMoreMenu(); return false;">
+                <i class="fas fa-broadcast-tower"></i>
+                <span>Ao Vivo</span>
+            </a>
+            <a href="#estudos" class="more-menu-item" onclick="openSectionModal('estudos', 'Estudos Bíblicos'); closeMoreMenu(); return false;">
+                <i class="fas fa-book"></i>
+                <span>Estudos</span>
+            </a>
+            <a href="#reflexoes" class="more-menu-item" onclick="openSectionModal('reflexoes', 'Reflexões'); closeMoreMenu(); return false;">
+                <i class="fas fa-video"></i>
+                <span>Reflexões</span>
+            </a>
+            <a href="#celulas" class="more-menu-item" onclick="openSectionModal('celulas', 'Nossas Células'); closeMoreMenu(); return false;">
+                <i class="fas fa-users"></i>
+                <span>Células</span>
+            </a>
+            <a href="#aniversariantes" class="more-menu-item" onclick="openSectionModal('aniversariantes', 'Aniversariantes'); closeMoreMenu(); return false;">
+                <i class="fas fa-birthday-cake"></i>
+                <span>Aniversários</span>
+            </a>
+            <a href="#horarios" class="more-menu-item" onclick="openSectionModal('horarios', 'Horários dos Cultos'); closeMoreMenu(); return false;">
+                <i class="fas fa-clock"></i>
+                <span>Horários</span>
+            </a>
+            <a href="#sobre" class="more-menu-item" onclick="openSectionModal('sobre', 'Sobre Nós'); closeMoreMenu(); return false;">
+                <i class="fas fa-info-circle"></i>
+                <span>Sobre</span>
+            </a>
+            <a href="#endereco" class="more-menu-item" onclick="scrollToSection('endereco'); closeMoreMenu(); return false;">
+                <i class="fas fa-map-marked-alt"></i>
+                <span>Contato</span>
+            </a>
+            <a href="https://wa.me/5521985345627" target="_blank" class="more-menu-item" onclick="closeMoreMenu();">
+                <i class="fab fa-whatsapp"></i>
+                <span>WhatsApp</span>
+            </a>
+        </div>
+        <button class="more-menu-close" onclick="closeMoreMenu()">Fechar</button>
     </div>
 
     <!-- ===== OVERLAY "TELA NOVA" (abre seções em tela cheia) ===== -->
@@ -4694,6 +4925,41 @@
         // ===== OVERLAY "TELA NOVA" =====
         // Abre uma seção em tela cheia (com botão Voltar) em vez de scrollar
         let sectionModalPlaceholders = {}; // { sectionId: placeholderElement }
+
+        // ===== MENU "MAIS" (bottom sheet com botões extras) =====
+        function openMoreMenu() {
+            const overlay = document.getElementById('moreMenuOverlay');
+            const menu = document.getElementById('moreMenu');
+            if (!overlay || !menu) return;
+            overlay.classList.add('open');
+            menu.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMoreMenu() {
+            const overlay = document.getElementById('moreMenuOverlay');
+            const menu = document.getElementById('moreMenu');
+            if (!overlay || !menu) return;
+            overlay.classList.remove('open');
+            menu.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        // Marca o botão ativo na bottom nav
+        function setActiveBottomNav(btn) {
+            document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+        }
+
+        // Fecha o menu "Mais" com ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const menu = document.getElementById('moreMenu');
+                if (menu && menu.classList.contains('open')) {
+                    closeMoreMenu();
+                }
+            }
+        });
 
         function openSectionModal(sectionId, title) {
             const section = document.getElementById(sectionId);

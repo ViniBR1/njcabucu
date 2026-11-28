@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -609,6 +608,175 @@
         .service-item:hover h4 { color: var(--primary-dark); }
         .service-item p { font-size: .55rem; color: var(--muted); margin: 0; }
 
+        /* ===== APP GRID - Cards grandes estilo app (mobile-first) ===== */
+        .apps-grid {
+            max-width: var(--max-width);
+            margin: 1.5rem auto 2rem;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.8rem;
+        }
+        .app-card {
+            position: relative;
+            background: #fff;
+            border-radius: 18px;
+            padding: 1.1rem 0.9rem;
+            cursor: pointer;
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.55rem;
+            overflow: hidden;
+            min-height: 110px;
+            text-decoration: none;
+            color: var(--ink);
+            font-family: var(--font);
+        }
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            background: var(--app-color, var(--primary));
+            transition: height 0.3s;
+        }
+        .app-card::after {
+            content: '';
+            position: absolute;
+            top: -50%; right: -30%;
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            background: var(--app-color, var(--primary));
+            opacity: 0.06;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+            pointer-events: none;
+        }
+        .app-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12), 0 8px 16px rgba(15, 23, 42, 0.06);
+            border-color: transparent;
+        }
+        .app-card:hover::before { height: 100%; opacity: 0.95; }
+        .app-card:hover::after { transform: scale(1.4); opacity: 0.15; }
+        .app-card:hover .app-card-icon {
+            background: rgba(255, 255, 255, 0.25);
+            color: #fff;
+            backdrop-filter: blur(8px);
+        }
+        .app-card:hover .app-card-title,
+        .app-card:hover .app-card-subtitle { color: #fff; }
+        .app-card:hover .app-card-arrow { opacity: 1; transform: translateX(0); color: #fff; }
+
+        .app-card-icon {
+            width: 44px; height: 44px;
+            border-radius: 13px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+            background: var(--app-color-soft, var(--secondary));
+            color: var(--app-color, var(--primary));
+            flex-shrink: 0;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            z-index: 1;
+        }
+        .app-card-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1.2;
+            transition: color 0.3s;
+            position: relative;
+            z-index: 1;
+            letter-spacing: -0.2px;
+        }
+        .app-card-subtitle {
+            font-size: 0.65rem;
+            color: var(--muted);
+            transition: color 0.3s;
+            position: relative;
+            z-index: 1;
+            opacity: 0.85;
+        }
+        .app-card-arrow {
+            position: absolute;
+            bottom: 0.8rem;
+            right: 0.9rem;
+            font-size: 0.75rem;
+            color: var(--app-color, var(--primary));
+            opacity: 0;
+            transform: translateX(-8px);
+            transition: all 0.3s;
+            z-index: 1;
+        }
+        .app-card-badge {
+            position: absolute;
+            top: 0.7rem;
+            right: 0.7rem;
+            background: #ef4444;
+            color: #fff;
+            font-size: 0.55rem;
+            font-weight: 700;
+            padding: 0.15rem 0.45rem;
+            border-radius: 50px;
+            z-index: 2;
+            box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+            animation: appBadgePulse 2s infinite;
+        }
+        @keyframes appBadgePulse {
+            0%, 100% { box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4); }
+            50% { box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4), 0 0 0 5px rgba(239, 68, 68, 0.2); }
+        }
+        /* Cores específicas de cada app */
+        .app-card.live        { --app-color: #ef4444; --app-color-soft: #fee2e2; }
+        .app-card.dizimos     { --app-color: #16a34a; --app-color-soft: #dcfce7; }
+        .app-card.eventos     { --app-color: #0D47A1; --app-color-soft: #E8F0FE; }
+        .app-card.estudos     { --app-color: #8b5cf6; --app-color-soft: #ede9fe; }
+        .app-card.oracao      { --app-color: #0891b2; --app-color-soft: #cffafe; }
+        .app-card.celulas     { --app-color: #ea580c; --app-color-soft: #ffedd5; }
+        .app-card.loja        { --app-color: #db2777; --app-color-soft: #fce7f3; }
+        .app-card.inscricoes  { --app-color: #15803d; --app-color-soft: #d1fae5; }
+        .app-card.aniversarios{ --app-color: #e11d48; --app-color-soft: #ffe4e6; }
+        .app-card.reflexoes   { --app-color: #b91c1c; --app-color-soft: #fee2e2; }
+        .app-card.horarios    { --app-color: #475569; --app-color-soft: #f1f5f9; }
+        .app-card.biblia      { --app-color: #a16207; --app-color-soft: #fef3c7; }
+        .app-card.sobre       { --app-color: #1e40af; --app-color-soft: #dbeafe; }
+        .app-card.contato     { --app-color: #0d9488; --app-color-soft: #ccfbf1; }
+
+        /* Responsividade App Grid */
+        @media (max-width: 1024px) {
+            .apps-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 640px) {
+            .apps-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.6rem;
+                margin: 1rem auto 1.5rem;
+                padding: 0 0.85rem;
+            }
+            .app-card {
+                padding: 0.85rem 0.75rem;
+                min-height: 95px;
+                border-radius: 14px;
+                gap: 0.4rem;
+            }
+            .app-card-icon {
+                width: 36px; height: 36px;
+                border-radius: 10px;
+                font-size: 1rem;
+            }
+            .app-card-title { font-size: 0.78rem; }
+            .app-card-subtitle { font-size: 0.6rem; }
+            .app-card-arrow { display: none; }
+        }
+        @media (max-width: 360px) {
+            .apps-grid { grid-template-columns: 1fr; }
+            .app-card { flex-direction: row; align-items: center; min-height: 60px; }
+            .app-card-icon { width: 40px; height: 40px; }
+        }
+
         /* ===== SECTION BASE ===== */
         .section { max-width: var(--max-width); margin: 1.6rem auto; padding: 0 1rem; scroll-margin-top: 110px; }
         .section-header { text-align: center; margin-bottom: 1.2rem; }
@@ -655,7 +823,7 @@
         }
         .quick-nav-chip i { font-size: .65rem; }
 
-        /* ===== OVERLAY "TELA NOVA" (abre seções em tela cheia com botão voltar) ===== */
+        /* ===== OVERLAY "TELA NOVA" (página full-screen com botão voltar) ===== */
         .section-modal {
             display: none;
             position: fixed;
@@ -664,55 +832,74 @@
             background: var(--bg, #f5f7fb);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            animation: sectionModalIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: sectionModalIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .section-modal.open { display: block; }
         @keyframes sectionModalIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(30px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
         .section-modal-header {
             position: sticky;
             top: 0;
             z-index: 10;
-            background: rgba(255,255,255,0.92);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(248,250,252,0.95));
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
             border-bottom: 1px solid var(--line);
-            padding: 0.85rem 1rem;
+            padding: 1rem 1.25rem;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+            gap: 0.85rem;
+            box-shadow: 0 2px 16px rgba(15,23,42,0.06);
+        }
+        .section-modal-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; left: 10%; right: 10%; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), var(--neon-purple), transparent);
+            opacity: 0.3;
         }
         .section-modal-back {
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.45rem;
             background: var(--primary-gradient);
             color: #fff;
             border: none;
-            padding: 0.55rem 1rem;
+            padding: 0.65rem 1.1rem;
             border-radius: 50px;
             font-family: var(--font);
             font-weight: 700;
-            font-size: 0.8rem;
+            font-size: 0.82rem;
             cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             flex-shrink: 0;
-            box-shadow: 0 3px 10px rgba(13,71,161,0.2);
+            box-shadow: 0 4px 14px rgba(13,71,161,0.25), inset 0 1px 0 rgba(255,255,255,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        .section-modal-back::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
         }
         .section-modal-back:hover {
-            transform: translateX(-2px);
-            box-shadow: 0 5px 14px rgba(13,71,161,0.3);
+            transform: translateX(-3px) scale(1.03);
+            box-shadow: 0 6px 20px rgba(13,71,161,0.35);
         }
-        .section-modal-back i { font-size: 0.7rem; }
+        .section-modal-back:hover::before { left: 100%; }
+        .section-modal-back:active { transform: translateX(-2px) scale(1); }
+        .section-modal-back i { font-size: 0.72rem; transition: transform 0.25s; }
+        .section-modal-back:hover i { transform: translateX(-2px); }
         .section-modal-title {
             flex: 1;
-            font-size: 1rem;
-            font-weight: 700;
+            font-size: 1.05rem;
+            font-weight: 800;
             color: var(--ink);
-            letter-spacing: -0.3px;
+            letter-spacing: -0.4px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -720,26 +907,34 @@
         .section-modal-body {
             max-width: var(--max-width);
             margin: 0 auto;
-            padding: 1.5rem 1rem 4rem;
+            padding: 1.5rem 1rem 5rem;
+            min-height: calc(100vh - 80px);
         }
-        /* Esconde o conteúdo original quando overlay está aberto (evita scroll duplo) */
         body.section-modal-open {
             overflow: hidden;
         }
+        /* Header mobile mais compacto */
         @media (max-width: 768px) {
             .section-modal-header {
-                padding: 0.7rem 0.85rem;
-                gap: 0.5rem;
+                padding: 0.75rem 0.85rem;
+                gap: 0.55rem;
             }
             .section-modal-back {
-                padding: 0.45rem 0.85rem;
-                font-size: 0.75rem;
+                padding: 0.5rem 0.9rem;
+                font-size: 0.76rem;
             }
             .section-modal-title {
-                font-size: 0.92rem;
+                font-size: 0.95rem;
             }
             .section-modal-body {
-                padding: 1rem 0.85rem 3rem;
+                padding: 1rem 0.85rem 4rem;
+            }
+        }
+        /* Botão voltar maior no desktop */
+        @media (min-width: 769px) {
+            .section-modal-back {
+                padding: 0.7rem 1.3rem;
+                font-size: 0.85rem;
             }
         }
 
@@ -3049,49 +3244,93 @@
             </div>
         </div>
 
-        <div class="services-quick">
-            <div class="services-grid">
-                <a href="#live" class="service-item" onclick="scrollToSection('live')">
-                    <div class="icon"><i class="fas fa-broadcast-tower"></i></div>
-                    <h4>Ao Vivo</h4>
-                    <p>Assista</p>
-                </a>
-                <a href="#dizimos" class="service-item" onclick="scrollToSection('dizimos')">
-                    <div class="icon"><i class="fas fa-hand-holding-heart"></i></div>
-                    <h4>Dízimo</h4>
-                    <p>Contribua</p>
-                </a>
-                <a href="#oracao" class="service-item" onclick="scrollToSection('oracao')">
-                    <div class="icon"><i class="fas fa-pray"></i></div>
-                    <h4>Oração</h4>
-                    <p>Peça</p>
-                </a>
-                <a href="#inscricoes" class="service-item" onclick="scrollToSection('inscricoes')">
-                    <div class="icon"><i class="fas fa-file-signature"></i></div>
-                    <h4>Inscrições</h4>
-                    <p>Participe</p>
-                </a>
-                <a href="#loja" class="service-item" onclick="scrollToSection('loja')">
-                    <div class="icon"><i class="fas fa-bag-shopping"></i></div>
-                    <h4>NJ Store</h4>
-                    <p>Produtos</p>
-                </a>
-            </div>
-        </div>
-
-        <!-- ===== NAVEGAÇÃO RÁPIDA (abre seções em tela nova) ===== -->
-        <div class="quick-nav">
-            <a href="#sobre" class="quick-nav-chip" onclick="openSectionModal('sobre', 'Sobre Nós'); return false;"><i class="fas fa-info-circle"></i> Sobre</a>
-            <a href="#reflexoes" class="quick-nav-chip" onclick="openSectionModal('reflexoes', 'Reflexões'); return false;"><i class="fas fa-video"></i> Reflexões</a>
-            <a href="#eventos" class="quick-nav-chip" onclick="openSectionModal('eventos', 'Eventos'); return false;"><i class="fas fa-calendar"></i> Eventos</a>
-            <a href="#horarios" class="quick-nav-chip" onclick="openSectionModal('horarios', 'Horários dos Cultos'); return false;"><i class="fas fa-clock"></i> Horários</a>
-            <a href="#celulas" class="quick-nav-chip" onclick="openSectionModal('celulas', 'Nossas Células'); return false;"><i class="fas fa-users"></i> Células</a>
-            <a href="#aniversariantes" class="quick-nav-chip" onclick="openSectionModal('aniversariantes', 'Aniversariantes'); return false;"><i class="fas fa-birthday-cake"></i> Aniversários</a>
-            <a href="#estudos" class="quick-nav-chip" onclick="openSectionModal('estudos', 'Estudos Bíblicos'); return false;"><i class="fas fa-book"></i> Estudos</a>
-            <a href="#loja" class="quick-nav-chip" onclick="openSectionModal('loja', 'NJ Store'); return false;"><i class="fas fa-store"></i> Loja</a>
-            <a href="#dizimos" class="quick-nav-chip" onclick="openSectionModal('dizimos', 'Dízimos e Ofertas'); return false;"><i class="fas fa-hand-holding-heart"></i> Dízimos</a>
-            <a href="#oracao" class="quick-nav-chip" onclick="openSectionModal('oracao', 'Pedidos de Oração'); return false;"><i class="fas fa-pray"></i> Oração</a>
-            <a href="#inscricoes" class="quick-nav-chip" onclick="openSectionModal('inscricoes', 'Inscrições'); return false;"><i class="fas fa-clipboard-list"></i> Inscrições</a>
+        <!-- ===== APPS GRID - Cards grandes estilo app ===== -->
+        <div class="apps-grid">
+            <a href="#live" class="app-card live" onclick="scrollToSection('live'); return false;">
+                <div class="app-card-icon"><i class="fas fa-broadcast-tower"></i></div>
+                <div class="app-card-title">Ao Vivo</div>
+                <div class="app-card-subtitle">Assista o culto</div>
+                <i class="fas fa-arrow-right app-card-arrow"></i>
+                <span class="app-card-badge" id="liveAppBadge" style="display:none;">● LIVE</span>
+            </a>
+            <a href="#dizimos" class="app-card dizimos" onclick="openSectionModal('dizimos', 'Dízimos e Ofertas'); return false;">
+                <div class="app-card-icon"><i class="fas fa-hand-holding-heart"></i></div>
+                <div class="app-card-title">Dízimos</div>
+                <div class="app-card-subtitle">Contribua via PIX</div>
+                <i class="fas fa-arrow-right app-card-arrow"></i>
+            </a>
+            <a href="#oracao" class="app-card oracao" onclick="openSectionModal('oracao', 'Pedidos de Oração'); return false;">
+                <div class="app-card-icon"><i class="fas fa-pray"></i></div>
+                <div class="app-card-title">Oração</div>
+                <div class="app-card-subtitle">Peça oração</div>
+                <i class="fas fa-arrow-right app-card-arrow"></i>
+            </a>
+            <a href="#eventos" class="app-card eventos" onclick="openSectionModal('eventos', 'Próximos Eventos'); return false;">
+                <div class="app-card-icon"><i class="fas fa-calendar"></i></div>
+                <div class="app-card-title">Eventos</div>
+                <div class="app-card-subtitle">Agenda da igreja</div>
+                <i class="fas fa-arrow-right app-card-arrow"></i>
+            </a>
+            <a href="#estudos" class="app-card estudos" onclick="openSectionModal('estudos', 'Estudos Bíblicos'); return false;">
+                <div class="app-card-icon"><i class="fas fa-book"></i></div>
+                <div class="app-card-title">Estudos</div>
+                <div class="app-card-subtitle">Materiais bíblicos</div>
+                <i class="fas fa-arrow-right app-card-arrow"></i>
+            </a>
+            <a href="javascript:void(0)" class="app-card biblia" onclick="openBiblePage(); return false;">
+                <div class="app-card-icon"><i class="fas fa-bible"></i></div>
+                <div class="app-card-title">Bíblia</div>
+                <div class="app-card-subtitle">4 versões</div>
+                <i class="fas fa-arrow-right app-card-arrow"></i>
+            </a>
+            <a href="#loja" class="app-card loja" onclick="openSectionModal('loja', 'NJ Store'); return false;">
+                <div class="app-card-icon"><i class="fas fa-bag-shopping"></i></div>
+                <div class="app-card-title">NJ Store</div>
+                <div class="app-card-subtitle">Produtos</div>
+                <i class="fas fa-arrow-right app-card-arrow"></i>
+            </a>
+            <a href="#celulas" class="app-card celulas" onclick="openSectionModal('celulas', 'Nossas Células'); return false;">
+                <div class="app-card-icon"><i class="fas fa-users"></i></div>
+                <div class="app-card-title">Células</div>
+                <div class="app-card-subtitle">Encontre uma</div>
+                <i class="fas fa-arrow-right app-card-arrow"></i>
+            </a>
+            <a href="#inscricoes" class="app-card inscricoes" onclick="openSectionModal('inscricoes', 'Inscrições'); return false;">
+                <div class="app-card-icon"><i class="fas fa-clipboard-list"></i></div>
+                <div class="app-card-title">Inscrições</div>
+                <div class="app-card-subtitle">Batismo, eventos</div>
+                <i class="fas fa-arrow-right app-card-arrow"></i>
+            </a>
+            <a href="#reflexoes" class="app-card reflexoes" onclick="openSectionModal('reflexoes', 'Reflexões'); return false;">
+                <div class="app-card-icon"><i class="fas fa-video"></i></div>
+                <div class="app-card-title">Reflexões</div>
+                <div class="app-card-subtitle">Palavra do pastor</div>
+                <i class="fas fa-arrow-right app-card-arrow"></i>
+            </a>
+            <a href="#aniversariantes" class="app-card aniversarios" onclick="openSectionModal('aniversariantes', 'Aniversariantes'); return false;">
+                <div class="app-card-icon"><i class="fas fa-birthday-cake"></i></div>
+                <div class="app-card-title">Aniversários</div>
+                <div class="app-card-subtitle">Do mês</div>
+                <i class="fas fa-arrow-right app-card-arrow"></i>
+            </a>
+            <a href="#horarios" class="app-card horarios" onclick="openSectionModal('horarios', 'Horários dos Cultos'); return false;">
+                <div class="app-card-icon"><i class="fas fa-clock"></i></div>
+                <div class="app-card-title">Horários</div>
+                <div class="app-card-subtitle">Cultos da semana</div>
+                <i class="fas fa-arrow-right app-card-arrow"></i>
+            </a>
+            <a href="#sobre" class="app-card sobre" onclick="openSectionModal('sobre', 'Sobre Nós'); return false;">
+                <div class="app-card-icon"><i class="fas fa-info-circle"></i></div>
+                <div class="app-card-title">Sobre Nós</div>
+                <div class="app-card-subtitle">Quem somos</div>
+                <i class="fas fa-arrow-right app-card-arrow"></i>
+            </a>
+            <a href="javascript:void(0)" class="app-card contato" onclick="scrollToSection('endereco'); return false;">
+                <div class="app-card-icon"><i class="fas fa-map-marked-alt"></i></div>
+                <div class="app-card-title">Contato</div>
+                <div class="app-card-subtitle">Endereço e mapa</div>
+                <i class="fas fa-arrow-right app-card-arrow"></i>
+            </a>
         </div>
 
         <section id="sobre" class="section">
@@ -3408,7 +3647,7 @@
             <div id="registrationResult" style="display:none; margin-top:.8rem;" class="text-center mt-1"></div>
         </section>
 
-        <div class="section">
+        <div class="section" id="endereco">
             <div class="address-section">
                 <div class="address-card" onclick="openMaps()">
                     <div class="address-icon">📍</div>
@@ -5158,6 +5397,9 @@
                     document.getElementById('heroLiveBadge').style.display = 'flex';
                     document.getElementById('liveNavBtn').style.display = 'inline-flex';
                     document.getElementById('liveNavBtn2').style.display = 'inline-flex';
+                    // Mostra badge "LIVE" no card Ao Vivo
+                    const liveAppBadge = document.getElementById('liveAppBadge');
+                    if (liveAppBadge) liveAppBadge.style.display = 'block';
 
                     document.getElementById('liveTitleDisplay').textContent = data.titulo || 'Live NJ Cabuçu';
                     document.getElementById('liveDescDisplay').textContent = data.descricao || '';
@@ -5210,6 +5452,9 @@
                     document.getElementById('heroLiveBadge').style.display = 'none';
                     document.getElementById('liveNavBtn').style.display = 'none';
                     document.getElementById('liveNavBtn2').style.display = 'none';
+                    // Esconde badge "LIVE" no card Ao Vivo
+                    const liveAppBadgeOff = document.getElementById('liveAppBadge');
+                    if (liveAppBadgeOff) liveAppBadgeOff.style.display = 'none';
 
                     if (liveIntervalCheck) {
                         clearInterval(liveIntervalCheck);
